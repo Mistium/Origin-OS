@@ -1,0 +1,76 @@
+{
+  "digital storage": {
+    "terabytes": "8000000000000",
+    "tebibits": "1099500000000",
+    "terabits": "1000000000000",
+    "gibibytes": "8589900000",
+    "gigabytes": "8000000000",
+    "gibibits": "1073700000",
+    "gigabits": "1000000000",
+    "mebibytes": "8388608",
+    "megabytes": "8000000",
+    "mebibits": "1048576",
+    "megabits": "1000000",
+    "kibibytes": "8192",
+    "kilobytes": "8000",
+    "kibibits": "1024",
+    "kilobits": "1000",
+    "bytes": "8",
+    "nibbles": "4",
+    "bits": "1"
+  },
+  "length": {
+    "miles": "160934.4",
+    "nautical miles": "185200",
+    "kilometers": "100000",
+    "meters": "100",
+    "yards": "91.44",
+    "feet": "30.48",
+    "decimeters": "10",
+    "inches": "2.54",
+    "centimeters": "1",
+    "millimeters": "0.1",
+    "microns": "0.0001",
+    "nanometers": "0.0000001"
+  },
+  "power": {
+    "exawatts": "1000000000000000000",
+    "petawatts": "1000000000000000",
+    "terawatts": "1000000000000",
+    "gigawatts": "1000000000",
+    "megawatts": "1000000",
+    "kilowatts": "1000",
+    "horsepower": "745.699872",
+    "watts": "1"
+  },
+  "resistance": {
+    "megaohm": "1000000",
+    "kiloohm": "1000",
+    "ohm": "1",
+    "milliohm": "0.001",
+    "microohm": "0.000001"
+  },
+  "force": {
+    "metric tonne-force": "9806.65",
+    "kip-force": "4448.22162",
+    "kilonewton": "1000",
+    "kilogram-force": "9.80665",
+    "pound-force": "4.44822162",
+    "newton": "1",
+    "ounce-force": "0.27801385",
+    "gram-force": "0.00980665",
+    "dyne": "0.00001"
+  },
+  "angle": {
+    "revolutions": "360",
+    "radians": "57.2957795",
+    "degrees": "1",
+    "gradians": "0.9",
+    "arc minutes": "0.01666667",
+    "milliradians": "0.05729578",
+    "arc seconds": "0.00027778",
+    "microradians": "0.0000573",
+    "milliarcseconds":"0.00000027778",
+    "microarcseconds":"0.00000000027778"
+  }
+}
