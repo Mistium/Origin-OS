@@ -1,4 +1,4 @@
 title "Test"
 loc 999 2 0 -50
 c #333
-square frame_width 30
+square frame_width - 20 30 10 1
