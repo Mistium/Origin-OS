@@ -4,5 +4,5 @@ title "originOS"
 loc 2 2 20 -20
 text "Click Here For hello.txt" 10
 if clicked (
-current_tab = "origin.web/hello.txt"
+current_tab = "owtp:/origin.web/hello.txt"
 )
