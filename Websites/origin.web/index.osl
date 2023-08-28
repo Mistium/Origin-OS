@@ -3,4 +3,4 @@ title "originOS"
 )
 loc 2 2 20 -20
 text "Click Here" 10
-if clicked "link origin.com/hello.txt"
+if clicked "link origin.web/hello.txt"
