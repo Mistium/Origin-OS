@@ -1,0 +1,13 @@
+goto x y
+change_x x
+change_y y
+change x y
+
+-------------------------------------------
+
+loc a b c d
+
+loc is equivalent to (
+goto frame_width * -1 / a frame_height / b
+change c d
+)
