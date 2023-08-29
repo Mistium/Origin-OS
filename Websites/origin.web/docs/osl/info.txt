@@ -1,3 +1,75 @@
 OSL draws user interface objects at the "draw cursor" (an x/y value)
 
 This allows the user to place objects at any position.
+
+-------------------------------------------
+
+Default OSL Variables
+
+-------------------------------------------
+
+wincreatetime = the time when the window was created
+
+mouse_x = the x_position of the mouse in relation to the window
+mouse_y = the y_position of the mouse in relation to the window
+
+window_shown = whether the background of the window is shown
+window_resizable = whether tha window can be resized by the user
+window_focused = whether the current window is the application that the user is using
+window_colour = the background colour of the current window
+window_width = The width in pixels of the current window
+window_height = The height in pixels of the current window
+window_name = the name of the current window
+window_id = the id of the current window
+passed_data = the data that was passed onto the current application by it's parent application
+
+accent_colour = the current application's accent colour
+parent = the window_id of the current application's parent application
+parent_file = a json array of the current application's parent application
+parent_file_id = the file id of the current application's parent application's file
+
+my_desktop = The desktop of the current window
+current_file = the file id of the current .app file
+file_dropped = the file id of the last file that was drag and dropped onto the window
+
+-------------------------------------------
+
+Global OSL Variables
+
+-------------------------------------------
+
+null = an empty variable
+user_id = The id of the logged in user
+username = the username of the logged in user
+days = a json array of the days of the week and months
+mouse_down = whether the left mouse is pressed
+mouse_right = whether the right mouse is pressed
+timer = the seconds since origin was booted
+timestamp = the current unicode timestamp
+timezone = your timezone
+system_accent = the default application accent colour
+focused_application = the window id of the application that the user is using
+hour = the current hour
+minute = the current minute
+second = the current second
+day = the current day
+day_number = the current day's number in the month
+month = the current month
+month_number = the current month's number in the year
+year = the current year
+owp_id = the user's network id
+newline = the newline character (\n)
+cursor = the current cursor's state
+origin = os info
+battery-charging = whether the computer is plugged in
+battery-percent = the percent full of the computer's battery
+battery-time-untill-full = how long it will take to fully charge the battery
+battery-time-untill-empty = how long it will take to empty the battery
+ports = the currently used ports and what applications are using them
+fps = the current frames per second
+delta_time = the seconds since the last frame
+internet_connection = whether the computer is connected to the internet
+screensize_x = the width of the screen
+screensize_y = the height of the screen
+sys_info = system information
+current_desktop = the selected desktop of the user
