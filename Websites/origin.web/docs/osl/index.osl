@@ -1,0 +1,27 @@
+current_tab_name = "OSL Docs"
+page_length = 300
+loc 2 2 20 -20
+text "OSL Documentation" 10
+loc 2 2 20 -50
+text "OSL Info" 10
+
+loc 2 2 20 -90
+text "Defining Subroutines/Functions" 10
+loc 2 2 20 -120
+text "Setting Variables" 10
+loc 2 2 20 -150
+text "Moving The Draw Cursor" 10
+loc 2 2 20 -180
+text "Drawing Ui" 10
+loc 2 2 20 -210
+text "File handling" 10
+loc 2 2 20 -240
+text "Loops and Selection" 10
+loc 2 2 20 -270
+text "Window Management" 10
+loc 2 2 20 -300
+text "Inputs and Outputs" 10
+loc 2 2 20 -330
+text "Handling commands" 10
+loc 2 2 20 -360
+text "Configuration and permissions" 10
