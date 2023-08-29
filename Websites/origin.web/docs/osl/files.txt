@@ -41,4 +41,4 @@ Adds the passed json of a file to the downloads folder of the logged in user
 file "get" data-id - gets a file entry
 file "set" data-id - sets a file entry
 
-rightclick "file/text/window/tab" "file-id/text/window-id/tab-data"
+rightclick "file/text/window" "file-id/text/window-id"
