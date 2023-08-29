@@ -15,3 +15,9 @@ allows or stops the user from resizing the app window
 
 window "stop"
 ends the window's process
+
+movefileloc "path"
+
+this command sets the folder path that files are moved
+to when they are drag and dropped onto the 
+application window
