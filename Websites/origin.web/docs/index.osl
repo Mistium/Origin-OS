@@ -5,7 +5,7 @@ text "Documentation" 10
 loc 2 2 20 -80
 text "Origin Scripting Language (.OSL)" 10
 if clicked (
-current_tab = "owtp:/origin.web/docs/osl.osl"
+current_tab = "owtp:/origin.web/docs/osl/index.osl"
 )
 loc 2 2 20 -110
 text "Icon Scripting Language (.ICN)" 10
