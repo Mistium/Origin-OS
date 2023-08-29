@@ -1,0 +1,15 @@
+input width height id rounding txt_colour
+draws an input that can be written in by the user
+
+toggle id size
+draws a toggle switch
+
+slider width height id
+draws a slider
+
+bar width height rounding percent(0-1)
+draws a progress bar
+
+input_id = set-data
+
+say data - pops up a javascript box saying the text you entered
