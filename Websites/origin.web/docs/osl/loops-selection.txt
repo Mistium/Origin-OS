@@ -21,3 +21,10 @@ until condition "thing to do"
 loop number "thing to do"
 
 while condition "thing to do"
+
+import "file_path"
+import "file_name" "file_type"
+The "import" command runs another osl file's data.
+
+run ["osl-json"]
+The "run" command loops through a json array and runs the commands inside
