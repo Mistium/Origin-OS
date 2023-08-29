@@ -1,6 +1,4 @@
-if setup (
-title "originOS"
-)
+current_tab_name = "originOS"
 loc 2 2 20 -20
 text "Click Here For hello.txt" 10
 if clicked (
