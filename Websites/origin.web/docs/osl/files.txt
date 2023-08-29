@@ -28,6 +28,9 @@ Sets the "data" variable to the data value of the open file
 file "exists" file-path
 returns a boolean of if a file exists/is-accessable by the current program
 
+file "start"
+runs/opens the current file in it's default application
+
 file "render" size
 renders the currently open file
 You can add "interactable" on the end of this command to render it as a file instead of as an icon
