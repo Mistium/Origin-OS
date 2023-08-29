@@ -1,6 +1,17 @@
 current_tab_name = "originOS"
+c #111
+loc 999 2 0 -20
+square frame_width 20 10 1
+c #fff
 loc 2 2 20 -20
-text "Click Here For hello.txt" 10
+x = x_position
+y = y_position
+text "originOS" 10
+goto x y - 40
+text "Index" 10
+
+goto x y - 80
+text "Documentations" 10
 if clicked (
-current_tab = "owtp:/origin.web/hello.txt"
+current_tab = "owtp:/origin.web/docs/index.osl"
 )
