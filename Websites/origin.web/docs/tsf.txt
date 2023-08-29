@@ -1,0 +1,48 @@
+.tsf files function like turtle
+
+> Examples
+
+Drawing an octagon
+penup setpensize 3 forward 5 setheading 180 forward -2.5 pendown 8 times [ forward 5 right 45 ]
+
+Drawing a square
+penup setpensize 3 setheading 90 forward 2.5 left 90 forward 2.5 4 times [ left 90 forward 5 ]
+
+> Commands
+
+pu
+penup
+Lifts the pen to prevent anything being drawn while the turtle moves
+
+pd
+pendown
+Places the pen down to start drwing the path that the turtle moves
+
+#movement
+
+fd int
+forward int
+moves the turtle forward "int" units
+
+h
+home
+sets the turtle back to it's starting position
+
+#angles
+
+seth
+setheading angle
+points the turtle in the direction: "angle"
+
+lt degrees
+left degrees
+turns left by "degrees"
+
+rt degrees
+right degrees
+turns right by "degrees"
+
+#loops
+
+int times [ actions ]
+runs "actions" "int" times then moves onto the next action
