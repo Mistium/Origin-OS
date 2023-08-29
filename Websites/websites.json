@@ -1,4 +1,4 @@
 {
-  "test.web": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web",
-  "origin.web": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/origin.web"
+  "test.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"},
+  "origin.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/origin.web"}
 }
