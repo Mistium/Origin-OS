@@ -2,26 +2,59 @@ current_tab_name = "OSL Docs"
 page_length = 300
 loc 2 2 20 -20
 text "OSL Documentation" 10
-loc 2 2 20 -50
+loc 2 2 20 -55
 text "OSL Info" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/info.txt"
+)
 
 loc 2 2 20 -90
 text "Defining Subroutines/Functions" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/subroutines.txt"
+)
 loc 2 2 20 -120
 text "Setting Variables" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/variables.txt"
+)
 loc 2 2 20 -150
 text "Moving The Draw Cursor" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/moving-cursor.txt"
+)
 loc 2 2 20 -180
 text "Drawing Ui" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/ui.txt"
+)
 loc 2 2 20 -210
 text "File handling" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/files.txt"
+)
 loc 2 2 20 -240
 text "Loops and Selection" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/loops-selection.txt"
+)
 loc 2 2 20 -270
 text "Window Management" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/window.txt"
+)
 loc 2 2 20 -300
 text "Inputs and Outputs" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/inputs.txt"
+)
 loc 2 2 20 -330
 text "Handling commands" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/handling.txt"
+)
 loc 2 2 20 -360
 text "Configuration and permissions" 10
+if clicked (
+current_tab = "owtp:/origin.web/docs/osl/config-perms.txt"
+)
