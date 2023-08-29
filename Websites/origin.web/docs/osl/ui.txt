@@ -1,0 +1,26 @@
+colour #hexadecimal-code
+sets the current colour of any subsequent ui
+
+square width height outline-width filled? invisible?
+draws a rectangle centered on the draw cursor
+
+icon "icon-name"/"raw-icon-data" size
+draws an icon centered on the draw cursor
+
+Icons are pulled from files. Use the file name 
+of a icon on the computer to render it.
+
+text "text-to-draw" size
+Renders text at the draw cursor with a size
+
+-------------------------------------------
+
+Pen
+
+The pen draws a line behind the draw cursor
+
+pen "down"/"up"
+lifts or lowers the pen
+
+pen "size" pen-size
+sets the size of the pen
