@@ -1,0 +1,17 @@
+window "x" x
+sets the window's x_positon to a value
+
+window "y" y
+sets the window's y_position to a value
+
+window "dimensions" width height
+sets the window's width and height
+
+window "show"/"hide"
+shows or hides the bg of the window
+
+window "resizable" "true/false"
+allows or stops the user from resizing the app window
+
+window "stop"
+ends the window's process
