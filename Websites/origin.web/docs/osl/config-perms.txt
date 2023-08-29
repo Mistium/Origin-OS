@@ -1,0 +1,15 @@
+permissions "request" permission-name
+asks the user for a permission
+
+permissions "get" 
+returns the current application's perms
+
+permissions "give" permission-name application-name
+Allows the current application to give another application a permission
+(requires the "permission editor" permission) 
+
+config key-name assign-data
+sets the key "key-name" to "assign-data" in the application's config.json file
+
+variable "config" is set to the application's config.json file
+var = config.key(key-name)
