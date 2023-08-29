@@ -1,0 +1,39 @@
+A file in originOS is a set of 13 items in a json array
+
+These items are labeled as
+["type","name","location","data","data2","data3","data4","id","created","edited","icon","size","permissions"]
+
+type - (.osl/.icn/.txt)
+name - string
+location - file path
+data - the main file data
+data2 - the secondary file data
+data3 - the tertiary file data
+data4 - the quaternary file data
+id - the file identifier
+created - a unicode timestamp when this file was created
+edited - a unicode timestamp when this file was last edited
+icon - the file's icon code (displayed when the file is rendered)
+size - this stores the size of this file and any files it contains
+permissions - this stores the permissions needed to access this file by any application
+
+file "open" file-path
+file "open" "id" file-id
+file "open" file-name file-id
+file "open" "myself"
+Opens the selected file to be modified
+Sets the "file" variable to the raw json of the current file
+Sets the "data" variable to the data value of the open file
+
+file "exists" file-path
+returns a boolean of if a file exists/is-accessable by the current program
+
+file "render" size
+renders the currently open file
+You can add "interactable" on the end of this command to render it as a file instead of as an icon
+
+file "add" complete-file-json
+Adds the passed json of a file to the downloads folder of the logged in user
+
+file "get" data-id - gets a file entry
+file "set" data-id - sets a file entry
