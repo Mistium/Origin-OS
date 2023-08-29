@@ -10,15 +10,15 @@ current_tab = "owtp:/origin.web/docs/osl/index.osl"
 loc 2 2 20 -110
 text "Icon Scripting Language (.ICN)" 10
 if clicked (
-current_tab = "owtp:/origin.web/docs/icn.osl"
+current_tab = "owtp:/origin.web/docs/icn/index.osl"
 )
 loc 2 2 20 -140
 text "Turtle Scripting Language (.TSF)" 10
 if clicked (
-current_tab = "owtp:/origin.web/docs/tsf.osl"
+current_tab = "owtp:/origin.web/docs/tsf.txt"
 )
 loc 2 2 20 -170
 text "3DIcn Scripting Language (.3DICN)" 10
 if clicked (
-current_tab = "owtp:/origin.web/docs/3dicn.osl"
+current_tab = "owtp:/origin.web/docs/3dicn.txt"
 )
