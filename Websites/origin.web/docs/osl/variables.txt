@@ -1,0 +1,8 @@
+variablename = "assign-data"
+sets a variable to the inputted data
+
+list.[itemnumber] = "assign-data"
+Sets the selected item of a list to the inputted data
+
+object.key("key") = "assign-data"
+Sets the selected key of a json object to the inputted data
