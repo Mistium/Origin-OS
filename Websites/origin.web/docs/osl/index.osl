@@ -3,7 +3,7 @@ page_length = 380
 loc 2 2 20 -20
 text "OSL Documentation" 10
 loc 2 2 20 -55
-text "OSL Info" 10
+text "OSL Info / Default Variables" 10
 if clicked (
 current_tab = "owtp:/origin.web/docs/osl/info.txt"
 )
