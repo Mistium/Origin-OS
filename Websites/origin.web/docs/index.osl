@@ -7,17 +7,17 @@ text "Origin Scripting Language (.OSL)" 10
 if clicked (
 current_tab = "owtp:/origin.web/docs/osl.osl"
 )
-loc 2 2 20 -100
+loc 2 2 20 -110
 text "Icon Scripting Language (.ICN)" 10
 if clicked (
 current_tab = "owtp:/origin.web/docs/icn.osl"
 )
-loc 2 2 20 -120
+loc 2 2 20 -140
 text "Turtle Scripting Language (.TSF)" 10
 if clicked (
 current_tab = "owtp:/origin.web/docs/tsf.osl"
 )
-loc 2 2 20 -100
+loc 2 2 20 -170
 text "3DIcn Scripting Language (.3DICN)" 10
 if clicked (
 current_tab = "owtp:/origin.web/docs/3dicn.osl"
