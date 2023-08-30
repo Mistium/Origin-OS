@@ -1,5 +1,5 @@
 loc 999 2 0 -30
-c #111
+c #222
 square frame_width 30 20 1
 loc 2 2 30 -30
 c #fff
