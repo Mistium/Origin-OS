@@ -1,0 +1,8 @@
+loc 999 2 0 -30
+c #111
+square frame_width 30 20 1
+loc 2 2 30 -30
+c #fff
+icon "search" 1
+change 20
+text "Search" 8
