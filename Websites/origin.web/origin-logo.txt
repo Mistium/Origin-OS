@@ -1,36 +1,25 @@
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                           .:=+**#####**+=-.                           
-                        :+#%%%#*++===+*#%%%#+-                        
-                      =#%%*=:            .-*%%%+.                     
-                    =%%#=.        ..::..        -#%%+                    
-                   *%%+      :=*%%%%%%%*=:      -#%#:                 
-                 .#%#:     -#%%*==-:...:-==*%%#=     .#%%-                 
-                 #%%:    *%%+.           .+%%#.    .#%%.                
-                -%%+    #%%-              :%%#    -%%*                
-                *%%:   -%%+                =%%+    #%%                
-                #%%    +%%-                :%%*    #%%                
-                *%%:   -%%+                -%%+    #%%                
-                =%%+   .#%#               :#%#.    :%%*                
-                 =%%:         ` =%=       =%%#:   .#%%.                
-                  #%#       =#%%+.......:=*%%#=     .#%%-                 
-                    :.     :#%%#%%%%%%%%#*-    -#%#:                  
-                        :*%%*.    ::--::.       -*%%*.                   
-                      .*%%*:             .-+#%%*:                     
-                     +#*:   -*++=====+*#%%%*-.                       
-                            :*##%%%%##*+-:                           
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-                                                                      
-
+MMMMMMMMMMMMWKko:,..           .':lx0NMMMMMMMMMMMM
+MMMMMMMMMNOo,.      ..........      .,lONMMMMMMMMM
+MMMMMMWKd,.    .;ldk0KXXNNNXK0Odl;.     'o0WMMMMMM
+MMMMMKo.    'lkXWMMMMMMMMMMMMMMMMWXOo,    .lKWMMMM
+MMMNx'   .;kNMMMMWX0kdollllodk0XWMMMMNOc.   .dNMMM
+MMXl.   ;OWMMMW0d;..          ..:d0WMMMW0:    :KMM
+MK:   .oXMMMNk:.    ..,;;;;,..    .:kNMMMNx.   ;0M
+Xc   .xWMMW0:    .cx0XWWWWWWX0xc.   .:0WMMWO'   ;K
+d.  .dWMMWk'   .oXWMMMMMMMMMMMMWKo.   'OWMMWk.   l
+'   :XMMMO'   ;0WMMMMMMMMMMMMMMMMW0,   '0MMMNl   .
+   .kMMMNc   '0MMMMMMMMMMMMMMMMMMMMO'   cNMMMO.   
+   '0MMM0'   lWMMMMMMMMMMMMMMMMMMMMNl   ,KMMMK,   
+   ,KMMMO.   dWMMMMMMMMMMMMMMMMMMMMWo   '0MMMX;   
+   .OMMMK,   cNMMMMMMMMMMMMMMMMMMMMX:   ;XMMM0'   
+.   oWMMWo.  .OMMMMMMMMMMMMMMMMMMMNd.  .dWMMWx.  .
+:   '0MMMXo,'lKMMMNNWMMMMMMMMMMMMXl.   lXMMMK;   ;
+O'   :KMMMMWNWMWKo,.:0MMMMMMMMW0o'   .lXMMMXc   .k
+Wx.  .dWMMMMMMXo.    ;xOOOOkdc,.    ;kWMMMXc   .dW
+MWOc;lKMMMMMXd'                  .ckNMMMWk,   .dWM
+MMMMWMMMMMNx,    ;l:,........,:okXWMMMWOc.   ,kWMM
+MMMMMMMMWO;    ,xNMMWNXKKKKXNWMMMMMWKx;.   .oXMMMM
+MMMMMMM0c.   'dXMMWMMMMMMMMMMMWNKOo:.    .l0WMMMMM
+MMMMMMWd.  .oXMMXo;:cloooooolc;'.     .;xXWMMMMMMM
+MMMMMMMXkoxKWMMMO.                .,cxKWMMMMMMMMMM
+MMMMMMMMMMMMMMMMNd,.          .':d0NMMMMMMMMMMMMMM
