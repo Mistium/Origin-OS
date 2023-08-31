@@ -1,4 +1,5 @@
 A file in originOS is a set of 13 items in a json array
+Files are what store and run data within the os and are very important
 
 These items are labeled as
 ["type","name","location","data","data2","data3","data4","id","created","edited","icon","size","permissions"]
