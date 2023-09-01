@@ -9,17 +9,29 @@ text "Search" 8
 
 c #222
 w = 700
-loc 999 999
+loc 999 999 0 50
 if frame_width - 100 < w (
 w = frame_width - 100
 )
 
-square w 0 40 1
+square w 10 40 1
 change 10
-input w - 60 30 "searchBar" "Search the Origin Network"
+input w - 40 30 "searchBar" "Search the Origin Network"
 
 c #fff
 w2 = w / -2
-loc 999 999 w2
-change 30 -15
-icon "search" 0.6
+loc 999 999 w2 50
+icon "search" 0.7
+x = w / 4 + 15
+-x = w / -4 - 15
+loc 999 999 x -30
+c #222
+loop 2 (
+square w / 2 - 20 50 30 1
+change_y -95
+)
+loc 999 999 -x -30
+loop 2 (
+square w / 2 - 20 50 30 1
+change_y -95
+)
