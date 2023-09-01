@@ -20,6 +20,6 @@ input w - 60 30 "searchBar" "Search the Origin Network"
 
 c #fff
 w2 = w / -2
-loc 999 999 w2 -40
-change 15
+loc 999 999 w2
+change 30 -15
 icon "search" 0.6
