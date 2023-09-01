@@ -8,6 +8,8 @@ change 20
 text "Search" 8
 
 w = 500
+loc 999 999
+c #333
 if w > frame_width + 20 (
 input 500 30 "searchBar"
 )
