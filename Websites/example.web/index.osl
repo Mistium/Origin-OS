@@ -1,0 +1,13 @@
+current_tab_name = "Example Website"
+loc 999 2 0 -20
+square frame_width 30 20 1 : c#222
+loc 2 2 20 -20
+text "This is an example website" 10 : c#fff
+
+loc 999 999
+square 200 40 10 1 : c#222
+if clicked (
+current_tab = "owtp:/example.web/resources/hello.txt"
+)
+loc 999 999 -40
+text "Hello" 10 : c#fff
