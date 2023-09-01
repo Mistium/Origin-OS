@@ -1,6 +1,12 @@
 colour #hexadecimal-code
 sets the current colour of any subsequent ui
 
+you can also end commands in:
+
+" : c#hexadecimal-code"
+
+to set sebsequent colours
+
 square width height outline-width filled? invisible?
 draws a rectangle centered on the draw cursor
 
