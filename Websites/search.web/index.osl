@@ -3,7 +3,7 @@ c #222
 square frame_width 30 20 1
 loc 2 2 30 -30
 c #fff
-icon "search" 1
+icon "search" 0.7
 change 20
 text "Search" 8
 
