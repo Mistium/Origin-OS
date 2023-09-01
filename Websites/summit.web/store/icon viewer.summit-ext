@@ -1,1 +1,0 @@
-{"run on page type":[".icn"],"Publisher":"M1stium","OSL Version":2}§if onload (§size = 1§)§loc 999 999 0 -20§c #fff§icon file_data.[4] 1 + size§loc -2 -2 -50 30§c #333§square 60 0 40§change_x -25§c #fff§icon "Add" 1§if clicked "size += 1"§change_x 50§icon "Minus" 1§if clicked "size -= 1"§loc 999 999 0 -20§if size < 1 "size = 1"
