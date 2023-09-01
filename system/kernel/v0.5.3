@@ -1,0 +1,32 @@
+window "responsive"
+terminal "-sys.getscreensize"
+save "info.json" "set" {"version":"0.5.1","type":"stable","name":"Dusk"}
+save "systeminfo.txt" "set" "OS Name: originOS" ++ newline ++ "OS Version:" ++ origin.key("version") ++ newline ++ "System Type: HTML" ++ newline ++ "Total Physical Memory: 10mb local"
+terminal "system display reset"
+import "ports-setup"
+import "Kernel-Setup-Global-Permissions"
+save "accounts.json" "get"
+if save-data == null (
+terminal "-accounts.clearall"
+terminal "account add Guest"
+terminal "-get.accounts"
+save "accounts.json" "set" accounts
+)
+window "dimensions" 1 1
+terminal "system windows add Login-Main"
+terminal "font.load Origin-Monowidth"
+window "hide"
+segments = ["Applications","Main","Time","Battery","Quick Settings"]
+global "segments"
+t = -10000
+setup = True
+mainloop:
+if username != "Not Logged In" and setup (
+import "Kernel-Setup-Permissions"
+import "Origin-Default-Theme"
+setup = False
+)
+import "Origin/(A) System/Kernel And Setup/time_handler.osl"
+cursor "Default"
+goto 0 0
+terminal "-render.wallpaper"
