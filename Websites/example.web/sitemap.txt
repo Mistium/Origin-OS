@@ -1,0 +1,3 @@
+/sitemap.txt
+/index.osl
+/resources/hello.txt
