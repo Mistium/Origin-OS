@@ -10,7 +10,7 @@ text "Search" 8
 w = 700
 loc 999 999
 c #222
-if frame_width + 20 < w (
+if frame_width - 100 < w (
 w = frame_width - 100
 )
 square w 0 40 1
