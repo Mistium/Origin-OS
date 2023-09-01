@@ -1,0 +1,22 @@
+/index.osl
+/docs/index.osl
+/docs/osl/index.osl
+
+/so I'm a spider titles.json
+/screenshot.abi
+/origin-logo.txt
+/hello.txt
+
+/docs/icn.txt
+/docs/tsf.txt
+
+/docs/osl/info.txt
+/docs/osl/config-perms.txt
+/docs/osl/files.txt
+/docs/osl/inputs.txt
+/docs/osl/loops-selection.txt
+/docs/osl/moving-cursor.txt
+/docs/osl/subroutines.txt
+/docs/osl/ui.txt
+/docs/osl/variables.txt
+/docs/osl/window.txt
