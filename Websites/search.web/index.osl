@@ -14,7 +14,8 @@ if frame_width - 100 < w (
 w = frame_width - 100
 )
 
-
+square w 0 40 1
+change 10
 input w - 60 30 "searchBar" "Search the Origin Network"
 
 c #fff
