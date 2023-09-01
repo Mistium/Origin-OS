@@ -1,4 +1,7 @@
 {
   "test.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"},
+  "doom.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/doom.web"},
+  "search.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/search.web"},
+  "summit.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"},
   "origin.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/origin.web"}
 }
