@@ -1,12 +1,1 @@
-if onload (
-current_tab_name = "Summit Web Store"
-store_data = "owtp:/summit.web/store/extensions.json".get()
-store_keys = store_data.getall("keys")
-store_values = store_data.getall("values")
-)
-
-count = 0
-loop store_data.len (
-count += 1
-loc 999 2 -20 
-)
+current_tab_name = "Summit"
