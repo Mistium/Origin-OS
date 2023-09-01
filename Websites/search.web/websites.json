@@ -1,5 +1,1 @@
-[
-  "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites"
-  ]
-  
-  
+{"get":"https://api.github.com/repos/mistium/Origin-OS/contents/Websites"
