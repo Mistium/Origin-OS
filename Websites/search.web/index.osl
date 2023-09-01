@@ -15,6 +15,7 @@ w = frame_width - 100
 )
 square w 0 40 1
 change 15
-input w - 30 30 "searchBar" "Search the Origin Network"
+input w - 60 30 "searchBar" "Search the Origin Network"
 loc 999 999 w / -2 + 15
+c #fff
 icon "search" 0.6
