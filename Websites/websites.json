@@ -1,7 +1,30 @@
 {
-  "test.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"},
-  "doom.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/doom.web"},
-  "search.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/search.web"},
-  "summit.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"},
-  "origin.web": {"url":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/origin.web"}
+  "test.web": {
+    "baseurl": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"
+  },
+  "doom.web": {
+    "baseurl": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/doom.web",
+    "tags": [
+      "games",
+      "gaming",
+      "doom"
+    ]
+  },
+  "search.web": {
+    "baseurl": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/search.web",
+    "tags": [
+      "search engine"
+    ]
+  },
+  "summit.web": {
+    "baseurl": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/test.web"
+  },
+  "origin.web": {
+    "baseurl": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/origin.web",
+    "tags": [
+      "originOS",
+      "OSl Documentation",
+      "OSL Docs"
+    ]
+  }
 }
