@@ -7,6 +7,8 @@
 /origin-logo.txt
 /hello.txt
 
+/fonts/monowidth.font
+
 /docs/icn.txt
 /docs/tsf.txt
 
