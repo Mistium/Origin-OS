@@ -1,0 +1,26 @@
+.append("string")
+["hi"].append("goodbye")
+outputs ["hi","goodbye"]
+
+adds the inputted string to the selected array
+
+.index("string")
+["hi","goodbye"].index("hi")
+outputs 1
+
+.delete(int)
+removes an item from a list
+
+.item(int) / .[int]
+gets the item at "int" of the selected array
+
+.contains("string")
+returns whether the selected array contains a string
+
+.join("string")
+["hello","how are you"].join(", ") 
+outputs "hello, how are you"
+
+.split("string")
+"hello, how are you".split(" ") 
+outputs ["hello,","how","are","you"]
