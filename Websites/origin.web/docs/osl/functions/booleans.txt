@@ -1,0 +1,22 @@
+.not
+flips a boolean
+
+.isnumber
+.istext
+.isbool
+depreciated
+
+.istype("string"/"integer"/"boolean"/object"/"array")
+returns if the inputted data is a specific type
+
+.is(input)
+like a double equals sign
+
+.defined
+outputs whether the variable name inputted has any data
+
+.pressed
+checks if a key is pressed
+
+.released
+(.pressed.not)
