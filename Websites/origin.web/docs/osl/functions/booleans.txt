@@ -6,6 +6,9 @@ flips a boolean
 .isbool
 depreciated
 
+.contains("string")
+returns whether the input contains a string
+
 .istype("string"/"integer"/"boolean"/object"/"array")
 returns if the inputted data is a specific type
 
