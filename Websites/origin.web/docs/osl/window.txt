@@ -13,6 +13,12 @@ shows or hides the bg of the window
 window "resizable" "true/false"
 allows or stops the user from resizing the app window
 
+window "responsive"
+disables window caching. This allows the window to 
+update when not focused however will impact performance 
+for the whole system. Only use this if you really need 
+to refresh your app when not in use.
+
 window "stop"
 ends the window's process
 
