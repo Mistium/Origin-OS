@@ -1,0 +1,25 @@
+.abs
+returns the absolute of any input
+
+.sin
+.cos
+.tan
+trigonometry functions
+
+.clamp(number-low,number-high)
+clamps the input between number-low and number-high
+
+.round
+rounds a number
+
+.ceiling
+rounds a number up
+
+.floor
+rounds a number down
+
+.multiply(int)
+.divide(int)
+.add(int)
+.minus(int)
+eg 5.multiply(2) returns 10
