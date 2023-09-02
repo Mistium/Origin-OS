@@ -9,3 +9,16 @@ returns "2023-05-11 18:20:24"
 
 "2023-05-11 18:20:24".timestamp("convert-timestamp") 
 returns 1683825624878
+
+
+Global Time Variables
+
+timestamp - current timestamp
+year - current year
+month - current month
+month_number - current month of the year
+day - current day
+day_number - current day of the month
+hour - current hour
+minute - current minute
+second - current second
