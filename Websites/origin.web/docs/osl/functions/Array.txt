@@ -14,9 +14,6 @@ removes an item from a list
 .item(int) / .[int]
 gets the item at "int" of the selected array
 
-.contains("string")
-returns whether the selected array contains a string
-
 .join("string")
 ["hello","how are you"].join(", ") 
 outputs "hello, how are you"
