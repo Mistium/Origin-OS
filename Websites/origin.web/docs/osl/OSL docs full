@@ -1,0 +1,152 @@
+> Defining Subroutines/Functions
+def “name” “input1,input2,input3,input4” etc - opens a define command
+endef - closes the current define command
+Event "condition" - opens an event command
+Endevent - closes the current event
+
+> Setting Variables
+variablename = "assign-data"
+list.[itemnumber] = "assign-data"
+object.key("key") = "assign-data"
+
+> Moving The Draw Cursor
+goto x y
+change_x x
+change_y y
+change x y
+
+loc a b c d
+loc == (
+goto window_width * -1 / a window_width / b
+change c d
+)
+
+> Drawing Ui
+colour #hexadecimal-code
+
+square width height outline-width filled? invisible?
+icon "icon-name"/"raw-icon-data" size
+text "text-to-draw" size 
+
+pen "down"/"up"
+pen "size" pen-size
+
+> File handling
+file "open" file-path
+file "open" "id" file-id
+file "open" file-name file-id
+file "open" "myself"
+file "search" file-name file-type
+
+file "render" size "interactable" - renders the currently open file
+
+file "get" data-id - gets a file entry
+file "set" data-id - sets a file entry
+
+FileEntries = ["name","type","data","created","edited","x","y","icon","data2","size"]
+
+> Loops and Selection
+loop number-of-times (
+stuff to loop
+)
+
+if condition (
+stuff to do if condition == True
+)
+
+while condition (
+stuff to do
+)
+
+until condition (
+stuff to do
+)
+
+if condition "thing to do if condition == True"
+until condition "thing to do"
+loop number "thing to do"
+while condition "thing to do"
+
+> Window Management
+window "x" x - sets the window's x_positon to a value
+window "y" y - sets the window's y_position to a value
+window "dimensions" width height - sets the window's width and height
+window "show"/"hide" - shows or hides the bg of the window
+window "stop" - ends the window's process
+
+> Inputs and Outputs
+input width height id rounding txt_colour - draws an input that can be written in by the user
+toggle id size - draws a toggle switch
+slider width size id - draws a slider
+input_id = set-data
+
+say data - pops up a javascript box saying the text you entered
+
+> Handling commands
+random(num1,num2) - returns a random number between number-low and number-high
+ask(question) - will use a javascript pop up to ask the user whatever input you give
+confirm(question) - similar to ask() but you give the user a yes/no and outputs a True/False
+
+> Configuration and permissions
+permissions "request" permission-name
+permissions "get" - returns the application's perms
+
+config key-name assign-data
+variable "config" is set to the json object created when using the config system
+var = config.key(key-name)
+
+> Save data
+path-example = "folder/foldertwo/test.osl"
+save path "set" assign-data
+save path "get" - sets "save-data" to the data of the passed file
+
+> String and List Functions
+.contains(string) checks if the input contains a string
+.item(id) - returns letter(id) of a string and item(id) of a list/array
+.[id] - same as .item()
+.len - returns length of input
+.append(string) - Adds a string to the end of the input
+
+> String Functions
+.left(int) - eg "hello".left(2) would return "he"
+.right(int) - same as .left() but from the right
+.count(string) - returns the number of times a string string appears in the input
+.regex(regular expression) - returns a list of matches to a regex
+
+> List Functions
+.delete(int) - removes an item from a list
+.join(string) - ["hello","how are you"].join(", ") outputs "hello, how are you"
+.split(string) - "hello, how are you".split(" ") outputs ["hello,","how","are","you"]
+
+> Number Functions
+.abs - returns the absolute of any input
+.sin
+.cos
+.tan
+.clamp(number-low,number-high) - clamps the input between number-low and number-high
+.round
+.multiply(int) - eg 5.multiply(2) returns 10
+.divide(int)
+.add(int)
+.minus(int)
+
+> Boolean Functions
+.not - flips a boolean
+.isnumber
+.istext
+.isbool
+.istype("string"/"integer"/"boolean"/object"/"array")
+.is(input) - like a double equals sign
+.defined - outputs whether the variable name inputted has any data
+.pressed - checks if a key is pressed
+.released - (.pressed.not)
+
+> Timestamp Functions
+.timestamp(input)
+
+1683825624878\.timestamp("second") returns 24
+1683825624878\.timestamp("convert-date") returns "2023-05-11 18:20:24"
+"2023-05-11 18:20:24".timestamp("convert-timestamp") returns 1683825624878
+
+Inputs you can give:
+Year Month Day Hour Minute Secondj
