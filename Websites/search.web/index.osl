@@ -3,6 +3,7 @@ c #222
 square frame_width 30 20 1
 loc 2 2 30 -30
 c #fff
+current_tab_name = {"title":"Search","icon":"search"}
 icon "search" 0.7
 change 20
 text "Search" 8
