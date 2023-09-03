@@ -1,0 +1,94 @@
+terminal "system windows add Desktop_Files"
+window "front"
+save "desktops.json" "get"
+if save-data == null (
+    save-data = ["Desktop 1","Desktop 2","Desktop 3"]
+    save "desktops.json" "set" save-data
+)
+desktops = save-data
+current_desktop = save-data.[1]
+desktop_menu = False
+toggle = True
+switchdesktop = 0
+desktop_id = 1
+global "current_desktop"
+mainloop:
+if "up arrow".released and "left arrow".released and "right arrow".released (
+    toggle = True
+)
+command = "shift".pressed and toggle
+    if command and "right arrow".pressed and ( desktop_id < desktops.len ) (
+        desktop_id += 1
+        switchdesktop = desktops.[desktop_id]
+        toggle = False
+    )
+    if command and "left arrow".pressed and ( desktop_id > 1 ) (
+        desktop_id -= 1
+        switchdesktop = desktops.[desktop_id]
+        toggle = False
+    )
+    if command and "up arrow".pressed (
+        desktop_menu = desktop_menu.not
+        toggle = False
+    )
+if desktop_menu (
+    window "dimensions" screensize_x screensize_y
+    save "desktops.json" "get"
+    desktops = save-data
+    bg_width = desktops.len * 140
+    if bg_width > 840 "bg_width = 840"
+    bg_height = desktops.len.divide(6).ceiling * 90 + 30
+    goto 0 0
+    colour accent_colour
+    square bg_width bg_height 25
+    colour #000
+    square bg_width bg_height 20 1
+    if clicked.not and mouse_down "desktop_menu = False"
+    goto bg_width / -2 bg_height / 2
+    colour #fff
+    text "Desktops" 7
+    if desktops.len < 30 (
+        goto bg_width / 2 - 3 bg_height / 2
+        icon "Add" 0.6
+        add = "abcdefghijklmnopqrstuvwxyz".hash(8)
+        if mouse_down.not (
+            toggle_add = True
+            toggle_close = True
+        )
+        if clicked and toggle_add (
+            desktops = desktops.append(add)
+            toggle_add = False
+        )
+    )
+)
+if desktop_menu (
+    x = 70
+    y = 70
+    c = 0
+    loop desktops.len (
+        c += 1
+        desktop_name = "Desktop" + c
+        goto bg_width / -2 + x bg_height / 2 - y
+        colour accent_colour
+        if current_desktop == desktops.[c] "square 120 70 15"
+        colour #202020
+        square 120 70 10 1
+        if clicked "switchdesktop = desktops.[c]"
+        if clicked "desktop_id = c"
+        colour #fff
+        change 50 25
+        if desktops.len > 1 and mouse_touching "icon "close" 0.6"
+        if desktops.len > 1 and clicked and toggle_close "desktops = desktops.delete(c)"
+        change -100 -50
+        text desktop_name 7
+        x += 140
+        if x > 840 "y += 90"
+        if x > 840 "x = 70"
+    )
+    save "desktops.json" "set" desktops
+)
+if switchdesktop != 0 and mouse_down.not (
+    current_desktop = switchdesktop
+    switchdesktop = 0
+    global "current_desktop"
+)
