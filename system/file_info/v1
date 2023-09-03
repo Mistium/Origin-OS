@@ -1,0 +1,46 @@
+window "resizable" False
+permission "get"
+reboot = False
+if permissions.contains("File Admin").not (
+permission "request" "File Admin"
+reboot = True
+)
+window "show"
+window "resize" False
+file "open" "id" passed_data
+mainloop:
+if reboot == True (
+permission "get"
+if permissions.contains("File Admin") (
+file "open" "id" passed_data
+reboot = False
+)
+)
+window "dimensions" 400 400
+loc 2 2 60 -60
+colour #ffffff
+file "get" "name"
+text data 8
+loc 2 2 10 -20
+text "Info" 10
+file "get" "icon"
+loc 2 2 30 -60
+file "render" 2 "interactable"
+colour #ffffff
+loc 2 2 10 -120
+file "get" "size"
+text "Size:" + data.append("b") 7
+loc 2 2 10 -140
+file "get" "created"
+text "Created:" + data.timestamp("convert-date") 7
+loc 2 2 10 -160
+file "get" "edited"
+text "Edited:" + data.timestamp("convert-date") 7
+loc 2 2 10 -180
+text "Location:" + file.[3] 7
+loc 2 2 10 -200
+text "Type:" + file.[1] 7
+loc 2 2 10 -240
+file "get" "permissions"
+text "Permissions Needed To View:" + newline ++ data.join(newline) 7
+import "win-buttons"
