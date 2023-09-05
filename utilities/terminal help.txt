@@ -1,0 +1,83 @@
+{
+  "system": {
+    "display": {
+      "reset": "Clears any screen modifications",
+      "get": [
+        "Sets the \"return\" variable to the selected of the values below",
+        "blur",
+        "contrast",
+        "saturation",
+        "color shift",
+        "brightness",
+        "invert",
+        "sepia",
+        "transparency",
+        "scale",
+        "skew X",
+        "skey Y",
+        "offset X",
+        "offset Y",
+        "rotation",
+        "border radius"
+      ],
+      "set": [
+        "Sets one of the values below",
+        "blur",
+        "contrast",
+        "saturation",
+        "color shift",
+        "brightness",
+        "invert",
+        "sepia",
+        "transparency",
+        "scale",
+        "skew X",
+        "skey Y",
+        "offset X",
+        "offset Y",
+        "rotation",
+        "border radius"
+      ]
+    },
+    "setaccent": "Sets the system accent colour",
+    "windows": {
+      "quit": "Tells a program to stop",
+      "close": "Forcefully stops a window's process",
+      "add": "Opens another window",
+      "set": {
+        "min-x": "Sets the minimum x position of the left of a window",
+        "max-x": "Sets the maximum x position of the right of a window",
+        "min-y": "Sets the minimum y position of the bottom of a window",
+        "max-y": "Sets the maximum y position of the top of a window"
+      },
+      "reset": {
+        "max/min": "Resets the window boundries"
+      }
+    },
+    "sound": {
+      "kill": "kills any sound that is playing",
+      "get": {
+        "volume": "Returns the system volume",
+        "pan": "Returns the left/right pan of the system"
+      },
+      "set": {
+        "volume": "Sets the system volume",
+        "pan": "Sets the left/right pan of the system"
+      }
+    },
+    "reboot": "Restarts the device"
+  },
+  "account": {
+    "details": "Returns details about the current logged in account",
+    "logout": "Logs you out and reboots the system",
+    "login": "Attempts to log you into another account on the device",
+    "delete": "Removes an account from originOS",
+    "add": "Adds an account to originOS"
+  },
+  "local": {
+    "getkey": "Returns the value of the designated key from local storage",
+    "namespace": "Sets the local storage namespace to the input value",
+    "delete": "Allows you to remove a key from local storage",
+    "clearall": "deletes all keys in the current namespace"
+  }
+}
