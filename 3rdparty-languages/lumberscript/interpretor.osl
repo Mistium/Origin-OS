@@ -1,4 +1,4 @@
-total_split = input.split(";").replace("'",".")
+total_split = input.split(";").replace(" ",".")
 
 count = 0
 loop total_split.len (
