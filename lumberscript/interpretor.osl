@@ -1,0 +1,30 @@
+total_split = input.split(";").replace("'",".")
+
+count = 0
+loop total_split.len (
+  count += 1
+  c = total_split.split(".")
+  crnt = c.[1]
+  if crnt == "pen" (
+    if c.[2] == "col" "c" ++ c.[3].destr
+    if c.[2] == "sat" "pen \"saturation\"" + c.[3]
+    if c.[2] == "bri" "pen \"brightness\"" + c.[3]
+    if c.[2] == "dot" (
+      dot_data = "w" + pen_size + "dot" + c.[3] + c.[4]
+      icon dot_data 1
+    )
+    if c.[2] == "lin" (
+      dot_data = "w" + pen_size + "line" + c.[3] + c.[4] + c.[5] + c.[6]
+      icon dot_data 1
+    )
+    if c.[2] == "ful" (
+      c c.[3]
+      pen "brightness" c.[4]
+      pen "saturation" c.[5]
+    )
+  )
+  if crnt == "var" (
+    if c.[2] == "set" c.[3] + "=" + c.[4]
+    if c.[2] == "cng" c.[3] + "+=" + c.[4]
+  )
+)
