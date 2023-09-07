@@ -1,3 +1,11 @@
+mainloop:
+
+this is a label that is jumped to whenever an application's script runs and it isnt the application's first run cycle
+
+(after the apps first frame this label will be where the program starts)
+
+---
+
 The if statement is used to test a condition. If the condition is true, the code within the block is executed. This is demonstrated in lines 
 4-6 and line 8
 
