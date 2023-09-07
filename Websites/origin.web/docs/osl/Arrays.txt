@@ -27,12 +27,19 @@ returns ["goodbye"]
 
 ---
 
+The item method is used to get the item at a specific index of the selected array.
 .item(int) / .[int]
-gets the item at "int" of the selected array
+
+---
+
+The join method is used to combine all elements of an array into a string, separated by a specified separator. For instance, in the example provided, the elements of the array ["hello","how are you"] are combined into a string using the command ["hello","how are you"].join(", ")
 
 .join("string")
 ["hello","how are you"].join(", ") 
 outputs "hello, how are you"
+
+---
+The split method is used to split a string into an array of substrings, separated by a specified separator. For instance, in the example provided, the string "hello, how are you" is split into an array using the command "hello, how are you".split(" ") The output is ["hello,","how","are","you"]
 
 .split("string")
 "hello, how are you".split(" ") 
