@@ -1,0 +1,51 @@
+The if statement is used to test a condition. If the condition is true, the code within the block is executed. This is demonstrated in lines 
+4-6 and line 8
+
+if condition (
+commands
+)
+
+if condition "command"
+
+---
+
+The until statement is used to repeatedly execute a block of code until a certain condition is met.
+
+until condition (
+commands
+)
+
+until condition "command
+
+---
+
+The loop statement is used to repeat a block of code a specified number of times.
+
+loop number-of-times (
+commands
+)
+
+loop number "command"
+
+---
+
+The while statement is used to repeatedly execute a block of code as long as a certain condition is true.
+
+while condition (
+commands
+)
+
+while condition "command"
+
+---
+
+The import command is used to run another OSL file's data. This can be done by specifying the file path or the file name and file type. 
+
+import "file_path"
+import "file_name" "file_type"
+
+---
+
+The run command is used to loop through a JSON array and execute the commands inside. 
+
+run ["command","command2"]
