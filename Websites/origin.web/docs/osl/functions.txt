@@ -1,0 +1,1 @@
+input.type - returns the data type of the input
