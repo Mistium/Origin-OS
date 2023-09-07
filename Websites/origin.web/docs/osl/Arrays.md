@@ -10,6 +10,7 @@ The .index("string") method is used to find the index of a specific element in a
 Note that array indices start from 1, so the first element of an array is at index 1.
 
 .index("string")
+
 ["hi","goodbye"].index("hi")
 returns 1
 
@@ -18,6 +19,7 @@ returns 1
 The .delete(int) method is used to remove an element from an array at a specific index. 
 
 .delete(int)
+
 ["hi","goodbye"].delete(1)
 returns ["goodbye"]
 
@@ -41,7 +43,9 @@ Legacy Commands
 THESE COMMANDS ARE DEPRECIATED AND NO LONGER WORK IN VERSIONS OF ORIGIN ABOVE 150
 
 this command sets the inputted "index" in "array" to "value" and outputs the result in the "data" variable
+
 list array "set" index value
 
 this command deletes the inputted "index" in "array" and outputs the result in the "data" variable
+
 list array "delete" "index"
