@@ -2,6 +2,8 @@
 goto x y
 : This command moves the cursor to the specified x and y coordinates on the screen.
 
+---
+
 change_x x
 : This command changes the x coordinate of the cursor to the specified value.
 
