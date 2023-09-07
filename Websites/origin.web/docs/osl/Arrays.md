@@ -12,6 +12,7 @@ Note that array indices start from 1, so the first element of an array is at ind
 .index("string")
 
 ["hi","goodbye"].index("hi")
+
 returns 1
 
 ---
@@ -21,6 +22,7 @@ The .delete(int) method is used to remove an element from an array at a specific
 .delete(int)
 
 ["hi","goodbye"].delete(1)
+
 returns ["goodbye"]
 
 ---
