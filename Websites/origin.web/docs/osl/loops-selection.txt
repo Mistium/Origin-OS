@@ -17,6 +17,8 @@ if condition "command"
 
 ---
 
+CURRENTLY UNSUPPORTED IN BRACKETS FORM
+
 The until statement is used to repeatedly execute a block of code until a certain condition is met.
 
 until condition (
@@ -36,6 +38,8 @@ commands
 loop number "command"
 
 ---
+
+CURRENTLY UNSUPPORTED
 
 The while statement is used to repeatedly execute a block of code as long as a certain condition is true.
 
