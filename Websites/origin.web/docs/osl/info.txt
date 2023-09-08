@@ -1,6 +1,6 @@
 OSL draws user interface objects at the "draw cursor" (an x/y value)
 
-This allows the user to place objects at any position.
+This allows the script to place objects at any position.
 
 -------------------------------------------
 
