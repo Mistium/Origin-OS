@@ -1,1 +1,19 @@
+def "compile" "input"
+command_array = input.split(newline)
+count = 0
+loop 
+endef
 
+if $1 != null (
+goto "compile"
+)
+
+ask "input"
+waitforinput
+
+label "compile"
+
+compile $1
+print out
+
+exit
