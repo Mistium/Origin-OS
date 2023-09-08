@@ -73,3 +73,8 @@ import "file_name" "file_type"
 The run command is used to loop through a JSON array and execute the commands inside. 
 
 run ["command","command2"]
+
+---
+
+The break command is used to jump immediately out of a loop or selection and into the enclosing script.
+break
