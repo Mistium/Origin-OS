@@ -1,7 +1,23 @@
+// ca == command_array
 def "compile" "input"
-command_array = input.split(newline)
+icnout = []
+ca = input.split(newline)
 count = 0
-loop 
+loop ca.len (
+count += 1
+c = ca.[count]
+c2 = count + 1
+c3 = count + 2
+if c == "s" and ca.[c2] == "z" (
+icnout += "w" + ca.[c3]
+)
+if c == "s" and ca.[c2] == "c" (
+icnout += "c" + ca.[c3]
+)
+if c == "d" and ca.[c2] == "l" (
+c4 = c3 + 4
+icnout += "line" + ca.trim(c3,c4).join(" ")
+)
 endef
 
 if $1 != null (
