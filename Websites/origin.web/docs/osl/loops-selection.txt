@@ -51,6 +51,18 @@ while condition "command"
 
 ---
 
+The goto and label command are to be used in tandem with each other to allow the program to jump around from line to line
+
+goto "label_name"
+This command will start running commands after the "label_name" label
+
+define a label by doing one of the below:
+
+label "label_name"
+label_name:
+
+---
+
 The import command is used to run another OSL file's data. This can be done by specifying the file path or the file name and file type. 
 
 import "file_path"
