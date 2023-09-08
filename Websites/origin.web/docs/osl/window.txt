@@ -28,11 +28,10 @@ to refresh your app when not in use.
 window "stop"
 ends the current script process
 
+exit "exit_code"
+ends the current process
+
 eg. if you import a script and it exits, only the imported script will exit as opposed to if the script runs the "window stop" command, it will close the current window.
-
-you can also use 
-
-exit
 
 ---
 
