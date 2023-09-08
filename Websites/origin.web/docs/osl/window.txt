@@ -4,8 +4,12 @@ sets the window's x_positon to a value
 window "y" y
 sets the window's y_position to a value
 
+---
+
 window "dimensions" width height
 sets the window's width and height
+
+---
 
 window "show"/"hide"
 shows or hides the bg of the window
@@ -19,8 +23,18 @@ update when not focused however will impact performance
 for the whole system. Only use this if you really need 
 to refresh your app when not in use.
 
+---
+
 window "stop"
-ends the window's process
+ends the current script process
+
+eg. if you import a script and it exits, only the imported script will exit as opposed to if the script runs the "window stop" command, it will close the current window.
+
+you can also use 
+
+exit
+
+---
 
 movefileloc "path"
 
