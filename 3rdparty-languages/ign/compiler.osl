@@ -18,6 +18,8 @@ if c == "d" and ca.[c2] == "l" (
 c4 = c3 + 4
 icnout += "line" + ca.trim(c3,c4).join(" ")
 )
+
+print icnout.str
 endef
 
 if $1 != null (
