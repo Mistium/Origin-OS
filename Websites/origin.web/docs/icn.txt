@@ -1,6 +1,6 @@
 .Icn files are the backbone of origin's gui system. They allow applications to render vectors that the user can click.
 
-They are also used for application icons
+They are also used for application icons and almost all of the system gui icons.
 
 > Commands
 
