@@ -1,0 +1,82 @@
+def "Wall" "wallt,wallh"
+loc -2 9999 wallt - timer * 120 wallh
+change_y -280
+colour #fff
+square 80 340 20 1
+change_y 560
+square 80 340 20 1
+if wallt - timer * 40 < -600 (
+    wallt = timer
+    wallh = random(-100,100)
+)
+endef
+window "dimensions" 600 400
+window "resizable" False
+t = timer
+w1t = t
+w1h = random(-100,100)
+w2t = t + 3
+w2h = random(-100,100)
+w3t = t + 6
+w3h = random(-100,100)
+w4t = t + 9
+w4h = random(-100,100)
+menu = True
+points = 0
+allowed = True
+save "bird.icn" "get"
+if save-data == null (
+save "bird.icn" "set" "c #eaff47
+w 10
+dot
+c #fff
+w 4
+line 2 -1.5 5 -1.5
+c #000
+w 5
+dot 0 1"
+save "bird.icn" "get"
+)
+bird = save-data
+mainloop:
+goto -100 birdheight
+icon bird 3
+colour #fff
+if "space".released "allowed = True"
+if menu (
+    birdheight = 0
+    loc 2 2 20 -30
+    text "Press Space To Play" 10
+    if "space".pressed "Menu = False"
+)
+if menu.not (
+    if "space".pressed and allowed (
+        birdvel = 8
+        allowed = False
+        timer2 = timer
+    )
+)
+if menu.not (
+    birdvel -= 0.5
+if birdvel < -15 "birdvel = -15"
+bv = birdvel
+if bv > 30 "bv = 30"
+    birdheight += bv
+    if birdheight > 177 "birdheight = 177"
+    if birdheight < -177 "birdheight = -177"
+    loc 2 2 20 -30
+    text "Points:" + points 10
+    wall w1t w1h
+    w1t = wallt
+    w1h = wallh
+    wall w2t w2h
+    w2t = wallt
+    w2h = wallh
+    wall w3t w3h
+    w3t = wallt
+    w3h = wallh
+    wall w4t w4h
+    w4t = wallt
+    w4h = wallh
+)
+import "win-buttons"
