@@ -8,7 +8,7 @@
 2. **toggle**:
    - Parameters: id, size
    - Function: Draws a toggle switch.
-   - Example: `toggle notificationToggle small`
+   - Example: `toggle notificationToggle 10`
 
 3. **slider**:
    - Parameters: width, height, id
