@@ -10,6 +10,8 @@
    - Allows the current application to grant another application a specific permission.
    - This action typically requires the "permission editor" permission to be granted to the current application.
 
+---
+
 ## Configuration Commands:
 
 1. **config key-name assign-data**:
