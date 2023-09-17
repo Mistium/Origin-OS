@@ -46,6 +46,7 @@ pendown
 - `setheading 90`: Sets the turtle's heading to 90 degrees (facing up).
 - `forward 2.5`: Moves the turtle forward by 2.5 units.
 - `left 90`: Turns the turtle left by 90 degrees.
+- `pendown`: Places the pen down to start drawing.
 - `4 times [ ... ]`: Executes the enclosed actions 4 times, which includes turning left by 90 degrees and moving forward by 5 units.
 
 ### Commands:
