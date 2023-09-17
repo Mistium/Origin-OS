@@ -1,80 +1,48 @@
-mainloop:
+It appears you've described various control flow and scripting constructs in your programming environment. Here's an explanation of each of these constructs:
 
-this is a label that is jumped to whenever an application's script runs and it isnt the application's first run cycle
+## Main Loop Label:
 
-(after the apps first frame this label will be where the program starts)
+- **mainloop:**:
+  - This is a label that serves as the entry point for an application's script after the first run cycle. It's where the program starts running after the initial setup.
 
----
+## Conditional Statements (if):
 
-The if statement is used to test a condition. If the condition is true, the code within the block is executed. This is demonstrated in lines 
-4-6 and line 8
+- **if condition (commands)**:
+  - The `if` statement is used to test a condition. If the condition is true, the code within the block (enclosed in parentheses) is executed.
+  - Example: `if condition (`
 
-if condition (
-commands
-)
+## Looping Constructs (loop):
 
-if condition "command"
+- **loop number-of-times (commands)**:
+  - The `loop` statement is used to repeat a block of code a specified number of times.
+  - Example: `loop number-of-times (`
 
----
+- **until condition (commands)**:
+  - The `until` statement is used to repeat a block of code until a condition is met.
+  - Example: `until boolean (`
 
-CURRENTLY UNSUPPORTED IN BRACKETS FORM
+## Control Flow (goto and label):
 
-The until statement is used to repeatedly execute a block of code until a certain condition is met.
+- **goto "label_name"**:
+  - The `goto` command is used to jump to a specified label within the script.
+  - Example: `goto "label_name"`
 
-until condition (
-commands
-)
+- **label "label_name"** or **label_name:**:
+  - The `label` command defines a label that can be used as a target for the `goto` command.
 
-until condition "command
+## Including External Files:
 
----
+- **import "file_path"** or **import "file_name" "file_type"**:
+  - The `import` command is used to run another OSL file's data. You can specify the file by its path or name and type.
 
-The loop statement is used to repeat a block of code a specified number of times.
+## Running Commands in a JSON Array:
 
-loop number-of-times (
-commands
-)
+- **run ["command","command2"]**:
+  - The `run` command is used to loop through a JSON array and execute the specified commands inside the array.
 
-loop number "command"
+## Breaking Out of Loops (break):
 
----
+- **break**:
+  - The `break` command is used to immediately exit from a loop or selection and continue with the code outside the loop.
 
-CURRENTLY UNSUPPORTED
-
-The while statement is used to repeatedly execute a block of code as long as a certain condition is true.
-
-while condition (
-commands
-)
-
-while condition "command"
-
----
-
-The goto and label command are to be used in tandem with each other to allow the program to jump around from line to line
-
-goto "label_name"
-This command will start running commands after the "label_name" label
-
-define a label by doing one of the below:
-
-label "label_name"
-label_name:
-
----
-
-The import command is used to run another OSL file's data. This can be done by specifying the file path or the file name and file type. 
-
-import "file_path"
-import "file_name" "file_type"
-
----
-
-The run command is used to loop through a JSON array and execute the commands inside. 
-
-run ["command","command2"]
-
----
-
-The break command is used to jump immediately out of a loop or selection and into the enclosing script.
-break
+Please note that some constructs are marked as currently unsupported, which implies that they may not be functional in your current scripting environment. These constructs provide control over the flow of your script, allowing you to make decisions, loop through code, and navigate within your application's logic.
