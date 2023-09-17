@@ -1,60 +1,38 @@
-The .append("string") method is used to add a new element to the end of an array. In the example provided, the string "goodbye" is appended to the array ["hi"]. The result is a new array ["hi", "goodbye"]
 
-.append("string")
-["hi"].append("goodbye")
-outputs ["hi","goodbye"]
+## Array Methods:
 
----
+1. **.append("string")**:
+   - Adds a new element (in this case, a string) to the end of an array.
+   - Example: `["hi"].append("goodbye")` results in `["hi", "goodbye"]`.
 
-The .index("string") method is used to find the index of a specific element in an array. In the example provided, the index of "hi" in the array ["hi", "goodbye"] is found. The output is 1
-Note that array indices start from 1, so the first element of an array is at index 1.
+2. **.index("string")**:
+   - Finds the index of a specific element (string) in an array.
+   - Example: `["hi", "goodbye"].index("hi")` returns `1`, with array indices starting from 1.
 
-.index("string")
+3. **.delete(int)**:
+   - Removes an element at a specific index from an array.
+   - Example: `["hi", "goodbye"].delete(1)` returns `["goodbye"]`.
 
-["hi","goodbye"].index("hi")
+4. **.item(int)** or **.[int]**:
+   - Retrieves the item at a specific index in the array.
+   - Example: `["hi", "goodbye"].item(1)` returns `"hi"`.
 
-returns 1
+5. **.join("string")**:
+   - Combines all elements of an array into a single string, separated by the specified separator.
+   - Example: `["hello", "how are you"].join(", ")` returns `"hello, how are you"`.
 
----
-
-The .delete(int) method is used to remove an element from an array at a specific index. 
-
-.delete(int)
-
-["hi","goodbye"].delete(1)
-
-returns ["goodbye"]
-
----
-
-The item method is used to get the item at a specific index of the selected array.
-.item(int) / .[int]
+6. **.split("string")**:
+   - Splits a string into an array of substrings, separated by the specified separator.
+   - Example: `"hello, how are you".split(" ")` returns `["hello,", "how", "are", "you"]`.
 
 ---
 
-The join method is used to combine all elements of an array into a string, separated by a specified separator. For instance, in the example provided, the elements of the array ["hello","how are you"] are combined into a string using the command ["hello","how are you"].join(", ")
+## Deprecated Commands (Not Supported in Versions Above 150):
 
-.join("string")
-["hello","how are you"].join(", ") 
-outputs "hello, how are you"
+1. **list array "set" index value**:
+   - Sets the element at the specified "index" in the "array" to the given "value."
 
----
-The split method is used to split a string into an array of substrings, separated by a specified separator. For instance, in the example provided, the string "hello, how are you" is split into an array using the command "hello, how are you".split(" ") The output is ["hello,","how","are","you"]
+2. **list array "delete" "index"**:
+   - Deletes the element at the specified "index" in the "array."
 
-.split("string")
-"hello, how are you".split(" ") 
-outputs ["hello,","how","are","you"]
-
----
-
-Legacy Commands
-
-THESE COMMANDS ARE DEPRECIATED AND NO LONGER WORK IN VERSIONS OF ORIGIN ABOVE 150
-
-this command sets the inputted "index" in "array" to "value" and outputs the result in the "data" variable
-
-list array "set" index value
-
-this command deletes the inputted "index" in "array" and outputs the result in the "data" variable
-
-list array "delete" "index"
+These commands and methods are valuable for working with arrays and strings, allowing for various data manipulation and extraction operations. However, it's important to note that the "list array" commands are deprecated and no longer supported in newer versions of Origin above 150.
