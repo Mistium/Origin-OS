@@ -1,0 +1,21 @@
+The supported data types in osl are:
+
+string
+> Defined by "" around it
+"Hello"
+
+boolean
+> No " and True/False
+True
+
+number
+> No " and must match this regex [0-9.\-]+
+-1.75
+
+json array
+> Defined by [] around it
+["Hi","how","are","you"]
+  
+json object
+> Defined by {} around it
+{"hello,":["how","are","you"]}
