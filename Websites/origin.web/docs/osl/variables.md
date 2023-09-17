@@ -1,4 +1,3 @@
-The commands and modifiers you've described are used for assigning values to variables, list items, and JSON object keys, as well as performing arithmetic operations on variables. Here's an explanation of each of these operations:
 
 ## Variable Assignment:
 
