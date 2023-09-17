@@ -1,4 +1,3 @@
-It appears you've described various control flow and scripting constructs in your programming environment. Here's an explanation of each of these constructs:
 
 ## Main Loop Label:
 
