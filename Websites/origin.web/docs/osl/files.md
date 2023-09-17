@@ -14,7 +14,10 @@ Files are what store and run data within the os and are very important
 3. **location**:
    - A file path indicating the location of the file.
 
-4. **data**, 5. **data2**, 6. **data3**, 7. **data4**:
+4. **data**,
+5. **data2**,
+6. **data3**,
+7. **data4**:
    - These are fields for various data associated with the file. Each field may store different data related to the file.
 
 8. **id**:
