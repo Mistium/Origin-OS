@@ -1,4 +1,18 @@
 {
-  "Black":"♔♕♖♗♘♙",
-  "White":"♚♛♜♝♞♟"
+  "Outlined": {
+    "King": "♔",
+    "Queen": "♕",
+    "Rook": "♖",
+    "Bishop": "♗",
+    "Knight": "♘",
+    "Pawn": "♙"
+  },
+  "Filled": {
+    "King": "♚",
+    "Queen": "♛",
+    "Rook": "♜",
+    "Bishop": "♝",
+    "Knight": "♞",
+    "Pawn": "♟"
+  }
 }
