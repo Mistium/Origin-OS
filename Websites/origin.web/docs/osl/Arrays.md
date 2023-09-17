@@ -35,4 +35,4 @@
 2. **list array "delete" "index"**:
    - Deletes the element at the specified "index" in the "array."
 
-These commands and methods are valuable for working with arrays and strings, allowing for various data manipulation and extraction operations. However, it's important to note that the "list array" commands are deprecated and no longer supported in newer versions of Origin above 150.
+These commands and methods are valuable for working with arrays and strings, allowing for various data manipulation and extraction operations. However, it's important to note that the "list" commands are deprecated and are no longer supported in newer versions of Origin above 150.
