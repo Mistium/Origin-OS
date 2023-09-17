@@ -14,25 +14,25 @@ Files are what store and run data within the os and are very important
 3. **location**:
    - A file path indicating the location of the file.
 
-4. **data**, **data2**, **data3**, **data4**:
+4. **data**, 5. **data2**, 6. **data3**, 7. **data4**:
    - These are fields for various data associated with the file. Each field may store different data related to the file.
 
-5. **id**:
+8. **id**:
    - The identifier for the file, which could be used for referencing or accessing it.
 
-6. **created**:
+9. **created**:
    - A Unicode timestamp indicating when the file was created.
 
-7. **edited**:
+10. **edited**:
    - A Unicode timestamp indicating when the file was last edited.
 
-8. **icon**:
+11. **icon**:
    - The code for the file's icon, which is displayed when rendering the file.
 
-9. **size**:
+12. **size**:
    - Stores the size of the file and potentially any files it contains.
 
-10. **permissions**:
+13. **permissions**:
     - Stores the permissions needed to access this file by any application.
 
 ---
