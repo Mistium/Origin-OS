@@ -34,6 +34,7 @@ setheading 90
 forward 2.5
 left 90
 forward 2.5
+pendown
 4 times [
   left 90
   forward 5
