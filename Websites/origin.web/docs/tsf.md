@@ -1,4 +1,3 @@
-It appears that you've described a scripting language that uses .tsf files to control a "turtle" for drawing shapes and performing various movements and actions. This language allows you to create drawings using a set of commands. Here's an explanation of the provided examples and commands:
 
 ### Examples:
 
