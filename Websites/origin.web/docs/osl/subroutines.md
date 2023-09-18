@@ -9,6 +9,10 @@
 - **endef**:
    - This command closes the current define command block, indicating the end of the custom command definition.
 
+- **calling a definition:**
+   - To use a definition, you must use the definition name and then the inputs, seperated by spaces.
+   - `test_definition "hello" 10` Runs the test command with the inputs `"hello"` and `10`
+
 ## Creating Custom Events:
 
 - **Event "condition"**:
