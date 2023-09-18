@@ -15,7 +15,7 @@
 
 4. **.item(int)** or **.[int]**:
    - Retrieves the item at a specific index in the array.
-   - Example: `["hi", "goodbye"].item(1)` returns `"hi"`.
+   - Example: `["hi", "goodbye"].item(1)` or `["hi", "goodbye"].[1]` returns `"hi"`.
 
 5. **.join("string")**:
    - Combines all elements of an array into a single string, separated by the specified separator.
