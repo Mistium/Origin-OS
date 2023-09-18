@@ -2,7 +2,9 @@ The cursor in this context, refers to the position wher the next graphics comman
 for example
 
 `goto 100 0`
-(`square 50 50 10 1`)[https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#main-ui-elements]
+(`square 50 50 10 1`
+
+(Square Command Documentation)[https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#main-ui-elements]
 
 draws a square at 0 0
 
