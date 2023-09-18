@@ -14,17 +14,17 @@ draws a square at 0 0
 ## `change_x x`:
 
 - This command changes the x coordinate of the cursor to the specified value.
-- Example: `change_x 50` would set the cursor's x-coordinate to 50.
+- Example: `change_x 50` would change the cursor's x-coordinate by 50.
 
 ## `change_y y`:
 
 - This command changes the y coordinate of the cursor to the specified value.
-- Example: `change_y 75` would set the cursor's y-coordinate to 75.
+- Example: `change_y 75` would change the cursor's y-coordinate by 75.
 
 ## `change x y`:
 
 - This command changes both the x and y coordinates of the cursor to the specified values.
-- Example: `change 50 75` would set the cursor's position to (50, 75).
+- Example: `change 50 75` would set the cursor's position to its previous position + (50, 75).
 
 ## `loc a b c d`:
 
