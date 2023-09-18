@@ -2,7 +2,7 @@ The cursor in this context, refers to the position wher the next graphics comman
 for example
 
 `goto 100 0`
-`square 100 50 10`
+`square 50 50 10 1`
 
 draws a square at 0 0
 
