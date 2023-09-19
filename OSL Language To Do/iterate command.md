@@ -9,12 +9,14 @@ iterate variable int step (
 ### Function Osl Equivalent
 
 "variable" = 0
-loop int (
-variable += step
-commands and stuff
-)
 
-////
+loop int (
+
+variable += step
+
+commands and stuff
+
+)
 
 ---
 
