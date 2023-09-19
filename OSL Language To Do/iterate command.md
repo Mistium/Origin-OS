@@ -8,7 +8,7 @@ iterate variable int step (
 
 ### Function Osl Equivalent
 
-"variable" = 0
+variable = 0
 
 loop int (
 
