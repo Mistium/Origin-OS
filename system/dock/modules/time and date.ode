@@ -1,0 +1,14 @@
+width = 105
+change_x width / 2
+x = x_position
+
+goto x 10
+square width height 20 1
+
+colour icon_colour
+
+change -45 9
+text "<hour>:<minute>:<second>" 9
+
+goto x - 45
+text day.trim("0","3") + day_number + month.trim("0","3") 8
