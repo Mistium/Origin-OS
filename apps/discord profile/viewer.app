@@ -5,6 +5,7 @@ userdata = data.replace(newline,"")
 badges = userdata.key("badges")
 displayname = userdata.key("global_name")
 username = userdata.key("tag").split("#").[1]
+link = userdata.key("avatar").key("link")
 loaded = true
 endef
 loaded = false
@@ -39,7 +40,7 @@ if loaded (
   loc 2 2 60 -60
   square 80 80 10 1
   loc 2 2 60 -60
-  image userdata.key("avatar").key("link") ++ ".png" 128
+  image link ++ ".png" 128
   c #000
   goto 0 -55
   square 300 550 20 1
