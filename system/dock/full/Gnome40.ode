@@ -1,0 +1,39 @@
+terminal "system windows set min-y" + ( screensize_y * -1 + 150 )
+terminal "system windows set max-y" + ( screensize_y - 60 )
+
+include "Origin/(C) Users/" ++ username ++ "/Dock"
+window "dimensions" screensize_x screensize_y * 2
+
+goto 0 10
+temp = False
+x2 = x_position
+square dock.len + 0.8 * 50 40 20 1
+goto dock.len + 1 * -25 + 25 10
+
+applicationscount = 0
+loop dock.len (
+  applicationscount += 1
+  file "open" "id" dock.[applicationscount]
+  file "render" 1.7 "interactable"
+  c #fff
+  change_x 50
+)
+colour #303030
+square 35 35 10 1
+if clicked (
+  terminal "system windows add Application-Drawer"
+)
+colour icon_colour
+icon "dot-grid" 1
+
+loc -2 2 -40 -45
+text battery-percent ++ "%" 9
+
+t = day_number + month.trim(1,3) + hour ++ ":" ++ minute ++ ":" ++ second
+
+loc 999 2 t.len * -6 -45
+c icon_colour
+text t 9
+
+loc 2 2 0 -45
+text "Activities" 9
