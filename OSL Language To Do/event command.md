@@ -2,7 +2,7 @@
 
 place this code in the setup part of your code before the mainloop label
 
-on condition (
+event condition (
 
 )
 
@@ -17,8 +17,6 @@ This command will be jumped to by the system whenever a condition is met. This a
 ---
 
 ### Example Use
-iterate i 10 1 (
-
-print i
-
+event "space".pressed and touching_ground (
+y_velocity = 30
 )
