@@ -1,0 +1,42 @@
+include "Origin/(C) Users/" ++ username ++ "/Dock"
+window "dimensions" screensize_x screensize_y
+goto screensize_x / -2 -10
+temp = False
+x2 = x_position
+change_x 10
+pen "size" 60
+pen "down"
+change_x window_width
+pen "up"
+x = x_position
+if dock_location == "left" or ( dock_location == "right" ) "goto x2 + 25 -5"
+if dock_location == "center" "goto dock.len * -18.75 -5"
+colour dock_secondary
+square 15 15 15 1
+colour icon_colour
+icon "origin-logo" 0.9
+change_x 25
+icon "w 5 \n dot 0 0" 0.9
+change_x -15
+current-file-name = null
+
+applicationscount = 0
+loop dock.len (
+  applicationscount += 1
+  goto x_position + 37.5 -5
+  file "open" "id" dock.[applicationscount]
+  dist = mouse_x - x_position / 100
+  dist = dist.abs
+  if dist > 0.5 "dist = 0.5"
+  dist = 1.8 - dist
+  if mouse_y - y_position > 50 "dist = 1.3"
+  file "render" dist "interactable"
+  file "get" "name"
+  if mouse_touching "current-file-name = data"
+)
+
+loc -2 999 -100
+colour icon_colour
+text "<hour>:<minute>:<second>" 10
+loc -2 99 -110 -25
+text month + day_number + year 7
