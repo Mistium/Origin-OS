@@ -45,6 +45,12 @@ if loaded (
   square 300 550 20 1
   loc -2 2 badges.len * -10 - 20 -90
   square badges.len * 20 15 20 1
+  count = 0
+  loop badges.len (
+    count += 1
+    loc -2 2 count * -10 - 20 -90
+    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 20
+  )
   loc 2 2 25 -145
   c #fff
   text displayname 12
