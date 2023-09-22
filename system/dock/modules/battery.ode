@@ -1,0 +1,17 @@
+width = 60
+change_x width / 2
+x = x_position
+
+goto x 10
+square width height 20 1
+
+if clicked (
+  terminal "system windows close Battery_Info"
+  terminal "system windows add Battery_Info"
+)
+
+colour icon_colour
+change_x -25
+
+if battery_charging "colour accent_colour"
+text "<battery_percent>%" 10
