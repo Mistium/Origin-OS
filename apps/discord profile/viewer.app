@@ -6,11 +6,14 @@ badges = userdata.key("badges")
 displayname = userdata.key("global_name")
 username = userdata.key("tag").split("#").[1]
 link = userdata.key("avatar").key("link")
+banner = userdata.key("banner").key("link")
+bannercol = userdata.key("banner").key("color")
+if banner != "null" "badges = badges.append("nitro").append("boosting_1_months")"
 loaded = true
 endef
 loaded = false
 window "resizable" False
-window "dimensions" 340 700
+window "dimensions" 400 400
 mainloop:
 if loaded.not (
   loc 999 999 0 -20
@@ -34,33 +37,50 @@ if loaded (
   c #222
   square 100 100 1000
   loc 999 2 0 -25
-  c userdata.key("banner").key("color")
+  if banner == "null" (
+  c bannercol
   square window_width 30 35
-  c #222
+  )
+)
+if banner != "null".destr and loaded (
+change_y 10
+image banner ++ ".png" window_width * 1.7
+)
+if loaded (
+  c #000
   loc 2 2 60 -60
-  square 80 80 10 1
+  square 80 80 20 1
   loc 2 2 60 -60
   image link ++ ".png" 128
   c #000
   goto 0 -55
-  square 300 550 20 1
-  loc -2 2 badges.len * -10 - 20 -90
-  square badges.len * 20 15 20 1
+  square window_width - 40 window_height - 150 20 1
+  loc -2 2 badges.len * -15 - 16 -92
+log badges
+  if badges.len > 0 "square badges.len * 30 - 10 15 20 1"
   count = 0
   loop badges.len (
     count += 1
-    loc -2 2 count * -10 - 20 -90
-    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 20
+    loc -2 2 count * -30 -92
+    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 40
   )
+if loaded (
   loc 2 2 25 -145
   c #fff
   text displayname 12
   loc 2 2 25 -170
   text username 9
+  c #000
+  loc 2 2 135 -92
+  square 15 15 20 1
+  c accent_colour
+  icon "circle-full" 1
+  c #000
+  if badges.len != 0 "c #23a55a"
+  icon "circle-full" 0.8
 )
-frame "clear"
 loc -2 2 -20 -20
-c #444
+c #000
 icon "circle-full" 1.5
 c #fff
 icon "Close" 0.6
