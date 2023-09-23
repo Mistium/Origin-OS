@@ -29,18 +29,33 @@ if page == 1 (
   text "Create A New Origin Account" 10
   loc 2 2 47 -150
   text "Choose a login method" 10
+
   c #000
+
   loc 2 2 200 -230
   square 320 30 20 1
   if clicked "topage = "discord""
+
   loc 2 2 200 -300
   square 320 30 20 1
+  if clicked ""
+
+  loc 2 2 200 -370
+  square 320 30 20 1
   if clicked "topage = "signup""
+
   c #fff
+
   loc 2 2 60 -230
   image "https://th.bing.com/th/id/R.89cfffd678f3789e0004fa921cb612d8?rik=GTAt6LMPaJaZVA&pid=ImgRaw&r=0" 7
   change 30
   text "New Account With Discord" 8
+
+  loc 2 2 60 -230
+  image "https://th.bing.com/th/id/R.a9e8c39738d4a44530cb482d05e704a6?rik=QRBARzhJZkCgug&pid=ImgRaw&r=0" 7
+  change 30
+  text "Unsupported" 8
+
   loc 2 2 60 -300
   icon "accounts" 1
   change 30
