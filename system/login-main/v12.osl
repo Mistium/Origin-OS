@@ -3,7 +3,7 @@ paged = null
 window "hide"
 current_login = 1
 def "login"
-terminal "accounts login" + user + input_password
+terminal "account login" + user + input_password
 if username != "Not Logged In" (
   page = "Logged In"
 )
