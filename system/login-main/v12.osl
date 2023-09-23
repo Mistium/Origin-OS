@@ -1,0 +1,79 @@
+page = "Time"
+paged = null
+window "hide"
+current_login = 1
+mainloop:
+window "dimensions" screensize_x + 20 screensize_y + 15
+if page == "Time" (
+	left = screensize_x / -2
+	bottom = screensize_y / -2 + 10
+  c #fff
+	goto left + 10 bottom + 60
+	text "<hour>:<minute>" 40
+	goto left + 15 bottom + 15
+	text "<day> <day_number> <month>" 10
+	goto screensize_x / 2 - 260 bottom + 15
+	text "Press Space To Enter Desktop" 8
+  low = window_height / -2 + 50
+  mouse = mouse_y > low and mouse_down
+	if "space".pressed or mouse (
+    page = "Login"
+    if user_id != 0 "current_login = user_id"
+	)
+)
+if page == "login" (
+  terminal "-get.accounts"
+  count = 0
+  loop accounts.len (
+    count += 1
+    loc 999 -2 0 50
+    change_x count * 50
+    c #000
+    if current_login == count "c accent_colour"
+    square 50 50 20 1
+    if clicked "current_login = count"
+    image accounts.[count].key("user icon") 75
+  )
+)
+if page == "login" (
+  user = accounts.[current_login].key("username")
+  c #151515
+  goto 0 -40
+  square 350 400 20 1
+  goto 0 70
+  c #000
+  square 100 100 20 1
+  goto 0 -70
+  square 320 30 20 1
+  change_y -70
+  square 320 30 20 1
+  input 300 25 "password" "Password..."
+  goto 90 -210
+  c #000
+  square 140 30 20 1
+  command = "-accounts.login" + user + input_password
+  if clicked "terminal command.destr"
+  goto -90 -210
+  square 140 30 20 1
+  if clicked "page = "Time""
+  c #fff
+  goto 0 30
+  image accounts.[current_login].key("user icon") 150
+  goto -150 -70
+  text user 8
+  goto -120 -210
+  text "Cancel" 8
+  goto 70 -210
+  text "Login" 8
+  if clicked (
+    terminal "-accounts.login" + user + input_password
+    if username != "Not Logged In" (
+      page = "Logged In"
+    )
+  )
+)
+if page == "Logged In" (
+  terminal "system windows close login-main"
+	terminal "system windows add Dock-Modules"
+	window "stop"
+)
