@@ -7,27 +7,27 @@ window "dimensions" screensize_x + 20 screensize_y + 15
 if page == "Time" (
 	left = screensize_x / -2
 	bottom = screensize_y / -2 + 10
-  c #fff
+	c #fff
 	goto left + 10 bottom + 60
 	text "<hour>:<minute>" 40
 	goto left + 15 bottom + 15
 	text "<day> <day_number> <month>" 10
 	goto screensize_x / 2 - 260 bottom + 15
 	text "Press Space To Enter Desktop" 8
-  low = window_height / -2 + 50
-  mouse = mouse_y > low and mouse_down
+	low = window_height / -2 + 50
+	mouse = mouse_y > low and mouse_down
 	if "space".pressed or mouse (
-    page = "Login"
-    if user_id != 0 "current_login = user_id"
+		page = "Login"
+		if user_id != 0 "current_login = user_id"
 	)
 )
 if page == "login" (
-  terminal "-get.accounts"
-  count = 0
-  loop accounts.len (
-    count += 1
-    loc 999 -2 0 50
-    change_x count * 50
+	terminal "-get.accounts"
+	count = 0
+	loop accounts.len (
+		count += 1
+		loc 999 -2 0 50
+		change_x count * 50
     c #000
     if current_login == count "c accent_colour"
     square 50 50 20 1
