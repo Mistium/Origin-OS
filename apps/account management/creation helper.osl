@@ -19,6 +19,7 @@ def "new" "name" "pass"
   page = "done"
 endef
 
+window "resizable" false
 window "dimensions" 400 400
 topage = 1
 genhash
