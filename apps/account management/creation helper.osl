@@ -1,7 +1,5 @@
 window "show"
 
-permission "request" "terminal"
-
 def "getaccount" "id"
   network "get" "https://discordlookup.mesavirep.xyz/v1/user/" ++ id
   userdata = data.replace(newline,"")
