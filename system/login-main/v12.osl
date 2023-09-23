@@ -29,12 +29,12 @@ if page == "Time" (
 	)
 )
 if page == "login" (
-	terminal "-get.accounts"
+	terminal "account getall"
 	count = 0
 	loop accounts.len (
 		count += 1
-		loc 2 -2 0 50
-		change_x count * 50
+		loc 2 -2 50 50
+		change_x count - 1 * 70
     c #000
     if current_login == count "c accent_colour"
     square 50 50 10 1
@@ -43,7 +43,7 @@ if page == "login" (
   )
 )
 if page == "login" (
-	current = accounts.[current_login]
+  current = accounts.[current_login]
   user = current.key("username")
 
   goto 0 -40
