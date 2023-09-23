@@ -29,12 +29,18 @@ if page == "Time" (
 	)
 )
 if page == "login" (
-	terminal "account getall"
-	count = 0
-	loop accounts.len (
-		count += 1
-		loc 2 -2 50 50
-		change_x count - 1 * 70
+  terminal "account getall"
+  loc 2 -2 50 50
+  change accounts.len * 70
+  c #000
+  square 50 50 10 1
+  c #fff
+  icon "close" 1
+  count = 0
+  loop accounts.len (
+    count += 1
+    loc 2 -2 50 50
+    change_x count - 1 * 70
     c #000
     if current_login == count "c accent_colour"
     square 50 50 10 1
