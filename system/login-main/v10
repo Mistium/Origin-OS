@@ -1,0 +1,113 @@
+if timer > 6 (
+terminal "system reboot"
+)
+def "boot" "input,time"
+if timer > time (
+	goto screensize_x / -2 + 10 screensize_y / 2
+	change_y time * -30
+	colour #ffffff
+	text input 10
+)
+endef
+page = "Boot"
+paged = null
+window "hide"
+mainloop:
+window "dimensions" screensize_x + 20 screensize_y + 15
+if timer < 6 (
+    goto
+    colour #
+    goto 0 0
+    pen "size" screensize_x + screensize_y
+	pen "down"
+	pen "up"
+	boot "Initialising main.sys" 1
+	boot "Loading .OSL Systems" 2
+	boot "Optimising Files" 3
+	boot "Finishing Boot" 4
+)
+if timer > 6 (
+    if page == "Boot" (
+	    left = screensize_x / -2
+	    bottom = screensize_y / -2 + 10
+        colour #ffffff
+	    goto left + 10 bottom + 60
+	    text "<hour>:<minute>" 40
+	    goto left + 15 bottom + 15
+	    text "<day> <day_number> <month>" 10
+	    goto screensize_x / 2 - 260 bottom + 15
+	    text "Press Space To Enter Desktop" 8
+        low = window_height / -2 + 50
+        mouse = mouse_y > low and mouse_down
+	    if "space".pressed or mouse (
+            if user_id == 0 "page = "Login""
+            if user_id != 0 "page = "Login_Main""
+            if user_id != 0 "current_login = user_id"
+	    )
+    )
+    if page == "Login" (
+        loc -2 -2 -25 40
+        colour #ffffff
+        icon "Close" 1
+        if clicked "page = "Boot""
+        terminal "-get.accounts"
+        x = accounts.len / 2 * -200 + 100
+        count = 0
+        loop accounts.len (
+            count += 1
+            goto x
+            icon "c #202020 w 30 dot" 3
+            colour #ffffff
+            icon accounts.[count].key("user icon") 3
+            if clicked "current_login = count"
+            if clicked "page = "Login_Main""
+            if clicked "input_password = null"
+            colour #222
+            change_y -70
+            square 150 15 10 1
+            change -75
+            colour #fff
+            text accounts.[count].key("username") 8
+            x += 200
+        )
+    )
+    if page == "Login_Main" (
+        terminal "-get.accounts"
+        user = accounts.[current_login].key("username")
+        goto 0 30
+        icon "c #202020 \n w 30 \n dot" 3
+        colour #202020
+        change_y -70
+        square 180 15 10 1
+        goto 0 -70
+        input 190 25 "password" "Password..."
+        goto 50 -130
+        colour #202020
+        square 80 15 10 1
+        command = "-accounts.login" + user + input_password
+        if clicked "terminal command.destr"
+        goto -50 -130
+        square 80 15 10 1
+        if clicked "page = "Login""
+        colour #ffffff
+        goto 0 30
+        icon accounts.[current_login].key("user icon") 3
+        goto -90 -40
+        text user 8
+        goto -77 -130
+        text "Cancel" 8
+        goto 28 -130
+        text "Login" 8
+        if clicked (
+            terminal "-accounts.login" + user + input_password
+            if username != "Not Logged In" (
+                page = "Logged In"
+            )
+        )
+    )
+    if page == "Logged In" (
+        terminal "system windows close login-main"
+	    terminal "system windows add Dock-Modules"
+	    window "stop"
+    )
+)
