@@ -8,7 +8,7 @@ username = userdata.key("tag").split("#").[1]
 link = userdata.key("avatar").key("link")
 banner = userdata.key("banner").key("link")
 bannercol = userdata.key("banner").key("color")
-if banner != "null" "badges = badges.append("nitro").append("boosting_1_months")"
+if banner != "null".destr "badges = badges.append("nitro").append("boosting_1_months")"
 loaded = true
 endef
 loaded = false
@@ -56,7 +56,6 @@ if loaded (
   goto 0 -55
   square window_width - 40 window_height - 150 20 1
   loc -2 2 badges.len * -15 - 16 -92
-log badges
   if badges.len > 0 "square badges.len * 30 - 10 15 20 1"
   count = 0
   loop badges.len (
@@ -84,4 +83,4 @@ c #000
 icon "circle-full" 1.5
 c #fff
 icon "Close" 0.6
-if clicked or "space".pressed "window "stop""
+if clicked "window "stop""
