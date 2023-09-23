@@ -5,24 +5,19 @@ def "getaccount" "id"
   userdata = data.replace(newline,"")
 endef
 
-def "genhash"
-  verifier = "abcdefghijklmnopqrstuvwxyz0123456789".hash(4)
-endef
-
 def "get" "id"
   network "get" "https://discordlookup.mesavirep.xyz/v1/user/" ++ id
   userdata = data.replace(newline,"")
 endef
 
 def "new" "name" "pass"
-  terminal "account add name pass"
+  terminal "account add" + name + pass
   page = "done"
 endef
 
 window "resizable" false
 window "dimensions" 400 400
 topage = 1
-genhash
 mainloop:
 goto
 c #111
@@ -146,8 +141,8 @@ if page == "done" (
   text "Login To Account" 8
   loc 2 2 60 -340
   text "Open Account Center" 8
+window "stop"
 )
-if "space".pressed "window "stop""
 import "win-buttons"
 if topage != null and mouse_down.not (
 page = topage
