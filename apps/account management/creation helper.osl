@@ -9,14 +9,9 @@ def "genhash"
   verifier = "abcdefghijklmnopqrstuvwxyz0123456789".hash(4)
 endef
 
-def "verify" "id"
+def "get" "id"
   network "get" "https://discordlookup.mesavirep.xyz/v1/user/" ++ id
   userdata = data.replace(newline,"")
-  verified = false
-  if userdata.key("global_name") == verifier "verified = true"
-  log userdata.key("global_name")
-  log verifier
-  log verified
 endef
 
 def "new" "name" "pass"
@@ -24,8 +19,8 @@ def "new" "name" "pass"
   page = "done"
 endef
 
-window "dimensions" 400 600
-page = 1
+window "dimensions" 400 400
+topage = 1
 genhash
 mainloop:
 goto
@@ -41,19 +36,19 @@ if page == 1 (
   c #000
   loc 2 2 200 -230
   square 320 30 20 1
-  if clicked "page = "discord""
+  if clicked "topage = "discord""
   loc 2 2 200 -300
   square 320 30 20 1
-  if clicked "page = "signup""
+  if clicked "topage = "signup""
   c #fff
   loc 2 2 60 -230
   image "https://th.bing.com/th/id/R.89cfffd678f3789e0004fa921cb612d8?rik=GTAt6LMPaJaZVA&pid=ImgRaw&r=0" 7
   change 30
-  text "Discord Login" 8
+  text "New Account With Discord" 8
   loc 2 2 60 -300
   icon "accounts" 1
   change 30
-  text "Normal Login" 8
+  text "New Account" 8
 )
 if page == "signup" (
   loc 2 2 25 -25
@@ -89,41 +84,49 @@ if page == "discord" (
   loc 2 2 345 -200
   square 30 30 20 1
   loc 2 2 170 -200
-  input 250 25 "discord_id" "Discord ID..."
+  input 250 25 "discord_id" "Your discord ID..."
+  c #000
+  loc 2 2 200 -270
+  square 320 30 20 1
+  input 300 25 "discord_pass" "Origin password..."
   c #fff
   loc 2 2 345 -200
   icon "paste" 1
   if clicked "input_discord_id = clipboard.destr"
   c #000
-  loc 2 2 200 -270
+  loc 2 2 200 -340
   square 320 30 20 1
   if clicked "page = "verify""
+  if clicked "get input_discord_id"
   c #fff
-  loc 2 2 50 -270
-  text "Verify Discord" 8
+  loc 2 2 50 -340
+  text "Next" 8
 )
 if page == "verify" (
-  loc 2 2 25 -25
-  c #fff
-  icon "left-arrow" 1.2
-  if clicked "page = 1"
+  c #000
   loc 2 2 200 -100
-  image "https://th.bing.com/th/id/R.89cfffd678f3789e0004fa921cb612d8?rik=GTAt6LMPaJaZVA&pid=ImgRaw&r=0" 10
+  square 100 100 20 1
+  image userdata.key("avatar").key("link") 150
   c #000
   loc 2 2 200 -200
   square 320 30 20 1
-  c #fff
-  loc 2 2 50 -200
-  text "Set your display name to <verifier>" 8
-  c #000
+  c #154a2d
   loc 2 2 200 -270
   square 320 30 20 1
-  if clicked "verify input_discord_id"
-  name = "linked:discord"
-  if verified "new name input_discord_id"
+  c #491515
+  loc 2 2 200 -340
+  square 320 30 20 1
+  if clicked "topage = "discord""
   c #fff
+  loc 2 2 50 -200
+  text "<userdata.key("global_name")> (<userdata.key("tag")>)" 8
+  name = "linked:discord:" ++ input_discord_id
+  if verified "new name input_discord_pass"
+  c #fff
+  loc 2 2 50 -270
+  text "Yes, this is the right account" 8
   loc 2 2 50 -340
-  text "Verify Account" 8
+  text "No, this is the wrong account" 8
 )
 if page == "done" (
   c #fff
@@ -138,3 +141,7 @@ if page == "done" (
 )
 if "space".pressed "window "stop""
 import "win-buttons"
+if topage != null and mouse_down.not (
+page = topage
+topage = null
+)
