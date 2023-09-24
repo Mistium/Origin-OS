@@ -1,0 +1,12 @@
+## System Updates
+
+Discord Account Support
+Revamped Account System
+New Account Creator UI
+Application Access To User Profil Picture
+
+
+## OSL Updates
+
+Asyncronous Url Image Loading
+This allows the application to hand off the request to another thread that stops the app from lagging when it loads the image and inhibiting the user experience.
