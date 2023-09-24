@@ -1,0 +1,64 @@
+permission "request" "terminal"
+window "show"
+file "open" "id" window_create_data
+window "dimensions" 900 500
+mainloop:
+loc 999 2 0 -22
+colour #333
+square window_width 32 10 1
+import "side-bar"
+if mouse_down.not "can = True"
+c #fff
+loc 2 2 12 -20
+text "<fps.round>" 10
+loc 2 2 12 -40
+text "fps" 7
+loc 2 2 12 -70
+text "<delta_time.multiply(1000).round>" 10
+loc 2 2 14 -85
+text "ms" 7
+loc 2 2 70 -23
+text "Window" 8
+loc 2 2 270 -23
+text "Delta (ms)" 8
+loc 2 2 400 -23
+text "Ram:" + total-memory.round + "Kb" 8
+colour #333
+loc 2 2 50 -45
+x = x_position
+y = y_position
+loc -2 -2 10 0
+frame x y x_position y_position page_len
+page_len = 40
+y = scroll_y - 20
+terminal "-get.windows"
+total_loops = windows-names.len
+system = total_loops - 3
+total-memory = 0
+count = 0
+loop total_loops (
+  count += 1
+  if system == count (
+    c #fff
+    loc 2 2 10 y - 5
+    text "System" 7
+    y -= 35
+  )
+  loc 999 2 0 y
+  c #222
+  square frame_width - 20 20 10 1
+  loc 2 2 10 y
+  c #fff
+  text windows-names.[count] 7
+  loc 2 2 220 y
+  text windows-drawtimes.[count] 7
+  loc 2 2 350 y
+  text windows-memory.[count] 7
+  total-memory += windows-memory.[count].destr
+  rightclick "window" windows-ids.[count]
+  y -= 35
+  page_len += 35
+)
+if mouse_down.not "can = True"
+frame "clear"
+import "win-buttons"
