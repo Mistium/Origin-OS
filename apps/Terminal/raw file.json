@@ -1,0 +1,16 @@
+[
+  ".app",
+  "Terminal",
+  "Origin/(C) Users/System/Dock",
+  "def \"log\" \"data\"§terminal = terminal.append(data)§endef§canenter = True§terminal = [\"> type -help for a list of commands\"]§input_1 = null§permission \"request\" \"terminal\"§mainloop:§count = 0§loops = terminal.len§colour #222§frame window_width / -2 + 50 window_height / 2 - 40 window_width / 2 window_height / -2 + 30 loops * 30§loop loops (§colour #ffffff§count += 1§loc 2 2 10 10 + scroll_y - count.multiply(30)§text terminal.[count] 10§)§frame \"clear\"§loc 999 2 0 -20§colour #303030§square window_width 30 20 1§loc 9999 -2 25 20§input window_width - 55 30 1 \"Type A Command Here\"§if \"enter\".pressed.not \"canenter = True\"§if \"enter\".pressed and canenter (§runterminal = \"true\"§last = input_1§input_1 = username ++ \"/ \" ++ input_1§terminal = terminal.append(input_1)§terminal last§terminal_output = [\"\"].concat(terminal_output)§terminal = terminal.concat(Terminal_output)§input_1 = null§canenter = false§)§if \"up arrow\".pressed (§input_1 = terminal.[loops]§)§canenter = True§if \"enter\".pressed \"canenter = False\"§sidebar = [\"open\",\"save\"]§import \"side-bar\"§loc 2 2 60 -20§text \"Terminal\" 8§import \"win-buttons\"",
+  11,
+  "x",
+  "y",
+  0,
+  1695677338580,
+  1695677729414,
+  "c #1a1a1a§w 10§square 0 0 5 5§c #1b8f44§w 1.5§line 0 -4 5 -4§line -2 0 -6 4§line -2 0 -6 -4",
+  1332,
+  "[\"File Viewer\",\"File Editor\"]",
+  "File End Marker"
+]
