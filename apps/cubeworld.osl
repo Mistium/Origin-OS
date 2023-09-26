@@ -4,6 +4,8 @@ camz = 0
 camdx = 0
 camdy = 0
 camdz = 0
+cubesx = []
+cubesy = []
 permission "request" "File Viewer"
 window "show"
 n = newline
@@ -14,9 +16,18 @@ model cube x y z camx / 2 camy / 2 camz / 2 camdx camdy camdz
 endef
 mainloop:
 colour #ffffff
-render-cube 0 5 0
-render-cube 2 5 0
-render-cube -2 5 0
+count = 0
+loop cubesx.len (
+count += 1
+render-cube cubex.[count].destr cubey.[count].destr 0
+)
+
+if "space".pressed and can (
+can = false
+cubesx = cubesx.append(camxdispl)
+cubesy = cubesy.append(camydispl)
+)
+if "space".released "can = true"
 loc 2 2 20 -20
 c #fff
 camxdispl = camx.round
