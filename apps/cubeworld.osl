@@ -1,0 +1,41 @@
+camx = 0
+camy = 0
+camz = 0
+camdx = 0
+camdy = 0
+camdz = 0
+permission "request" "File Viewer"
+window "show"
+n = newline
+file "open" "origin/(c) users/system/documents/models/cube.3dicn"
+cube = data
+def "render-cube" "x,y,z"
+model cube x y z camx / 2 camy / 2 camz / 2 camdx camdy camdz
+endef
+mainloop:
+colour #ffffff
+render-cube 0 5 0
+render-cube 2 5 0
+render-cube -2 5 0
+camdx = 90
+camdy = 0
+if "w".pressed (
+camx -= camdz.sin
+camy -= camdz.cos
+)
+if "s".pressed (
+camx += camdz.sin
+camy += camdz.cos
+)
+camz = 0
+if "right arrow".pressed "camdz += 5"
+if "left arrow".pressed "camdz -= 5"
+if "a".pressed (
+camx += camdz.add(90).sin
+camy += camdz.add(90).cos
+)
+if "d".pressed (
+camx += camdz.add(-90).sin
+camy += camdz.add(-90).cos
+)
+import "win-buttons"
