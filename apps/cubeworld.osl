@@ -17,6 +17,11 @@ colour #ffffff
 render-cube 0 5 0
 render-cube 2 5 0
 render-cube -2 5 0
+loc 2 2 20 -20
+c #fff
+camxdispl = camx.round
+camydispl = camy.round
+text "<camxdispl>:<camydispl>" 8
 camdx = 90
 camdy = 0
 if "w".pressed (
