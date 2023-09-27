@@ -1,39 +1,50 @@
 camx = 0
 camy = 0
 camz = 0
-camdx = 0
+camdx = 90
 camdy = 0
 camdz = 0
 cubesx = []
 cubesy = []
+cubesz = []
 permission "request" "File Viewer"
-window "show"
-n = newline
+window "sdhow"
 file "open" "origin/(c) users/system/documents/models/cube.3dicn"
 cube = data
 def "render-cube" "x,y,z"
 model cube x y z camx / 2 camy / 2 camz / 2 camdx camdy camdz
 endef
 mainloop:
-colour #ffffff
+c #fff
 count = 0
 loop cubesx.len (
 count += 1
-render-cube cubex.[count].destr cubey.[count].destr 0
+render-cube cubesx.[count].destr cubesy.[count].destr cubesz.[count].destr
 )
-
+camxdispl /= -2
+camydispl /= -2
+camzdispl /= -1
+camxdispl += camdz.sin * 5
+camydispl += camdz.cos * 5
+camzdispl += camdx.cos * 5
+c #999
+camxdispl = camxdispl.round
+camydispl = camydispl.round
+camzdispl = camzdispl.round
+render-cube camxdispl camydispl camzdispl
 if "space".pressed and can (
 can = false
 cubesx = cubesx.append(camxdispl)
 cubesy = cubesy.append(camydispl)
+cubesz = cubesz.append(camzdispl)
 )
 if "space".released "can = true"
 loc 2 2 20 -20
 c #fff
 camxdispl = camx.round
 camydispl = camy.round
-text "<camxdispl>:<camydispl>" 8
-camdx = 90
+camzdispl = camz.round
+text "<camxdispl>:<camydispl>:<camzdispl>" 8
 camdy = 0
 if "w".pressed (
 camx -= camdz.sin
@@ -54,4 +65,6 @@ if "d".pressed (
 camx += camdz.add(-90).sin
 camy += camdz.add(-90).cos
 )
+if "up arrow".pressed "camdx += 5"
+if "down arrow".pressed "camdx -= 5"
 import "win-buttons"
