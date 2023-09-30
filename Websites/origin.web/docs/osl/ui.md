@@ -25,18 +25,23 @@ Example hex codes:
 ## Main Ui Elements
 
 square px-width px-height outline-px-width filled invisible?
+
 draws a rectangle centered on the draw cursor
 
 icon "icon-name"/"raw-icon-data" size
+
 draws an icon centered on the draw cursor
 
 text "text-to-draw" size
+
 Renders text at the draw cursor with a size
 
 ## Ui Info
 
 Icons are pulled from files. Use the file name 
+
 of a icon on the computer to render it or just plain
+
 icon data.
 
 ---
@@ -46,7 +51,9 @@ icon data.
 The pen draws a line behind the draw cursor
 
 pen "down"/"up"
+
 lifts or lowers the pen
 
 pen "size" pen-size
+
 sets the size of the pen
