@@ -1,0 +1,14 @@
+window "show"
+count = 00
+mainloop:
+count = count.destr
+count += 1
+loc 2 2 20 -20
+c #fff
+if count.len < 2 (
+  count = "0" ++ count.str
+)
+text count 8
+goto 0 0
+image "https://github.com/Mistium/Origin-OS/blob/main/gifs/frm" ++ count ++ ".png" 100
+if count > 42 "count = 00"
