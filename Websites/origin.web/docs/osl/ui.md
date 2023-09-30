@@ -28,13 +28,16 @@ square px-width px-height outline-px-width filled invisible?
 
 draws a rectangle centered on the draw cursor
 
+
 icon "icon-name"/"raw-icon-data" size
 
 draws an icon centered on the draw cursor
 
+
 text "text-to-draw" size
 
 Renders text at the draw cursor with a size
+
 
 ## Ui Info
 
