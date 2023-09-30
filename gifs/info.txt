@@ -1,0 +1,1 @@
+This is a gif of the earth spinning to test a frame handler
