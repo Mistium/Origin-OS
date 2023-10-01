@@ -4,6 +4,7 @@
 - **variablename = "assign-data"**:
   - This command sets a variable with the specified name (`variablename`) to the inputted data ("assign-data").
   - Example: `count = 10` sets the variable `count` to the value `10`.
+  - Setting a variable to an array: `array = ["hello","world"]` sets the variable `array` to the value `["hello","world"]`
 
 ## List Item Assignment:
 
