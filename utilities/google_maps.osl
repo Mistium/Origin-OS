@@ -8,8 +8,8 @@ if "s".pressed "camy += 1"
 if "d".pressed "camx += 1"
 goto 0 0
 image "https://mts1.google.com/vt/x=" ++ camx ++ "&y=" ++ camy ++ "&z=13" 400
-goto 510 0
+goto 400 0
 image "https://mts1.google.com/vt/x=" ++ ( camx + 1 ) ++ "&y=" ++ camy ++ "&z=13" 400
-goto -510 0
+goto -400 0
 image "https://mts1.google.com/vt/x=" ++ ( camx - 1 ) ++ "&y=" ++ camy ++ "&z=13" 400
 import "win-buttons"
