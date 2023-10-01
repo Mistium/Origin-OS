@@ -20,4 +20,6 @@ Create a window that shows a array
 
 [Assigning variables](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/variables.md#variable-assignment)
 
+[Array Functions](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/Arrays.md)
+
 [Loops And If Statements](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/loops-selection.md)
