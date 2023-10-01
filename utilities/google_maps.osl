@@ -1,15 +1,32 @@
-camx = 2200
-camy = 3120
+camx = 1326
+camy = 3143
 window "show"
+zoom = 200
 mainloop:
-if "w".pressed "camy -= 1"
-if "a".pressed "camx -= 1"
-if "s".pressed "camy += 1"
-if "d".pressed "camx += 1"
-goto 0 0
-image "https://mts1.google.com/vt/x=" ++ camx ++ "&y=" ++ camy ++ "&z=13" 400
-goto 400 0
-image "https://mts1.google.com/vt/x=" ++ ( camx + 1 ) ++ "&y=" ++ camy ++ "&z=13" 400
-goto -400 0
-image "https://mts1.google.com/vt/x=" ++ ( camx - 1 ) ++ "&y=" ++ camy ++ "&z=13" 400
+if "q".pressed "zoom -= 10"
+if "e".pressed "zoom += 10"
+if "w".pressed "camy -= 0.2"
+if "a".pressed "camx -= 0.2"
+if "s".pressed "camy += 0.2"
+if "d".pressed "camx += 0.2"
+displx = camx.floor
+disply = camy.floor
+loc 2 2 20 -20
+c #fff
+text scrollx 10
+size = 1
+until window_width / size < zoom "size += 1"
+w = window_width / size
+i = -1
+loop size (
+  i += 1
+  j = -1
+  loop size (
+    j += 1
+    goto size - 1 * -0.5 * w size - 1 * w * 0.5
+    change i * w j * w * -1
+    change camx % 1 * w * -1 camy % 1 * w
+    image "https://mts1.google.com/vt/x=" ++ ( displx + i ) ++ "&y=" ++ ( disply + j ) ++ "&z=13" w
+  )
+)
 import "win-buttons"
