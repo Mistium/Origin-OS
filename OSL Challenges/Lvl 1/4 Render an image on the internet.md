@@ -6,7 +6,7 @@ Write a program that draws an image from the internet onto your application
 
 ## What it should look like
 
-![Screenshot 2023-09-30 at 17 17 39](https://github.com/Mistium/Origin-OS/assets/92952823/1649f121-a322-43c9-a53a-5988ab30917b)
+![Screenshot 2023-10-01 at 15 22 36](https://github.com/Mistium/Origin-OS/assets/92952823/8e3ec010-7f10-48dc-a6ed-347f57f81d48)
 
 ## Useful docs
 
