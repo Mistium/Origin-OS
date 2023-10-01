@@ -2,7 +2,7 @@
 
 ## Instructions
 
-Write a program that draws an image from the internet onto your application
+Write a program that draws an array onto your application
 
 ## What it should look like
 
