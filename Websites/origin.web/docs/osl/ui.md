@@ -38,6 +38,8 @@ draws an icon centered on the draw cursor
 
 Renders text at the draw cursor with a size
 
+All of the above set the `clicked` and `touching_mouse` variables
+
 `image "url" width_in_pixels`
 
 Renders an image from the web or from a data uri with a specified width
