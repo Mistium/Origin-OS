@@ -1,0 +1,19 @@
+array = ["Bendie","Galactus","Kratos","Lil Whip","Peely","Spark Plug","Twistie"]
+
+print "What Is Your Name?"
+
+if "enter".pressed (
+  last = terminal.len
+  input = terminal.[last]
+)
+
+if input != "" (
+  return = []
+  count = 0
+  loop array.len (
+    count += 1
+    current = array.[count]
+    if current.destr == input.destr "return = return.append(current)"
+  )
+  print return
+)
