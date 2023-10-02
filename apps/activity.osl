@@ -2,63 +2,105 @@ permission "request" "terminal"
 window "show"
 file "open" "id" window_create_data
 window "dimensions" 900 500
+
+current_tab = "Render Info"
+graph = []
+network_usage = []
+
+def "tab" "name"
+  c #111
+  if name == current_tab "c #333"
+  square 200 20 10 1
+  if clicked "current_tab = name"
+  change -90 0
+  text name 10 : c#fff
+endef
+
 mainloop:
-loc 999 2 0 -22
-colour #333
-square window_width 32 10 1
+frame "clear"
+usage = fps.round
+graph = graph.append(usage)
+if graph.len > 100 "graph = graph.delete(1)"
+
+terminal "get network"
+data = data.len
+network_usage = network_usage.append(data)
+if network_usage.len > 100 "network_usage = network_usage.delete(1)"
+
+log graph
 import "side-bar"
 if mouse_down.not "can = True"
-c #fff
 loc 2 2 12 -20
-text "<fps.round>" 10
+text "<fps.round>" 10 : c#fff
 loc 2 2 12 -40
 text "fps" 7
 loc 2 2 12 -70
 text "<delta_time.multiply(1000).round>" 10
 loc 2 2 14 -85
 text "ms" 7
-loc 2 2 70 -23
-text "Window" 8
-loc 2 2 270 -23
-text "Delta (ms)" 8
-loc 2 2 400 -23
-text "Ram:" + total-memory.round + "Kb" 8
-colour #333
+
+loc 2 2 160 -20
+tab "Render Info"
+loc 2 2 380 -20
+tab "Performance"
+loc 2 2 600 -20
+tab "Network"
+
+import "win-buttons"
+
+if current_tab == "Performance" (
+  wwm = window_width - 50 / 100
+  whm = window_height / 130
+  loc 2 -2 50 graph.[1].destr * whm
+  c #fff
+  pen "down"
+  pen "width" 10
+  graph_count = 0
+  loop graph.len (
+    graph_count += 1
+    loc 2 -2 graph_count * wwm + 50 graph.[graph_count].destr * whm
+  )
+  pen "up"
+)
+
+if current_tab == "Network" (
+  wwm = window_width - 50 / 100
+  whm = window_height / 130
+  loc 2 -2 50 graph.[1].destr * whm
+  c #fff
+  pen "down"
+  pen "width" 10
+  graph_count = 0
+  loop network_usage.len (
+    graph_count += 1
+    loc 2 -2 graph_count * wwm + 50 network_usage.[graph_count].destr * whm
+  )
+  pen "up"
+)
+
+if current_tab == "Render Info" (
+c #333
 loc 2 2 50 -45
 x = x_position
 y = y_position
 loc -2 -2 10 0
 frame x y x_position y_position page_len
+
 page_len = 40
 y = scroll_y - 20
 terminal "-get.windows"
-total_loops = windows-names.len
-system = total_loops - 3
-total-memory = 0
 count = 0
-loop total_loops (
+loop windows-names.len (
   count += 1
-  if system == count (
-    c #fff
-    loc 2 2 10 y - 5
-    text "System" 7
-    y -= 35
-  )
   loc 999 2 0 y
-  c #222
-  square frame_width - 20 20 10 1
+  square frame_width - 20 20 10 1 : c#222
   loc 2 2 10 y
-  c #fff
-  text windows-names.[count] 7
+  text windows-names.[count] 7 : c#fff
   loc 2 2 220 y
   text windows-drawtimes.[count] 7
-  loc 2 2 350 y
-  text windows-memory.[count] 7
-  total-memory += windows-memory.[count].destr
   rightclick "window" windows-ids.[count]
   y -= 35
   page_len += 35
 )
-if mouse_down.not "can = True"
+)
 frame "clear"
-import "win-buttons"
