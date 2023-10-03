@@ -1,0 +1,29 @@
+spreadsheet = [["Hello","1"],["How","2"],["Are","3"],["You","4"]]
+
+mainloop:
+
+c #333
+loc 2 2 20 -60
+x = x_position
+y = y_position
+loc -2 -2 0 0
+frame x y x_position y_position
+
+width_multiplier = frame_width / spreadsheet.len
+height_multiplier = frame_height / spreadsheet.[1].len
+
+i = 0
+loop spreadsheet.len (
+  i += 1
+  j = 0
+  column = spreadsheet.[i]
+  loop column.len (
+    j += 1
+    loc 2 2 i * width_multiplier j * height_multiplier * -1 + ( height_multiplier * 0.5 )
+    text column.[j] 10 : c#fff
+  )
+)
+
+frame "clear"
+
+import "win-buttons"
