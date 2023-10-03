@@ -1,4 +1,4 @@
-spreadsheet = [["Hello","1"],["How","2"],["Are","3"],["You","4"]]
+spreadsheet = [["Hello","1","wow"],["How","2","this"],["Are","3","is"],["You","4","cool"],["Hey","I'm","Cool"]]
 
 mainloop:
 
@@ -19,7 +19,7 @@ loop spreadsheet.len (
   column = spreadsheet.[i]
   loop column.len (
     j += 1
-    loc 2 2 i * width_multiplier j * height_multiplier * -1 + ( height_multiplier * 0.5 )
+    loc 2 2 i - 1 * width_multiplier j - 0.9 * height_multiplier * -1
     text column.[j] 10 : c#fff
   )
 )
