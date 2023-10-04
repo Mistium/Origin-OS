@@ -1,0 +1,38 @@
+window "dimensions" 800 500
+tab = "Manage"
+
+def "button" "txt,icn"
+square 200 30 10 1
+c = clicked
+x = x_position
+change -90
+icon icn 0.7 : c#fff
+change 30
+text txt 8 : c#fff
+goto x + 220 y_position
+endef
+
+mainloop:
+loc 2 2 110 -25
+c #222
+if tab == "Manage" "c #333"
+button "Manage" "Settings"
+if c (
+tab = "Manage"
+)
+
+c #222
+if tab == "Import" "c #333"
+button "Import" "Download"
+if c (
+tab = "Import"
+)
+
+c #222
+if tab == "Export" "c #333"
+button "Export" "open"
+if c (
+tab = "Export"
+)
+
+import "win-buttons"
