@@ -2,23 +2,38 @@
 
 place this code in the setup part of your code before the mainloop label
 
-event condition (
+sound "load" "url/uri"
+// loads a sound into ram to remove loading times
 
-)
+sound "play" "url/uri"
+// plays a sound from the beginning
+
+sound "pause" "url/uri"
+// pauses a sound
+
+sound "seek" time "url/uri"
+// goes to a time in a sound and starts playing it
+
+sound "clear" "url/uri"
+// deletes a sound
+
+sound "volume" int
+// changes the volume of all sounds
+
+sound "skew" int
+// skews the sound left or right
 
 ---
 
 ### Function Osl Equivalent
 
-No direct equivalent in osl code exists for the event/on command.
+No direct equivalent in osl code exists for sound commands.
 
-This command will be jumped to by the system whenever a condition is met. This allows more optimisation in osl and removes the need to check conditions every frame
+These commands allow the system to play sounds
 
 ---
 
 ### Example Use
-event "space".pressed and touching_ground (
 
-y_velocity = 30
-
-)
+sound "load" "example.com/beep.wav"
+sound "play" "example.com/beep.wav"
