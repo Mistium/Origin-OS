@@ -1,0 +1,18 @@
+{
+  "name": "Oki",
+  "icon": "image \"https://raw.githubusercontent.com/Kasairoe/oki/main/animations/player/idle/1.png\" 10",
+  "versions": [
+    {
+      "data": "install_link = \"https://raw.githubusercontent.com/Kasairoe/oki/30ed3eb1d52a2a249a294b719e0b7a2b0c8b3759/oki_rpg.osl\"§import \"installer\"",
+      "required_version": "399"
+    }
+  ],
+  "authors": [
+    "Mistium","Kasairoe"
+  ],
+  "author_link_types": [
+    "github","github"
+  ],
+  "links": ["https://github.com/Kasairoe/oki"],
+  "description": "The first rpg written in osl and one of the first big projects for originOS and the OSl language.§Members: Programmed Mostly By @Mistium, Art by @Kasairoe"
+}
