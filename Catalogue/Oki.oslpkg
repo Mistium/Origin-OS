@@ -3,6 +3,7 @@
   "icon": "image \"https://raw.githubusercontent.com/Kasairoe/oki/main/animations/player/idle/1.png\" 10",
   "versions": [
     {
+      "version": "1",
       "data": "install_link = \"https://raw.githubusercontent.com/Kasairoe/oki/30ed3eb1d52a2a249a294b719e0b7a2b0c8b3759/oki_rpg.osl\"§import \"installer\"",
       "required_version": "399"
     }
