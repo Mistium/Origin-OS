@@ -1,0 +1,190 @@
+window "show"
+window "dimensions" 1000 600
+page = "APPSTORE// store"
+input_provider = "https://api.github.com/repos/Mistium/Origin-OS/contents/Catalogue"
+provider = input_provider
+
+def "reload"
+  network "get" input_provider
+  store_data = data
+endef
+
+reload
+
+def "tab" "name"
+  c #222
+  if name == page "c #333"
+  square sidebar_width - 15 30 10 1
+  if clicked "page = name"
+  change_y -50
+endef
+
+def "app" "name,icon,expanded"
+  w = total_width / per_line
+  x += w / 2
+  loc 2 2 x y
+  colour #222
+  square w - 25 130 10 1
+  if clicked (
+    page = name
+    page_name = name
+    current_app = store_data.[count]
+    network "get" 
+    log data
+    current_app = data
+    app_tab = "description"
+  )
+  c #fff
+  change w / -2 + 45 0
+  icon icon 3
+  change -25 -50
+  c #fff
+  text name 8
+  x += w / 2
+  loc 2 2 x y
+  if frame_width / 2 < x_position (
+    x = 0
+    y -= 150
+    len += 150
+  )
+endef
+
+def "setting" "name,type,var"
+  loc 999 2 0 y
+  colour #111
+  square frame_width - 20 35 10 1
+  colour #fff
+  loc 2 2 20 y
+  text name 8
+  colour #222
+  if type == "text" (
+    loc 999 2 135 y
+    input frame_width - 300 25 var
+    if true "output = input_" ++ var
+  )
+  y -= 70
+endef
+
+mainloop:
+frame "clear"
+sidebar_width = ww / 5
+if sidebar_width < 300 "sidebar_width = 300"
+loc 999 2 0 -20
+square ww 40 10 1 : c#111
+loc 2 2 sidebar_width + 20 -20
+text page_name 8 : c#fff
+ww = window_width
+wh = window_height
+frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
+
+if page == "APPSTORE// store" (
+  page_name = "Store"
+  x = 0
+  y = -75 + scroll_y
+  len = 140
+  total_width = frame_width
+  per_line = 1
+  until total_width / per_line > 200 "per_line -= 1"
+  until frame_width / per_line < 300 "per_line += 1"
+  count = 0
+  loop store_data.len (
+    count += 1
+    current = store_data.[count]
+    app current.key("name") current.key("icon") False
+  )
+)
+
+if page == "APPSTORE// profile" (
+  page_name = profile
+)
+
+if page == "APPSTORE// library" (
+  page_name = "Library"
+  per_line = 1
+  total_width = frame_width
+  until total_width / per_line > 200 "per_line -= 1"
+  until frame_width / per_line < 300 "per_line += 1"
+  save "installed_games" "get"
+  data = save-data
+  count = 0
+  loop data.len (
+    count += 1
+    current = data.[count]
+    app current.key("name") current.key("icon") False
+  )
+)
+
+if page == "APPSTORE// settings" (
+  y = -30
+  if true "input_provider =" + provider
+  setting "App Provider" "text" "provider"
+  provider = output
+)
+
+app_page = page.contains("APPSTORE// ").not
+if app_page (
+  loc 999 2 25 -110
+  c #222
+  w = frame_width
+  square w 100 10 1
+  loc 999 2 25 -200
+  square w 40 10 1
+  loc 2 2 145 -200
+  c #11
+  square 150 30 10 1
+  if clicked "app_tab = description"
+  change 170
+  square 150 30 10 1
+  if clicked "app_tab = stats"
+  change 170
+  square 150 30 10 1
+  if clicked "app_tab = developer"
+  c #fff
+  loc 2 2 95 -200
+  text "Description" 8
+  loc 2 2 290 -200
+  text "Stats" 8
+  loc 2 2 445 -200
+  text "Developer" 8
+  loc 2 2 110 -110
+  icon current_app.key("icon") 4
+  c #fff
+  loc 2 2 170 -100
+  text current_app.key("name") 10
+  loc 2 2 170 -130
+  text "By" + current_app.key("author") 8
+  loc -2 2 -110 -115
+  text current_app.key("size") 10
+  if app_tab == "description" (
+    loc 2 2 70 -250
+    text current_app.key("description") 8 0 frame_width / 2
+  )
+)
+frame "clear"
+
+loc 2 999 sidebar_width / 2 0
+square sidebar_width wh 20 1 : c#111
+
+loc 2 2 sidebar_width / 2 + 5 -25
+tab "APPSTORE// Profile"
+change_y -30
+tab "APPSTORE// Library"
+tab "APPSTORE// Store"
+tab "APPSTORE// Settings"
+
+loc 2 2 25 -25
+image user_icon 30
+change 30
+text username 10 : c#fff
+
+c #fff
+loc 2 2 20 -105
+text "Library" 8
+loc 2 2 20 -155
+text "Store" 8
+loc 2 2 20 -205
+text "Settings" 8
+
+if mouse_down.not "can = true"
+
+import "win-buttons"
