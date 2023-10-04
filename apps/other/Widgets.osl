@@ -1,0 +1,41 @@
+ 
+.app
+filename "Widgetsys"
+open = True
+window "front"
+mainloop:
+window "hide"
+window "x" screensize_x * -0.5 + 100
+window "y" 0
+window "dimensions" 200 350
+goto 0 0
+colour #202020
+if open.not (
+  goto -80
+  square 20 365 20 1
+)
+if open (
+  square 185 365 20 1
+  colour #303030
+  goto -40 2
+  square 180 340 20 1
+)
+colour #ffffff
+goto 80 160
+if open (
+  icon "Left-Arrow" 0.8
+  if clicked (
+    open = False
+  )
+)
+if open == False (
+  window x screensize_x / -2 - 60
+  goto 80 160
+  icon "Right-Arrow" 0.8
+  if clicked (
+    open = True
+  )
+  goto 80 -160
+  icon "Close" 0.8
+  if clicked "window "Stop""
+)
