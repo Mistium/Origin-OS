@@ -36,4 +36,5 @@ These commands allow the system to play sounds
 ### Example Use
 
 sound "load" "example.com/beep.wav"
+
 sound "play" "example.com/beep.wav"
