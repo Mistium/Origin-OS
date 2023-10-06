@@ -1,52 +1,41 @@
 window "dimensions" 300 350
 tiles = [" "," "," "," "," "," "," "," "," "]
+turn = "X"
 def "drawtile" "id"
-c #555
-square 70 70 20 1
+square 70 70 20 1 : c#555
 if tiles.[id] == " " and ( clicked or key(id) ) and clickable (
   clickable = False
   tiles.[id] = turn
   temp = turn
-  if temp == "X" (
-    turn = "0"
-  )
-  if temp == "0" (
-    turn = "X"
-  )
+  if temp == "X" "turn = 0.str"
+  if temp == "0" "turn = X.str"
 )
-c #fff
 x = x_position
 change_x -15
-text tiles.[id].destr 30
-goto x y_position
-change_x 100
+text tiles.[id].destr 30 : c #fff
+goto x + 100 y_position
 endef
-turn = "X"
-
 mainloop:
 if mouse_down.not "clickable = True"
 goto -100 80
 drawtile 1
 drawtile 2
 drawtile 3
-
 goto -100 -20
 drawtile 4
 drawtile 5
 drawtile 6
-
 goto -100 -120
 drawtile 7
 drawtile 8
 drawtile 9
-
 loc 999 2 0 -20
 square 300 30 10 1 : c#222
 import "win-buttons"
 loc 2 2 20 -20
 icon reload 1 : c#fff
 if clicked or "space".pressed (
-  tiles = [" "," "," "," "," "," "," "," "," "]
+tiles = [" "," "," "," "," "," "," "," "," "]
 )
 change_x 30
 text turn 20
