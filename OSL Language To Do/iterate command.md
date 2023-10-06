@@ -1,6 +1,6 @@
 ### Basic Syntax
 
-iterate variable int step (
+iterate variable variable_start int step (
 
 )
 
@@ -8,11 +8,10 @@ iterate variable int step (
 
 ### Function Osl Equivalent
 
-variable = 0
-
+step = 1
+i = 0
 loop int (
-
-variable += step
+i += step
 
 commands and stuff
 
@@ -21,8 +20,17 @@ commands and stuff
 ---
 
 ### Example Use
-iterate i 10 1 (
+
+iterate i 0 10 1 (
 
 print i
+
+)
+
+### Example as osl
+
+i = 0
+loop 10 (
+i += 1
 
 )
