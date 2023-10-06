@@ -1,0 +1,9 @@
+permission "request" "File Admin"
+count = 0
+filelength = 0
+loop 500 (
+count += 1
+file "open" "id" count
+filelength += file.join(" ").len
+)
+say "Your drive is" + filelength + "characters long"
