@@ -1,0 +1,72 @@
+def "tab" "name"
+x = x_position
+colour #333
+if current-tab == name (
+colour accent_colour
+square 100 0 10
+colour #444
+)
+square 100 20 10 1
+if clicked "current-tab = name"
+change_x -50
+colour #fff
+text name 7
+goto x + 115 y_position
+endef
+current-tab = "Information"
+window "resizable" False
+kernel = origin.key("kernel")
+mainloop:
+loc 999 2 0 -15
+square window_width 30 20 1 : c#222
+loc 2 2 60 -20
+tab "Information"
+tab "Storage"
+tab "Displays"
+if current-tab == "Information" (
+window "dimensions" 600 250
+loc 2 999 120 -20
+square 0 0 160 : c#555
+square 0 0 150 : c#333
+icon "origin-logo" 3 : c#fff
+loc 2 2 260 -90
+text "originOS" 15
+text "" + kernel.key("name") 12
+loc 2 2 260 -120
+text "Version" + origin.key("version") 8
+loc 2 2 260 -160
+text "Kernel:" + kernel.key("name") + kernel.key("version") + kernel.key("type") 8
+loc 2 2 260 -180
+text "Storage: 10MB/Drive" 8
+loc 2 2 260 -200
+text "UI Style: Origin-Default" 8
+loc 2 2 260 -220
+text "Startup Drive:" + origin.key("system").key("startup drive") 8
+)
+if current-tab == "Storage" (
+drives = origin.key("drives")
+window "dimensions" 600 drives.len * 160 + 50
+count = 0
+loop drives.len (
+count += 1
+current = drives.[count]
+y = count * -160 + 35
+loc 999 2 0 y
+square 570 140 10 1 : c#222
+loc 2 2 80 y
+icon current.key("icon") 3 : c#fff
+change 80 30
+text current.key("name") 13
+loc 2 2 160 y
+text current.key("used") / 1000 ++ "kb / 10000kb" 8
+loc 999 2 60 y - 30
+percent = current.key("used") / current.key("size")
+bar 380 20 10 percent : c#444
+)
+)
+if current-tab == "Displays" (
+window "dimensions" 600 350
+loc 2 2 10 -60
+text "Display Resolution:" + screen_resolution 8 : c#fff
+)
+import "win-buttons"
