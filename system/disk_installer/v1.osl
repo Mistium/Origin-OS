@@ -1,0 +1,30 @@
+window "resizable" false
+page = "Install Disk"
+mainloop:
+window "dimensions" 400 400
+if page == "Install Disk" (
+window "dimensions" 400 100
+)
+loc 999 2 0 -20d
+square window_width 20 10 1 : c#111
+loc 2 2 20 -20
+text page 10 : c#fff
+loc 4 2 5 -70
+c #222
+if page == "Paste" "c #555"
+square 170 30 10 1
+if clicked (
+page = "Paste"
+)
+change -80
+text "Paste Drive Data" 8 : c#fff
+loc -4 2 -5 -70
+c #222
+if page == "Url" "c #555"
+square 170 30 10 1
+if clicked (
+page = "Url"
+)
+change -80
+text "Pull Drive From Url" 8 : c#fff
+import "win-buttons"
