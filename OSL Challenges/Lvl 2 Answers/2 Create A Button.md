@@ -46,7 +46,7 @@ goto -100 0
 
 // sets the x y for any subsequent commands to -100 0
 
-text "Clicks <count>" 10 : c#fff
+text "Clicks \<count\>" 10 : c#fff
 
 // draws text displaying the number of times that the button has been clicked
 
