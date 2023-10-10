@@ -1,0 +1,16 @@
+window "show"
+window "dimensions" 800 600
+bullets = []
+playerx = 0
+playerxvel = 0
+
+mainloop:
+
+if "left arrow".pressed "playerxvel -= 4"
+if "right arrow".pressed "playerxvel += 4"
+playerxvel *= 0.8
+playerx += playerxvel
+loc 999 -2 playerx 20
+c #fff
+icon "w 7 line 0 5 0 0 line -5 0 5 0 path 5 0 5 -5 10 -5 10 -10 -10 -10 -10 -5 -5 -5 -5 0 0 -5 )" 1
+import "win-buttons"
