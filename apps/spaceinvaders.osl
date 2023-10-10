@@ -5,13 +5,15 @@ bullets = []
 playerx = 0
 playerxvel = 0
 lastshot = 0
-
-def shoot
+enemy_y = 0
+def "shoot"
 playerxin = playerx.round.str
 bullets = bullets.append(playerxin).append(timer)
 endef
-
-def renderbullets
+def "drawenemy" "icn"
+icon icn 2
+endef
+def "renderbullets"
 count_ = 0
 loop bullets.len / 2 (
 count_ += 2
@@ -25,14 +27,11 @@ bullets = bullets.delete(count)
 )
 )
 endef
-
 playership = "w 7 line 0 5 0 0 line -5 0 5 0 path 5 0 5 -5 10 -5 10 -10 -10 -10 -10 -5 -5 -5 -5 0 0 -5 )"
 enemy2 = "w 3 line -10 0 10 0 line -5 5 5 5 line -8 2 8 2 line 4 6 6 8 line -4 6 -6 8 path 10 0 4 6 4 4 -4 4 -4 6 -10 0 -10 -4 ) line 10 -4 10 0 path -2 -6 -4 -6 -6 -4 -6 -2 6 -2 6 -4 4 -6 2 -6 )"
-
 mainloop:
 lowx = window_width / -2 + 20
 highx = window_width / 2 - 20
-
 if "left arrow".pressed "playerxvel -= 4"
 if "right arrow".pressed "playerxvel += 4"
 playerxvel *= 0.8
@@ -44,6 +43,35 @@ icon playership 1
 if timer - lastshot > 0.5 and ( "up arrow".pressed or "space".pressed ) (
 lastshot = timer
 shoot
+)
+loc 2 2 70 -150 - enemy_y
+chx = timer.multiply(100).sin
+change_x chx * 30
+c #fff
+count = 0
+loop 11 (
+count += 1
+drawenemy enemy2
+change window_width - 100 / 11
+)
+loc 2 2 70 -200 - enemy_y
+change_x chx * 30
+c #fff
+loop 11 (
+count += 1
+drawenemy enemy2
+change window_width - 100 / 11
+)
+loc 2 -2 20 20
+text chx 10
+change_x 10
+text enemy_y 10
+if chx.abs > 0.9 and can (
+can = false
+enemy_y += 10
+)
+if chx.abs < 0.9 (
+can = true
 )
 renderbullets
 import "win-buttons"
