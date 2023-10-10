@@ -2,76 +2,83 @@ window "show"
 window "dimensions" 800 600
 window "resizable" false
 bullets = []
+enemies = []
+loop 33 (
+  enemies = enemies.append("Alive")
+)
 playerx = 0
 playerxvel = 0
 lastshot = 0
 enemy_y = 0
+frame = 0
+
 def "shoot"
 playerxin = playerx.round.str
 bullets = bullets.append(playerxin).append(timer)
 endef
-def "drawenemy" "icn"
-icon icn 2
+
+def "row" "y"
+loc 2 2 70 + ( chx * 30 ) -150 - enemy_y
+change_y y
+loop 11 (
+  count += 1
+  if enemies.[count] == "Alive" (
+    icon enemy2 2
+    if clicked "enemies.[count] = "Dead""
+  )
+  change window_width - 100 / 11
+)
 endef
+
+
 def "renderbullets"
 count_ = 0
 loop bullets.len / 2 (
-count_ += 2
-count = count_ - 1
-y = timer - bullets.[count_].destr * 200 + 20
-loc 999 -2 bullets.[count].destr y
-icon "w 3 line 0 5 0 -5" 1 : c#fff
-if y > window_height (
-bullets = bullets.delete(count)
-bullets = bullets.delete(count)
-)
+  count_ += 2
+  count = count_ - 1
+  y = timer - bullets.[count_].destr * 200 + 20
+  loc 999 -2 bullets.[count].destr y
+  icon "w 3 line 0 5 0 -5" 1 : c#fff
+  if y > window_height (
+    bullets = bullets.delete(count)
+    bullets = bullets.delete(count)
+  )
 )
 endef
+
 playership = "w 7 line 0 5 0 0 line -5 0 5 0 path 5 0 5 -5 10 -5 10 -10 -10 -10 -10 -5 -5 -5 -5 0 0 -5 )"
 enemy2 = "w 3 line -10 0 10 0 line -5 5 5 5 line -8 2 8 2 line 4 6 6 8 line -4 6 -6 8 path 10 0 4 6 4 4 -4 4 -4 6 -10 0 -10 -4 ) line 10 -4 10 0 path -2 -6 -4 -6 -6 -4 -6 -2 6 -2 6 -4 4 -6 2 -6 )"
+
 mainloop:
+local_timer /= 1000
+local_timer = local_timer.round
 lowx = window_width / -2 + 20
 highx = window_width / 2 - 20
+
 if "left arrow".pressed "playerxvel -= 4"
 if "right arrow".pressed "playerxvel += 4"
+
 playerxvel *= 0.8
 playerx += playerxvel
 playerx = playerx.clamp(lowx,highx)
 loc 999 -2 playerx 20
-c #fff
-icon playership 1
-if timer - lastshot > 0.5 and ( "up arrow".pressed or "space".pressed ) (
-lastshot = timer
-shoot
+icon playership 1 : c#fff
+
+if can and ( "up arrow".pressed or "space".pressed ) (
+  can = false
+  shoot
 )
-loc 2 2 70 -150 - enemy_y
+
+if "up arrow".pressed.not and "space".pressed.not "can = true"
+
 chx = timer.multiply(100).sin
-change_x chx * 30
 c #fff
 count = 0
-loop 11 (
-count += 1
-drawenemy enemy2
-change window_width - 100 / 11
-)
-loc 2 2 70 -200 - enemy_y
-change_x chx * 30
-c #fff
-loop 11 (
-count += 1
-drawenemy enemy2
-change window_width - 100 / 11
-)
-loc 2 -2 20 20
-text chx 10
-change_x 10
-text enemy_y 10
-if chx.abs > 0.9 and can (
-can = false
-enemy_y += 10
-)
-if chx.abs < 0.9 (
-can = true
-)
+row 0
+row -40
+
+enemy_y = local_timer
+enemy_y = enemy_y.round
+
 renderbullets
 import "win-buttons"
