@@ -9,8 +9,11 @@ iterate variable variable_start int step (
 ### Function Osl Equivalent
 
 step = 1
+
 i = 0
+
 loop int (
+
 i += step
 
 commands and stuff
@@ -30,7 +33,9 @@ print i
 ### Example as osl
 
 i = 0
+
 loop 10 (
+
 i += 1
 
 )
