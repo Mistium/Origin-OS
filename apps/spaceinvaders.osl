@@ -1,16 +1,49 @@
 window "show"
 window "dimensions" 800 600
+window "resizable" false
 bullets = []
 playerx = 0
 playerxvel = 0
+lastshot = 0
+
+def shoot
+playerxin = playerx.round.str
+bullets = bullets.append(playerxin).append(timer)
+endef
+
+def renderbullets
+count_ = 0
+loop bullets.len / 2 (
+count_ += 2
+count = count_ - 1
+y = timer - bullets.[count_].destr * 200 + 20
+loc 999 -2 bullets.[count].destr y
+icon "w 3 line 0 5 0 -5" 1 : c#fff
+if y > window_height (
+bullets = bullets.delete(count)
+bullets = bullets.delete(count)
+)
+)
+endef
+
+playership = "w 7 line 0 5 0 0 line -5 0 5 0 path 5 0 5 -5 10 -5 10 -10 -10 -10 -10 -5 -5 -5 -5 0 0 -5 )"
+enemy2 = "w 3 line -10 0 10 0 line -5 5 5 5 line -8 2 8 2 line 4 6 6 8 line -4 6 -6 8 path 10 0 4 6 4 4 -4 4 -4 6 -10 0 -10 -4 ) line 10 -4 10 0 path -2 -6 -4 -6 -6 -4 -6 -2 6 -2 6 -4 4 -6 2 -6 )"
 
 mainloop:
+lowx = window_width / -2 + 20
+highx = window_width / 2 - 20
 
 if "left arrow".pressed "playerxvel -= 4"
 if "right arrow".pressed "playerxvel += 4"
 playerxvel *= 0.8
 playerx += playerxvel
+playerx = playerx.clamp(lowx,highx)
 loc 999 -2 playerx 20
 c #fff
-icon "w 7 line 0 5 0 0 line -5 0 5 0 path 5 0 5 -5 10 -5 10 -10 -10 -10 -10 -5 -5 -5 -5 0 0 -5 )" 1
+icon playership 1
+if timer - lastshot > 0.5 and ( "up arrow".pressed or "space".pressed ) (
+lastshot = timer
+shoot
+)
+renderbullets
 import "win-buttons"
