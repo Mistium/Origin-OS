@@ -20,6 +20,6 @@ colour #fff
 
 // sets the colour for all subsequent commands to #fff
 
-text "<count>" 10
+text "Count: \<count\>" 10
 
 // Draws the value of count as text at 0 0
