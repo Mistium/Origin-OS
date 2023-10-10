@@ -8,6 +8,8 @@ while inputgears (
   )
   if ( gears < 8 ) and ( gears > 1 ) "inputgears = false"
 )
+previousteeth = 100
+teeth = 101
 iterate "count" 0 gears 1 (
   while teeth >= previousteeth (
     teeth = "How many teeth for gear" + count ++ "?"
