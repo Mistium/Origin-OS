@@ -1,6 +1,7 @@
 // print "value"
 // getinput
 
+//after days of ravenous labor, i present: calcoolator
 
 getinput "number 1"
 num1 = return.int
