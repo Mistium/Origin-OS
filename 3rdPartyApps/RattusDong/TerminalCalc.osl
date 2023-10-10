@@ -1,0 +1,20 @@
+// print "value"
+// getinput
+
+
+getinput "number 1"
+num1 = return.int
+
+getinput "number 2"
+num2 = return.int
+
+getinput "operation"
+operation = return.str
+
+if operation == "+" "num3 = num1 + num2"
+if operation == "-" "num3 = num1 - num2"
+if operation == "*" "num3 = num1 * num2"
+if operation == "/" "num3 = num1 / num2"
+if operation == "^" "num3 = num1 ^ num2"
+  
+print num3
