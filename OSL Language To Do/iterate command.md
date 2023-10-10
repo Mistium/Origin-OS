@@ -24,7 +24,7 @@ commands and stuff
 
 ### Example Use
 
-iterate i 0 10 1 (
+iterate "i" 0 10 1 (
 
 print i
 
