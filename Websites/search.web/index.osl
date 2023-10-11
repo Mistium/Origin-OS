@@ -15,13 +15,12 @@ if frame_width - 100 < w (
 w = frame_width - 100
 )
 
-network "get" "https://api.github.com/repos/Mistium/Origin-OS/git/trees/main?recursive=1"
-index = data.key("tree")
-
 square w 10 40 1
 change 10
 input w - 40 30 "searchBar" "Search the Origin Network"
 if selected_input == "searchBar" and "enter".pressed (
+network "get" "https://api.github.com/repos/Mistium/Origin-OS/git/trees/main?recursive=1"
+index = data.key("tree")
 output = []
 i = 0
 loop index.len (
