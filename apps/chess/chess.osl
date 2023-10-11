@@ -1,0 +1,37 @@
+window "resizable" False
+window "dimensions" 520 520
+board = ["r","n","b","q","k","b","n","r"]
+board = ["p","p","p","p","p","p","p","p"].concat(board)
+board = ["0","0","0","0","0","0","0","0"].concat(board)
+board = ["0","0","0","0","0","0","0","0"].concat(board)
+board = ["0","0","0","0","0","0","0","0"].concat(board)
+board = ["0","0","0","0","0","0","0","0"].concat(board)
+board = ["P","P","P","P","P","P","P","P"].concat(board)
+board = ["R","N","B","Q","K","B","N","R"].concat(board)
+def "drawboardsquare" "id"
+  c #222
+  if id % 2 == 0 "c #444"
+  square 50 50 5 1
+  text board.[id] 10 : c#fff
+endef
+def "nextmove" "turn"
+  get "https://www.chessdb.cn/cdb.php?action=querybest&board=" ++ urlboard ++ "%20w%20KQkq%20-%200%1" ++ turn ++ "&json=1"
+endef
+def "genurlboard"
+  urlboard = board.join()
+endef
+mainloop:
+x = -260
+y = 200
+i = 0
+loop 64 (
+  i += 1
+  x += 60
+  goto x y
+  drawboardsquare i
+  if i % 8 == 0 (
+  y -= 60
+  x = -260
+  )
+)
+import "win-buttons"
