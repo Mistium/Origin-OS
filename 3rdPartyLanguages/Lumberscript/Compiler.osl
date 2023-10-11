@@ -1,0 +1,36 @@
+completed = false
+compiled = []
+
+def "check_command" "in"
+  current = in.split(" ")
+  if current.[1] == "pen.hex" (
+    output = "colour #" + current.[2]
+  )
+  if current.[1] == "var.set" (
+    output = current.[2] + "=" + current.[3]
+  )
+  if current.[1] == "txt.prt" (
+    output = "goto" + current.[2] + current.[3]
+    compiled = compiled.append(output)
+    output = "text" + current.[5].str + current.[4]
+  )
+  compiled = compiled.append(output)
+endef
+
+mainloop:
+
+ls_input = "Paste Some Lumberscript".ask.replace(":"," ").split(";")
+
+if completed (
+  exit
+)
+
+i = 0
+loop ls_input.len (
+  i += 1
+  check_command ls_input.[i]
+)
+say compiled.join(newline)
+completed = true
+
+window "stop"
