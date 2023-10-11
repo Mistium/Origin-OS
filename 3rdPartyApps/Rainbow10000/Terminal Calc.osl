@@ -1,0 +1,23 @@
+getinput "First Number"
+number1 = return
+getinput "Second Number"
+number2 = return
+
+operation = ""
+while "+-/*".contains(operation).not (
+  getinput "Operation"
+  operation = return
+)
+
+if operation == "+" (
+  print number1 + number2
+)
+if operation == "-" (
+  print number1 - number2
+)
+if operation == "*" (
+  print number1 * number2
+)
+if operation == "/" (
+  print number1 / number2
+)
