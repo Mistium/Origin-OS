@@ -30,7 +30,7 @@ last = cur.len
 current = cur.[last]
 if cur.[1] == "websites" and current.contains(input_searchBar) "out = out.append(i)"
 )
-
+log out
 if out == "out".destr "out = []"
 y = -180
 i = 0
