@@ -9,6 +9,9 @@ def "check_command" "in"
   if current.[1] == "var.set" (
     output = current.[2] + "=" + current.[3]
   )
+  if current.[1] == "var.cng" (
+    output = current.[2] + "+=" + current.[3]
+  )
   if current.[1] == "txt.prt" (
     output = "goto" + current.[2] + current.[3]
     compiled = compiled.append(output)
