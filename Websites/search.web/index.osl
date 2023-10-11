@@ -1,7 +1,7 @@
 loc 999 2 0 -30
 square frame_width 30 20 1 : c#333
 loc 2 2 30 -30
-current_tab_name = {"title":"Search","icon":"search"}
+current_tab_name = {"title":"Origin Search","icon":"search"}
 icon "search" 0.7 : c#fff
 change 20
 text "Origin Search" 8
