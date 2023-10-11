@@ -19,18 +19,7 @@ square w 10 40 1
 change 10
 input w - 40 30 "searchBar" "Search the Origin Network"
 if selected_input == "searchBar" and "enter".pressed (
-network "get" "https://api.github.com/repos/Mistium/Origin-OS/git/trees/main?recursive=1"
-index = data.key("tree")
-output = []
-i = 0
-loop index.len (
-i += 1
-cur = index.[i].key(name).split("/")
-last = cur.len
-cur = cur.[last]
-if cur.contains(searchBar) "output = output.append(i)"
-)
-log output
+
 )
 
 c #fff
