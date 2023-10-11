@@ -1,0 +1,30 @@
+//thank you Lord Rattus, for this holy blessing... Amen.
+window "show"
+
+Xcoor = 0
+Ycoor = 0
+
+
+mainloop:
+
+//the rat cycle
+
+if Ycoor > 500 (
+ Xcoor = 0
+ Ycoor = 0
+)
+
+Xcoor += 100
+if Xcoor > 500 (
+  Ycoor += 100
+  Xcoor = 0
+)
+
+goto Xcoor Ycoor
+image "https://pngimg.com/uploads/rat_mouse/rat_mouse_PNG23553.png" 100
+
+
+
+
+//Please do not eat them. Regards -D.M
+import "win-buttons"
