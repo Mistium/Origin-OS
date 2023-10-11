@@ -7,14 +7,17 @@ change 20
 text "Origin Search" 8
 
 w = 700
-loc 999 999 0 50
+if out.len == 0 "loc 999 999 0 50"
+if out.len > 0 "loc 999 2 0 -100"
 if frame_width - 100 < w (
 w = frame_width - 100
 )
 
 square w 10 40 1 : c#222
-change 10
-input w - 40 30 "searchBar" "Search the Origin Network"
+change_x w * -1 + 10
+icon "search" 0.7 : c#fff
+change w + 10
+input w - 40 30 "searchBar" "Search the Origin Network" : c#222
 if selected_input == "searchBar" and "enter".pressed (
 network "get" "https://api.github.com/repos/Mistium/Origin-OS/git/trees/main?recursive=1"
 index = data.key("tree")
@@ -27,30 +30,19 @@ last = cur.len
 current = cur.[last]
 if cur.[1] == "websites" and current.contains(input_searchBar) "out = out.append(i)"
 )
-)
 
-loc 999 2 0 -80
+if out == "out".destr "out = []"
+y = -180
+i = 0
 loop out.len (
+i += 1
 c #222
+loc 999 2 0 y
 square w - 10 50 30 1
-change_y -50
+y -= 80
+change_x w * -0.5
+item = out.[i].destr
+text index.[item].key("path") 10 : c#fff
 )
 
-if out.len == 0 (
-c #fff
-w2 = w / -2
-loc 999 999 w2 50
-icon "search" 0.7
-x = w / 4 + 15
--x = w / -4 - 15
-loc 999 999 x -30
-loop 2 (
-square w / 2 - 20 50 30 1
-change_y -95
-)
-loc 999 999 -x -30
-loop 2 (
-square w / 2 - 20 50 30 1
-change_y -95
-)
-)
+page_len = out.len * 80 + 100
