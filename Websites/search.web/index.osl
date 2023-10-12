@@ -14,7 +14,6 @@ if selected_input == "searchBar" and "enter".pressed (
 network "get" "https://api.github.com/repos/Mistium/Origin-OS/git/trees/main?recursive=1"
 index = data.key("tree")
 out = []
-names = []
 
 i = 0
 loop index.len (
@@ -23,22 +22,22 @@ cur = index.[i].key("path").split("/")
 last = cur.len
 current = cur.[last]
 if cur.[1] == "websites" and current.contains(input_searchBar) "out = out.append(i)"
-name = index.[i].key("path").replace("Websites/","")
-if cur.[1] == "websites" and current.contains(input_searchBar) "names = names.append(name)"
 )
 )
 
 if out == "out".destr "out = []"
 y = -180 + scroll_y
+
 i = 0
-loop 20 (
+loop 10 (
 i += 1
 c #222
 loc 999 2 0 y
 square w - 10 50 30 1
 y -= 90
 change_x w * -0.5
-text names.[i] 10 : c#fff
+item = out.[i].destr
+text index.[item].key("path").replace("Websites/","") 10 : c#fff
 )
 
 page_len = out.len * 90 + 100
