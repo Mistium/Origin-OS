@@ -1,4 +1,4 @@
-current_tab_name = "Example Website"
+current_tab_name = {"title":"Example Website"}
 loc 999 2 0 -20
 square frame_width 30 20 1 : c#222
 loc 2 2 20 -20
