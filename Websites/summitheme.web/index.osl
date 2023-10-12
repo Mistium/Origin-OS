@@ -102,21 +102,6 @@ c_tabselected = picker_colour
 )
 
 loc 2 2 20 -360
-text "Unselected Tabs: " 10 : c#fff
-change 20
-square 10 10 7 1
-c c_tabunselected
-square 10 10 5 1
-if clicked (
-summitheme_current_edit = "tabunsel"
-colourpicker "show"
-colourpicker "setcol" c_tabunselected
-)
-if summitheme_current_edit == "tabunsel" (
-c_tabunselected = picker_colour
-)
-
-loc 2 2 20 -390
 text "Tabs Text: " 10 : c#fff
 change 20
 square 10 10 7 1
