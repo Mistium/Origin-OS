@@ -116,7 +116,7 @@ if summitheme_current_edit == "tabunsel" (
 c_tabunselected = picker_colour
 )
 
-loc 2 2 20 -360
+loc 2 2 20 -390
 text "Tabs Text: " 10 : c#fff
 change 20
 square 10 10 7 1
