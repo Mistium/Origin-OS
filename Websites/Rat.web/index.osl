@@ -3,19 +3,17 @@
 
 //the rat cycle
 Xcoor = -200
-Ycoor = 0
+Ycoor = -200
 loop 24 (
 
 goto Xcoor Ycoor
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/3rdPartyApps/RattusDong/Assets/istockphoto-176430993-612x612.jpg" 100
 
 Xcoor += 100
-if Xcoor > 400 (
-  Ycoor += 100
-  Xcoor = 0
-)
+if Xcoor > 200 "Ycoor += 100"
+if Xcoor > 200 "Xcoor = -200"
 
-if Ycoor > 500 (
+if Ycoor > 400 (
  Xcoor = -200
  Ycoor = 0
 )
