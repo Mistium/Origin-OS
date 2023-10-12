@@ -5,5 +5,5 @@ text "Doom.web" 8
 loc 2 2 20 -80
 text "Doom-Hanger.obj" 8
 if clicked (
-current_tab = "owtp:/doom.web/resources/doom-hanger.obj"
+redirect "owtp://doom.web/resources/doom-hanger.obj"
 )
