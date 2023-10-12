@@ -1,4 +1,4 @@
-current_tab_name = "originOS"
+current_tab_name = {"title":"originOS","icon":""}
 c #111
 loc 999 2 0 -20
 square frame_width 20 10 1
