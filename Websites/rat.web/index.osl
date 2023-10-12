@@ -4,7 +4,7 @@
 //the rat cycle
 Xcoor = -200
 Ycoor = -200
-loop 24 (
+loop 25 (
 
 goto Xcoor Ycoor
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/3rdPartyApps/RattusDong/Assets/istockphoto-176430993-612x612.jpg" 100
