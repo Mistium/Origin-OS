@@ -29,6 +29,8 @@ loc 2 2 x 5 - tab_height
 c c_tabunselected
 if tab == i "c c_tabselected"
 square tab_width - 15 tab_height 5 1
+if clicked "tab = i"
+if clicked "input_search = taburls.[i].destr"
 change_x tab_width * 0.5 - 20
 if tabs.len > 1 (
 icon "close" 0.6 : c#fff
@@ -36,8 +38,6 @@ if clicked "remove_tab i"
 clicked = false
 )
 change_x tab_width * -1 + 40
-if clicked "tab = i"
-if clicked "input_search = taburls.[i].destr"
 text tabs.[i].key("title") 8 : c#fff
 )
 endef
