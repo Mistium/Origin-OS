@@ -1,7 +1,14 @@
 goto 0 0
 
+if mouse_down.not "can = false"
+
 square frame_width frame_height 1 0 1
-if clicked (
+
+if clicked and can.not (
+can = true
+)
+
+if can (
 redirect "owtp://rat.web/index.osl"
 )
 
