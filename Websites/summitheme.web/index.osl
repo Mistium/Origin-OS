@@ -6,7 +6,7 @@ loc 2 2 20 -40
 text "Search Bar Theme" 10
 
 
-loc 2 2 20 -70
+loc 2 2 20 -80
 text "Search Bar Colour: " 10 
 change 20
 c c_searchbar
@@ -21,7 +21,7 @@ c_searchbar = picker_colour
 
 c #fff
 loc 2 2 20 -100
-text "Top Bar: " 10 
+text "Top Bar: " 10
 change 20
 c c_searchback
 square 10 10 5 1
@@ -35,11 +35,11 @@ c_searchback = picker_colour
 )
 
 c #fff
-loc 2 2 20 -140
+loc 2 2 20 -160
 text "Search Bar Theme" 10
 
 
-loc 2 2 20 -160
+loc 2 2 20 -200
 text "Sidebar Back: " 10 
 change 20
 c c_sidebarback
@@ -51,4 +51,32 @@ colourpicker "show"
 )
 if summitheme_current_edit == "sidebar" (
 c_sidebarback = picker_colour
+)
+
+loc 2 2 20 -230
+text "Sidebar Buttons: " 10 
+change 20
+c c_sidebarback
+square 10 10 5 1
+if clicked (
+summitheme_current_edit = "sidebarbutton"
+colourpicker "setcol" c_sidebarbutton
+colourpicker "show"
+)
+if summitheme_current_edit == "sidebarbutton" (
+c_sidebarbutton = picker_colour
+)
+
+loc 2 2 20 -260
+text "Sidebar Icons: " 10 
+change 20
+c c_sidebaricons
+square 10 10 5 1
+if clicked (
+summitheme_current_edit = "sidebaricon"
+colourpicker "setcol" c_sidebaricons
+colourpicker "show"
+)
+if summitheme_current_edit == "sidebarbutton" (
+c_sidebaricons = picker_colour
 )
