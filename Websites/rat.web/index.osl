@@ -1,6 +1,6 @@
 //thank you Lord Rattus, for this holy blessing... Amen.
 
-
+can = true
 //the rat cycle
 if mouse_down.not "can = false"
 Xcoor = -200
@@ -27,6 +27,5 @@ if Ycoor > 400 (
 
 //Please do not eat them. Regards -D.M 
 if can (
-can = false
 redirect "owtp://rat.web/rat.osl"
 )
