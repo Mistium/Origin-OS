@@ -8,23 +8,25 @@ Ycoor = 0
 mainloop:
 
 //the rat cycle
+Xcoor = -200
+Ycoor = -200
+loop 24 (
 
-if Ycoor > 500 (
- Xcoor = 0
- Ycoor = 0
-)
+goto Xcoor Ycoor
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/3rdPartyApps/RattusDong/Assets/istockphoto-176430993-612x612.jpg" 100
 
 Xcoor += 100
-if Xcoor > 500 (
+if Xcoor > 400 (
   Ycoor += 100
   Xcoor = 0
 )
 
-goto Xcoor Ycoor
-image "https://pngimg.com/uploads/rat_mouse/rat_mouse_PNG23553.png" 100
+if Ycoor > 500 (
+ Xcoor = -200
+ Ycoor = -200
+)
 
-
-
+)
 
 //Please do not eat them. Regards -D.M
 import "win-buttons"
