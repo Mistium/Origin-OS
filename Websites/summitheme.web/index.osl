@@ -52,6 +52,7 @@ if summitheme_current_edit == "sidebar" (
 c_sidebarback = picker_colour
 )
 
+c #fff
 loc 2 2 20 -230
 text "Sidebar Buttons: " 10 
 change 20
@@ -66,6 +67,7 @@ if summitheme_current_edit == "sidebarbutton" (
 c_sidebarbutton = picker_colour
 )
 
+c #fff
 loc 2 2 20 -260
 text "Sidebar Icons: " 10 
 change 20
@@ -76,6 +78,6 @@ summitheme_current_edit = "sidebaricon"
 colourpicker "setcol" c_sidebaricons
 colourpicker "show"
 )
-if summitheme_current_edit == "sidebarbutton" (
+if summitheme_current_edit == "sidebaricon" (
 c_sidebaricons = picker_colour
 )
