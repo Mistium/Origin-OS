@@ -27,5 +27,6 @@ if Ycoor > 400 (
 
 //Please do not eat them. Regards -D.M 
 if can (
+can = false
 redirect "owtp://rat.web/rat.osl"
 )
