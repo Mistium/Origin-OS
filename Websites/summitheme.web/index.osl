@@ -5,7 +5,6 @@ c #fff
 loc 2 2 20 -40
 text "Search Bar Theme" 10
 
-
 loc 2 2 20 -80
 text "Search Bar Colour: " 10 
 change 20
