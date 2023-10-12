@@ -1,0 +1,358 @@
+def "appopt" "optname,opticn,icnsize"
+loc 999 2 0 y
+square frame_width - 25 30 10 1 : c#222
+loc 2 2 30 y
+icon opticn icnsize.destr : c#fff
+change_x 30
+text optname 8
+endef
+
+def "system"
+if subcategory == "none" (
+  option "Display"
+  option "Sound"
+  option "Notifications"
+  option "Power"
+  option "Storage"
+  option "Multitasking"
+)
+if subcategory == "Display" (
+  loc 2 2 10 -20
+  text "Render Resolution: <screensize_x>x<screensize_y>" 10 : c#fff
+  loc 2 2 10 -50
+  text "Edit" 10
+)
+if subcategory == "Storage" (
+  drives = origin.key("drives")
+  count = 0
+  loop drives.len (
+    count += 1
+    current = drives.[count]
+    y = count * -160 + 60 + scroll_y
+    loc 999 2 0 y
+    square frame_width - 30 140 10 1 : c#222
+    loc 2 2 80 y
+    icon current.key("icon") 3.3 : c#fff
+    change 80 30
+    text current.key("name") 15
+    loc 2 2 160 y
+    text current.key("used") / 1000 ++ "kb / 10000kb" 10
+    loc 999 2 125 / 2 y - 35
+    percent = current.key("used") / current.key("size")
+    bar frame_width - 200 20 10 percent : c#444
+  )
+  count += 1
+  page_len = count * 160 + 60
+  loc 2 2 30 count * -160 + 60 + scroll_y
+  text "Launch Disk (restart your computer): " 10 : c#fff
+  change_x 100
+  count = 0
+  loop drives.len (
+    count += 1
+    current = drives.[count].key("name")
+    square 170 20 10 1 : c#222
+    change_x -80
+    text current 10 : c#fff
+    if clicked (
+      terminal "disk start" + current
+    )
+  )
+)
+clicked = false
+endef
+
+def "bluetooth"
+devices = []
+terminal "-get.devices"
+loc 2 2 150 -150
+x2 = 110
+x = x2
+y = -80
+if devices.len == 0 "loc 2 2 10 -30"
+if devices.len == 0 "text "Please connect a bluetooth controller" 7 : c#fff"
+count = 0
+loop devices.len (
+count += 1
+loc 2 2 x y
+square 180 120 20 1 : c#222
+device = devices.[count]
+data = devices_joysticks.key(device).destr
+loc 2 2 x + 40 y
+change data.key("left_horizontal") * 20 data.key("left_vertical") * -20
+icon "circle" 2 : c#fff
+loc 2 2 x - 40 y
+change data.key("right_horizontal") * 20 data.key("right_vertical") * -20
+icon "circle" 2
+loc 2 2 x + 90 y
+text device 7
+x += 220
+if x_position + 110 > frame_width.divide(2) (
+x = x2
+y -= 160
+)
+)
+endef
+
+def "personalisation"
+if subcategory == "none"
+option "Background"
+option "Themes"
+option "Mouse"
+option "Dock"
+option "Colours"
+option "Lock Screen"
+)
+if subcategory == "Colours" (
+loc 2 2 15 -30
+text "Accent Colour: <global_accent>" 10 : c#fff
+change_x 30
+square 0 0 20 0 : c#global_accent
+if clicked (
+colourpicker "setcol" global_accent
+colourpicker "show"
+)
+terminal "system setaccent" + picker_colour
+)
+if subcategory == "Dock" (
+loc 2 2 15 -30
+text "Dock Alignment" 10 : c#fff
+change_x 40
+icon "left-arrow" 1
+if clicked "dock_location = "left""
+change_x 40
+icon "circle" 1
+if clicked "dock_location = "center""
+change_x 40
+icon "right-arrow" 1
+if clicked "dock_location = "right""
+global "dock_location"
+loc 2 2 110 -140
+x2 = x_position
+x = x2
+y = y_position
+count = 0
+loop segments.len (
+count += 1
+goto x y
+c #222
+square 180 60 20 1
+clicked = False
+change -80 -20
+count2 = count - 1
+c #fff
+if count > 1 "icon "left-arrow" 0.7"
+if clicked and can "segments = segments.swap(count2,count)"
+c = clicked
+change_x 80
+icon "close" 0.5
+if clicked and can "segments = segments.delete(count)"
+c2 = clicked
+clicked = False
+change_x 80
+if count < segments.len "icon "right-arrow" 0.7"
+count2 = count + 1
+if clicked and can "segments = segments.swap(count,count2)"
+if c or c2 or clicked "can = False"
+change -160 35
+icon "ode" 1
+change 20
+text segments.item(count) 9 : c#fff
+x += 220
+if x + 110 > window_width.divide(2) (
+x = x2
+y -= 90
+)
+)
+if subcategory == "dock" (
+goto x y
+square 180 60 20 1 : c#222
+change_y -10
+square 20 20 20 1 : c#111
+icon "Add" 0.8 : c#fff
+change -90 30
+text "Drop .ode Here" 9
+if file_dropped != 0 (
+file "open" "id" file_dropped
+file "get" "name"
+f = data
+segments = segments.append(f)
+)
+file_dropped = 0
+global "segments"
+)
+)
+endef
+
+def "apps"
+path = "Origin/(C) Users/" ++ username ++ "/Application Data"
+if subcategory == "none" (
+y = -40 + scroll_y
+include path
+loc 999 2 0 y
+count = 0
+loop Application_Data.len (
+count += 1
+file "open" "id" Application_Data.[count]
+loc 999 2 0 y
+square frame_width - 25 30 10 1 : c#222
+if clicked "subcategory = file.[2]"
+loc 2 2 30 y
+icon file.[11] 1.2
+text file.[2] 9 : c#fff chx#30
+y -= 50
+page_len += 50
+)
+)
+if subcategory != "none" (
+y = -80
+appopt "info" "info" "0.6"
+y = -130
+appopt "Launch At Startup" "Origin-Logo" "1"
+loc -2 2 -30 y
+toggle "launch_at_start" 20 : c#333
+y = -180
+appopt "uninstall" "bin" "1"
+)
+endef
+
+def "accounts"
+y = -30
+terminal "-get.accounts"
+count = 0
+loop accounts.len (
+count += 1
+loc 999 2 0 y
+c #222
+if user_id == count "c #333"
+square frame_width - 25 30 10 1
+if user_id != count and clicked "terminal sys.windows.forcestop + Login"
+if user_id != count and clicked "terminal sys.windows.addinstance + Login + accounts.[count]"
+loc 2 2 25 y
+icon "c #111 w 30 dot" 1
+icon accounts.[count].key("user icon") 1 : c#fff
+change_x 30
+text accounts.[count].key("username") 7
+loc -2 2 -30 y
+icon "close" 0.6
+loc -2 2 -150 y
+if user_id == count "text logged + in 7"
+y -= 50
+)
+endef
+
+def "time"
+c #222
+loc 999 2 0 -40
+square frame_width - 20 40 10 1
+loc 999 2 0 -100
+square frame_width - 20 40 10 1
+loc 999 2 0 -160
+square frame_width - 20 40 10 1
+loc 2 2 20 -40
+text "Timezone: <timezone>" 8 : c#fff
+loc 2 2 20 -100
+milisecond = timestamp.right(3)
+text "Time: <day_number>:<month_number>:<year> <hour>:<minute>:<second>:<milisecond>" 8
+loc 2 2 20 -160
+dt = delta_time * 1000
+dt = dt.round
+text "Since Last Frame: <dt>ms" 8
+endef
+
+def "updates"
+network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/system"
+
+endef
+
+window "dimensions" 880 500
+dock_location = dock_location
+segments = segments
+
+def "option" "name,x,icon"
+loc 999 2 0 y
+c #222
+square frame_width - 25 30 10 1
+if clicked "subcategory = name"
+change_x frame_width - 25 / -2 + 20
+if icon != "icon" "icon = name"
+icon icon 1 : c#fff
+change_x 30
+text name 10 : c#fff
+y -= 50
+page_len += 50
+endef
+
+def "DrawCategory" "setting"
+c button-unselected
+temp = x_position
+if category == setting "c button-selected"
+square 30 30 10 1
+if clicked (
+category = setting
+subcategory = "none"
+)
+icon setting 0.8 : c#fff
+goto temp y_position - 50
+endef
+category = "system"
+subcategory = "none"
+window "show"
+
+mainloop:
+
+loc 999 2 0 -25
+square window_width - 7.5 15 30 1 : c#333
+import "side-bar"
+DrawCategory "System"
+DrawCategory "Wifi"
+DrawCategory "Bluetooth"
+DrawCategory "Personalisation"
+DrawCategory "Apps"
+DrawCategory "Accounts"
+DrawCategory "Time"
+DrawCategory "Privacy"
+DrawCategory "Updates"
+loc 2 2 70 -25
+
+if subcategory == "none" "text category 10 : c#fff"
+
+if subcategory != "none" (
+icon left-arrow 0.6 : c#fff
+if clicked "subcategory = "none""
+change_x 30
+text subcategory 10
+)
+
+loc 2 2 50 -48
+x = x_position
+y = y_position
+loc -2 -2 10
+c #333
+frame x y x_position y_position page_len
+page_len = 0
+y = -30 + scroll_y
+startx = x_position
+location = category + subcategory
+
+if category == "System" "system"
+
+if location == "Wifi none" (
+loc 2 2 10 -30
+text "Network Is Not Available For originOS At This Time" 10 1 : c#fff
+)
+
+if category == "Bluetooth" "bluetooth"
+
+if category == "Personalisation" "personalisation"
+
+if category == "Accounts" "accounts"
+
+if category == "Apps" "apps"
+
+if category == "Time" "time"
+
+if category == "Updates" "updates"
+
+if mouse_down.not "can = True"
+frame "clear"
+import "win-buttons"
