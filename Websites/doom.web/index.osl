@@ -1,4 +1,4 @@
-current_tab_name = "Doom Resources"
+current_tab_name = {"title":"Doom"}
 loc 2 2 20 -20
 text "Doom.web" 8
 
