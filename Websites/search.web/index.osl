@@ -26,8 +26,11 @@ if cur.[1] == "websites" and current.contains(input_searchBar) "out = out.append
 
 if out == "out".destr "out = []"
 y = -180 + scroll_y
-i = 0
-loop out.len (
+current_results_page = 1
+current_page_len = out.len - ( current_results_page - 1 * 20 )
+if current_page_len > 20 "current_page_len = 20"
+i = current_results_page - 1 * 20
+loop current_page_len (
 i += 1
 c #222
 loc 999 2 0 y
