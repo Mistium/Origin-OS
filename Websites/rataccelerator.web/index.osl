@@ -1,1 +1,14 @@
+if onload (
+inc = 0.01
+size = 0
+)
 
+goto 0 0
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/rat.web/assets/rat_mouse_PNG23553.png" size
+
+inc = inc * 1.01
+size += inc
+size += size
+if size > 10000 (
+size = 0
+)
