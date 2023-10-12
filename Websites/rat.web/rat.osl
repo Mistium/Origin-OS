@@ -9,6 +9,7 @@ can = true
 )
 
 if can (
+can = false
 redirect "owtp://rat.web/index.osl"
 )
 
