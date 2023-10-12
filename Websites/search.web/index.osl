@@ -25,8 +25,8 @@ current = cur.[last]
 if index.[i].left(9) == "websites/" and current.contains(input_searchBar) "out = out.append(i)"
 name = index.[i].key("path").replace("Websites/","")
 if index.[i].left(9) == "websites/" and current.contains(input_searchBar) "names = names.append(name)"
+log name
 )
-log "hello"
 )
 
 if out == "out".destr "out = []"
