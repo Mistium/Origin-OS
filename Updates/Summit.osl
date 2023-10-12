@@ -1,7 +1,7 @@
 c_sidebarbutton = #333
 c_sidebarselected = accent_colour
 c_sidebaricons = #fff
-c_sidebarback = #222
+c_sidebarback = #111
 
 c_tabselected = #555
 c_tabtext = #fff
@@ -30,9 +30,9 @@ current_get = ""
 
 def "opentab" "url"
 resolve_protocols url
-input_search = url
+input_search = url.destr
 tabs = tabs.append({"title":"Loading"})
-page = page.append("")
+pages = pages.append("")
 taburls = taburls.append(url)
 tab = tabs.len
 endef
@@ -105,6 +105,8 @@ if validation != "" (
   current_get = ""
 )
 endef
+
+opentab "owtp://search.web"
 
 mainloop:
 ww = window_width
