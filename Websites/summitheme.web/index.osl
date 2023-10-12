@@ -17,3 +17,17 @@ colourpicker "show"
 if summitheme_current_edit == "searchbar" (
 c_searchbar = picker_colour
 )
+
+loc 2 2 20 -100
+text "Top Bar: " 10 
+change 20
+c c_searchback
+square 10 10 5 1
+if clicked (
+summitheme_current_edit = "topbar"
+colourpicker "show"
+)
+
+if summitheme_current_edit == "topbar" (
+c_searchback = picker_colour
+)
