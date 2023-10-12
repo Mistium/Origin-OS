@@ -5,7 +5,6 @@ c_sidebarback = #222
 
 c_tabunselected = #333
 c_tabselected = #444
-c_tabaddbutton = #222
 c_tabtext = #fff
 
 c_searchback = #151515
@@ -73,7 +72,7 @@ loop tabs.len (
   c c_tabtext
   text tabs.[i].key("title") 8
 )
-c c_tabaddbutton
+c c_tabunselected
 loc 2 2 x + ( tab_width / 2 ) + 20 5 - tab_height
 square tab_height tab_height 5 1
 c c_tabtext
