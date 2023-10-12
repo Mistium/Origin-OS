@@ -7,6 +7,7 @@ Ycoor = -200
 loop 24 (
 
 goto Xcoor Ycoor
+test "test"
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/3rdPartyApps/RattusDong/Assets/istockphoto-176430993-612x612.jpg" 100
 
 Xcoor += 100
