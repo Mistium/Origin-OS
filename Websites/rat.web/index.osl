@@ -2,14 +2,15 @@
 
 
 //the rat cycle
+if mouse_down.not "can = false"
 Xcoor = -200
 Ycoor = -200
 loop 25 (
 
 goto Xcoor Ycoor
 square 100 100 1 0 1
-if clicked (
-redirect "owtp://rat.web/rat.osl"
+if clicked and can.not (
+can = true
 )
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/rat.web/assets/rat_mouse_PNG23553.png" 100
 
@@ -25,3 +26,6 @@ if Ycoor > 400 (
 )
 
 //Please do not eat them. Regards -D.M 
+if can (
+redirect "owtp://rat.web/rat.osl"
+)
