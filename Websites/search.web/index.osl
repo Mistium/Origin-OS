@@ -35,7 +35,6 @@ i += 1
 c #222
 loc 2 2 150 y
 y -= 40
-change_x w * -0.5
 item = out.[i].destr
 c accent_colour
 text index.[item].key("path").replace("Websites/","") 10
