@@ -34,8 +34,8 @@ loc 999 2 0 y
 square w - 10 50 30 1
 y -= 90
 change_x w * -0.5
-item = out.[i].destr.replace("Websites/","")
-text index.[item].key("path") 10 : c#fff
+item = out.[i].destr
+text index.[item].key("path").replace("Websites/","") 10 : c#fff
 )
 
 page_len = out.len * 90 + 100
