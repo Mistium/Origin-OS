@@ -2,9 +2,7 @@ w = 700
 if out.len == 0 "loc 999 999 0 50"
 if out.len > 0 "loc 999 2 0 -100"
 change_y scroll_y
-if frame_width - 100 < w (
-w = frame_width - 100
-)
+if frame_width - 100 < w "w = frame_width - 100"
 c c_searchbar
 square w 10 40 1
 change_x w * -1 + 10
