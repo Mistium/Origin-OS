@@ -1,3 +1,5 @@
+summit_version = 244
+
 save "bookmarks.json" "get"
 bookmarks = save-data
 
