@@ -41,6 +41,7 @@ text index.[item].key("path").replace("Websites/","") 10
 if clicked (
 opentab index.[item].key("path").replace("Websites/","owtp://")
 )
+)
 
 page_len = out.len * 100 + 100
 
