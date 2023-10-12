@@ -13,5 +13,5 @@ text "Index" 10
 goto x y - 80
 text "Documentations" 10
 if clicked (
-current_tab = "owtp:/origin.web/docs/index.osl"
+redirect "owtp:/origin.web/docs/index.osl"
 )
