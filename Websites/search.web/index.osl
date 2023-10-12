@@ -22,10 +22,9 @@ i += 1
 cur = index.[i].key("path").split("/")
 last = cur.len
 current = cur.[last]
-if index.[i].left(9) == "websites/" and current.contains(input_searchBar) "out = out.append(i)"
+if cur.[1] == "websites" and current.contains(input_searchBar) "out = out.append(i)"
 name = index.[i].key("path").replace("Websites/","")
-if index.[i].left(9) == "websites/" and current.contains(input_searchBar) "names = names.append(name)"
-log name
+if cur.[1] == "websites" and current.contains(input_searchBar) "names = names.append(name)"
 )
 )
 
