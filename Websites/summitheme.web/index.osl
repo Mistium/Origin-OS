@@ -1,0 +1,19 @@
+current_tab_name = {"title":"Browser Themer"}
+
+background #111
+loc 2 2 20 -40
+text "Search Bar Theme" 10 : c#fff
+
+loc 2 2 20 -70
+text "Search Bar Colour: " 10 
+change 20
+c c_searchbar
+square 10 10 5 1
+if clicked (
+summitheme_current_edit = "searchbar"
+colourpicker "show"
+)
+
+if summitheme_current_edit == "searchbar" (
+c_searchbar = picker_colour
+)
