@@ -1,13 +1,13 @@
 current_tab_name = {"title":"Browser Themer"}
 
 background #111
-c #fff
 loc 2 2 20 -40
-text "Search Bar Theme" 10
+text "Search Bar Theme" 10 : c#fff
 
 loc 2 2 20 -80
-text "Search Bar Colour: " 10 
+text "Search Bar Colour: " 10
 change 20
+square 10 10 7 1
 c c_searchbar
 square 10 10 5 1
 if clicked (
@@ -18,10 +18,10 @@ if summitheme_current_edit == "searchbar" (
 c_searchbar = picker_colour
 )
 
-c #fff
 loc 2 2 20 -100
-text "Top Bar: " 10
+text "Top Bar: " 10 : c#fff
 change 20
+square 10 10 7 1
 c c_searchback
 square 10 10 5 1
 if clicked (
@@ -39,8 +39,9 @@ text "Search Bar Theme" 10
 
 
 loc 2 2 20 -200
-text "Sidebar Back: " 10 
+text "Sidebar Back: " 10 : c#fff
 change 20
+square 10 10 7 1
 c c_sidebarback
 square 10 10 5 1
 if clicked (
@@ -52,10 +53,10 @@ if summitheme_current_edit == "sidebar" (
 c_sidebarback = picker_colour
 )
 
-c #fff
 loc 2 2 20 -230
-text "Sidebar Buttons: " 10 
+text "Sidebar Buttons: " 10 : c#fff
 change 20
+square 10 10 7 1
 c c_sidebarback
 square 10 10 5 1
 if clicked (
@@ -67,10 +68,10 @@ if summitheme_current_edit == "sidebarbutton" (
 c_sidebarbutton = picker_colour
 )
 
-c #fff
 loc 2 2 20 -260
-text "Sidebar Icons: " 10 
+text "Sidebar Icons: " 10 : c#fff
 change 20
+square 10 10 7 1
 c c_sidebaricons
 square 10 10 5 1
 if clicked (
