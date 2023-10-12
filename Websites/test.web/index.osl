@@ -1,4 +1,4 @@
-current_tab_name = "Test Website"
+current_tab_name = {"title":"Test Website"}
 loc 999 2 0 -30
 c #333
 square frame_width - 20 30 10 1
