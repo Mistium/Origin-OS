@@ -1,13 +1,16 @@
 window "show"
 
 size = 0
+inc = 1
 
 mainloop:
 
 goto 0 0
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/rat.web/assets/rat_mouse_PNG23553.png" size
-size += 1
-if size > 3000 (
+
+inc = inc * 1.1
+size += inc
+if size > 10000 (
 size = 0
 )
 
