@@ -3,8 +3,7 @@ c_sidebarselected = accent_colour
 c_sidebaricons = #fff
 c_sidebarback = #222
 
-c_tabunselected = #333
-c_tabselected = #444
+c_tabselected = #555
 c_tabtext = #fff
 
 c_searchback = #151515
@@ -12,7 +11,6 @@ c_searchbar = #222
 c_searchicon = #fff
 
 default_tab_width = 300
-tab_height = 25
 
 save "bookmarks.json" "get"
 bookmarks = save-data
@@ -31,7 +29,8 @@ taburls = []
 current_get = ""
 
 def "opentab" "url"
-current_get = url
+resolve_protocols url
+input_search = url
 tabs = tabs.append({"title":"Loading"})
 page = page.append("")
 taburls = taburls.append(url)
@@ -55,16 +54,16 @@ i = 0
 loop tabs.len (
   i += 1
   x = i - 0.5 * tab_width + 52.5
-  loc 2 2 x 5 - tab_height
-  c c_tabunselected
+  loc 2 2 x -20
+  c c_searchbar
   if tab == i "c c_tabselected"
-  square tab_width - 15 tab_height 5 1
+  square tab_width - 15 28 5 1
   if clicked "tab = i"
   if clicked "input_search = taburls.[i].destr"
   change_x tab_width * 0.5 - 20
   if tabs.len > 1 (
     c c_tabtext
-    icon "close" 0.6
+    icon "close" 0.5
     if clicked "remove_tab i"
     clicked = false
   )
@@ -72,14 +71,13 @@ loop tabs.len (
   c c_tabtext
   text tabs.[i].key("title") 8
 )
-c c_tabunselected
-loc 2 2 x + ( tab_width / 2 ) + 20 5 - tab_height
-square tab_height tab_height 5 1
+c c_searchbar
+loc 2 2 x + ( tab_width / 2 ) + 20 -20
+square 28 28 5 1
 c c_tabtext
 icon "add" 0.6
 if clicked (
-tabs = tabs.append("owtp://search.web")
-pages = pages.append("")
+opentab "owtp://search.web"
 )
 endef
 
@@ -184,7 +182,7 @@ if save-data != bookmarks (
 if mouse_down.not "can = True"
 loc 2 -2 25 25
 icon "More-Vertical" 0.8
-loc 2 2 55 -80
+loc 2 2 55 -90
 x = x_position
 y = y_position
 loc -2 -2 0 -10
