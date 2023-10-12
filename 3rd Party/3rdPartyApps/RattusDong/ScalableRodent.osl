@@ -5,7 +5,7 @@ size = 0
 mainloop:
 
 goto 0 0
-image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/3rdPartyApps/RattusDong/Assets/istockphoto-176430993-612x612.jpg" size
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/rat.web/assets/rat_mouse_PNG23553.png" size
 size += 1
 if size > 3000 (
 size = 0
