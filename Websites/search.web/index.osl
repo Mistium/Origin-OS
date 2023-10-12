@@ -29,18 +29,20 @@ if out == "out".destr "out = []"
 y = -180 + scroll_y
 
 i = 0
-loop 10 (
+loop out.len.clamp(0,10) (
 i += 1
 c #222
 loc 999 2 0 y
-square w - 10 50 30 1
 y -= 90
 change_x w * -0.5
 item = out.[i].destr
-text index.[item].key("path").replace("Websites/","") 10 : c#fff
+c accent_colour
+text index.[item].key("path").replace("Websites/","") 10
+if clicked (
+opentab index.[item].key("path").replace("Websites/","owtp://")
 )
 
-page_len = out.len * 90 + 100
+page_len = out.len * 100 + 100
 
 loc 999 2 0 -25
 square frame_width - 20 40 20 1 : c#333
