@@ -35,8 +35,8 @@ i = 0
 loop out.len.clamp(0,10) (
 i += 1
 c #222
-loc 2 2 20 y
-y -= 90
+loc 2 2 80 y
+y -= 40
 change_x w * -0.5
 item = out.[i].destr
 c accent_colour
@@ -46,7 +46,7 @@ opentab index.[item].key("path").replace("Websites/","owtp://")
 )
 )
 
-page_len = out.len.clamp(0,10) * 100 + 100
+page_len = out.len.clamp(0,10) * 40 + 100
 
 loc 999 2 0 -25
 square frame_width - 20 40 20 1 : c#333
