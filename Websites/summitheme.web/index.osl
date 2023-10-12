@@ -1,8 +1,9 @@
 current_tab_name = {"title":"Browser Themer"}
 
 background #111
+c #fff
 loc 2 2 20 -40
-text "Search Bar Theme" 10 : c#fff
+text "Search Bar Theme" 10
 
 
 loc 2 2 20 -70
@@ -18,6 +19,7 @@ if summitheme_current_edit == "searchbar" (
 c_searchbar = picker_colour
 )
 
+c #fff
 loc 2 2 20 -100
 text "Top Bar: " 10 
 change 20
@@ -25,8 +27,28 @@ c c_searchback
 square 10 10 5 1
 if clicked (
 summitheme_current_edit = "topbar"
+colourpicker "setcol" c_searchback
 colourpicker "show"
 )
 if summitheme_current_edit == "topbar" (
 c_searchback = picker_colour
+)
+
+c #fff
+loc 2 2 20 -140
+text "Search Bar Theme" 10
+
+
+loc 2 2 20 -160
+text "Sidebar Back: " 10 
+change 20
+c c_sidebarback
+square 10 10 5 1
+if clicked (
+summitheme_current_edit = "sidebar"
+colourpicker "setcol" c_sidebarback
+colourpicker "show"
+)
+if summitheme_current_edit == "sidebar" (
+c_sidebarback = picker_colour
 )
