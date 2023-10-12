@@ -41,7 +41,7 @@ text index.[item].key("path") 10 : c#fff
 page_len = out.len * 80 + 100
 
 loc 999 2 0 -30
-square frame_width 30 20 1 : c#333
+square frame_width - 20 40 20 1 : c#333
 loc 2 2 30 -30
 current_tab_name = {"title":"Origin Search","icon":"search"}
 icon "search" 0.7 : c#fff
