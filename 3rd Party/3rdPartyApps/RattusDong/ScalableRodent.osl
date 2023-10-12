@@ -10,3 +10,5 @@ size += 1
 if size > 3000 (
 size = 0
 )
+
+import "win-buttons"
