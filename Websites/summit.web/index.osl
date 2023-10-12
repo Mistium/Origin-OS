@@ -5,5 +5,5 @@ links = ["/extensions","/store","/bookmarks"]
 
 text "View store" 8
 if clicked (
-current_tab = "owtp:/store.summit.web"
+redirect "owtp://summit.web/store.osl"
 )
