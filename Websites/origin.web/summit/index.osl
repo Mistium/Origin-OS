@@ -3,10 +3,10 @@ summitimage = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites
 
 imagesizemultiplier = frame_width / summitimage.imageinfo("width") * 0.5
 
-loc 999 2 0 summitimage.imageinfo("height") * imagesizemultiplier * -0.5 + scroll_y
+loc 999 2 0 summitimage.imageinfo("height") * imagesizemultiplier * -0.5 + scroll_y - 50
 
 image summitimage frame_width
-y = summitimage.imageinfo("height") * imagesizemultiplier * -1 + scroll_y
+y = summitimage.imageinfo("height") * imagesizemultiplier * -1 + scroll_y - 50
 
 wm = frame_width / 1000
 c #333
