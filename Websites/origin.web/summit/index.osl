@@ -15,6 +15,7 @@ square frame_width 50 10 1
 loc 2 2 20 y - 60
 text "Summit is the default browser for originOS, allowing you to browse with themes, tabs, bookmarks and way more." 9 : c#fff
 
+page_len = y - scroll_y * -1 + 200
 c #111
 loc 999 2 0 -20
 square frame_width 50 10 1
