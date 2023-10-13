@@ -1,3 +1,5 @@
+current_tab_name = {"title":"Rat Accelerator"}
+
 if onload (
 inc = 0.01
 size = 0
