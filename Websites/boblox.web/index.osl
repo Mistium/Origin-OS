@@ -3,6 +3,6 @@ current_tab_name = {"title":"Boblox","icon":"cube"}
 loc 999 2 0 -20
 square frame_width - 20 20 10 1 : c#222
 loc 2 2 20 -20
-icon "cube" 1 :c#fff
+icon "cube" 1 : c#fff
 change 20
 text "Boblox" 9
