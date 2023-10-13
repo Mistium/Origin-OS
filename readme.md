@@ -10,3 +10,5 @@ https://discord.gg/7DcwkqrZ9S
 You can view the itch page for originOS here: https://equilibrium-studios.itch.io/origin-os
 
 ![Screenshot 2023-08-31 at 13 54 55-min](https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912)
+
+![RemadeSummit](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/assets/Summit1.png)
