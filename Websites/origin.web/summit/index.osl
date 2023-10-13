@@ -1,11 +1,11 @@
-current_tab_name = {"title":"originOS","icon":"origin-logo"}
+current_tab_name = {"title":"Summit - The originStudios Browser","icon":"origin-logo"}
 summitimage = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/origin.web/assets/Summit1.png"
 
 imagesizemultiplier = frame_width / summitimage.imageinfo("width") * 0.5
 
 loc 999 2 0 summitimage.imageinfo("height") * imagesizemultiplier * -0.5 + scroll_y
 
-image heroimage frame_width
+image summitimage frame_width
 y = summitimage.imageinfo("height") * imagesizemultiplier * -1 + scroll_y
 
 wm = frame_width / 1000
@@ -16,9 +16,11 @@ loc 2 2 20 y - 60
 text "Summit is the default browser for originOS, allowing you to browse with themes, tabs, bookmarks and way more." 9 : c#fff
 
 page_len = y - scroll_y * -1 + 200
+
 c #111
 loc 999 2 0 -20
 square frame_width 50 10 1
+
 c #fff
 loc 2 2 20 -20
-text "originOS/Summit" 10 : c#fff
+text "originOS/Summit" 10
