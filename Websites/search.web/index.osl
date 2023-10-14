@@ -33,7 +33,7 @@ i = 0
 loop out.len.clamp(0,10) (
 i += 1
 c #222
-loc 2 2 150 y
+loc 999 2 w / -2 y
 y -= 40
 item = out.[i].destr
 c accent_colour
