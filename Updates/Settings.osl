@@ -245,31 +245,32 @@ endef
 def "accounts"
 y = -40
 terminal "account getall"
-count = 0
+i = 0
 loop accounts.len (
-  count += 1
+  i += 1
   loc 999 2 0 y
   c #222
-  if user_id == count "c #333"
+  if user_id == i "c #333"
   square frame_width - 25 35 10 1
   loc 2 2 30 y
   square 35 35 8 : c#111
-  image accounts.[count].key("user icon") 35
+  current = accounts.[i]
+  image current.key("user icon") 35
   c #fff
   change_x 30
-  text accounts.[count].key("username") 7
-  count = 0
+  text current.key("username") 7
   loc -2 2 -30 y
-  if user_id == count "icon close 0.6"
+  if user_id == i "icon close 0.6"
   loc -2 2 -150 y
-  if user_id == count "text logged + in 7"
+  if user_id == i "text logged + in 7"
   y -= 60
 )
 loc 999 2 0 y
 square frame_width - 25 35 10 1 : c#222
 loc 2 2 100 y
 square 160 25 10 1 : c#555
-if clicked (
+if clicked and can (
+can = false
 terminal "system windows close Account_Creator"
 terminal "system windows add Account_Creator"
 )
