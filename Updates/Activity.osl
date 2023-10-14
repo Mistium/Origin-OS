@@ -1,0 +1,91 @@
+permission "request" "terminal"
+window "show"
+file "open" "id" window_create_data
+window "dimensions" 900 500
+current_tab = "Render Info"
+graph = []
+network_usage = []
+def "tab" "name"
+  selected = name == current_tab
+  if selected.not "c #111"
+  if selected "c #333"
+  square 160 20 10 1
+  if clicked "current_tab = name"
+  change -70 0
+  text name 8 : c#fff
+endef
+pen "width" 10
+mainloop:
+usage = delta_time.multiply(500).round
+graph = graph.append(usage)
+if graph.len > 100 "graph = graph.delete(1)"
+terminal "get network"
+data = data.len
+network_usage = network_usage.append(data)
+if network_usage.len > 100 "network_usage = network_usage.delete(1)"
+wwm = window_width - 50 / 100
+whm = window_height / 300
+import "side-bar"
+loc 2 2 12 -20
+text "<fps.round>" 10 : c#fff
+loc 2 2 12 -40
+text "fps" 7
+loc 2 2 12 -70
+text "<delta_time.multiply(1000).round>" 10
+loc 2 2 14 -85
+text "ms" 7
+loc 2 2 140 -20
+tab "Render Info"
+loc 2 2 320 -20
+tab "Performance"
+loc 2 2 500 -20
+tab "Network"
+loc 2 2 680 -20
+tab "Disk"
+import "win-buttons"
+window "responsive" True
+if current_tab == "Performance" (
+  loc 2 -2 50 graph.[1].destr * whm
+  c #fff
+  pen "down"
+  graph_count = 1
+  loop graph.len (
+    graph_count += 1
+    loc 2 -2 graph_count * wwm + 50 graph.[graph_count].destr * whm
+  )
+)
+if current_tab == "Network" (
+  loc 2 -2 50 network_usage.[1].destr * whm + 10
+  c #fff
+  pen "down"
+  graph_count = 0
+  loop network_usage.len (
+    graph_count += 1
+    loc 2 -2 graph_count * wwm + 50 network_usage.[graph_count].destr + 10
+  )
+)
+pen "up"
+if current_tab == "Render Info" (
+  window "responsive" False
+  loc 2 2 50 -45
+  x = x_position
+  y = y_position
+  loc -2 -2 10 0 : c#333
+  frame x y x_position y_position page_len
+  page_len = 40
+  y = scroll_y - 20
+  terminal "-get.windows"
+  count = 0
+  loop windows-names.len (
+    count += 1
+    loc 999 2 0 y
+    square frame_width - 20 20 10 1 : c#222
+    loc 2 2 10 y
+    text windows-names.[count] 7 : c#fff
+    loc 2 2 220 y
+    text windows-drawtimes.[count] 7
+    y -= 35
+    page_len += 35
+  )
+)
+frame "clear"
