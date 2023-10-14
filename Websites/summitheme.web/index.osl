@@ -1,6 +1,26 @@
-current_tab_name = {"title":"Browser Themer"}
+current_tab_name = {"title":"Browser Themer","icon","edit"}
 
-background #111
+loc -2 2 -25 -25
+square 20 20 10 : c#333
+if clicked (
+c_sidebarbutton = #333
+c_sidebarselected = accent_colour
+c_sidebaricons = #fff
+c_sidebarback = #111
+
+c_tabselected = #555
+
+c_searchback = #151515
+c_searchbar = #222
+c_searchicon = #fff
+
+c_text = #fff
+c_back = #000
+
+window_colour = #000
+)
+icon "reload" 0.8 : c#fff
+
 loc 2 2 20 -40
 text "Search Bar Theme" 10 : c#fff
 
@@ -87,7 +107,7 @@ c_sidebaricons = picker_colour
 )
 
 c c_text
-loc 2 2 20 -300
+loc 2 2 20 -320
 text "Tabs Theme" 10
 
 loc 2 2 20 -330
@@ -106,7 +126,7 @@ if summitheme_current_edit == "tabsel" (
 c_tabselected = picker_colour
 )
 
-loc 2 2 20 -360
+loc 2 2 20 -350
 c c_text
 text "Tabs Text: " 10
 change 20
