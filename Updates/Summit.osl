@@ -10,6 +10,9 @@ c_searchback = #151515
 c_searchbar = #222
 c_searchicon = #fff
 
+c_text = #fff
+c_back = #000
+
 default_tab_width = 300
 
 save "bookmarks.json" "get"
@@ -27,6 +30,14 @@ pages = []
 tabs = []
 taburls = []
 current_get = ""
+
+def "set_tab_name"
+name = taburls.[tab].split("/")
+len = name.len
+name = name.[len]
+current_tab_name = {}
+current_tab_name.key("title") = name
+endef
 
 def "opentab" "url"
 resolve_protocols url
@@ -68,9 +79,12 @@ loop tabs.len (
     if clicked "remove_tab i"
     clicked = false
   )
-  change_x tab_width * -1 + 40
+  change_x tab_width * -1 + 45
   c c_tabtext
-  text tabs.[i].key("title") 8
+  icon tabs.[i].key("icon").str 0.8
+  c c_tabtext
+  change 20
+  text tabs.[i].key("title").str 8
 )
 c c_searchbar
 loc 2 2 x + ( tab_width / 2 ) + 20 -20
@@ -99,6 +113,9 @@ if protocol == "owtp" (
   current_get = url.replace("owtp://",owtpurl)
   if url.right(4) == ".web" or url.right(4).contains(".").not "current_get = current_get ++ /index.osl"
 )
+urlspl = current_get.split(".")
+len = urlspl.len
+page_type = urlspl.[len]
 endef
 
 def "validate_data" "validation"
@@ -140,6 +157,7 @@ if selected_input == "search" and "enter".pressed (
 
 resolve_protocols taburls.[tab]
 network "get" current_get
+page_data = data
 validate_data data
 
 loc 2 2 70 -59
@@ -172,6 +190,11 @@ change_y -50
 icon "Right-Arrow" 0.8
 change_y -50
 icon "Reload" 0.7
+if clicked (
+network "clear" taburls.[tab]
+pages.[tab] = []
+page_type = ""
+)
 change_y -50
 icon "bookmark" 0.8
 if clicked and can (
@@ -194,7 +217,29 @@ c c_sidebarback
 frame x y x_position y_position page_len
 page_len = null
 current_tab_name = input_search
+if page_type == "osl" (
 run pages.[tab]
+)
+if page_type == "png" (
+loc 999 999
+image taburls.[tab] frame_width
+)
+if page_type == "txt" (
+loc 2 2 20 -20 + scroll_y
+c c_text
+text page_data.str 10
+set_tab_name
+current_tab_name.key("icon") = "txt"
+page_len = pages.[tab].len * 25
+)
+if page_type == "md" (
+loc 2 2 20 -20 + scroll_y
+c c_text
+text page_data.str 10
+set_tab_name
+current_tab_name.key("icon") = "md"
+page_len = pages.[tab].len * 25
+)
 onload = false
 tabs.[tab] = current_tab_name
 frame "clear"
