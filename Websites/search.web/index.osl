@@ -8,7 +8,7 @@ square w 10 40 1
 change_x w * -0.5 + 10
 c c_tabtext
 icon "search" 0.7
-change w + 10
+change w / 2 + 10
 c c_searchbar
 input w - 40 30 "searchBar" "Search the Origin Network"
 if selected_input == "searchBar" and "enter".pressed (
