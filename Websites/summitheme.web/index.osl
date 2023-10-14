@@ -19,7 +19,8 @@ c_searchbar = picker_colour
 )
 
 loc 2 2 20 -100
-text "Top Bar: " 10 : c#fff
+c c_text
+text "Top Bar: " 10
 change 20
 square 10 10 7 1
 c c_searchback
@@ -33,12 +34,13 @@ if summitheme_current_edit == "topbar" (
 c_searchback = picker_colour
 )
 
-c #fff
+c c_text
 loc 2 2 20 -160
 text "Search Bar Theme" 10
 
 loc 2 2 20 -200
-text "Sidebar Back: " 10 : c#fff
+c c_text
+text "Sidebar Back: " 10
 change 20
 square 10 10 7 1
 c c_sidebarback
@@ -53,10 +55,11 @@ c_sidebarback = picker_colour
 )
 
 loc 2 2 20 -230
-text "Sidebar Buttons: " 10 : c#fff
+c c_text
+text "Sidebar Buttons: " 10
 change 20
 square 10 10 7 1
-c c_sidebarback
+c c_sidebarbutton
 square 10 10 5 1
 if clicked (
 summitheme_current_edit = "sidebarbutton"
@@ -68,7 +71,8 @@ c_sidebarbutton = picker_colour
 )
 
 loc 2 2 20 -260
-text "Sidebar Icons: " 10 : c#fff
+c c_text
+text "Sidebar Icons: " 10
 change 20
 square 10 10 7 1
 c c_sidebaricons
@@ -82,12 +86,13 @@ if summitheme_current_edit == "sidebaricon" (
 c_sidebaricons = picker_colour
 )
 
-c #fff
+c c_text
 loc 2 2 20 -300
 text "Tabs Theme" 10
 
 loc 2 2 20 -330
-text "Selected Tab: " 10 : c#fff
+c c_text
+text "Selected Tab: " 10
 change 20
 square 10 10 7 1
 c c_tabselected
@@ -102,16 +107,37 @@ c_tabselected = picker_colour
 )
 
 loc 2 2 20 -360
-text "Tabs Text: " 10 : c#fff
+c c_text
+text "Tabs Text: " 10
 change 20
 square 10 10 7 1
-c c_tabtext
+c c_text
 square 10 10 5 1
 if clicked (
 summitheme_current_edit = "tabtxt"
 colourpicker "show"
-colourpicker "setcol" c_tabtext
+colourpicker "setcol" c_text
 )
 if summitheme_current_edit == "tabtxt" (
-c_tabtext = picker_colour
+c_text = picker_colour
+)
+
+c c_text
+loc 2 2 20 -400
+text "Window Theme" 10
+
+loc 2 2 20 -430
+c c_text
+text "Window Background: " 10
+change 20
+square 10 10 7 1
+c window_colour
+square 10 10 5 1
+if clicked (
+summitheme_current_edit = "winback"
+colourpicker "show"
+colourpicker "setcol" window_colour
+)
+if summitheme_current_edit == "winback" (
+window_colour = picker_colour
 )
