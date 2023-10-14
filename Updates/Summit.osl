@@ -73,7 +73,7 @@ loop tabs.len (
   if clicked "input_search = taburls.[i].destr"
   change_x tab_width * 0.5 - 20
   if tabs.len > 1 (
-    c c_tabtext
+    c c_text
     icon "close" 0.5
     if clicked "remove_tab i"
     clicked = false
