@@ -10,7 +10,7 @@
 - **path**:
   - Defines a path consisting of a series of x, y coordinates enclosed within parentheses.
   - Example:
-    ```plaintext
+    ```
     path
     x1 y1
     x2 y2
