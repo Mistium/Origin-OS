@@ -7,6 +7,33 @@ change_x 30
 text optname 8
 endef
 
+def "DrawCategory" "setting"
+c button-unselected
+temp = x_position
+if category == setting "c button-selected"
+square 30 30 10 1
+if clicked (
+category = setting
+subcategory = "none"
+)
+icon setting 0.8 : c#fff
+goto temp y_position - 50
+endef
+
+def "option" "name,x,icon"
+loc 999 2 0 y
+c #222
+square frame_width - 25 30 10 1
+if clicked "subcategory = name"
+change_x frame_width - 25 / -2 + 20
+if icon != "icon" "icon = name"
+icon icon 1 : c#fff
+change_x 30
+text name 10 : c#fff
+y -= 50
+page_len += 50
+endef
+
 def "system"
 if subcategory == "none" (
   option "Display"
@@ -103,15 +130,15 @@ option "Colours"
 option "Lock Screen"
 )
 if subcategory == "Colours" (
-loc 2 2 15 -30
-text "Accent Colour: <global_accent>" 10 : c#fff
-change_x 30
-square 0 0 20 0 : c#global_accent
-if clicked (
-colourpicker "setcol" global_accent
-colourpicker "show"
-)
-terminal "system setaccent" + picker_colour
+  loc 2 2 15 -30
+  text "Accent Colour: <global_accent>" 10 : c#fff
+  change_x 30
+  square 0 0 20 0 : c#global_accent
+  if clicked (
+    colourpicker "setcol" global_accent
+    colourpicker "show"
+  )
+  terminal "system setaccent" + picker_colour
 )
 if subcategory == "Dock" (
 loc 2 2 15 -30
@@ -216,28 +243,45 @@ appopt "uninstall" "bin" "1"
 endef
 
 def "accounts"
-y = -30
-terminal "-get.accounts"
+y = -40
+terminal "account getall"
 count = 0
 loop accounts.len (
-count += 1
-loc 999 2 0 y
-c #222
-if user_id == count "c #333"
-square frame_width - 25 30 10 1
-if user_id != count and clicked "terminal sys.windows.forcestop + Login"
-if user_id != count and clicked "terminal sys.windows.addinstance + Login + accounts.[count]"
-loc 2 2 25 y
-icon "c #111 w 30 dot" 1
-icon accounts.[count].key("user icon") 1 : c#fff
-change_x 30
-text accounts.[count].key("username") 7
-loc -2 2 -30 y
-icon "close" 0.6
-loc -2 2 -150 y
-if user_id == count "text logged + in 7"
-y -= 50
+  count += 1
+  loc 999 2 0 y
+  c #222
+  if user_id == count "c #333"
+  square frame_width - 25 35 10 1
+  loc 2 2 30 y
+  square 35 35 8 : c#111
+  image accounts.[count].key("user icon") 35
+  c #fff
+  change_x 30
+  text accounts.[count].key("username") 7
+  count = 0
+  loc -2 2 -30 y
+  if user_id == count "icon close 0.6"
+  loc -2 2 -150 y
+  if user_id == count "text logged + in 7"
+  y -= 60
 )
+loc 999 2 0 y
+square frame_width - 25 35 10 1 : c#222
+loc 2 2 100 y
+square 160 25 10 1 : c#555
+if clicked (
+terminal "system windows close Account_Creator"
+terminal "system windows add Account_Creator"
+)
+change -70
+text "Add Account" 7 : c#fff
+loc 2 2 280 y
+square 160 25 10 1 : c#555
+if clicked (
+terminal "account logout"
+)
+change -70
+text "Logout" 7 : c#fff
 endef
 
 def "time"
@@ -260,42 +304,16 @@ text "Since Last Frame: <dt>ms" 8
 endef
 
 def "updates"
-network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/system"
-
+  network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/Updates"
 endef
 
 window "dimensions" 880 500
 dock_location = dock_location
 segments = segments
 
-def "option" "name,x,icon"
-loc 999 2 0 y
-c #222
-square frame_width - 25 30 10 1
-if clicked "subcategory = name"
-change_x frame_width - 25 / -2 + 20
-if icon != "icon" "icon = name"
-icon icon 1 : c#fff
-change_x 30
-text name 10 : c#fff
-y -= 50
-page_len += 50
-endef
-
-def "DrawCategory" "setting"
-c button-unselected
-temp = x_position
-if category == setting "c button-selected"
-square 30 30 10 1
-if clicked (
-category = setting
-subcategory = "none"
-)
-icon setting 0.8 : c#fff
-goto temp y_position - 50
-endef
 category = "system"
 subcategory = "none"
+
 window "show"
 
 mainloop:
