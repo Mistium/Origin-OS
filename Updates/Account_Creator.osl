@@ -89,7 +89,6 @@ if page == "discord" (
   c #000
   loc 2 2 200 -340
   square 320 30 20 1
-  if topage == "verify" and mouse_touching and clicked.not "page = "verify""
   if clicked "topage = "verify""
   if clicked "get input_discord_id"
   c #fff
