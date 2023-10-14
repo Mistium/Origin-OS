@@ -149,7 +149,7 @@ offset = items * 30
 loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
 square ww - ( offset + 80 ) 28 5 1
 change 10
-input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 0 c_text
+input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text
 if selected_input == "search" and "enter".pressed (
   redirect input_search
 )
