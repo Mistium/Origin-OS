@@ -5,7 +5,7 @@ change_y scroll_y
 if frame_width - 100 < w "w = frame_width - 100"
 c c_searchbar
 square w 10 40 1
-change_x w * -1 + 10
+change_x w * -0.5 + 10
 c c_tabtext
 icon "search" 0.7
 change w + 10
