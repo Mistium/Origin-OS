@@ -4,7 +4,6 @@ c_sidebaricons = #fff
 c_sidebarback = #111
 
 c_tabselected = #555
-c_tabtext = #fff
 
 c_searchback = #151515
 c_searchbar = #222
