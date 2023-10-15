@@ -71,24 +71,24 @@ loop tabs.len (
   square tab_width - 15 28 5 1
   if clicked "tab = i"
   if clicked "input_search = taburls.[i].destr"
-  change_x tab_width * 0.5 - 20
+  change_x tab_width * -0.5 + 20
+  c c_text
+  icon tabs.[i].key("icon").str 0.8
+  c c_text
+  change 20
+  text tabs.[i].key("title").str 8
   if tabs.len > 1 (
+    loc 2 2 tab_width * 0.5 - 20 + x -20
     c c_text
     icon "close" 0.5
     if clicked "remove_tab i"
     clicked = false
   )
-  change_x tab_width * -1 + 45
-  c c_tabtext
-  icon tabs.[i].key("icon").str 0.8
-  c c_tabtext
-  change 20
-  text tabs.[i].key("title").str 8
 )
 c c_searchbar
 loc 2 2 x + ( tab_width / 2 ) + 20 -20
 square 28 28 5 1
-c c_tabtext
+c c_text
 icon "add" 0.6
 if clicked (
 opentab "owtp://search.web"
@@ -171,8 +171,8 @@ if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
 
 colour c_sidebarbutton
 loop 3 (
-square 30 30 10 1
-change_y -50
+  square 30 30 10 1
+  change_y -50
 )
 
 if bookmarked "c c_sidebarselected"
@@ -197,13 +197,13 @@ page_type = ""
 change_y -50
 icon "bookmark" 0.8
 if clicked and can (
-can = False
-bookmarks = bookmarks.delete(current_tab)
-if bookmarked.not "bookmarks = bookmarks.append(current_tab)"
-save "bookmarks.json" "get"
-if save-data != bookmarks (
-  save "bookmarks.json" "set" bookmarks
-)
+  can = False
+  bookmarks = bookmarks.delete(current_tab)
+  if bookmarked.not "bookmarks = bookmarks.append(current_tab)"
+  save "bookmarks.json" "get"
+  if save-data != bookmarks (
+    save "bookmarks.json" "set" bookmarks
+  )
 )
 if mouse_down.not "can = True"
 loc 2 -2 25 25
@@ -220,24 +220,24 @@ if page_type == "osl" (
 run pages.[tab]
 )
 if page_type == "png" (
-loc 999 999
-image taburls.[tab] frame_width
+  loc 999 999
+  image taburls.[tab] frame_width
 )
 if page_type == "txt" (
-loc 2 2 20 -20 + scroll_y
-c c_text
-text page_data.str 10
-set_tab_name
-current_tab_name.key("icon") = "txt"
-page_len = pages.[tab].len * 25
+  loc 2 2 20 -20 + scroll_y
+  c c_text
+  text page_data.str 10
+  set_tab_name
+  current_tab_name.key("icon") = "txt"
+  page_len = pages.[tab].len * 25
 )
 if page_type == "md" (
-loc 2 2 20 -20 + scroll_y
-c c_text
-text page_data.str 10
-set_tab_name
-current_tab_name.key("icon") = "md"
-page_len = pages.[tab].len * 25
+  loc 2 2 20 -20 + scroll_y
+  c c_text
+  text page_data.str 10
+  set_tab_name
+  current_tab_name.key("icon") = "md"
+  page_len = pages.[tab].len * 25
 )
 onload = false
 tabs.[tab] = current_tab_name
