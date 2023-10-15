@@ -5,7 +5,7 @@ endef
 mainloop:
 
 window "dimensions" window_width window_width * 0.6
-image "https://raw.github.com/Mistium/Origin-OS/main/OSL%20Programs/assets/gem_disk_info_bg.png" window_width
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/gem_disk_info_bg.jpg" window_width
 
 loc 2 2 20 -40
 text "Disk:" + disk_name 20 : c#fff
