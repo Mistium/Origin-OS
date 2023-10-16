@@ -1,7 +1,7 @@
 def "calculate_write"
 temp = timestamp
 endef
-seticon "image https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/gem_disk_info_icon.jpg 20"
+seticon "image https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/gem_disk_info_icon.png 20"
 mainloop:
 window "dimensions" window_width window_width * 0.8
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/gem_disk_info_bg.jpg" window_width
