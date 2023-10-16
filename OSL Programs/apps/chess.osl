@@ -8,18 +8,22 @@ board = ["0","0","0","0","0","0","0","0"].concat(board)
 board = ["0","0","0","0","0","0","0","0"].concat(board)
 board = ["P","P","P","P","P","P","P","P"].concat(board)
 board = ["R","N","B","Q","K","B","N","R"].concat(board)
+
 def "drawboardsquare" "id"
   c #222
   if id % 2 == 0 "c #444"
   square 50 50 5 1
   text board.[id] 10 : c#fff
 endef
+
 def "nextmove" "turn"
   get "https://www.chessdb.cn/cdb.php?action=querybest&board=" ++ urlboard ++ "%20w%20KQkq%20-%200%1" ++ turn ++ "&json=1"
 endef
+
 def "genurlboard"
   urlboard = board.join()
 endef
+
 mainloop:
 x = -260
 y = 200
