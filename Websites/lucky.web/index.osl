@@ -4,7 +4,10 @@ data = null
 len = index.len
 r = ["1"].append(len)
 item = r.random
+if [1,100].random == 1 and index.[item].key("path").contains("Websites/") (
 redirect index.[item].key("path").replace("Websites/","owtp://")
-index = null
-len = null
-r = null
+)
+if index.[item].key("path").contains("Websites/") (
+loc 2 2 20 -20
+text index.[item].key("path") 10 : c#c_text
+)
