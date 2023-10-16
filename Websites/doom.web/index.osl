@@ -1,8 +1,11 @@
 current_tab_name = {"title":"Doom"}
+c #fff
 loc 2 2 20 -20
-text "Doom.web" 8
+text "Doom.web Where you can download doom for originOS (Eventually. Doesn't exist right now but will probably in the future)" 8
 
-loc 2 2 20 -80
+loc 2 2 20 -100
+text "Resources" 10
+loc 2 2 20 -150
 text "Doom-Hanger.obj" 8
 if clicked (
 redirect "owtp://doom.web/resources/doom-hanger.obj"

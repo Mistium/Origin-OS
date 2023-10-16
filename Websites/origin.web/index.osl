@@ -29,9 +29,25 @@ square frame_width - 20 500 10 1
 
 c #fff
 loc 2 2 20 y - 130
-text "OSL Documentation" 8
+text ".osl Documentation (OSL is the main scripting language used in origin os apps, websites and scripts)" 8
+if clicked (
+    redirect "owtp://origin.web/docs/osl"
+)
 loc 2 2 20 y - 160
-text "ICN Documentation" 8
+text ".icn Documentation (ICN is the scripting language used for drawing vector icons and images)" 8
+if clicked (
+    redirect "owtp://origin.web/docs/icn.md"
+)
+loc 2 2 20 y - 190
+text ".tsf Documentation (TSF is a scripting language based on the python turtle for rendering vector icons and images)" 8
+if clicked (
+    redirect "owtp://origin.web/docs/tsf.md"
+)
+loc 2 2 20 y - 220
+text ".font Documentation (FONT is the file type that contains a full set of icn files for the text renderer to use, one icon for each character)" 8
+if clicked (
+    redirect "owtp://origin.web/docs/icn.md"
+)
 
 c #111
 loc 999 2 0 -20
