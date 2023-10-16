@@ -13,9 +13,9 @@ c #333
 loc 999 2 0 y - 60
 square frame_width 50 10 1
 c #fff
-target = 5
+target = frame_width / 200
 if mouse_touching (
-target = 7
+target = frame_width / 270
 )
 size += target - size / 5
 loc 999 2 0 y - 60
@@ -29,22 +29,22 @@ square frame_width - 20 500 10 1
 
 c #fff
 loc 2 2 20 y - 130
-text ".osl Documentation (OSL is the main scripting language used in origin os apps, websites and scripts)" 8
+text ".osl Documentation<newline>(OSL is the main scripting language used in origin os apps, websites and scripts)" 8
 if clicked (
-    redirect "owtp://origin.web/docs/osl"
+    redirect "owtp://origin.web/docs/osl/index.osl"
 )
 loc 2 2 20 y - 160
-text ".icn Documentation (ICN is the scripting language used for drawing vector icons and images)" 8
+text ".icn Documentation<newline>(ICN is the scripting language used for drawing vector icons and images)" 8
 if clicked (
     redirect "owtp://origin.web/docs/icn.md"
 )
 loc 2 2 20 y - 190
-text ".tsf Documentation (TSF is a scripting language based on the python turtle for rendering vector icons and images)" 8
+text ".tsf Documentation<newline>(TSF is a scripting language based on the python turtle for rendering vector icons and images)" 8
 if clicked (
     redirect "owtp://origin.web/docs/tsf.md"
 )
 loc 2 2 20 y - 220
-text ".font Documentation (FONT is the file type that contains a full set of icn files for the text renderer to use, one icon for each character)" 8
+text ".font Documentation<newline>(FONT is a file that contains a set of icn characters)" 8
 if clicked (
     redirect "owtp://origin.web/docs/icn.md"
 )
