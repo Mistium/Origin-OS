@@ -1,5 +1,5 @@
-goto -400 0
+goto 0 0
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 4
 
-goto 100 0
+goto frame_width 0
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 4
