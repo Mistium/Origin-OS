@@ -1,3 +1,0 @@
-/sitemap.txt
-/index.osl
-/example-directory/hello.txt

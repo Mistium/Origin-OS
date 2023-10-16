@@ -6,3 +6,6 @@ loc 2 2 20 -20
 icon "cube" 1 : c#fff
 change 20
 text "Boblox" 9
+
+loc 2 2 20 -60
+text "Nothing to see here" 8

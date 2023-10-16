@@ -7,7 +7,7 @@ text "This is an example website" 10 : c#fff
 loc 999 999
 square 200 40 10 1 : c#222
 if clicked (
-current_tab = "owtp:/example.web/example-directory/hello world.txt"
+redirect "owtp:/example.web/example-directory/hello world.txt"
 )
 loc 999 999 -40
 text "Hello" 10 : c#fff
