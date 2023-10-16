@@ -1,5 +1,5 @@
-loc 2 -2 100 100
-image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 3
+loc 2 -2 200 100
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 2
 
-loc -2 -2 -100 100
-image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 3
+loc -2 -2 -200 100
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 2
