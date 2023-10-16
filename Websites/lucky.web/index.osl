@@ -1,6 +1,10 @@
 network "get" "https://api.github.com/repos/Mistium/Origin-OS/git/trees/main?recursive=1"
 index = data.key("tree")
+data = null
 len = index.len
 r = ["1"].append(len)
 item = r.random
 redirect index.[item].key("path").replace("Websites/","owtp://")
+index = null
+len = null
+r = null
