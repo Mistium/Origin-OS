@@ -9,7 +9,6 @@ dock_location = "center"
 global "dock_location"
 window "front"
 mainloop:
-if current_display == my_display_id (
 movefileloc "Origin/(C) Users/" ++ username ++ "/Dock"
 if mouse_down.not "canclick = True"
 terminal "system windows reset max/min"
@@ -32,4 +31,3 @@ loop segments.len (
     goto width / 2 + x + 15 10
 )
 dock_width = x_position - start_x
-)
