@@ -1,9 +1,7 @@
 def "print" "data"
 terminal = terminal.append(data)
 endef
-def "clearall"
-terminal = []
-endef
+
 canenter = True
 terminal = ["> type help for a list of commands","Eg. help acounts logout","Or help accounts"]
 input_1 = null
