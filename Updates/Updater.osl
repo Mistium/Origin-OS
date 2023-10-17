@@ -32,6 +32,7 @@ change 50
 text app_names.[index] 8 : c#fff
 loc -2 2 -50 y
 icon "circle" 2
+if mouse_touching "cursor "pointer""
 icon "download" 0.8
 if clicked "install index"
 endef
@@ -51,7 +52,7 @@ check_updates
 mainloop:
 
 c #333
-frame window_width / -2 window_height / 2 - 50 window_width / 2 window_height / -2 download_urls.len * 120
+frame window_width / -2 window_height / 2 - 50 window_width / 2 window_height / -2 updates.len * 120
 
 i = 0
 loop updates.len (
@@ -72,6 +73,6 @@ loc 999 2 0 -20
 square frame_width 30 10 1 : c#222
 
 loc 2 2 20 -20
-text "Application Update Utility - " + updates.len + "Updates" 8 : c#fff
+text "Application Update Utility - " + updates.len + "Updates /" + download_urls.len + "Updatable Applications" 8 : c#fff
 
 import "win-buttons"
