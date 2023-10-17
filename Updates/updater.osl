@@ -1,0 +1,33 @@
+
+def "check_updates"
+updates = []
+i = 0
+loop download_urls.len (
+i += 1
+network "get" download_urls.[i]
+current = data
+file "open" app_names.[i] "app"
+if current != data "updates = updates.append(i)"
+)
+endef
+
+mainloop:
+
+network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/Updates"
+apps = data
+download_urls = data.getall("download_url")
+app_names = data.getall("name")
+
+frame window_width / -2 window_height / 2 window_width / 2 window_height / -2 download_urls.len * 40
+
+check_updates
+
+i = 0
+loop updates.len (
+i += 1
+loc 2 2 20 i * -40 scroll_y
+current = updates.[i]
+text app_names.[current] 10
+)
+
+import "win-buttons"
