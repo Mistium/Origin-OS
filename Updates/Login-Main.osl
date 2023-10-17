@@ -18,71 +18,67 @@ endef
 mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 15
 if page == "Time" (
-	left = screensize_x / -2
-	bottom = screensize_y / -2 + 10
-	c #fff
-	goto left + 10 bottom + 60
-	text "<hour>:<minute>" 40
-	goto left + 15 bottom + 15
-	text "<day> <day_number> <month>" 10
-	goto screensize_x / 2 - 260 bottom + 15
-	text "Press Space To Enter Desktop" 8
-	low = window_height / -2 + 50
-	mouse = mouse_y > low and mouse_down
-	if "space".pressed or mouse (
-		page = "Login"
-		if user_id != 0 "current_login = user_id"
-	)
+  left = screensize_x / -2
+  bottom = screensize_y / -2 + 10
+  c #fff
+  goto left + 10 bottom + 60
+  text "<hour>:<minute>" 40
+  goto left + 15 bottom + 15
+  text "<day> <day_number> <month>" 10
+  goto screensize_x / 2 - 260 bottom + 15
+  text "Press Space To Enter Desktop" 8
+  low = window_height / -2 + 50
+  mouse = mouse_y > low and mouse_down
+  if "space".pressed or mouse (
+    page = "Login"
+    if user_id != 0 "current_login = user_id"
+  )
 )
 if page == "login" (
-	terminal "account getall"
-	count = 0
-	loop accounts.len (
-		count += 1
-		loc 2 -2 50 50
-		change_x count - 1 * 70
+  terminal "account getall"
+  count = 0
+  loop accounts.len (
+    count += 1
+    loc 2 -2 50 50
+    change_x count - 1 * 70
     c #000
     if current_login == count "c accent_colour"
     square 50 50 10 1
     if clicked "current_login = count"
     image accounts.[count].key("user icon") 45
-)
+  )
 )
 if page == "login" (
-loc 2 -2 count * 70 + 50 50
-c #000
-square 50 50 10 1
-c #fff
-icon "Add" 1
-if clicked "newaccount"
+  loc 2 -2 count * 70 + 50 50
+  square 50 50 10 1 : c#000
+  icon "Add" 1 : c#fff
+  if clicked "newaccount"
 )
-)
+
 if page == "login" and ( accounts.len > 0 ) (
   current = accounts.[current_login]
   user = current.key("username")
 
   goto 0 -40
-	c accent_colour
+  c accent_colour
   square 350 400 25 1
 
-  c #151515
-  square 350 400 20 1
+  square 350 400 20 1 : c#151515
   goto 0 70
-  c #000
-  square 150 150 20 1
+  square 150 150 20 1 : c#000
 
   goto 0 -70
   square 320 30 20 1
 
   change_y -70
-if wrong == input_password "c #491515"
+  if wrong == input_password "c #491515"
   square 320 30 20 1
   input 300 25 "password" "Password..."
 
   c #000
   goto 90 -210
   square 140 30 20 1
-if clicked "login"
+  if clicked "login"
   goto -90 -210
   square 140 30 20 1
   if clicked "page = "Time""
@@ -98,6 +94,6 @@ if clicked "login"
 )
 if page == "Logged In" (
   terminal "system windows close login-main"
-	terminal "system windows add Dock-Modules"
-	window "stop"
+  terminal "system windows add Dock-Modules"
+  window "stop"
 )
