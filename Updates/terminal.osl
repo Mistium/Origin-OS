@@ -1,0 +1,52 @@
+def "print" "data"
+terminal = terminal.append(data)
+endef
+def "clearall"
+terminal = []
+endef
+canenter = True
+terminal = ["> type help for a list of commands","Eg. help acounts logout","Or help accounts"]
+input_1 = null
+permission "request" "terminal"
+mainloop:
+c #222
+loops = terminal.len
+frame window_width / -2 + 50 window_height / 2 - 40 window_width / 2 window_height / -2 + 30 loops * 30
+count = scroll_y / 30
+count = count.round
+start = count
+if window_height.divide(30).floor < loops "loops = window_height.divide(30).floor"
+loop loops (
+  count += 1
+  loc 2 2 10 count - start * -30
+  text terminal.[count] 10 : c#fff
+)
+frame "clear"
+loc 999 2 0 -20
+colour #333
+square window_width 30 20 1
+loc 9999 -2 25 20
+input window_width - 55 30 1 "Type A Command Here"
+if "enter".pressed.not "canenter = True"
+if "enter".pressed and canenter (
+  runterminal = "true"
+  last = input_1
+  input_1 = username ++ "/: " ++ input_1
+  terminal = terminal.append(input_1)
+  terminal last
+  terminal = terminal + terminal_output
+  log terminal_output
+  log terminal
+  input_1 = null
+  canenter = false
+)
+if "up arrow".pressed (
+input_1 = last
+)
+canenter = True
+if "enter".pressed "canenter = False"
+sidebar = ["open","save","eraser"]
+import "side-bar"
+loc 2 2 60 -20
+text "Terminal" 8
+import "win-buttons"
