@@ -1,33 +1,77 @@
-
 def "check_updates"
+network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/Updates"
+apps = data
+download_urls = apps.getall("download_url")
+app_names = apps.getall("name")
+app_icons = []
 updates = []
 i = 0
 loop download_urls.len (
-i += 1
-network "get" download_urls.[i]
-current = data
-file "open" app_names.[i] "app"
-if current != data "updates = updates.append(i)"
+  i += 1
+  network "get" download_urls.[i]
+  current = data
+  file "open" app_names.[i].replace(".osl","") "app"
+  icon = file.[11].destr
+  app_icons = app_icons.append(icon)
+  if current != data (
+    updates = updates.append(i)
+  )
 )
 endef
 
-mainloop:
+def "draw_app" "index"
+loc 999 2 0 y
+square frame_width - 40 100 10 1 : c#111
+if mouse_touching (
+square frame_width - 40 100 15 : c#accent_colour
+square frame_width - 40 100 10 1 : c#111
+)
+loc 2 2 60 y
+icon app_icons.[index] 3 : c#fff
+change 50
+text app_names.[index] 8 : c#fff
+loc -2 2 -50 y
+icon "circle" 2
+icon "download" 0.8
+if clicked "install index"
+endef
 
-network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/Updates"
-apps = data
-download_urls = data.getall("download_url")
-app_names = data.getall("name")
+def "install" "index"
+file "open" app_names.[index].replace(".osl","") "app"
+network "get" download_urls.[index]
+file "set" "data" data.destr.str
+endef
 
-frame window_width / -2 window_height / 2 window_width / 2 window_height / -2 download_urls.len * 40
+permission "request" "File Admin"
+
+updates = []
 
 check_updates
+
+mainloop:
+
+c #333
+frame window_width / -2 window_height / 2 - 50 window_width / 2 window_height / -2 download_urls.len * 120
 
 i = 0
 loop updates.len (
 i += 1
-loc 2 2 20 i * -40 scroll_y
-current = updates.[i]
-text app_names.[current] 10
+current = updates.[i].destr
+y = i * -120 + scroll_y + 50
+draw_app current
 )
+
+frame "clear"
+
+loc -2 -2 -30 30
+square 25 25 10 1 : c#333
+icon "reload" 0.7 : c#fff
+if clicked "check_updates"
+
+loc 999 2 0 -20
+square frame_width 30 10 1 : c#222
+
+loc 2 2 20 -20
+text "Application Update Utility - " + updates.len + "Updates" 8 : c#fff
 
 import "win-buttons"
