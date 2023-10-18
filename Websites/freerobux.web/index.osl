@@ -10,7 +10,7 @@ goto 0 -150
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/generate.png" frame_width / 4.5
 
 goto 0 0
-input 0 0 "searchBar" "Search the Origin Network"
+input 700 - 40 30 "searchBar" "Search the Origin Network"
 
 
 
