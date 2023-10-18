@@ -2,6 +2,7 @@ permission "request" "terminal"
 window "show"
 file "open" "id" window_create_data
 window "dimensions" 900 500
+window "responsive" true
 current_tab = "Render Info"
 graph = []
 network_usage = []
