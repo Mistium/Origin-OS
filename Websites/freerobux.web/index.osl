@@ -1,4 +1,4 @@
-current_tab_name = {"title":"Rat Accelerator","icon":"image https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/rataccelerator.web/assets/rat_mouse_PNG23553.png 40"}
+current_tab_name = {"title":"Win Free Roublux!","icon":"image https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/robux_icon.png 40"}
 
 loc 2 -2 frame_width / 4 100
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 2.25
@@ -6,8 +6,11 @@ image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerob
 loc -2 -2 frame_width / -4 100
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/ROBUX.png" frame_width / 2.25
 
-goto 0 150
+goto 0 -150
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/generate.png" frame_width / 4.5
+
+goto 0 0
+input "username"
 
 
 
