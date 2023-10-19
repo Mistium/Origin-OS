@@ -104,6 +104,7 @@ input_search = url.destr
 tabs.[tab] = url
 taburls.[tab] = url
 network "get" url
+resolve_protocols taburls.[tab]
 endef
 
 def "resolve_protocols" "url"
@@ -156,7 +157,6 @@ if selected_input == "search" and "enter".pressed (
   redirect input_search
 )
 
-resolve_protocols taburls.[tab]
 network "get" current_get
 page_data = data
 validate_data data
