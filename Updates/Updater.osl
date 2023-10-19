@@ -1,3 +1,5 @@
+seticon ""
+
 def "check_updates"
 network "get" "https://api.github.com/repos/Mistium/Origin-OS/contents/Updates"
 apps = data
@@ -41,6 +43,7 @@ def "install" "index"
 file "open" app_names.[index].replace(".osl","") "app"
 network "get" download_urls.[index]
 file "set" "data" data.destr.str
+check_updates
 endef
 
 permission "request" "File Admin"
@@ -64,15 +67,15 @@ draw_app current
 
 frame "clear"
 
-loc -2 -2 -30 30
-square 25 25 10 1 : c#333
-icon "reload" 0.7 : c#fff
-if clicked "check_updates"
-
 loc 999 2 0 -20
 square frame_width 30 10 1 : c#222
 
+loc -2 2 -120 -20
+square 20 20 10 1 : c#333
+icon "reload" 0.5 : c#fff
+if clicked "check_updates"
+
 loc 2 2 20 -20
-text "Application Update Utility - " + updates.len + "Updates /" + download_urls.len + "Updatable Applications" 8 : c#fff
+text "Application Update Utility - " + updates.len + "Updates /" + download_urls.len + "Possible" 8 : c#fff
 
 import "win-buttons"
