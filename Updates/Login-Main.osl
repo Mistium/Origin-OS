@@ -3,7 +3,7 @@ terminal "system windows close account_creator"
 terminal "system windows add account_creator"
 endef
 page = "Time"
-wrong = null
+wrong = 1234567890.hash("md5")
 paged = null
 window "hide"
 current_login = 1
@@ -14,7 +14,6 @@ if user_id != 0 (
 )
 if user_id == 0 "wrong = input_password"
 endef
-
 mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 15
 if page == "Time" (
@@ -41,9 +40,8 @@ if page == "login" (
     count += 1
     loc 2 -2 50 50
     change_x count - 1 * 70
-    c #000
     if current_login == count "c accent_colour"
-    square 50 50 10 1
+    square 50 50 10 1 : c #000
     if clicked "current_login = count"
     image accounts.[count].key("user icon") 45
   )
@@ -54,37 +52,28 @@ if page == "login" (
   icon "Add" 1 : c#fff
   if clicked "newaccount"
 )
-
 if page == "login" and ( accounts.len > 0 ) (
   current = accounts.[current_login]
   user = current.key("username")
-
   goto 0 -40
-  c accent_colour
-  square 350 400 25 1
-
+  square 350 400 25 1 : caccent_colour
   square 350 400 20 1 : c#151515
   goto 0 70
   square 150 150 20 1 : c#000
-
   goto 0 -70
   square 320 30 20 1
-
   change_y -70
   if wrong == input_password "c #491515"
   square 320 30 20 1
   input 300 25 "password" "Password..."
-
-  c #000
   goto 90 -210
-  square 140 30 20 1
-  if clicked "login"
+  square 140 30 20 1 : c#000
+  if clicked or "enter".pressed "login"
   goto -90 -210
   square 140 30 20 1
-  if clicked "page = "Time""
-  c #fff
+  if clicked or "escape".pressed "page = "Time""
   goto 0 70
-  image current.key("user icon") 140
+  image current.key("user icon") 140 : c#fff
   goto -150 -70
   text user 8
   goto -120 -210
