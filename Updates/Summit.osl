@@ -50,6 +50,7 @@ endef
 
 def "remove_tab" "id"
 if tab == id "tab -= 1"
+input_search = taburls.[tab]
 pages = pages.delete(id)
 tabs = tabs.delete(id)
 taburls = taburls.delete(id)
@@ -110,7 +111,7 @@ protocol = url.split("://").[1]
 current_get = url
 if protocol == "owtp" (
   current_get = url.replace("owtp://",owtpurl)
-  if url.right(4) == ".web" or url.right(4).contains(".").not "current_get = current_get ++ /index.osl"
+  if url.right(4) == ".web" or url.right(4).contains(".").not "current_get = current_get ++ "/index.osl""
 )
 current_raw_url = current_get
 urlspl = current_get.split(".")
@@ -171,7 +172,7 @@ loc 2 2 25 -25
 bookmarked = False
 if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
 
-colour c_sidebarbutton
+c c_sidebarbutton
 loop 3 (
   square 30 30 10 1
   change_y -50
