@@ -23,6 +23,7 @@
   "B": "image https://raw.githubusercontent.com/Mistium/Origin-OS/main/Fonts/UbuntuMono/Characters/B.svg 25",
   "c": "image https://raw.githubusercontent.com/Mistium/Origin-OS/main/Fonts/UbuntuMono/Characters/c.svg 25",
   "C": "image https://raw.githubusercontent.com/Mistium/Origin-OS/main/Fonts/UbuntuMono/Characters/C.svg 25",
+>>>>>>> 92cde4486e1667df842fae52b57f8394155811ee
   "d": "line 25 45 25 5§cont 5 5§cont 5 25§cont 25 25",
   "D": "line 5 40 5 5§cont 25 7§cont 25 35§cont 5 40",
   "e": "line 25 5 5 5§cont 5 25§cont 25 26§cont 25 15§cont 15 15",
