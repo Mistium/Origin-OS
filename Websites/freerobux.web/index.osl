@@ -9,5 +9,5 @@ image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerob
 loc 999 999 0 frame_height / -1.5
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/freerobux.web/assets/generate.png" frame_width / 4.5
 
-loc 999 999 0 frame height / -1.25
-input 400 60 freeRobuxUsername "Username" 10
+loc 999 999 0 frame_height / -1.25
+input 400 60 "freeRobuxUsername" "Username" 10
