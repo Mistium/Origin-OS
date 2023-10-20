@@ -1,0 +1,21 @@
+network "clear" "https://discord.com/api/guilds/1147362734300725298/widget.json"
+mainloop:
+network "get" "https://discord.com/api/guilds/1147362734300725298/widget.json"
+members = data.key("members")
+frame window_width / -2 window_height / 2 - 30 window_width / 2 window_height / -2 members.len * -50
+
+i = 0
+loop members.len (
+  i += 1
+  current = members.[i]
+  y = i * -50 + scroll_y
+  loc 999 2 0 y
+  square window_width - 30 30 10 1 : c#222
+  loc 2 2 30 y
+  image current.key("avatar_url") 30
+  change 30
+  text current.key("username") 10 : c#fff
+)
+
+frame "clear"
+import "win-buttons"
