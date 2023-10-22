@@ -16,9 +16,6 @@ Join our discord for information on how to code apps, websites, icons and get he
 <a href="https://discord.gg/HNycesXRy5"><img src="https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=banner3"></a>
 <img src="https://github.com/Mistium/Origin-OS/assets/92952823/5a60f094-0007-44dd-b86b-ddc5271a9814" height="140">
     <br>
-  <img src ="https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912" height=300px>
+  <img src ="https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912" height=250px>
+  <img src ="https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/assets/Summit1.png" height=250px>
 </p>
-
-![Screenshot 2023-08-31 at 13 54 55-min](https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912)
-
-![RemadeSummit](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/assets/Summit1.png)
