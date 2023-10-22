@@ -24,4 +24,4 @@ Join our discord for information on how to code apps, websites, icons and get he
   <img src ="https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/assets/Summit1.png" height=250px>
 </p>
 
-<img src="https://count.getloli.com/get/@mistium/origin" alt=":views"/>
+<img src="https://count.getloli.com/get/@mistium-origin" alt=":views"/>
