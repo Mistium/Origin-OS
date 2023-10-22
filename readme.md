@@ -7,7 +7,8 @@ Create a pull request on this repository and add your website files, I already h
 Join our discord for information on how to code apps, websites, icons and get help from me on osl
 https://discord.gg/7DcwkqrZ9S
 
-You can view the itch page for originOS here: https://equilibrium-studios.itch.io/origin-os
+![OriginWebOS badge](https://github.com/Mistium/Origin-OS/assets/92952823/5a60f094-0007-44dd-b86b-ddc5271a9814)
+
 
 ![Screenshot 2023-08-31 at 13 54 55-min](https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912)
 
