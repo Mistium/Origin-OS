@@ -1,0 +1,4 @@
+
+mainloop:
+image "https://moe-counter.glitch.me/get/@test?theme=asoul" window_width
+import "win-buttons"
