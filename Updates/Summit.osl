@@ -2,25 +2,19 @@ c_sidebarbutton = #333
 c_sidebarselected = accent_colour
 c_sidebaricons = #fff
 c_sidebarback = #111
-
 c_tabselected = #555
-
 c_searchback = #151515
 c_searchbar = #222
 c_searchicon = #fff
-
 c_text = #fff
 c_back = #000
-
 default_tab_width = 300
-
 save "bookmarks.json" "get"
 bookmarks = save-data
 if bookmarks == null (
   save "bookmarks.json" "set" {}
   bookmarks = []
 )
-
 owtpurl = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/"
 save "extensions" "folder"
 window "show"
@@ -29,7 +23,6 @@ pages = []
 tabs = []
 taburls = []
 current_get = ""
-
 def "set_tab_name"
 name = taburls.[tab].split("/")
 len = name.len
@@ -37,7 +30,6 @@ name = name.[len]
 current_tab_name = {}
 current_tab_name.key("title") = name
 endef
-
 def "opentab" "url"
 resolve_protocols url
 input_search = url.destr
@@ -47,15 +39,12 @@ taburls = taburls.append(url)
 tab = tabs.len
 onload = true
 endef
-
 def "remove_tab" "id"
 if tab == id "tab -= 1"
-input_search = taburls.[tab]
 pages = pages.delete(id)
 tabs = tabs.delete(id)
 taburls = taburls.delete(id)
 endef
-
 def "render_tabs"
 tab_max_width = window_width - 200
 tab_width = default_tab_width
@@ -74,10 +63,13 @@ loop tabs.len (
   if clicked "input_search = taburls.[i].destr"
   change_x tab_width * -0.5 + 20
   c c_text
-  icon tabs.[i].key("icon").str 0.8
+  hasicon = tabs.[i].type != "string"
+  if hasicon "icon tabs.[i].key(icon).str 0.8"
   c c_text
-  change 20
-  text tabs.[i].key("title").str 8
+  if hasicon "change 20"
+  tab_title = tabs.[i]
+  if hasicon "tab_title = tabs.[i].key(title).str"
+  text tab_title 8
   if tabs.len > 1 (
     loc 2 2 tab_width * 0.5 - 20 + x -20
     c c_text
@@ -95,7 +87,6 @@ if clicked (
 opentab "owtp://search.web"
 )
 endef
-
 def "redirect" "url"
 onload = true
 resolve_protocols url
@@ -104,50 +95,38 @@ input_search = url.destr
 tabs.[tab] = url
 taburls.[tab] = url
 network "get" url
-resolve_protocols taburls.[tab]
 endef
-
 def "resolve_protocols" "url"
 protocol = url.split("://").[1]
 current_get = url
 if protocol == "owtp" (
   current_get = url.replace("owtp://",owtpurl)
-  if url.right(4) == ".web" or url.right(4).contains(".").not "current_get = current_get ++ "/index.osl""
+  if url.right(3) == "web" and url.right(4).contains(".") or url.right(4).contains(".").not "current_get = current_get ++ /index.osl"
 )
-current_raw_url = current_get
 urlspl = current_get.split(".")
 len = urlspl.len
 page_type = urlspl.[len]
 endef
-
 def "validate_data" "validation"
 if validation != "" (
   pages.[tab] = validation.split(newline)
   current_get = ""
 )
 endef
-
 opentab "owtp://search.web"
-
 mainloop:
 ww = window_width
-
 c c_searchback
 loc 999 2 0 -40
 square ww 80 10 1
-
 import "win-buttons"
 items = 1
-
 render_tabs
-
 c c_searchbar
 loc -2 2 items * -15 - 10 -60
 square items * 30 28 5 1
-
 loc -2 2 -25 -60
 image user_icon 25
-
 offset = items * 30
 loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
 square ww - ( offset + 80 ) 28 5 1
@@ -156,12 +135,10 @@ input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text
 if selected_input == "search" and "enter".pressed (
   redirect input_search
 )
-
+resolve_protocols taburls.[tab]
 network "get" current_get
 page_data = data
 validate_data data
-current_url = taburls.[tab]
-
 loc 2 2 70 -59
 c c_searchicon
 icon "search" 0.6
@@ -171,20 +148,16 @@ square 50 window_height 10 1
 loc 2 2 25 -25
 bookmarked = False
 if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
-
-c c_sidebarbutton
+colour c_sidebarbutton
 loop 3 (
   square 30 30 10 1
   change_y -50
 )
-
 if bookmarked "c c_sidebarselected"
 square 30 30 10 1
-
 c c_sidebarbutton
 loc 2 -2 25 25
 square 30 30 10 1
-
 loc 2 2 25 -25
 c c_sidebaricons
 icon "Left-Arrow" 0.8
@@ -194,7 +167,6 @@ change_y -50
 icon "Reload" 0.7
 if clicked (
 network "clear" taburls.[tab]
-onload = true
 pages.[tab] = []
 page_type = ""
 )
@@ -224,8 +196,8 @@ if page_type == "osl" (
 run pages.[tab]
 )
 if page_type == "png" (
-  loc 999 999 0 0
-  image current_raw_url frame_width
+  loc 999 999
+  image taburls.[tab] frame_width
 )
 if page_type == "txt" (
   loc 2 2 20 -20 + scroll_y
@@ -244,5 +216,5 @@ if page_type == "md" (
   page_len = pages.[tab].len * 25
 )
 onload = false
-tabs.[tab] = current_tab_name
+tabs.[tab] = current_tab_name.str
 frame "clear"
