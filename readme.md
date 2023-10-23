@@ -1,11 +1,11 @@
-# originOS
+# originOS Flow
 
 
 <p align="center">
 The Most Advanced Gui Based ScratchOS<br>
 <a href="https://discord.gg/HNycesXRy5"><img src="https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=shield" height="20"></a>
-<img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb34c493-a76d-460c-88f0-7d18d3908eb3" height="20">
-<img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" height="20">
+<img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb34c493-a76d-460c-88f0-7d18d3908eb3" height="20" alt="This OS is a webOS">
+<img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" height="20" alt="This OS supports OWSL2">
 <a href="https://github.com/Mistium/Origin-OS/issues"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" height="20"></a>
 <a href="https://raw.githack.com/Mistium/Origin-OS/main/originOS.html"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/66b92089-3f32-4692-8f50-aeb523342592" height="20"></a>
 <br>Views<br>
@@ -14,9 +14,16 @@ The Most Advanced Gui Based ScratchOS<br>
 
 ## About
 
-originOS is an html based shell for running osl.
+Current Kernel Info:
+```
+Name     -   Flow
+Version  -   0.5.7
+```
 
-OSL is a programming language primarily focused on real time ui rendering.
+
+originOS is an html based shell for running owsl.
+
+OWSL (Origin Web Scripting Language) is a programming language primarily focused on real time ui rendering.
 
 ## Features
 ```
@@ -57,7 +64,7 @@ File-Opener
 Icn-Editor
 Info
 Login-Main
-OSL-Runner
+OWSL-Runner
 Permission-Editor
 Permission-Granter
 Quick-Settings
