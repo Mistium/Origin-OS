@@ -23,7 +23,7 @@ Version  -   0.5.7
 
 originOS is an html based shell for running owsl.
 
-OWSL (Origin Web Scripting Language) is a programming language primarily focused on real time ui rendering.
+OWL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
 
 ## Features
 ```
