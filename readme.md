@@ -9,7 +9,7 @@ The Most Advanced Gui Based ScratchOS<br>
 <a href="https://github.com/Mistium/Origin-OS/issues"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" height="20"></a>
 <a href="https://raw.githack.com/Mistium/Origin-OS/main/originOS.html"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/66b92089-3f32-4692-8f50-aeb523342592" height="20"></a>
 <br>Views<br>
-<img src="https://count.getloli.com/get/@mistium-origin" alt=":views" height="100"/>
+<img src="https://count.getloli.com/get/@mist_origin" alt=":views" height="100"/>
 </p>
 
 ## About
