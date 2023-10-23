@@ -17,10 +17,62 @@ originOS is an html based shell for running osl.
 
 OSL is a programming language primarily focused on real time ui rendering.
 
+## Features
+```
+Windowed Applications
+Resizble Windows
+Window Control Flags
+In System IDE
+Application Permissions
+Files
+Version Loader
+Drag And Drop
+Network Access
+Clipboard Systems
+Url Based Image Rendering
+Battery Info
+Terminal
+Custom Websites System (Accessable from owtp:// on summit)
+Custom Vector Icon Programaming Language (ICN)
+```
+
+Plus a suite of system applications for:
+```
+managing files
+debugging
+interacting with accounts
++ way more
+```
+
+## System Applications
+
+```
+Account_Creator
+Application_Drawer
+Battery_Info
+Desktop_Files
+Desktop_Manager
+File-Opener
+Icn-Editor
+Info
+Login-Main
+OSL-Runner
+Permission-Editor
+Permission-Granter
+Quick-Settings
+Rename-Helper
+System-Information
+System-Search
+Errors
+File-Info
+Model_Viewer
+Updater
+```
+
 ## Screenshots
 
 <p align="center">
-    <br>
+<br>
 <img src ="https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912" height=200px>
 <img src ="https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/assets/Summit1.png" height=200px>
 <img src="https://github.com/Mistium/Origin-OS/assets/92952823/be2112f9-408a-40ef-a973-d3be24d90a3d" height=200px>
