@@ -23,4 +23,8 @@ OSL supports the following data types:
    - Defined by enclosing key-value pairs within curly braces (`{}`).
    - Example: `{"hello": ["how", "are", "you"]}`
 
+6. **null**:
+   - Defined by being an empty variable
+   - Example: 
+
 These data types allow OSL scripts to work with various kinds of data, from simple strings and numbers to more complex data structures like JSON arrays and objects. This flexibility enables OSL scripts to handle a wide range of tasks and data manipulation.
