@@ -48,56 +48,102 @@ It seems like you've provided a list of variables and their descriptions in an O
 
 1. **null**: An empty variable.
 
-2. **user_id**: The ID of the logged-in user.
+2. **sys_icnhit_hidden**: A hidden system variable related to icon hits.
 
-3. **username**: The username of the logged-in user.
+3. **sys_sqhit_hidden**: A hidden system variable related to square hits.
 
-4. **days**: A JSON array containing information about days of the week and months.
+4. **user_id**: The ID of the logged-in user.
 
-5. **mouse_down** and **mouse_right**: Whether the left and right mouse buttons are currently pressed.
+5. **username**: The username of the logged-in user.
 
-6. **timer**: The number of seconds since the system's origin was booted.
+6. **days**: A JSON array containing information about days of the week and months.
 
-7. **timestamp**: The current Unicode timestamp.
+7. **mouse_down**: Whether the left mouse button is currently pressed.
 
-8. **timezone**: The timezone configuration.
+8. **mouse_right**: Whether the right mouse button is currently pressed.
 
-9. **system_accent**: The default application accent color.
+9. **timer**: The number of seconds since the system's origin was booted.
 
-10. **focused_application**: The window ID of the application currently in focus.
+10. **timestamp**: The current Unicode timestamp.
 
-11. **hour**, **minute**, **second**: The current time components.
+11. **timezone**: The timezone configuration.
 
-12. **day**, **day_number**, **month**, **month_number**, **year**: The current date components.
+12. **system_accent**: The default application accent color.
 
-13. **owp_id**: The user's network ID.
+13. **focused_application**: The window ID of the application currently in focus.
 
-14. **newline**: The newline character ("\n").
+14. **hour**: The current hour.
 
-15. **cursor**: The current state of the cursor.
+15. **minute**: The current minute.
 
-16. **origin**: Information about the operating system.
+16. **second**: The current second.
 
-17. **battery_charging**: Whether the computer is plugged in.
+17. **day**: The current day of the week.
 
-18. **battery_percent**: The percentage of the computer's battery charge.
+18. **day_number**: The current day of the month.
 
-19. **battery_time_untill_full**: The estimated time until the battery is fully charged.
+19. **month**: The current month.
 
-20. **battery_time_untill_empty**: The estimated time until the battery is empty.
+20. **month_number**: The current month number.
 
-21. **ports**: Information about currently used ports and associated applications.
+21. **year**: The current year.
 
-22. **fps**: The current frames per second.
+22. **owp_id**: The user's network ID.
 
-23. **delta_time**: The time elapsed since the last frame.
+23. **newline**: The newline character ("\n").
 
-24. **internet_connection**: Whether the computer is connected to the internet.
+24. **cursor**: The current state of the cursor.
 
-25. **screensize_x** and **screensize_y**: The dimensions of the screen.
+25. **origin**: Information about the operating system.
 
-26. **sys_info**: System information.
+26. **battery_charging**: Whether the computer is currently charging.
 
-27. **current_desktop**: The currently selected desktop for the user.
+27. **battery_percent**: The percentage of the computer's battery charge.
+
+28. **battery_time_until_full**: The estimated time until the battery is fully charged.
+
+29. **battery_time_until_empty**: The estimated time until the battery is empty.
+
+30. **ports**: Information about currently used ports and associated applications.
+
+31. **fps**: The current frames per second.
+
+32. **delta_time**: The time elapsed since the last frame.
+
+33. **internet_connection**: Whether the computer is connected to the internet.
+
+34. **screensize_x**: The horizontal dimension of the screen.
+
+35. **screensize_y**: The vertical dimension of the screen.
+
+36. **picker_colour**: The picked color.
+
+37. **global_accent**: The global application accent color.
+
+38. **clipboard**: The content of the clipboard.
+
+39. **user_icon**: The URL to the image that the user has set as their profile picture.
+
+40. **pressed**: The most recently pressed (and still pressed) key.
+
+41. **pi**: The mathematical constant Pi (π).
+
+42. **on_mobile**: Whether the system is running on a mobile device.
+
+43. **system_url**: The system's current URL.
+
+44. **Disk_Write_Speed**: The speed of disk write operations.
+
+45. **Disk_Read_Speed**: The speed of disk read operations.
+
+46. **Disk_Total_Writes**: The total number of disk writes.
+
+47. **Disk_Name**: The name of the disk.
+
+48. **Disks**: Information about available disks.
+
+49. **segments**: A json array of the names of the .ODE files that the dock uses to render itself.
+
+50. **dock_location**: The location of the dock.
 
 These variables provide a wide range of information and functionality for scripting in an OSL environment, allowing you to create dynamic and interactive applications or scripts.
