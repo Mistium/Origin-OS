@@ -45,3 +45,12 @@
   - Example: `7.minus(2)` or `7.-(2)` returns `5`.
 
 These commands and functions allow for basic arithmetic and mathematical operations, making it possible to perform various calculations and manipulations on numeric values within OriginOS applications.
+
+---
+
+## Other
+
+- **.dist(,)** : finds the distance between two x y values
+  - Example: `[10,5,10,0].dist()` returns 5
+  - Or     : `[10,5].dist(10,0)` returns 5
+  - Data in:`[x1,y1,x2,y2].dist()` or `[x1,y1].dist(x2,y2)`
