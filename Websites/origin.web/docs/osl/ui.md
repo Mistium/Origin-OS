@@ -38,6 +38,10 @@ draws an icon centered on the draw cursor
 
 Renders text at the draw cursor with a size
 
+`text "fileurl" "setfont"`
+
+Sets the font of all subsequent text to a specific text file in the system
+
 All of the above set the `clicked` and `touching_mouse` variables
 
 `image "url" width_in_pixels`
