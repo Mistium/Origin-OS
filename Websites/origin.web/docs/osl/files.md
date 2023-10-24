@@ -79,3 +79,8 @@ Files are what store and run data within the os and are very important
     - Represents a right-click action on a file, text, or window with specified IDs.
 
 These commands and file attributes allow for file management and manipulation within the OriginOS environment. They enable you to work with files, open them, render them, and perform various operations on them.
+
+You can find the file id of the current window's app file using the "current_file" variable
+
+# Supported on originOS v4.2.4 or later
+Or you can get the file path of the current window's app file with the "current_file_path" variable
