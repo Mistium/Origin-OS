@@ -21,7 +21,7 @@ Version  -   0.5.7
 ```
 
 
-originOS is an html based shell for running owsl.
+originOS is an html based shell for running osl.
 
 OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
 
