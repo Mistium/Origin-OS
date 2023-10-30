@@ -1,0 +1,30 @@
+display = ["","","","","01010101010"]
+
+mainloop:
+output = ""
+last = display.len
+datain = "0" + display.[last] + "0"
+datain = datain.int
+count = 0
+loop datain.len (
+  count += 1
+  temp = count - 1
+  temp2 = count + 1
+  current = datain.trim(temp,temp2)
+  out = 2
+  if current == "000" "out = 1"
+  if current == "001" "out = 0"
+  if current == "010" "out = 0"
+  if current == "011" "out = 1"
+  if current == "100" "out = 0"
+  if current == "101" "out = 0"
+  if current == "110" "out = 0"
+  if current == "111" "out = 1"
+  output = output ++ out
+)
+
+display = display.append(output)
+display = display.delete(1)
+loc 2 2 20 -20
+text display.join(newline) 10 : c#fff
+import "win-buttons"
