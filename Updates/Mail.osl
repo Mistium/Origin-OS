@@ -5,37 +5,45 @@ emails = emails.append({"Mist":{"subject":"Hey","message":"How are you doing tod
 emails = emails.append({"-Shi-":{"subject":"Whats up"}})
 emails = emails.append({"Test":{"subject":"Test"}})
 current_email = 1
+
 def "send" "data"
-terminal "server send" + data
+    terminal "server send" + data
 endef
+
 def "resetframe"
-frame "clear"
-loc 2 2 50
-x = x_position
-y = y_position
-loc -2 -2
-frame x y x_position y_position
+    frame "clear"   
+    loc 2 2 50
+    x = x_position
+    y = y_position  
+    loc -2 -2
+    frame x y x_position y_position
 endef
 
 mainloop:
+
 sidebar = ["Add","Search"]
 if current_email.isnumber (
-sidebar = ["Add","Search","Bookmark","Reload","Close"]
+    sidebar = ["Add","Search","Bookmark","Reload","Close"]
 )
+
 import "side-bar"
 resetframe
+
 colour #222
 loc 999 2 0 -20
 square frame_width 30 10 1
+
 colour #fff
 loc 2 2 10 -20
 text "Mail - Id:" + owp_id 9
+
 colour #333
 loc 2 2 0 -40
 x = x_position
 y = y_position
 loc 2 -2 300 0
 frame x y x_position y_position email_len
+
 count = 0
 loop emails.len (
     count += 1
@@ -52,6 +60,7 @@ loop emails.len (
     loc 2 2 14 y + 21
     text emails.[count].key(name).key("subject") 7
 )
+
 email_len = emails.len * 52 - 15
 resetframe
 if mouse_down.not "can = True"
@@ -64,76 +73,71 @@ if sidebar_clicked == "Add" (
     )
     lines = [""]
 )
+
 if sidebar_clicked == "Close" (
     can = false
     emails = emails.delete(current_email)
 )
+
 current_data = emails.[current_email]
 name = current_data.getall("keys").[1]
-colour #111
 loc 999 999 150 -20
-square frame_width - 320 frame_height - 55 10 1
-colour #333
+square frame_width - 320 frame_height - 55 10 1 : c#111
 loc 999 2 150 -62
-square frame_width - 320 30 10 1
+square frame_width - 320 30 10 1 : c#333
 colour #fff
 loc 2 2 318 -62
 if current_email == "new" (
-colour #333
-loc 999 2 95 -62
-input frame_width - 430 24 "recipient" "Enter An ID Or A Contact Name"
-resetframe
-colour #555
-loc -2 2 -65 -62
-square 100 20 10 1
-colour #fff
-loc -2 2 -110 -62
-text "Send Email" 8
-if clicked (
-command = 0
-temp = [].append(username)
-temp = temp.append(message)
-temp = temp.append(input_subject)
-data = "server.send" + input_recipient + "Email text" + temp
-terminal data
-log data
+    loc 999 2 95 -62
+    input frame_width - 430 24 "recipient" "Enter An ID Or A Contact Name" : c#333
+    resetframe
+    loc -2 2 -65 -62
+    square 100 20 10 1 : c#555
+    loc -2 2 -110 -62
+    text "Send Email" 8 : c#fff
+    if clicked (
+        command = 0
+        temp = [].append(username)
+        temp = temp.append(message)
+        temp = temp.append(input_subject)
+        network "send" input_recipient + "Email text" + temp
 )
 )
 if current_email == "new" (
-loc 999 2 150 -110
-colour #444
-input frame_width - 315 25 "subject" "Subject..."
-resetframe
-loc -2 2 -15 -140
-icon "add" 0.6
-if clicked and can "lines = lines.append()"
-if clicked "can = False"
-count = 0
-message = ""
-loop lines.len (
-count += 1
-colour #444
-loc 999 2 140 count * -22 - 140
-input frame_width - 335 25 count ""
-if true "message = message ++ input_" ++ count + "\n"
-resetframe
-loc -2 2 -15 count * -22 - 140
-icon "close" 0.6
-cantotal = clicked or cantotal
-if clicked and can (
-lines = lines.delete(count)
-can = False
+    loc 999 2 150 -110
+    colour #444
+    input frame_width - 315 25 "subject" "Subject..."
+    resetframe
+    loc -2 2 -15 -140
+    icon "add" 0.6
+    if clicked and can "lines = lines.append()"
+    if clicked "can = False"
+    count = 0
+    message = ""
+    loop lines.len (
+        count += 1
+        colour #444
+        loc 999 2 140 count * -22 - 140
+        input frame_width - 335 25 count ""
+        if true "message = message ++ input_" ++ count + "\n"
+        resetframe
+        cantotal = clicked or cantotal
+        if clicked and can (
+            lines = lines.delete(count)
+            can = False
+        )
+    )
 )
-)
+
 if current_email != "new" (
-text name 8
-loc 2 2 318 -110
-text current_data.key(name).key("subject") 11
-loc 2 2 318 -150
-text current_data.key(name).key("message") 8
+    text name 8
+    loc 2 2 318 -110
+    text current_data.key(name).key("subject") 11
+    loc 2 2 318 -150
+    text current_data.key(name).key("message") 8
 )
 if command != 0 (
-log command
-terminal command
+    log command
+    terminal command
 )
 import "win-buttons"

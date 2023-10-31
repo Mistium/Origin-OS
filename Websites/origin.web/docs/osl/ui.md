@@ -48,6 +48,19 @@ All of the above set the `clicked` and `touching_mouse` variables
 
 Renders an image from the web or from a data uri with a specified width
 
+---
+
+## Other Ui
+
+`hitbox width height checkx checky`
+
+This command acts like a hidden square.
+you can check the "collided" variable for if checkx and checky are inside the hitbox.
+
+`hitbox "hide"` and `hitbox "show"` allow you to show all the hitboxes being rendered in a window
+
+---
+
 
 ## Ui Info
 
