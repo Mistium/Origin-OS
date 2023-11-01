@@ -1,29 +1,28 @@
-x = 31.new("array")
-y = 31.new("array")
-
-log x
-log y
+x = "31".new("array")
+y = "31".new("array")
 
 mainloop:
-x.[1] = mouse_x
-y.[1] = mouse_y
+x.[1] = mouse_x.round
+y.[1] = mouse_y.round
 
-i = 1
-loop x.len - 1 (
-  i += 1
-  i2 = i - 1
-  x.[i] += x.[i2] - x.[i] / 5
-  y.[i] += y.[i2] - y.[i] / 5
+i1 = 1
+loop 31 (
+  i1 += 1
+  i2 = i1 - 1
+  setx = x.[i2].destr - x.[i1].destr / 2
+  sety = y.[i2].destr - y.[i1].destr / 2 - 10
+  x.[i1] += setx.round
+  y.[i1] += sety.round
 )
 
-goto x.[1] y.[1]
+goto x.[1].destr y.[1].destr
 c #fff
 pen "size" 5
 pen "down"
-i = 1
-loop x.len - 1 (
-  i += 1
-  goto x.[i] y.[i]
+i1 = 0
+loop x.len (
+  i1 += 1
+  goto x.[i1].destr y.[i1].destr
 )
 pen "up"
 
