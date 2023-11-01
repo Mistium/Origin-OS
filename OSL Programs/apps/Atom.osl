@@ -1,0 +1,129 @@
+window "show"
+
+objects = {}
+objects.key("camera") = {"x":"0","y":"0","attributes":["follow":[{"object_name":"Playericn"}]]}
+objects.key("onload.osl") = {"attributes":[{"runfirst":[{"Enabled":"True"}]}]}
+sidebar_width = 300
+current_object = -1
+window "dimensions" 1000 600
+def "object" "id"
+y = count * -30 + -90
+loc 2 2 sidebar_width / 2 y
+current = object_names.[count]
+square sidebar_width - 30 20 10 1 1
+if clicked (
+current_object = object_names.[count]
+current_object_data = objects.destr.key(current_object).destr
+current_attributes = current_object_data.key("attributes")
+)
+o = object_names.[count]
+text objects.key(o) 10
+if current_object == current (
+c #555
+square sidebar_width - 20 20 10 1
+c #fff
+)
+loc 2 2 sidebar_width - 20 y
+if current == "camera" "icon camera 0.7"
+if current.contains(".") "icon edit 0.7"
+loc 2 2 10 y
+text current 8
+endef
+def "attribute" "id"
+y -= 30
+x = sidebar_width
+current = current_attributes.[count]
+current_name = current.getall("keys").[1]
+loc 2 2 x + 20 y
+text current_name 9
+loc 2 2 x * 2 - 20 y
+icon "minus" 0.5
+fields = current.destr.key(current_name)
+text current 10
+count2 = 0
+y -= 10
+loop fields.len (
+count2 += 1
+y -= 30
+loc 2 2 x + 20 y
+name = fields.[count2].getall("keys").[1]
+text name 8
+c #333
+loc 2 2 x * 2 - 70 y
+input 120 25 name
+)
+loc 2 2 x * 1.5 y
+endef
+mainloop:
+c #151515
+loc 2 999 sidebar_width / 2
+square sidebar_width window_height 10 1
+c #333
+loc 2 2 sidebar_width / 2 -90
+square sidebar_width - 20 0 5
+c #fff
+loc 2 2 10 -70
+text "Objects" 9
+object_names = objects.getall("keys")
+count = 0
+loop object_names.len (
+count += 1
+object count
+)
+loc 2 2 sidebar_width - 20 -70
+icon "add" 0.6
+if current_object != -1 (
+c #111
+loc 2 999 sidebar_width * 1.5
+square sidebar_width window_height 10 1
+c #fff
+loc 2 2 sidebar_width + 20 -70
+text current_object 8
+if current_object.contains(".") (
+change 50
+c #222
+square 60 20 10 1
+c #fff
+change -20
+text "edit" 8
+)
+if current_object != -1 (
+loc 2 2 sidebar_width * 2 - 20 -70
+icon "close" 0.6
+if clicked "current_object = -1"
+loc 2 2 sidebar_width * 1.5 -90
+y = -90
+count = 0
+loop current_attributes.len (
+count += 1
+attribute count
+)
+)
+if current_object != -1 (
+change 0 -50
+c #333
+square sidebar_width - 30 30 10 1
+change sidebar_width / -2 + 30
+c #fff
+text "Add Attribute" 8
+c #555
+loc 2 999 sidebar_width - 2
+square 0 window_height 3
+)
+c #252525
+loc 999 2 0 -20
+square window_width 40 10 1
+c #444
+loc 2 2 50 -20
+loop 3 (
+square 80 25 10 1
+change 100
+)
+c #fff
+loc 2 2 20 -20
+text "File" 9
+loc 2 2 120 -20
+text "Edit" 9
+loc 2 2 220 -20
+text "Run" 9
+import "win-buttons"
