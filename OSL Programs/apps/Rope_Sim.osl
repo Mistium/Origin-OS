@@ -1,68 +1,30 @@
-x1 = 31.new("array")
-y1 = 31.new("array")
-x2 = 31.new("array")
-y2 = 31.new("array")
+x = 31.new("array")
+y = 31.new("array")
 
-i = 0
-loop x1.len (
-i += 1
-x1.[i] = 0
-y1.[i] = i
-)
+log x
+log y
 
 mainloop:
-i = 0
-loop 31 (
+x.[1] = mouse_x
+y.[1] = mouse_y
+
+i = 1
+loop x.len - 1 (
   i += 1
   i2 = i - 1
-  x_vector1 = x1.[i2] = x1.[i]
-  y_vector1 = y1.[i2] = y1.[i]
-  magnitude = []
-
+  x.[i] += x.[i2] - x.[i] / 5
+  y.[i] += y.[i2] - y.[i] / 5
 )
 
+goto x.[1] y.[1]
+c #fff
+pen "size" 5
+pen "down"
+i = 1
+loop x.len - 1 (
+  i += 1
+  goto x.[i] y.[i]
+)
+pen "up"
 
---- Psudocode that i'm translating ---
-
-
-Create 4 arrays of numbers:
-  String1_X (0 to 31)
-  String1_Y (0 to 31)
-  String2_X (0 to 31)
-  String2_Y (0 to 31)
-
-Initialise all the points in String_X() and String_Y():
-
-  Loop i from 0 to 31
-      String1_X (i) = 0
-      String1_Y (i) = i
-  end of loop
-
-  Loop Forever
-
-      Loop i from 0 to 31
-
-          X_vector1 = String1_X(i- 1) - String1_X(i)
-          Y_vector1 = String1_Y(i - 1) - String1_Y(i)
-          Magnitude1 = LengthOf (X_Vector1, Y_Vector1)
-          Extension1 = Magnitude1 - Normal_Length
-
-          X_vector2 = String1_X(i + 1) - String1_X(i)
-          Y_vector2 = String1_Y(i + 1) - String1_Y(i)
-          Magnitude2 = LengthOf(X_Vector2, Y_Vector2)
-          Extension2 = Magnitude2 - Normal_Length
-
-          xv = (X_Vector1 / Magnitude1 * Extension1) + (X_Vector2 / Magnitude2 * Extension2)
-          yv = (Y_Vector1 / Magnitude1 * Extension1) + (Y_Vector2 / Magnitude2 * Extension2) + Gravity
-
-          String2_X(i) = String1_X(i) + (xv * .01)
-          String2_Y(i) = String1_Y(i) + (yv * .01)
-	  (Note you can use what ever value you like instead of .01)
-	
-      end of loop
-
-      Copy all of String2_X to String1_X
-      Copy all of String2_Y to String1_Y
-      Draw lines between all adjacent points
-
-end of LoopForever
+import "win-buttons"
