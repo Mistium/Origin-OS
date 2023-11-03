@@ -1,60 +1,87 @@
 window "show"
 
-objects = {}
-objects.key("camera") = {"x":"0","y":"0","attributes":["follow":[{"object_name":"Playericn"}]]}
-objects.key("onload.osl") = {"attributes":[{"runfirst":[{"Enabled":"True"}]}]}
+ATOM_objects = ["camera","onload","playericon"]
+camera = {"type":"camera","x":"0","y":"0","attributes":[["follow",{"object_name":"playericon"}]]}.json
+onload = {"type":"osl","data":["log \"test\""],"attributes":[["runfirst",{"Enabled":"True"}]]}.json
+playericon = {"type":"icn","x":"0","y":"0","shown":"1","attributes":[["follow",{"object_name":"Player.icn"}],["gravity",{"horizontal":"0","vertical":"-10"}]],"data":"w 5 line 0 5 0 -5 line 5 3 -5 3"}.json
+
 sidebar_width = 300
 current_object = -1
+current = -1
 window "dimensions" 1000 600
+
+scale = 1
+
 def "object" "id"
-y = count * -30 + -90
-loc 2 2 sidebar_width / 2 y
-current = object_names.[count]
-square sidebar_width - 30 20 10 1 1
-if clicked (
-current_object = object_names.[count]
-current_object_data = objects.destr.key(current_object).destr
-current_attributes = current_object_data.key("attributes")
-)
-o = object_names.[count]
-text objects.key(o) 10
-if current_object == current (
-c #555
-square sidebar_width - 20 20 10 1
-c #fff
-)
-loc 2 2 sidebar_width - 20 y
-if current == "camera" "icon camera 0.7"
-if current.contains(".") "icon edit 0.7"
-loc 2 2 10 y
-text current 8
+  y = id * -30 + -90
+  loc 2 2 sidebar_width / 2 y
+  current = ATOM_objects.[id]
+  square sidebar_width - 30 20 10 1 1
+  if current_object != ATOM_objects.[id] and clicked (
+    current_object = current
+    current_object_data = current_object.contents
+    current_attributes = current_object_data.key("attributes")
+    current_attribute_inputs = current_attribute.getall("keys")
+    current_attribute_input_data = current_attribute.getall("values")
+    input_x = current_object_data.key("x").destr
+    input_y = current_object_data.key("y").destr
+    get_attribute_data
+  )
+  if current_object == current (
+    square sidebar_width - 20 20 10 1 : c#555
+    c #fff
+  )
+  loc 2 2 sidebar_width - 20 y
+  if current == "camera" "icon camera 0.7"
+  current_ext = current.right(4)
+  if current_ext == ".osl" "icon script 0.5"
+  if current_ext == ".icn" ""
+  loc 2 2 10 y
+  text current 8
+  if current.contents.contains("data") "text . ++ current.contents.key("type") 8"
 endef
+
+def "renderobject"
+
+endef
+
+def "get_attribute_data"
+  count = 0
+  loop current_attributes.len (
+    count2 += 1
+    log current_attributes.[count2]
+  )
+endef
+
 def "attribute" "id"
-y -= 30
-x = sidebar_width
-current = current_attributes.[count]
-current_name = current.getall("keys").[1]
-loc 2 2 x + 20 y
-text current_name 9
-loc 2 2 x * 2 - 20 y
-icon "minus" 0.5
-fields = current.destr.key(current_name)
-text current 10
-count2 = 0
-y -= 10
-loop fields.len (
-count2 += 1
-y -= 30
-loc 2 2 x + 20 y
-name = fields.[count2].getall("keys").[1]
-text name 8
-c #333
-loc 2 2 x * 2 - 70 y
-input 120 25 name
-)
-loc 2 2 x * 1.5 y
+  y -= 40
+  x = sidebar_width
+  current = current_attributes.[id]
+  current_name = current.[1]
+  loc 2 2 x + 20 y
+  text current_name 9 : c#fff
+  loc 2 2 x * 2 - 20 y
+  square 20 20 10 1 : c#444
+  icon "minus" 0.5 : c#fff
+  fields = current.[2]
+  count2 = 0
+  y -= 10
+  loop fields.len (
+    count2 += 1
+    y -= 40
+    loc 2 2 x + 30 y
+    name = fields.getall("keys").[count2]
+    text name 8 : c#fff
+    loc 2 2 x * 2 - 100 y
+    square 180 20 10 1 : c#333
+    input 180 25 name
+  )
+  loc 2 2 x * 1.5 y
 endef
+
 mainloop:
+sidebar_width = window_width / 5
+if sidebar_width < 400 "sidebar_width = 400"
 c #151515
 loc 2 999 sidebar_width / 2
 square sidebar_width window_height 10 1
@@ -64,60 +91,83 @@ square sidebar_width - 20 0 5
 c #fff
 loc 2 2 10 -70
 text "Objects" 9
-object_names = objects.getall("keys")
+
 count = 0
-loop object_names.len (
-count += 1
-object count
+loop ATOM_objects.len (
+  count += 1
+  object count
 )
+
 loc 2 2 sidebar_width - 20 -70
 icon "add" 0.6
 if current_object != -1 (
-c #111
-loc 2 999 sidebar_width * 1.5
-square sidebar_width window_height 10 1
-c #fff
-loc 2 2 sidebar_width + 20 -70
-text current_object 8
-if current_object.contains(".") (
-change 50
-c #222
-square 60 20 10 1
-c #fff
-change -20
-text "edit" 8
+  loc 2 999 sidebar_width * 1.5
+  square sidebar_width window_height 10 1 : c#111
+  loc 2 2 sidebar_width + 20 -70
+  text current_object 8 : c#fff
+  if current_object.contains(".") (
+    change 50
+    square 60 20 10 1 : c#222
+    change -20
+    text "edit" 8 : c#fff
+  )
 )
 if current_object != -1 (
-loc 2 2 sidebar_width * 2 - 20 -70
-icon "close" 0.6
-if clicked "current_object = -1"
-loc 2 2 sidebar_width * 1.5 -90
-y = -90
+  loc 2 2 sidebar_width * 2 - 20 -70
+  icon "close" 0.6
+  if clicked "current_object = -1"
+  y = -100
+  loc 2 2 sidebar_width * 1.25 -100
+  if current_object_data.contains("x") (
+    input sidebar_width / 2 - 30 25 "x" "x position" : c#333
+    change_x sidebar_width / 2
+    input sidebar_width / 2 - 30 25 "y" "y position" : c#333
+    loc 2 2 sidebar_width * 1 -120
+    y = -120
+    current_object_data.key("x") = input_x
+    current_object_data.key("y") = input_y
+    if true current_object + "= current_object_data"
+  )
+)
+if current_object != -1 (
+  count = 0
+  loop current_attributes.len (
+    count += 1
+    attribute count
+  )
+)
+if current_object != -1 (
+  change_y -50
+  square sidebar_width - 30 30 10 1 : c#333
+  change sidebar_width / -2 + 30
+  text "Add Attribute" 8 : c#fff
+  loc 2 999 sidebar_width - 2
+  square 0 window_height 3 : c#555
+)
+
+loc 2 2 sidebar_width -50
+if current_object != -1 "change sidebar_width"
+x = x_position
+y = y_position
+loc -2 -2 0 0
+frame x y x_position y_position 0
+loc 999 999 0 0
+square frame_width frame_height 5 : c#accent_colour
+
 count = 0
-loop current_attributes.len (
-count += 1
-attribute count
+loop objects.len (
+  count += 1
+  renderobject count
 )
-)
-if current_object != -1 (
-change 0 -50
-c #333
-square sidebar_width - 30 30 10 1
-change sidebar_width / -2 + 30
-c #fff
-text "Add Attribute" 8
-c #555
-loc 2 999 sidebar_width - 2
-square 0 window_height 3
-)
-c #252525
+
+frame "clear"
 loc 999 2 0 -20
-square window_width 40 10 1
+square window_width 40 10 1 : c#252525
 c #444
 loc 2 2 50 -20
 loop 3 (
-square 80 25 10 1
-change 100
+  square 80 25 10 1
+  change 100
 )
 c #fff
 loc 2 2 20 -20
