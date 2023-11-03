@@ -1,10 +1,15 @@
 window "show"
 
 ATOM_objects = ["camera","onload","playericon"]
-camera = {"type":"camera","x":"0","y":"0","attributes":[["follow",{"object_name":"playericon"}]]}.json
+camera = {"type":"camera","x":"0","y":"0","layer":"0","attributes":[["follow",{"object_name":"playericon"}]]}.json
 onload = {"type":"osl","data":["log \"test\""],"attributes":[["runfirst",{"Enabled":"True"}]]}.json
-playericon = {"type":"icn","x":"0","y":"0","shown":"1","attributes":[["follow",{"object_name":"Player.icn"}],["gravity",{"horizontal":"0","vertical":"-10"}]],"data":"w 5 line 0 5 0 -5 line 5 3 -5 3"}.json
+playericon = {"type":"icn","x":"0","y":"0","layer":"1","scale":"1","shown":"1","attributes":[["follow",{"object_name":"Player.icn"}],["gravity",{"horizontal":"0","vertical":"-10"}]],"data":"w 5 c #fff line 0 5 0 -5 line 5 3 -5 3"}.json
 
+confirm_delete = 0
+
+save "runtime" "folder"
+
+data_panel = false
 sidebar_width = 300
 current_object = -1
 current = -1
@@ -17,32 +22,37 @@ def "object" "id"
   loc 2 2 sidebar_width / 2 y
   current = ATOM_objects.[id]
   square sidebar_width - 30 20 10 1 1
-  if current_object != ATOM_objects.[id] and clicked (
+  if current_object != current and clicked (
     current_object = current
     current_object_data = current_object.contents
     current_attributes = current_object_data.key("attributes")
-    current_attribute_inputs = current_attribute.getall("keys")
-    current_attribute_input_data = current_attribute.getall("values")
     input_x = current_object_data.key("x").destr
     input_y = current_object_data.key("y").destr
+    input_z = current_object_data.key("layer").destr
+    input_scale = current_object_data.key("scale").destr
     get_attribute_data
   )
-  if current_object == current (
-    square sidebar_width - 20 20 10 1 : c#555
-    c #fff
-  )
+  if current_object == current "square sidebar_width - 20 20 10 1 : c#555"
+  c #fff
   loc 2 2 sidebar_width - 20 y
+  current_ext = current.contents.key("type")
   if current == "camera" "icon camera 0.7"
-  current_ext = current.right(4)
-  if current_ext == ".osl" "icon script 0.5"
-  if current_ext == ".icn" ""
+  if current_ext == "osl" "icon script 0.5"
+  if current_ext == "icn" "icon file 0.7"
   loc 2 2 10 y
   text current 8
-  if current.contents.contains("data") "text . ++ current.contents.key("type") 8"
+  if current.contents.contains("data") "text . ++ current_ext 8"
 endef
 
-def "renderobject"
-
+def "renderobject" "object_data"
+  goto object_data.key("x").destr object_data.key("y").destr
+  type = object_data.key("type")
+  if type == "icn" and ( object_data.key("shown") == 1 ) (
+    icon object_data.key("data") 1 * object_data.key("scale").destr * scale
+  )
+  if type == "camera" (
+    icon "camera" 1 : c#accent_colour
+  )
 endef
 
 def "get_attribute_data"
@@ -61,18 +71,18 @@ def "attribute" "id"
   loc 2 2 x + 20 y
   text current_name 9 : c#fff
   loc 2 2 x * 2 - 20 y
-  square 20 20 10 1 : c#444
   icon "minus" 0.5 : c#fff
+  if clicked "confirm_delete = id"
   fields = current.[2]
   count2 = 0
   y -= 10
   loop fields.len (
     count2 += 1
     y -= 40
-    loc 2 2 x + 30 y
+    loc 2 2 x + 20 y
     name = fields.getall("keys").[count2]
-    text name 8 : c#fff
-    loc 2 2 x * 2 - 100 y
+    text name 8 : c#aaa
+    loc 2 2 x * 2 - 105 y
     square 180 20 10 1 : c#333
     input 180 25 name
   )
@@ -80,17 +90,15 @@ def "attribute" "id"
 endef
 
 mainloop:
-sidebar_width = window_width / 5
-if sidebar_width < 400 "sidebar_width = 400"
-c #151515
+sidebar_width = 300
+if window_width > 1200 "sidebar_width = window_width - 600 / 2"
+if sidebar_width > 500 "sidebar_width = 500"
 loc 2 999 sidebar_width / 2
-square sidebar_width window_height 10 1
-c #333
+square sidebar_width window_height 10 1 : c#151515
 loc 2 2 sidebar_width / 2 -90
-square sidebar_width - 20 0 5
-c #fff
+square sidebar_width - 20 0 5 : c#333
 loc 2 2 10 -70
-text "Objects" 9
+text "Objects" 9 : c#fff
 
 count = 0
 loop ATOM_objects.len (
@@ -103,40 +111,84 @@ icon "add" 0.6
 if current_object != -1 (
   loc 2 999 sidebar_width * 1.5
   square sidebar_width window_height 10 1 : c#111
+
+  loc 2 2 sidebar_width * 2 - 20 -70
+  icon "left" 0.6 : c#fff
+  if clicked "current_object = -1"
+
+  loc 2 2 sidebar_width * 1.5 -120
+  square sidebar_width - 20 30 10 1 : c#333
+
+  loc 2 2 sidebar_width + 20 -120
+
+  c #fff
+  if data_panel.not "c accent_colour"
+  text "Attributes" 8
+  if clicked "data_panel = false"
+
+  change_x 30
+
+  c #fff
+  if data_panel "c accent_colour"
+  text "Edit_Data" 8
+  if clicked "data_panel = true"
+
   loc 2 2 sidebar_width + 20 -70
   text current_object 8 : c#fff
-  if current_object.contains(".") (
+
+  if current_object_data.contains("data") (
     change 50
     square 60 20 10 1 : c#222
     change -20
     text "edit" 8 : c#fff
   )
 )
-if current_object != -1 (
-  loc 2 2 sidebar_width * 2 - 20 -70
-  icon "close" 0.6
-  if clicked "current_object = -1"
-  y = -100
-  loc 2 2 sidebar_width * 1.25 -100
+
+if current_object != -1 and data_panel (
   if current_object_data.contains("x") (
-    input sidebar_width / 2 - 30 25 "x" "x position" : c#333
-    change_x sidebar_width / 2
-    input sidebar_width / 2 - 30 25 "y" "y position" : c#333
-    loc 2 2 sidebar_width * 1 -120
-    y = -120
+
+    loc 2 2 sidebar_width + 20 -170
+    text "x:" 10 : c#fff
+    change_x sidebar_width - 145
+    square 180 20 10 1 : c#333
+    input 180 25 "x" "x position" : c#333
+
+    loc 2 2 sidebar_width + 20 -205
+    text "y:" 10 : c#fff
+    change_x sidebar_width - 145
+    square 180 20 10 1 : c#333
+    input 180 25 "y" "y position" : c#333
+
+    loc 2 2 sidebar_width + 20 -240
+    text "z:" 10 : c#fff
+    change_x sidebar_width - 145
+    square 180 20 10 1 : c#333
+    input 180 25 "z" "layer" : c#333
+
+    loc 2 2 sidebar_width + 20 -275
+    text "scale:" 10 : c#fff
+    change_x sidebar_width - 185
+    square 180 20 10 1 : c#333
+    input 180 25 "scale" "scale" : c#333
+
+    y = -170
     current_object_data.key("x") = input_x
     current_object_data.key("y") = input_y
+    current_object_data.key("layer") = input_z
+    current_object_data.key("scale") = input_scale
     if true current_object + "= current_object_data"
   )
 )
-if current_object != -1 (
+if current_object != -1 and data_panel.not (
+  loc 2 2 sidebar_width + 20 -130
+  y = -130
   count = 0
   loop current_attributes.len (
     count += 1
     attribute count
   )
 )
-if current_object != -1 (
+if current_object != -1 and data_panel.not (
   change_y -50
   square sidebar_width - 30 30 10 1 : c#333
   change sidebar_width / -2 + 30
@@ -157,7 +209,7 @@ square frame_width frame_height 5 : c#accent_colour
 count = 0
 loop objects.len (
   count += 1
-  renderobject count
+  renderobject ATOM_objects.[count].contents
 )
 
 frame "clear"
@@ -177,3 +229,19 @@ text "Edit" 9
 loc 2 2 220 -20
 text "Run" 9
 import "win-buttons"
+
+if confirm_delete != 0 (
+  goto 0 0
+  square 400 200 20 : c#accent_colour
+  square 400 200 15 1 : c#222
+  goto -190 70
+  text "Are you sure you want to remove the attribute:<newline>'<current_attributes.[confirm_delete].[1]>'<newline><newline>on <newline><newline>'<current_object>'" 8 : c#fff
+  goto -102 -72
+  square 185 40 10 1 : c#444
+  if clicked "confirm_delete = 0"
+  goto 102 -72
+  square 185 40 10 1 : c#444
+  if clicked (
+    
+  )
+)
