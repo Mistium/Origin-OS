@@ -1,0 +1,99 @@
+ballx = 0
+bally = 0
+
+r = 0
+l = 0
+s = 10
+
+paddler = 0
+paddlel = 0
+
+next_round_timer = timer + 3
+
+temp = [0,1].random
+balldir = [45,135].random
+
+if temp == 1 "balldir = [-45,-135].random"
+
+window "dimensions" 500 300
+window "resizable" False
+
+mainloop:
+c #fff
+
+loc -2 999 -10 paddler
+square 0 100 10
+
+loc 2 999 10 paddlel
+square 0 100 10
+
+if next_round_timer < timer (
+  if "up arrow".pressed "paddler += 10"
+  if "down arrow".pressed "paddler -= 10"
+  if "w".pressed "paddlel += 10"
+  if "s".pressed "paddlel -= 10"
+
+  paddlel = paddlel.clamp(-110,110)
+  paddler = paddler.clamp(-110,110)
+ 
+  ballx += balldir.sin.multiply(s)
+  bally += balldir.cos.multiply(s)
+  loc 2 2 10 -10
+  text "<r> : <l>" 10
+)
+
+if next_round_timer > timer (
+  loc 2 2 10 -10
+  text next_round_timer.minus(timer).round 10
+  paddler = 0
+  paddlel = 0
+  goto ballx bally
+  pen "size" 10
+  pen "down"
+  change balldir.sin.multiply(30) balldir.cos.multiply(30)
+  pen "up"
+)
+
+goto ballx bally
+
+icon "circle-full" 1
+
+loc -2 999 -10 paddler
+hitbox 40 120 ballx bally
+if ballx > 220 or collided (
+  ballx = 215
+  balldir += [160,200].random
+  if collided.not (
+    next_round_timer = timer + 3
+    ballx = 0
+    bally = 0
+    l += 1
+    balldir = [-45,-135].random
+  )
+)
+
+loc 2 999 10 paddlel
+hitbox 40 120 ballx bally
+if ballx < -220 or collided (
+  ballx = -215
+  balldir += [160,200].random
+  if collided.not (
+    next_round_timer = timer + 3
+    ballx = 0
+    bally = 0
+    r += 1
+    balldir = [45,135].random
+  )
+)
+
+if bally < -150 (
+  balldir = 180 - balldir
+  bally = -145
+)
+
+if bally > 130 (
+  balldir = 180 - balldir
+  bally = 125
+)
+
+import "win-buttons"
