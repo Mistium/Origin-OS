@@ -1,0 +1,32 @@
+window "show"
+window "dimensions" 500 700
+window "resizable" False
+binds = ["left arrow","down arrow","up arrow","right arrow"]
+
+def "pressed_arrow" "arrow"
+  goto x_position -280
+  c accent_colour
+  icon arrow 3
+  c #fff
+endef
+
+mainloop:
+
+c #333
+goto -180 -280
+c = 0
+c #fff
+arrows = ["left-arrow","down-arrow","up-arrow","right-arrow"]
+loop 4 (
+c += 1
+c #222
+square 90 90 20 1
+c #fff
+icon arrows.[c] 3 : c#fff
+if binds.[c].pressed "pressed_arrow" + arrows.[c]
+change 120
+)
+c #222
+loc 999 2 0 -20
+square window_width 40 10 1
+import "win-buttons"
