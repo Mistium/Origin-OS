@@ -12,11 +12,6 @@ draws a square at 100 0
 - This command moves the cursor to the specified x and y coordinates on the screen.
 - Example: `goto 100 200` would move the cursor to the position (100, 200) on the screen.
 
-## `goto x y`:
-
-- This command changes the x coordinate of the cursor to the specified value.
-- Example: `change_x 50` would change the cursor's x-coordinate by 50.
-
 ## `change_y y`:
 
 - This command changes the y coordinate of the cursor by the specified value.
