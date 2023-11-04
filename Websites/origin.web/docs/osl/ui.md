@@ -5,7 +5,7 @@ This is non negotiable with the system
 
 ---
 
-## Colour Commands
+# Colour Commands
 
 `colour #hexcode`
 
@@ -24,7 +24,7 @@ Example hex codes:
 
 ---
 
-## Main Ui Elements
+# Main Ui Elements
 
 `square px-width px-height outline-px-width filled invisible?`
 
@@ -50,7 +50,7 @@ Renders an image from the web or from a data uri with a specified width
 
 ---
 
-## Other Ui
+# Other Ui
 
 `hitbox width height checkx checky`
 
@@ -62,7 +62,7 @@ you can check the "collided" variable for if checkx and checky are inside the hi
 ---
 
 
-## Ui Info
+# Ui Info
 
 Icons are pulled from files. Use the file name 
 
@@ -72,7 +72,7 @@ icon data.
 
 ---
 
-## Pen
+# Pen
 
 The pen draws a line behind the draw cursor
 
@@ -83,3 +83,31 @@ lifts or lowers the pen
 `pen "size" pen-size`
 
 sets the size of the pen
+
+# Image Manipulation
+
+In versions of originOS 4.2.7 and upwards you can manipulate how images are displayed using commands to change their direction, and stretched width and height
+
+## Stretch
+`stretch "x" 100`
+(sets the width of the image to its normal width)
+
+`stretch "y" 50`
+(sets the height of the image to half it's normal height)
+
+You can access the current x stretch and y stretch using the variables "x_stretch" and "y_stretch"
+
+## Rotate
+`direction 90`
+(points right)
+
+`direction -45`
+(points top left)
+
+`turnleft 10`
+(changes direction by 10 degrees counterclockwise)
+
+`turnright 20`
+(changes direction by 20 degrees clockwise)
+
+You can access the current rotation using the variable "direction"
