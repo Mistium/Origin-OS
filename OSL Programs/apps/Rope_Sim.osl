@@ -1,22 +1,22 @@
-x = "31".new("array")
-y = "31".new("array")
+def "rope" "id,x_start,y_start,elasticity,ghor,gver,colour"
+if true "x = rope_x_" ++ id
+if true "y = rope_y_" ++ id
 
-mainloop:
-x.[1] = mouse_x.round
-y.[1] = mouse_y.round
+x.[1] = x_start.round
+y.[1] = y_start.round
 
 i1 = 1
-loop 31 (
+loop x.len - 1 (
   i1 += 1
   i2 = i1 - 1
-  setx = x.[i2].destr - x.[i1].destr / 2
-  sety = y.[i2].destr - y.[i1].destr / 2 - 10
+  setx = x.[i2].destr - x.[i1].destr / elasticity + ghor
+  sety = y.[i2].destr - y.[i1].destr / elasticity + gver
   x.[i1] += setx.round
   y.[i1] += sety.round
 )
 
 goto x.[1].destr y.[1].destr
-c #fff
+c colour
 pen "size" 5
 pen "down"
 i1 = 0
@@ -25,5 +25,21 @@ loop x.len (
   goto x.[i1].destr y.[i1].destr
 )
 pen "up"
+
+if true "rope_x_" ++ id + "=" + x
+if true "rope_y_" ++ id + "=" + y
+endef
+
+def "create_rope" "id,length"
+  new = "array".new(length)
+  if true "rope_x_" ++ id.destr ++ "= new"
+  if true "rope_y_" ++ id.destr ++ "= new"
+endef
+
+create_rope "test" 10
+
+mainloop:
+
+rope "test" mouse_x mouse_y 2 0 -5 #fff
 
 import "win-buttons"
