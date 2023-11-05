@@ -1,0 +1,24 @@
+model_data = "".ask
+cam_x = 0
+cam_y = 0
+cam_z = 0
+
+cam_p = 0
+cam_r = 0
+cam_y = 0
+
+mainloop:
+
+model_main = model_data.key("elements")
+
+3d "cam_loc" cam_x cam_y cam_z
+3d "cam_rot" cam_p cam_r cam_y
+
+count = 0
+loop model_main.len (
+  count += 1
+  current = model_main.[count]
+  [10,10,10].find2dpos
+)
+
+import "win-buttons"
