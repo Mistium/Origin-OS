@@ -1,0 +1,54 @@
+window "dimensions" screensize_x screensize_y
+
+permission "request" "terminal"
+
+def "openapp" "name"
+  terminal "system windows add" + name
+  window "stop"
+endef
+
+mainloop:
+
+square 1000 700 15 : c#global_accent
+square 1000 700 10 1 : c#000
+if mouse_down and clicked.not "window stop"
+
+goto -460 300
+text "originOS" 10
+goto 450 300
+square 40 40 5 : c#global_accent
+image user_icon 40
+change_x -50
+
+c #fff
+icon "power" 1
+if clicked (
+  terminal "system shutdown"
+)
+
+change_x -50
+icon "log-out" 1
+if clicked (
+  terminal "account logout"
+)
+
+change_x -50
+icon "settings" 1
+if clicked (
+  openapp "settings"
+)
+
+change_x -50
+icon "search" 1
+if clicked (
+  openapp "search"
+)
+
+change_x -50
+icon "info" 1.1
+if clicked (
+  openapp "system-information"
+)
+
+goto -450 300
+text "originOS Start" 15
