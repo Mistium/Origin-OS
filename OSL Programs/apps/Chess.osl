@@ -1,0 +1,38 @@
+window "resizable" False
+window "dimensions" 520 520
+board = ["r","n","b","q","k","b","n","r","p","p","p","p","p","p","p","p","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","0","P","P","P","P","P","P","P","P","R","N","B","Q","K","B","N","R"]
+
+def "drawboardsquare" "id"
+  c #444
+  if id % 2 == 0 "c #aaa"
+  square 50 50 5 1
+  c #000
+  if board.[id].islower "c #fff"
+  if board.[id] != 0 "text board.[id] 10"
+endef
+
+def "nextmove" "turn"
+  get "https://www.chessdb.cn/cdb.php?action=querybest&board=" ++ urlboard ++ "%20w%20KQkq%20-%200%1" ++ turn ++ "&json=1"
+endef
+
+def "genurlboard"
+  urlboard = board.join()
+endef
+
+mainloop:
+
+x = -270
+y = 200
+i = 0
+j = 0
+loop 64 (
+  i += 1
+  x += 60
+  goto x y
+  drawboardsquare i
+  if i % 8 == 0 (
+    y -= 60
+    x = -270
+  )
+)
+import "win-buttons"
