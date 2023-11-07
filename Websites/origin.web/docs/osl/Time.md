@@ -15,33 +15,6 @@
 
 ---
 
-## Global Time Variables:
-
-1. **timestamp**:
-   - Represents the current timestamp.
-
-2. **year**:
-   - Represents the current year.
-
-3. **month**:
-   - Represents the current month.
-
-4. **month_number**:
-   - Represents the current month of the year.
-
-5. **day**:
-   - Represents the current day.
-
-6. **day_number**:
-   - Represents the current day of the month.
-
-7. **hour**:
-   - Represents the current hour.
-
-8. **minute**:
-   - Represents the current minute.
-
-9. **second**:
-   - Represents the current second.
+[Global Time Variables](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/info%20and%20global%20variables.md#time-1)
 
 These commands and global time variables provide the ability to work with timestamps, convert between different date and time formats, and access various time-related values, making it convenient for managing time-related operations and data in OriginOS applications.
