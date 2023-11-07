@@ -10,7 +10,7 @@
 
 - **list.[itemnumber] = "assign-data"**:
   - This command sets the selected item of a list (specified by `[itemnumber]`) to the inputted data ("assign-data").
-  - Example: `mylist[2] = "new_value"` sets the third item in the list `mylist` to the value `"new_value"`.
+  - Example: `mylist.[2] = "new_value"` sets the third item in the list `mylist` to the value `"new_value"`.
 
 ## JSON Object Key Assignment:
 
