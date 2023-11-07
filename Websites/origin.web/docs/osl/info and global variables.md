@@ -2,8 +2,6 @@ OSL draws user interface objects at the "draw cursor" (an x/y value)
 
 This allows the script to place objects at any position.
 
-It seems like you've provided a list of variables and their descriptions in an OSL (Open Scripting Language) environment. These variables are used to interact with various aspects of the system, user interface, and application state. Here's a breakdown of some of the key variables and their meanings:
-
 ---
 
 # Default OSL Variables:
