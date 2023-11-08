@@ -16,4 +16,4 @@ if operation == "*" "num3 = num1 * num2"
 if operation == "/" "num3 = num1 / num2"
 if operation == "^" "num3 = num1 ^ num2"
   
-print num3
+say num3
