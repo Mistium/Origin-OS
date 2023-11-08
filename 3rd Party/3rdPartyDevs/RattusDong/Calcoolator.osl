@@ -3,11 +3,9 @@
 
 //after days of ravenous labor, i present: calcoolator
 
-getinput "number 1"
-num1 = return.int
+num1 = "number 1".ask.int
 
-getinput "number 2"
-num2 = return.int
+num2 = "number 2".ask.int
 
 getinput "operation"
 operation = return.str
