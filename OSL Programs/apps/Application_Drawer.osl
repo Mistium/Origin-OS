@@ -1,0 +1,64 @@
+permission "request" "terminal"
+permission "request" "File Viewer"
+desktop-save = current_desktop
+reboot = True
+search = []
+index-paths = []
+window "resizable" False
+window "show"
+window "dimensions" 320 450
+page = 1
+
+mainloop:
+
+if search == [] (
+  terminal "get filepaths"
+  regextemp = "/^[^.\n]+\.app$/gmi"
+  search = data.join(newline).regex(regextemp).reverse
+  data = []
+)
+len = search.len
+
+goto mouse_x.divide(65).round * 65 mouse_y.divide(65).round * 65
+square 40 40 10 1 : c#accent_colour
+
+goto -5 -195
+text page 10 : c#fff
+
+goto -130 -195
+if page > 1 (
+  icon "left-arrow" 1
+  if clicked and can (
+    page -= 1
+    can = false
+  )
+)
+goto 130 -195
+if page * 20 < len (
+  icon "right-arrow" 1
+  if clicked and can (
+    page += 1
+    can = false
+  )
+)
+
+goto -130 130
+x = x_position
+x2 = x
+y = y_position
+count = page - 1 * 20
+num = len - count
+if num > 25 "num = 25"
+loop num (
+  count += 1
+  goto x y
+  file "open" search.[count]
+  file "render" 2 "interactable"
+  x += 65
+  if count % 5 == 0 (
+    x = x2
+    y -= 65
+  )
+)
+if mouse_down.not "can = True"
+import "win-buttons"
