@@ -1,0 +1,9 @@
+window "dimensions" 100 40
+window "show"
+window "resizable" false
+window "responsive"
+loc 2 2 20 -20
+text fps 12 : c#fff
+change 20
+icon "close" 0.5
+if clicked "window stop"
