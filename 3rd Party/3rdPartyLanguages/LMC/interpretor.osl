@@ -1,5 +1,18 @@
 lmc_code = "Enter the lmc code to run".ask
 
+lmc_split = lmc_code.len.divide(3).round.new("array")
+
+pc = 0
+pc2 = -2
+pc3 = 0
+loop lmc_code (
+  pc += 1
+  pc2 += 3
+  pc3 += 3
+  lmc_split.[pc] = lmc_code.trim(pc2,pc3)
+)
+
+
 accumulator = 0
 
 def "get" "id"
