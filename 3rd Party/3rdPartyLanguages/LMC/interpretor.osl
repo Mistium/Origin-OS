@@ -1,0 +1,23 @@
+lmc_code = "Enter the lmc code to run".ask
+
+accumulator = 0
+
+def "get" "id"
+  command = id * 3
+  command2 = command - 2
+  data = lmc_code.trim(command2,command)
+endef
+
+pc = 0
+loop lmc_code.len / 3 (
+  pc += 1
+  get pc
+  input = data.trim(2,3)
+  command = data.[1]
+  if command == 1 "accumulator += input"
+  
+  if command == 5 "get input"
+  if command == 5 "accumulator += data.trim(2,3)"
+  
+  if command == 9 and ( input == 2 ) "say accumulator"
+)
