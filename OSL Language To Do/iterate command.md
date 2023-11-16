@@ -1,41 +1,35 @@
 ### Basic Syntax
-
+```
 iterate variable variable_start int step (
-
+  commands and stuff
 )
-
+```
 ---
 
 ### Function Osl Equivalent
 
+```
 step = 1
-
 i = 0
-
 loop int (
-
-i += step
-
-commands and stuff
-
+  i += step
+  commands and stuff
 )
+```
 
 ---
 
 ### Example Use
-
+```
 iterate "i" 0 10 1 (
-
-print i
-
+  print i
 )
-
+```
 ### Example as osl
-
+```
 i = 0
-
 loop 10 (
-
-i += 1
-
+  i += 1
+  print i
 )
+```
