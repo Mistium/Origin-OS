@@ -1,11 +1,7 @@
 window "maximise"
+window "show"
 window_colour = #000
 mainloop:
 w = window_colour
-if w == #000 (
-window_colour = #fff
-)
-if w == #fff (
-window_colour = #000
-)
-import "win-buttons"
+if w == #000 "window_colour = #fff"
+if w == #fff "window_colour = #000"
