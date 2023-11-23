@@ -1,0 +1,25 @@
+loc 2 2 100 -50
+c #333
+input 160 30 "square" 
+
+loc 2 2 20 -80
+c #fff
+i = 1
+loop input_square (
+  text input_square 10
+)
+i += 1
+loop input_square - 2 (
+  loc 2 2 20 -80 - ( i * 20 )
+  text input_square 10
+  loop input_square - 2 * input_square.len (
+    text "*" 10
+  )
+  text input_square 10
+  i += 1
+)
+loc 2 2 20 -80 - ( i * 20 )
+loop input_square (
+  text input_square 10
+)
+import "win-buttons"
