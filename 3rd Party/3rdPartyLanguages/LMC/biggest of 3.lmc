@@ -1,0 +1,20 @@
+        inp
+        sta num2
+        inp
+        sta num1
+        sub num2
+        brp num1big
+        lda num2
+        sta num1
+num1big inp
+        sta num2
+        sub num1
+        brp num3big
+        lda num1
+        bra end
+num3big lda num2
+end     out
+num1    dat 0
+num2    dat 0
+
+901 317 901 316 217 808 517 316 901 317 216 814 516 615 517 902 030 020
