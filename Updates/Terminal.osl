@@ -34,7 +34,6 @@ square window_width - 55 35 10
 input window_width - 55 30 1 "Type A Command Here"
 
 if "enter".onpress (
-  runterminal = "true"
   last = input_1
   input_1 = username ++ "/: " ++ input_1
   terminal = terminal.destr.append(input_1)
@@ -43,17 +42,17 @@ if "enter".onpress (
   input_1 = null
 )
 
-if "up arrow".pressed "input_1 = last"
+if "up arrow".onpress "input_1 = last"
 
 sidebar = ["open","save","eraser"]
 import "side-bar"
 
 if sidebar_clicked == "save" (
-  to_save = [".txt"]
   filename = "terminal at " ++ timestamp.timestamp("convert-date") ++ ".txt"
   file "download" filename terminal.join(newline)
 )
 
 loc 2 2 60 -20
 text "Terminal" 8
+
 import "win-buttons"
