@@ -1,36 +1,39 @@
-lmc_code = "Enter the lmc code to run".ask
-
-lmc_split = lmc_code.len.divide(3).round.new("array")
-
-pc = 0
-pc2 = -2
-pc3 = 0
-loop lmc_code (
-  pc += 1
-  pc2 += 3
-  pc3 += 3
-  lmc_split.[pc] = lmc_code.trim(pc2,pc3)
-)
-
-
-accumulator = 0
-
-def "get" "id"
-  command = id * 3
-  command2 = command - 2
-  data = lmc_code.trim(command2,command)
+def "end"
+  say "ended on line" + pc + "on command" + lmc_p.[pc]
+  window "stop"
 endef
 
+lmc = "code?".ask.replace(" ","")
+
+lmc_p = []
+count = 0
+loop lmc.len / 3 (
+  count += 1
+  out = lmc.[count]
+  count += 1
+  out = out ++ lmc.[count]
+  count += 1
+  out = out ++ lmc.[count]
+  lmc_p = lmc_p.append(out)
+)
+lmc_p = lmc_p.append("000")
+
+acc = 0
 pc = 0
-loop lmc_code.len / 3 (
+loop 99999 (
   pc += 1
-  get pc
-  input = data.trim(2,3)
-  command = data.[1]
-  if command == 1 "accumulator += input"
-  
-  if command == 5 "get input"
-  if command == 5 "accumulator += data.trim(2,3)"
-  
-  if command == 9 and ( input == 2 ) "say accumulator"
+  c = lmc_p.[pc].[1]
+  dt = lmc_p.[pc].[2] ++ lmc_p.[pc].[3]
+  dt = dt.destr
+  dt2 = dt + 1
+  if c == "0" or ( c == "4" ) "end"
+  if c == "1" "acc += lmc_p.[dt2].destr"
+  if c == "2" "acc -= lmc_p.[dt2].destr"
+  if c == "3" "lmc_p.[dt2] = acc.destr"
+  if c == "5" "acc = lmc_p.[dt2].destr"
+  if c == "6" "pc = dt"
+  if c == "7" and ( acc == 0 ) "pc = dt"
+  if c == "8" and ( acc > -1 ) "pc = dt"
+  if c == "9" and ( dt.str == "01" ) "acc = input.ask.int"
+  if c == "9" and ( dt.str == "02" ) "say acc.destr"
 )
