@@ -14,7 +14,7 @@ Write a basic hello world program where you show the window and write "Hello, Wo
 
 [How to change object colour](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#colour-commands)
 
-Look for the text command:
+Look for the text command:<br>
 [Drawing text to the window](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#main-ui-elements)
 
 
