@@ -101,4 +101,9 @@ if menu.not (
   loc 999 2 points.len * -10.5 -30
   text points 20 : c#fff
 )
-import "win-buttons"
+window "show"
+loc -2 2 -30 -30
+square 30 30 10 : c#000
+if mouse_touching "cursor pointer"
+if clicked "window stop"
+icon "close" 0.7 : c#fff
