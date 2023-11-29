@@ -9,7 +9,7 @@ cubesy = []
 cubesz = []
 permission "request" "File Viewer"
 window "sdhow"
-file "open" "origin/(c) users/system/documents/models/cube.3dicn"
+file "open" "origin/(c) users/system/documents/models/cube.sobj"
 cube = data
 def "render-cube" "x,y,z"
 model cube x y z camx / 2 camy / 2 camz / 2 camdx camdy camdz
