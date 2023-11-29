@@ -10,12 +10,12 @@ Create a window that has a single icon in white in the middle of the window
 
 ## Useful docs
 
-[How to show/hide the window](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/window.md#showinghiding-window)
+[How to show/hide the window](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Window-Control#showinghiding-window)
 
-[How to change object colour](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#colour-info)
+[How to change object colour](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#colour-commands)
 
-[Main ui elements](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#main-ui-elements)
+[Main ui elements](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#main-ui-elements)
 
-[Goto x,y](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/moving-cursor.md#goto-x-y)
+[Goto x,y](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Drawing-Cursor#commands)
 
 [System Icons](https://github.com/Mistium/Origin-OS/blob/main/Icons/List.md)
