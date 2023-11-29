@@ -1,0 +1,79 @@
+window_colour = #14d0ff
+def "Wall" "wallt,wallh"
+    loc -2 9999 wallt - timer * 120 wallh
+    change_y -280
+    colour #fff
+    square 80 340 20 1
+    change_y 560
+    square 80 340 20 1
+    if wallt - timer * 40 < -600 (
+        wallt = timer
+        wallh = [-100,100].random
+    )
+endef
+window "dimensions" 600 400
+window "resizable" False
+t = timer
+w1t = t
+w1h = [-100,100].random
+w2t = t + 3
+w2h = [-100,100].random
+w3t = t + 6
+w3h = [-100,100].random
+w4t = t + 9
+w4h = [-100,100].random
+menu = True
+points = 0
+allowed = True
+save "bird.icn" "get"
+if save-data == null (
+    save "bird.icn" "set" "image https://i.pinimg.com/originals/dd/b0/a4/ddb0a4f27b9be7ffedf03a872545a3e2.png 20"
+    save "bird.icn" "get"
+)
+bird = save-data
+mainloop:
+goto -100 birdheight
+bird_dir = birdvel * 10 + 135 - bird_dir / 10
+direction bird_dir
+icon bird 3
+colour #fff
+if "space".released "allowed = True"
+if menu (
+  birdheight = 0
+  loc 2 2 20 -30
+  text "Press Space To Play" 10
+  if "space".pressed "Menu = False"
+)
+if menu.not (
+  if "space".pressed and allowed (
+    birdvel = 16
+    allowed = False
+    timer2 = timer
+  )
+)
+if menu.not (
+  birdvel -= 1
+  if birdvel < -15 "birdvel = -15"
+  bv = birdvel
+  if bv > 30 "bv = 30"
+  birdheight += bv
+  if birdheight > 177 "birdheight = 177"
+  if birdheight < -177 "birdheight = -177"
+  wall w1t w1h
+  w1t = wallt
+  w1h = wallh
+  wall w2t w2h
+  w2t = wallt
+  w2h = wallh
+  wall w3t w3h
+  w3t = wallt
+  w3h = wallh
+  wall w4t w4h
+  w4t = wallt
+  w4h = wallh
+  loc 999 2 0 -30
+  square points.len * 21 40 10 : c#000
+  loc 999 2 points.len * -10.5 -30
+  text points 20 : c#fff
+)
+import "win-buttons"
