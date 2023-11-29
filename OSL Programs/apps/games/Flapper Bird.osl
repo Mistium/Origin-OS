@@ -1,27 +1,43 @@
 window_colour = #14d0ff
 def "Wall" "wallt,wallh"
-    loc -2 9999 wallt - timer * 120 wallh
-    change_y -280
-    colour #fff
-    square 80 340 20 1
-    change_y 560
-    square 80 340 20 1
-    if wallt - timer * 40 < -600 (
-        wallt = timer
-        wallh = [-100,100].random
+  loc -2 9999 wallt - timer * 120 wallh
+  direction 90
+  stretch "x" 100
+  change_x 80
+  image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/games/assets/pipe.png" 1400
+  change -87 -340
+  hitbox 175 350 -100 birdheight
+  if collided "menu = True" 
+  change_y 660
+  hitbox 175 350 -100 birdheight
+  if collided "menu = True"
+  collided = false
+  cur = [-100,0].dist(x_position,0) < 100
+    set_y 0
+    hitbox 100 window_height -100 0
+    if collided and can and cur (
+      points += 1
+      can = false
     )
+    if collided.not and cur (
+      can = true
+    )
+  if wallt - timer * 40 < -600 (
+    wallt = timer
+    wallh = [-90,90].random
+  )
 endef
-window "dimensions" 600 400
+window "dimensions" 400 600
 window "resizable" False
 t = timer
 w1t = t
-w1h = [-100,100].random
+w1h = [-90,90].random
 w2t = t + 3
-w2h = [-100,100].random
+w2h = [-90,90].random
 w3t = t + 6
-w3h = [-100,100].random
+w3h = [-90,90].random
 w4t = t + 9
-w4h = [-100,100].random
+w4h = [-90,90].random
 menu = True
 points = 0
 allowed = True
@@ -43,12 +59,12 @@ if menu and ( page == "none" ) (
   text "Press Space To Play" 10
   if "space".pressed "Menu = False"
   loc 2 2 20 -50
-  text "Press Enter To Play" 10
+  text "Press Enter To See Credits" 10
   if "enter".pressed "page = credits"
 )
 if menu and ( page == "credits" ) (
     loc 2 2 20 -20
-    text "pipe by breaklife on pixilart.com" 10 : c#000
+    text "pipe by breaklife<newline>on pixilart.com" 10 : c#000
     loc 2 2 20 -50
     text "Press Space To Return To Home" 10
     if "space".pressed "page = none"
@@ -66,8 +82,8 @@ if menu.not (
   bv = birdvel
   if bv > 30 "bv = 30"
   birdheight += bv
-  if birdheight > 177 "birdheight = 177"
-  if birdheight < -177 "birdheight = -177"
+  if birdheight > 300 "birdheight = 300"
+  if birdheight < -300 "menu = true"
   wall w1t w1h
   w1t = wallt
   w1h = wallh
