@@ -25,24 +25,33 @@ w4h = [-100,100].random
 menu = True
 points = 0
 allowed = True
-save "bird.icn" "get"
-if save-data == null (
-    save "bird.icn" "set" "image https://i.pinimg.com/originals/dd/b0/a4/ddb0a4f27b9be7ffedf03a872545a3e2.png 20"
-    save "bird.icn" "get"
-)
+page = "none"
 bird = save-data
 mainloop:
 goto -100 birdheight
-bird_dir = birdvel * 10 + 135 - bird_dir / 10
+bird_dir += birdvel.clamp(-16,16) * -5 + 90 - bird_dir / 5
+bird_str += birdvel.clamp(0,16) * 3 + 100 - bird_str / 5
 direction bird_dir
-icon bird 3
+stretch "x" bird_str
+
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/games/assets/flapper.png" 100
 colour #fff
 if "space".released "allowed = True"
-if menu (
+if menu and ( page == "none" ) (
   birdheight = 0
   loc 2 2 20 -30
   text "Press Space To Play" 10
   if "space".pressed "Menu = False"
+  loc 2 2 20 -50
+  text "Press Enter To Play" 10
+  if "enter".pressed "page = credits"
+)
+if menu and ( page == "credits" ) (
+    loc 2 2 20 -20
+    text "pipe by breaklife on pixilart.com" 10 : c#000
+    loc 2 2 20 -50
+    text "Press Space To Return To Home" 10
+    if "space".pressed "page = none"
 )
 if menu.not (
   if "space".pressed and allowed (
