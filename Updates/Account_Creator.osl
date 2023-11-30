@@ -1,5 +1,3 @@
-window "show"
-
 def "get" "id"
   network "get" "https://discordlookup.mesavirep.xyz/v1/user/" ++ id
   userdata = data.replace(newline,"")
@@ -11,12 +9,16 @@ def "new" "name,pass"
 endef
 
 window "resizable" false
-window "dimensions" 400 400
+window "dimensions" 400 600
+
 topage = 1
 mainloop:
 goto
 c #111
 square 0 0 10000
+loc -2 2 -20 -20
+icon "close" 0.7 : c#fff
+if clicked "window stop"
 if page == 1 (
   // this page is the new account page
   loc 2 2 47 -100
@@ -42,58 +44,53 @@ if page == 1 (
   text "New Account" 8
 )
 if page == "signup" (
-  loc 2 2 25 -25
-  c #fff
-  icon "left-arrow" 1.2
-  if clicked "page = 1"
   loc 2 2 200 -100
-  image "https://cdn.discordapp.com/attachments/1147471100742209566/1155098350459297792/communityIcon_t415kxa45pmb1.png" 70
-  c #000
+  image "https://cdn.discordapp.com/attachments/1147471100742209566/1155098350459297792/communityIcon_t415kxa45pmb1.png" 90
   loc 2 2 200 -200
-  square 320 30 20 1
+  square 320 30 20 : c#000
   input 300 25 "signup_name" "Username..."
-  c #000
   loc 2 2 200 -270
-  square 320 30 20 1
+  square 320 30 20 : c#000
   input 300 25 "signup_pass" "Password..."
-  c #000
   loc 2 2 200 -340
-  square 320 30 20 1
+  square 320 30 20 : c#000
   if clicked "new input_signup_name input_signup_pass"
-  c #fff
   loc 2 2 50 -340
-  text "Create Account" 8
+  text "Create Account" 8 : c#fff
+  loc 2 2 200 -410
+  square 320 30 20 : c#000
+  if clicked "page = 1"
+  loc 2 2 50 -410
+  text "Back" 8 : c#fff
+  
 )
 if page == "discord" (
-  loc 2 2 25 -25
-  c #fff
-  icon "left-arrow" 1.2
-  if clicked "page = 1"
   loc 2 2 200 -100
-  image "https://th.bing.com/th/id/R.89cfffd678f3789e0004fa921cb612d8?rik=GTAt6LMPaJaZVA&pid=ImgRaw&r=0" 40
-  c #000
+  image "https://th.bing.com/th/id/R.89cfffd678f3789e0004fa921cb612d8?rik=GTAt6LMPaJaZVA&pid=ImgRaw&r=0" 70
   loc 2 2 170 -200
-  square 260 30 20 1
+  square 260 30 20 1 : c#000
   loc 2 2 345 -200
   square 30 30 20 1
   loc 2 2 170 -200
   input 250 25 "discord_id" "Your discord ID..."
-  c #000
   loc 2 2 200 -270
-  square 320 30 20 1
+  square 320 30 20 1 : c#000
   input 300 25 "discord_pass" "Origin password..."
-  c #fff
   loc 2 2 345 -200
-  icon "paste" 1
+  icon "paste" 1 : c#fff
   if clipboard.len < 30 and clicked "input_discord_id = clipboard.destr"
-  c #000
   loc 2 2 200 -340
-  square 320 30 20 1
+  square 320 30 20 1 : c#000
   if clicked "topage = "verify""
   if clicked "get input_discord_id"
   c #fff
   loc 2 2 50 -340
   text "Next" 8
+  loc 2 2 200 -410
+  square 320 30 20 : c#000
+  if clicked "page = 1"
+  loc 2 2 50 -410
+  text "Back" 8 : c#fff
 )
 if page == "verify" (
   c #000
@@ -114,7 +111,8 @@ if page == "verify" (
   if clicked "topage = "discord""
   c #fff
   loc 2 2 50 -200
-  text "<userdata.key("global_name")> (<userdata.key("tag")>)" 8
+  text userdata.key(global_name) 8
+  if userdata.key(tag) != 0 "text ( ++ userdata.key(tag) ++ )"
   c #fff
   loc 2 2 50 -270
   text "Yes, this is the right account" 8
@@ -138,7 +136,6 @@ if page == "done" (
   text "Open Account Center" 8
 window "stop"
 )
-import "win-buttons"
 if topage != null and mouse_down.not (
 page = topage
 topage = null
