@@ -1,0 +1,25 @@
+save "praise" "get"
+highest = save-data
+praise = 0
+window "resizable" False
+window "dimensions" 700 200
+mainloop:
+goto 0 -40
+colour #202020
+square 300 30 20 1
+if clicked (
+  praise += 1
+)
+loc 2 2 0 -60
+colour #ffffff
+text "The Most You've Praised George Is Only" + highest + "Times, You Can Do Better" 8
+goto -75 -40
+text "Praise George" 10
+ 
+loc 2 2 0 -30
+text "You have only praised George" + praise + "Times" 10
+if praise > highest (
+  highest = praise
+  save "praise" "set" praise
+)
+import "win-buttons"
