@@ -67,6 +67,8 @@ def "system"
       percent = current.key("used") / current.key("size")
       bar frame_width - 200 20 10 percent : c#444
     )
+  )
+  if subcategory == "Storage" (
     count += 1
     page_len = count * 160 + 60
     loc 2 2 30 count * -160 + 60 + scroll_y
