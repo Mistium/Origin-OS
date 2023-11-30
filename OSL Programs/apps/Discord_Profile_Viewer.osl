@@ -58,7 +58,7 @@ if loaded (
   loc 2 2 60 -60
   square 80 80 20 1
   loc 2 2 60 -60
-  image link ++ ".png" 108
+  image link ++ ".png" 78
   c #000
   goto 0 -55
   square window_width - 40 window_height - 150 20 1
@@ -67,8 +67,8 @@ if loaded (
   count = 0
   loop badges.len (
     count += 1
-    loc -2 2 count * -40 -92
-    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 35
+    loc -2 2 count * -30 -92
+    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 25
   )
 if loaded (
   loc 2 2 25 -145
