@@ -1,0 +1,59 @@
+window "hide"
+window "front"
+
+w = 70
+start_menu = false
+
+permission "request" "File Admin"
+permission "request" "System"
+mainloop:
+if "space".pressed "window stop"
+window "dimensions" screensize_x screensize_y
+include "Origin/(C) Users/" ++ username ++ "/Dock"
+
+// center square
+loc -2 999 w * -0.7 5
+square w window_height - 200 10 : c#000
+
+// top square
+loc -2 2 w * -0.7 -45
+square w 50 10
+
+// bottom square
+loc -2 -2 w * -0.7 w * 0.7
+if start_menu "square w w 15 : c#fff"
+square w w 10 : c#000
+
+// open and close start menu
+if ( clicked and can ) or "control".onpress (
+  can = false
+  start_menu = start_menu.not
+  start_y = -300
+)
+
+if mouse_down.not "can = true"
+start_y += 350 - start_y / 3
+if start_menu (
+  loc -2 -2 -400 start_y
+  square 470 670 10 : c#000
+)
+
+loc -2 2 w * -0.7 - 17 -120
+icon "wifi" 1 : c#fff
+change_x w / 2
+icon "bluetooth" 1
+
+loc -2 -2 w * -0.7 - 23 w * 0.7
+text "nOS" 15
+
+loc -2 -2 w * -0.7 150
+count = 0
+loop dock.len (
+  count += 1
+  file "open" "id" dock.[count]
+  colour #fff
+  file "render" 2 "interactable"
+  change_y 60
+)
+loc -2 2 w * -1.1 -45
+text "<hour>:<minute>" 10 : c#fff
