@@ -1,0 +1,47 @@
+def "button" "opt,txt" 
+if choose == opt "square 200 80 20 : c#fff"
+square 200 80 15 : c#333
+if clicked "choose = opt"
+change -50
+text txt 10 : c#fff
+endef
+choose = 0
+pwins = 0
+cwins = 0
+moves = ["rock","paper","scissors"]
+mainloop:
+loc 2 2 20 -20
+text "Rock Paper Scissors!" 15 : c#fff
+
+goto 0 40
+button "1" "Rock"
+
+goto 220 40
+button "2" "Paper"
+
+goto -220 40
+button "3" "Scissors"
+
+if choose != 0 and can (
+  can = false
+  enemy = [1,3].random
+  t = enemy ++ choose
+  if t == "12" "out = player wins"
+  if t == "21" "out = computer wins"
+  if t == "23" "out = player wins"
+  if t == "32" "out = computer wins"
+  if t == "31" "out = player wins"
+  if t == "13" "out = computer wins"
+  if enemy == choose "out = draw"
+  if out == "player wins" "pwins += 1"
+  if out == "computer wins" "cwins += 1"
+  choose = 0
+)
+if mouse_down.not "can = true" 
+loc 2 -2 40 80
+text "Computer picked <moves.[enemy]>" 10 : c#fff
+loc 2 -2 40 40
+text out 10
+loc 2 -2 40 120
+text "Player Won: <pwins> times, Computer Won: <cwins> times" 10
+import "win-buttons"
