@@ -1,0 +1,99 @@
+save "highscore" "get"
+highscore = save-data
+if save-data == null "highscore = 0"
+def "move" "x,y"
+x += head_x
+y += head_y
+snakex = snakex.append(x)
+snakey = snakey.append(y)
+endef
+t = 0
+snakex = [0]
+snakey = [0]
+snake_dir = 0
+mode = "Menu"
+window "resizable" False
+window "dimensions" 580 400
+score = 0
+mainloop:
+colour #555
+loc 999 999 -190 -10
+square 200 380 5
+loc 999 2 0 -10
+square window_width 10 13
+colour #fff
+loc 2 2 0 -10
+text "Snake - Written by Mist entirely in OSL" 7
+loc 2 2 0 -40
+text "Highscore:" + Highscore 8
+loc 2 2 0 -60
+text "Score:" + snakelen 8
+if mode == "Menu" (
+  c #444
+  loc 999 999 -200 -50
+  slider 150 20 "speed"
+  loc 999 999 -200 -70
+  speed_display = ( 1 - slider_speed ) * 10
+  text speed_display.round 10 : c#fff
+  colour #777
+  loc 999 999 -200
+  square 150 20 10 1
+  snakelen = 1
+  snakex = ["100"]
+  snakey = ["-10"]
+  if clicked (
+    mode = "play"
+    snakedir = "w"
+    head_x = 100
+    head_y = -10
+    move 0 20
+    foodx = [-9,9].random * 20 + 100
+    foody = [-9,9].random * 20 - 10
+  )
+)
+if mode == "menu" (
+  colour #fff
+  change_x -20
+  text "Play" 9
+)
+if mode == "Play" (
+  if highscore < snakelen "highscore = snakelen"
+  if "w".onpress and ( snakedir != "s" ) "snakedir = "w""
+  if "s".pressed and ( snakedir != "w" ) "snakedir = "s""
+  if "a".pressed and ( snakedir != "d" ) "snakedir = "a""
+  if "d".pressed and ( snakedir != "a" ) "snakedir = "d""
+
+  if timer - slider_speed > t (
+    t = timer
+    if snakedir == "w" "move 0 20"
+    if snakedir == "a" "move -20 0"
+    if snakedir == "s" "move 0 -20"
+    if snakedir == "d" "move 20 0"
+  )
+  temp = snakex.len
+  head_x = snakex.[temp].int
+  head_y = snakey.[temp].int
+  count = snakex.len + 1
+  loop snakelen (
+    count -= 1
+    draw_x = snakex.[count].int
+    draw_y = snakey.[count].int
+    goto draw_x draw_y
+    if draw_x == head_x and ( draw_y == head_y ) and ( count < snakex.len ) "mode = "menu""
+    colour #65ad5b
+    if snakex.len - count % 2 == 0 "colour #416f3b"
+    if count == snakex.len "colour #cd0000"
+    square 12 12 5 1
+  )
+
+  if ( head_x > 280 ) or ( head_x < -80 ) or ( head_y > 180 ) or ( head_y < -200 ) "mode = "menu""
+  colour #cd0000
+  goto foodx foody
+  square 5 5 10
+  if head_x == foodx and ( head_y == foody ) (
+    snakelen += 1
+    foodx = [-9,9].random * 20 + 100
+    foody = [-9,9].random * 20 - 10
+  )
+)
+import "win-buttons"
