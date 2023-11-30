@@ -1,24 +1,31 @@
 window "show"
 def "load"
-network "get" "https://discordlookup.mesavirep.xyz/v1/user/" ++ input_id
-userdata = data.replace(newline,"")
-badges = userdata.key("badges")
-displayname = userdata.key("global_name")
-username = userdata.key("tag").split("#").[1]
-link = userdata.key("avatar").key("link")
-banner = userdata.key("banner").key("link")
-bannercol = userdata.key("banner").key("color")
-if banner != "null".destr "badges = badges.append("nitro").append("boosting_1_months")"
-loaded = true
+  userdata = data.replace(newline,"")
+  log userdata
+  badges = userdata.key("badges")
+  displayname = userdata.key("global_name")
+  username = userdata.key("tag").split("#").[1]
+  link = userdata.key("avatar").key("link")
+  banner = userdata.key("banner").key("link")
+  bannercol = userdata.key("banner").key("color")
+  if banner != "null".destr "badges = badges.append("nitro").append("boosting_1_months")"
+  loaded = true
 endef
 loaded = false
 window "resizable" False
-window "dimensions" 400 400
+window "dimensions" 500 400
+data = "Loading"
 mainloop:
 if loaded.not (
   loc 999 999 0 -20
   square 300 25 10 1
-  if clicked "load"
+  if clicked (
+    current = "https://discordlookup.mesavirep.xyz/v1/user/" ++ input_id
+  )
+)
+if loaded.not (
+  network "get" current
+  if data != "Loading" "load"
   loc 999 999 137 20
   square 25 25 10 1
   if clicked "input_id =" + clipboard.str
@@ -51,7 +58,7 @@ if loaded (
   loc 2 2 60 -60
   square 80 80 20 1
   loc 2 2 60 -60
-  image link ++ ".png" 128
+  image link ++ ".png" 108
   c #000
   goto 0 -55
   square window_width - 40 window_height - 150 20 1
@@ -60,8 +67,8 @@ if loaded (
   count = 0
   loop badges.len (
     count += 1
-    loc -2 2 count * -30 -92
-    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 40
+    loc -2 2 count * -40 -92
+    image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 35
   )
 if loaded (
   loc 2 2 25 -145
