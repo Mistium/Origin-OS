@@ -1,0 +1,23 @@
+window "resizable" False
+window "dimensions" 300 300
+mainloop:
+pen "size" 5
+colour #ffffff
+loc 999 999 second.multiply(6).sin * 70 second.multiply(6).cos * 70
+pen "down"
+loc 999 999
+pen "size" 8
+loc 999 999 minute.multiply(6).sin * 50 minute.multiply(6).cos * 50
+pen "up"
+loc 999 999
+pen "down"
+h = hour * 30 + ( minute / 2 )
+loc 999 999 h.sin * 20 h.cos * 20
+pen "up"
+count = 0
+loop 12 (
+  count += 30
+  loc 999 999 count.sin * 100 count.cos * 100
+  text count / 30 6
+)
+import "win-buttons"
