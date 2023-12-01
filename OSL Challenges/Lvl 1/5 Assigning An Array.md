@@ -10,6 +10,6 @@ Write a program that draws an array onto your application
 
 ## Useful docs
 
-[How to show/hide the window](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/window.md#showinghiding-window)
+[How to show/hide the window](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Window-Control#showinghiding-window)
 
-[Array functions](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/Arrays.md)
+[Array functions](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Arrays)
