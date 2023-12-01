@@ -10,12 +10,12 @@ Create a window that shows an increasing counter
 
 ## Useful docs
 
-[How to show/hide the window](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/window.md#showinghiding-window)
+[How to show/hide the window](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Window-Control#showinghiding-window)
 
-[How to change object colour](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#colour-info)
+[How to change object colour](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#colour-commands)
 
-[Main ui elements](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#main-ui-elements)
+[Main ui elements](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#main-ui-elements)
 
-[Goto x,y](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/moving-cursor.md#goto-x-y)
+[Goto x,y](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Drawing-Cursor#commands)
 
-[Assigning variables](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/variables.md#variable-assignment)
+[Assigning variables](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Variables#variable-assignment)
