@@ -10,6 +10,6 @@ Write a program that draws an image from the internet onto your application
 
 ## Useful docs
 
-[How to show/hide the window](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/window.md#showinghiding-window)
+[How to show/hide the window](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Window-Control#showinghiding-window)
 
-[Drawing images](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#main-ui-elements)
+[Drawing images](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#:~:text=image%20%22url%22%20width_in_pixels)
