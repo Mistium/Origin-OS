@@ -35,12 +35,17 @@ endef
 
 def "system"
   if subcategory == "none" (
+    option "Info"
     option "Display"
     option "Sound"
     option "Notifications"
     option "Power"
     option "Storage"
     option "Multitasking"
+  )
+  if subcategory == "Info" (
+    loc 2 2 10 -20
+    text "Info" 10 : c#fff
   )
   if subcategory == "Display" (
     loc 2 2 10 -20
@@ -67,8 +72,6 @@ def "system"
       percent = current.key("used") / current.key("size")
       bar frame_width - 200 20 10 percent : c#444
     )
-  )
-  if subcategory == "Storage" (
     count += 1
     page_len = count * 160 + 60
     loc 2 2 30 count * -160 + 60 + scroll_y
@@ -117,7 +120,7 @@ def "bluetooth"
     if x_position + 110 > frame_width.divide(2) (
       x = x2
       y -= 160
-      )
+    )
   )
 endef
 
@@ -333,10 +336,10 @@ loc 2 2 70 -25
 if subcategory == "none" "text category 10 : c#fff"
 
 if subcategory != "none" (
-icon left-arrow 0.6 : c#fff
-if clicked "subcategory = "none""
-change_x 30
-text subcategory 10
+  icon left-arrow 0.6 : c#fff
+  if clicked "subcategory = "none""
+  change_x 30
+  text subcategory 10
 )
 
 loc 2 2 50 -48
