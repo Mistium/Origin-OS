@@ -12,10 +12,10 @@ eg. "1".pressed shows the first item of the array
 
 ## Useful docs
 
-[Assigning variables](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/variables.md#variable-assignment)
+[Assigning variables](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Variables#variable-assignment)
 
-[Array Functions](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/Arrays.md)
+[Array Functions](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Arrays)
 
-[Loops And If Statements](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/loops-selection.md)
+[Loops And If Statements](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Program-Flow)
 
-[.pressed function](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/Boolean%20Functions.md)
+[.pressed function](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Functions#code-based-inputs)
