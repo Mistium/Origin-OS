@@ -2,7 +2,7 @@
 
 place this code in the setup part of your code before the mainloop label
 
-event condition (
+event "condition" (
 
 )
 
