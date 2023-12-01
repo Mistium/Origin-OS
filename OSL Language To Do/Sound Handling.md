@@ -30,6 +30,19 @@ sound "skew" int
 
 // skews the sound left or right
 
+
+"sound url".soundinfo("loaded")
+- boolean of if the sound is loaded into the system or not
+
+"sound url".soundinfo("duration")
+- integer of the length of the sound in seconds
+
+"sound url".soundinfo("current_time")
+- integer of how far through the sound you are
+
+"sound url".soundinfo("paused")
+- true or false of if the sound is paused or not
+
 ---
 
 ### Function Osl Equivalent
@@ -45,3 +58,4 @@ These commands allow the system to play sounds
 sound "load" "example.com/beep.wav"
 
 sound "play" "example.com/beep.wav"
+
