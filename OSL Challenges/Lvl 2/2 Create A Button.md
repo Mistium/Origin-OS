@@ -10,8 +10,8 @@ Create a window that shows a clickable button
 
 ## Useful docs
 
-[How to change object colour](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#colour-info)
+[How to change object colour](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements#colour-commands)
 
-[Main ui elements](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/ui.md#main-ui-elements)
+[Main ui elements](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-UI-Elements)
 
-[Assigning variables](https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/docs/osl/variables.md#variable-assignment)
+[Assigning variables](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Variables#variable-assignment)
