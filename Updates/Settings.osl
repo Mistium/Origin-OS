@@ -45,7 +45,7 @@ def "system"
   )
   if subcategory == "Info" (
     loc 2 2 10 -20
-    text "Info" 10 : c#fff
+    text origin.key("version") 10 : c#fff
   )
   if subcategory == "Display" (
     loc 2 2 10 -20
@@ -133,17 +133,6 @@ def "personalisation"
     option "Colours"
     option "Lock Screen"
   )
-  if subcategory == "Colours" (
-    loc 2 2 15 -30
-    text "Accent Colour: <global_accent>" 10 : c#fff
-    change_x 30
-    square 0 0 20 0 : c#global_accent
-    if clicked (
-      colourpicker "setcol" global_accent
-      colourpicker "show"
-    )
-  terminal "system setaccent" + picker_colour
-  )
   if subcategory == "Dock" (
     loc 2 2 15 -30
     text "Dock Alignment" 10 : c#fff
@@ -192,7 +181,6 @@ def "personalisation"
       y -= 90
     )
   )
-  if subcategory == "dock" (
     goto x y
     square 180 60 20 1 : c#222
     change_y -10
@@ -209,6 +197,18 @@ def "personalisation"
     file_dropped = 0
     global "segments"
   )
+  if subcategory == "Colours" (
+    loc 2 2 15 -30
+    text "Accent Colour: <global_accent>" 10 : c#fff
+    change_x 30
+    square 0 0 20 0 : c#global_accent
+    if clicked (
+      colourpicker "setcol" global_accent
+      colourpicker "show"
+    )
+    terminal "system setaccent" + picker_colour
+  )
+  frame "clear"
 endef
 
 def "apps"
@@ -314,7 +314,7 @@ window "dimensions" 880 500
 dock_location = dock_location
 segments = segments
 
-category = "system"
+category = "System"
 subcategory = "none"
 
 mainloop:
@@ -376,4 +376,5 @@ if category == "Updates" "updates"
 
 if mouse_down.not "can = True"
 frame "clear"
+
 import "win-buttons"
