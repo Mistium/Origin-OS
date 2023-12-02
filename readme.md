@@ -17,7 +17,7 @@ The Most Advanced Gui Based ScratchOS<br>
 Current Kernel Info:
 ```
 Name     -   Flow
-Version  -   0.5.7
+Version  -   0.6.0
 ```
 
 
