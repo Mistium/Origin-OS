@@ -29,6 +29,7 @@ def "app" "name,icon,expanded"
     page = name
     page_name = name
     current_app = store_data.[count]
+    current_app_size = current_app.key("size")
     current_app_url = current_app.key("download_url")
     network "clear" current_app_url
     app_tab = "description"
@@ -149,7 +150,7 @@ if app_page (
   loc 2 2 170 -130
   text "By" + current_app.key("author") 8
   loc -2 2 -110 -115
-  text current_app.key("size") 10
+  text "<current_app_size> Bytes" 10
   if app_tab == "description" (
     loc 2 2 70 -250
     text current_app.key("description") 8 0 frame_width / 2
