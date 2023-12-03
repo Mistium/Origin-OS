@@ -1,6 +1,6 @@
 ### Basic Syntax
 ```
-iterate variable variable_start int step (
+for variable variable_start int step (
   commands and stuff
 )
 ```
@@ -21,7 +21,7 @@ loop int (
 
 ### Example Use
 ```
-iterate "i" 0 10 1 (
+for "i" 0 10 1 (
   print i
 )
 ```
