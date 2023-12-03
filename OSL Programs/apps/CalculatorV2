@@ -1,0 +1,65 @@
+calc = ["0","","0"]
+window "show"
+window "resizable" false
+window "dimensions" 300 400
+
+def "drawrow"
+  c = 0
+  loop row.len (
+    c += 1
+    square 50 50 10 : chx#-10 chy#-70 c#222
+    text row.[c] 20 : c#fff chx#-10
+  )
+endef
+
+mainloop:
+
+loc 999 2 0 -20
+square window_width 30 10 : c#222
+
+loc -2 2 -20 -20
+icon "close" 0.8 : c#fff
+if clicked "window stop"
+
+loc 2 2 10 -20
+text "Calculator" 10
+
+displ = calc.[1]
+if calc.[2] != "" "displ = displ + calc.[2].destr"
+
+row = "147."
+loc 2 2 45 -75
+drawrow
+
+row = "2580"
+loc 2 2 115 -75
+drawrow
+
+row = "369"
+loc 2 2 185 -75
+drawrow
+
+c2 = calc.[2].destr
+
+row = "+-*/"
+loc 2 2 255 -75
+c = 0
+loop row.len (
+  c += 1
+  r = row.[c]
+  c #333
+  if c2.destr == r "c #f79204"
+  square 50 50 10 : chx#-10 chy#-70
+  if onclick (
+    calc.[2] = r
+    if c2 == r "calc.[2] = null"
+  )
+  text r 20 : c#fff chx#-10
+)
+
+row = "369="
+loc 2 2 185 -75
+drawrow
+
+loc 2 2 20 -70
+text displ 20 : c#fff
