@@ -23,7 +23,7 @@ chx#x_change
 
 chy#y_change
 
-cng#x_change,y_change
+cha#x_change,y_change
 
 gto#x,y
 
