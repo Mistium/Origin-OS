@@ -1,0 +1,11 @@
+terminal "get app_positions"
+if data != datasave (
+datasave = data
+data = data.join(" ")
+
+dock_x_target = dock_width / -2
+if data.contains("1,") "dock_x_target = window_width / -2"
+if data.contains("-1,") "dock_x_target = window_width / 2 - dock_width"
+)
+dock_x += dock_x_target - dock_x / 10
+goto dock_x 0
