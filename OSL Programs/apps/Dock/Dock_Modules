@@ -1,0 +1,42 @@
+open = 0
+terminal "system windows add Desktop_Manager"
+
+if config == {} (
+  config "dock_theme" "Origin/(A) System/Docks/Colour Themes/Dock-Dark.osl"
+)
+dock_theme = "Dock-Dark"
+global dock_theme
+
+window "responsive" true
+window "hide"
+
+window "front"
+movefileloc "Origin/(C) Users/" ++ username ++ "/Dock"
+
+mainloop:
+if mouse_down.not "canclick = True"
+window "dimensions" screensize_x screensize_y
+frame screensize_x / -2 screensize_y / -2 + 70 screensize_x / 2 screensize_y / -2
+import "Origin/(A) System/Docks/positionhandler.osl"
+
+start_x = x_position
+goto start_x
+y = 0
+height = 40
+syscount = 0
+import dock_theme
+loop segments.len (
+  syscount += 1
+  c dock_colour
+  change_x 15
+  import segments.item(syscount) "ode"
+  goto width / 2 + x + 15
+)
+
+dock_width = x_position - start_x
+if open != 0 and mouse_down.not (
+  terminal "system windows close" + open
+  terminal "system windows add" + open
+  open = 0
+)
+frame "clear"
