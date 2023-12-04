@@ -1,0 +1,51 @@
+draw_x = ["0"]
+draw_y = ["0"]
+
+draws_x = []
+draws_y = []
+
+def "renderline" "x,y"
+goto x.[2].destr y.[2].destr
+pen "down"
+count = 2
+loop x.len - 3 (
+count += 1
+goto x.[count].destr y.[count].destr
+)
+pen "up"
+endef
+
+mainloop:
+
+if mouse_down and drawing.not (
+drawing = true
+)
+goto draw_x.[1].destr draw_y.[1].destr
+pen "down"
+pen "size" 6
+c #fff
+renderline draw_x draw_y
+
+check = "array".new(2)
+check.[1] = draw_x.[count]
+check.[2] = draw_y.[count]
+if mouse_down and ( check.dist(mouse_x,mouse_y) > 40 ) (
+draw_x = draw_x.append(mouse_x)
+draw_y = draw_y.append(mouse_y)
+)
+if mouse_down.not and drawing (
+draws_x = draws_x.append(draw_x)
+draws_y = draws_y.append(draw_y)
+draw_x = []
+draw_y = []
+)
+
+count2 = 0
+loop draws_x.len (
+count2 += 1
+renderline draws_x.[count2] draws_y.[count2]
+)
+pen "up"
+if mouse_down.not "drawing = false"
+
+import "win-buttons"
