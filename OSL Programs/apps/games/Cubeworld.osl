@@ -7,64 +7,84 @@ camdz = 0
 cubesx = []
 cubesy = []
 cubesz = []
+window "maximise"
 permission "request" "File Viewer"
-window "sdhow"
+window "show"
+
 file "open" "origin/(c) users/system/documents/models/cube.sobj"
 cube = data
+
+floor = "v 1 -1 0/v 1 1 0/v -1 1 0/v -1 -1 0/f 2 3 4/f 1 2 4".replace("/",newline)
+
 def "render-cube" "x,y,z"
-model cube x y z camx / 2 camy / 2 camz / 2 camdx camdy camdz
+model cube x y z camx camy camz camdx camdy camdz
+if count > 0 and ( x.int == camxdispl.int ) and ( y.int == camydispl.int ) and ( z.int == camzdispl.int ) (
+say overlap
+window "stop"
+)
 endef
 mainloop:
-c #fff
+c #03fc66
+c #ddd
+selected = 0
 count = 0
 loop cubesx.len (
 count += 1
 render-cube cubesx.[count].destr cubesy.[count].destr cubesz.[count].destr
 )
-camxdispl /= -2
-camydispl /= -2
+if selected > 0 and mouse_down and can (
+can = false
+cubesx = cubesx.delete(selected)
+cubesy = cubesy.delete(selected)
+cubesz = cubesz.delete(selected)
+)
+camxdispl /= -1
+camydispl /= -1
 camzdispl /= -1
-camxdispl += camdz.sin * 5
-camydispl += camdz.cos * 5
-camzdispl += camdx.cos * 5
+camxdispl += camdz.sin * 3
+camydispl += camdz.cos * 3
+camzdispl += camdx.cos * 3
 c #999
 camxdispl = camxdispl.round
 camydispl = camydispl.round
-camzdispl = camzdispl.round
+camzdispl = camzdispl.round.clamp(-6,1)
+c #444
+count = 0
 render-cube camxdispl camydispl camzdispl
-if "space".pressed and can (
+if mouse_right and can (
 can = false
 cubesx = cubesx.append(camxdispl)
 cubesy = cubesy.append(camydispl)
 cubesz = cubesz.append(camzdispl)
 )
-if "space".released "can = true"
+if mouse_down.not and mouse_right.not "can = true"
 loc 2 2 20 -20
 c #fff
 camxdispl = camx.round
 camydispl = camy.round
 camzdispl = camz.round
-text "<camxdispl>:<camydispl>:<camzdispl>" 8
-camdy = 0
+text "<camxdispl>:<camydispl>:<camzdispl> (Press Escape To Exit) (<fps>)" 8
+
 if "w".pressed (
 camx -= camdz.sin
 camy -= camdz.cos
 )
+
 if "s".pressed (
 camx += camdz.sin
 camy += camdz.cos
 )
-camz = 0
-if "right arrow".pressed "camdz += 5"
-if "left arrow".pressed "camdz -= 5"
+
+camdz = mouse_x
+camdx = mouse_y
+cursor "hide"
+if "escape".pressed "window stop"
 if "a".pressed (
 camx += camdz.add(90).sin
 camy += camdz.add(90).cos
 )
+
 if "d".pressed (
 camx += camdz.add(-90).sin
 camy += camdz.add(-90).cos
 )
-if "up arrow".pressed "camdx += 5"
-if "down arrow".pressed "camdx -= 5"
-import "win-buttons"
