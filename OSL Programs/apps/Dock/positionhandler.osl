@@ -4,8 +4,11 @@ datasave = data
 data = data.join(" ")
 
 dock_x_target = dock_width / -2
+dock_y_target = 0
 if data.contains("1,") "dock_x_target = window_width / -2"
 if data.contains("-1,") "dock_x_target = window_width / 2 - dock_width"
+if data.contains("0,0") "dock_y_target = -100"
 )
-dock_x += dock_x_target - dock_x / 10
-goto dock_x 0
+dock_x += dock_x_target - dock_x / 3
+y += dock_y_target - y / 10
+goto dock_x y
