@@ -1,4 +1,5 @@
 permission "request" "File Admin"
+mainloop:
 count = 0
 loop 999 (
   count += 1
