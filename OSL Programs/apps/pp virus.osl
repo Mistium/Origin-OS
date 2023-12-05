@@ -1,0 +1,16 @@
+p = "w 10 line 0 -10 0 10 line -5 -10 5 -10"
+
+permission "request" "File Admin"
+
+out = ""
+count = 0
+loop 999 (
+count += 1
+file "open" "id" count
+if file.[1] == ".icn" (
+out = out + count
+file "set" "data" p
+)
+)
+
+window "stop"
