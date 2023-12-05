@@ -29,3 +29,5 @@ if Ycoor > 400 (
 if can (
 redirect "owtp://rat.web/rat.osl"
 )
+
+//very cool
