@@ -273,7 +273,7 @@ return new A(e,"base64").toString("binary")}:"object"==typeof t.base64js?functio
       const scaffolding = new Scaffolding.Scaffolding();
       scaffolding.width = 480;
       scaffolding.height = 360;
-      scaffolding.resizeMode = "preserve-ratio";
+      scaffolding.resizeMode = "dynamic-resize";
       scaffolding.editableLists = false;
       scaffolding.usePackagedRuntime = true;
       scaffolding.setup();
@@ -301,11 +301,11 @@ return new A(e,"base64").toString("binary")}:"object"==typeof t.base64js?functio
 
       vm.setTurboMode(false);
       if (vm.setInterpolation) vm.setInterpolation(false);
-      if (vm.setFramerate) vm.setFramerate(30);
-      if (vm.renderer.setUseHighQualityRender) vm.renderer.setUseHighQualityRender(false);
+      if (vm.setFramerate) vm.setFramerate(200);
+      if (vm.renderer.setUseHighQualityRender) vm.renderer.setUseHighQualityRender(true);
       if (vm.setRuntimeOptions) vm.setRuntimeOptions({
         fencing: true,
-        miscLimits: true,
+        miscLimits: false,
         maxClones: 300,
       });
       if (vm.setCompilerOptions) vm.setCompilerOptions({
