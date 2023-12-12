@@ -2,7 +2,7 @@ network "clear" "https://discord.com/api/guilds/1147362734300725298/widget.json"
 mainloop:
 network "get" "https://discord.com/api/guilds/1147362734300725298/widget.json"
 members = data.key("members")
-frame window_width / -2 window_height / 2 - 30 window_width / 2 window_height / -2 members.len * -50
+frame window_width / -2 window_height / 2 - 30 window_width / 2 window_height / -2 members.len * 50
 
 i = 0
 loop members.len (
@@ -13,7 +13,14 @@ loop members.len (
   square window_width - 30 30 10 1 : c#222
   loc 2 2 30 y
   image current.key("avatar_url") 30
-  change 30
+  change 28 0
+  square 0 0 15 : c#333
+  status = current.key("status")
+  if status == "online" "c #3ba55c"
+  if status == "dnd" "c #d43c42"
+  if status == "idle" "c #c29434"
+  square 0 0 12
+  change 20
   text current.key("username") 10 : c#fff
 )
 
