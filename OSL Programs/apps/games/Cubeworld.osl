@@ -18,9 +18,8 @@ floor = "v 1 -1 0/v 1 1 0/v -1 1 0/v -1 -1 0/f 2 3 4/f 1 2 4".replace("/",newlin
 
 def "render-cube" "x,y,z"
 model cube x y z camx camy camz camdx camdy camdz
-if count > 0 and ( x.int == camxdispl.int ) and ( y.int == camydispl.int ) and ( z.int == camzdispl.int ) (
-say overlap
-window "stop"
+if count > 0 and ( x.int == target_x.int ) and ( y.int == target_y.int ) and ( z.int == target_z.int ) (
+selected = count
 )
 endef
 mainloop:
@@ -51,6 +50,9 @@ camzdispl = camzdispl.round.clamp(-6,1)
 c #444
 count = 0
 render-cube camxdispl camydispl camzdispl
+target_x = camxdispl
+target_y = camydispl
+target_z = camzdispl
 if mouse_right and can (
 can = false
 cubesx = cubesx.append(camxdispl)
