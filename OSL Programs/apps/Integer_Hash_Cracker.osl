@@ -1,0 +1,32 @@
+/ this will crack any hash in md5 of an integer (given enough time)
+
+check = "Enter a number".ask.to("md5")
+window "maximise"
+def "checkhashes" "tocheck"
+loop tocheck (
+  count += 1
+  if count.to("md5") == check "found = count"
+)
+endef
+
+found = 0
+start = timestamp
+end = start
+
+mainloop:
+if found == 0 (
+  checkhashes 500
+)
+if found != 0 and ( end == start ) (
+  end = timestamp
+)
+
+loc 2 2 20 -20
+text "Checked <count> Hashes" 10 : c#fff
+loc 2 2 20 -50
+text "Found <found>" 10
+loc 2 2 20 -80
+text "Found in" + ( end - start ) + "Ms" 10
+loc 2 2 20 -120
+text "<fps>" 10 
+import "win-buttons"
