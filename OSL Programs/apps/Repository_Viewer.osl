@@ -1,0 +1,84 @@
+window "show"
+
+def "load"
+url = input_url.str.replace("https://github.com","https://api.github.com/repos")
+url = url ++ "/contents/"
+path = url.split("/")
+base_path = path.[5] ++ "/" ++ path.[6] ++ "/"
+path = ""
+loaded = True
+current_repo = url
+network "get" url
+json = data.replace(newline,"")
+endef
+
+def "back"
+url_split = url.split("/")
+length = url_split.len
+url = url_split.delete(length).join("/")
+network "get" url
+json = data.replace(newline,"")
+endef
+
+def "open" "info"
+path = info.key("path")
+network "get" info.key("url")
+json = data.replace(newline,"")
+endef
+
+loaded = false
+mainloop:
+loc 999 2 0 -20
+square window_width 20 30 : c#222
+loc 2 2 70 -20
+text base_path ++ path 8 : c#fff
+c #222
+if loaded.not (
+  path = "Home"
+  
+  loc 999 999 0 -20
+  square 300 25 10 1
+  if clicked "load"
+  
+  loc 999 999 137 20
+  square 25 25 10 1
+  if clicked "input_url =" + clipboard.str
+  icon "paste" 1 : c#fff
+  
+  loc 999 999 -145 -20
+  text "Load Repository" 8
+  
+  loc 999 999 -20 20
+  square 260 25 10 : c#222
+  input 260 25 "url"
+) else (
+  sidebar = ["left-arrow","home-full","rename"]
+  if true "sidebar = sidebar.delete(1)"
+  import "side-bar"
+  if sidebar_clicked == "left-arrow" "back"
+  if sidebar_clicked == "home-full" "load"
+  if sidebar_clicked == "rename" "loaded = False"
+  loc 2 2 50 -50
+  x = x_position
+  y = y_position
+  loc -2 -2 0 10
+  c #222
+  frame x y x_position y_position json.len * 40
+  
+  count = 0
+  loop json.len (
+    count += 1
+    y = count * -40 + 20 + scroll_y
+    loc 999 2 0 y
+    square frame_width - 20 25 10 : c#222
+    
+    loc 2 2 30 y
+    c = json.[count]
+    if clicked "open" + c
+    if c.key("type") == "dir" "icon folder 1"
+    if c.key("type") == "file" "icon unknown 1.2"
+    text c.key("name") 8 : c#fff chx#35
+  )
+)
+frame "clear"
+import "win-buttons"
