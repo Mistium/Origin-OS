@@ -7,7 +7,7 @@ def "Wall" "wallt,wallh"
   image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/games/assets/pipe.png" 1400
   change -87 -340
   hitbox 175 350 -100 birdheight
-  if collided "menu = True" 
+  if collided "menu = True"
   change_y 660
   hitbox 175 350 -100 birdheight
   if collided "menu = True"
@@ -49,7 +49,6 @@ bird_dir += birdvel.clamp(-16,16) * -5 + 90 - bird_dir / 5
 bird_str += birdvel.clamp(0,16) * 3 + 100 - bird_str / 5
 direction bird_dir
 stretch "x" bird_str
-
 image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/games/assets/flapper.png" 100
 colour #fff
 if "space".released "allowed = True"
