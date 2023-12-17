@@ -1,0 +1,20 @@
+window "show"
+input_equation = 0
+mainloop:
+loc 999 -2 0 20
+c #222
+input window_width - 10 30 "equation"
+c #fff
+x = 0
+pen "size" 5
+w = window_width / 200
+y2 = y_position
+y = 50
+loop 200 (
+x += 1
+if true "loc 2 -2 x * w 50 +" + input_equation.str
+pen "down"
+y = y_position - y2
+)
+pen "up"
+import "win-buttons"
