@@ -1,0 +1,188 @@
+def "newaccount"
+  window "add" "Account_Creator"
+endef
+
+accounts = ""
+wrong = 1234567890.hash("md5")
+paged = null
+window "hide"
+current_login = 1
+network_accounts = "Array".new()
+network_data = "Array".new()
+new_network_data = false
+login_return = ""
+network "get_my_accounts"
+
+def "login" "username,password"
+  status = "login"
+  network "login" username password
+endef
+
+signup_return = ""
+
+mainloop:
+window "dimensions" screensize_x + 20 screensize_y + 15
+
+if new_network_data (
+  if network_data_command == "get_my_accounts" "accounts = network_data"
+  if network_data_command == "login" "login_return = network_data"
+  if network_data_command == "New_Account" "signup_return = network_data"
+  status = ""
+  log login_return
+  if login_return == "Successful Login" (
+    window "add" "Dock"
+    window "stop"
+  )
+  if signup_return == "Account Created Successfully" (
+    current_login = accounts.len + 1
+    network "get_my_accounts"
+  ) else (
+    status = ""
+  )
+  new_network_data = false
+)
+
+if accounts == "" (
+  goto 0 0
+  square 210 40 10 : c#111
+  text "Loading Accounts" 10 : c#fff chx#-95
+  goto 90
+  icon "w 3 cutcircle 0 0 10" + ( timer * 20 ) + "70" 1 : c#fff
+  exit
+)
+
+loc -2 2 -150 -70
+square 240 100 10 : c#000
+loc -2 2 -250 -65
+text "<hour>:<minute>" 30 : c#fff
+loc -2 2 -250 -100
+text "<day> <day_number> <month>" 10
+
+count = 0
+loop accounts.len (
+  count += 1
+  current = accounts.[count]
+  loc 2 -2 50 50
+  change_x count - 1 * 70
+  c current.key("accent")
+  if current_login == count "square 50 50 15"
+  square 50 50 10 : c #000
+  if clicked (
+    current_login = count
+    login_return = 0
+  )
+  image current.key("pfp") 50
+)
+
+loc 2 -2 count * 70 + 50 50
+square 50 50 10 1 : c#000
+icon "w 4 line 10 0 -10 0 line 0 10 0 -10" 1 : c#fff
+if clicked and can (
+  current_login = "Add"
+  can = false
+)
+change_x 70
+square 50 50 10 1 : c#000
+icon "w 3 line -10 5 -10 10 cont 10 10 cont 10 -10 cont -10 -10 cont -10 -5 line -2 5 3 0 line -2 -5 3 0 line -10 0 3" 1 : c#fff
+if clicked and can (
+  current_login = "Login"
+  can = false
+)
+
+if current_login.istype("number") (
+  if accounts.len > 0 (
+    current = accounts.[current_login]
+    user = current.key("username")
+    c current.key("accent")
+    goto 0 -40
+    square 350 400 25 1
+    square 350 400 20 1 : c#151515
+    goto 0 70
+    square 150 150 20 1 : c#000
+    goto 0 -70
+    square 320 30 20 1
+    change_y -70
+    square 320 30 20 1
+    pass_name = "input_password_" ++ current_login
+    input 300 25 "password_" ++ current_login "Password..."
+    goto 0 -210
+    c #000
+    if login_return == "Invalid Details" "c #491515"
+    square 320 30 20 1
+    if clicked or "enter".pressed (
+      login user pass_name.contents
+    )
+    goto 0 70
+    image current.key("pfp") 140
+    goto -150 -70
+    text user 8 : c#fff
+    goto -150 -80
+    goto -150 -210
+    text "Login" 8
+    if status == "Login" (
+      goto 0 -50
+      icon "w 5 cutcircle 0 0 20" + ( timer * 20 ) + "70" 1 : c#fff
+    )
+  )
+)
+
+if current_login == "add" (
+  goto 0 -40
+  square 350 400 25 1 : c#000
+  square 350 400 20 1 : c#151515
+  goto 0 70
+  image "https://cdn.discordapp.com/attachments/1147471100742209566/1155098350459297792/communityIcon_t415kxa45pmb1.png" 140
+
+  goto 0 -70
+  square 320 30 20 : c#000
+  input 300 25 "signup_name" "Username..."
+
+  goto 0 -140
+  square 320 30 20 : c#000
+  input 300 25 "signup_pass" "Password..."
+
+  goto 0 -210 : c#000
+  if signin_return != "" "c #491515"
+  square 320 30 20
+  if clicked and ( status == "" ) (
+    network "New_Account" input_signup_name input_signup_pass
+    status = "Waiting"
+  )
+  text "Create Account" 8 : c#fff chx#-150
+  goto -150 -20
+  text signup_return 9
+)
+if current_login == "login" (
+  goto 0 -40
+  square 350 400 25 1 : c#000
+  square 350 400 20 1 : c#151515
+  goto 0 70
+  image "https://cdn.discordapp.com/attachments/1147471100742209566/1155098350459297792/communityIcon_t415kxa45pmb1.png" 140
+
+  goto 0 -70
+  square 320 30 20 : c#000
+  input 300 25 "signup_name" "Username..."
+
+  goto 0 -140
+  square 320 30 20 : c#000
+  input 300 25 "signup_pass" "Password..."
+
+  goto 0 -210 : c#000
+  if signin_return != "" "c #491515"
+  square 320 30 20
+  if clicked and ( status == "" ) (
+    network "login" input_signup_name input_signup_pass
+    status = "Waiting"
+  )
+  text "Login" 8 : c#fff chx#-150
+  goto -150 -20
+  text signup_return 9
+)
+
+if status == "Waiting" (
+  goto 0 -40
+  square 350 400 25 1 : c#000
+  square 350 400 20 1 : c#151515
+  icon "w 3 cutcircle 0 0 20" + ( timer * 20 ) + "70" 2 : c#fff
+)
+if mouse_down.not "can = true"
