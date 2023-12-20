@@ -26,37 +26,37 @@ def "navigate" "path"
 endef
 
 def "folder" "txt"
-  y2 = -90 - y
-  loc 2 2 125 y2
+  con = hidden.contains(txt)
+  foldershow = "up"
+  if con (
+    foldershow = "down"
+  )
+
+  loc 2 2 125 y
   square 225 20 10 0 1
   if clicked and can (
     can = false
-    con = hidden.contains(txt)
-    if con "hidden = hidden.append(txt)"
-    if con.not "hidden = hidden.delete(txt)"
+    if con.not "hidden = hidden.append(txt)"
+    if con "hidden = hidden.delete(txt)"
   )
-  if mouse_touching "square 225 20 10 1 : c#c_seco"
-  loc 2 2 230 y2
-  foldershow = "up"
-  if hidden.contains(txt) "foldershow = "down"
+  if mouse_touching "square 225 20 10 : c#c_seco"
+  loc 2 2 230 y
   icon foldershow 0.6 : c#c_icon
-  loc 2 2 20 y2
+  loc 2 2 20 y
   text txt 8
-  y += 35
+  y -= 35
 endef
 
 def "file_folder" "path_input,txt,folder"
-  shown = hidden.contains(folder).not
-  if shown (
-    y2 = -90 - y
-    loc 2 2 125 y2
+  if hidden.contains(folder).not (
+    loc 2 2 125 y
     square 225 20 10 0 1
     if mouse_touching "square 225 20 10 1 : c#c_seco"
     if clicked and can "navigate path_input"
-    loc 2 2 30 y2
+    loc 2 2 30 y
     icon icons.key(txt) 0.9
     text txt 8 : c#c_icon chx#30
-    y += 35
+    y -= 35
   )
   clicked = false
 endef
@@ -138,7 +138,7 @@ mainloop:
   colour c_icon
   icon "search" 0.8
   if sideshow (
-    y = -20
+    y = -60
     folder "Favorites"
     file_folder user ++ "Desktop" "Desktop" "Favorites"
     file_folder user ++ "Downloads" "Downloads" "Favorites"
