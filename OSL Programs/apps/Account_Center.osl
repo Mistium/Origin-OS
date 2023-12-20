@@ -1,0 +1,48 @@
+// Developer: Mistium
+// Description: This application lets you view and edit your accounts
+
+
+network "get_my_accounts"
+
+my_accounts = 0
+
+mainloop:
+if new_network_data (
+  if network_data_command == "Get_My_Accounts" (
+    my_accounts = network_data
+    my_accounts_names = my_accounts.getall("username")
+    my_accounts_pfps = my_accounts.getall("pfp")
+  )
+)
+
+loc 999 2 0 -20
+square window_width 40 10 : c#222 
+
+if my_accounts != 0 (
+  loc 2 2 0 -42
+  x = x_position
+  y = y_position
+  loc 2 -2 300 0
+  c #222
+  frame x y x_position y_position my_accounts.len * 60 - 25
+  count = 0
+  loop my_accounts.len (
+    count += 1
+    loc 999 2 0 count * -60 + scroll_y + 25
+    if current == count "square frame_width - 15 45 10 : c#global_accent"
+    square frame_width - 15 45 5 : c#111
+    if clicked "current = count"
+    change_x frame_width / -2 + 30
+    image my_accounts_pfps.[count] 30
+    text my_accounts_names.[count] 10 : c#fff chx#25
+  )
+  frame "clear"
+)
+
+if my_accounts == 0 (
+  goto 0 0
+  icon "w 4 cutcircle 0 0 10" + ( timer * 30 ) + "60" 5 : c#fff
+  loc 2 2 20 -20
+  text "Waiting for response from server" 10
+)
+import "win-buttons"
