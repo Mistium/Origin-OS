@@ -1,57 +1,60 @@
 window "dimensions" 880 600
+window "show"
 Files_path = "Origin/(C) Users/" ++ username
-user = files_path ++ "/"
+user_path = files_path ++ "/"
 if passed_data != null "Files_path = passed_data"
 path_history = [].append(files_path)
 history_pos = 1
 hidden = []
 input_path = Files_path.destr
 dta = ""
-if config.istype("object").not (
-config "> Ui Customisation"
-config "Grid" False
-config "Light Mode" False
-config "> File Sorting"
-config "ascending" False
-config "sort" 2
-config "> Custom Theming"
-config "Use Custom Colours" false
+
+if config == {} (
+  config "> Ui Customisation"
+  config "Grid" False
+  config "Light Mode" False
+  config "> File Sorting"
+  config "ascending" False
+  config "sort" 2
+  config "> Custom Theming"
+  config "Use Custom Colours" false
 )
 
 def "navigate" "path"
-file "open" path ++ ".folder"
-file "start"
+  file "open" path ++ ".folder"
+  file "start"
 endef
 
-def "sidebarloc" "path_input,txt,folder"
-  amfolder = path_input == "folder"
-  infolder = folder != null
-  shown = infolder.not or hidden.contains(folder).not
-  if shown or amfolder (
+def "folder" "txt"
+  y2 = -90 - y
+  loc 2 2 125 y2
+  square 225 20 10 0 1
+  if clicked and can (
+    can = false
+    con = hidden.contains(txt)
+    if con "hidden = hidden.append(txt)"
+    if con.not "hidden = hidden.delete(txt)"
+  )
+  if mouse_touching "square 225 20 10 1 : c#c_seco"
+  loc 2 2 230 y2
+  foldershow = "up"
+  if hidden.contains(txt) "foldershow = "down"
+  icon foldershow 0.6 : c#c_icon
+  loc 2 2 20 y2
+  text txt 8
+  y += 35
+endef
+
+def "file_folder" "path_input,txt,folder"
+  shown = hidden.contains(folder).not
+  if shown (
     y2 = -90 - y
     loc 2 2 125 y2
     square 225 20 10 0 1
-    if mouse_touching "colour c_seco"
-    if mouse_touching "square 225 20 10 1"
-    if amfolder and clicked and can (
-      can = false
-      con = hidden.contains(txt)
-      if con "hidden = hidden.append(txt)"
-      if con.not "hidden = hidden.delete(txt)"
-    )
-  )
-    if clicked and can and amfolder.not "navigate path_input"
-    colour c_icon
-  if amfolder (
-    loc 2 2 230 y2
-    foldershow = "up"
-    if hidden.contains(txt) "foldershow = "down"
-    icon foldershow 0.6
-  )
-  if shown (
+    if mouse_touching "square 225 20 10 1 : c#c_seco"
+    if clicked and can "navigate path_input"
     loc 2 2 30 y2
-    if amfolder "change -40"
-    if amfolder.not "icon icons.key(txt) 0.9"
+    icon icons.key(txt) 0.9
     text txt 8 : c#c_icon chx#30
     y += 35
   )
@@ -59,13 +62,13 @@ def "sidebarloc" "path_input,txt,folder"
 endef
 
 icons = {}
-file "open" user ++ "Desktop.folder"
+file "open" user_path ++ "Desktop.folder"
 icons.key("Desktop") = file.[11]
-file "open" user ++ "Downloads.folder"
+file "open" user_path ++ "Downloads.folder"
 icons.key("Downloads") = file.[11]
-file "open" user ++ "Documents.folder"
+file "open" user_path ++ "Documents.folder"
 icons.key("Documents") = file.[11]
-file "open" user ++ "Bin.folder"
+file "open" user_path ++ "Bin.folder"
 icons.key("Bin") = file.[11]
 file "open" "Origin/(A) System.folder"
 icons.key("System") = file.[11]
@@ -75,51 +78,52 @@ file "open" "Origin/(C) Users.folder"
 icons.key("Users") = file.[11]
 
 mainloop:
-  if config.key("Light Mode").bool (
+  lightmode = config.key("Light Mode")
+  if lightmode (
     window_colour = #fff
     c_icon = #000
     c_prim = #ccc
     c_seco = #999
     c_tert = #777
+    config "Accent" #111
   ) else (
     window_colour = #000
     c_icon = #fff
     c_prim = #222
     c_seco = #444
     c_tert = #999
+    config "Accent" global_accent
   )
-  colour c_prim
+  input_path = null
   w = window_width
-  sidehide = w < 700
-
+  sideshow = w > 700
   loc 999 -2 0 12
-  square w 30 10 1
-
+  square w 30 10 1 : c#c_prim
   loc -2 2 -30 -70
   square 25 25 10 1
-
-  if sidehide (
-    loc 999 2 20 -70
-    w -= 160
-  ) else (
+  loc 999 2 120 -70
+  if sideshow (
     loc 2 999 125 0
     square 250 window_height 10
     loc 999 2 105 -70
     w -= 330
   )
-
-  square w 25 10
-  input w - 10 25 "path" 0 10 c_icon
-  w = window_width
-
-  if sidehide (
-    loc 2 2 50 -70
-    square 65 25 10 1 : c#c_prim
+  if sideshow.not (
+    loc 999 2 20 -70
+    w -= 160
   )
-
+  square w 25 10
+  input w - 10 25 "path" null 10 c_icon
+  w = window_width
+  colour c_prim
+  if sideshow.not (
+    loc 2 2 50 -70
+    square 65 25 10 1
+  )
+  colour c_icon
   loc 2 2 105 -25
-  if sidehide "loc 2 2 25 -20"
-  icon "settings" 0.8 : c#c_icon
+  if sideshow.not "loc 2 2 25 -20"
+  icon "settings" 0.8
   if clicked and can (
     can = false
     terminal "system windows add File-Info"
@@ -131,19 +135,19 @@ mainloop:
     config ascending config.key("ascending").destr.not
   )
   loc -2 2 -30 -70
-  icon "search" 0.8 : c#c_icon
-  if sidehide.not (
+  colour c_icon
+  icon "search" 0.8
+  if sideshow (
     y = -20
-    sidebarloc "folder" "Favorites"
-    sidebarloc user ++ "Desktop" "Desktop" "Favorites"
-    sidebarloc user ++ "Downloads" "Downloads" "Favorites"
-    sidebarloc user ++ "Documents" "Documents" "Favorites"
-    sidebarloc user ++ "Bin" "Bin" "Favorites"
-    sidebarloc "folder" "Drives"
-    sidebarloc "Origin/(A) System" "System" "Drives"
-    sidebarloc "Origin/(B) Cloud" "Cloud" "Drives"
-    sidebarloc "Origin/(C) Users" "Users" "Drives"
+    folder "Favorites"
+    file_folder user ++ "Desktop" "Desktop" "Favorites"
+    file_folder user ++ "Downloads" "Downloads" "Favorites"
+    file_folder user ++ "Documents" "Documents" "Favorites"
+    file_folder user ++ "Bin" "Bin" "Favorites"
+    folder "Drives"
+    file_folder "Origin/(A) System" "System" "Drives"
+    file_folder "Origin/(B) Cloud" "Cloud" "Drives"
+    file_folder "Origin/(C) Users" "Users" "Drives"
   )
-  files_path = path_history.[history_pos].destr
   if mouse_down.not "can = True"
   import "win-buttons"
