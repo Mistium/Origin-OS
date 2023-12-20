@@ -4,12 +4,12 @@
 - Mail
 - Open
 - Edit
-- Origin Logo
+- Origin-Logo
 - Message
 - Search
 - Desktops
 - Bookmark
-- Bookmark Full
+- Bookmark-Full
 - Close
 - File
 - Save
@@ -91,15 +91,15 @@
 - Down
 - Right
 - Left
-- Up Arrow
-- Down Arrow
-- Right Arrow
-- Left Arrow
+- Up-Arrow
+- Down-Arrow
+- Right-Arrow
+- Left-Arrow
 
 ## Menu Icons
 - List
 - More
-- Menu Thin
+- Menu-Thin
 - Menu
 - More Vertical
 
