@@ -90,7 +90,7 @@ An open button will appear, press it to open an app and run your code
 4. Set a integer to the value of `task1's variable value / 2`
   if your variable is equal to 8 you should end up with a variable that has the value of 4
 
-5. Set a variable to the length of your array in question 3 with `[variable_name].len`
+5. Set a variable to the length of your array in question 3 with `variable_name.len`
 
 6. Output letter 2 of your string from task2
    You can use varible.[2] - to return the second item of a string or array
