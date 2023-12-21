@@ -1,0 +1,11 @@
+string = "hello how are you today?"
+
+o = string
+c = string.to("lz_raw")
+size = 1 - ( string.to("lz_raw").len / string.len ) * 100
+size = size.round ++ "% compressed"
+
+mainloop:
+
+text "<o><newline><c><newline><size>" 10 : c#fff
+import "win-buttons"
