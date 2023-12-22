@@ -35,9 +35,9 @@ if clicked (
 )
 goto -450 300
 text "originOS Start" 15
-goto -450 280
+goto -450 260
 if hour < 12 (
-text "Good Morning <username>" 8
+text "Good Morning <username>" 9
 ) else (
-text "Good Afternoon <username>" 8
+text "Good Afternoon <username>" 9
 )
