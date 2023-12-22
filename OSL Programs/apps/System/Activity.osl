@@ -23,12 +23,15 @@ mainloop:
 
 if current_tab == "no_perms" (
   permission "get"
-  if permission.contains("terminal") (
+  if permissions.contains("terminal") (
     current_tab = "Render Info"
+  ) else (
+    if current_tab == "no_perms" (
+      loc 2 2 20 -20
+      text "This Application requires terminal permissions to function properly" 10 : c#fff
+      exit
+    )
   )
-  loc 2 2 20 -20
-  text "This Application requires terminal permissions to function properly" 10 : c#fff
-  exit
 )
 usage = delta_time.multiply(500).round * 2
 graph = graph.append(usage)
