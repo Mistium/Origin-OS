@@ -1,12 +1,19 @@
-// Developer: Mistium
+// Developer: @Mistium
 // Description: This application lets you view and edit your accounts
 
-
-network "get_my_accounts"
+permission "request" "account_manager"
 
 my_accounts = 0
 
 mainloop:
+
+if my_accounts == 0 (
+  permission "get"
+  if permissions.contains("account_manager") (
+    network "get_my_accounts"
+  )
+)
+
 if new_network_data (
   if network_data_command == "Get_My_Accounts" (
     my_accounts = network_data
