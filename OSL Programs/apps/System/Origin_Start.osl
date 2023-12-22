@@ -14,14 +14,9 @@ square 40 40 5 : c#global_accent
 image user_icon 40
 change_x -50
 c #fff
-icon "power" 1
-if clicked (
-  terminal "system shutdown"
-)
-change_x -50
 icon "log-out" 1
 if clicked (
-  terminal "account logout"
+  terminal "system shutdown"
 )
 change_x -50
 icon "settings" 1
@@ -41,4 +36,8 @@ if clicked (
 goto -450 300
 text "originOS Start" 15
 goto -450 280
-text "Logged Into <username>" 8
+if hour < 12 (
+text "Good Morning <username>" 8
+) else (
+text "Good Afternoon <username>" 8
+)
