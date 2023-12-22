@@ -1,0 +1,6 @@
+txt = ""
+loop 9999 (
+  txt = txt ++ newline ++ [0,999999999].random.to("md5")
+)
+
+clipboard "set" txt
