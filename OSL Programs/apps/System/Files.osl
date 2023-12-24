@@ -1,6 +1,6 @@
-window "dimensions" 880 600
+window "dimensions" 1000 700
 window "show"
-Files_path = "Origin/(C) Users/" ++ username
+files_path = "Origin/(C) Users/" ++ username
 user_path = files_path ++ "/"
 if passed_data != null "Files_path = passed_data"
 path_history = [].append(files_path)
@@ -25,13 +25,15 @@ def "navigate" "path"
   file "start"
 endef
 
+file "open" "Origin/(C) Users/" ++ username ++ ".folder"
+file "start"
+
 def "folder" "txt"
   con = hidden.contains(txt)
   foldershow = "up"
   if con (
     foldershow = "down"
   )
-
   loc 2 2 125 y
   square 225 20 10 0 1
   if clicked and can (
@@ -72,10 +74,11 @@ file "open" user_path ++ "Bin.folder"
 icons.key("Bin") = file.[11]
 file "open" "Origin/(A) System.folder"
 icons.key("System") = file.[11]
-file "open" "Origin/(B) Cloud.folder"
-icons.key("Cloud") = file.[11]
+file "open" "Origin/(B) Local.folder"
+icons.key("Local") = file.[11]
 file "open" "Origin/(C) Users.folder"
 icons.key("Users") = file.[11]
+icons.key(username) = "image" + user_icon.str + "20"
 
 mainloop:
   lightmode = config.key("Light Mode")
@@ -120,13 +123,12 @@ mainloop:
     loc 2 2 50 -70
     square 65 25 10 1
   )
-  colour c_icon
   loc 2 2 105 -25
   if sideshow.not "loc 2 2 25 -20"
-  icon "settings" 0.8
+  icon "settings" 0.8 : c#c_icon
   if clicked and can (
     can = false
-    terminal "system windows add File-Info"
+    window "add" "File-Info"
   )
   change_x 40
   icon "sort" 0.8
@@ -146,8 +148,8 @@ mainloop:
     file_folder user ++ "Bin" "Bin" "Favorites"
     folder "Drives"
     file_folder "Origin/(A) System" "System" "Drives"
-    file_folder "Origin/(B) Cloud" "Cloud" "Drives"
-    file_folder "Origin/(C) Users" "Users" "Drives"
+    file_folder "Origin/(B) Local" "Local" "Drives"
+    file_folder "Origin/(C) Users/" ++ username username "Drives"
   )
   if mouse_down.not "can = True"
   import "win-buttons"
