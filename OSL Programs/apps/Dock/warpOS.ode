@@ -1,0 +1,57 @@
+window "dimensions" screensize_x 60
+window "front"
+dango = "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHdpZHRoPSc4OCcgaGVpZ2h0PSc4OCc+PGcgZGF0YS1wYXBlci1kYXRhPSd7JnF1b3Q7aXNQYWludGluZ0xheWVyJnF1b3Q7OnRydWV9JyBmaWxsPScjZmZmJyBzdHJva2UtbWl0ZXJsaW1pdD0nMTAnIHN0eWxlPSdtaXgtYmxlbmQtbW9kZTpub3JtYWwnPjxwYXRoIGQ9J004NSA4OGEzIDMgMCAwIDEtMy0xTDIgNmEzIDMgMCAwIDEgMC00IDMgMyAwIDAgMSA0IDBsODEgODBhMyAzIDAgMCAxLTIgNnonLz48cGF0aCBkPSdNMzYgMThhMTggMTggMCAxIDEtMzYgMCAxOCAxOCAwIDAgMSAzNiAweicvPjxwYXRoIGQ9J00zMyA1NWExOCAxOCAwIDEgMSA4LTM1IDE4IDE4IDAgMCAxLTggMzV6Jy8+PHBhdGggZD0nTTc1IDU3YTE4IDE4IDAgMSAxLTM2IDAgMTggMTggMCAwIDEgMzYgMHonLz48cGF0aCBkPSdNODUgODhhMyAzIDAgMCAxLTMtMUw2MyA2N2EzIDMgMCAwIDEgMC00IDMgMyAwIDAgMSA0IDBsMjAgMTlhMyAzIDAgMCAxIDAgNSAzIDMgMCAwIDEtMiAxeicvPjwvZz48L3N2Zz4="
+closed_apps = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iODAwIiBoZWlnaHQ9IjgwMCIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSIjZmZmIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGNsYXNzPSJpY29uIGdseXBoIj48cGF0aCBkPSJNMTkgOEg3YTMgMyAwIDAgMC0yLjc0IDEuNzhMMiAxNC44N1Y1YTIgMiAwIDAgMSAyLTJoNGEyLjA1IDIuMDUgMCAwIDEgMS40LjU2TDExLjgzIDZIMTdhMiAyIDAgMCAxIDIgMlptMi44MSAyLjQyQTEgMSAwIDAgMCAyMSAxMEg3YTEgMSAwIDAgMC0uOTEuNTlsLTQgOUExIDEgMCAwIDAgMyAyMWgxNWExIDEgMCAwIDAgLjk1LS42OGwzLTlhMSAxIDAgMCAwLS4xNC0uOVoiLz48L3N2Zz4="
+frame "clear"
+permission "request" "File Admin"
+mainloop:
+include "Origin/(C) Users/" ++ username ++ "/dock"
+window "y" screensize_y / -2 + 30
+if "space".pressed (
+  window "stop"
+)
+square window_width 60 10 : c#000
+loc 2 999 30 0
+image dango 40
+change_x 40
+image closed_apps 40
+change_x 30
+icon "c #666 line 0 15 0 -15" 1
+change_x 35
+
+count = 0
+loop dock.len (
+count += 1
+file "open" dock.[count]
+s = 1.5
+square 40 40 0 0 1
+if mouse_touching "s += 0.3"
+file "render" s "interactable"
+change_x 50
+)
+c #fff
+loc -2 999 -140 10
+text "<hour>:<minute>" 10
+loc -2 999 -140 -10
+text "<day>:<day_number>" 10
+
+loc -2 999 -220
+b = battery_percent
+bat = "battery_0"
+if b > 25 (
+bat = "battery_1"
+if b > 50 (
+bat = "battery_2"
+if b > 75 (
+bat = "battery_3"
+if b > 99 (
+bat = "battery_4"
+)
+)
+)
+)
+if battery_charging (
+bat = "battery_charging"
+)
+icon bat 1.2
+text "<b>%" 10 : chx#20
