@@ -1,50 +1,81 @@
-// this is not finished
-
 window "show"
 
 px = 0
 py = 0
 pd = 0
-ps = 3
+ps = 5
 
 def "line" "x1,y1,x2,y2"
 x1 -= px
-y1 -= py
 x2 -= px
+y1 -= py
 y2 -= py
-goto x1 * ac - ( y1 * as ) x1 * as + ( y1 * ac )
-c
-#000
 
-pen "down"
-goto x2 * ac - ( y2 * as ) x2 * as + ( y2 * ac )
-pen "up"
+mx1 = x1 * ac - ( y1 * as )
+d1 = x1 * as + ( y1 * ac )
+mx2 = x2 * ac - ( y2 * as )
+d2 = x2 * as + ( y2 * ac )
+
+if d1 < 0.1 or ( d2 < 0.1 ) (
+  if d2 < 0.1 "fr = d1"
+  if d2 >= 0.1 "fr = d2"
+  percentage = fr / ( d1.abs + d2.abs - 0.1 )
+  if fr == d1 (
+    mx2 = mx1 + ( ( mx2 - mx1 ) * percentage )
+    d2 = 0.1
+  ) else (
+    mx1 = mx2 + ( ( mx1 - mx2 ) * percentage )
+    d1 = 0.1
+  )
+) else (
+  mx1 *= window_height / d1
+  mx2 *= window_height / d2
+  d1s = 1 / d1 * window_height
+  d2s = 1 / d2 * window_height
+  goto mx1 h * d1s
+  pen "down"
+  set_y h * d1s * -1
+  goto mx2 h * d2s * -1
+  set_y h * d2s
+  goto mx1 h * d1s
+  pen "up"
+)
 endef
 
 mainloop:
 
 if "w".pressed (
-px += pd.sin * ps
-py += pd.cos * ps
+  px += pd.sin * ps
+  py += pd.cos * ps
 )
-
 if "s".pressed (
-px -= pd.sin * ps
-py -= pd.cos * ps
+  px -= pd.sin * ps
+  py -= pd.cos * ps
+)
+if "a".pressed (
+  px -= pd.add(90).sin * ps
+  py -= pd.add(90).cos * ps
+)
+if "d".pressed (
+  px += pd.add(90).sin * ps
+  py += pd.add(90).cos * ps
 )
 
-if "a".pressed "pdv -= 3"
-if "d".pressed "pdv += 3"
-pdv *= 0.7
+if "left arrow".pressed "pdv -= 5"
+if "right arrow".pressed "pdv += 5"
+pdv *= 0.6
 pd += pdv
 
 goto 0 0
-square 10 10 10 : c#fff
+square window_width 2 1 : c#222
 
 as = pd.sin
 ac = pd.cos
+
 pen "size" 5
-line -50 50 50 50
-line -50 50 -50 0
-line -50 0 50 0
-line 50 0 50 50
+h = 100
+c #fff
+line -100 100 100 100
+line -100 100 -100 200
+line -100 200 100 200
+line 100 200 100 100
