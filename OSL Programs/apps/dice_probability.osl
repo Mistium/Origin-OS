@@ -1,0 +1,27 @@
+dice = "Array".new(6)
+total = 0
+mainloop:
+
+loop 100 (
+  rand = [1,6].random.clamp(1,6)
+  dice.[rand] += 1
+  total += 1
+)
+
+c #fff
+count = 0
+loc 2 2 20 -20
+loop 6 (
+  count += 1
+  text dice.[count] 10 : chx#30
+)
+
+c #fff
+loc 2 2 20 -140
+count = 0
+  loop 6 (
+  count += 1
+  square 10 total / dice.[count].destr * 20 10 : chx#30
+)
+
+import "win-buttons"
