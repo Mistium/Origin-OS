@@ -25,6 +25,18 @@ originOS is a shell for running osl.
 
 OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
 
+## Patreon
+
+Join the originOS patreon for:
+
+- Early access to new originOS versions
+
+- You get 10x the storage space on your originOS account (dm me on discord and i'll increase your storage limit)
+
+- You get your name in the supporters tab in the settings app (and packaged with originOS)
+
+- A special role in the originOS discord server
+
 ## Features
 ```
 Windowed Applications
