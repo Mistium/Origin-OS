@@ -1,13 +1,12 @@
 # originOS Flow
 
-
 <p align="center">
 The Most Advanced Gui Based ScratchOS<br>
 <a href="https://discord.gg/HNycesXRy5"><img src="https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=shield" height="20"></a>
 <img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb34c493-a76d-460c-88f0-7d18d3908eb3" height="20" alt="This OS is a webOS">
-<img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" height="20" alt="This OS supports OWSL2">
-<a href="https://github.com/Mistium/Origin-OS/issues"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" height="20"></a>
-<a target="_blank" href="https://raw.githack.com/Mistium/Origin-OS/main/originOS.html"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/66b92089-3f32-4692-8f50-aeb523342592" height="20"></a>
+<img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" height="20" alt="This OS supports OSL2">
+<a href="https://github.com/Mistium/Origin-OS/issues"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" height="20"></a><img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" height="20" alt="This OS supports OSL2">
+<a target="_blank" href="https://raw.githack.com/Mistium/Origin-OS/main/originOS.html"></a><a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="20"></a>
 <br>Views<br>
 <img src="https://count.getloli.com/get/@mistium-origin" alt=":views" height="100"/>
 </p>
@@ -24,18 +23,6 @@ Version  -   0.6.0
 originOS is a shell for running osl.
 
 OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
-
-## Patreon
-
-Join the originOS patreon for:
-
-- Early access to new originOS versions
-
-- You get 10x the storage space on your originOS account (dm me on discord and i'll increase your storage limit) (500,000 bytes of data)
-
-- You get your name in the supporters tab in the settings app (and packaged with originOS)
-
-- A special role in the originOS discord server
 
 ## Features
 ```
@@ -63,33 +50,20 @@ debugging
 interacting with accounts
 + way more
 ```
+## Patreon
 
-## System Applications
+Join the originOS patreon for:
 
-```
-Account_Creator
-Application_Drawer
-Battery_Info
-Desktop_Files
-Desktop_Manager
-File-Opener
-Icn-Editor
-Info
-Login-Main
-OWSL-Runner
-Permission-Editor
-Permission-Granter
-Quick-Settings
-Rename-Helper
-System-Information
-System-Search
-Errors
-File-Info
-Model_Viewer
-Updater
-Origin_Start
-LMC_Runner
-```
+- Early access to new originOS versions
+
+- You get 10x the storage space on your originOS account (dm me on discord and i'll increase your storage limit) (500,000 bytes of data)
+
+- You get your name in the supporters tab in the settings app (and packaged with originOS)
+
+- A special role in the originOS discord server
+
+Join Here!<br>
+<a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="20"></a>
 
 ## Screenshots
 
