@@ -7,16 +7,16 @@ emails = emails.append({"Test":{"subject":"Test"}})
 current_email = 1
 
 def "send" "data"
-    terminal "server send" + data
+  network "send"
 endef
 
 def "resetframe"
-    frame "clear"   
-    loc 2 2 50
-    x = x_position
-    y = y_position  
-    loc -2 -2
-    frame x y x_position y_position
+  frame "clear"   
+  loc 2 2 50
+  x = x_position
+  y = y_position  
+  loc -2 -2
+  frame x y x_position y_position
 endef
 
 mainloop:
@@ -29,15 +29,13 @@ if current_email.isnumber (
 import "side-bar"
 resetframe
 
-colour #222
 loc 999 2 0 -20
-square frame_width 30 10 1
+square frame_width 30 10 1 : c#222
 
-colour #fff
 loc 2 2 10 -20
-text "Mail - Id:" + owp_id 9
+text "Mail - Id:" + username 9 : c#fff
 
-colour #333
+c #333
 loc 2 2 0 -40
 x = x_position
 y = y_position
