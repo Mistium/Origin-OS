@@ -2,9 +2,9 @@
 
 (Anything in square brackets is where the user can pass data to the command)
 
-[filename].getsave("array"/"text"/"line"/"")
+[filename].getsave("array" or "text" or "line" or null)
 
-line returns all the data on a single line
+line returns all the data as a single line
 
 null and text are the same, returning the raw file data 
 
