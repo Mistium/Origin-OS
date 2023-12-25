@@ -14,6 +14,5 @@ while i < 10 (
   print i
 )
 ```
-### Example as osl
 
-No direct equivalent for the while command exists in osl
+OSl while loops function as if they are c# `do while` loops
