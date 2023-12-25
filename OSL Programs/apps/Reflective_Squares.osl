@@ -1,0 +1,17 @@
+var1 = 0.1
+var2 = -0.1
+
+mainloop:
+v1 = var1
+var1 += var2 / 4
+var2 -= v1 / 4
+var1 = var1.clamp(-5,5)
+var2 = var2.clamp(-5,5)
+c #fff
+goto -100 var1 * 10
+square 10 10 10
+goto 100 var2 * 10
+square 10 10 10
+
+
+import "win-buttons"
