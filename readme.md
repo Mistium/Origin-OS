@@ -31,7 +31,7 @@ Join the originOS patreon for:
 
 - Early access to new originOS versions
 
-- You get 10x the storage space on your originOS account (dm me on discord and i'll increase your storage limit)
+- You get 10x the storage space on your originOS account (dm me on discord and i'll increase your storage limit) (500,000 bytes of data)
 
 - You get your name in the supporters tab in the settings app (and packaged with originOS)
 
