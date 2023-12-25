@@ -62,7 +62,7 @@ Join the originOS patreon for:
 
 - A special role in the originOS discord server
 
-Join Here!<br>
+[Join Here!](https://www.patreon.com/user/membership?u=51594743)<br>
 <a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="20"></a>
 
 ## Screenshots
