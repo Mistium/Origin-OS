@@ -25,6 +25,11 @@ originOS is a shell for running osl.
 OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
 
 [Find documentation for osl here](https://github.com/Mistium/Origin-OS/wiki/Origin-Scripting-Language)
+
+## Repo Tracker
+
+[originOS stats](https://repo-tracker.com/r/gh/Mistium/Origin-OS)
+
 ## Features
 ```
 Fully featured programming language for coding applications within the OS (called osl),
