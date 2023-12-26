@@ -20,7 +20,6 @@ current_target = ""
 
 reload
 mainloop:
-.
 // when new data is recieved
 if new_network_data (
   nds = network_data_from
