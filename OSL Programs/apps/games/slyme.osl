@@ -1,0 +1,19 @@
+logo = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/slyme/logo.png"
+
+mainloop:
+window_colour = #08443c
+t = timer * 150
+width += 100 - ( t.sin * 5 ) * 3.415 - width / 5
+height += 100 + ( t.sin * 5 ) * 1.825 - height / 5
+logo_dir += 90 - logo_dir / 5
+direction logo_dir
+image logo width height
+if clicked and can (
+  can = false
+  width = 200
+  height = 100
+  logo_dir = [80,100].random
+)
+
+if mouse_down.not "can = true"
+import "win-buttons" 
