@@ -15,6 +15,7 @@ def "login" "username,password"
   network "login" username password
 endef
 
+status = ""
 signup_return = ""
 
 mainloop:
@@ -22,21 +23,32 @@ window "dimensions" screensize_x + 20 screensize_y + 15
 
 if new_network_data (
   if network_data_command == "get_my_accounts" "accounts = network_data"
-  if network_data_command == "login" "login_return = network_data"
-  if network_data_command == "New_Account" "signup_return = network_data"
-  status = ""
-  if login_return == "Successful Login" (
-    window "add" "Dock"
-    window "stop"
+  if network_data_command == "login" (
+    login_return = network_data
+    if login_return == "Successful Login" (
+      window "add" "Dock"
+      window "stop"
+    )
+    status = ""
   )
-  if signup_return == "Account Created Successfully" (
-    current_login = accounts.len + 1
-    network "get_my_accounts"
-    signup_return = ""
-  ) else (
+  if network_data_command == "New_Account" (
+    signup_return = network_data
+    if signup_return == "Account Created Successfully" (
+      current_login = accounts.len + 1
+      network "get_my_accounts"
+      signup_return = ""
+    )
     status = ""
   )
   new_network_data = false
+)
+
+if status == "Waiting" or ( status == "login" ) (
+  goto 0 -40
+  square 350 400 25 1 : c#000
+  square 350 400 20 1 : c#151515
+  icon "w 3 cutcircle 0 0 20" + ( timer * 20 ) + "70" 2 : c#fff
+  exit
 )
 
 if accounts == "" (
@@ -152,7 +164,7 @@ if current_login == "add" (
   goto 0 -210 : c#000
   if signin_return != "" "c #491515"
   square 320 30 20
-  if clicked and ( status == "" ) (
+  if clicked or "enter".pressed and ( status == "" ) (
     network "New_Account" input_signup_name input_signup_pass
     status = "Waiting"
   )
@@ -180,20 +192,13 @@ if current_login == "login" (
   goto 0 -210 : c#000
   if login_return != "" "c #491515"
   square 320 30 20
-  if clicked and ( status == "" ) (
+  if clicked or "enter".pressed and ( status == "" ) (
     network "login" input_signup_name input_signup_pass
     status = "Waiting"
   )
   text "Login" 8 : c#fff chx#-150
   goto -150 -20
   text login_return 9
-)
-
-if status == "Waiting" (
-  goto 0 -40
-  square 350 400 25 1 : c#000
-  square 350 400 20 1 : c#151515
-  icon "w 3 cutcircle 0 0 20" + ( timer * 20 ) + "70" 2 : c#fff
 )
 
 if mouse_down.not "can = true"
