@@ -1,3 +1,4 @@
+network "set_app_id" "flyir_messaging_app"
 
 def "reload"
   // gets currently online
@@ -5,7 +6,12 @@ def "reload"
   online = network_data
   usernames = {}
   // resets messages
+  save "messages.json" "get"
   messages = {}
+  log save-data
+  if save-data.istype("object") (
+    messages = save-data
+  )
 
   // creates a key in messages for all online users
   count = 0
@@ -25,11 +31,10 @@ if new_network_data (
   nds = network_data_from
   if network_data.istype("array") (
     usernames.key(nds) = network_data.[1]
-    // make sure the messages for this user never exceed 10 total
-    messages.key(nds) = messages.key(nds).delete(10)
 
     // add the new data to the messages for this user
     messages.key(nds) = messages.key(nds) + network_data.str
+    save "messages.json" "set" messages
   )
   new_network_data = false
 )
@@ -68,22 +73,29 @@ loc -2 -2 -20 20
 icon "play" 0.7 : c#fff
 if clicked or "enter".pressed and can (
   can = false
-  send_data = [] + username + input_send
+  send_data = [] + username + input_send + user."pfp"
   messages.key(current_target) = messages.key(current_target) + send_data
   network "send" send_data current_target
   input_send = null
 )
 
+import "win-buttons"
 // render messages
 if "enter".pressed.not and mouse_down.not "can = true"
 c_msgs = messages.key(current_target)
-count = 0
-loop c_msgs.len (
+c #333
+frame window."left" + 240 window."top" - 40 window."right" window."bottom" + 40 c_msgs.len * 40
+count = scroll_y.divide(40).round
+start = c_msgs.len - count
+loop frame_height.divide(40).round (
   count ++
-  loc 2 2 260 -100 - ( count * 20 )
+  loc 2 2 30 10 - ( count * 40 ) + scroll_y
   current = c_msgs.[count]
-  if current.[1] == username "loc -2 2 current.[2].len * -10.5 - 20 -100 - ( count * 20 )"
-  text current.[2] 10 : c#fff
+  image current.[3] 30
+  text current.[1].str + ": " + current.[2] 9 : c#fff chx#30
+  if window."bottom" + 40 > y_position (
+    frame "clear"
+    exit
+  )
 )
-
-import "win-buttons"
+frame "clear"
