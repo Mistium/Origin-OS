@@ -51,7 +51,7 @@ def "system"
     icon "origin-logo" 3 : c#fff
     loc 2 2 200 -50
     text "originOS" 15
-    text "" + kernel.["name"] 12
+    text "" + kernel."name" 12
     loc 2 2 200 -75
     text "Version" + origin."version" 8
     loc 2 2 200 -110
