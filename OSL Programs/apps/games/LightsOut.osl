@@ -1,0 +1,57 @@
+tiles = [true,false,false,true,true,false,true,false,true]
+
+tc = 0
+
+window "dimensions" 300 330
+window "resizable" false
+window "show"
+
+def "tile" "x,y,id"
+  if tiles.[id] "c #64b342"
+  if tiles.[id].not "c #b34242"
+  loc 999 -2 x y - 50
+  square 90 90 10
+  if mouse_touching (
+    square 90 90 15
+  )
+  if clicked and can (
+    can = false
+    tc = id
+  )
+endef
+
+mainloop:
+
+tile -100 300 1
+tile 0 300 2
+tile 100 300 3
+tile -100 200 4
+tile 0 200 5
+tile 100 200 6
+tile -100 100 7
+tile 0 100 8
+tile 100 100 9
+
+loc 999 2 0 -15
+square window."width" 20 10 : c#222
+loc -2 2 -15 -15
+icon "c #fff w 3 line 10 10 -10 -10 line 10 -10 -10 10" 0.7
+if clicked "window stop"
+loc 2 2 10 -15
+text "Lights Out" 10
+
+if mouse_down.not (
+  can = true
+  if tc != 0 (
+    tcu = tc - 3
+    tcd = tc + 3
+    tcl = tc - 1
+    tcr = tc + 1
+    tiles.[tc] = tiles.[tc].not
+    if tc > 3 "tiles.[tcu] = tiles.[tcu].not"
+    if tc < 7 "tiles.[tcd] = tiles.[tcd].not"
+    if tc % 3 == 0 or ( tc % 3 == 2 ) "tiles.[tcl] = tiles.[tcl].not"
+    if tc % 3 > 0 "tiles.[tcr] = tiles.[tcr].not"
+    tc = 0
+  )
+)
