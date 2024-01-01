@@ -30,6 +30,8 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 @ionslayer - "origin os is to clean to the point it makes me not like it, likes its not an os experience if your not complaining about them randomly simplifying the right click menu or some apps looking different than they should randomly"
 
+@vernacular7 - "One day, inside di galaxy far away, dey spot an extraterrestrial party animal named Alan. Dis alien, him dey green and full of groove, decide say e go learn di dance moves from Earth. Alan land for di dance floor wit him funky tentacles and start to bust some out-of-dis-world moves. People dey look amazed as him just dey levitate and boogie down, showing say even aliens fit to dance better pass some humans. Di whole crew join di intergalactic dance-off, and soon, Earth and space dey mix for one cosmic party wey nobody go fit forget."
+
 ## Disclaimer!
 
 When you create an originOS account, I store every ip address that you log into your account with, this is to allow the origin system to load all previous accounts you have logged into before, onto your login screen. By creating an account on originOS you are providing your ip for this use. If you wish for your account to have your ip removed from it and to disable ip logging for your account dm me your username and (md5 hashed) password so i can verify that you own an account. I'll then remove the ip loggin ability from your account.
