@@ -34,7 +34,7 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 ## Disclaimer!
 
-When you create an originOS account, I store every ip address that you log into your account with, this is to allow the origin system to load all previous accounts you have logged into before, onto your login screen. By creating an account on originOS you are providing your ip for this use. If you wish for your account to have your ip removed from it and to disable ip logging for your account dm me your username and (md5 hashed) password so i can verify that you own an account. I'll then remove the ip loggin ability from your account.
+When you create an originOS account, I store every ip address that you log into your account with, this is to allow the origin system to load all previous accounts you have logged into before, onto your login screen. By creating an account on originOS you are providing your ip for this use. If you wish for your account to have your ip removed from it and to disable ip logging for your account dm me your username and (md5 hashed) password so i can verify that you own an account. I'll then remove the ip loging ability from your account.
 
 ## Repo Tracker
 
