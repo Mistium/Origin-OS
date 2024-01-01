@@ -7,14 +7,17 @@
 
 ## 1. Logic
 - Starter Logic:
-[click here to open docs](https://github.com/koo1140/BetterCode-Docs/blob/main/logic.md)
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/logic.md)
 - Variables
-[click here to open docs](https://github.com/koo1140/BetterCode-Docs/blob/main/variables.md)
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/variables.md)
 
 ## 2. Syntax
 - Basic Syntax
-[click here to open docs](https://github.com/koo1140/BetterCode-Docs/blob/main/basicsyntax.md)
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/basicsyntax.md)
 - Conditions
-[click here to open docs](https://github.com/koo1140/BetterCode-Docs/blob/main/conditions.md)
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/conditions.md)
 
 ... to be added
+
+
+
