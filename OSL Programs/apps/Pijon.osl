@@ -1,4 +1,4 @@
-network "set_app_id" "flyir_messaging_app"
+network "set_app_id" "pijon_messaging_app_v1"
 
 def "reload"
   // gets currently online
