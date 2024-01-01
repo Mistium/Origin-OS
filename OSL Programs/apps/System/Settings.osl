@@ -172,7 +172,7 @@ def "network_page"
     loc 2 2 100 -90
     square 140 30 10 : c#333
     if clicked (
-      terminal "connect"
+      terminal "connect 3"
     )
     text "Reconnect" 10 : c#fff chx#-60
     loc 2 2 30 -40
