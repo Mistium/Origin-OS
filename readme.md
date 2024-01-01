@@ -28,7 +28,7 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 [Find documentation for osl here](https://github.com/Mistium/Origin-OS/wiki/Origin-Scripting-Language)
 ## Quotes
 
-@ionslayer - `origin os is to clean to the point it makes me not like it, likes its not an os experience if your not complaining about them randomly simplifying the right click menu or some apps looking different than they should randomly`
+@ionslayer - "origin os is to clean to the point it makes me not like it, likes its not an os experience if your not complaining about them randomly simplifying the right click menu or some apps looking different than they should randomly"
 
 ## Disclaimer!
 
