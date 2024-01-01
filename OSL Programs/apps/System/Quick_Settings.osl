@@ -1,33 +1,44 @@
+// Developer: @Mistium
+// Description: This app shows quick info about your computer on your screen
 settings_open = false
 can = false
 mainloop:
-window "x" screensize_x / 2 - 97
-window "y" screensize_y / 2 - ( height / 2 ) - 10
-window "dimensions" 180 height
-goto 0 0
-square 160 height - 20 20 : c#000
+height = 50
+if settings_open "height = 300"
+window "dimensions" 190 300
+window "x" screensize_x / 2 - 102
+window "y" screensize_y / 2 - 160
 
-loc -2 2 -20 -20
+loc 999 2 0 height * -0.5
+square 170 height - 20 20 : c#000
+loc -2 2 -25 -25
 c #fff
 if settings_open "icon down 0.7"
 if settings_open.not "icon up 0.7"
 if clicked and can (
-  settings_open = settings_open.not
+  settings_cha = true
   can = false
 )
-
+if mouse_down.not (
+  if settings_cha (
+    if mouse_touching "settings_open = settings_open.not"
+    settings_cha = false
+  )
+  can = true
+)
 image user_icon.str 25 : chx#-35
+
 c #555
 if network."connected" "c #fff"
-icon "wifi" 0.9 : chx#-35
-c #fff
-icon "play" 0.5 : chx#-35
-icon "search" 0.5 : chx#-35
-if mouse_down.not "can = true"
-height = 40
-if settings_open (
-  height = 300
+icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-35
+if nowplaying.key("playing").not (
+  media_control = "pause"
+) else (
+  media_control = "play"
 )
+
+icon media_control 0.7 : chx#-35 c#fff
+icon "search" 0.7 : chx#-35
 if "space".pressed (
   window stop
 )
