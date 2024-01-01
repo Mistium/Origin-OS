@@ -30,7 +30,7 @@ Lets automate the process:
 def calc (operation, number1, number2):
   if operation = "+" then
     print(number1 + number2)
-  else
+  else do
     print("Sorry i dont know!")
   end
 end
