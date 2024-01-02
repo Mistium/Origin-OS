@@ -24,6 +24,8 @@
 ## 3. Functions
 - Math
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/math.md)
+- Console
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/console.md)
 
 ### 4. GUI [BETA]
 - How to create testing frames
@@ -32,7 +34,6 @@
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/guimove.md)
 
 # To be added
-- console("") console(variable)
 - resize frames
 - package: random, time, string
 - create file
