@@ -22,8 +22,10 @@
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/math.md)
 
 ### 4. GUI [BETA]
-- How to create testing frames.
+- How to create testing frames
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/gui.md)
+- How to move frames
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/guimove.md)
 
 # To be added
 - console("") console(variable)
