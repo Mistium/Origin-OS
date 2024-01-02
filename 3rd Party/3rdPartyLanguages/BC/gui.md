@@ -18,4 +18,4 @@ GUI/FrameBuilder.BGColor (gray)
 ```
 
 This will make a simple frame wich should look like this:
-[Image]()
+[Image](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/app.png)
