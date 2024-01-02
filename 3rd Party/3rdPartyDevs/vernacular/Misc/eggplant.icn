@@ -1,6 +1,6 @@
 // use responsibly :)
 
-c #6a0dad 
+c #6a0dad
 w 12
 dot -5 -5
 w 8.5
@@ -13,10 +13,13 @@ w 10
 dot 0 0
 w 6
 dot 2 -4
+w 2
+c #9c51b6
+cutcircle -10 7 10 13.5 22
 c #3b8132
 cutcircle 1.6 5 4 0 45
 line 5 7 5 6
 line 5 6 3 8
 line 3 8 0 7
 line 0 7 -1 7.6
-line 3 8 4 1
+line 3 8 4 11
