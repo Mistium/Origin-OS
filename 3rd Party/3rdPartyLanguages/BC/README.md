@@ -29,7 +29,7 @@
 
 # To be added
 - console("") console(variable)
-- 
+- resize frames
 
 
 
