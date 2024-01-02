@@ -29,7 +29,7 @@ Welcome, Alice!
 user_age = 25
 if user_age > 18 then
   console("You're an adult!")
-elseif user_age < 13 do
+else if user_age < 13 do
   console("You're a kid!")
 else do
   console("You're a teenager!")
