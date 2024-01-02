@@ -21,7 +21,9 @@
 - Math
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/math.md)
 
-... to be added
+# To be added
+- console("") | console(variable)
+- 
 
 
 
