@@ -27,7 +27,7 @@
 - Console
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/console.md)
 
-### 4. GUI [BETA]
+## 4. GUI [BETA]
 - How to create testing frames
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/gui.md)
 - How to move frames
