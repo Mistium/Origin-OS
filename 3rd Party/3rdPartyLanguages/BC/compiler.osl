@@ -1,0 +1,12 @@
+code = "input bc code here".ask
+
+code = code.regex("/(?<=\()[^)]+(?=\))|[^ \n()%;]+|[()]|%[^%]*%|;/gm")
+loop code.len (
+  count += 1
+  cur = code.[count]
+  last = cur.len
+  if cur.[1] == "%" and ( cur.[last] == "%" ) (
+    cur = ""
+  )
+)
+window "stop"
