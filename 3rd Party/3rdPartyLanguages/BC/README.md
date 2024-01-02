@@ -35,6 +35,9 @@
 - remove file
 - update file
 - rename file
+- add text into frames
+- draw in frames
+- buttons, inputs, dropdowns
 - 
 
 
