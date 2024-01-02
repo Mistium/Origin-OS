@@ -2,6 +2,9 @@
 - official bettercode docs, version 1.5, this is a documentation for [OriginOS](https://github.com/Mistium/Origin-OS)
 - made by @costikoooo
 - an easy to read and write language
+- BetterCode only runs when a program triggers the file or the user opens executableBetterCode file or clicks run in the editor
+- it stops when the frame is closed or user clicks stop running in the editor or ends task via task manager
+- a file with bettercode can only handle 1 frame at a time, if you want two you need to make two files with .bc
 
 ### Introduction & everything (sorry for bad english)
 
@@ -37,8 +40,9 @@
 - rename file
 - add text into frames
 - draw in frames
-- buttons, inputs, dropdowns
+- buttons, inputs, dropdowns, mouse position detection
+- loops
+- get file content
+- package: bettercodeTrigger ~ `bettercodeTrigger.Trigger (file.bc)` runs the file, `bettercodeTrigger.TriggerStop (file.bc)` stops the file
 - 
-
-
 
