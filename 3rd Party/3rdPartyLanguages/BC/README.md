@@ -46,5 +46,6 @@
 - loops
 - get file content
 - package: bettercodeTrigger ~ `bettercodeTrigger.Trigger (file.bc)` runs the file, `bettercodeTrigger.TriggerStop (file.bc)` stops the file
+- regex package
 - 
 
