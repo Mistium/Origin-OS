@@ -1,5 +1,5 @@
 # **BetterCode Docs** ✨
-- official bettercode docs, version 1.4, this is a documentation for [OriginOS](https://github.com/Mistium/Origin-OS)
+- official bettercode docs, version 1.5, this is a documentation for [OriginOS](https://github.com/Mistium/Origin-OS)
 - made by @costikoooo
 - an easy to read and write language
 
@@ -30,6 +30,12 @@
 # To be added
 - console("") console(variable)
 - resize frames
+- package: random, time, string
+- create file
+- remove file
+- update file
+- rename file
+- 
 
 
 
