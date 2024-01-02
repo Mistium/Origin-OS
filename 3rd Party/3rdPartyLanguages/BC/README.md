@@ -23,7 +23,7 @@
 
 ### 4. GUI [BETA]
 - How to create testing frames.
-[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/README.md)
+[click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/gui.md)
 
 # To be added
 - console("") console(variable)
