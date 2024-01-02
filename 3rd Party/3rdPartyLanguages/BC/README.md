@@ -36,7 +36,6 @@
 [click here to open docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/resizegui.md)
 
 # To be added
-- resize frames
 - package: random, time, string
 - create file
 - remove file
