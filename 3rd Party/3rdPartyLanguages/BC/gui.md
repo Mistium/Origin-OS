@@ -13,6 +13,7 @@ GUI.FrameBuilder.SetEndY (20)
 % we made a simple frame , lets add a topbar so we can drag it %
 GUI.FrameBuilder.EnableTopbar ("My cool app", "close_button")
                      % your app name ^        buttons ^ %
+GUI/FrameBuilder.BGColor (gray)
 
 ```
 
