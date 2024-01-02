@@ -19,3 +19,7 @@ GUI/FrameBuilder.BGColor (gray)
 
 ## This will make a simple frame wich should look like this:
 ![Image](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/app.png)
+
+
+# You completed this lesson! Congrats! 🎉
+[back to docs](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/README.md)
