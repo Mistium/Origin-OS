@@ -11,10 +11,11 @@ percent = 0
 // setup tingz ^
 
 mainloop:
-drank += 1
+drank += 0.1
 // TODO: delete this ^
 
 goal = 125
+drank = drank.clamp(0,goal)
 // sets the goal ^
 
 low = goal / 3
@@ -31,12 +32,18 @@ if drank < low (
   if drank < mid (
     rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 2 dot -3 2 line -4 -2 4 -2"
     // meh
-  )
+  ) else (
+    if drank == goal (
+     rating = "list"
+ )
 )
 
 percent = drank * ( 100 / goal )
 display = percent.round
 // calculates a percent, and rounds it to a displayable number ^
+
+goto 0 140
+icon "w 15 c #242526 dot 0 0" 10
 
 c #fff
 goto 0 155
@@ -51,11 +58,11 @@ fill = display * 1.8
 dir = display / 5.55
 // makes the ring fill out correctly ^
 
-icon "w 2 c #fff cutcircle 0 0 10 0 180" 10
+icon "w 2 c #242526 cutcircle 0 0 10 0 180" 10
 icon "w 1.5 c #6488ea cutcircle 0 0 10" + dir + fill 10
 // draws the ring ^
 
-info = "<drank>oz of <goal>oz"
+info = "<drank.round>oz of <goal.round>oz"
 goto info.len * -4 0
 
 text info 12
