@@ -3,8 +3,11 @@ console = console + "> fixed the bug and i have more lines".destr
 
 code = "input bc code here".ask
 
-code = code.regex("/(?<=\()[^)]+(?=\))|[^ \n()%;]+|[()]|%[^%]*%|;/gm")
+splitter = "/\'[^\']+\'|(?<=\()[^)]+(?=\))|[^ \n()%;]+|[()]|%[^%]*%|;/gm"
+
+code = code.regex(splitter)
 loop code.len (
+  pass = ""
   count += 1
   cur = code.[count]
   last = cur.len
@@ -18,7 +21,11 @@ loop code.len (
     cur = ""
   )
   if cur === "console".destr and ( next == "(" ) (
-    console = console + next2
+    pass = "say" + next2.str
+    pass = pass.destr
+  )
+  if pass != "" (
+    console = console + pass
   )
 )
 
