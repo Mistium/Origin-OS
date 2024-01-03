@@ -1,9 +1,11 @@
-// here is what I have so far. you can come clean it up if you feel so obligated, just make sure to leave a comment explaining what you did, and document your changes in a way that is easy to understand :)
-
+window "show"
+import "win-buttons"
+// TODO: Move import to mainloop (?)
 window "dimensions" 300 600
 window "resizable" false
 // changed this cos docs were wrong, needs to have false as a bool not as a string
 
+rating = ""
 drank = 0
 percent = 0
 // setup tingz ^
@@ -17,8 +19,17 @@ goal = 125
 
 low = goal / 3
 mid = low * 2
-high = low * 3 - 1
 // sets the 3 stages you can be in ^
+
+if drank < low (
+rating = "frowney"
+)
+if drank > low and drank < mid (
+rating = "neutraley"
+)
+if drank > mid and drank < goal (
+rating = "smiley"
+)
 
 percent = drank * ( 100 / goal )
 display = percent.round
@@ -26,7 +37,7 @@ display = percent.round
 
 c #fff
 goto 0 140
-change_x display.len + 1 * -10 
+change_x display.len + 1 * -10
 text "<display>%" 20
 // shows the percent to the user ^
 
