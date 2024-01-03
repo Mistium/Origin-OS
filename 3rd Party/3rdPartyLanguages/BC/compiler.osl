@@ -1,3 +1,5 @@
+window "show"
+
 code = "input bc code here".ask
 
 code = code.regex("/(?<=\()[^)]+(?=\))|[^ \n()%;]+|[()]|%[^%]*%|;/gm")
