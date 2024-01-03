@@ -1,3 +1,6 @@
+console = [] + "> Successfully loaded console (v0.1)".destr
+console = console + "> fixed the bug and i have more lines".destr
+
 code = "input bc code here".ask
 
 code = code.regex("/(?<=\()[^)]+(?=\))|[^ \n()%;]+|[()]|%[^%]*%|;/gm")
@@ -5,15 +8,21 @@ loop code.len (
   count += 1
   cur = code.[count]
   last = cur.len
+
+  count2 = count + 1
+  next = code.[count2]
+  count2 += 1
+  next2 = code.[count2]
+
   if cur.[1] == "%" and ( cur.[last] == "%" ) (
     cur = ""
+  )
+  if cur === "console".destr and ( next == "(" ) (
+    console = console + next2
   )
 )
 
 window "show"
-
-console = [] + "> Successfully loaded console (v0.1)".destr
-console = console + "> fixed the bug and i have more lines".destr
 
 mainloop:
 
