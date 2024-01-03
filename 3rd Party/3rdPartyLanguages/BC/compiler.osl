@@ -8,6 +8,14 @@ loop code.len (
   if cur.[1] == "%" and ( cur.[last] == "%" ) (
     cur = ""
   )
-  
 )
-window "stop"
+
+cons = "0"
+window "show"
+mainloop:
+c #fff
+goto -340 180
+text "Console" 10
+goto -10 -10
+text cons 10
+import "win-buttons"
