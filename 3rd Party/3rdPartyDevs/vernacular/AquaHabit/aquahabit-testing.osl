@@ -18,17 +18,20 @@ goal = 125
 // sets the goal ^
 
 low = goal / 3
-mid = low * 2
+mid = goal * 2 / 3
 // sets the 3 stages you can be in ^
 
+rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 3 dot -3 3 cutcircle 0 0 5 90 90"
+// smile
+
 if drank < low (
-rating = "frowney"
-)
-if drank > low and ( drank < mid ) (
-rating = "neutraley"
-)
-if drank > mid and drank < goal (
-rating = "smiley"
+  rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 3 dot -3 3 cutcircle 0 -5.5 5 0 80"
+  // frown
+) else (
+  if drank < mid (
+    rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 2 dot -3 2 line -4 -2 4 -2"
+    // meh
+  )
 )
 
 percent = drank * ( 100 / goal )
@@ -37,7 +40,7 @@ display = percent.round
 
 c #fff
 goto 0 155
-icon rating 2
+icon rating.str 2
 goto 0 105
 change_x display.len + 1 * -7.7
 text "<display>%" 17
@@ -54,8 +57,7 @@ icon "w 1.5 c #6488ea cutcircle 0 0 10" + dir + fill 10
 
 info = "<drank>oz of <goal>oz"
 goto info.len * -4 0
-// moved the change_x into the goto
 
 text info 12
 goto -100 -140
-text "<rating>, <low.round>, <mid.round>, <high.round>" 10
+text "<low.round>, <mid.round>, <goal.round>" 10
