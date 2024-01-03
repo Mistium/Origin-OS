@@ -24,7 +24,7 @@ mid = low * 2
 if drank < low (
 rating = "frowney"
 )
-if drank > low and drank < mid (
+if drank > low and ( drank < mid ) (
 rating = "neutraley"
 )
 if drank > mid and drank < goal (
@@ -36,9 +36,11 @@ display = percent.round
 // calculates a percent, and rounds it to a displayable number ^
 
 c #fff
-goto 0 140
-change_x display.len + 1 * -10
-text "<display>%" 20
+goto 0 155
+icon rating 2
+goto 0 105
+change_x display.len + 1 * -7.7
+text "<display>%" 17
 // shows the percent to the user ^
 
 goto 0 140
@@ -55,3 +57,5 @@ goto info.len * -4 0
 // moved the change_x into the goto
 
 text info 12
+goto -100 -140
+text "<rating>, <low.round>, <mid.round>, <high.round>" 10
