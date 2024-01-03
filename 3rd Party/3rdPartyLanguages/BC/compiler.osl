@@ -12,12 +12,22 @@ loop code.len (
 
 cons = "> Successfully loaded console. (v0.1)"
 window "show"
-loggingliney = -320
-logginglinex = 160
+
 mainloop:
+loggingliney = -340
+logginglinex = 180
+
 c #fff
-goto -340 180
+goto loggingliney logginglinex
 text "BetterCode Console" 10
+loggingliney=+ 20
+logginglinex -= 20
+
 goto loggingliney logginglinex
 text cons 8
+logginglinex -= 20
+
+goto loggingliney logginglinex
+text "> finnaly fixed the bug  and i have more lines" 8
+
 import "win-buttons"
