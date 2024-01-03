@@ -10,24 +10,18 @@ loop code.len (
   )
 )
 
-cons = "> Successfully loaded console. (v0.1)"
 window "show"
 
+console = [] + "> Successfully loaded console (v0.1)".destr
+console = console + "> fixed the bug and i have more lines".destr
+
 mainloop:
-loggingliney = -340
-logginglinex = 180
 
 c #fff
-goto loggingliney logginglinex
+loc 2 2 20 -20
 text "BetterCode Console" 10
-loggingliney=+ 20
-logginglinex -= 20
 
-goto loggingliney logginglinex
-text cons 8
-logginglinex -= 20
-
-goto loggingliney logginglinex
-text "> finnaly fixed the bug  and i have more lines" 8
+loc 2 2 20 -40
+text console.join(newline) 10
 
 import "win-buttons"
