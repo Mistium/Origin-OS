@@ -3,7 +3,18 @@ import "win-buttons"
 // TODO: Move import to mainloop (?)
 window "dimensions" 300 600
 window "resizable" false
-// changed this cos docs were wrong, needs to have false as a bool not as a string
+
+def "button" "w,h,r,col,hcol,mcol,ttwr,tsize,tcol,thcol,tmcol"
+square w h r 0 1
+if mouse_touching "col = hcol"
+if mouse_touching "tcol = thcol"
+if clicked "col = mcol"
+if clicked "tcol = tmcol"
+square w h r : c#col
+change_x info.len * ( tsize / -4.4 )
+text ttwr tsize : c#tcol
+endef
+//makes button module + text
 
 rating = ""
 drank = 0
@@ -11,8 +22,6 @@ percent = 0
 // setup tingz ^
 
 mainloop:
-drank += 0.1
-// TODO: delete this ^
 
 goal = 125
 drank = drank.clamp(0,goal)
@@ -35,6 +44,8 @@ if drank < low (
   ) else (
     if drank == goal (
      rating = "list"
+     // amazed
+  )
  )
 )
 
@@ -62,9 +73,15 @@ icon "w 2 c #242526 cutcircle 0 0 10 0 180" 10
 icon "w 1.5 c #6488ea cutcircle 0 0 10" + dir + fill 10
 // draws the ring ^
 
-info = "<drank.round>oz of <goal.round>oz"
-goto info.len * -4 0
-
+info = drank.round ++ "oz of" + goal.round ++ "oz"
+goto info.len * -6.5
 text info 12
+//gives user info about drinking idk man
+
+goto 0 -100
+button 120 50 3 #fff #ff0000 #fdb0c0 "add 5 oz" 10 #00000 #fff #00000
+
 goto -100 -140
+c #fff
 text "<low.round>, <mid.round>, <goal.round>" 10
+//DEBUG ^
