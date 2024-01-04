@@ -1,5 +1,4 @@
 window "show"
-sizeload = 10
 def "animate"
 goto -100 0
 icon "c #fff cutcircle 0 0 10" + ( local / 50 ) + "90" 2
@@ -15,7 +14,7 @@ endif
 endef
 
 def "compile"
-console = [] + "> Successfully loaded console (v0.2)".destr
+console = [] + "> Successfully loaded console (v0.3)".destr
 console = console + "> fixed the bug and i have more lines".destr
 
 code = "input bc code here".ask
@@ -50,6 +49,7 @@ endef
 
 window "show"
 compiled = false
+sizeload = 10
 x = 0
 open_timestamp = timestamp
 // setup
