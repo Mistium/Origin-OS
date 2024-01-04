@@ -1,4 +1,21 @@
-console = [] + "> Successfully loaded console (v0.1)".destr
+window "show"
+sizeload = 10
+def "animate"
+goto -100 0
+icon "c #fff cutcircle 0 0 10" + ( local / 50 ) + "90" 2
+loadpos = -50 - sizeload
+goto loadpos 0
+if local > 1500 (
+sizeload += 0.2
+text "BetterCode" sizeload
+) else (
+text "BetterCode is loading.." 10
+)
+endif
+endef
+
+def "compile"
+console = [] + "> Successfully loaded console (v0.2)".destr
 console = console + "> fixed the bug and i have more lines".destr
 
 code = "input bc code here".ask
@@ -21,17 +38,32 @@ loop code.len (
     cur = ""
   )
   if cur === "console".destr and ( next == "(" ) (
-    pass = "say" + next2.str
+    pass = "logs: " + next2.str
     pass = pass.destr
   )
   if pass != "" (
     console = console + pass
   )
 )
+compiled = true
+endef
 
 window "show"
+compiled = false
+x = 0
+open_timestamp = timestamp
+// setup
 
 mainloop:
+local = timestamp - open_timestamp
+if local < 3000 (
+  animate
+  exit
+  // exits the program at this point
+)
+if compiled.not (
+  compile
+)
 
 c #fff
 loc 2 2 20 -20
