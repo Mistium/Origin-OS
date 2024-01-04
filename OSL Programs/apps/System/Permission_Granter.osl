@@ -1,0 +1,45 @@
+window "hide"
+window "front"
+window "resizable" False
+window "front"
+canclick = False
+if mouse_down.not "canclick = True"
+application = passed_data.[2].destr
+permission = passed_data.[3].destr
+
+mainloop:
+window "dimensions" screensize_x screensize_y
+goto 0 0
+c accent_colour
+square 535 250 15 1
+c window_colour
+square 535 250 10 1
+goto -232.5 80
+colour #fff
+file "open" application "app"
+file "render" 1
+icon data.str 2.5 : c#fff
+change 40 5
+text application 10 : c#fff
+goto -250.5 25
+message = "Application Would Like Permission:" + permission
+text message 8 0 260
+goto 0 -40
+square 510 30 10 1 : c#global_accent
+square 510 30 7 1 : c#252525
+
+if clicked (
+  permission "give" application permission
+  window "stop"
+)
+
+goto 0 -90
+square 510 30 10 1
+if clicked (
+  window "stop"
+)
+
+goto -26 -40
+text "Allow" 10 : c#fff
+goto -24 -90
+text "Deny" 10
