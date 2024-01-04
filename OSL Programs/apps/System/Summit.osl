@@ -6,17 +6,21 @@ c_tabselected = #555
 c_searchback = #151515
 c_searchbar = #222
 c_searchicon = #fff
+
 c_text = #fff
 c_back = #000
+
 default_tab_width = 300
+
 save "bookmarks.json" "get"
 bookmarks = save-data
 if bookmarks == null (
   save "bookmarks.json" "set" {}
   bookmarks = []
 )
-owtpurl = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Websites/"
-save "extensions" "folder"
+
+owtpurl = "https://raw.githubusercontent.com/Mistium/owtp/main/"
+
 window "show"
 tab = 1
 pages = []
@@ -25,28 +29,28 @@ taburls = []
 current_get = ""
 
 def "set_tab_name"
-name = taburls.[tab].split("/")
-len = name.len
-name = name.[len]
-current_tab_name = {}
-current_tab_name.key("title") = name
+  name = taburls.[tab].split("/")
+  len = name.len
+  name = name.[len]
+  current_tab_name = {}
+  current_tab_name.key("title") = name
 endef
 
 def "opentab" "url"
-resolve_protocols url
-input_search = url.destr
-tabs = tabs.append({"title":"Loading"})
-pages = pages.append("")
-taburls = taburls.append(url)
-tab = tabs.len
-onload = true
+  resolve_protocols url
+  input_search = url.destr
+  tabs = tabs.append({"title":"Loading"})
+  pages = pages.append("")
+  taburls = taburls.append(url)
+  tab = tabs.len
+  onload = true
 endef
 
 def "remove_tab" "id"
-if tab == id "tab -= 1"
-pages = pages.delete(id)
-tabs = tabs.delete(id)
-taburls = taburls.delete(id)
+  if tab == id "tab -= 1"
+  pages = pages.delete(id)
+  tabs = tabs.delete(id)
+  taburls = taburls.delete(id)
 endef
 
 def "render_tabs"
@@ -99,7 +103,9 @@ def "resolve_protocols" "url"
   current_get = url
   if protocol == "owtp" (
     current_get = url.replace("owtp://",owtpurl)
-    if url.right(4) == ".web" or url.right(4).contains(".").not "current_get = current_get ++ /index.osl"
+    if url.right(4) == ".web" or url.right(4).contains(".").not (
+      current_get = current_get ++ "/index.osl"
+    )
   )
   urlspl = current_get.split(".")
   len = urlspl.len
@@ -114,27 +120,29 @@ def "validate_data" "validation"
 endef
 
 opentab "owtp://search.web"
+
 mainloop:
 
 ww = window_width
-c c_searchback
+
 loc 999 2 0 -40
-square ww 80 10 1
-import "win-buttons"
+square ww 80 10 1 : c#c_searchback
 items = 1
 render_tabs
-c c_searchbar
+
 loc -2 2 items * -15 - 10 -60
-square items * 30 28 5 1
+square items * 30 28 5 1 : c#c_searchbar
+
 loc -2 2 -25 -60
 image user_icon 25
+
 offset = items * 30
 loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
 square ww - ( offset + 80 ) 28 5 1
 change 10
 input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text
 if selected_input == "search" and "enter".pressed (
-  redirect input_search
+  redirect input_search.str
 )
 
 resolve_protocols taburls.[tab]
@@ -142,11 +150,13 @@ network "get" current_get
 
 page_data = data
 validate_data data
+
 loc 2 2 70 -59
 icon "search" 0.6 : c#c_searchicon
 
 loc 2 999 20 0
 square 50 window_height 10 1 : c#c_sidebarback
+
 loc 2 2 25 -25
 bookmarked = False
 if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
@@ -182,8 +192,10 @@ if clicked and can (
   )
 )
 if mouse_down.not "can = True"
+
 loc 2 -2 25 25
 icon "More-Vertical" 0.8
+
 loc 2 2 55 -90
 x = x_position
 y = y_position
@@ -192,7 +204,7 @@ c c_sidebarback
 frame x y x_position y_position page_len
 page_len = null
 current_tab_name = input_search
-log page_type
+
 if page_type == "osl" (
 run pages.[tab]
 )
@@ -219,3 +231,4 @@ if page_type == "md" (
 onload = false
 tabs.[tab] = current_tab_name
 frame "clear"
+import "win-buttons"
