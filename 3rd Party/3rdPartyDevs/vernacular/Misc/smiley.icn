@@ -1,0 +1,6 @@
+// for when you are feeling smiley :)
+
+w 1.5
+cutcircle 0 0 10 0 180
+dot 3 3 dot -3 3
+cutcircle 0 0 5 90 90
