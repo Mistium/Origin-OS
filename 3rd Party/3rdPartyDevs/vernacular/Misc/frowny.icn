@@ -1,0 +1,7 @@
+// for when you are feeling down :(
+
+w 1.5
+cutcircle 0 0 10 0 180
+dot 3 3
+dot -3 3
+cutcircle 0 -5.5 5 0 80
