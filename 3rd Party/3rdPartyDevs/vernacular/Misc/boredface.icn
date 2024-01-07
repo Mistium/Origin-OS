@@ -1,0 +1,7 @@
+// for when you are feeling.. just ok :|
+
+1.5
+cutcircle 0 0 10 0 180
+dot 3 2
+dot -3 2
+line -4 -2 4 -2"
