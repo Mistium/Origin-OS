@@ -31,7 +31,10 @@ if settings_open (
   loc 999 2 0 -110
   square 170 100 10 : c#151515
   change_y 25
+  terminal "system display get brightness"
+  slider_brightness = return - 10 / 90
   slider 130 0 "brightness" 30 : c#000
+  terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
   icon "c #333 w 25 dot" 1 : chx#-65
   icon "sun" 0.6 : c#fff
   change 65 -50
@@ -49,8 +52,8 @@ c #555
 if network."connected" "c #fff"
 icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-35
 
-icon  0.7 : chx#-35 c#fff
-icon "w 4 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : chx#-35
+icon "" 0.7 : chx#-35 c#fff
+icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : chx#-35
 
 if "space".pressed (
   window stop
