@@ -1,0 +1,25 @@
+window "show"
+window "dimensions" 800 600
+
+video_url = ""
+
+mainloop:
+  loc 2 2 20 -20
+  square 25 25 10 1 : c#222
+  if clicked (
+    video_url = clipboard.str
+  )
+  c #fff
+  icon "paste" 1
+
+  if video_url != "" (
+    loc 999 999 0 0
+    video video_url window_width
+  )
+
+  loc -2 2 -20 -20
+  c #000
+  icon "circle-full" 1.5
+  c #fff
+  icon "Close" 0.6
+  if clicked "window "stop""
