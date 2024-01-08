@@ -82,21 +82,11 @@ icons.key(username) = "image" + user_icon.str + "20"
 
 mainloop:
   lightmode = config.key("Light Mode")
-  if lightmode (
-    window_colour = #fff
-    c_icon = #000
-    c_prim = #ccc
-    c_seco = #999
-    c_tert = #777
-    config "Accent" #111
-  ) else (
-    window_colour = #000
-    c_icon = #fff
-    c_prim = #222
-    c_seco = #444
-    c_tert = #999
-    config "Accent" global_accent
-  )
+  window_colour = #000
+  c_icon = #fff
+  c_prim = #222
+  c_seco = #444
+  c_tert = #999
   input_path = null
   w = window_width
   sideshow = w > 700
