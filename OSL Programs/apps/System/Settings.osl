@@ -64,6 +64,20 @@ def "system"
     text "Storage: N/A" 8
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
+    loc 2 2 200 -170
+    if system_url == "https://raw.githack.com/Mistium/Origin-OS/main/originOS.html" (
+      text "BIOS Offical" 8
+    ) else (
+      if system_url.left(7) == "file://" (
+        text "BIOS: Local" 8
+      ) else (
+        if system_url.contains("/editor?") (
+          text "BIOS: Editor" 8
+        ) else (
+          text "BIOS: Modded" 8
+        )
+      )
+    )
   )
   if subcategory == "Display" (
     loc 2 2 10 -20
