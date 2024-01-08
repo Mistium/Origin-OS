@@ -1,0 +1,11 @@
+{
+  "א": "w 2 line -6 6 6 -6 line -6 -6 -2 2 line 6 6 2 -2",
+  "ב": "w 2 line -6 -6 6 -6 line 4 -6 4 6 line 4 6 -6 6",
+  "ד": "w 2 line 4 -6 4 6 line 6 6 -6 6",
+  "ה": "w 2 line 4 -6 4 6 line 6 6 -6 6",
+  "ג": "w 2 line 6 -6 0 6 line 0 6 -6 6 line 3 0 -6 -6"
+  ".manifest": {
+    "version": "1",
+    "language": "Hebrew"
+  }
+}
