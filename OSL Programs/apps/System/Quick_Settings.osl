@@ -48,14 +48,9 @@ image user_icon.str 25 : chx#-35
 c #555
 if network."connected" "c #fff"
 icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-35
-if nowplaying.key("playing").not (
-  media_control = "pause"
-) else (
-  media_control = "play"
-)
 
-icon media_control 0.7 : chx#-35 c#fff
-icon "updates" 0.7 : chx#-35
+icon  0.7 : chx#-35 c#fff
+icon "w 4 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : chx#-35
 
 if "space".pressed (
   window stop
