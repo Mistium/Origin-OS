@@ -150,14 +150,14 @@ def "system"
     square frame_width - 30 140 10 1 : c#222
     loc 2 2 80 y
     icon file.[11] 3.3
-    text "(Network)" + username 15 : chx#80 chy#30 c#fff
+    text "(Network)" + username 15 : chx#80 chy#20 c#fff
     change_x 20
     if network_drive.[2] == 50000 (
       text "Free User" 10
-      text "Upgrade Storage: " 10 : c#ccc chx#30
+      text "Upgrade: " 10 : c#ccc chx#20
       square 120 20 10 : c#ededed chx#100
       if clicked (
-        eval "window.open('https://www.patreon.com/user?u=51594743', '_blank').focus()"
+        eval "window.open('https://www.patreon.com/user?u=51594743', '_blank')?.focus() || console.error('Failed to open Patreon tab.');"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
@@ -288,8 +288,7 @@ def "personalisation"
     )
     goto x y
     square 180 60 20 1 : c#222
-    change_y -10
-    square 20 20 20 1 : c#111
+    square 20 20 20 1 : c#111 chy#-10
     icon "Add" 0.8 : c#fff
     change -90 30
     text "Drop .ode Here" 9
@@ -373,8 +372,19 @@ def "apps"
 endef
 
 def "account"
-  loc 999 2 0 -100
-  square frame_width 80 10 : c#111
+  loc 999 2 5 -90
+  square frame_width - 25 150 10 : c#111
+  loc 2 2 90 -90
+  image user_icon 90
+  loc 2 2 150 -80
+  text username 12 : c#fff
+  loc 2 2 150 -100
+  text "origin Account" 10
+  loc 2 2 20 -200
+  text "Profile Picture Url:" 10
+  loc 999 2 0 -230
+  square frame_width - 50 30 10 : c#111
+  input frame_width - 55 25 "pfpurl"
 endef
 
 def "time"
