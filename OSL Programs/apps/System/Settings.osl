@@ -65,8 +65,8 @@ def "system"
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
     loc 2 2 200 -170
-    if system_url == "https://raw.githack.com/Mistium/Origin-OS/main/originOS.html" (
-      text "BIOS Offical" 8
+    if system_url.contains("https://raw.githack.com/Mistium/Origin-OS/main/") (
+      text "BIOS: Offical" 8
     ) else (
       if system_url.left(7) == "file://" (
         text "BIOS: Local" 8
