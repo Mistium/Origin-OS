@@ -1,0 +1,12 @@
+{
+  "name": "FPS_Overlay",
+  "icon": "c #1a1a1a§w 10§square 0 0 5 5§c #fff§icn sort 0.5",
+  "authors": [
+    "Mistium"
+  ],
+  "author_link_types": [
+    "github"
+  ],
+  "links": [],
+  "description": "This application is a lightweight GUI tool designed to display the current frames per second (FPS) in the top left of the screen, ontop of any other open windows."
+}
