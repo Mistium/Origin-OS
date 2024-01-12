@@ -1,0 +1,358 @@
+window "show"
+window "dimensions" 1000 700
+
+seticon "image https://raw.githubusercontent.com/Kasairoe/oki/main/oki-icon.png 20"
+
+camx = 0
+camy = 0
+
+anim_start = 1
+anim_frame = 1
+anim_length = 4
+current_anim = "idle"
+chat_text = ""
+chatx = 0
+chaty = 0
+chatdist = 0
+// sets the current animation
+
+def "new_game"
+playerx = 0
+playery = 0
+
+playermapx = 0
+playermapy = 0
+playermapz = 1
+endef
+
+debug = false
+// shows colliders when true
+
+loading = []
+
+github_link = "https://raw.githubusercontent.com/Kasairoe/oki/main/"
+network "get" github_link ++ "levels_data.json"
+data = [{"0x0x0":[130,-130,90,-115],"0x0x1":[130,-130,70,-115],"0x1x0":[130,-130,90,-115]},{"0x0x0":[[-25,60,130,60],[120,40,60,100]],"0x0x1":[[110,40,80,130],[-20,70,70,60]]},{"0x0x0":[[-110,50,["playermapz += 1"],80,80],[90,90,["playermapy += 1"],40,40]],"0x0x1":[[-110,60,["playermapz -= 1"],80,80],[60,70,["start_chat \"Nothing Much To See Out Here\" 60 70 60"],60,60]]}]
+room_bounds = data.[1].destr
+// the maximum and minimum x,y co-ords for the player on a specific x,y,z map location
+
+collisions = data.[2].destr
+// the collisions for a x,y,z map location
+
+interactables = data.[3].destr
+// the interaction locations and distances and what they do on interaction
+
+def "run_movement"
+  prevx = playerx
+  prevy = playery
+
+  if up.pressed "playeryvel += speed"
+  if down.pressed "playeryvel -= speed"
+  if left.pressed "playerxvel -= speed"
+  if right.pressed "playerxvel += speed"
+  // changes the player velocity based on keys pressed
+
+  playerxvel *= 0.6
+  playeryvel *= 0.6
+  // friction calculation: decreases velocity over time
+
+  playerx += playerxvel
+  playery += playeryvel
+  // actually changes the x,y of the player
+
+  px = playerx * game_scale / 300
+  py = playery * game_scale / 300
+  // modifies the player x,y by the game scale
+
+  lpx = px.round
+  lpy = py.round
+  location = [].append(lpx).append(lpy)
+  // generates a variables for collisions checks
+endef
+
+def "run_interactions"
+  if "e".pressed.not "can = true"
+  // makes sure that you cannot interact again until you finish the current interaction
+
+  current_interactables = interactables.key(map_location)
+  // gets the interaction points for the current map location
+
+  count = 0
+  loop current_interactables.len (
+    count += 1
+    cur = current_interactables.[count]
+    // collects the x,y of an interaction point
+    goto cur.[1].destr * game_scale / 300 cur.[2].destr * game_scale / 300
+    hitbox cur.[4].destr cur.[5].destr lpx lpy
+    if collided (
+      goto lpx lpy + ( game_scale / 8 )
+      image github_link ++ "ui/interact.png" game_scale / 6
+      // draws the interact button
+      if "e".onpress "run cur.[3]"
+    )
+  )
+endef
+
+def "run_animator"
+  if anim_start != 1 and up.pressed.not and left.pressed.not and right.pressed.not and down.pressed.not (
+    anim_start = 1
+    anim_frame = 1
+    anim_length = 4
+  )
+  
+  if current_anim != "up" and up.pressed (
+    anim_start = 5
+    anim_frame = 5
+    anim_length = 10
+    current_anim = "up"
+  )
+  
+  if current_anim != "left" and left.pressed (
+    anim_start = 5
+    anim_frame = 5
+    anim_length = 10
+    current_anim = "left"
+  )
+  
+  if current_anim != "down" and down.pressed (
+    anim_start = 5
+    anim_frame = 5
+    anim_length = 10
+    current_anim = "down"
+  )
+  
+  if current_anim != "right" and right.pressed (
+    anim_start = 5
+    anim_frame = 5
+    anim_length = 10
+    current_anim = "right"
+  )
+endef
+
+def "run_collisions"
+  current_room_bounds = room_bounds.key(map_location)
+  // gets the current set of room max xs and ys
+
+  mxbound = current_room_bounds.[1].destr
+  lxbound = current_room_bounds.[2].destr
+  mybound = current_room_bounds.[3].destr
+  lybound = current_room_bounds.[4].destr
+  // Sets up the room bounds
+
+  if mxbound == "none" and ( playerx > 110 ) "playermapx += 1"
+  if mxbound != "none" and ( playerx > mxbound ) "goback"
+
+  if lxbound == "none" and ( playerx < -110 ) "playermapx -= 1"
+  if lxbound != "none" and ( playerx < lxbound ) "goback"
+
+  if mybound == "none" and ( playery > 110 ) "playermapy += 1"
+  if mybound != "none" and ( playery > mybound ) "goback"
+
+  if lybound == "none" and ( playery < -110 ) "playermapy -= 1"
+  if lybound != "none" and ( playery < lybound ) "goback"
+  // restricts the player from going outside of the room boundaries
+  
+  current_collisions = collisions.key(map_location)
+  // gets the current set of colliders for the room
+
+  count = 0
+  if debug (
+    c #fff
+    hitbox "show"
+  )
+  loop current_collisions.len (
+    count += 1
+    cur = current_collisions.[count]
+    temp = game_scale / 300
+    goto cur.[1].destr * temp cur.[2].destr * temp
+    hitbox cur.[3].destr * temp cur.[4].destr * temp lpx lpy
+    if collided "goback"
+  )
+endef
+
+def "run_chat"
+  loc 99999 2 0 -50 * game_scale / 300
+  if playery > 0 (
+    loc 99999 -2 0 50 * game_scale / 300
+  )
+  goto 0 y_position
+  image github_link ++ "ui/Dialogue_box.png" game_scale
+  change game_scale * -0.43 game_scale * 0.08
+  text chat_text game_scale / 70 : c#fff
+endef
+
+def "start_chat" "chat_text,chatx,chaty,chatdist"
+  chatx *= game_scale / 300
+  chaty *= game_scale / 300
+endef
+
+def "load" "link"
+  // loads an image from the oki github
+  link = github_link ++ link ++ ".png"
+  image link 100
+  loading = loading.append(link)
+  loading_total += 1
+endef
+
+def "loadall"
+  // loads all the needed animations of the player and ui items
+  loading_total = 0
+  loaded = false
+  load "ui/interact"
+  load "ui/Dialogue_box"
+  count = 0
+  loop 4 (
+    count += 1
+    load "animations/player/idle/" ++ count
+  )
+  count = 0
+  loop 10 (
+    count += 1
+    load "animations/player/down/" ++ count
+  )
+  count = 0
+  loop 10 (
+    count += 1
+    load "animations/player/up/" ++ count
+  )
+  count = 0
+  loop 10 (
+    count += 1
+    load "animations/player/left/" ++ count
+  )
+  count = 0
+  loop 10 (
+    count += 1
+    load "animations/player/right/" ++ count
+  )
+endef
+
+def "goback"
+  playerx = prevx
+  playery = prevy
+  playerxvel = 0
+  playeryvel = 0
+endef
+
+def "finish_loading"
+  // continues to load any images that weren't loaded in the initial setup
+  count = 0
+  loop loading.len (
+    count += 1
+    if loading.[count].imageinfo("loaded") "loading = loading.delete(count)"
+    image loading.[count] 0
+  )
+endef
+
+def "movekeys" "up,down,left,right"
+endef
+
+movekeys "w" "s" "a" "d"
+// sets movement keybinds
+
+loadall
+// loads assets
+
+new_game
+// creates a new game
+
+mainloop:
+
+finish_loading
+
+if loading.len > 0 (
+  loc 999 999 0 0
+  load_percent = loading.len / loading_total
+  // calculates the percentage of images loaded
+  c #333
+  bar 300 20 10 1 - load_percent
+  // renders a loading bar for the currently loading images
+
+  import "win-buttons"
+  exit
+  // exits the script before any more code is run
+)
+// loading screen
+
+map_location = playermapx ++ "x" ++ playermapy ++ "x" ++ playermapz
+current_room = github_link ++ "environments/" ++ map_location ++ ".png"
+// sets values that are referenced by other parts of the progrm a lot
+
+if last_room != current_room (
+  image "clear" last_room
+  last_room = current_room
+  load_animate = true
+  target = 0
+  load_x = 2
+)
+
+// clears out old environment images when you leave the area
+
+game_width = window_width
+game_height = window_height
+if game_height < game_width "game_scale = game_height"
+if game_height > game_width "game_scale = game_width"
+// sets the game viewport
+
+anim_frame += 0.3
+if anim_frame > anim_length "anim_frame = anim_start"
+// animator, loops through frames of current player animation
+
+speed = 4
+if "shift".pressed "speed += 3"
+// sprint and speed system
+
+if load_animate.not (
+  image current_room game_scale
+  // draws the room background
+)
+
+if anim_start != 1 or up.pressed or left.pressed or right.pressed or down.pressed (
+  run_animator
+  // controls the movement animations of the player
+)
+
+if "any".pressed and load_animate.not (
+  // This is a very good optimisation, these files are laggy
+
+  run_movement
+  // controls the movement systems of the player
+
+  run_collisions
+  // controls the collision engine
+)
+
+goto px py
+if load_animate.not (
+  image github_link ++ "animations/player/" ++ current_anim ++ "/" ++ anim_frame.round ++ ".png" game_scale / 6
+  // renders player
+)
+
+if chat_text == "" and load_animate.not "run_interactions"
+// controls the interaction system
+
+if chat_text != "" and load_animate.not (
+  run_chat
+  if location.dist(chatx,chaty) > chatdist (
+    chat_text = ""
+  )
+)
+// renders the chat box
+
+frame "clear"
+import "win-buttons"
+
+if target == 0 and load_animate (
+  load_x += 0 - load_x / 3
+  goto load_x * game_scale 0
+  image current_room 10
+  image github_link ++ "oki-icon.png" game_scale
+  if load_x < 0.1 and current_room.imageinfo("loaded") "target = -2"
+)
+if target == -2 (
+  load_animate = false
+  load_x += -2 - load_x / 10
+  goto load_x * game_scale 0
+  image github_link ++ "oki-icon.png" game_scale
+  if load_x < -1.9 "target = 0"
+)
