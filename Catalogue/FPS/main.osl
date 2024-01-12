@@ -1,1 +1,14 @@
-
+window "front"
+window "resizable" False
+mainloop:
+window "hide"
+window "x" screensize_x / -2 + 60
+window "y" screensize_y / 2 - 15
+window "dimensions" 120 50
+colour #fff
+goto -25
+fps2 = fps.round
+text "<fps2>FPS" 10
+goto -40 0
+icon "Close" 0.6
+if clicked "window stop"
