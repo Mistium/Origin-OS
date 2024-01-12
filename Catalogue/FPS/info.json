@@ -9,4 +9,5 @@
   ],
   "links": [],
   "description": "This application is a lightweight GUI tool designed to display the current frames per second (FPS) in the top left of the screen, ontop of any other open windows."
+  "version required":"399"
 }
