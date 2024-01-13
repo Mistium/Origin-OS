@@ -1,0 +1,28 @@
+memory = "Array".new(3000)
+pointer = 0
+input_buffer = ""
+output_buffer = ""
+
+count = 0
+loop code.len (
+  count += 1
+  run_c = code.[count]
+  if run_c == ">" "pointer += 1"
+  if run_c == "<" "pointer -= 1"
+  if run_c == "+" "memory.[pointer] += 1"
+  if run_c == "-" "memory.[pointer] -= 1"
+  if run_c == "." (
+    output_buffer = output_buffer + memory.[pointer].from("unicode")
+  )
+  if run_c == "," (
+    memory.[pointer] = "Input a Character".ask.to("unicode")
+  )
+  if run_c == "[" and ( pointer == 0 ) (
+    count += code.trim(count,99999999).index("]")
+  )
+  if run_c == "]" and ( memory.[pointer] != 0 ) (
+    
+  )
+)
+
+window "stop"
