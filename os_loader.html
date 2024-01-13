@@ -36,7 +36,7 @@
             margin-bottom: 20px;
         }
 
-        button {
+        .fade-in-button {
             padding: 10px 20px;
             font-size: 18px;
             background-color: #3498db;
@@ -44,10 +44,14 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: background-color 0.3s ease, opacity 0.8s ease, transform 0.8s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.8s forwards;
+            animation-delay: 0.3s; /* Adjust the delay based on your preference */
         }
 
-        button:hover {
+        .fade-in-button:hover {
             background-color: #2e86c1;
         }
 
@@ -62,8 +66,8 @@
 <body>
 
 <div id="container">
-    <h1>Choose an OS:</h1>
-    <button onclick="originOS()">OrininOS [ORIGINAL]</button>
+    <h1>Chose an OS:</h1>
+    <button class="fade-in-button" onclick="originOS()">OrininOS [ORIGINAL]</button>
 </div>
 
 <script>
