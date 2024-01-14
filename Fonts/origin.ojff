@@ -97,7 +97,7 @@
   ":": "dot 15 30 dot 15 10",
   ";": "dot 15 30 line 15 5 12 -5",
   "#": "line 5 5 15 40 line 15 5 25 40 line 5 17 25 17 line 5 27 25 27",
-  "&": "line 25 5 5 35 cont 10 40 cont 15 40 line 10 15 5 10 cont 10 5",
+  "&": "line 25 5 10 30 cutcircle 14.5 32 5 2 120 cont 10 24 cutcircle 15 15 10 130 120",
   "@": "line 19 15 19 25 cont 13 25 cont 11 22 cont 11 13 cont 26 13 cont 26 38 cont 4 38 cont 4 5 cont 23 5",
   "$": "line 5 5 25 5 cont 25 20 cont 5 20 cont 5 40 cont 25 40 line 12 0 12 45",
   "%": "line 10 10 20 35 w 5 dot 25 15 dot 5 28",
