@@ -10,7 +10,7 @@
   "8": "line 10 5 30 5 cont 30 40 cont 10 40 cont 10 5 line 10 20 30 20",
   "9": "line 30 20 10 20 cont 10 40 line 30 5 30 40 cont 10 40",
   ".manifest": {
-    "version": "4",
+    "version": "1",
     "language": "English"
   },
   " ": "",
