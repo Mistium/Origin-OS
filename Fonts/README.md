@@ -20,3 +20,13 @@ Successfully installed font
 //
 Failed to load font
 ```
+
+`font use origin.ojff`
+
+```
+Swapped default font successfully
+//
+Already using font
+//
+Font is not installed
+```
