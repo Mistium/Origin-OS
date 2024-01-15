@@ -3,18 +3,21 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OSL Editor</title>
+  <title>Python Editor</title>
   <link rel="stylesheet" href="https://codemirror.net/lib/codemirror.css">
+  <link rel="stylesheet" href="https://codemirror.net/addon/hint/show-hint.css">
   <script src="https://codemirror.net/lib/codemirror.js"></script>
-  <script src="https://codemirror.net/mode/clike/clike.js"></script>
+  <script src="https://codemirror.net/mode/python/python.js"></script>
+  <script src="https://codemirror.net/addon/hint/show-hint.js"></script>
+  <script src="https://codemirror.net/addon/hint/python-hint.js"></script>
 </head>
 <body>
-  <textarea id="customEditor"></textarea>
+  <textarea id="pythonEditor"></textarea>
 
   <script>
-    // Initialize CodeMirror
-    var editor = CodeMirror.fromTextArea(document.getElementById("customEditor"), {
-      mode: "text/x-custom-language",
+    // Initialize CodeMirror with Python mode and autocompletion
+    var editor = CodeMirror.fromTextArea(document.getElementById("pythonEditor"), {
+      mode: "python",
       lineNumbers: true,
       autofocus: true,
       extraKeys: {"Ctrl-Space": "autocomplete"}
