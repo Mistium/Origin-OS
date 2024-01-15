@@ -71,58 +71,53 @@
     </div>
 
     <script>
-        var wordList = [
-            "import", "from", "def", "class", "if", "else", "elif", "for", "while", "try", "except", "finally",
-            "print", "return", "yield", "break", "continue", "pass", "assert", "raise", "with", "as", "lambda",
-            "True", "False", "None", "and", "or", "not", "in", "is", "global", "nonlocal", "del"
-        ];
+    var wordList = [
+        "import", "from", "def", "class", "if", "else", "elif", "for", "while", "try", "except", "finally",
+        "print", "return", "yield", "break", "continue", "pass", "assert", "raise", "with", "as", "lambda",
+        "True", "False", "None", "and", "or", "not", "in", "is", "global", "nonlocal", "del"
+    ];
 
-        var suggestionBox = document.getElementById("suggestionBox");
-        var suggestionList = document.getElementById("suggestionList");
-        var codeEditor = document.getElementById("codeEditor");
+    var suggestionBox = document.getElementById("suggestionBox");
+    var suggestionList = document.getElementById("suggestionList");
+    var codeEditor = document.getElementById("codeEditor");
 
-        codeEditor.addEventListener("input", function (event) {
-            var cursor = { line: 0, ch: 0 };
-            var token = { start: 0, end: 0 };
-            var start = { line: cursor.line, ch: token.start };
-            var end = { line: cursor.line, ch: token.end };
-            var word = codeEditor.value.slice(start.ch, end.ch);
+    codeEditor.addEventListener("input", function (event) {
+        var cursor = { line: 0, ch: 0 };
+        var token = { start: 0, end: 0 };
+        var start = { line: cursor.line, ch: token.start };
+        var end = { line: cursor.line, ch: token.end };
+        var word = codeEditor.value.slice(start.ch, end.ch);
 
-            if (word.length > 0) {
-                var suggestions = wordList.filter(function (item) {
-                    return item.startsWith(word);
-                });
+        if (word.length > 0) {
+            var suggestions = wordList.filter(function (item) {
+                return item.startsWith(word);
+            });
 
-                if (suggestions.length > 0) {
-                    showSuggestions(suggestions, start, end);
-                } else {
-                    hideSuggestions();
-                }
+            if (suggestions.length > 0) {
+                // Automatically show suggestions and ask the user to autocomplete
+                confirmAutocomplete(suggestions[0], start, end);
             } else {
                 hideSuggestions();
             }
-        });
-
-        function showSuggestions(suggestions, start, end) {
-            suggestionList.innerHTML = "";
-            suggestions.forEach(function (item) {
-                var li = document.createElement("li");
-                li.classList.add("suggestionItem");
-                li.textContent = item;
-                li.addEventListener("click", function () {
-                    codeEditor.setRangeText(item, start.ch, end.ch, "end");
-                    hideSuggestions();
-                });
-                suggestionList.appendChild(li);
-            });
-
-            suggestionBox.style.display = "block";
+        } else {
+            hideSuggestions();
         }
+    });
 
-        function hideSuggestions() {
-            suggestionBox.style.display = "none";
+    function confirmAutocomplete(suggestion, start, end) {
+        var shouldAutocomplete = confirm("Do you want to autocomplete with '" + suggestion + "'?");
+        if (shouldAutocomplete) {
+            codeEditor.setRangeText(suggestion, start.ch, end.ch, "end");
+            hideSuggestions();
+        } else {
+            hideSuggestions();
         }
-    </script>
+    }
+
+    function hideSuggestions() {
+        suggestionBox.style.display = "none";
+    }
+</script>
 
 </body>
 </html>
