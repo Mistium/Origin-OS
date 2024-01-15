@@ -94,7 +94,7 @@
                 });
 
                 if (suggestions.length > 0) {
-                    showSuggestions(suggestions);
+                    showSuggestions(suggestions, start, end);
                 } else {
                     hideSuggestions();
                 }
@@ -103,7 +103,7 @@
             }
         });
 
-        function showSuggestions(suggestions) {
+        function showSuggestions(suggestions, start, end) {
             suggestionList.innerHTML = "";
             suggestions.forEach(function (item) {
                 var li = document.createElement("li");
