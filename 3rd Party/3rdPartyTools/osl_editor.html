@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSL Code Editor</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: #ffffff;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        
+        #editorContainer {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        #codeEditor {
+            width: 80%;
+            height: 400px;
+            background-color: #2a2a2a;
+            color: #ffffff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            resize: none;
+            position: relative;
+        }
+
+        #suggestionBox {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 80%;
+            background-color: #333;
+            padding: 5px;
+            display: none;
+        }
+
+        #suggestionList {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+
+        .suggestionItem {
+            cursor: pointer;
+            padding: 5px;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="editorContainer">
+        <h1>OSL Code Editor</h1>
+        <textarea id="codeEditor" placeholder="Start typing your code..."></textarea>
+        <div id="suggestionBox">
+            <ul id="suggestionList"></ul>
+        </div>
+    </div>
+
+    <script>
+        var wordList = [
+            "import", "from", "def", "class", "if", "else", "elif", "for", "while", "try", "except", "finally",
+            "print", "return", "yield", "break", "continue", "pass", "assert", "raise", "with", "as", "lambda",
+            "True", "False", "None", "and", "or", "not", "in", "is", "global", "nonlocal", "del"
+        ];
+
+        var suggestionBox = document.getElementById("suggestionBox");
+        var suggestionList = document.getElementById("suggestionList");
+        var codeEditor = document.getElementById("codeEditor");
+
+        codeEditor.addEventListener("input", function (event) {
+            var cursor = { line: 0, ch: 0 };
+            var token = { start: 0, end: 0 };
+            var start = { line: cursor.line, ch: token.start };
+            var end = { line: cursor.line, ch: token.end };
+            var word = codeEditor.value.slice(start.ch, end.ch);
+
+            if (word.length > 0) {
+                var suggestions = wordList.filter(function (item) {
+                    return item.startsWith(word);
+                });
+
+                if (suggestions.length > 0) {
+                    showSuggestions(suggestions);
+                } else {
+                    hideSuggestions();
+                }
+            } else {
+                hideSuggestions();
+            }
+        });
+
+        function showSuggestions(suggestions) {
+            suggestionList.innerHTML = "";
+            suggestions.forEach(function (item) {
+                var li = document.createElement("li");
+                li.classList.add("suggestionItem");
+                li.textContent = item;
+                li.addEventListener("click", function () {
+                    codeEditor.setRangeText(item, start.ch, end.ch, "end");
+                    hideSuggestions();
+                });
+                suggestionList.appendChild(li);
+            });
+
+            suggestionBox.style.display = "block";
+        }
+
+        function hideSuggestions() {
+            suggestionBox.style.display = "none";
+        }
+    </script>
+
+</body>
+</html>
