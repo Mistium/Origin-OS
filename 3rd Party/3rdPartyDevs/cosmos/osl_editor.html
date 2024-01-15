@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OSL Editor</title>
+  <link rel="stylesheet" href="https://codemirror.net/lib/codemirror.css">
+  <script src="https://codemirror.net/lib/codemirror.js"></script>
+  <script src="https://codemirror.net/mode/clike/clike.js"></script>
+</head>
+<body>
+  <textarea id="customEditor"></textarea>
+
+  <script>
+    // Initialize CodeMirror
+    var editor = CodeMirror.fromTextArea(document.getElementById("customEditor"), {
+      mode: "text/x-custom-language",
+      lineNumbers: true,
+      autofocus: true,
+      extraKeys: {"Ctrl-Space": "autocomplete"}
+    });
+  </script>
+</body>
+</html>
