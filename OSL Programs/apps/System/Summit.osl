@@ -112,13 +112,6 @@ def "resolve_protocols" "url"
   page_type = urlspl.[len]
 endef
 
-def "validate_data" "validation"
-  if validation != "" (
-    pages.[tab] = validation.split(newline)
-    current_get = ""
-  )
-endef
-
 opentab "owtp://search.web"
 
 mainloop:
@@ -148,8 +141,11 @@ if selected_input == "search" and "enter".pressed (
 resolve_protocols taburls.[tab]
 network "get" current_get
 
-page_data = data
-validate_data data
+if data != "" (
+  page_data = data
+  pages.[tab] = data.split(newline)
+  current_get = ""
+)
 
 loc 2 2 70 -59
 icon "search" 0.6 : c#c_searchicon
@@ -206,11 +202,11 @@ page_len = null
 current_tab_name = input_search
 
 if page_type == "osl" (
-run pages.[tab]
+  run pages.[tab]
 )
 if page_type == "png" (
-  loc 999 999
-  image taburls.[tab] frame_width
+  goto 0-0
+  image taburls.[tab].replace(newline,).destr.replace("owtp://",owtpurl) frame_width
 )
 if page_type == "txt" (
   loc 2 2 20 -20 + scroll_y
@@ -218,14 +214,6 @@ if page_type == "txt" (
   text page_data.str 10
   set_tab_name
   current_tab_name.key("icon") = "txt"
-  page_len = pages.[tab].len * 25
-)
-if page_type == "md" (
-  loc 2 2 20 -20 + scroll_y
-  c c_text
-  text page_data.str 10
-  set_tab_name
-  current_tab_name.key("icon") = "md"
   page_len = pages.[tab].len * 25
 )
 onload = false
