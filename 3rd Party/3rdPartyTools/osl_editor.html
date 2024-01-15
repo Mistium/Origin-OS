@@ -3,121 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OSL Code Editor</title>
+    <title>Word Similarity Checker</title>
     <style>
         body {
-            background-color: #1a1a1a;
-            color: #ffffff;
             font-family: 'Arial', sans-serif;
-            margin: 0;
-            overflow: hidden;
+            margin: 20px;
         }
         
-        #editorContainer {
-            width: 100%;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        #codeEditor {
-            width: 80%;
-            height: 400px;
-            background-color: #2a2a2a;
-            color: #ffffff;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-            font-family: 'Courier New', monospace;
-            resize: none;
-            position: relative;
-        }
-
-        #suggestionBox {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 80%;
-            background-color: #333;
+        #inputBox {
+            width: 200px;
             padding: 5px;
-            display: none;
         }
 
-        #suggestionList {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-            max-height: 100px;
-            overflow-y: auto;
+        #resultDiv {
+            margin-top: 10px;
         }
 
-        .suggestionItem {
+        #similarityButton, #addButton {
+            margin-top: 10px;
+            padding: 5px;
             cursor: pointer;
-            padding: 5px;
-            color: #fff;
         }
     </style>
 </head>
 <body>
 
-    <div id="editorContainer">
-        <h1>OSL Code Editor</h1>
-        <textarea id="codeEditor" placeholder="Start typing your code..."></textarea>
-        <div id="suggestionBox">
-            <ul id="suggestionList"></ul>
-        </div>
-    </div>
+    <label for="inputBox">Enter Text:</label>
+    <input type="text" id="inputBox">
+    <button id="similarityButton">Check and Replace</button>
+    <button id="addButton">Add to List</button>
+
+    <div id="resultDiv"></div>
 
     <script>
-    var wordList = [
-        "import", "from", "def", "class", "if", "else", "elif", "for", "while", "try", "except", "finally",
-        "print", "return", "yield", "break", "continue", "pass", "assert", "raise", "with", "as", "lambda",
-        "True", "False", "None", "and", "or", "not", "in", "is", "global", "nonlocal", "del"
-    ];
+        var wordList = [
+            "import", "from", "def", "class", "if", "else", "elif", "for", "while", "try", "except", "finally",
+            "print", "return", "yield", "break", "continue", "pass", "assert", "raise", "with", "as", "lambda",
+            "True", "False", "None", "and", "or", "not", "in", "is", "global", "nonlocal", "del"
+        ];
 
-    var suggestionBox = document.getElementById("suggestionBox");
-    var suggestionList = document.getElementById("suggestionList");
-    var codeEditor = document.getElementById("codeEditor");
+        var inputBox = document.getElementById("inputBox");
+        var similarityButton = document.getElementById("similarityButton");
+        var addButton = document.getElementById("addButton");
+        var resultDiv = document.getElementById("resultDiv");
 
-    codeEditor.addEventListener("input", function (event) {
-        var cursor = { line: 0, ch: 0 };
-        var token = { start: 0, end: 0 };
-        var start = { line: cursor.line, ch: token.start };
-        var end = { line: cursor.line, ch: token.end };
-        var word = codeEditor.value.slice(start.ch, end.ch);
+        similarityButton.addEventListener("click", function () {
+            var inputText = inputBox.value.toLowerCase(); // Convert input text to lowercase for case-insensitive comparison
 
-        if (word.length > 0) {
-            var suggestions = wordList.filter(function (item) {
-                return item.startsWith(word);
-            });
+            // Check similarity and replace if a similar word is found
+            for (var i = 0; i < wordList.length; i++) {
+                var word = wordList[i].toLowerCase(); // Convert word from the list to lowercase
 
-            if (suggestions.length > 0) {
-                // Automatically show suggestions and ask the user to autocomplete
-                confirmAutocomplete(suggestions[0], start, end);
-            } else {
-                hideSuggestions();
+                if (inputText.includes(word)) {
+                    inputBox.value = inputText.replace(word, wordList[i]);
+                    break; // Stop checking if a match is found
+                }
             }
-        } else {
-            hideSuggestions();
-        }
-    });
+        });
 
-    function confirmAutocomplete(suggestion, start, end) {
-        var shouldAutocomplete = confirm("Do you want to autocomplete with '" + suggestion + "'?");
-        if (shouldAutocomplete) {
-            codeEditor.setRangeText(suggestion, start.ch, end.ch, "end");
-            hideSuggestions();
-        } else {
-            hideSuggestions();
-        }
-    }
-
-    function hideSuggestions() {
-        suggestionBox.style.display = "none";
-    }
-</script>
+        addButton.addEventListener("click", function () {
+            var inputValue = inputBox.value;
+            var newDiv = document.createElement("div");
+            newDiv.textContent = inputValue;
+            resultDiv.appendChild(newDiv);
+            inputBox.value = ""; // Clear the input box after adding to the list
+        });
+    </script>
 
 </body>
 </html>
