@@ -203,10 +203,12 @@ current_tab_name = input_search
 
 if page_type == "osl" (
   run pages.[tab]
+  onload = false
 )
 if page_type == "png" (
-  goto 0-0
-  image taburls.[tab].replace(newline,).destr.replace("owtp://",owtpurl) frame_width
+  goto 0 0
+  image taburls.[tab].destr.replace("owtp://",owtpurl) frame_width
+  page_data = ""
 )
 if page_type == "txt" (
   loc 2 2 20 -20 + scroll_y
@@ -216,7 +218,6 @@ if page_type == "txt" (
   current_tab_name.key("icon") = "txt"
   page_len = pages.[tab].len * 25
 )
-onload = false
 tabs.[tab] = current_tab_name
 frame "clear"
 import "win-buttons"
