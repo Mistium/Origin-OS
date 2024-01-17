@@ -4,24 +4,26 @@ def "corner" "xcha,ycha"
 goto sx + xcha sy + ycha
 pen "down"
 pointat 0 100
-change direction.sin * -400 direction.cos * -400
+change direction.sin * -1000 direction.cos * -1000
 pen "up"
+endef
 
 mainloop:
 if "w".pressed "sy += 5"
 if "s".pressed "sy -= 5"
 if "d".pressed "sx += 5"
 if "a".pressed "sx -= 5"
+sx = mouse_x
+sy = mouse_y
 goto sx sy
 square 10 10 10 : c#fff
 goto 0 100
-
-distance = [0,100].append(sx).append(sy).dist()
+distance = [0,100].dist(sx,sy)
 square 10 15 10
 pen "size" 5
-corner 5 5
 corner 5 -5
+corner 5 5
 corner -5 5
 corner -5 -5
-goto 
+goto
 import "win-buttons"
