@@ -1,1 +1,27 @@
-t
+// i'm feeling amazing!!
+
+w 1.5
+cutcircle 0 0 10 0 180
+line -5 0 -4 1
+cont -3 0
+cont -3 1
+cont -2 2
+cont -3 2
+cont -4 3.5
+cont -5 2
+cont -6 2
+cont -5 1
+cont -5 0
+dot -4 2
+line 5 0 4 1
+cont 3 0
+cont 3 1
+cont 2 2
+cont 3 2
+cont 4 3.5
+cont 5 2
+cont 6 2
+cont 5 1
+cont 5 0
+dot 4 2
+cutcircle 0 -4 2 0 180
