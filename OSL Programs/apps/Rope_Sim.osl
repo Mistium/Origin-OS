@@ -1,16 +1,14 @@
 def "rope" "id,x_start,y_start,elasticity,ghor,gver,colour"
 if true "x = rope_x_" ++ id
 if true "y = rope_y_" ++ id
-
 x.[1] = x_start.round
 y.[1] = y_start.round
-
 i1 = 1
 loop x.len - 1 (
   i1 += 1
   i2 = i1 - 1
-  setx = x.[i2].destr - x.[i1].destr / elasticity + ghor
-  sety = y.[i2].destr - y.[i1].destr / elasticity + gver
+  setx = x.[i2] - x.[i1] / elasticity + ghor
+  sety = y.[i2] - y.[i1] / elasticity + gver
   x.[i1] += setx.round
   y.[i1] += sety.round
 )
@@ -32,14 +30,13 @@ endef
 
 def "create_rope" "id,length"
   new = "array".new(length)
-  if true "rope_x_" ++ id.destr ++ "= new"
-  if true "rope_y_" ++ id.destr ++ "= new"
+  if true "rope_x_" ++ id + "= new"
+  if true "rope_y_" ++ id + "= new"
 endef
 
-create_rope "test" 10
+create_rope "test" 20
 
 mainloop:
 
-rope "test" mouse_x mouse_y 2 0 -5 #fff
-
+rope "test" mouse_x mouse_y 1.2 0 -10 #fff
 import "win-buttons"
