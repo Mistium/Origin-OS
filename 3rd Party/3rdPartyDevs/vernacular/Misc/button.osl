@@ -1,1 +1,13 @@
-t
+// place this b4 mainloop and call it with "button" command! see the initial line for properties!!
+
+def "button" "w,h,r,col,hcol,mcol,ttwr,tsize,tcol,thcol,tmcol"
+square w h r 0 1
+if mouse_touching "col = hcol"
+if mouse_touching "tcol = thcol"
+if clicked "col = mcol"
+if clicked "tcol = tmcol"
+square w h r : c#col
+change_x info.len * ( tsize / -4.4 )
+text ttwr tsize : c#tcol
+endef
+//makes button module + text
