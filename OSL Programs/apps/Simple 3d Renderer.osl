@@ -6,6 +6,10 @@ pd = 0
 ps = 5
 
 def "line" "x1,y1,x2,y2"
+  x1 *= 4
+  x2 *= 4
+  y1 *= 4
+  y2 *= 4
   x1 -= px
   x2 -= px
   y1 -= py
@@ -16,14 +20,16 @@ def "line" "x1,y1,x2,y2"
   mx2 = x2 * ac - ( y2 * as )
   d2 = x2 * as + ( y2 * ac )
 
+if d1 > 0.1 or ( d2 > 0.1 ) (
   if d1 < 0.1 or ( d2 < 0.1 ) (
-    if d2 < 0.1 "fr = d1"
-    if d2 >= 0.1 "fr = d2"
+    if d1 > 0.1 "fr = d1"
+    if d2 > 0.1 "fr = d2"
     percentage = fr / ( d1.abs + d2.abs - 0.1 )
     if fr == d1 (
       mx2 = mx1 + ( ( mx2 - mx1 ) * percentage )
       d2 = 0.1
-    ) else (
+    )
+    if fr != d1 (
       mx1 = mx2 + ( ( mx1 - mx2 ) * percentage )
       d1 = 0.1
     )
@@ -39,8 +45,10 @@ def "line" "x1,y1,x2,y2"
   set_y h * d2s
   goto mx1 h * d1s
   pen "up"
+)
 endef
 
+map = [[100,100],[100,-100],[-100,-100],[-100,100],[100,100]]
 mainloop:
 
 if "w".pressed (
@@ -74,7 +82,14 @@ ac = pd.cos
 pen "size" 5
 h = 100
 c #fff
-line -100 100 100 100
-line -100 100 -100 200
-line -100 200 100 200
-line 100 200 100 100
+prev = map.[1]
+count = 0
+loop map.len (
+  count += 1
+  cur = map.[count]
+  line cur.[1] cur.[2] prev.[1] prev.[2]
+  prev = cur
+)
+
+loc 2 2 20 -20
+text fps 10 : c#fff
