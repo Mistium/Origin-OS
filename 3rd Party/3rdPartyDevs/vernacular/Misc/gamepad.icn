@@ -1,0 +1,18 @@
+//it's gaming time :3
+w 2
+cutcircle 8 -5 3 52 90
+cutcircle -8 -5 3 -52 90
+line -4.9 -5.5 -4 -3
+line -4 -3 4 -3
+line 4 -3 4.9 -5.5
+line -10.9 -4 -9.5 0 
+line 10.9 -4 9.5 0
+cutcircle 6 2.3 4 43 45
+cutcircle -6 2.3 -4 11 45
+line -1.5 6 1.5 6
+cutcircle -4.5 6 2.5 0 90
+cutcircle 4.5 6 2.5 0 90
+dot 6 2.5
+dot 3.5
+line -5 0 -5 3
+line -6.5 1.5 -3.5 1.5
