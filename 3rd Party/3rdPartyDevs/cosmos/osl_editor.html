@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSL Code Editor</title>
+    <style>
+        body {
+            background-color: #2d2d2d;
+            color: #fff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+        }
+
+        #editor {
+            height: 300px;
+            width: 80%;
+            margin: 50px auto;
+            background-color: #3a3a3a;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px;
+            box-sizing: border-box;
+            position: relative;
+            border-radius: 20px;
+        }
+
+        #suggestions {
+            position: absolute;
+            background-color: #3a3a3a;
+            color: #fff;
+            border: 1px solid #555;
+            max-height: 100px;
+            overflow-y: auto;
+            display: none;
+            z-index: 1;
+            width: 80%;
+            margin: -35px auto 0; /* Adjust the margin as needed */
+            border-radius: 20px;
+        }
+
+        .suggestion {
+            padding: 5px;
+            cursor: pointer;
+            border-radius: 20px;
+        }
+
+        .center {
+           text-align: center;
+        }
+        }
+    </style>
+</head>
+<body>
+    <div class="center"><h1>OSL Code Editor (v0.5)</h1></div>
+    <div id="editor" contenteditable="true"></div>
+    <div class="center"><div id="suggestions"></div></div>
+
+    <script>
+        var suggestionsList = ["def", "if", "else", "while", "for", "print", "true", "false", "window", "open", "close"];
+        var editor = document.getElementById('editor');
+        var suggestionsDiv = document.getElementById('suggestions');
+
+        editor.addEventListener('input', function() {
+            showSuggestions();
+        });
+
+        function showSuggestions() {
+            var inputText = getLastWord(editor.innerText.toLowerCase().trim());
+            var matchingSuggestions = suggestionsList.filter(function(suggestion) {
+                return suggestion.startsWith(inputText);
+            });
+
+            if (matchingSuggestions.length > 0) {
+                displaySuggestion(matchingSuggestions[0]);
+            } else {
+                hideSuggestions();
+            }
+        }
+
+        function getLastWord(text) {
+            var words = text.split(/\s+/);
+            return words.length > 0 ? words[words.length - 1] : '';
+        }
+
+        function displaySuggestion(suggestion) {
+            suggestionsDiv.innerHTML = "";
+            var suggestionDiv = document.createElement('div');
+            suggestionDiv.className = 'suggestion';
+            suggestionDiv.textContent = suggestion;
+            suggestionDiv.onclick = function() {
+                insertSuggestion(suggestion);
+            };
+            suggestionsDiv.appendChild(suggestionDiv);
+
+            suggestionsDiv.style.display = 'block';
+        }
+
+        function hideSuggestions() {
+            suggestionsDiv.style.display = 'none';
+        }
+
+      function insertSuggestion(suggestion) {
+          var currentContent = editor.innerText.trim();
+          var words = currentContent.split(/\s+/);
+
+          // Ensure there is at least one word to replace
+          if (words.length > 0) {
+              var lastWord = words[words.length - 1];
+
+              // Calculate the start index of the last word
+              var lastWordStart = currentContent.lastIndexOf(lastWord);
+
+              // Remove the last word
+              var newContent =
+                  currentContent.substring(0, lastWordStart).trim();
+
+              // Insert the new suggestion
+              if (newContent !== "") {
+                  newContent += " "; // Add a space if there are other words
+              }
+              newContent += suggestion;
+
+              editor.innerText = newContent;
+
+              hideSuggestions();
+          }
+      }
+    </script>
+</body>
+</html>
