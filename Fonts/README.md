@@ -9,11 +9,12 @@
 ## Example terminal commands
 `font view_all`
 ```
-origin.ojff
-hebrew.ojff
+origin
+hebrew
+cursed
 ```
 
-`font install origin.ojff`
+`font install origin`
 
 ```
 Successfully installed font
@@ -21,7 +22,7 @@ Successfully installed font
 Failed to load font
 ```
 
-`font use origin.ojff`
+`font use origin`
 
 ```
 Swapped default font successfully
@@ -29,4 +30,9 @@ Swapped default font successfully
 Already using font
 //
 Font is not installed
+```
+`font viewinstalled`
+
+```
+A list of your user/Fonts folder
 ```
