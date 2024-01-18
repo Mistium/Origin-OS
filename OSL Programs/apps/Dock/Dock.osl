@@ -6,7 +6,11 @@ start_x = x_position
 goto start_x
 height = 40
 syscount = 0
-import dock_theme
+
+dock_colour = #050505
+dock_secondary = #252525
+icon_colour = #fff
+
 loop segments.len (
   syscount += 1
   c dock_colour
@@ -18,11 +22,7 @@ loop segments.len (
 dock_width = x_position - start_x
 endef
 
-if config == {} (
-  config "dock_theme" "Origin/(A) System/Docks/Colour Themes/Dock-Dark.osl"
-)
 dock_theme = "Dock-Dark"
-global dock_theme
 
 window "responsive" true
 window "hide"
