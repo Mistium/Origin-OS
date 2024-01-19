@@ -1,0 +1,33 @@
+seticon ""
+cookies = 0
+window "show"
+cookie_url = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/3rd%20Party/3rdPartyDevs/RattusDong/Cookie/PerfectCookie.png"
+mainloop:
+
+loc -2 2 -20 -20
+square 20 20 20 : c#222
+icon "close" 0.8 : c#DECBB7
+if clicked "window stop"
+
+t = timer * 150
+width += target - width / 5
+goto 0 0
+image cookie_url width
+target = 200
+if mouse_touching (
+  if mouse_down (
+    if can (
+      cookies += 1
+      can = false
+    )
+    target = 200
+  ) else (
+    target = 250
+  )
+) else (
+  target = 180
+)
+if mouse_down.not "can = true"
+cookies_displ = cookies + "Cookies"
+loc 999 2 cookies_displ.len * -5 -20
+text cookies_displ 10 : c#fff
