@@ -5,8 +5,7 @@ can = false
 window "front"
 
 mainloop:
-height = 50
-if settings_open "height = 300"
+
 window "dimensions" 190 300
 window "x" screensize_x / 2 - 102
 window "y" screensize_y / 2 - 160
@@ -24,12 +23,16 @@ if mouse_down.not (
   )
   can = true
 )
-loc 999 2 0 height * -0.5
-square 170 height - 20 20 : c#000
+loc 999 2 0 -25
+square 170 30 20 : c#000
 
 if settings_open (
-  loc 999 2 0 -110
-  square 170 100 10 : c#151515
+  loc 999 2 0 -198
+  square 170 155 20
+  loc 999 2 0 -255
+  square 170 40 10 : c#171717
+  change_y 85
+  square 170 100 10
   change_y 25
   terminal "system display get brightness"
   slider_brightness = return - 10 / 90
@@ -47,13 +50,14 @@ loc -2 2 -25 -25
 c #fff
 if settings_open "icon down 0.7"
 if settings_open.not "icon up 0.7"
-image user_icon.str 25 : chx#-35
+image user_icon.str 25 : chx#-46
+icon "settings" 0.8 : chx#-46
 c #555
 if network."connected" "c #fff"
-icon "settings" 0.7 : chx#-35 c#fff
-icon "battery-full" 0.7 : chx#-35
-icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-35
-icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : chx#-35
+icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-46
+loc 999 2 0 -80
+square 170 30 20 : c#000
+icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.9
 
 if "space".pressed (
   window stop
