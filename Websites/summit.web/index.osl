@@ -1,9 +1,0 @@
-current_tab_name = "Summit"
-if onload (
-links = ["/extensions","/store","/bookmarks"]
-)
-
-text "View store" 8
-if clicked (
-redirect "owtp://summit.web/store.osl"
-)

@@ -1,7 +1,0 @@
-current_tab_name = {"title":"Test Website"}
-loc 999 2 0 -30
-c #333
-square frame_width - 20 30 10 1
-c #fff
-loc 2 2 30 -30
-text "Test Website" 8
