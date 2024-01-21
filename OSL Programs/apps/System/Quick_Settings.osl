@@ -7,6 +7,7 @@ last_upload = timer + 600
 last_synced = 0
 syncing = false
 error = ""
+window "dimensions" 190 300
 
 mainloop:
 
@@ -25,7 +26,6 @@ if new_network_data (
   new_network_data = false
 )
 
-window "dimensions" 190 300
 window "x" screensize_x / 2 - 102
 window "y" screensize_y / 2 - 160
 
@@ -64,12 +64,10 @@ if settings_open (
 )
 
 loc -2 2 -25 -25
-c #fff
-if settings_open "icon down 0.7" else "icon up 0.7"
+if settings_open "icon down 0.7" else "icon up 0.7" : c#fff
 image user_icon.str 25 : chx#-46
 icon "settings" 0.8 : chx#-46
-c #555
-if network."connected" "c #fff"
+if network."connected" "c #fff" else "c #555"
 icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-46
 loc 999 2 0 -83
 square 170 30 20 : c#000
@@ -98,8 +96,6 @@ if syncing.not (
 )
 loc 999 2 -40 -77
 if used != "used" (
-text used.[1].divide(100).round / 10 ++ "kb /" + ( used.[2].divide(1000).round ) ++ "kb" 8
+  text used.[1].divide(100).round / 10 ++ "kb /" + ( used.[2].divide(1000).round ) ++ "kb" 8
 )
-if "space".pressed (
-  window stop
-)
+if "space".pressed "window stop"
