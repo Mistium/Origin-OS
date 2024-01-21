@@ -1,4 +1,0 @@
-Hello World, 
-
-this is an example text file 
-on an example website
