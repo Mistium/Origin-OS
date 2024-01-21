@@ -3,17 +3,26 @@
 settings_open = false
 can = false
 window "front"
-last_upload = timer + 500
+last_upload = timer + 600
 last_synced = 0
 syncing = false
+error = ""
+
 mainloop:
 
 if new_network_data (
-if network_data_source == "Upload_Files" (
-last_synced = timestamp
-)
-syncing = false
-new_network_data = false
+  if network_data_command == "Upload_Files" (
+    if network_data.len == 32 (
+      last_synced = timestamp
+      syncing = false
+      error = ""
+    ) else (
+      error = network_data
+    )
+    network "My_Files_Usage"
+  )
+  if network_data_command == "my_files_usage" "used = network_data"
+  new_network_data = false
 )
 
 window "dimensions" 190 300
@@ -41,25 +50,22 @@ if settings_open (
   square 170 155 20
   loc 999 2 0 -260
   square 170 40 10 : c#171717
-  change_y 85
-  square 170 100 10
-  change_y 20
+  square 170 100 10 : chy#85
   terminal "system display get brightness"
   slider_brightness = return - 10 / 90
-  slider 130 0 "brightness" 35 : c#000
+  slider 130 0 "brightness" 32 : c#000 chy#20
   terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
   icon "c #333 w 25 dot" 1 : chx#-65
   icon "sun" 0.6 : c#fff
   change 65 -45
-  slider 130 0 "volume" 35 : c#000
+  slider 130 0 "volume" 32 : c#000
   icon "c #333 w 25 dot" 1 : chx#-65
   icon "volume-max" 0.7 : c#fff
 )
 
 loc -2 2 -25 -25
 c #fff
-if settings_open "icon down 0.7"
-if settings_open.not "icon up 0.7"
+if settings_open "icon down 0.7" else "icon up 0.7"
 image user_icon.str 25 : chx#-46
 icon "settings" 0.8 : chx#-46
 c #555
@@ -68,24 +74,32 @@ icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-
 loc 999 2 0 -83
 square 170 30 20 : c#000
 square 30 30 10 : c#171717 chx#-70
-if timer > last_upload or clicked (
-  last_upload = timer + 500
-  terminal "system uploadfiles"
+if timer > last_upload or clicked and can (
+  can = false
+  last_upload = timer + 300
   syncing = true
+  terminal "system uploadfiles"
 )
 icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : c#fff
 change 30 -10
 if syncing (
-text "Syncing" 8
+  if error == "" (
+    text "Syncing" 8
+  ) else (
+    text error 8
+  )
 )
 if syncing.not (
-if last_synced == 0 (
-  text "Not Synced" 8
-) else (
-  text "Synced:" + last_synced.timestamp("convert-relative") 8
+  if last_synced == 0 (
+    text "Not Synced" 8
+  ) else (
+    text "<last_synced.timestamp(convert-relative)>" 8
+  )
 )
+loc 999 2 -40 -77
+if used != "used" (
+text used.[1].divide(100).round / 10 ++ "kb /" + ( used.[2].divide(1000).round ) ++ "kb" 8
 )
-
 if "space".pressed (
   window stop
 )
