@@ -1,5 +1,5 @@
 // Developer: @Mistium
-// Description: This app shows quick info about your computer on your screen
+// Description: This app shows quick info about your device
 settings_open = false
 can = false
 window "front"
@@ -8,6 +8,10 @@ last_synced = 0
 syncing = false
 error = ""
 window "dimensions" 190 300
+can = false
+last_upload = timer + 300
+syncing = true
+terminal "system uploadfiles"
 
 mainloop:
 
@@ -23,6 +27,7 @@ if new_network_data (
     network "My_Files_Usage"
   )
   if network_data_command == "my_files_usage" "used = network_data"
+  network_data_command = null
   new_network_data = false
 )
 
