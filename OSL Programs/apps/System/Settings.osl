@@ -8,9 +8,8 @@ def "appopt" "optname,opticn,icnsize"
 endef
 
 def "DrawCategory" "setting,icn_code"
-  c #222
   temp = x_position
-  if category == setting "c #333"
+  if category == setting "c #333" else "c #222"
   square 30 30 10 1
   if mouse_touching and clicked.not "square 30 30 13"
   if clicked (
@@ -36,11 +35,11 @@ endef
 
 def "system"
   if subcategory == "none" (
-    option "Info" 
+    option "Info" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
-    option "Sound"
-    option "Notifications"
-    option "Power"
+    option "Sound" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
+    option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
+    option "Power" "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10"
     option "Storage" "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
     option "Multitasking" "w 2 line -10 5 0 10 line 10 5 0 10 line 0 0 -10 5 line 0 0 10 5 line -10 -1 0 -6 line 10 -1 0 -6 line -10 -7 0 -12 line 10 -7 0 -12"
     option "Community" "w 2 cutcircle 0 4 5 0 180 line -6 -5 6 -5 line 6 -5 8 -10 line -6 -5 -8 -10 line -8 -10 8 -10"
@@ -209,7 +208,7 @@ endef
 def "personalisation"
   if subcategory == "none" (
     option "Background"
-    option "Dock"
+    option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
     option "Colours"
   )
   if subcategory == "Background" (
@@ -444,7 +443,7 @@ DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
 DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
 loc 2 2 25 -225
-image user."pfp".str 35
+image user_icon 35
 loc 2 2 70 -25
 
 if subcategory == "none" "text category 10 : c#fff"
