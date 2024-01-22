@@ -1,0 +1,126 @@
+weapon1 = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Kill%20Will/XX696"
+g1 = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Kill%20Will/decorations/D120.png"
+g2 = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Kill%20Will/decorations/D20.png"
+d140 = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Kill%20Will/decorations/d140.png"
+g3 = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Kill%20Will/decorations/D30.png"
+// red flower
+g4 = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Kill%20Will/decorations/D40.png"
+// white flower
+frame = 1
+player_x = 0
+player_y = 0
+player_direction = 0
+speed = 40
+window "show"
+window "maximise"
+def "line" "x1,y1,x2,y2"
+  x1 = x1 * -200 - player_x
+  x2 = x2 * -200 - player_x
+  y1 = y1 * -200 - player_y
+  y2 = y2 * -200 - player_y
+  mx1 = x1 * ac - ( y1 * as )
+  d1 = x1 * as + ( y1 * ac )
+  mx2 = x2 * ac - ( y2 * as )
+  d2 = x2 * as + ( y2 * ac )
+pos = [] + x_position + y_position
+if d1 > 0.1 or ( d2 > 0.1 ) and ( pos.getcol != #9c4424 ) (
+  if d1 < 0.1 or ( d2 < 0.1 ) (
+    fr = d2
+    if d1 > 0.1 "fr = d1"
+    percentage = fr / ( d1.abs + d2.abs - 0.1 )
+    if fr == d1 (
+      mx2 = mx2 - mx1 * percentage + mx1
+      d2 = 0.1
+    )
+    if fr != d1 (
+      mx1 = mx1 - mx2 * percentage + mx2
+      d1 = 0.1
+    )
+  )
+  dis1 = [0,0].dist(mx1,d1)
+  dis2 = [0,0].dist(mx2,d2)
+  if dis1 < dis2 "dis1 = dis2"
+  if dis1 > last_dist and ( count > 1 ) (
+    count2 = count - 1
+    render = render.swap(count,count2)
+  )
+  mx1 *= window_height / d1
+  mx2 *= window_height / d2
+  d1s = 1 / d1 * window_height * h2
+  d2s = 1 / d2 * window_height * h2
+  goto
+  triangle mx1 d1s mx1 d1s * -1 mx2 d2s
+  goto
+  triangle mx2 d2s * -1 mx1 d1s * -1 mx2 d2s
+  last_dist = dis1
+  prev = cur
+)
+endef
+def "render_object" "x1,y1,skin,width,height,continue"
+  x1 = x1 * -200 - player_x
+  y1 = y1 * -200 - player_y
+  mx1 = x1 * ac - ( y1 * as )
+  d1 = x1 * as + ( y1 * ac )
+if d1 > 0.1 (
+  dis1 = [0,0].dist(mx1,d1)
+  if dis1 > last_dist and ( count > 1 ) (
+    count2 = count - 1
+    render = render.swap(count,count2)
+  )
+  d1s = 1 / dis1 * window_height
+  goto window_height / d1 * mx1 d1s * h
+  image skin width * d1s height * d1s
+  last_dist = dis1
+)
+endef
+render = [[3,7,"g1"],[4,8,"g1"],[5,8,"g2"],[6,8,"g1"],[7,8,"g1"],[9,8,"g2"],[9,9,"g1"],[10,8,"g1"],[11,8,"g2"],[12,8,"g1"],[11,9,"g2"],[11,10,"g3"],[10,10,"g1"],[10,9,"g4"],[-1,7,2,7],[2,7,3,8],[3,8,12,8],[12,8,13,7],[13,7,13,6],[13,6,17,6],[17,6,17,7],[17,7,18,8],[18,8,19,8],[19,8,20,7],[20,7,20,2],[20,2,21,1],[21,1,23,1],[23,1,24,2],[24,2,24,7],[24,7,25,8],[25,8,28,8],[28,8,28,9],[28,9,25,9],[25,9,24,10],[24,10,24,13],[24,13,23,14],[23,14,21,14],[21,14,20,13],[20,13,20,10],[20,10,19,9],[19,9,12,9],[12,9,11,10],[11,10,11,11],[11,11,7,11],[7,11,7,10],[7,10,6,9],[6,9,2,9],[2,9,1,8],[1,8,-1,8]]
+h = -100
+h2 = 150
+mainloop:
+if "left arrow".pressed "player_direction -= 10"
+if "right arrow".pressed "player_direction += 10"
+as = player_direction.sin
+ac = player_direction.cos
+pda = player_direction.add(90)
+if "w".pressed (
+player_x += as * speed
+player_y += ac * speed
+)
+if "s".pressed (
+player_x -= as * speed
+player_y -= ac * speed
+)
+if "d".pressed (
+player_x += pda.sin * speed
+player_y += pda.cos * speed
+)
+if "a".pressed (
+player_x -= pda.sin * speed
+player_y -= pda.cos * speed
+)
+loc 999 -4
+square window_width window_height / 2 10 : c#d0681e
+pen "size" 5
+c #9c4424
+prev = [-1,7]
+count = 0
+last_dist = -1
+loop render.len (
+  count += 1
+  cur = render.[count]
+  if cur.len == 4 "line cur.[1] + 1 cur.[2] - 0.5 cur.[3] + 1 cur.[4] - 0.5"
+  if cur.len == 3 "render_object cur.[1] cur.[2] cur.[3].contents 100 100"
+)
+if mouse_down (
+frame += 0.3
+if frame > 7 "frame = 2"
+)
+if mouse_down.not "frame = 1"
+loc -4 -2 0 50
+image weapon1 ++ frame.floor ++ ".png" window_width / 2 window_width / 2
+loc 2 2 20 -20
+text "<fps>" 10 : c#fff
+cursor "lock"
+if "escape".pressed (
+window "stop"
+)
