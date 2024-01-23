@@ -173,10 +173,10 @@ def "system"
     page_len = 460
   )
   if subcategory == "Community" (
-    loc 2 2 10 -100
+    loc 2 2 10 -20
     text "Patreon Supporters:" 10 : c#fff
     supporters = ["Vernacular"]
-    loc 2 2 10 -130
+    loc 2 2 10 -40
     text supporters.join(newline) 10
     page_len = supporters.len * -10
   )
@@ -300,6 +300,7 @@ def "personalisation"
   )
   if subcategory == "Colours" (
     if accent_select.[1] != "#" (
+      colourpicker "setcol" global_accent
       accent_select = global_accent
     )
     loc 2 2 15 -30
@@ -412,6 +413,7 @@ endef
 window "dimensions" 880 500
 dock_location = dock_location
 segments = segments
+accent_select = ""
 
 network_drive = "none"
 category = "System"
