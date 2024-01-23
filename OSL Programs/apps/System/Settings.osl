@@ -35,7 +35,7 @@ endef
 
 def "system"
   if subcategory == "none" (
-    option "Info" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
+    option "Info" "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
     option "Sound" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
     option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
@@ -62,7 +62,7 @@ def "system"
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
     loc 2 2 200 -170
-    if system_url.contains("https://raw.githack.com/Mistium/Origin-OS/main/") (
+    if system_url.contains("raw.githack.com/Mistium/Origin-OS") (
       text "BIOS: Offical" 8
     ) else (
       if system_url.left(7) == "file://" (
@@ -251,6 +251,12 @@ def "personalisation"
   page_len = yc.round * 230 + 50
   )
   if subcategory == "Dock" (
+    loc 2 2 20 -20
+    text "Reset Dock To Default" 10 : c#fff
+    icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
+    if clicked (
+      segments = ["Main","Applications","Time","Battery","Now Playing"]
+    )
     loc 2 2 110 -140
     x2 = x_position
     x = x2
@@ -275,8 +281,8 @@ def "personalisation"
       if clicked and can "segments = segments.swap(count,count2)"
       if c or c2 or clicked "can = False"
       change -160 35
-      icon "ode" 1
-      text segments.item(count) 9 : c#fff chx#20
+      icon "c #6db2b3 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #456868 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 line -3 -7 3 -7" 1
+      text segments.[count] 9 : c#fff chx#20
       x += 220
       if x + 110 > ( window_width / 2 ) (
         x = x2
@@ -297,6 +303,7 @@ def "personalisation"
     )
     file_dropped = 0
     global "segments"
+    save "segments.txt" "set" segments
   )
   if subcategory == "Colours" (
     if accent_select.[1] != "#" (
