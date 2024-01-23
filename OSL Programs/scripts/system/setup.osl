@@ -10,4 +10,5 @@ file "install_type" "json" "c #ff724f w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c 
 file "install_type" "ojff" "c #489c54 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #306a38 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "Origin Font" ["Font_Loader"]
 file "install_type" "sobj" "c #edfff3 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #566a5e line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn cube 0.5 1 -4" "3d Model" ["Model_Viewer","Summit"]
 file "install_type" "icn" "" "Origin Icon" ["Studio"]
+file "install_type" "ocf" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0" "Archive" []
 file "install_type" "shortcut" "" "Alias File" ["Shortcut_Opener"]
