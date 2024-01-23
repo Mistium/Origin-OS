@@ -6,6 +6,7 @@ frame "clear"
 permission "request" "File Admin"
 mainloop:
 include "Origin/(C) Users/" ++ username ++ "/dock"
+dock = data
 window "y" screensize_y / -2 + 30
 if "space".pressed (
   window "stop"
@@ -33,7 +34,7 @@ c #fff
 loc -2 999 -140 10
 text "<hour>:<minute>" 10
 loc -2 999 -140 -10
-text "<day>:<day_number>" 10
+text "<day> <day_number>" 10
 
 loc -2 999 -220
 b = battery_percent
