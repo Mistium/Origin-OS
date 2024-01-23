@@ -1,0 +1,31 @@
+width = 0
+terminal "system windows set min-y" + ( screensize_y * -1 + 150 )
+terminal "system windows set max-y" + ( screensize_y - 60 )
+include "Origin/(C) Users/" ++ username ++ "/Dock"
+dock = data
+goto 0 y
+temp = False
+x2 = x_position
+square dock.len * 50 40 20 1
+goto dock.len + 1 * -25 + 25 10
+applicationscount = 0
+loop dock.len (
+applicationscount += 1
+file "open" "id" dock.[applicationscount]
+file "render" 1.7 "interactable"
+colour #fff
+change_x 50
+)
+colour #333
+square 35 35 10 1
+colour icon_colour
+icon "dot-grid" 1
+loc -2 2 -40 -45
+text battery-percent ++ "%" 9
+t = day_number + month.trim(1,3) + hour ++ ":" ++ minute ++ ":" ++ second
+loc 999 2 t.len * -6 -45
+colour icon_colour
+text t 9
+loc 2 2 0 -45
+text "Activities" 9
+log y_position
