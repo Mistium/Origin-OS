@@ -2,6 +2,7 @@ clicked_id = 0
 window "x" 0
 window "y" 30
 windowfileloc = "Origin/(C) Users/" ++ username ++ "/Desktop"
+window "dimensions" screensize_x + 40 screensize_y - 60
 
 mainloop:
 include windowfileloc
@@ -24,16 +25,15 @@ if mouse_down (
 )
 if desktop.len == 0 "exit"
 
-mx = screensize_x / 1600
-my = screensize_x / 1000
-
 applications_count = 0
 loop desktop.len (
   applications_count += 1
   file "open" "id" desktop.[applications_count]
-  file "get" "X"
-  data2 = data * mx
-  file "get" "Y"
-  goto data2 data * my
+  goto file.[6] file.[7]
+  name = file.[2]
   file "render" 2 "interactable"
+  change_y -30
+  square name.len * 8 10 10 : c#333
+  change_x name.len * -4
+  text name 8 : c#fff
 )
