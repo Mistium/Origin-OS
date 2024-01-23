@@ -2,10 +2,11 @@ clicked_id = 0
 window "x" 0
 window "y" 30
 windowfileloc = "Origin/(C) Users/" ++ username ++ "/Desktop"
-movefileloc windowfileloc
 
 mainloop:
 include windowfileloc
+desktop = data
+movefileloc windowfileloc
 if mouse_down and can (
   can = false
   mouse_start_x = mouse_x
@@ -23,13 +24,16 @@ if mouse_down (
 )
 if desktop.len == 0 "exit"
 
+mx = screensize_x / 1600
+my = screensize_x / 1000
+
 applications_count = 0
 loop desktop.len (
   applications_count += 1
   file "open" "id" desktop.[applications_count]
   file "get" "X"
-  data2 = data
+  data2 = data * mx
   file "get" "Y"
-  goto data2 data
+  goto data2 data * my
   file "render" 2 "interactable"
 )
