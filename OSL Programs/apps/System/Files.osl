@@ -66,6 +66,7 @@ endef
 icons = {}
 file "open" user_path ++ "Desktop.folder"
 icons.key("Desktop") = file.[11]
+log icons
 file "open" user_path ++ "Downloads.folder"
 icons.key("Downloads") = file.[11]
 file "open" user_path ++ "Documents.folder"
@@ -79,6 +80,8 @@ icons.key("Local") = file.[11]
 file "open" "Origin/(C) Users.folder"
 icons.key("Users") = file.[11]
 icons.key(username) = "image" + user_icon.str + "20"
+
+log icons
 
 mainloop:
   lightmode = config.key("Light Mode")
