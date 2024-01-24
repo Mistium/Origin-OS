@@ -6,36 +6,22 @@ c_tabselected = #555
 c_searchback = #151515
 c_searchbar = #222
 c_searchicon = #fff
-
 c_text = #fff
 c_back = #000
-
 default_tab_width = 300
-
 save "bookmarks.json" "get"
 bookmarks = save-data
 if bookmarks == null (
   save "bookmarks.json" "set" {}
   bookmarks = []
 )
-
 owtpurl = "https://raw.githubusercontent.com/Mistium/owtp/main/"
-
 window "show"
 tab = 1
 pages = []
 tabs = []
 taburls = []
 current_get = ""
-
-def "set_tab_name"
-  name = taburls.[tab].split("/")
-  len = name.len
-  name = name.[len]
-  current_tab_name = {}
-  current_tab_name.key("title") = name
-endef
-
 def "opentab" "url"
   resolve_protocols url
   input_search = url.destr
@@ -45,14 +31,12 @@ def "opentab" "url"
   tab = tabs.len
   onload = true
 endef
-
 def "remove_tab" "id"
   if tab == id "tab -= 1"
   pages = pages.delete(id)
   tabs = tabs.delete(id)
   taburls = taburls.delete(id)
 endef
-
 def "render_tabs"
   tab_max_width = window_width - 200
   tab_width = default_tab_width
@@ -69,8 +53,7 @@ def "render_tabs"
     if clicked "input_search = taburls.[i].destr"
     change_x tab_width * -0.5 + 20
     icon tabs.[i].key("icon").str 0.8 : c#c_text
-    change 20
-    text tabs.[i].key("title").str 8
+    text tabs.[i].key("title").str 8 : chx#20
     if tabs.len > 1 (
       loc 2 2 tab_width * 0.5 - 20 + x -20
       icon "close" 0.5
@@ -87,7 +70,6 @@ def "render_tabs"
     opentab "owtp://search.web"
   )
 endef
-
 def "redirect" "url"
   onload = true
   resolve_protocols url
@@ -97,7 +79,6 @@ def "redirect" "url"
   taburls.[tab] = url
   network "get" url
 endef
-
 def "resolve_protocols" "url"
   protocol = url.split("://").[1]
   current_get = url
@@ -111,24 +92,17 @@ def "resolve_protocols" "url"
   len = urlspl.len
   page_type = urlspl.[len]
 endef
-
 opentab "owtp://search.web"
-
 mainloop:
-
 ww = window_width
-
 loc 999 2 0 -40
 square ww 80 10 1 : c#c_searchback
 items = 1
 render_tabs
-
 loc -2 2 items * -15 - 10 -60
 square items * 30 28 5 1 : c#c_searchbar
-
 loc -2 2 -25 -60
 image user_icon 25
-
 offset = items * 30
 loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
 square ww - ( offset + 80 ) 28 5 1
@@ -137,22 +111,17 @@ input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text
 if selected_input == "search" and "enter".pressed (
   redirect input_search.str
 )
-
 resolve_protocols taburls.[tab]
 network "get" current_get
-
-if data != "" (
-  page_data = data
+if data.str != "" (
+  page_data = data.str
   pages.[tab] = data.split(newline)
   current_get = ""
 )
-
 loc 2 2 70 -59
 icon "search" 0.6 : c#c_searchicon
-
 loc 2 999 20 0
 square 50 window_height 10 1 : c#c_sidebarback
-
 loc 2 2 25 -25
 bookmarked = False
 if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
@@ -163,20 +132,21 @@ loop 3 (
 )
 if bookmarked "c c_sidebarselected"
 square 30 30 10 1
-
 loc 2 -2 25 25
 square 30 30 10 1 : c#c_sidebarbutton
-
 loc 2 2 25 -25
 icon "Left-Arrow" 0.8 : c#c_sidebaricons
 icon "Right-Arrow" 0.8 : chy#-50
 icon "Reload" 0.7 : chy#-50
 if clicked (
-  network "clear" taburls.[tab]
+  resolve_protocols taburls.[tab]
+  log current_get
+  network "clear" current_get
+  current_get = ""
   pages.[tab] = []
   page_type = ""
+  onload = true
 )
-
 icon "bookmark" 0.8 : chy#-50
 if clicked and can (
   can = False
@@ -188,10 +158,8 @@ if clicked and can (
   )
 )
 if mouse_down.not "can = True"
-
 loc 2 -2 25 25
 icon "More-Vertical" 0.8
-
 loc 2 2 55 -90
 x = x_position
 y = y_position
@@ -199,8 +167,7 @@ loc -2 -2 0 -10
 c c_sidebarback
 frame x y x_position y_position page_len
 page_len = null
-current_tab_name = input_search
-
+current_tab_name = input_search.str
 if page_type == "osl" (
   run pages.[tab]
   onload = false
@@ -214,7 +181,6 @@ if page_type == "txt" (
   loc 2 2 20 -20 + scroll_y
   c c_text
   text page_data.str 10
-  set_tab_name
   current_tab_name.key("icon") = "txt"
   page_len = pages.[tab].len * 25
 )
