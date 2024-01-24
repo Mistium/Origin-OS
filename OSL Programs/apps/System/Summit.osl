@@ -140,7 +140,6 @@ icon "Right-Arrow" 0.8 : chy#-50
 icon "Reload" 0.7 : chy#-50
 if clicked (
   resolve_protocols taburls.[tab]
-  log current_get
   network "clear" current_get
   current_get = ""
   pages.[tab] = []
