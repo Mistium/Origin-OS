@@ -6,7 +6,6 @@ def "appopt" "optname,opticn,icnsize"
   change_x 30
   text optname 8
 endef
-
 def "DrawCategory" "setting,icn_code"
   temp = x_position
   if category == setting "c #333" else "c #222"
@@ -19,7 +18,6 @@ def "DrawCategory" "setting,icn_code"
   icon icn_code 0.8 : c#fff
   goto temp y_position - 50
 endef
-
 def "option" "name,icn_code"
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#222
@@ -32,7 +30,6 @@ def "option" "name,icn_code"
   y -= 50
   page_len += 50
 endef
-
 def "system"
   if subcategory == "none" (
     option "Info" "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5"
@@ -93,7 +90,6 @@ def "system"
       terminal "system display pixelated true"
     )
     text "Pixelated" 10 : chx#-50 c#fff
-
     terminal "system display get invert"
     toggle_invert = return.divide(100).round.bool
     loc 2 2 10 -180
@@ -114,7 +110,6 @@ def "system"
         new_network_data = false
       )
     )
-
     file "open" "Origin/(A) System.folder"
     y = -160 + 75 + scroll_y
     loc 999 2 0 y
@@ -127,7 +122,6 @@ def "system"
     loc 999 2 125 / 2 y - 35
     percent = file.[12] / 1000000
     bar frame_width - 200 20 10 percent : c#444
-
     file "open" "Origin/(B) Local.folder"
     y = -320 + 75 + scroll_y
     loc 999 2 0 y
@@ -140,7 +134,6 @@ def "system"
     loc 999 2 125 / 2 y - 35
     percent = file.[12] / 1000000
     bar frame_width - 200 20 10 percent : c#444
-
     file "open" "Origin/(C) Users.folder"
     y = -480 + 75 + scroll_y
     loc 999 2 0 y
@@ -169,7 +162,6 @@ def "system"
     loc 999 2 125 / 2 y - 35
     percent = network_drive.[1] / network_drive.[2]
     bar frame_width - 200 20 10 percent : c#444
-
     page_len = 460
   )
   if subcategory == "Community" (
@@ -182,7 +174,6 @@ def "system"
   )
   clicked = false
 endef
-
 def "network_page"
   loc 999 2 0 -70
   square frame_width - 30 100 10 : c#222
@@ -204,7 +195,6 @@ def "network_page"
   )
   text temp 10 : c#fff chx#15
 endef
-
 def "personalisation"
   if subcategory == "none" (
     option "Background"
@@ -302,8 +292,8 @@ def "personalisation"
       segments = segments.append(f)
     )
     file_dropped = 0
-    global "segments"
     save "segments.txt" "set" segments
+    global "segments"
   )
   if subcategory == "Colours" (
     if accent_select.[1] != "#" (
@@ -343,7 +333,6 @@ def "personalisation"
   )
   frame "clear"
 endef
-
 def "apps"
   path = "Origin/(C) Users/" ++ username ++ "/Application Data"
   if subcategory == "none" (
@@ -375,12 +364,11 @@ def "apps"
     appopt "uninstall" "bin" "1"
   )
 endef
-
 def "account"
   loc 999 2 5 -90
   square frame_width - 25 150 10 : c#111
   loc 2 2 90 -90
-  image user_icon 90
+  image user_icon.str 90
   loc 2 2 150 -80
   text username 12 : c#fff
   loc 2 2 150 -100
@@ -391,17 +379,13 @@ def "account"
   square frame_width - 50 30 10 : c#111
   input frame_width - 55 25 "pfpurl"
 endef
-
 def "time"
   loc 999 2 0 -40
   square frame_width - 20 40 10 1 : c#222
-
   loc 999 2 0 -100
   square frame_width - 20 40 10 1
-
   loc 999 2 0 -160
   square frame_width - 20 40 10 1
-
   loc 2 2 20 -40
   text "Timezone: <timezone>" 8 : c#fff
   loc 2 2 20 -100
@@ -412,32 +396,23 @@ def "time"
   dt = dt.round
   text "Since Last Frame: <dt>ms" 8
 endef
-
 def "updates"
-
 endef
-
 window "dimensions" 880 500
 dock_location = dock_location
 segments = segments
 accent_select = ""
-
 network_drive = "none"
 category = "System"
 gotosubcategory = ""
 subcategory = "none"
-
 save "wallpapers.json" "get"
 wallpapers = save-data.destr
-
 if wallpapers.len < 1 or wallpapers.istype("array").not (
   wallpapers = [] + "https://raw.githubusercontent.com/Mistium/Origin-OS/main/wallpapers/originOS%20Flow.png"
   save "wallpapers.json" "set" wallpapers
 )
-
-
 mainloop:
-
 loc 999 2 0 -25
 square window_width - 7.5 15 30 1 : c#333
 loc 2 999 20 0
@@ -452,26 +427,21 @@ DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
 DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
 loc 2 2 25 -225
-image user_icon 35
+image user_icon.str 35
 loc 2 2 70 -25
-
 if subcategory == "none" "text category 10 : c#fff"
-
 if subcategory != "none" (
   icon left-arrow 0.6 : c#fff
   if clicked "subcategory = "none""
   change_x 30
   text subcategory 10
 )
-
 loc 2 2 50 -48
 x = x_position
 y = y_position
 loc -2 -2 10
-
 c #333
 frame x y x_position y_position page_len
-
 page_len = 0
 y = -30 + scroll_y
 startx = x_position
@@ -483,7 +453,6 @@ if category == "Account" "account"
 if category == "Apps" "apps"
 if category == "Time" "time"
 if category == "Updates" "updates"
-
 if mouse_down.not "can = True"
 frame "clear"
 if gotosubcategory != "" and mouse_down.not (
