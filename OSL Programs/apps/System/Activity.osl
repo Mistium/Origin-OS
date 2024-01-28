@@ -1,9 +1,17 @@
 permission "request" "terminal"
 minimised_text = "<fps>"
 window "show"
-file "open" "id" window_create_data
-window "dimensions" 900 500
+window "dimensions" 600 400
 current_tab = "no_perms"
+
+terminal "-get.windows"
+activity_info = false
+if windows-names.contains(passed_data) (
+  activity_info = true
+  page = passed_data
+  log page
+)
+
 graph = []
 network_usage = []
 
@@ -11,15 +19,23 @@ def "tab" "name"
   selected = name == current_tab
   if selected.not "c #111"
   if selected "c #333"
-  square 160 20 10 1
+  square tab_w 25 10 1
   if clicked "current_tab = name"
-  change -70 0
+  change_x tab_w / -2 + 5
   text name 8 : c#fff
 endef
-
+created_time = timer
+next_update = 0.5
 pen "width" 10
-
 mainloop:
+loc -2 2 -20 -20
+square 25 25 10 : c#222
+if clicked "window stop"
+square 25 25 10 : chx#-40
+if clicked "window minimise.str"
+icon "down" 0.7 : c#fff
+icon "close" 0.7 : chx#40
+if clicked "window stop"
 
 if current_tab == "no_perms" (
   permission "get"
@@ -33,14 +49,50 @@ if current_tab == "no_perms" (
     )
   )
 )
+if activity_info (
+  loc 2 2 20 -20
+  text page 10 : c#fff
+  loc 2 2 20 -50
+  text dt ++ "ms" 15
+  if timer - created_time > 1 (
+    loc 2 2 90 -100
+    square 140 25 10 : c#222
+    if mouse_touching "square 100 25 10 : c#333"
+    if clicked (
+      terminal "system windows close" + page
+    )
+    icon "close" 0.7 : c#fff chx#-50
+    text "Force Quit" 7 : chx#20
+  )
+  wwm = window_width / 30
+  whm = window_height / 100
+  if timer - last_timer > 0.05 (
+    last_timer = timer
+    dt = delta_time
+    terminal "-get.windows"
+    current = windows-names.index(page)
+    dt = windows-drawtimes.[current]
+    graph = graph.append(dt)
+    if graph.len > 30 "graph = graph.delete(1)"
+  )
+  c #fff
+  loc 2 -2 0 graph.[1].destr * whm
+  pen "down"
+  graph_count = 1
+  loop graph.len (
+    graph_count += 1
+    loc 2 -2 graph_count * wwm graph.[graph_count].destr * whm
+  )
+  exit
+)
+wwm = window_width - 50 / 100
+whm = window_height / 300
 usage = delta_time.multiply(500).round * 2
 graph = graph.append(usage)
 if graph.len > 100 "graph = graph.delete(1)"
 terminal "get network"
-network_usage = network_usage.append(data)
+network_usage = network_usage + data
 if network_usage.len > 100 "network_usage = network_usage.delete(1)"
-wwm = window_width - 50 / 100
-whm = window_height / 300
 import "side-bar"
 loc 2 2 12 -20
 text "<fps.round>" 10 : c#fff
@@ -50,19 +102,22 @@ loc 2 2 12 -70
 text "<delta_time.multiply(1000).round>" 10
 loc 2 2 14 -85
 text "ms" 7
-loc 2 2 140 -20
+tab_w = 100
+loc 2 2 110 -20
 tab "Render Info"
-loc 2 2 320 -20
+loc 2 2 225 -20
 tab "Performance"
-loc 2 2 500 -20
+loc 2 2 340 -20
 tab "Network"
-loc 2 2 680 -20
+loc 2 2 455 -20
 tab "Disk"
-import "win-buttons"
+loc 2 -2 25 25
+square 25 25 10 : c#333
+icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
 window "responsive" True
+c #fff
 if current_tab == "Performance" (
-  loc 2 -2 50 graph.[1].destr * whm * 2
-  c #fff
+  loc 2 -2 50 graph.[1].destr * whm
   pen "down"
   graph_count = 1
   loop graph.len (
@@ -71,8 +126,7 @@ if current_tab == "Performance" (
   )
 )
 if current_tab == "Network" (
-  loc 2 -2 50 network_usage.[1].destr * whm + 10
-  c #fff
+  loc 2 -2 50 network_usage.[1].destr
   pen "down"
   graph_count = 0
   loop network_usage.len (
@@ -90,23 +144,42 @@ if current_tab == "Render Info" (
   frame x y x_position y_position page_len
   page_len = 40
   y = scroll_y - 20
-  terminal "-get.windows"
+  if timer - last_timer > next_update (
+    last_timer = timer
+    dt = delta_time
+    terminal "-get.windows"
+  )
+  tot = 0
   count = 0
   loop windows-names.len (
     count += 1
     loc 999 2 0 y
-    square frame_width - 20 20 10 1 : c#222
+    square frame_width - 20 25 10 1 : c#111
+    if mouse_touching (
+      if clicked and can (
+        can = false
+        window "add" "Activity" windows-names.[count]
+      )
+      square frame_width - 20 25 10 1 : c#222
+    )
     rightclick "window" windows-ids.[count]
-    loc 2 2 10 y
+    loc 2 2 15 y
     text windows-names.[count] 7 : c#fff
-    loc 2 2 220 y
-    text windows-drawtimes.[count] 7
-    y -= 35
+    loc -2 2 -50 y
+    d = windows-drawtimes.[count].str
+    tot += d.destr
+    text d 7
+    y -= 40
     page_len += 35
   )
+loc 2 2 10 y
+text "System" 7
+loc -2 2 -50 y
+text dt.multiply(1000).round - tot.round 7
 )
 if current_tab == "disk" (
 loc 2 2 60 -60
 text "Bytes Writen During This Session:" + disk_total_writes 8 : c#fff
 )
+if mouse_down.not "can = true"
 frame "clear"
