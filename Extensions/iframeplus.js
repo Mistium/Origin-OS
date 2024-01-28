@@ -17,10 +17,6 @@
     "allow-popups",
   ];
 
-  const featurePolicy = {
-    // ... (unchanged)
-  };
-
   class MyIframeExtension {
     getInfo() {
       return {
@@ -140,11 +136,7 @@
               },
             },
           },
-          // ... (additional blocks as needed)
         ],
-        menus: {
-          // ... (unchanged)
-        },
       };
     }
 
