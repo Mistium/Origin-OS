@@ -1,5 +1,6 @@
 // Name: MyIframe
 // ID: myiframe
+// By: @mistium on discord
 // Description: Display webpages or HTML over the stage with unique IDs.
 // Context: "iframe" is an HTML element that lets websites embed other websites.
 
