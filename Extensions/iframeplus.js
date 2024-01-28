@@ -19,7 +19,7 @@
   ];
   
   const featurePolicy = {};
-
+ 
   class MyIframeExtension {
     getInfo() {
       return {
@@ -190,8 +190,8 @@
     move({ ID, X, Y }) {
       const iframeInfo = iframesMap.get(ID);
       if (iframeInfo) {
-        iframeInfo.x = X;
-        iframeInfo.y = Y;
+        iframeInfo.x = X - (iframeInfo.width / 2);
+        iframeInfo.y = Y + (iframeInfo.height / 2);
         this.updateFrameAttributes(iframeInfo);
       }
     }
@@ -242,15 +242,21 @@
 
       const { iframe, overlay, width, height, x, y } = iframeInfo;
 
-      // Update the position of the iframe within Scratch's X-Y coordinate system
-      iframe.style.transform = `translate(${x}px, ${-y}px)`;
+      // Get the center of the canvas
+      const centerX = Scratch.vm.runtime.stageWidth / 2;
+      const centerY = Scratch.vm.runtime.stageHeight / 2;
+
+      // Update the position of the iframe relative to the center of the canvas
+      iframe.style.transform = `translate(${centerX + x}px, ${centerY - y}px)`;
       iframe.style.width = `${width}px`;
       iframe.style.height = `${height}px`;
 
       overlay.mode = "manual";
       Scratch.renderer._updateOverlays();
     }
+
   }
 
   Scratch.extensions.register(new MyIframeExtension());
 })(Scratch);
+
