@@ -1,13 +1,12 @@
-// Name: MyIframe
-// ID: myiframe
+// Name: IframePlus
+// ID: IframePlus
 // By: @mistium on discord
-// Description: Display webpages or HTML over the stage with unique IDs.
-// Context: "iframe" is an HTML element that lets websites embed other websites.
+// Description: Display webpages or HTML over the stage with unique IDs. Made primarily for use in originOS (https://github.com/Mistium/Origin-OS).
 
 (function (Scratch) {
   "use strict";
 
-  /** @type {Map<string, { iframe: HTMLIFrameElement, overlay: Overlay, width: number, height: number, x: number, y: number }>} */
+  /** @type {Map<string, { iframe: HTMLIFrameElement, overlay: Overlay, width: number, height: number, x: number, y: number, interactive: boolean }>} */
   const iframesMap = new Map();
 
   const SANDBOX = [
@@ -16,11 +15,21 @@
     "allow-forms",
     "allow-modals",
     "allow-popups",
+    "allow-presentation", // Allow interaction
+    "allow-pointer-lock", // Allow pointer lock
   ];
-  
+
   const featurePolicy = {};
- 
+
   class MyIframeExtension {
+    async stamp({ ID }) {
+      const iframeInfo = iframesMap.get(ID);
+      if (iframeInfo) {
+        const { iframe } = iframeInfo;
+        Scratch.renderer.overlayDiv.appendChild(iframe);
+      }
+    }
+
     getInfo() {
       return {
         name: Scratch.translate("MyIframe"),
@@ -139,6 +148,17 @@
               },
             },
           },
+          {
+            opcode: "stamp",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("stamp iframe with ID [ID] to stage"),
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "iframe1",
+              },
+            },
+          },
         ],
       };
     }
@@ -181,6 +201,8 @@
       const iframeInfo = iframesMap.get(ID);
       if (iframeInfo) {
         const { iframe } = iframeInfo;
+        iframeInfo.x -= (WIDTH - iframeInfo.width) / 2;
+        iframeInfo.y -= (HEIGHT - iframeInfo.height) / 2;
         iframeInfo.width = WIDTH;
         iframeInfo.height = HEIGHT;
         this.updateFrameAttributes(iframeInfo);
@@ -190,8 +212,8 @@
     move({ ID, X, Y }) {
       const iframeInfo = iframesMap.get(ID);
       if (iframeInfo) {
-        iframeInfo.x = X - (iframeInfo.width / 2);
-        iframeInfo.y = Y + (iframeInfo.height / 2);
+        iframeInfo.x = X - iframeInfo.width / 2;
+        iframeInfo.y = Y + iframeInfo.height / 2;
         this.updateFrameAttributes(iframeInfo);
       }
     }
@@ -207,7 +229,26 @@
       }
     }
 
-    // Additional methods as needed...
+    stamp({ ID }) {
+      const iframeInfo = iframesMap.get(ID);
+      if (iframeInfo) {
+        const { iframe } = iframeInfo;
+
+        // Clone the iframe and remove overlay
+        const clonedIframe = iframe.cloneNode(true);
+        clonedIframe.style.position = "static";
+        clonedIframe.removeAttribute("sandbox");
+        const clonedOverlay = Scratch.renderer.addOverlay(clonedIframe, "manual");
+
+        // Add the cloned iframe to the stage
+        Scratch.stage.appendChild(clonedOverlay);
+
+        // Additional actions as needed...
+
+        // Note: If you want to keep the original iframe on the stage,
+        // you may need to update the clone process accordingly.
+      }
+    }
 
     createFrame(src, ID) {
       const iframe = document.createElement("iframe");
@@ -229,7 +270,7 @@
       const overlay = Scratch.renderer.addOverlay(iframe, "manual");
 
       // Store iframe information in the map
-      iframesMap.set(ID, { iframe, overlay, width: 480, height: 360, x: 0, y: 0 });
+      iframesMap.set(ID, { iframe, overlay, width: 480, height: 360, x: 0, y: 0, interactive: true });
 
       // Update iframe attributes
       this.updateFrameAttributes(iframesMap.get(ID));
@@ -240,7 +281,7 @@
         return;
       }
 
-      const { iframe, overlay, width, height, x, y } = iframeInfo;
+      const { iframe, overlay, width, height, x, y, interactive } = iframeInfo;
 
       // Get the center of the canvas
       const centerX = Scratch.vm.runtime.stageWidth / 2;
@@ -253,10 +294,10 @@
 
       overlay.mode = "manual";
       Scratch.renderer._updateOverlays();
-    }
 
+      iframe.style.pointerEvents = interactive ? "auto" : "none";
+    }
   }
 
   Scratch.extensions.register(new MyIframeExtension());
 })(Scratch);
-
