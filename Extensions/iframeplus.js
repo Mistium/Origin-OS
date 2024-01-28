@@ -17,6 +17,8 @@
     "allow-modals",
     "allow-popups",
   ];
+  
+  const featurePolicy = {};
 
   class MyIframeExtension {
     getInfo() {
