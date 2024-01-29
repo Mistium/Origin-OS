@@ -56,6 +56,11 @@
               },
             },
           {
+            opcode: "getAllIframeIDs",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("all iframe IDs"),
+          },
+          {
             opcode: "display",
             blockType: Scratch.BlockType.COMMAND,
             text: Scratch.translate("show website [URL] with ID [ID]"),
@@ -207,6 +212,10 @@
         Scratch.renderer.removeOverlay(iframe);
         iframesMap.delete(ID);
       }
+    }
+    
+    getAllIframeIDs() {
+      return Array.from(iframesMap.keys());
     }
 
     show({ ID }) {
