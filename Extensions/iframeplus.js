@@ -6,9 +6,7 @@
 (function (Scratch) {
   "use strict";
 
-  /** @type {Map<string, { iframe: HTMLIFrameElement, overlay: Overlay, width: number, height: number, x: number, y: number, interactive: boolean }>} */
   const iframesMap = new Map();
-
   const SANDBOX = [
     "allow-same-origin",
     "allow-scripts",
@@ -21,20 +19,42 @@
 
   const featurePolicy = {};
 
-  class MyIframeExtension {
-    async stamp({ ID }) {
+  class IframePlusExtension {
+    setZIndex({ ID }) {
       const iframeInfo = iframesMap.get(ID);
       if (iframeInfo) {
         const { iframe } = iframeInfo;
-        Scratch.renderer.overlayDiv.appendChild(iframe);
+        const windowIndex = this.getWindowIndex(ID);
+        iframe.style.zIndex = windowIndex;
       }
+    }
+
+    getWindowIndex(ID) {
+      // Implement logic to get the index of the window with the specified ID in your window list
+      // Replace the following line with your actual logic
+      return 1;
     }
 
     getInfo() {
       return {
-        name: Scratch.translate("MyIframe"),
-        id: "myiframe",
+        name: Scratch.translate("Iframe Plus"),
+        id: "iframePlus",
         blocks: [
+          {
+            opcode: "setZIndex",
+            blockType: Scratch.BlockType.COMMAND,
+              text: Scratch.translate("set z-index of frame with ID [ID] to [Z_INDEX]"),
+              arguments: {
+                ID: {
+                  type: Scratch.ArgumentType.STRING,
+                  defaultValue: "frame1",
+                },
+                Z_INDEX: {
+                  type: Scratch.ArgumentType.NUMBER,
+                  defaultValue: 1,
+                },
+              },
+            },
           {
             opcode: "display",
             blockType: Scratch.BlockType.COMMAND,
@@ -163,6 +183,14 @@
       };
     }
 
+    setZIndex({ ID, Z_INDEX }) {
+      const iframeInfo = iframesMap.get(ID);
+      if (iframeInfo) {
+        const { iframe } = iframeInfo;
+        iframe.style.zIndex = Z_INDEX;
+      }
+    }
+
     async display({ URL, ID }) {
       this.remove({ ID }); // Remove existing iframe with the same ID, if any
 
@@ -234,20 +262,49 @@
       if (iframeInfo) {
         const { iframe } = iframeInfo;
 
-        // Clone the iframe and remove overlay
-        const clonedIframe = iframe.cloneNode(true);
-        clonedIframe.style.position = "static";
-        clonedIframe.removeAttribute("sandbox");
-        const clonedOverlay = Scratch.renderer.addOverlay(clonedIframe, "manual");
+        // Create a new image element
+        const img = new Image();
 
-        // Add the cloned iframe to the stage
-        Scratch.stage.appendChild(clonedOverlay);
+        // Set the source of the image to the data URL of the iframe contents
+        img.src = this.getIframeDataURL(iframe);
+
+        // Add the image to the stage
+        Scratch.stage.appendChild(img);
 
         // Additional actions as needed...
-
-        // Note: If you want to keep the original iframe on the stage,
-        // you may need to update the clone process accordingly.
       }
+    }
+
+    getIframeDataURL(iframe) {
+      // Create a new canvas element
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      // Set the canvas size to match the iframe size
+      canvas.width = iframe.offsetWidth;
+      canvas.height = iframe.offsetHeight;
+
+      // Draw the iframe contents onto the canvas
+      context.drawImage(iframe.contentWindow.document.body, 0, 0, canvas.width, canvas.height);
+
+      // Return the data URL of the canvas
+      return canvas.toDataURL();
+    }
+
+    getIframeDataURL(iframe) {
+      // Create a new canvas element
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+
+      // Set the canvas size to match the iframe size
+      canvas.width = iframe.offsetWidth;
+      canvas.height = iframe.offsetHeight;
+
+      // Draw the iframe contents onto the canvas
+      context.drawImage(iframe, 0, 0, canvas.width, canvas.height);
+
+      // Return the data URL of the canvas
+      return canvas.toDataURL();
     }
 
     createFrame(src, ID) {
@@ -299,5 +356,5 @@
     }
   }
 
-  Scratch.extensions.register(new MyIframeExtension());
+  Scratch.extensions.register(new IframePlusExtension());
 })(Scratch);
