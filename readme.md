@@ -19,7 +19,7 @@ Name     -   Flow
 Version  -   0.7.8
 ```
 
-[Try origin here](https://raw.githack.com/Mistium/Origin-OS/main/originOS.html)
+# [Try origin here](https://raw.githack.com/Mistium/Origin-OS/main/originBIOSv2.4.html)
 
 originOS is a shell for running osl.
 
