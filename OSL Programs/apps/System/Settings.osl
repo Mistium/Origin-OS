@@ -6,6 +6,7 @@ def "appopt" "optname,opticn,icnsize"
   change_x 30
   text optname 8
 endef
+
 def "DrawCategory" "setting,icn_code"
   temp = x_position
   if category == setting "c #333" else "c #222"
@@ -18,6 +19,7 @@ def "DrawCategory" "setting,icn_code"
   icon icn_code 0.8 : c#fff
   goto temp y_position - 50
 endef
+
 def "option" "name,icn_code"
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#222
@@ -30,6 +32,7 @@ def "option" "name,icn_code"
   y -= 50
   page_len += 50
 endef
+
 def "system"
   if subcategory == "none" (
     option "Info" "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5"
@@ -195,6 +198,7 @@ def "network_page"
   )
   text temp 10 : c#fff chx#15
 endef
+
 def "personalisation"
   if subcategory == "none" (
     option "Background"
@@ -202,7 +206,7 @@ def "personalisation"
     option "Colours"
   )
   if subcategory == "Background" (
-    loc 2 2 15 -30
+    loc 2 2 15 -30 + scroll_y
     text "Paste Image Url" 10 : c#fff
     change_x 20
     square 25 25 10 : c#333
@@ -219,10 +223,13 @@ def "personalisation"
         current_wallpaper = ""
       )
       if current_wallpaper == clipboard.str (
-        image current_wallpaper 200
-        text "Trying..." 10 : c#fff chx#20
+        text "Trying" 10 : c#fff chx#20
+        image current_wallpaper 0
       )
     )
+    wallpaper_data = "Wallpapers:" + wallpapers.len
+    loc -2 2 -15 - ( wallpaper_data.len * 10 ) -30 + scroll_y
+    text wallpaper_data 10
     count = 0
     loop wallpapers.len (
       count ++
@@ -233,10 +240,23 @@ def "personalisation"
       w = frame_width / 2 - 30
       square w 200 10 : c#222
       cur = wallpapers.[count]
-      if clicked (
-        terminal "system wallpaper" + cur
-      )
+      clicked_1 = clicked
       image cur w 200
+      change w / 2 - 10 90
+      square 10 10 20 : c#333
+      if mouse_touching (
+        if clicked.not "square 10 10 23 : c#444"
+        if clicked and can (
+          wallpapers = wallpapers.delete(count)
+          can = false
+          save "wallpapers.json" "set" wallpapers
+        )
+      ) else (
+        if clicked_1 (
+          terminal "system wallpaper" + cur
+        )
+      )
+      icon "bin" 0.7 : c#fff
     )
   page_len = yc.round * 230 + 50
   )
@@ -333,6 +353,7 @@ def "personalisation"
   )
   frame "clear"
 endef
+
 def "apps"
   path = "Origin/(C) Users/" ++ username ++ "/Application Data"
   if subcategory == "none" (
@@ -364,6 +385,7 @@ def "apps"
     appopt "uninstall" "bin" "1"
   )
 endef
+
 def "account"
   loc 999 2 5 -90
   square frame_width - 25 150 10 : c#111
@@ -411,6 +433,7 @@ def "account"
     )
   )
 endef
+
 def "time"
   loc 999 2 0 -40
   square frame_width - 20 40 10 1 : c#222
@@ -428,8 +451,10 @@ def "time"
   dt = dt.round
   text "Since Last Frame: <dt>ms" 8
 endef
+
 def "updates"
 endef
+
 window "dimensions" 880 500
 dock_location = dock_location
 segments = segments
@@ -446,6 +471,7 @@ if wallpapers.len < 1 or wallpapers.istype("array").not (
   save "wallpapers.json" "set" wallpapers
 )
 mainloop:
+
 loc 999 2 0 -25
 square window_width - 7.5 15 30 1 : c#333
 loc 2 999 20 0
