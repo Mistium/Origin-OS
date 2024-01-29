@@ -9,17 +9,6 @@ hidden = []
 input_path = Files_path.destr
 dta = ""
 
-if config == {} (
-  config "> Ui Customisation"
-  config "Grid" False
-  config "Light Mode" False
-  config "> File Sorting"
-  config "ascending" False
-  config "sort" 2
-  config "> Custom Theming"
-  config "Use Custom Colours" false
-)
-
 def "navigate" "path"
   file "open" path ++ ".folder"
   file "start"
@@ -54,7 +43,10 @@ def "file_folder" "path_input,txt,folder"
     loc 2 2 125 y
     square 225 20 10 0 1
     if mouse_touching "square 225 20 10 1 : c#c_seco"
-    if clicked and can "navigate path_input"
+    if clicked and can (
+      can = false
+      navigate path_input
+    )
     loc 2 2 30 y
     icon icons.key(txt) 0.9
     text txt 8 : c#c_icon chx#30
@@ -84,7 +76,6 @@ icons.key(username) = "image" + user_icon.str + "20"
 log icons
 
 mainloop:
-  lightmode = config.key("Light Mode")
   window_colour = #000
   c_icon = #fff
   c_prim = #222
@@ -135,10 +126,10 @@ mainloop:
   if sideshow (
     y = -60
     folder "Favorites"
-    file_folder user ++ "Desktop" "Desktop" "Favorites"
-    file_folder user ++ "Downloads" "Downloads" "Favorites"
-    file_folder user ++ "Documents" "Documents" "Favorites"
-    file_folder user ++ "Bin" "Bin" "Favorites"
+    file_folder user_path ++ "Desktop" "Desktop" "Favorites"
+    file_folder user_path ++ "Downloads" "Downloads" "Favorites"
+    file_folder user_path ++ "Documents" "Documents" "Favorites"
+    file_folder user_path ++ "Bin" "Bin" "Favorites"
     folder "Drives"
     file_folder "Origin/(A) System" "System" "Drives"
     file_folder "Origin/(B) Local" "Local" "Drives"
