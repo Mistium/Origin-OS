@@ -1,3 +1,7 @@
+// Name: KeyHistory
+// By: @mistium on discord
+// Description: Store a list of previously pressed keys. Made primarily for use in originOS (https://github.com/Mistium/Origin-OS).
+
 (function (Scratch) {
   "use strict";
 
