@@ -53,18 +53,15 @@
     onKeyDown(event) {
       if (event.key && event.key.length === 1) {
         const key = event.key;
-          if (this.keyHistory.length >= MAX_KEY_HISTORY) {
-            this.keyHistory.pop();
-          }
-          this.keyHistory.unshift(key);
+        if (this.keyHistory.length >= MAX_KEY_HISTORY) {
+          this.keyHistory.pop();
         }
+        this.keyHistory.unshift(key);
       }
     }
   }
-
   const extension = new KeyHistoryExtension();
   Scratch.extensions.register(extension);
-
   document.addEventListener('keydown', (event) => extension.onKeyDown(event));
 
 })(Scratch);
