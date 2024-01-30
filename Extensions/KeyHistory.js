@@ -27,6 +27,11 @@
             blockType: Scratch.BlockType.COMMAND,
             text: 'Delete the first key from history',
           },
+          {
+            opcode: 'deleteAllKeys',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Delete all keys from history',
+          },
         ],
       };
     }
@@ -41,13 +46,18 @@
       }
     }
 
+    deleteAllKeys() {
+      this.keyHistory = [];
+    }
+
     onKeyDown(event) {
       if (event.key && event.key.length === 1) {
-        const key = event.key.toLowerCase();
+        const key = event.key;
           if (this.keyHistory.length >= MAX_KEY_HISTORY) {
             this.keyHistory.pop();
           }
           this.keyHistory.unshift(key);
+        }
       }
     }
   }
