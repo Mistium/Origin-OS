@@ -73,8 +73,6 @@ file "open" "Origin/(C) Users.folder"
 icons.key("Users") = file.[11]
 icons.key(username) = "image" + user_icon.str + "20"
 
-log icons
-
 mainloop:
   window_colour = #000
   c_icon = #fff
