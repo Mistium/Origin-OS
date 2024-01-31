@@ -1,47 +1,53 @@
-open = 0
-terminal "system windows add Desktop_Manager"
+segment_url = "Origin/(C) Users/" ++ username ++ "/Application Data/Settings/Segments.txt"
 
-def "main"
-start_x = x_position
-goto start_x
-height = 40
-syscount = 0
-
-dock_colour = #050505
-dock_secondary = #252525
-icon_colour = #fff
-
-loop segments.len (
-  syscount += 1
-  c dock_colour
-  change_x 15
-  import segments.item(syscount) "ode"
-  goto width / 2 + x + 15
+file "exists" segment_url
+if exists (
+  file "open" segment_url
+  seg = file.[4]
+) else (
+  seg = ["Main","Applications","Time","Battery"]
+  file "set" 4 seg
 )
 
-dock_width = x_position - start_x
+global "segments" seg
+open = 0
+window "add" "Desktop"
+window "add" "Quick_Settings"
+
+def "main"
+  start_x = x_position
+  goto start_x y
+  height = 40
+  syscount = 0
+  import dock_theme
+
+  loop segments.len (
+    syscount += 1
+    c dock_colour
+    change_x 15
+    import segments.item(syscount) "ode"
+    goto width / 2 + x + 15 y
+  )
+  dock_width = x_position - start_x
 endef
 
 dock_theme = "Dock-Dark"
-
+global dock_theme
 window "responsive" true
 window "hide"
 window "front"
-
-movefileloc "Origin/(C) Users/" ++ username ++ "/Dock"
-
 main
 dock_x = dock_width / -2
 y = 0
-
 mainloop:
+
+movefileloc "origin/(C) Users/" ++ username ++ "/Dock"
 if mouse_down.not "canclick = True"
+window "y" 0
 window "dimensions" screensize_x screensize_y
 frame screensize_x / -2 screensize_y / -2 + 70 screensize_x / 2 screensize_y / -2
 import "Origin/(A) System/Docks/positionhandler.osl"
-
-main
-
+if y > -20 "main"
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
   terminal "system windows add" + open
