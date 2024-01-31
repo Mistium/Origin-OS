@@ -9,7 +9,6 @@ activity_info = false
 if windows-names.contains(passed_data) (
   activity_info = true
   page = passed_data
-  log page
 )
 
 graph = []
@@ -24,6 +23,7 @@ def "tab" "name"
   change_x tab_w / -2 + 5
   text name 8 : c#fff
 endef
+
 created_time = timer
 next_update = 0.5
 pen "width" 10
@@ -94,14 +94,21 @@ terminal "get network"
 network_usage = network_usage + data
 if network_usage.len > 100 "network_usage = network_usage.delete(1)"
 import "side-bar"
-loc 2 2 12 -20
-text "<fps.round>" 10 : c#fff
-loc 2 2 12 -40
+frames = fps.round
+loc 2 2 23 - ( frames.len * 5 ) -20
+text frames 10 : c#fff
+loc 2 2 13.5 -40
 text "fps" 7
-loc 2 2 12 -70
-text "<delta_time.multiply(1000).round>" 10
-loc 2 2 14 -85
+delta = delta_time.multiply(1000).round
+loc 2 2 23 - ( delta.len * 5 ) -70
+text delta 10
+loc 2 2 16 -85
 text "ms" 7
+ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory. jsHeapSizeLimit*100)+'%'".eval
+loc 2 2 23 - ( ram_use.len * 5 ) -110
+text ram_use 10
+loc 2 2 13.5 -125
+text "ram" 7
 tab_w = 100
 loc 2 2 110 -20
 tab "Render Info"
