@@ -1,0 +1,26 @@
+window "show"
+tabs = ["https://google.com","https://youtube.com","https://github.com"]
+tab = 1
+
+mainloop:
+
+loc 2 2 0 -30
+frame x_position y_position x_position + 250 window."bottom"
+count = 0
+loop tabs.len (
+  count ++
+  loc 999 2 0 count * -45
+  if tab == count "c #333" else "c #111"
+  square 220 30 10
+  if clicked "tab = count"
+)
+
+frame "clear"
+iframe tabs.[tab] tab 125 0 window_width - 250 window_height
+
+loc 2 2 20 -20
+icon "close" 0.6 : c#fff
+if clicked (
+window "stop"
+)
+icon "down" 0.6 : chx#30
