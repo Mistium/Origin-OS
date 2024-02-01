@@ -212,13 +212,15 @@ def "personalisation"
     square 25 25 10 : c#333
     if clicked (
       square 25 25 12 : c#444
-      current_wallpaper = clipboard.str
+      current_wallpaper = clipboard.str.
     )
     icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
     current_wallpaper = current_wallpaper.str
     if wallpapers.contains(current_wallpaper).not (
       if current_wallpaper.imageinfo("loaded") (
-        wallpapers = wallpapers + current_wallpaper
+        log wallpapers
+        wallpapers = wallpapers.append(current_wallpaper)
+        log wallpapers
         save "wallpapers.json" "set" wallpapers
         current_wallpaper = ""
       )
@@ -467,7 +469,7 @@ current_pfp = ""
 save "wallpapers.json" "get"
 wallpapers = save-data.destr
 if wallpapers.len < 1 or wallpapers.istype("array").not (
-  wallpapers = [] + "https://raw.githubusercontent.com/Mistium/Origin-OS/main/wallpapers/originOS%20Flow.png"
+  wallpapers = ["https://raw.githubusercontent.com/Mistium/Origin-OS/main/wallpapers/originOS%20Flow.png"]
   save "wallpapers.json" "set" wallpapers
 )
 mainloop:
