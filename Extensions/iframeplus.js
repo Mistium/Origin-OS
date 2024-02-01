@@ -81,6 +81,17 @@
             },
           },
           {
+            opcode: "getIframeTitle",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("get title of iframe with ID [ID]"),
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "iframe1",
+              },
+            },
+          },
+          {
             opcode: "remove",
             blockType: Scratch.BlockType.COMMAND,
             text: Scratch.translate("remove iframe with ID [ID]"),
@@ -274,6 +285,15 @@
       }
     }
 
+    getIframeTitle({ ID }) {
+      const iframeInfo = iframesMap.get(ID);
+      if (iframeInfo) {
+        const { iframe } = iframeInfo;
+        return iframe.contentDocument.title;
+      }
+      return "";
+    }
+    
     resize({ ID, WIDTH, HEIGHT }) {
       const iframeInfo = iframesMap.get(ID);
       if (iframeInfo) {
