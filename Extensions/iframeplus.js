@@ -92,6 +92,32 @@
             },
           },
           {
+            opcode: "getIframeURL",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("get URL of iframe with ID [ID]"),
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "iframe1",
+              },
+            },
+          },
+          {
+            opcode: "setIframeURL",
+            blockType: Scratch.BlockType.COMMAND,
+            text: Scratch.translate("set URL of iframe with ID [ID] to [URL]"),
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "iframe1",
+              },
+              URL: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "https://example.com",
+              },
+            },
+          },
+          {
             opcode: "show",
             blockType: Scratch.BlockType.COMMAND,
             text: Scratch.translate("show iframe with ID [ID]"),
@@ -295,6 +321,22 @@
         Scratch.stage.appendChild(img);
 
         // Additional actions as needed...
+      }
+    }
+    getIframeURL({ ID }) {
+      const iframeInfo = iframesMap.get(ID);
+      if (iframeInfo) {
+        const { iframe } = iframeInfo;
+        return iframe.src;
+      }
+      return "";
+    }
+
+    setIframeURL({ ID, URL }) {
+      const iframeInfo = iframesMap.get(ID);
+      if (iframeInfo) {
+        const { iframe } = iframeInfo;
+        iframe.src = URL;
       }
     }
 
