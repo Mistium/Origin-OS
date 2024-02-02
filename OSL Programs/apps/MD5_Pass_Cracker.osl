@@ -1,0 +1,29 @@
+network "getsync" "https://raw.githubusercontent.com/danielmiessler/SecLists/master/Passwords/Common-Credentials/10-million-password-list-top-100000.txt"
+pass2 = data.split(newline)
+pass = passwords2.trim(1,1000)
+ch = "password".ask
+tot = pass.len
+tot2 = 0
+window "show"
+window "maximise"
+count = 0
+count2 = 0
+start = timestamp
+len = pass2.len
+mainloop:
+if co > 999 (
+  count2 ++
+  co = 0
+  len -= 1000
+  pass = pass2.trim(1000,2000)
+  pass2 = pass2.trim(1000,len)
+)
+loop 40 (
+  co ++
+  if pass.[co].to("md5") == ch (
+    say pass.[co] + "in" + ( timestamp - start )
+    window "stop"
+  )
+)
+loc 2 2 20 -20
+text "Checked: <count2>000" 10 : c#fff
