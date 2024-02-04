@@ -10,7 +10,7 @@
   "8": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5 line 5 20 25 20",
   "9": "line 25 20 5 20 cont 5 40 line 25 5 25 40 cont 5 40",
   "origin": {
-    "version": "4",
+    "version": "5",
     "monowidth": "True",
     "character_width": "30",
     "size": "1",
