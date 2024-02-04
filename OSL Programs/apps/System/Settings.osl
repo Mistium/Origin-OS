@@ -404,7 +404,7 @@ def "account"
   loc 999 2 5 -90
   square frame_width - 25 150 10 : c#111
   loc 2 2 90 -90
-  image user_icon.str 90
+  image user_icon.str 90 90
   square 90 90 12 0 1
   if clicked (
     square 25 25 12 0 1
@@ -467,6 +467,9 @@ def "time"
 endef
 
 def "updates"
+  version = origin.key("version")
+  loc 2 2 20 -20 + scroll_y
+  text "Current Version:" + version 10 : c#fff
 endef
 
 window "dimensions" 880 500
@@ -499,7 +502,7 @@ DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
 DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
 loc 2 2 25 -175
-image user_icon.str 35
+image user_icon.str 35 35
 loc 2 2 230 -25
 if subcategory == "none" "text category 10 : c#fff"
 if subcategory != "none" (
@@ -512,7 +515,7 @@ if subcategory != "none" (
 loc 2 2 215 -48
 x = x_position
 y = y_position
-loc -2 -2 10
+loc -2 -2 0
 c #333
 frame x y x_position y_position page_len
 page_len = 0
