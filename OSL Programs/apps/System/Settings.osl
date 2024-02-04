@@ -172,10 +172,16 @@ def "system"
   if subcategory == "Community" (
     loc 2 2 10 -20
     text "Patreon Supporters:" 10 : c#fff
-    supporters = ["Vernacular"]
+    supporters = ["Vernacular","Pablo Estevez"]
+    
     loc 2 2 10 -40
-    text supporters.join(newline) 10
-    page_len = supporters.len * -10
+    count = scroll_y.divide(20).round
+    loop frame_height.divide(20).round (
+      count ++
+      loc 2 2 10 count * -20 + scroll_y - 40
+      text supporters.[count] 10
+    )
+    page_len = supporters.len * 20 + 40
   )
   clicked = false
 endef
@@ -487,13 +493,12 @@ square 220 window_height 10 : c#111
 loc 2 2 25 -25
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Network" "w 2 cutcircle 0 -5 14 0 50 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
-DrawCategory "Personalisation" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-DrawCategory "Apps" "w 3 square 7 7 2.5 2.5 square 7 -7 2.5 2.5 square -7 7 2.5 2.5 square -7 -7 2.5 2.5"
+DrawCategory "Appearance" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 DrawCategory "Account"
 DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
 DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
-loc 2 2 25 -225
+loc 2 2 25 -175
 image user_icon.str 35
 loc 2 2 230 -25
 if subcategory == "none" "text category 10 : c#fff"
@@ -516,7 +521,7 @@ startx = x_position
 location = category + subcategory
 if category == "System" "system"
 if category == "Network" "network_page"
-if category == "Personalisation" "personalisation"
+if category == "Appearance" "personalisation"
 if category == "Account" "account"
 if category == "Apps" "apps"
 if category == "Time" "time"
