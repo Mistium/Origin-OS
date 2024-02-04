@@ -9,14 +9,16 @@ endef
 
 def "DrawCategory" "setting,icn_code"
   temp = x_position
-  if category == setting "c #333" else "c #222"
-  square 30 30 10 1
-  if mouse_touching and clicked.not "square 30 30 13"
+  if category == setting "c #444" else "c #222"
+  square 190 30 10 1 : chx#80
+  if mouse_touching "square 190 30 15 1 : c#333"
   if clicked (
     category = setting
     subcategory = "none"
   )
-  icon icn_code 0.8 : c#fff
+  icon icn_code 0.8 : c#fff chx#-80
+  change 20
+  text setting 10
   goto temp y_position - 50
 endef
 
@@ -480,8 +482,8 @@ mainloop:
 
 loc 999 2 0 -25
 square window_width - 7.5 15 30 1 : c#333
-loc 2 999 20 0
-square 50 window_height 10 : c#111
+loc 2 999 100 0
+square 220 window_height 10 : c#111
 loc 2 2 25 -25
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Network" "w 2 cutcircle 0 -5 14 0 50 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
@@ -493,15 +495,16 @@ DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
 loc 2 2 25 -225
 image user_icon.str 35
-loc 2 2 70 -25
+loc 2 2 230 -25
 if subcategory == "none" "text category 10 : c#fff"
 if subcategory != "none" (
+  square 20 20 10 : c#555 hover_c#666 chx#10
   icon left-arrow 0.6 : c#fff
   if clicked "subcategory = "none""
-  change_x 30
+  change_x 20
   text subcategory 10
 )
-loc 2 2 50 -48
+loc 2 2 215 -48
 x = x_position
 y = y_position
 loc -2 -2 10
