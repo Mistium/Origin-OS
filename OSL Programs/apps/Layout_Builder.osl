@@ -1,0 +1,256 @@
+file "install_type" "ojlf" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Origin Layout" ["Layout_Builder"]
+
+current_layout = []
+current = 1
+elements = ["Text","Box","Icon"]
+current_element = ""
+selected_element = ""
+
+window_colour = #111
+
+def "pass" "data"
+  output = output + data.destr
+endef
+
+def "compile_as_osl"
+  output = ["// Edit the number below to change the size of the layout","size = 1","window \"dimensions\" 1280 * size 740 * size","window \"show\""]
+  count = 0
+  loop current_layout.len (
+    count ++
+    render = current_layout.[count]
+    pass "goto" + render.[2] + "* size" + render.[3] + "* size"
+    if render.[1] == "text" (
+      pass "c" + render.[6].destr
+      pass "text" + render.[4].str.str + render.[5] + "* size"
+    )
+    if render.[1] == "icon" (
+      pass "c" + render.[6].destr
+      pass "icon" + render.[4].str.str + render.[5] + "* size"
+    )
+    if render.[1] == "box" (
+      pass "c" + render.[7].destr
+      pass "square" + render.[4] + "* size" + render.[5] + "* size" + render.[6] + "* size"
+    )
+  )
+  clipboard "set" output.join(newline)
+endef
+
+mainloop:
+w = window."width"
+
+loc 999 -2 0 15
+square w 20 10 : c#333
+
+loc 999 2 0 -70
+square w 40 10 : c#171717
+
+loc 999 2 0 -25
+square w 40 10 : c#222
+loc 2 2 80 -25
+text "Layout Builder v1" 10 : c#fff
+
+loc 2 999 30 0
+square 40 window."height" 20 : c#111
+
+loc 2 2 30 -30
+square 25 25 20 : c#333 hover_size#1.1 click_size#0.95
+if clicked and can (
+  can = false
+  file "download" "new_presentation.ojlf" current_layout
+)
+icon "save" 0.8 : c#fff
+
+loc 2 2 30 -85
+square 25 25 20 : c#333 hover_size#1.1 click_size#0.95
+if clicked (
+  clipboard "set" current_layout
+)
+icon "copy" 0.8 : c#fff
+
+loc 2 2 30 -140
+square 25 25 20 : c#333 hover_size#1.1 click_size#0.95
+if clicked (
+  if clipboard.istype("array") "current_layout = clipboard"
+)
+icon "paste" 0.8 : c#fff
+
+loc 2 2 30 -195
+square 25 25 20 : c#333 hover_size#1.1 click_size#0.95
+if clicked (
+  compile_as_osl
+)
+icon "share" 0.8 : c#fff
+
+loc 2 2 40 -70
+cur = 0
+loop elements.len (
+  cur += 1
+  if current_element == elements.[cur] "c #666" else "c #333"
+  square 10 10 20 : chx#40 hover_c#444 hover_size#1.05 click_c#222 click_size#0.9
+  if clicked (
+    current_element = elements.[cur]
+  )
+)
+loc 2 2 70 -70
+text "txt" 8 : c#fff
+loc 2 2 110 -70
+text "box" 7
+loc 2 2 150 -70
+text "icn" 7
+
+frame_right = window."right" - 4
+if selected_element != "" "frame_right -= 205"
+frame window."left" + 64 window."top" - 100 frame_right window."bottom" + 34
+if frame_width / 1280 < ( frame_height / 720 ) "multiplier = frame_width / 1280" else "multiplier = frame_height / 720"
+
+if current_element != "" and frame_focused (
+  cursor "crosshair"
+  if mouse_down (
+    new_element = [] + current_element + ( mouse_x / multiplier ) + ( mouse_y / multiplier )
+    if current_element == "text" (
+      new_element = new_element + "Hello World".destr + 20 + #fff
+    )
+    if current_element == "icon" (
+      new_element = new_element + "origin-logo".destr + 2 + #fff
+    )
+    if current_element == "box" (
+      new_element = new_element + 80 + 40 + 20 + #fff
+    )
+    current_layout = current_layout + new_element
+    current_element = ""
+  )
+)
+square 1280 * multiplier 720 * multiplier 10 : c#000
+count = 0
+loop current_layout.len (
+  count ++
+  render = current_layout.[count]
+  goto render.[2] * multiplier render.[3] * multiplier
+  if render.[1] == "text" (
+    c render.[6].destr
+    text render.[4].str render.[5] * multiplier
+    if clicked (
+      label1 = "Text"
+      label2 = "Size"
+      label3 = "Colour"
+      label4 = ""
+    )
+  )
+  if render.[1] == "icon" (
+    c render.[6].destr
+    icon render.[4].str render.[5] * multiplier
+    if clicked (
+      label1 = "Icon Code"
+      label2 = "Size"
+      label3 = "Colour"
+      label4 = ""
+    )
+  )
+  if render.[1] == "box" (
+    c render.[7].destr
+    square render.[4] * multiplier render.[5] * multiplier render.[6] * multiplier
+    if clicked (
+      label1 = "Width"
+      label2 = "Height"
+      label3 = "Rounding"
+      label4 = "Colour"
+    )
+  )
+  if clicked (
+    selected_element = count
+    input_x = render.[2].destr.round
+    input_y = render.[3].destr.round
+    input_one = render.[4].destr
+    input_two = render.[5].destr
+    input_thr = render.[6].destr
+    input_fou = render.[7].destr
+  )
+)
+frame "clear"
+if selected_element != "" (
+  edited = current_layout.[selected_element]
+  loc -2 999 -100 -50
+  square 200 window."height" - 100 10 : c#222
+  loc -2 2 -190 -110
+  text "Edit Object" 8 : c#fff
+  loc -2 2 -30 -110
+  icon "close" 0.6
+  if clicked (
+    selected_element = ""
+  )
+  loc -2 2 -60 -110
+  icon "bin" 0.6
+  if clicked (
+    current_layout = current_layout.delete(selected_element)
+    selected_element = ""
+    exit
+  )
+  loc -2 2 -190 -140
+  text "Change Layer" 8
+  loc -2 2 -30 -140
+  if selected_element < current_layout.len (
+    icon "up" 0.6 : c#fff
+    if clicked and can (
+      can = false
+      sel2 = selected_element + 1
+      current_layout = current_layout.swap(selected_element,sel2)
+      selected_element += 1
+    )
+  ) else (
+    icon "up" 0.6 : c#555
+  )
+  loc -2 2 -60 -140
+  if selected_element > 1 (
+    icon "down" 0.6 : c#fff
+    if clicked and can (
+      can = false
+      sel2 = selected_element - 1
+      current_layout = current_layout.swap(sel2,selected_element)
+      selected_element -= 1
+    )
+  ) else (
+    icon "down" 0.6 : c#555
+  )
+
+  loc -2 2 -190 -170
+  text "x position" 8 : c#fff
+  loc -2 2 -190 -220
+  text "y position" 8
+  loc -2 2 -190 -270
+  text label1 8
+  loc -2 2 -190 -320
+  text label2 8
+  loc -2 2 -190 -370
+  text label3 8
+
+  loc -2 2 -100 -190
+  input 170 25 "x" 10 : c#333
+  edited.[2] = input_x
+
+  loc -2 2 -100 -240
+  input 170 25 "y" 10 : c#333
+  edited.[3] = input_y
+
+  loc -2 2 -100 -290
+  input 170 25 "one" 10 : c#333
+  edited.[4] = input_one
+
+  loc -2 2 -100 -340
+  input 170 25 "two" 10 : c#333
+  edited.[5] = input_two
+
+  loc -2 2 -100 -390
+  input 170 25 "thr" 10 : c#333
+  edited.[6] = input_thr
+
+  if label4 != "" (
+    loc -2 2 -190 -420
+    text label4 8 : c#fff
+    loc -2 2 -100 -440
+    input 170 25 "fou" 10 : c#333
+    edited.[7] = input_fou
+  )
+  current_layout.[selected_element] = edited
+)
+if mouse_down.not "can = true"
+import "win-buttons"
