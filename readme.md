@@ -84,13 +84,3 @@ Join the originOS patreon for:
 Join Here!<br>
 <a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="25"></a>
 </p>
-
-## Screenshots
-
-<p align="center">
-<br>
-<img src ="https://github.com/Mistium/Origin-OS/assets/92952823/381b4e72-7bb9-4dfe-91cf-ac32f2bb1912" height=200px>
-<img src ="https://github.com/Mistium/Origin-OS/blob/main/Websites/origin.web/assets/Summit1.png" height=200px>
-<img src="https://github.com/Mistium/Origin-OS/assets/92952823/be2112f9-408a-40ef-a973-d3be24d90a3d" height=200px>
-<img src="https://github.com/Mistium/Origin-OS/assets/92952823/aefa77e8-84b4-4e24-bdc0-aa9ea8b2bbc6" height=200px>
-</p>
