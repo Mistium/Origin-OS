@@ -1,0 +1,10 @@
+bin = "Binary:".ask
+count = bin.len + 1
+out = 0
+val = 1
+loop bin.len (
+  count -= 1
+  if bin.[count] == 1 "out += val"
+  val *= 2
+)
+say out
