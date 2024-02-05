@@ -1,0 +1,19 @@
+num = "denary:".ask
+temp = num % 2
+start = 2
+out = ""
+while start < num (
+  start *= 2
+)
+while start > 1 (
+  if start > num (
+    out = out ++ "0"
+  )
+  if start <= num (
+    out = out ++ "1"
+    num -= start
+  )
+  start /= 2
+)
+out = out ++ temp
+say out
