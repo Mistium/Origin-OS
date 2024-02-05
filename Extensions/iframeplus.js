@@ -41,20 +41,20 @@
         id: "iframePlus",
         blocks: [
           {
-            opcode: "setZIndex",
+            opcode: "setLayerOfIframe",
             blockType: Scratch.BlockType.COMMAND,
-              text: Scratch.translate("set z-index of frame with ID [ID] to [Z_INDEX]"),
-              arguments: {
-                ID: {
-                  type: Scratch.ArgumentType.STRING,
-                  defaultValue: "frame1",
-                },
-                Z_INDEX: {
-                  type: Scratch.ArgumentType.NUMBER,
-                  defaultValue: 1,
-                },
+            text: Scratch.translate("set layer of iframe with ID [ID] to [LAYER]"),
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "iframe1",
+              },
+              LAYER: {
+                type: Scratch.ArgumentType.NUMBER,
+                defaultValue: 1,
               },
             },
+          },
           {
             opcode: "getAllIframeIDs",
             blockType: Scratch.BlockType.REPORTER,
@@ -226,16 +226,55 @@
               },
             },
           },
+          {
+            opcode: "getTotalLayers",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("total number of layers"),
+          },
+          // New block to get the layer of a specific iframe
+          {
+            opcode: "getLayerOfIframe",
+            blockType: Scratch.BlockType.REPORTER,
+            text: Scratch.translate("layer of iframe with ID [ID]"),
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "iframe1",
+              },
+            },
+          },
         ],
       };
     }
 
-    setZIndex({ ID, Z_INDEX }) {
+  setLayerOfIframe({ ID, LAYER }) {
+    const iframeInfo = iframesMap.get(ID);
+    if (iframeInfo) {
+      const { iframe, overlay } = iframeInfo;
+
+      // Ensure that the style property is defined before setting zIndex
+      if (overlay && overlay.style) {
+        overlay.style.zIndex = LAYER;
+      }
+
+      if (iframe && iframe.style) {
+        iframe.style.zIndex = LAYER;
+      }
+    }
+  }
+
+    getTotalLayers() {
+      // Return the total number of layers
+      return Scratch.renderer._overlays.length;
+    }
+
+    getLayerOfIframe({ ID }) {
       const iframeInfo = iframesMap.get(ID);
       if (iframeInfo) {
-        const { iframe } = iframeInfo;
-        iframe.style.zIndex = Z_INDEX;
+        const { overlay } = iframeInfo;
+        return Scratch.renderer._overlays.indexOf(overlay);
       }
+      return -1; // If the iframe is not found
     }
 
     async display({ URL, ID }) {
@@ -416,6 +455,7 @@
 
       // Update iframe attributes
       this.updateFrameAttributes(iframesMap.get(ID));
+      move(ID,0,0)
     }
 
     updateFrameAttributes(iframeInfo) {
