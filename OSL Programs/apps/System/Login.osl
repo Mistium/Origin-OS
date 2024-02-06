@@ -1,10 +1,10 @@
 accounts = ""
-wrong = 1234567890.hash("md5")
+wrong = 1234567890.to("md5")
 paged = null
 window "hide"
 current_login = 1
-network_accounts = "Array".new()
-network_data = "Array".new()
+network_accounts = "Array".new(0)
+network_data = "Array".new(0)
 
 new_network_data = false
 login_return = ""
