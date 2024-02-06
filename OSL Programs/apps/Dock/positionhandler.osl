@@ -1,14 +1,24 @@
-terminal "get app_positions"
+terminal "get windowpositions"
+data = data + dock_width
 if data != datasave (
 datasave = data
-data = data.join(" ")
-
+data = "" + data.join(" ") + ""
 dock_x_target = dock_width / -2
 dock_y_target = 0
-if data.contains("1,") "dock_x_target = window_width / -2"
-if data.contains("-1,") "dock_x_target = window_width / 2 - dock_width"
-if data.contains("0,0") "dock_y_target = -100"
+left = data.contains(" 1,0 ") or data.contains(" 1,-1 ")
+right = data.contains(" -1,0 ") or data.contains(" -1,-1 ")
+if ( left and right ) or data.contains(" 0,0 ") (
+dock_x_target = dock_width / -2
+dock_y_target = -100
+) else (
+if left "dock_x_target = window_width / -2"
+if right "dock_x_target = window_width / 2 - dock_width"
 )
-dock_x += dock_x_target - dock_x / 3
+)
+dif = dock_x_target - dock_x
+if dif.abs > 1 (
+window "refresh_bg"
+)
+dock_x += dif / 3
 y += dock_y_target - y / 10
 goto dock_x y
