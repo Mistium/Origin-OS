@@ -10,6 +10,8 @@ new_network_data = false
 login_return = ""
 network "get_my_accounts"
 
+input_shown = false
+
 def "login" "username,password"
   status = "login"
   network "login" username password
@@ -22,7 +24,10 @@ mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 15
 
 if new_network_data (
-  if network_data_command == "get_my_accounts" "accounts = network_data"
+  if network_data_command == "get_my_accounts" (
+    accounts = network_data
+    window "refresh_bg"
+  )
   if network_data_command == "login" (
     login_return = network_data
     if login_return == "Successful Login" (
@@ -123,7 +128,22 @@ if current_login.istype("number") (
     change_y -70
     square 320 30 20 1
     pass_name = "input_password_" ++ current_login
-    input 300 25 "hidden.password_" ++ current_login "Password..."
+    if input_shown (
+      goto -25 -140
+      input 250 25 "password_" ++ current_login "Password..."
+    ) else (
+      goto -25 -140
+      input 250 25 "hidden.password_" ++ current_login "Password..."
+    )
+    goto 140 -140
+    icon "eye" 0.7
+    if clicked and can (
+      can = false
+      input_shown = input_shown.not
+    )
+    if input_shown.not (
+      icon "w 3 c #fff line 10 10 -10 -10" 0.7
+    )
     goto 0 -210
     c #000
     if login_return == "Invalid Details" "c #491515"
@@ -187,7 +207,11 @@ if current_login == "login" (
 
   goto 0 -140
   square 320 30 20 : c#000
-  input 300 25 "hidden.signup_pass" "Password..."
+  if input_shown (
+    input 300 25 "signup_pass" "Password..."
+  ) else (
+    input 300 25 "hidden.signup_pass" "Password..."
+  )
 
   goto 0 -210 : c#000
   if login_return != "" "c #491515"
