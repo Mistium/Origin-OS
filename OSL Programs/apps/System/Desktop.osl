@@ -3,7 +3,6 @@ window "x" 0
 window "y" 30
 windowfileloc = "Origin/(C) Users/" ++ username ++ "/Desktop"
 window "dimensions" screensize_x + 40 screensize_y - 60
-
 mainloop:
 include windowfileloc
 desktop = data
@@ -12,19 +11,23 @@ if mouse_down and can (
   can = false
   mouse_start_x = mouse_x
   mouse_start_y = mouse_y
+  window "refresh_bg"
 )
 if mouse_down (
   sqw = mouse_start_x - mouse_x
   sqh = mouse_start_y - mouse_y
   goto mouse_x + ( sqw / 2 ) mouse_y + ( sqh / 2 )
-  square sqw sqh 5 : c#global_accent
-  square sqw sqh 5 : c#111
+  square sqw sqh 10 : c#global_accent
+  square sqw sqh 5 : c#000
   window "dimensions" screensize_x + 40 screensize_y - 60
+  window "refresh_bg"
 ) else (
+  if can.not (
+    window "refresh_bg"
+  )
   can = true
 )
 if desktop.len == 0 "exit"
-
 applications_count = 0
 loop desktop.len (
   applications_count += 1
