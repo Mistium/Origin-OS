@@ -15,6 +15,7 @@ mode = "Menu"
 window "resizable" False
 window "dimensions" 580 400
 score = 0
+slider_speed = 0.8
 mainloop:
 colour #555
 loc 999 999 -190 -10
@@ -30,8 +31,6 @@ loc 2 2 0 -60
 text "Score:" + snakelen 8
 if mode == "Menu" (
   c #444
-  loc 999 999 -200 -50
-  slider 150 20 "speed"
   loc 999 999 -200 -70
   speed_display = ( 1 - slider_speed ) * 10
   text speed_display.round 10 : c#fff
