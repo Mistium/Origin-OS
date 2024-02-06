@@ -69,7 +69,7 @@ if menu and ( page == "credits" ) (
     if "space".pressed "page = none"
 )
 if menu.not (
-  if "space".pressed and allowed (
+  if "space".onpress (
     birdvel = 16
     allowed = False
     timer2 = timer
