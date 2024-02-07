@@ -44,6 +44,9 @@ if mouse_down.not (
   if settings_cha (
     if mouse_touching "settings_open = settings_open.not"
     settings_cha = false
+    if settings_open.not (
+      window ""
+    )
   )
   can = true
 )
