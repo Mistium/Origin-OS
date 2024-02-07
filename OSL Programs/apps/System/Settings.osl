@@ -487,7 +487,7 @@ if wallpapers.len < 1 or wallpapers.istype("array").not (
   wallpapers = [] + "https://raw.githubusercontent.com/Mistium/Origin-OS/main/wallpapers/originOS%20Flow.png"
   save "wallpapers.json" "set" wallpapers
 )
-save "segments.txt" "set" seg
+save "segments.txt" "set" segments
 
 mainloop:
 
