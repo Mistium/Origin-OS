@@ -1,0 +1,42 @@
+tiles = "[[0,0,0,0],[0,2,0,2],[0,2,0,2],[0,0,0,0]]".destr
+window "show"
+
+def "move_left"
+loop 2 (
+  count = 1
+  row = 4
+  loop 3 (
+    count ++
+    temp = count - 1
+    temp2 = tiles.[temp]
+    if tiles.[count].[row] == tiles.[temp].[row] (
+      temp2.[row] = tiles.[temp].[row] * 2
+    ) else (
+      if tiles.[temp].[row] == 0 "temp2.[row] = tiles.[count].[row]"
+    )
+    tiles.[temp] = temp2
+    temp2 = tiles.[count]
+    temp2.[row] = 0
+    tiles.[count] = temp2
+  )
+)
+endef
+
+mainloop:
+
+count = 0
+count2 = 0
+loop 4 (
+  count ++
+  count2 = 0
+  loop 4 (
+    count2 ++
+    goto count - 2.5 * 100 count2 - 2.5 * 100
+    square 80 80 10 : c#222
+    text tiles.[count].[count2] 20 : c#fff
+  )
+)
+if "a".onpress (
+move_left
+)
+import "win-buttons"
