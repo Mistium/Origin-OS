@@ -1,4 +1,5 @@
-segment_url = "Origin/(C) Users/" ++ username ++ "/Application Data/Settings/Segments.txt"
+segment_dir = "Origin/(C) Users/" ++ username ++ "/Application Data/Settings"
+segment_url = segment_dir + "/Segments.txt"
 
 file "exists" segment_url
 if exists (
@@ -6,6 +7,7 @@ if exists (
   seg = file.[4]
 ) else (
   seg = ["Main","Applications","Time","Battery"]
+  file "download" "segments.txt" "" seg segment_dir
 )
 
 global "segments" seg
