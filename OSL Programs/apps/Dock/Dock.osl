@@ -6,7 +6,6 @@ if exists (
   seg = file.[4]
 ) else (
   seg = ["Main","Applications","Time","Battery"]
-  file "set" 4 seg
 )
 
 global "segments" seg
