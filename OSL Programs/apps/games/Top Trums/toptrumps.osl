@@ -1,0 +1,18 @@
+cards = [
+  []
+]
+
+mainloop:
+
+rand = [1] + cards.len
+player_card = rand.random
+goto 0 150
+button "Speed" 300 30 : c#333 
+goto 0 50
+button "Brain" 300 30 : c#333
+goto 0 -50
+button "Size" 300 30 : c#333
+goto 0 -150
+button "unique" 300 30 : c#333
+
+import "win-buttons"
