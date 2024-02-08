@@ -1,0 +1,68 @@
+sequence = [] + [1,4].random
+window "show"
+colours = [
+  "#ff0000",
+  "#00ff00",
+  "#0000ff",
+  "#ffff00"
+]
+playing = false
+animate = true
+
+def "game_over"
+  cur = 1
+  wrong = true
+  last = timer
+  animate = false
+  sequence = sequence + [1,4].random
+endef
+
+game_over
+last = timer + 3
+cur_view = 0
+mainloop:
+if "space".onpress (
+  animate = true
+)
+if timer - last > 0.2 (
+  cur_displ = 0
+)
+if timer - last > 0.5 and animate (
+  last = timer
+  cur_view ++
+  cur_displ = cur_view
+  wrong = false
+  if cur_view == sequence.len (
+    sequence = sequence + [1,4].random
+    cur = 1
+    cur_view = 0
+    animate = false
+  )
+)
+
+displ = sequence.len - 1 + "Points"
+loc 999 2 displ.len * -5 -50
+text displ 10 : c#fff
+count = 0
+set_y 225
+loop 2 (
+  change_y -150
+  loop 2 (
+  count ++
+  set_x count % 2 - 0.5 * 150
+  c colours.[count]
+  if wrong "c #000"
+  square 100 100 20
+  if mouse_touching and playing or ( sequence.[cur_displ] == count ) (
+    square 100 100 40
+  )
+  if clicked and playing and can (
+    can = false
+    if count == sequence.[cur] (
+      cur ++
+    ) else (
+      game_over
+    )
+  )
+  )
+)
