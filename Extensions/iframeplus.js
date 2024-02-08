@@ -1,5 +1,4 @@
 // Name: IframePlus
-// ID: IframePlus
 // By: @mistium on discord
 // Description: Display webpages or HTML over the stage with unique IDs. Made primarily for use in originOS (https://github.com/Mistium/Origin-OS).
 
