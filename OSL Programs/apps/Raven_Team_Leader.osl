@@ -1,0 +1,16 @@
+// (I made this because @smithic asked me too. I was really bored ok..)
+
+images = ["https://pbs.twimg.com/media/F-MRnU8WYAAzZ7-.jpg","https://pbs.twimg.com/media/F-Msx8eW0AAs-p2.jpg","https://pbs.twimg.com/media/F-cL-xzbIAA-So1.png","https://pbs.twimg.com/media/F-GMrSuWsAAsDy_.jpg","https://steamuserimages-a.akamaihd.net/ugc/2201758194115308945/222EE131E660C2F52B2259DCBA9D4D5EA7B75266/","https://pbs.twimg.com/media/F-DNdIvXMAAqDR0.png","https://pbs.twimg.com/media/F-4a21UX0AAHeFW.jpg","https://pbs.twimg.com/media/F-MLuSkW8AAbgy8.jpg"]
+
+rand = 1
+mainloop:
+if "space".pressed and can (
+  can = false
+rand = [1,9].random
+) else (
+  if "space".pressed.not "can = true"
+)
+image images.[rand] null window_height
+import "win-buttons"
+loc 2 2 20 -20
+text rand 10 : c#fff
