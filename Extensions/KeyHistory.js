@@ -7,6 +7,9 @@
 
   const MAX_KEY_HISTORY = 100; // Adjust the maximum number of keys to keep in history
 
+  // Define keybinds
+  const keybinds = ["Ctrl", "Shift", "Alt"];
+
   class KeyHistoryExtension {
     constructor() {
       this.keyHistory = [];
@@ -51,17 +54,55 @@
     }
 
     onKeyDown(event) {
+      // Check if Command (Cmd) or Control (Ctrl) keys are pressed
+      if (event.metaKey || event.ctrlKey) {
+        return; // Skip adding keys when Cmd or Ctrl are pressed
+      }
+
+      // Check if the pressed key is part of a keybind
+      if (this.isKeybind(event.key)) {
+        return; // Skip adding keybind keys to history
+      }
+
+      // Add the pressed key to the history
       if (event.key && event.key.length === 1) {
         const key = event.key;
-        if (this.keyHistory.length >= MAX_KEY_HISTORY) {
-          this.keyHistory.pop();
-        }
-        this.keyHistory.unshift(key);
+        this.addKeyToHistory(key);
       }
     }
+
+    onPaste(event) {
+      const pastedText = event.clipboardData.getData('text/plain');
+      if (pastedText.trim() !== '') {
+        this.addKeyToHistory(pastedText);
+      }
+    }
+
+    isKeybind(key) {
+      return keybinds.includes(key);
+    }
+
+    addKeyToHistory(key) {
+      // Check if the maximum history size is reached
+      if (this.keyHistory.length >= MAX_KEY_HISTORY) {
+        this.keyHistory.pop(); // Remove the last element
+      }
+      
+      // Add the key to the beginning of the array
+      this.keyHistory.unshift(key);
+    }
   }
+
+  // Create an instance of the KeyHistoryExtension class
   const extension = new KeyHistoryExtension();
+
+  // Register the extension with Scratch
   Scratch.extensions.register(extension);
+
+  // Listen for keydown events and call the onKeyDown method
   document.addEventListener('keydown', (event) => extension.onKeyDown(event));
+
+  // Listen for paste events and call the onPaste method
+  document.addEventListener('paste', (event) => extension.onPaste(event));
 
 })(Scratch);
