@@ -45,7 +45,7 @@ if mouse_down.not (
     if mouse_touching "settings_open = settings_open.not"
     settings_cha = false
     if settings_open.not (
-      window ""
+      window "refresh_bg"
     )
   )
   can = true
