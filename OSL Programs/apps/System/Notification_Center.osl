@@ -5,16 +5,29 @@ notifications = [
   {"app":"MNBF5Cyc2dtBMWGfW3BGTwCZYCdn26sk","text":"Woooo! Im cool"}
 ]
 window "front"
+window "responsive" true
 sy = 0
+win_x = screensize_x / -2 - 100
+notifs_open = false
 mainloop:
-window "x" screensize_x / -2 + 100
+win_x += target - win_x / 5
+target = screensize_x / -2 - 100
+if notifs_open "target = screensize_x / -2 + 100"
+window "x" win_x.round
 window "y" screensize_y / 2 - 300
 c #333
-window "dimensions" 250 600
+window "dimensions" 270 600
+loc -2 2 -15 -20
+square 10 10 20 : c#000 hover_c#555
+if clicked and can (
+  can = false
+  notifs_open = notifs_open.not
+)
+icon "notifications" 1 : c#fff
 frame window."left" window."top" window."right" window."bottom" notifications.len * 60
 if scroll_y != sy (
-sy = scroll_y
-window "redraw_bg"
+  sy = scroll_y
+  window "redraw_bg"
 )
 count = 0
 loop notifications.len (
@@ -31,4 +44,6 @@ loop notifications.len (
   goto x y_position - 20
   text cur."text".str 7
 )
+if mouse_down "can = true"
 frame "clear"
+if "escape".onpress "window stop"
