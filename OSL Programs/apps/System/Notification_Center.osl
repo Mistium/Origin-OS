@@ -4,6 +4,7 @@ notifications = [
   {"app":"xxzDnSRYbDD4dFxbQsHwts3CrbTtPfJP","text":"Low Storage :("},
   {"app":"MNBF5Cyc2dtBMWGfW3BGTwCZYCdn26sk","text":"Woooo! Im cool"}
 ]
+window "front"
 sy = 0
 mainloop:
 window "x" screensize_x / -2 + 100
@@ -31,4 +32,3 @@ loop notifications.len (
   text cur."text".str 7
 )
 frame "clear"
-if "escape".onpress "window stop"
