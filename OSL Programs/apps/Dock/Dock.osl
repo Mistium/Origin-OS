@@ -12,8 +12,6 @@ if exists (
 
 global "segments" seg
 open = 0
-window "add" "Desktop"
-window "add" "Quick_Settings"
 
 def "main"
   start_x = x_position
