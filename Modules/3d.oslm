@@ -28,6 +28,10 @@ def "camera" "input1,input2,input3"
   )
 endef
 
+def "gotoarr" "arr"
+  goto arr.[1] arr.[2]
+endef
+
 method "project"
   cam_roll = cam_roll % 360
   x = passed.[1]
@@ -40,4 +44,31 @@ method "project"
 endmethod
 
 camera "reset"
-say [10,10,10].project
+window "show"
+camera "set" "fov" 350
+camera "set" "y" -100
+camera "set" "z" 500
+camera "set" "roll" 225
+mainloop:
+camera "set" "roll" mouse_x
+p1 = [200,0,200].project
+p2 = [-200,0,-50].project
+p3 = [200,0,-200].project
+p4 = [-200,0,50].project
+p5 = [150,200,0].project
+pen "size" 10
+c #f00
+gotoarr p1
+pen "down"
+gotoarr p2
+gotoarr p4
+gotoarr p3
+gotoarr p1
+c #00f
+gotoarr p5
+gotoarr p3
+gotoarr p2
+gotoarr p5
+gotoarr p4
+gotoarr p1
+pen "up"
