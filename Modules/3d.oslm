@@ -1,0 +1,43 @@
+def "camera" "input1,input2,input3"
+  if input1 == "reset" (
+    cam_x = 0
+    cam_y = 0
+    cam_z = 0
+    cam_roll = 0
+    cam_pitch = 0
+    cam_yaw = 0
+    cam_fov = 90
+  )
+  if input1 == "change" (
+    if input2 == "x" "cam_x += input3"
+    if input2 == "y" "cam_y += input3"
+    if input2 == "z" "cam_z += input3"
+    if input2 == "roll" "cam_roll += input3"
+    if input2 == "pitch" "cam_pitch += input3"
+    if input2 == "yaw" "cam_yaw += input3"
+    if input2 == "fov" "cam_fov += input3"
+  )
+  if input1 == "set" (
+    if input2 == "x" "cam_x = input3"
+    if input2 == "y" "cam_y = input3"
+    if input2 == "z" "cam_z = input3"
+    if input2 == "roll" "cam_roll = input3"
+    if input2 == "pitch" "cam_pitch = input3"
+    if input2 == "yaw" "cam_yaw = input3"
+    if input2 == "fov" "cam_fov = input3"
+  )
+endef
+
+method "project"
+  cam_roll = cam_roll % 360
+  x = passed.[1]
+  y = passed.[2]
+  z = passed.[3]
+  nx = ( x * cam_roll.cos ) + ( z * cam_roll.sin * -1 )
+  ny = y + cam_y
+  nz = x * cam_roll.sin + ( z * cam_roll.cos ) + cam_z
+  return = [] + ( nx * cam_fov / nz ) + ( ny * cam_fov / nz + 10 )
+endmethod
+
+camera "reset"
+say [10,10,10].project
