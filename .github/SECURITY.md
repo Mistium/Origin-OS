@@ -8,4 +8,4 @@ Please stay on the newest versions, i will be uploading a feature support chart 
 
 Use this section to tell people how to report a vulnerability.
 
-Email me at @d.a.kimber@icloud.com if you find a vulnerability with anything in origin
+Email me at @d.a.Kimber@icloud.com if you find a vulnerability with anything in origin
