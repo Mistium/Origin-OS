@@ -66,16 +66,15 @@
       }
 
       if (this.stream) {
-        const canvas = document.createElement('canvas');
-        canvas.width = this.video.videoWidth;
-        canvas.height = this.video.videoHeight;
-        const context = canvas.getContext('2d');
-        context.drawImage(this.video, 0, 0, canvas.width, canvas.height);
-        return canvas.toDataURL();
+        const videoTrack = this.stream.getVideoTracks()[0];
+        const imageCapture = new ImageCapture(videoTrack);
+        const blob = await imageCapture.grabFrame();
+        return URL.createObjectURL(blob);
       }
 
       return null;
     }
+
 
     cameraWidth() {
       return this.video ? this.video.videoWidth : 0;
