@@ -3,6 +3,8 @@
 settings_open = false
 can = false
 window "front"
+window_x = screensize_x / 2 + 128
+window_y = screensize_y / 2 - 160
 last_upload = timer + 600
 last_synced = 0
 syncing = false
@@ -31,8 +33,14 @@ if new_network_data (
   new_network_data = false
 )
 
-window "x" screensize_x / 2 - 102
-window "y" screensize_y / 2 - 160
+window_target_x = screensize_x / 2 - 102
+window_target_y = screensize_y / 2 - 160
+
+window_x += window_target_x - window_x / 10
+window_y += window_target_y - window_y / 10
+
+window "x" window_x.round
+window "y" window_y.round
 
 loc 999 2 0 -25
 square 170 30 20 0 1
