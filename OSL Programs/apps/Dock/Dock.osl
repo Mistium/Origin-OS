@@ -35,9 +35,10 @@ global dock_theme
 window "responsive" true
 window "hide"
 window "front"
+window "y" screensize_y / -2 + 35
 main
 dock_x = dock_width / -2
-y = 0
+y = -100
 mainloop:
 
 movefileloc "origin/(C) Users/" ++ username ++ "/Dock"
