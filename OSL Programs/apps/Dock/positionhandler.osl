@@ -21,4 +21,7 @@ window "refresh_bg"
 )
 dock_x += dif / 3
 y += dock_y_target - y / 10
+if y.round != dock_y_target.round (
+window "refresh_bg"
+)
 goto dock_x y
