@@ -42,14 +42,14 @@ mainloop:
 
 movefileloc "origin/(C) Users/" ++ username ++ "/Dock"
 if mouse_down.not "canclick = True"
-window "y" 0
-window "dimensions" screensize_x screensize_y
-frame screensize_x / -2 screensize_y / -2 + 70 screensize_x / 2 screensize_y / -2
+window "y" screensize_y / -2 + 35
+window "dimensions" screensize_x 70
 import "Origin/(A) System/Docks/positionhandler.osl"
+
 if y > -20 "main"
+
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
   terminal "system windows add" + open
   open = 0
 )
-frame "clear"
