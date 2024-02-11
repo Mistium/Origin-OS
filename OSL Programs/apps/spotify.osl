@@ -1,0 +1,39 @@
+verifier = "iqB4FdZeNltprkqHFVlOhMpnTqybxUOGjoA8DgpGmQQbdDc1RYEaWmEURsYkcEZevVDsDKIjncbdPPEvFSC4JSYuau4LylygkuuTdIyF9TFQfZfqjCW0WqBOpDmFpQC7"
+challenge = "25036c9ffcebbeea6280beb41bd28d04e594e36f589cb6d0a97db7abb4ecc52f"
+secret = "secret:".ask
+
+
+http "new"
+http "method" "POST"
+http "type" "application/x-www-form-urlencoded"
+http "sendto" "https://accounts.spotify.com/api/token?grant_type=client_credentials&client_id=d947a18e7b6f42e291d22ef43903ad5c&client_secret=" ++ secret ++ "&code=AQCy20kMMF5sFvQI_Nyl5LtIhZo9WshaHc7uRTKFWZkCrSrXW_NfNLQKo_gvL-Fzdfuf2jRfPrdJaBCo_EdyHFjjbBkGWw7r13nPLNZv7FWJJSc6BXfM9UXoWRXBvoJNtnR9IBDChkMV05hPjlb3hzUeatPx2CUoXcS6jxjCXiF4Zd1zGXjkGKt3abjo0DAs7OB_ddW9xMkSNi9LHXUZZgx_RWY2vf-BcaKTN2C7vN1rgEc3XJ1ykC-FiA-d46SFzyuo4j8245FuguIRoftCX69q&code_verifier" ++ verifier
+http "wait_response"
+token = response."access_token"
+
+auth = {}
+auth.key("Authorization") = "Bearer" + token
+
+sent = false
+verified = ""
+mainloop:
+
+if verified.left(14) == "https://github" (
+  iframe "https://accounts.spotify.com/authorize?flow_ctx=3392264f-89bc-47b1-bad3-cdc545b31bd2%3A1707620614&response_type=code&client_id=d947a18e7b6f42e291d22ef43903ad5c&scope=user-read-private,user-read-currently-playing,user-read-playback-state&redirect_uri=https://github.com/Mistium/Origin-OS" "verify" 0 -20 window_width window_height - 40
+  verified = iframe_url
+) else (
+  if sent.not (
+    sent = true
+    http "new"
+    http "method" "GET"
+    http "headers" auth
+    http "sendto" "https://api.spotify.com/v1/me"
+  )
+)
+
+http "get_response"
+loc 2 2 20 -20
+text response 10 : c#fff
+loc 2 2 20 -50
+text verified 10
+
+import "win-buttons"
