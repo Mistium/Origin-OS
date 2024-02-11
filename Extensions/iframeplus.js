@@ -381,14 +381,16 @@
         // Additional actions as needed...
       }
     }
-    getIframeURL({ ID }) {
-      const iframeInfo = iframesMap.get(ID);
-      if (iframeInfo) {
-        const { iframe } = iframeInfo;
-        return iframe.src;
-      }
-      return "";
-    }
+getIframeURL(ID) {
+  const iframe = Scratch.renderer.getElementById(ID);
+  if (iframe) {
+    const iframeUrl = iframe.contentWindow.location.href;
+    return iframeUrl;
+  } else {
+    console.error("Iframe with ID " + ID + " not found.");
+    return null;
+  }
+}
 
     setIframeURL({ ID, URL }) {
       const iframeInfo = iframesMap.get(ID);
@@ -414,48 +416,33 @@
       return canvas.toDataURL();
     }
 
-    getIframeDataURL(iframe) {
-      // Create a new canvas element
-      const canvas = document.createElement("canvas");
-      const context = canvas.getContext("2d");
+createFrame(src, ID) {
+  const iframe = document.createElement("iframe");
+  iframe.style.width = "100%";
+  iframe.style.height = "100%";
+  iframe.style.border = "none";
+  iframe.style.position = "absolute";
+  iframe.setAttribute("id", ID); // Set the ID attribute
+  iframe.setAttribute("sandbox", SANDBOX.join(" "));
+  iframe.setAttribute(
+    "allow",
+    Object.entries(featurePolicy)
+      .map(([name, permission]) => `${name} ${permission}`)
+      .join("; ")
+  );
+  iframe.setAttribute("allowtransparency", "true");
+  iframe.setAttribute("src", src);
 
-      // Set the canvas size to match the iframe size
-      canvas.width = iframe.offsetWidth;
-      canvas.height = iframe.offsetHeight;
+  const overlay = Scratch.renderer.addOverlay(iframe, "manual");
 
-      // Draw the iframe contents onto the canvas
-      context.drawImage(iframe, 0, 0, canvas.width, canvas.height);
+  // Store iframe information in the map
+  iframesMap.set(ID, { iframe, overlay, width: 480, height: 360, x: 0, y: 0, interactive: true });
 
-      // Return the data URL of the canvas
-      return canvas.toDataURL();
-    }
+  // Update iframe attributes
+  this.updateFrameAttributes(iframesMap.get(ID));
+  move(ID, 0, 0);
+}
 
-    createFrame(src, ID) {
-      const iframe = document.createElement("iframe");
-      iframe.style.width = "100%";
-      iframe.style.height = "100%";
-      iframe.style.border = "none";
-      iframe.style.position = "absolute";
-      iframe.setAttribute("sandbox", SANDBOX.join(" "));
-      iframe.setAttribute(
-        "allow",
-        Object.entries(featurePolicy)
-          .map(([name, permission]) => `${name} ${permission}`)
-          .join("; ")
-      );
-      iframe.setAttribute("allowtransparency", "true");
-      iframe.setAttribute("allowtransparency", "true");
-      iframe.setAttribute("src", src);
-
-      const overlay = Scratch.renderer.addOverlay(iframe, "manual");
-
-      // Store iframe information in the map
-      iframesMap.set(ID, { iframe, overlay, width: 480, height: 360, x: 0, y: 0, interactive: true });
-
-      // Update iframe attributes
-      this.updateFrameAttributes(iframesMap.get(ID));
-      move(ID,0,0)
-    }
 
     updateFrameAttributes(iframeInfo) {
       if (!iframeInfo) {
