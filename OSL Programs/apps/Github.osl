@@ -1,0 +1,46 @@
+api = "https://api.github.com/"
+
+url = "https://api.github.com/users/Mistium"
+
+history = []
+
+def "loadpage"
+
+
+endef
+
+last_url = ""
+repo_data == "Loading"
+mainloop:
+
+network "get" url
+page_data = data
+
+if url.left(28) == "https://api.github.com/users" (
+  loc 2 2 100 -100
+  image page_data."avatar_url" 100
+  loc 2 2 160 -100
+  text page_data."login" 10 : c#fff
+  network "get" url ++ "/repos"
+  repo_names = data.getall("name")
+  repo_stars = data.getall("stargazer_count")
+  last_url = url
+  c #222
+  frame window."left" window."top" - 150 window."right" window."bottom" repo_names.len * 40
+  count = scroll_y.divide(30).round
+  loop frame_height.divide(30).round (
+    count ++
+    loc 999 2 50 -200
+    square frame_width - 20 30 10 : c#222
+    loc 2 2 50 0 + ( count * -40 ) + scroll_y
+    text repo_names.[count] 10 : c#0000EE hover_c#551A8B
+    if mouse_touching (
+      cursor "pointer"
+      if clicked (
+        url = data.getall("")
+      )
+    )
+  )
+)
+
+import "win-buttons"
