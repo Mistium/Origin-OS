@@ -381,16 +381,17 @@
         // Additional actions as needed...
       }
     }
-getIframeURL(ID) {
-  const iframe = Scratch.renderer.getElementById(ID);
-  if (iframe) {
-    const iframeUrl = iframe.contentWindow.location.href;
-    return iframeUrl;
-  } else {
-    console.error("Iframe with ID " + ID + " not found.");
-    return null;
-  }
-}
+    getIframeURL(ID) {
+      ID = ID.ID;
+      const iframe = document.getElementById(ID);
+      if (iframe) {
+        const iframeUrl = iframe.src;
+        return iframeUrl;
+      } else {
+        console.error("Iframe with ID " + ID.toString() + " not found.");
+        return null;
+      }
+    }
 
     setIframeURL({ ID, URL }) {
       const iframeInfo = iframesMap.get(ID);
@@ -417,12 +418,13 @@ getIframeURL(ID) {
     }
 
 createFrame(src, ID) {
+  ID = ID.toString()
   const iframe = document.createElement("iframe");
   iframe.style.width = "100%";
   iframe.style.height = "100%";
   iframe.style.border = "none";
   iframe.style.position = "absolute";
-  iframe.setAttribute("id", ID); // Set the ID attribute
+  iframe.setAttribute("id", ID);
   iframe.setAttribute("sandbox", SANDBOX.join(" "));
   iframe.setAttribute(
     "allow",
@@ -440,7 +442,10 @@ createFrame(src, ID) {
 
   // Update iframe attributes
   this.updateFrameAttributes(iframesMap.get(ID));
-  move(ID, 0, 0);
+  console.log("Map Data:");
+  iframesMap.forEach((value, key) => {
+    console.log("Key:", key, "Value:", value);
+  });
 }
 
 
