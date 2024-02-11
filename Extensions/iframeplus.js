@@ -479,6 +479,6 @@
       iframe.style.pointerEvents = interactive ? "auto" : "none";
     }
   }
-
+ 
   Scratch.extensions.register(new IframePlusExtension());
 })(Scratch);
