@@ -1,10 +1,10 @@
 clicked_id = 0
 window "x" 0
-window "y" 30
 windowfileloc = "Origin/(C) Users/" ++ username ++ "/Desktop"
-window "dimensions" screensize_x + 40 screensize_y - 60
 mainloop:
+window "y" 35
 include windowfileloc
+window "dimensions" screensize_x screensize_y - 70
 desktop = data
 movefileloc windowfileloc
 if mouse_down and can (
@@ -19,7 +19,7 @@ if mouse_down (
   goto mouse_x + ( sqw / 2 ) mouse_y + ( sqh / 2 )
   square sqw sqh 10 : c#global_accent
   square sqw sqh 5 : c#000
-  window "dimensions" screensize_x + 40 screensize_y - 60
+  window "dimensions" screensize_x screensize_y - 70
   window "refresh_bg"
 ) else (
   if can.not (
