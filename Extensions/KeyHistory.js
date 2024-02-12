@@ -88,8 +88,8 @@
         this.keyHistory.pop(); // Remove the last element
       }
       
-      // Add the key to the beginning of the array
-      this.keyHistory.unshift(key);
+      // Add the key to the end of the array
+      this.keyHistory.push(key);
     }
   }
 
