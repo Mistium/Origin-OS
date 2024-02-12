@@ -1,0 +1,15 @@
+
+def "load_video" "vid_id"
+  network "getsync" "https://yt2html5.com/?id=" ++ vid_id
+  data = data."data"
+  video_url = data."formats".[1]."url"
+  log "sys" data."formats".[1]."url"
+  video_title = data."videoDetails"."title"
+endef
+
+load_video "dQw4w9WgXcQ"
+
+mainloop:
+goto 0 0
+iframe video_url "youtube" 0 -25 window_width window_height - 50
+import "win-buttons"
