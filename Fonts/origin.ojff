@@ -10,7 +10,7 @@
   "8": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5 line 5 20 25 20",
   "9": "line 25 20 5 20 cont 5 40 line 25 5 25 40 cont 5 40",
   "origin": {
-    "version": "5",
+    "version": "4",
     "monowidth": "True",
     "character_width": "30",
     "size": "1",
@@ -140,5 +140,8 @@
   "◻": "square 15 15 13 13",
   "▶": "line 5 5 25 15 cont 5 25 cont 5 5",
   "◀": "line 25 5 5 15 cont 25 25 cont 25 5",
-  "☮": "cutcircle 15 15 15 0 180 line 15 5 15 25 line 21 9 15 15 cont 9 9"
+  "☮": "cutcircle 15 15 15 0 180 line 15 5 15 25 line 21 9 15 15 cont 9 9",
+  "½": "line 10 40 10 30 line 5 20 25 30 line 22 5 15 5 cont 15 10 cont 22 13 cont 22 18 cont 15 18",
+  "¼": "line 10 40 10 30 line 5 20 25 30 line 22 5 22 18 cont 22 10 cont 15 10 cont 15 18",
+  "¾": "line 7 40 13 40 cont 13 34 cont 7 34 cont 13 34 cont 13 28 cont 7 28 line 5 19 25 26 line 22 5 22 16 cont 22 10 cont 15 10 cont 15 16"
 }
