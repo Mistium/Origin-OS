@@ -6,19 +6,13 @@ def "reload"
   online = network_data
   usernames = {}
   // resets messages
-  save "messages.json" "get"
   messages = {}
-  log save-data
-  if save-data.istype("object") (
-    messages = save-data
-  )
 
   // creates a key in messages for all online users
   count = 0
   loop online.len (
     count ++
     c = online.[count]
-    usernames.key(c) = c.str
     messages.key(c) = []
   )
 endef
@@ -28,41 +22,44 @@ reload
 mainloop:
 // when new data is recieved
 if new_network_data (
+  new_network_data = false
   nds = network_data_from
-  if network_data.istype("array") (
-    usernames.key(nds) = network_data.[1]
-
+  if network_data_command == "Find_Account" (
+    current_pfp = network_data."pfp"
+  ) else (
     // add the new data to the messages for this user
     messages.key(nds) = messages.key(nds) + network_data.str
     save "messages.json" "set" messages
   )
-  new_network_data = false
 )
 
 // make a frame and some ui
 loc 999 2 0 -20
 square window."width" 20 20 : c#111
 c #333
-frame window."left" window."top" - 40 window."left" + 240 window."bottom" online.len * 20
+frame window."left" window."top" - 40 window."left" + 240 window."bottom" online.len * 20 "users"
 
 // Side bar (select a person to send to)
-goto
+goto 0 0
 square frame_width - 15 frame_height - 10 40 : c#222
 c #fff
 count = 0
 loop online.len (
   count ++
-  loc 2 2 10 count * -20 + scroll_y
+  loc 2 2 10 count * -20 + scroll_yusers
   current = online.[count]
   if current_target == current "change_x 10"
-  text usernames.key(current) 8
-  if clicked "current_target = current"
+  text current 8
+  if current_target != current and clicked (
+    current_target = current
+    network "find_account" current
+  )
 )
 frame "clear"
 if current_target == "" (
-loc 2 2 250 -60
-text "Click a user on the sidebar to start a chat" 9 : c#fff
-exit
+  loc 2 2 250 -60
+  text "Click a user on the sidebar to start a chat" 9 : c#fff
+  exit
 )
 
 // text input and send data
@@ -73,7 +70,7 @@ loc -2 -2 -20 20
 icon "play" 0.7 : c#fff
 if clicked or "enter".pressed and can (
   can = false
-  send_data = [] + username + input_send + user."pfp"
+  send_data = input_send
   messages.key(current_target) = messages.key(current_target) + send_data
   network "send" send_data current_target
   input_send = null
@@ -89,9 +86,13 @@ count = scroll_y.divide(40).round
 start = c_msgs.len - count
 loop frame_height.divide(40).round (
   count ++
+  if count > c_msgs.len (
+    frame "clear"
+    exit
+  )
   loc 2 2 30 10 - ( count * 40 ) + scroll_y
   current = c_msgs.[count]
-  image current.[3] 30
+  image current_pfp 30
   text current.[1].str + ": " + current.[2] 9 : c#fff chx#30
   if window."bottom" + 40 > y_position (
     frame "clear"
