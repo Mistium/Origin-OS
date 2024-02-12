@@ -4,43 +4,120 @@ url = "https://api.github.com/users/Mistium"
 
 history = []
 
-def "loadpage"
+def "redirect" "pass_url"
+  network "clear" url
+  network "clear" pass_url
+  names = ""
+  url = pass_url
+endef
 
-
+def "loadpage" "dir"
+  network "get" url ++ dir
+  if data != "Loading" (
+    scroll_y = 0
+    if dir == "/repos" (
+      names = data.getall("name")
+      repo_stars = data.getall("stargazers_count")
+      repo_forks = data.getall("forks_count")
+      repo_issues = data.getall("open_issues")
+      repo_owners = data.getall("owner").getall("login")
+      urls = data.getall("url")
+    )
+    if dir == "/contents" (
+      names = data.getall("name")
+      types = data.getall("type")
+    )
+  )
 endef
 
 last_url = ""
 repo_data == "Loading"
+names = ""
+page_data = ""
+
 mainloop:
 
-network "get" url
-page_data = data
+loc 999 2 0 -20
+square window."width" 30 10 : c#222
+loc 2 2 20 -20
+text url 10 : c#fff
+
+if page_data == "" (
+  network "get" url
+  page_data = data
+)
 
 if url.left(28) == "https://api.github.com/users" (
-  loc 2 2 100 -100
+  loc 2 2 70 -90
   image page_data."avatar_url" 100
-  loc 2 2 160 -100
+  loc 2 2 140 -80
   text page_data."login" 10 : c#fff
-  network "get" url ++ "/repos"
-  repo_names = data.getall("name")
-  repo_stars = data.getall("stargazer_count")
-  last_url = url
+  if names == "" (
+    loadpage "/repos"
+  )
   c #222
-  frame window."left" window."top" - 150 window."right" window."bottom" repo_names.len * 40
-  count = scroll_y.divide(30).round
-  loop frame_height.divide(30).round (
+  frame window."left" + 300 window."top" - 45 window."right" window."bottom" names.len * 110 - 27.5
+  count = scroll_y.divide(110).round - 1
+  len = names.len + 1
+  loop frame_height.divide(110).round.add(2).clamp(0,len) (
     count ++
-    loc 999 2 50 -200
-    square frame_width - 20 30 10 : c#222
-    loc 2 2 50 0 + ( count * -40 ) + scroll_y
-    text repo_names.[count] 10 : c#0000EE hover_c#551A8B
+    y = count * -110 + scroll_y + 55
+    loc 999 2 0 y
+    square frame_width - 20 90 10 : c#222 hover_c#444
     if mouse_touching (
       cursor "pointer"
       if clicked (
-        url = data.getall("")
+        redirect urls.[count]
       )
     )
+    loc 2 2 30 y + 20
+    text names.[count] 10 : c#fff
+    loc 2 2 30 y
+    text "Stars: <repo_stars.[count]> / Forks: <repo_forks.[count]> / Issues: <repo_issues.[count]>" 10
+    loc 2 2 30 y - 20
+    text "@" ++ repo_owners.[count] 10
   )
 )
+
+if url.left(28) == "https://api.github.com/repos" (
+  if names == "" (
+    loadpage "/contents"
+  )
+  c #222
+  frame window."left" / 1.5 window."top" - 40 window."right" / 1.5 - 200 window."bottom" names.len * 35
+  loc 2 2 20 -60
+  text page_data."name" 10 : c#fff hover_c#eee
+  if touching_mouse (
+    mouse "pointer"
+    if clicked (
+      redirect page_data."owner"."url"
+    )
+  )
+
+  count = scroll_y.divide(35).floor
+  len = names.len
+  loop frame_height.divide(35).round.clamp(0,len) (
+    count ++
+    y = count - 1 * -35 + scroll_y - 20
+    loc 999 2 0 y
+    square frame_width - 20 29 2 : c#000 hover_c#222
+    loc 999 2 0 y + 17
+    square frame_width - 20 0 3 : c#777
+    if mouse_touching (
+      cursor "pointer"
+    )
+    loc 2 2 30 y
+    c #fff
+    if types.[count] == "dir" (
+      icon "w 3 line 10 6 -2 6 cont -5 10 cont -10 10 cont -10 -8 cont 10 -8 cont 10 6" 0.7
+    )
+    if types.[count] == "file" (
+      icon "file" 0.7
+    )
+    change_x 30
+    text names.[count] 10
+  )
+)
+frame "clear"
 
 import "win-buttons"
