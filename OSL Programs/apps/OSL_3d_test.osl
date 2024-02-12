@@ -9,20 +9,7 @@ cam_rotation = [
   0
 ]
 
-file_dat = "
-g Object001
-v  0  0  0
-v  1  0  0
-v  1  1  0
-v  0  1  0
-v  0.5  0.5  1.6
-f  5  2  3
-f  4  5  3
-f  6  3  2
-f  5  6  2
-f  4  6  5
-f  6  4  3
-"
+file_dat = "obj".ask
 
 render = file_dat.replace("  "," ").split(newline)
 count = 0
