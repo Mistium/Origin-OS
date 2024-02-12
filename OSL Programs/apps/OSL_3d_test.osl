@@ -9,17 +9,13 @@ cam_rotation = [
   0
 ]
 
-file = "
-# OBJ file created by ply_to_obj.c
-#
+file_dat = "
 g Object001
-
 v  0  0  0
 v  1  0  0
 v  1  1  0
 v  0  1  0
 v  0.5  0.5  1.6
-
 f  5  2  3
 f  4  5  3
 f  6  3  2
@@ -27,7 +23,15 @@ f  5  6  2
 f  4  6  5
 f  6  4  3
 "
-  
+
+render = file_dat.replace("  "," ").split(newline)
+count = 0
+loop render.len (
+  count ++
+  render.[count] = render.[count].split(" ")
+)
+say render
+
 speed = 4
 mainloop:
 if "w".pressed (
@@ -64,11 +68,21 @@ loc 2 2 20 -20
 text cam_pos 10 : c#fff
 loc 2 2 20 -40
 text cam_rotation 10
-goto [100,50,100].vproject("camera")
 c #fff
-pen "size" 3
-pen "down"
-goto [100,-50,100].vproject("camera")
-goto [100,-50,-100].vproject("camera")
-pen "up"
+count = 0
+loop render.len (
+  count ++
+  current = render.[count]
+  if current.[1] == "f" (
+    pos1 = current.[2]
+    pos1 = render.[pos1].delete(1).vproject("camera")
+    pos2 = current.[3]
+    pos2 = render.[pos2].delete(1).vproject("camera")
+    pos3 = current.[4]
+    pos3 = render.[pos3].delete(1).vproject("camera")
+    goto 0 0
+    triangle pos1.[1] pos1.[2] pos2.[1] pos2.[2] pos3.[1] pos3.[2]
+  )
+)
+
 import "win-buttons"
