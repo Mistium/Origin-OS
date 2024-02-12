@@ -31,8 +31,8 @@ if new_network_data (
   if network_data_command == "login" (
     login_return = network_data
     if login_return == "Successful Login" (
-      window "add" "Dock"
       window "add" "Desktop"
+      window "add" "Dock"
       window "add" "Quick_Settings"
       window "stop"
     )
@@ -68,7 +68,9 @@ if accounts == "" (
   loc 999 -2 0 50
   square 210 40 10 : c#111
   if clicked (
+    window "add" "Desktop"
     window "add" "Dock"
+    window "add" "Quick_Settings"
     window "stop"
   )
   text "Login As Guest" 10 : c#fff chx#-70
