@@ -10,6 +10,7 @@ cam_rotation = [
 ]
 
 def "render_tri" "p1,p2,p3"
+  goto 0 0
   p1 = p1.vproject("camera")
   p2 = p2.vproject("camera")
   p3 = p3.vproject("camera")
