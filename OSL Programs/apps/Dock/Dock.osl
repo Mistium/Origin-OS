@@ -18,6 +18,8 @@ def "main"
   goto start_x y
   height = 40
   syscount = 0
+  dock_colour = #050505
+  icon_colour = #fff
 
   loop segments.len (
     syscount += 1
