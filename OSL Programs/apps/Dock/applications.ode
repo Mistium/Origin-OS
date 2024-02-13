@@ -5,7 +5,7 @@ change_x width / 2
 x = x_position
 set_y y
 square width height 20 1 0 1
-draw = mouse_touching or dock.len != dock_appslen_temp or bg_redrawn
+draw = dock.len != dock_appslen_temp or mouse_touching or bg_redrawn
 if draw (
 log "sys" dock.len
 square width height 20 1
