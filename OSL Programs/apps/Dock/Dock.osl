@@ -18,7 +18,6 @@ def "main"
   goto start_x y
   height = 40
   syscount = 0
-  import dock_theme
 
   loop segments.len (
     syscount += 1
@@ -30,8 +29,6 @@ def "main"
   dock_width = x_position - start_x
 endef
 
-dock_theme = "Dock-Dark"
-global dock_theme
 window "responsive" true
 window "hide"
 window "front"
@@ -39,15 +36,15 @@ window "y" screensize_y / -2 + 35
 main
 dock_x = dock_width / -2
 y = -100
-mainloop:
 
+mainloop:
 movefileloc "origin/(C) Users/" ++ username ++ "/Dock"
 if mouse_down.not "canclick = True"
-window "y" screensize_y / -2 + 35
 window "dimensions" screensize_x 70
+window "y" screensize_y / -2 + 35
 import "Origin/(A) System/Docks/positionhandler.osl"
 
-if y > -20 "main"
+if y > -80 "main"
 
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
