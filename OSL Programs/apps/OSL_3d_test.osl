@@ -9,15 +9,12 @@ cam_rotation = [
   0
 ]
 
-file_dat = "obj".ask
-
-render = file_dat.replace("  "," ").split(newline)
-count = 0
-loop render.len (
-  count ++
-  render.[count] = render.[count].split(" ")
-)
-say render
+def "render_tri" "p1,p2,p3"
+  p1 = p1.vproject("camera")
+  p2 = p2.vproject("camera")
+  p3 = p3.vproject("camera")
+  triangle p1.[1] p1.[2] p2.[1] p2.[2] p3.[1] p3.[2]
+endef
 
 speed = 4
 mainloop:
@@ -55,21 +52,9 @@ loc 2 2 20 -20
 text cam_pos 10 : c#fff
 loc 2 2 20 -40
 text cam_rotation 10
-c #fff
-count = 0
-loop render.len (
-  count ++
-  current = render.[count]
-  if current.[1] == "f" (
-    pos1 = current.[2]
-    pos1 = render.[pos1].delete(1).vproject("camera")
-    pos2 = current.[3]
-    pos2 = render.[pos2].delete(1).vproject("camera")
-    pos3 = current.[4]
-    pos3 = render.[pos3].delete(1).vproject("camera")
-    goto 0 0
-    triangle pos1.[1] pos1.[2] pos2.[1] pos2.[2] pos3.[1] pos3.[2]
-  )
-)
+c #f00
+render_tri [-100,100,0] [100,100,0] [0,-100,0]
+c #00f
+render_tri [-100,-100,10] [-100,-100,0] [0,100,0]
 
 import "win-buttons"
