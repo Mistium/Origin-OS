@@ -7,7 +7,6 @@ set_y y
 square width height 20 1 0 1
 draw = dock.len != dock_appslen_temp or mouse_touching or bg_redrawn
 if draw (
-log "sys" dock.len
 square width height 20 1
 goto x - width.divide(2) + 20 y
 dock_appslen_temp = dock.len
