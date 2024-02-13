@@ -4,19 +4,18 @@ settings_open = false
 can = false
 window "front"
 window_x = screensize_x / 2 + 128
-window_y = screensize_y / 2 - 160
 last_upload = timer + 600
 last_synced = 0
 syncing = false
 error = ""
 window "dimensions" 190 300
+window "responsive" true
 can = false
 last_upload = timer + 300
 syncing = true
 terminal "system uploadfiles"
 
 mainloop:
-
 if new_network_data (
   if network_data_command == "Upload_Files" (
     if network_data.len == 32 (
@@ -33,14 +32,11 @@ if new_network_data (
   new_network_data = false
 )
 
-window_target_x = screensize_x / 2 - 102
-window_target_y = screensize_y / 2 - 160
-
+window_target_x = -102
 window_x += window_target_x - window_x / 10
-window_y += window_target_y - window_y / 10
 
-window "x" window_x.round
-window "y" window_y.round
+window "x" screensize_x / 2 + window_x
+window "y" screensize_y / 2 - 160
 
 loc 999 2 0 -25
 square 170 30 20 0 1
@@ -57,7 +53,6 @@ if bg_redrawn or mouse_touching (
         window "refresh_bg"
       )
     )
-    can = true
   )
   loc 999 2 0 -25
   square 170 30 20 : c#000
@@ -112,14 +107,21 @@ if bg_redrawn or mouse_touching and settings_open (
   loc 999 2 0 -237.5
   square 170 35 10 : c#171717
   square 170 80 10 : chy#72.5
+
   terminal "system display get brightness"
   slider_brightness = return - 10 / 90
   slider 130 0 "brightness" 32 : c#000 chy#20
   terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
+
   icon "c #333 w 25 dot" 1 : chx#-65
   icon "sun" 0.6 : c#fff
   change 65 -45
+
+  terminal "system sound get volume"
+  slider_volume = return / 100
   slider 130 0 "volume" 32 : c#000
+  terminal "system sound set volume" + ( slider_volume * 100 )
+
   icon "c #333 w 25 dot" 1 : chx#-65
   icon "volume-max" 0.7 : c#fff
   loc 2 2 30 -237.5
