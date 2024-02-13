@@ -1,0 +1,22 @@
+include "Origin/(C) Users/" ++ username ++ "/Dock"
+dock = data
+width = dock.len * 50 - 10
+change_x width / 2
+x = x_position
+set_y y
+square width height 20 1 0 1
+draw = mouse_touching or dock.len != dock_appslen_temp or bg_redrawn
+if draw (
+log "sys" dock.len
+square width height 20 1
+goto x - width.divide(2) + 20 y
+dock_appslen_temp = dock.len
+applicationscount = 0
+loop dock.len (
+applicationscount += 1
+file "open" dock.[applicationscount]
+file "render" 1.7 "interactable"
+rightclick "file" dock.[applicationscount]
+change_x 50
+)
+)
