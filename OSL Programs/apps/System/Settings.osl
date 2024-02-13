@@ -256,6 +256,7 @@ def "personalisation"
         if clicked.not "square 20 20 23 : c#333"
         if clicked and can (
           terminal "system wallpaper" + cur
+          network "update" "wallpaper" cur.to("lz_raw")
           can = false
         )
       )
