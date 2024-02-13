@@ -27,7 +27,11 @@ if new_network_data (
     )
     network "My_Files_Usage"
   )
-  if network_data_command == "my_files_usage" "used = network_data"
+  if network_data_command == "my_files_usage" (
+    used = network_data
+    used_small = used.[1].divide(1000).round
+    used_big = used.[2].divide(1000).round
+  )
   network_data_command = null
   new_network_data = false
 )
@@ -97,7 +101,7 @@ if syncing.not (
 )
 loc 999 2 -40 -77
 if used != "used" (
-  text used.[1].divide(100).round / 10 ++ "kb /" + ( used.[2].divide(1000).round ) ++ "kb" 8
+  text "<used_small>kb / <used_big>kb" 8
 )
 loc 999 999 0 0
 square 170 window_height 20 0 1
