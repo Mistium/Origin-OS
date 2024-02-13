@@ -1,3 +1,7 @@
+// Name: Camera
+// By: @mistium on discord
+// Description: Use the camera :P
+
 (function (Scratch) {
   "use strict";
 
