@@ -1,0 +1,9 @@
+width = 105
+change_x width / 2
+x = x_position
+goto x y
+square width height 20 1
+change -45 10
+text "<hour>:<minute>:<second>" 9 : c#icon_colour
+goto x - 45 y - 10
+text day.trim("0","3") + day_number + month.trim("0","3") 8
