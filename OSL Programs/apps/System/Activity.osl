@@ -122,9 +122,9 @@ tab "Disk"
 loc 2 -2 25 25
 square 25 25 10 : c#333
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
-window "responsive" True
 c #fff
 if current_tab == "Performance" (
+  window "responsive" True
   loc 2 -2 50 graph.[1].destr * whm
   pen "down"
   graph_count = 1
@@ -134,41 +134,62 @@ if current_tab == "Performance" (
   )
 )
 if current_tab == "Network" (
-  loc 2 -2 50 network_usage.[1].destr
-  pen "down"
-  graph_count = 0
-  loop network_usage.len (
-    graph_count += 1
-    loc 2 -2 graph_count * wwm + 50 network_usage.[graph_count].destr + 10
+  window "responsive" False
+  loc 2 2 50 -45
+  x = x_position
+  y = y_position
+  loc -2 -2 0 0
+  terminal "get packetlist"
+  c #333
+  frame x y x_position y_position data.len * 40 - 20
+  count = scroll_y.divide(40).round
+  y = scroll_y - 20 + ( count * -40 )
+  loop frame_height.divide(40).ceiling (
+    count ++
+    loc 999 2 0 y
+    square frame_width - 20 25 10 1 : c#111 hover_c#222
+    cur = data.[count]
+    loc 2 2 30 y
+    recipient = cur."recipient".str
+    payload = cur."payload".str
+    text payload.str.trim(1,20) 7 : c#fff
+    if payload.len > 20 (
+      text "..." 7
+    )
+    if recipient == "" (
+      recipient = "Fr <-" + cur."source".str
+    ) else (
+      recipient = "To ->" + recipient
+    )
+    loc -2 2 recipient.len * -7 - 15 y
+    text recipient 7
+    y -= 40
   )
 )
-pen "up"
+
 if current_tab == "Render Info" (
   window "responsive" False
   loc 2 2 50 -45
   x = x_position
   y = y_position
-  loc -2 -2 10 0 : c#333
-  frame x y x_position y_position page_len
-  page_len = 40
-  y = scroll_y - 20
+  loc -2 -2 0 0
   if timer - last_timer > next_update (
     last_timer = timer
     dt = delta_time
     terminal "-get.windows"
   )
+  c #333
+  frame x y x_position y_position windows-names.len * 40
+  y = scroll_y - 20
   tot = 0
   count = 0
   loop windows-names.len (
-    count += 1
+    count ++
     loc 999 2 0 y
-    square frame_width - 20 25 10 1 : c#111
-    if mouse_touching (
-      if clicked and can (
-        can = false
-        window "add" "Activity" windows-names.[count]
-      )
-      square frame_width - 20 25 10 1 : c#222
+    square frame_width - 20 25 10 1 : c#111 hover_c#222
+    if clicked and can (
+      can = false
+      window "add" "Activity" windows-names.[count]
     )
     rightclick "window" windows-ids.[count]
     loc 2 2 15 y
@@ -178,16 +199,11 @@ if current_tab == "Render Info" (
     tot += d.destr
     text d 7
     y -= 40
-    page_len += 35
   )
-loc 2 2 10 y
-text "System" 7
-loc -2 2 -50 y
-text dt.multiply(1000).round - tot.round 7
-)
-if current_tab == "disk" (
-loc 2 2 60 -60
-text "Bytes Writen During This Session:" + disk_total_writes 8 : c#fff
+  loc 2 2 10 y
+  text "System" 7
+  loc -2 2 -50 y
+  text dt.multiply(1000).round - tot.round 7
 )
 if mouse_down.not "can = true"
 frame "clear"
