@@ -22,6 +22,7 @@ object_scale = ""
 object_input = ""
 object_type = ""
 compiled = []
+append = []
 parser = "/[()]/gmi"
 count = 0
 loop lines.len (
@@ -36,7 +37,7 @@ loop lines.len (
     log "sys" cur_repl_spl.[1]
     if cur_repl_spl.[1] == "object" (
       if cur_repl_spl.[2] == "create" (
-        objects = objects + cur_repl_spl.[3]
+        objects.key(count) = cur_repl_spl.[3]
         object_create = true
       )
     )
@@ -82,7 +83,7 @@ loop lines.len (
       object_scale = cur_repl_spl.[2]
     )
     if cur_repl_spl.[1] == "pos" (
-      object_pos = cur_repl_spl.[2].split(",").join(" ")
+      object_pos = cur_repl_spl.[2].split(",").str
     )
   )
   if cur == "}" (
@@ -91,12 +92,20 @@ loop lines.len (
     )
     if object_create (
       object_create = false
+
+      var_input = "object_input" ++ count
+      data = [] + var_input.destr + "=".destr + object_input.str
+      append = append + data.join(" ")
+      
+      if object_pos != "" (
+        var_posit = "object_posit" ++ count
+        data = [] + var_posit.destr + "=".destr + object_pos.destr
+        append = append + data.join(" ")
+        out = "goto" + var_posit
+      )
+
       if object_type == "text" (
-        if object_pos == "" (
-          object_pos = "0 0"
-        )
-        out = "goto" + object_pos
-        out2 = ["text"] + object_input.str + ( object_scale / 10 )
+        out2 = ["text"] + var_input.destr + ( object_scale / 10 )
         out2 = out2.join(" ")
       )
       object_pos = ""
@@ -106,12 +115,15 @@ loop lines.len (
     )
   )
   if cur != "{" and object_create.not (
-    compiled = compiled + out
+    if out != "" (
+      compiled = compiled + out
+    )
     if out2 != "" (
       compiled = compiled + out2
     )
   )
 )
+compiled = append + "mainloop:" ++ compiled
 out = null
 count = 0
 loop compiled.len (
