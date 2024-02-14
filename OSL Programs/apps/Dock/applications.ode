@@ -8,7 +8,7 @@ square width height 20 1 0 1
 draw = dock.len != dock_appslen_temp or mouse_touching or bg_redrawn
 if draw (
 square width height 20 1
-goto x - width.divide(2) + 20 y
+goto x - ( width / 2 ) + 20 y
 dock_appslen_temp = dock.len
 applicationscount = 0
 loop dock.len (
