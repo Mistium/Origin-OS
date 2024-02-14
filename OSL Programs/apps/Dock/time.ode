@@ -1,7 +1,7 @@
 width = 105
 change_x 52.5
 x = x_position
-if bg_redrawn "square width height 20 1"
+if bg_redrawn "square width height 20"
 if second != timeode_secondtemp or bg_redrawn (
 timeode_secondtemp = second
 goto x y + 10
