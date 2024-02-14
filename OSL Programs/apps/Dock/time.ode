@@ -1,9 +1,16 @@
 width = 105
-change_x width / 2
+change_x 52.5
 x = x_position
-goto x y
-square width height 20 1
-change -45 10
-text "<hour>:<minute>:<second>" 9 : c#icon_colour
-goto x - 45 y - 10
-text day.trim("0","3") + day_number + month.trim("0","3") 8
+if bg_redrawn "square width height 20 1"
+if second != timeode_secondtemp or bg_redrawn (
+timeode_secondtemp = second
+goto x y + 10
+square width - 10 height / 2.3 5 : c#dock_colour
+text "<hour>:<minute>:<second>" 9 : c#icon_colour chx#-45
+)
+if day != timeode_daytemp or bg_redrawn (
+timeode_daytemp = day
+goto x y - 10
+square width - 10 height / 2.3 5 : c#dock_colour
+text day.trim("0","3") + day_number + month.trim("0","3") 8 : c#icon_colour chx#-45
+)
