@@ -48,9 +48,6 @@ loop lines.len (
   if cur.left(7) == "repeat(" (
     out = "loop" + cur_repl_spl.[2] + "("
   )
-  if cur_spl.[2] == "round" (
-    out = cur_spl + "=" + cur_spl ++ ".round"
-  )
   if cur == "}" (
     out = ")"
   )
