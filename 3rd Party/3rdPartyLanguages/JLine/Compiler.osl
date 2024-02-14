@@ -1,0 +1,74 @@
+lines = [
+  "var create(\"output\"|0)",
+  "repeat(3)",
+  "{",
+  "if(output != 5)",
+  "{",
+  "output += 5",
+  "}",
+  "}",
+  "print(output)"
+]
+
+compiled = []
+parser = "/[()]/gmi"
+count = 0
+loop lines.len (
+  count ++
+  cur = lines.[count].str
+  cur_spl = cur.split(" ")
+  cur_repl = cur.replace(parser," ")
+  cur_repl_spl = cur_repl.split(" ")
+  out = ""
+  if cur_repl_spl.[1] == "var" (
+    if cur_repl_spl.[2] == "create" (
+      if cur_repl_spl.[3].contains("|") (
+        temp_sys = cur_repl_spl.[3].split("|")
+        out = temp_sys.[1] + "=" + temp_sys.[2]
+      ) else (
+        out = cur_repl_spl.[3] + "= null"
+      )
+    )
+    if cur_repl_spl.[2] == "delete" (
+      out = cur_repl_spl.[3] + "= null"
+    )
+  )
+  if cur_repl_spl.[1] == "print" (
+    temp_sys = "log" + "sys".str.str
+    out = cur_repl.replace("print",temp_sys)
+    len = out.len - 1
+    out = out.left(len)
+  )
+  if cur_spl.[2].contains("=") and ( cur_spl.[2].len < 3 ) (
+    out = cur.str
+  )
+  if cur.left(3) == "if(" (
+    out = cur_repl ++ "("
+  )
+  if cur.left(7) == "repeat(" (
+    out = "loop" + cur_repl_spl.[2] + "("
+  )
+  if cur_spl.[2] == "round" (
+    out = cur_spl + "=" + cur_spl ++ ".round"
+  )
+  if cur == "}" (
+    out = ")"
+  )
+  if cur != "{" (
+    compiled = compiled + out
+  )
+)
+log "sys" compiled
+out = null
+count = 0
+loop compiled.len (
+  count ++
+  if count == compiled.len (
+    out = out ++ compiled.[count].destr
+  )
+  if count != compiled.len (
+    out = out ++ compiled.[count].destr ++ newline
+  )
+)
+clipboard "set" out.destr
+window "stop"
