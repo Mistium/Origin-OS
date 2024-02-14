@@ -60,6 +60,7 @@ if activity_info (
     if mouse_touching "square 100 25 10 : c#333"
     if clicked (
       terminal "system windows close" + page
+      window "stop"
     )
     icon "close" 0.7 : c#fff chx#-50
     text "Force Quit" 7 : chx#20
