@@ -1,15 +1,26 @@
 lines = [
-  "var create(\"output\"|0)",
-  "repeat(3)",
+  "object create(\"title\")",
   "{",
-  "if(output != 5)",
+  "type \"text\"",
+  "input \"Joyza OS\"",
+  "scale 200",
+  "}",
+  "object create(\"bottom\")",
   "{",
-  "output += 5",
-  "}",
-  "}",
-  "print(output)"
+  "type \"text\"",
+  "input \"Dynamic Rendering\"",
+  "pos 0,-25",
+  "scale 90",
+  "}"
 ]
 
+objects = {}
+object_create = false
+
+object_pos = ""
+object_scale = ""
+object_input = ""
+object_type = ""
 compiled = []
 parser = "/[()]/gmi"
 count = 0
@@ -20,42 +31,87 @@ loop lines.len (
   cur_repl = cur.replace(parser," ")
   cur_repl_spl = cur_repl.split(" ")
   out = ""
-  if cur_repl_spl.[1] == "var" (
-    if cur_repl_spl.[2] == "create" (
-      if cur_repl_spl.[3].contains("|") (
-        temp_sys = cur_repl_spl.[3].split("|")
-        out = temp_sys.[1] + "=" + temp_sys.[2]
-      ) else (
+  out2 = ""
+  if object_create.not (
+    log "sys" cur_repl_spl.[1]
+    if cur_repl_spl.[1] == "object" (
+      if cur_repl_spl.[2] == "create" (
+        objects = objects + cur_repl_spl.[3]
+        object_create = true
+      )
+    )
+    if cur_repl_spl.[1] == "var" (
+      if cur_repl_spl.[2] == "create" (
+        if cur_repl_spl.[3].contains("|") (
+          temp_sys = cur_repl_spl.[3].split("|")
+          out = temp_sys.[1] + "=" + temp_sys.[2]
+        ) else (
+          out = cur_repl_spl.[3] + "= null"
+        )
+      )
+      if cur_repl_spl.[2] == "delete" (
         out = cur_repl_spl.[3] + "= null"
       )
     )
-    if cur_repl_spl.[2] == "delete" (
-      out = cur_repl_spl.[3] + "= null"
+    if cur_repl_spl.[1] == "print" (
+      temp_sys = "log" + "sys".str.str
+      out = cur_repl.replace("print",temp_sys)
+      len = out.len - 1
+      out = out.left(len)
+    )
+    if cur_spl.[2].contains("=") and ( cur_spl.[2].len < 3 ) (
+      out = cur.str
+    )
+    if cur.left(3) == "if(" (
+      out = cur_repl ++ "("
+    )
+    if cur.left(7) == "repeat(" (
+      out = "loop" + cur_repl_spl.[2] + "("
     )
   )
-  if cur_repl_spl.[1] == "print" (
-    temp_sys = "log" + "sys".str.str
-    out = cur_repl.replace("print",temp_sys)
-    len = out.len - 1
-    out = out.left(len)
-  )
-  if cur_spl.[2].contains("=") and ( cur_spl.[2].len < 3 ) (
-    out = cur.str
-  )
-  if cur.left(3) == "if(" (
-    out = cur_repl ++ "("
-  )
-  if cur.left(7) == "repeat(" (
-    out = "loop" + cur_repl_spl.[2] + "("
+  if object_create (
+    log "sys" cur_repl_spl.[1]
+    if cur_repl_spl.[1] == "type" (
+      object_type = cur_repl_spl.[2]
+    )
+    if cur_repl_spl.[1] == "input" (
+      object_input = cur_spl - 1
+      object_input = object_input.join(" ")
+    )
+    if cur_repl_spl.[1] == "scale" (
+      object_scale = cur_repl_spl.[2]
+    )
+    if cur_repl_spl.[1] == "pos" (
+      object_pos = cur_repl_spl.[2].split(",").join(" ")
+    )
   )
   if cur == "}" (
-    out = ")"
+    if object_create.not (
+      out = ")"
+    )
+    if object_create (
+      object_create = false
+      if object_type == "text" (
+        if object_pos == "" (
+          object_pos = "0 0"
+        )
+        out = "goto" + object_pos
+        out2 = ["text"] + object_input.str + ( object_scale / 10 )
+        out2 = out2.join(" ")
+      )
+      object_pos = ""
+      object_scale = ""
+      object_input = ""
+      object_type = ""
+    )
   )
-  if cur != "{" (
+  if cur != "{" and object_create.not (
     compiled = compiled + out
+    if out2 != "" (
+      compiled = compiled + out2
+    )
   )
 )
-log "sys" compiled
 out = null
 count = 0
 loop compiled.len (
