@@ -152,8 +152,8 @@ if current_tab == "Network" (
     loc 2 2 30 y
     recipient = cur."recipient".str
     payload = cur."payload".str
-    text payload.str.trim(1,20) 7 : c#fff
-    if payload.len > 20 (
+    text payload.str.trim(1,28).str 7 : c#fff
+    if payload.len > 28 (
       text "..." 7
     )
     if recipient == "" (
@@ -161,8 +161,9 @@ if current_tab == "Network" (
     ) else (
       recipient = "To ->" + recipient
     )
+    recipient = cur."timestamp".timestamp("convert-relative") + "   " + recipient
     loc -2 2 recipient.len * -7 - 15 y
-    text recipient 7
+    text recipient.str 7
     y -= 40
   )
 )
