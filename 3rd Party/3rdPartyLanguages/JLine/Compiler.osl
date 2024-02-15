@@ -9,6 +9,8 @@ lines = [
   "{",
   "type \"text\"",
   "input \"Dynamic Rendering\"",
+  "rotation 90",
+  "color #ff0",
   "pos 0,-25",
   "scale 90",
   "}"
@@ -21,6 +23,9 @@ object_pos = ""
 object_scale = ""
 object_input = ""
 object_type = ""
+object_rotation = ""
+object_stretch = ""
+
 compiled = []
 append = []
 parser = "/[()]/gmi"
@@ -34,7 +39,6 @@ loop lines.len (
   out = ""
   out2 = ""
   if object_create.not (
-    log "sys" cur_repl_spl.[1]
     if cur_repl_spl.[1] == "object" (
       if cur_repl_spl.[2] == "create" (
         objects.key(count) = cur_repl_spl.[3]
@@ -77,13 +81,18 @@ loop lines.len (
     )
     if cur_repl_spl.[1] == "input" (
       object_input = cur_spl - 1
-      object_input = object_input.join(" ")
     )
     if cur_repl_spl.[1] == "scale" (
       object_scale = cur_repl_spl.[2]
     )
     if cur_repl_spl.[1] == "pos" (
-      object_pos = cur_repl_spl.[2].split(",").str
+      object_pos = cur_repl_spl.[2]
+    )
+    if cur_repl_spl.[1] == "rotation" (
+      object_rotation = cur_repl_spl.[2]
+    )
+    if cur_repl_spl.[1] == "stretch" (
+      object_stretch = cur_repl_spl.[2]
     )
   )
   if cur == "}" (
@@ -93,25 +102,39 @@ loop lines.len (
     if object_create (
       object_create = false
 
-      var_input = "object_input" ++ count
-      data = [] + var_input.destr + "=".destr + object_input.str
-      append = append + data.join(" ")
-      
+      if object_input != "" (
+        var_input = "object_input" ++ count
+        append = append + ( var_input ++ " = " ++ object_input.join(" ") )
+      )
       if object_pos != "" (
-        var_posit = "object_posit" ++ count
-        data = [] + var_posit.destr + "=".destr + object_pos.destr
-        append = append + data.join(" ")
-        out = "goto" + var_posit
+        var_pos = "object_pos" ++ count
+        append = append + ( var_pos ++ " = " ++ object_pos.split(",") )
+        compiled = compiled + ( "goto" + var_pos )
+      )
+      if object_rotation != "" (
+        var_rotation = "object_rotaion" ++ count
+        append = append + ( var_rotation ++ " = " ++ object_rotation )
+        compiled = compiled + ( "direction" + var_rotation )
+      )
+      if object_stretch != "" (
+        var_stretch = "object_stretch" ++ count
+        append = append + ( var_stretch ++ " = " ++ object_stretch )
+        compiled = compiled + ( "stretch" + var_stretch )
       )
 
       if object_type == "text" (
-        out2 = ["text"] + var_input.destr + ( object_scale / 10 )
-        out2 = out2.join(" ")
+        out2 = "text <var_input> <object_scale>"
       )
+      if object_type == "image" (
+        out2 = "image " ++ var_input.destr + 100
+      )
+
       object_pos = ""
       object_scale = ""
       object_input = ""
       object_type = ""
+      object_rotation = ""
+      object_stretch = ""
     )
   )
   if cur != "{" and object_create.not (
@@ -129,10 +152,10 @@ count = 0
 loop compiled.len (
   count ++
   if count == compiled.len (
-    out = out ++ compiled.[count].destr
+    out = out ++ compiled.[count]
   )
   if count != compiled.len (
-    out = out ++ compiled.[count].destr ++ newline
+    out = out ++ compiled.[count] ++ newline
   )
 )
 clipboard "set" out.destr
