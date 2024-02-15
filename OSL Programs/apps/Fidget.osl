@@ -1,12 +1,18 @@
 dir = 90
-dir_vel = 0
+last_spin = timer
 mainloop:
 direction dir
-icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 4 : c#fff hover_size#1.1
-if clicked (
-dir_vel += 10
+icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 1 : c#ddd hover_size#1.1 hover_c#fff click_size#0.9
+if clicked and can (
+can = false
+spin = true
+last_spin = timer
 )
-dir_vel *= 0.7
-dir += dir_vel
-
+if spin (
+dir += 10
+)
+if mouse_down.not "can = true"
+if timer - last_spin > 0.5 (
+spin = false
+)
 import "win-buttons"
