@@ -19,6 +19,7 @@ syncing = true
 terminal "system uploadfiles"
 
 mainloop:
+direction 90
 if new_network_data (
   if network_data_command == "Upload_Files" (
     if network_data.len == 32 (
@@ -84,7 +85,14 @@ if timer > last_upload or clicked and can (
   syncing = true
   terminal "system uploadfiles"
 )
+if syncing (
+  direction sync_dir
+  sync_dir += 10
+) else (
+  sync_dir = 90
+)
 icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : c#fff
+direction 90
 change 30 -10
 if syncing (
   if error == "" (
