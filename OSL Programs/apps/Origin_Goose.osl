@@ -23,25 +23,31 @@ window "x" duck_x
 window "y" duck_y
 goto 0 0
 if follow (
-  pointat mouse_x mouse_y
-  dir = direction + 360
-  if [0,0].dist(mouse_x,mouse_y) < 40 "speed = 0"
+pointat mouse_x mouse_y
+dir = direction + 360
+if [0,0].dist(mouse_x,mouse_y) < 40 "speed = 0"
 ) else (
-  target_dir += [-20,20].random * speed / 250
-  dir += target_dir - dir / 10
+target_dir += [-20,20].random * speed / 250
+dir += target_dir - dir / 10
 )
-
 duck_x += dir.sin * speed * delta_time
 duck_y += dir.cos * speed * delta_time
-if duck_x - 40 > ( screensize_x / 2 ) "duck_x = ( screensize_x / -2 ) - 40"
-if duck_x + 40 < ( screensize_x / -2 ) "duck_x = ( screensize_x / 2 ) + 40"
-if duck_y - 40 > ( screensize_y / 2 ) "duck_y = ( screensize_y / -2 ) - 40"
-if duck_y + 40 < ( screensize_y / -2 ) "duck_y = ( screensize_y / 2 ) + 40"
-
+if duck_x - 40 > ( screensize_x / 2 ) (
+duck_x = ( screensize_x / -2 ) - 40
+)
+if duck_x + 40 < ( screensize_x / -2 ) (
+duck_x = ( screensize_x / 2 ) + 40
+)
+if duck_y - 40 > ( screensize_y / 2 ) (
+duck_y = ( screensize_y / -2 ) - 40
+)
+if duck_y + 40 < ( screensize_y / -2 ) (
+duck_y = ( screensize_y / 2 ) + 40
+)
+direction 90
 ds = dir.sin
 dc = dir.cos
-ds7 = ds * 7
-fd = dir.add(90)
+fd = dir + 90
 duck_feet.[4] = fd.sin * -2.5
 duck_feet.[5] = fd.cos * -2.5 - 4
 duck_feet.[7] = fd.sin * 2.5
@@ -50,7 +56,7 @@ duck_body.[4] = ds * -5
 duck_body.[5] = dc * -5
 duck_body.[6] = ds * 5
 duck_body.[7] = dc * 5
-duck_body.[11] = ds7
+duck_body.[11] = ds * 7
 duck_body.[12] = dc * 5 + 5
 duck_body.[16] = ds * 6
 duck_body.[17] = dc * 5 + 6
@@ -58,17 +64,17 @@ duck_body.[21] = ds * 7.5
 duck_body.[22] = dc * 7.5 + 6
 duck_body.[26] = ds * 10
 duck_body.[27] = dc * 10 + 6
-duck_body.[33] = ds7 + ( dir.add(90).sin * 2 )
-duck_body.[34] = dc * 6 + 6 + ( dir.add(90).cos * 2 )
-duck_body.[36] = ds7 + ( dir.add(90).sin * -2 )
-duck_body.[37] = dc * 6 + 6 + ( dir.add(90).cos * -2 )
+duck_body.[33] = ds * 7 + ( fd.sin * 2 )
+duck_body.[34] = dc * 6 + 6 + ( fd.cos * 2 )
+duck_body.[36] = ds * 7 + ( fd.sin * -2 )
+duck_body.[37] = dc * 6 + 6 + ( fd.cos * -2 )
 c #ffa200
 icon duck_feet 3
 c #fff
 icon duck_body 3
 if clicked (
-  follow = true
-  last = timer
-  rand = 10
+follow = true
+last = timer
+rand = 10
 )
 icon duck_head 3
