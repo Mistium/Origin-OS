@@ -11,6 +11,8 @@ if windows-names.contains(passed_data) (
   page = passed_data
 )
 
+memory = "typeof(performance.memory)!=undefined".eval
+
 graph = []
 network_usage = []
 
@@ -105,11 +107,14 @@ loc 2 2 23 - ( delta.len * 5 ) -70
 text delta 10
 loc 2 2 16 -85
 text "ms" 7
-ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory. jsHeapSizeLimit*100)+'%'".eval
-loc 2 2 23 - ( ram_use.len * 5 ) -110
-text ram_use 10
-loc 2 2 13.5 -125
-text "ram" 7
+
+if memory (
+  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory. jsHeapSizeLimit*100)+'%'".eval
+  loc 2 2 23 - ( ram_use.len * 5 ) -110
+  text ram_use 10
+  loc 2 2 13.5 -125
+  text "ram" 7
+)
 tab_w = 100
 loc 2 2 110 -20
 tab "Render Info"
