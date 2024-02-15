@@ -16,6 +16,7 @@ def "reload"
     messages.key(c) = []
   )
 endef
+
 current_target = ""
 
 reload
