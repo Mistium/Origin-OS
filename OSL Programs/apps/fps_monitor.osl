@@ -1,0 +1,3 @@
+loc 2 2 20 -20
+text fps 10 : c#fff
+import "win-buttons"
