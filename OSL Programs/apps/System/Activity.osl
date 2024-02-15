@@ -1,4 +1,5 @@
 permission "request" "terminal"
+permission "request" "Javascript"
 minimised_text = "<fps>"
 window "show"
 window "dimensions" 600 400
@@ -12,6 +13,8 @@ if windows-names.contains(passed_data) (
 )
 
 memory = "typeof(performance.memory)!=undefined".eval
+
+paused = false
 
 graph = []
 network_usage = []
@@ -125,7 +128,11 @@ tab "Network"
 loc 2 2 455 -20
 tab "Disk"
 loc 2 -2 25 25
-square 25 25 10 : c#333
+if paused "c accent_colour" else "c #333"
+square 25 25 10
+if clicked and can (
+  paused = paused.not
+)
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
 c #fff
 if current_tab == "Performance" (
@@ -179,7 +186,7 @@ if current_tab == "Render Info" (
   x = x_position
   y = y_position
   loc -2 -2 0 0
-  if timer - last_timer > next_update (
+  if timer - last_timer > next_update and paused.not (
     last_timer = timer
     dt = delta_time
     terminal "-get.windows"
