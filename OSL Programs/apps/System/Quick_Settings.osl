@@ -94,6 +94,7 @@ if syncing (
 )
 if syncable "c #fff" else "c #aaa"
 icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : hover_size#1.05
+c #fff
 direction 90
 change 30 -10
 if syncing (
