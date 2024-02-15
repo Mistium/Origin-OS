@@ -1,0 +1,12 @@
+dir = 90
+dir_vel = 0
+mainloop:
+direction dir
+icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 4 : c#fff hover_size#1.1
+if clicked (
+dir_vel += 10
+)
+dir_vel *= 0.7
+dir += dir_vel
+
+import "win-buttons"
