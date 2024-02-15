@@ -131,6 +131,7 @@ loc 2 -2 25 25
 if paused "c accent_colour" else "c #333"
 square 25 25 10
 if clicked and can (
+  can = false
   paused = paused.not
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
