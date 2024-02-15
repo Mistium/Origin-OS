@@ -15,6 +15,14 @@ loop dock.len (
 applicationscount += 1
 file "open" dock.[applicationscount]
 file "render" 1.7 "interactable"
+if mouse_touching (
+  cur = file.[2]
+  curlen = cur.len * -4
+  change curlen 20
+  square cur.len * 8 10 10 : c#000
+  text cur 8 : c#fff
+  change curlen -20
+)
 rightclick "file" dock.[applicationscount]
 change_x 50
 )
