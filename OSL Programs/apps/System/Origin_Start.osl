@@ -35,7 +35,7 @@ goto 0 -325
 square 700 50 10
 
 goto -325 325
-image user_icon 40
+image user_icon.str 40
 
 goto 325 -325
 icon "power" 1 : hover_size#1.05 c#fff
