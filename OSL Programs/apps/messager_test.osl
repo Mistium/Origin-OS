@@ -1,0 +1,19 @@
+network "set_app_id" "messager_test1"
+recipient = "Misti"
+messages = []
+mainloop:
+if new_network_data (
+messages = network_data + messages
+new_network_data = falsei
+)
+c #fff
+count = 0
+loop 10 (
+count ++
+loc 2 2 20 count * -30 - 20
+text messages.[count] 10
+)
+if space.onpress (
+network "send" "what to send".ask recipient
+)
+import "win-buttons"
