@@ -1,3 +1,6 @@
+window "resizable" false
+window "dimensions" 100 100
+window "show"
 dir = 90
 last_spin = timer
 mainloop:
@@ -15,4 +18,8 @@ if mouse_down.not "can = true"
 if timer - last_spin > 0.5 (
 spin = false
 )
-import "win-buttons"
+goto 40 -40
+icon "close" 0.6
+if clicked (
+window "stop"
+)
