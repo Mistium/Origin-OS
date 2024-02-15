@@ -9,7 +9,6 @@ def "openapp" "name"
 endef
 
 target_y = 0
-
 usage = []
 
 mainloop:
@@ -35,13 +34,13 @@ square 700 50 10 : c#151515
 goto 0 -325
 square 700 50 10
 
-goto 325 325
+goto -325 325
 image user_icon 40
 
 goto 325 -325
 icon "power" 1 : hover_size#1.05 c#fff
 if clicked (
-  terminal "system shutdown"
+  terminal "shutdown"
 )
 
 icon "settings" 1 : chx#-50 hover_size#1.05
@@ -59,8 +58,14 @@ if hour < 12 (
 ) else (
   msg = "Good Afternoon" + username
 )
-goto -340 325
+goto -290 325
 text msg 13 : c#fff
+
+goto 325 325
+icon "close" 1
+if clicked (
+  window "stop"
+)
 
 goto -180 230
 square 320 100 10 : c#222
@@ -80,7 +85,6 @@ if usage.len == 0 (
   goto -140 200
   bar 200 20 10 usage.[3] : c#111
   usepercent = usage.[3].multiply(100).round ++ "%"
-
   goto -295 - ( usepercent.len * 8 ) 230
   text usepercent 16 : c#fff
 )
