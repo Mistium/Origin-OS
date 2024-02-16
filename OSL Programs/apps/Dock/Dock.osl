@@ -24,6 +24,7 @@ def "main"
     goto width / 2 + x + 15 y
   )
   dock_width = x_position - start_x
+  dock_width = dock_width.round
 endef
 
 window "responsive" true
