@@ -14,13 +14,14 @@ dock_y_target = -100
 if left "dock_x_target = window_width / -2"
 if right "dock_x_target = window_width / 2 - dock_width"
 )
+dock_x_target = dock_x_target.round
 )
 dock_x += dock_x_target - dock_x * delta_time * 3
 if dock_x.round != dock_x_target (
 window "refresh_bg"
 )
 y += dock_y_target - y * delta_time * 3
-if y.round != dock_y_target (
+if y.round != dock_y_target.round (
 window "refresh_bg"
 )
 goto dock_x y
