@@ -14,11 +14,16 @@ if mouse_down and can (
   window "refresh_bg"
 )
 if mouse_down (
+  frame mouse_start_x mouse_start_y mouse_x mouse_y
   sqw = mouse_start_x - mouse_x
   sqh = mouse_start_y - mouse_y
-  goto mouse_x + ( sqw / 2 ) mouse_y + ( sqh / 2 )
-  square sqw sqh 10 : c#global_accent
-  square sqw sqh 5 : c#000
+  goto 0 0
+  c #000
+  pen "opacity" 90
+  pen "size" frame_width + frame_height
+  pen "down"
+  pen "up"
+  pen "opacity" 100
   window "dimensions" screensize_x screensize_y - 70
   window "refresh_bg"
 ) else (
