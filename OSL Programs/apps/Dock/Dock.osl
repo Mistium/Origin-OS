@@ -39,8 +39,8 @@ y = -100
 height = 40
 
 // Theme
-dock_colour = #050505
-icon_colour = #fff
+dock_colour = #24292e
+icon_colour = #fafbfc
 
 file_loc = "origin/(C) Users/" ++ username ++ "/Dock"
 mainloop:
