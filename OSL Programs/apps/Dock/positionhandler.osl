@@ -1,5 +1,5 @@
 terminal "get windowpositions"
-data = data + dock_width
+data = data + dock_width.round
 if data != datasave (
 datasave = data
 data = "" + data.join(" ") + ""
@@ -15,13 +15,12 @@ if left "dock_x_target = window_width / -2"
 if right "dock_x_target = window_width / 2 - dock_width"
 )
 )
-dif = dock_x_target - dock_x
-if dif.abs > 1 (
+dock_x += dock_x_target - dock_x * delta_time * 3
+if dock_x.round != dock_x_target (
 window "refresh_bg"
 )
-dock_x += dif / 3
-y += dock_y_target - y / 10
-if y.round != dock_y_target.round (
+y += dock_y_target - y * delta_time * 3
+if y.round != dock_y_target (
 window "refresh_bg"
 )
 goto dock_x y
