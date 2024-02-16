@@ -58,7 +58,7 @@ if activity_info (
   loc 2 2 20 -20
   text page 10 : c#fff
   loc 2 2 20 -50
-  text dt ++ "ms" 15
+  text "<dt>ms" 15
   if timer - created_time > 1 (
     loc 2 2 90 -100
     square 140 25 10 : c#222
@@ -77,11 +77,18 @@ if activity_info (
     dt = delta_time
     terminal "-get.windows"
     current = windows-names.index(page)
-    dt = windows-drawtimes.[current]
+    dt = windows-drawtimes.[current].[1]
+    pr = windows-drawtimes.[current].[2]
     graph = graph.append(dt)
     if graph.len > 30 "graph = graph.delete(1)"
   )
   c #fff
+  count = 0
+  loop pr.len (
+    count ++
+    loc 2 2 10 count * -20 - 120
+    text pr.[count] 10
+  )
   loc 2 -2 0 graph.[1].destr * whm
   pen "down"
   graph_count = 1
@@ -209,9 +216,9 @@ if current_tab == "Render Info" (
     loc 2 2 15 y
     text windows-names.[count] 7 : c#fff
     loc -2 2 -50 y
-    d = windows-drawtimes.[count].str
-    tot += d.destr
-    text d 7
+    d = windows-drawtimes.[count].[1]
+    tot += d
+    text d.str 7
     y -= 40
   )
   loc 2 2 10 y
