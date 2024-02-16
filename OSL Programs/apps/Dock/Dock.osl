@@ -1,6 +1,5 @@
 segment_dir = "Origin/(C) Users/" ++ username ++ "/Application Data/Settings"
 segment_url = segment_dir + "/Segments.txt"
-
 file "exists" segment_url
 if exists (
   file "open" segment_url
@@ -9,15 +8,12 @@ if exists (
   seg = ["Main","Applications","Time","Battery"]
   file "download" "segments.txt" "" seg segment_dir
 )
-
 global "segments" seg
 open = 0
-
 def "main"
   start_x = x_position
   goto start_x y
   syscount = 0
-
   loop segments.len (
     syscount ++
     import segments.[syscount] "ode" : c#dock_colour chx#15
@@ -32,16 +28,13 @@ window "hide"
 window "front"
 window "y" screensize_y / -2 + 35
 main
-
 // Parameter setup
 dock_x = dock_width / -2
 y = -100
 height = 40
-
 // Theme
-dock_colour = #24292e
+dock_colour = #060606
 icon_colour = #fafbfc
-
 file_loc = "origin/(C) Users/" ++ username ++ "/Dock"
 mainloop:
 movefileloc file_loc
@@ -49,9 +42,7 @@ if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
 window "y" screensize_y / -2 + 35
 import "Origin/(A) System/Docks/positionhandler.osl"
-
 if y > -80 "main"
-
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
   terminal "system windows add" + open
