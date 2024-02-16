@@ -1,12 +1,14 @@
 clicked_id = 0
 window "x" 0
 windowfileloc = "Origin/(C) Users/" ++ username ++ "/Desktop"
+window "responsive" true
 mainloop:
 window "y" 35
 include windowfileloc
 window "dimensions" screensize_x screensize_y - 70
-desktop = data
 movefileloc windowfileloc
+if desktop == data and bg_redrawn.not and ( window_id_index != window_top_index ) "exit"
+desktop = data
 if mouse_down and can (
   can = false
   mouse_start_x = mouse_x
@@ -18,12 +20,13 @@ if mouse_down (
   sqw = mouse_start_x - mouse_x
   sqh = mouse_start_y - mouse_y
   goto 0 0
-  c #fff
+  c #000
   pen "opacity" 70
   pen "size" frame_width + frame_height
   pen "down"
   pen "up"
   pen "opacity" 100
+  frame "clear"
   window "dimensions" screensize_x screensize_y - 70
   window "refresh_bg"
 ) else (
@@ -40,8 +43,10 @@ loop desktop.len (
   goto file.[6] file.[7]
   name = file.[2]
   file "render" 2 "interactable"
-  change_y -30
-  square name.len * 8 10 10 : c#333
-  change_x name.len * -4
-  text name 8 : c#fff
+  if mouse_touching (
+    change_y -30
+    square name.len * 8 10 10 : c#000
+    change_x name.len * -4
+    text name 8 : c#fff
+  )
 )
