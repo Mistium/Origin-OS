@@ -1,0 +1,14 @@
+if battery_percent < 100 or battery_charging.not (
+width = 60
+change_x width / 2
+x = x_position
+set_y y
+square width height 20 1 0 1
+if clicked "open = Battery_Info"
+if battery_temp != battery_percent or bg_redrawn (
+battery_temp = battery_percent
+square width height 20 1
+if battery_charging "c global_accent" else "c icon_colour"
+text "<battery_percent>%" 10 : chx#-25
+)
+)
