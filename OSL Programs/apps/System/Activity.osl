@@ -128,7 +128,7 @@ tab "Network"
 loc 2 2 455 -20
 tab "Disk"
 loc 2 -2 25 25
-if paused "c accent_colour" else "c #333"
+if paused "c global_accent" else "c #333"
 square 25 25 10
 if clicked and can (
   can = false
