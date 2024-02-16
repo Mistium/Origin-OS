@@ -1,6 +1,6 @@
 network "set_app_id" "multiplayer"
 
-recipient = "Marionumber1121"
+recipient = "Mist"
 
 player_loc = [0,0]
 speed = 100
@@ -34,6 +34,6 @@ network "send" player_loc recipient
 
 goto other_player
 square 20 20 10 : c#fff
-change "Marionumber1121".len * -5 50
-text "Marionumber1121" 10
+change recipient.len * -5 50
+text recipient 10
 import "win-buttons"
