@@ -1,0 +1,18 @@
+window "show"
+loc -2 2 -20 -20
+square 20 20 5 : c#353535
+square 20 20 5 : chx#29
+square 20 20 5 : chx#29
+change_x 83
+icon "close" 0.6 : c#fff hover_size#1.1
+if clicked (
+window "stop"
+)
+icon "down" 0.6 : chx#-29
+if clicked (
+window "minimise"
+)
+icon "maximise" 0.6 : chx#-29
+if clicked (
+window "maximise"
+)
