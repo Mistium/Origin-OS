@@ -1,0 +1,39 @@
+network "set_app_id" "multiplayer"
+
+recipient = "Marionumber1121"
+
+player_loc = [0,0]
+speed = 100
+
+mainloop:
+if new_network_data (
+  other_player = network_data
+  new_network_data = false
+)
+goto player_loc
+square 20 20 10 : c#fff
+
+if "a".pressed (
+player_loc.[1] -= speed * delta_time
+)
+if "d".pressed (
+player_loc.[1] += speed * delta_time
+)
+if "w".pressed (
+player_loc.[2] += speed * delta_time
+)
+if "s".pressed (
+player_loc.[2] -= speed * delta_time
+)
+
+if timer - last_sent > 0.05 and ( player_loc != last ) (
+last = player_loc
+last_sent = timer
+network "send" player_loc recipient
+)
+
+goto other_player
+square 20 20 10 : c#fff
+change "Marionumber1121".len * -5 50
+text "Marionumber1121" 10
+import "win-buttons"
