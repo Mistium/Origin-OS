@@ -7,45 +7,48 @@ window "y" 35
 include windowfileloc
 window "dimensions" screensize_x screensize_y - 70
 movefileloc windowfileloc
-if desktop == data and bg_redrawn.not and ( window_id_index != window_top_index ) "exit"
+hovered = window_id_index == window_top_index
+canrun = desktop != data or hovered or bg_redrawn
+if canrun.not "exit"
 desktop = data
-if mouse_down and can (
-  can = false
-  mouse_start_x = mouse_x
-  mouse_start_y = mouse_y
-  window "refresh_bg"
-)
-if mouse_down (
-  frame mouse_start_x mouse_start_y mouse_x mouse_y
-  sqw = mouse_start_x - mouse_x
-  sqh = mouse_start_y - mouse_y
-  goto 0 0
-  c #000
-  pen "opacity" 70
-  pen "size" frame_width + frame_height
-  pen "down"
-  pen "up"
-  pen "opacity" 100
-  frame "clear"
-  window "dimensions" screensize_x screensize_y - 70
-  window "refresh_bg"
-) else (
-  if can.not (
+if hovered (
+  if mouse_down and can (
+    can = false
+    mouse_start_x = mouse_x
+    mouse_start_y = mouse_y
     window "refresh_bg"
   )
-  can = true
+  if mouse_down (
+    frame mouse_start_x mouse_start_y mouse_x mouse_y
+    sqw = mouse_start_x - mouse_x
+    sqh = mouse_start_y - mouse_y
+    goto 0 0
+    c #000
+    pen "opacity" 70
+    pen "size" frame_width + frame_height
+    pen "down"
+    pen "up"
+    pen "opacity" 100
+    frame "clear"
+    window "dimensions" screensize_x screensize_y - 70
+    window "refresh_bg"
+  ) else (
+    if can.not (
+      window "refresh_bg"
+    )
+    can = true
+  )
 )
 if desktop.len == 0 "exit"
 applications_count = 0
 loop desktop.len (
-  applications_count += 1
-  file "open" "id" desktop.[applications_count]
+  applications_count ++
+  file "open" desktop.[applications_count]
   goto file.[6] file.[7]
-  name = file.[2]
   file "render" 2 "interactable"
   if mouse_touching (
-    change_y -30
-    square name.len * 8 10 10 : c#000
+    name = file.[2]
+    square name.len * 8 10 10 : c#000 chy#-30
     change_x name.len * -4
     text name 8 : c#fff
   )
