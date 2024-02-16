@@ -18,8 +18,8 @@ if mouse_down (
   sqw = mouse_start_x - mouse_x
   sqh = mouse_start_y - mouse_y
   goto 0 0
-  c #000
-  pen "opacity" 90
+  c #fff
+  pen "opacity" 70
   pen "size" frame_width + frame_height
   pen "down"
   pen "up"
