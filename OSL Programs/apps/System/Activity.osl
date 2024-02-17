@@ -4,21 +4,16 @@ minimised_text = "<fps>"
 window "show"
 window "dimensions" 600 400
 current_tab = "no_perms"
-
 terminal "-get.windows"
 activity_info = false
 if windows-names.contains(passed_data) (
   activity_info = true
   page = passed_data
 )
-
-memory = "typeof(performance.memory)!=undefined".eval
-
+memory = "typeof(performance.memory)!==undefined".eval
 paused = false
-
 graph = []
 network_usage = []
-
 def "tab" "name"
   selected = name == current_tab
   if selected.not "c #111"
@@ -28,7 +23,6 @@ def "tab" "name"
   change_x tab_w / -2 + 5
   text name 8 : c#fff
 endef
-
 created_time = timer
 next_update = 0.5
 pen "width" 10
@@ -41,7 +35,6 @@ if clicked "window minimise.str"
 icon "down" 0.7 : c#fff
 icon "close" 0.7 : chx#40
 if clicked "window stop"
-
 if current_tab == "no_perms" (
   permission "get"
   if permissions.contains("terminal") (
@@ -117,7 +110,6 @@ loc 2 2 23 - ( delta.len * 5 ) -70
 text delta 10
 loc 2 2 16 -85
 text "ms" 7
-
 if memory (
   ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory. jsHeapSizeLimit*100)+'%'".eval
   loc 2 2 23 - ( ram_use.len * 5 ) -110
@@ -187,7 +179,6 @@ if current_tab == "Network" (
     y -= 40
   )
 )
-
 if current_tab == "Render Info" (
   window "responsive" False
   loc 2 2 50 -45
