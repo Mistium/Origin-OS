@@ -10,7 +10,7 @@ if windows-names.contains(passed_data) (
   activity_info = true
   page = passed_data
 )
-memory = "typeof(performance.memory)!==undefined".eval
+memory = "typeof performance.memory !== 'undefined'".eval
 paused = false
 graph = []
 network_usage = []
