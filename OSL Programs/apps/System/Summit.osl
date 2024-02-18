@@ -25,6 +25,7 @@ pages = []
 tabs = []
 taburls = []
 current_get = ""
+onload = false
 
 def "set_tab_name"
   name = taburls.[tab].split("/")
@@ -86,7 +87,6 @@ def "render_tabs"
 endef
 
 def "redirect" "url"
-  onload = true
   resolve_protocols url
   current_url = url
   input_search = url.destr
@@ -94,6 +94,7 @@ def "redirect" "url"
   cur_tab.key("title") = url
   tabs.[tab] = cur_tab
   taburls.[tab] = url
+  onload = true
 endef
 
 def "resolve_protocols" "url"
@@ -106,7 +107,6 @@ def "resolve_protocols" "url"
       current_get = current_get ++ "/index.osl"
     )
   )
-  log "sys" current_get
   urlspl = current_get.split(".")
   len = urlspl.len
   page_type = urlspl.[len]
@@ -118,7 +118,6 @@ network "clear" current_get
 current_get = ""
 pages.[tab] = []
 page_type = ""
-onload = true
 
 mainloop:
 ww = window_width
