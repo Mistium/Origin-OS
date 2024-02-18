@@ -1,0 +1,23 @@
+network "get_sync" "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/Appstore/Apps.json"
+width = 200
+resize = false
+mainloop:
+loc 2 999 width / 2 0
+square width window_height 10 : c#333
+loc 2 999 width 0
+if mouse_x.minus(x_position).abs < 10 (
+  cursor "ew-resize"
+  if mouse_down (
+    resize = true
+  )
+)
+
+if resize (
+  width = mouse_x - window."left"
+  width = width.clamp(150,300)
+)
+
+if mouse_down.not (
+  resize = false
+)
+import "win-buttons"
