@@ -93,8 +93,7 @@ def "redirect" "url"
   cur_tab = {}
   cur_tab.key("title") = url
   tabs.[tab] = cur_tab
-  taburls.[tab] = cur_tab
-  network "get" url
+  taburls.[tab] = url
 endef
 
 def "resolve_protocols" "url"
@@ -102,10 +101,12 @@ def "resolve_protocols" "url"
   current_get = url
   if protocol == "owtp" (
     current_get = url.replace("owtp://",owtpurl)
-    if url.right(4) == ".web" or url.right(4).contains(".").not (
+    url_right = url.right(4)
+    if url_right == ".web" or url_right.contains(".").not (
       current_get = current_get ++ "/index.osl"
     )
   )
+  log "sys" current_get
   urlspl = current_get.split(".")
   len = urlspl.len
   page_type = urlspl.[len]
@@ -201,7 +202,7 @@ if page_type == "txt" (
   page_len = pages.[tab].len * 25
 )
 if page_type == "" (
-  loading += 40 * delta_time
+  loading += 50 * delta_time
   direction loading
   c c_text
   icon "w 3 cutcircle 0 0 10 -4 65 cutcircle 0 0 10 14 65" 2
