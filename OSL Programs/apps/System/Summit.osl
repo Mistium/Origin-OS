@@ -151,15 +151,11 @@ icon "search" 0.6 : c#c_searchicon
 loc 2 999 20 0
 square 50 window_height 10 1 : c#c_sidebarback
 loc 2 2 25 -25
-bookmarked = False
-if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
 c c_sidebarbutton
-loop 3 (
+loop 4 (
   square 30 30 10 1
   change_y -50
 )
-if bookmarked "c c_sidebarselected"
-square 30 30 10 1
 loc 2 -2 25 25
 square 30 30 10 1 : c#c_sidebarbutton
 loc 2 2 25 -25
@@ -203,6 +199,13 @@ if page_type == "txt" (
   set_tab_name
   current_tab_name.key("icon") = "txt"
   page_len = pages.[tab].len * 25
+)
+if page_type == "" (
+  loading += 40 * delta_time
+  direction loading
+  c c_text
+  icon "w 3 cutcircle 0 0 10 -4 65 cutcircle 0 0 10 14 65" 2
+  direction 90
 )
 tabs.[tab] = current_tab_name
 frame "clear"
