@@ -26,6 +26,7 @@ tabs = []
 taburls = []
 current_get = ""
 onload = false
+loaded = false
 
 def "set_tab_name"
   name = taburls.[tab].split("/")
@@ -43,6 +44,7 @@ def "opentab" "url"
   taburls = taburls + url
   tab = tabs.len
   onload = true
+  loaded = false
 endef
 
 def "remove_tab" "id"
@@ -95,6 +97,7 @@ def "redirect" "url"
   tabs.[tab] = cur_tab
   taburls.[tab] = url
   onload = true
+  loaded = false
 endef
 
 def "resolve_protocols" "url"
@@ -139,10 +142,11 @@ if selected_input == "search" and "enter".pressed (
 
 resolve_protocols taburls.[tab]
 network "get" current_get
-if data.str != "" (
+if data.str != "Loading" and loaded.not (
   page_data = data.str
   pages.[tab] = data.split(newline)
-  current_get = ""
+  loaded = true
+  onload = true
 )
 
 loc 2 2 70 -59
@@ -168,7 +172,7 @@ if clicked and can (
   current_get = ""
   pages.[tab] = []
   page_type = ""
-  onload = true
+  loaded = false
 )
 icon "bookmark" 0.8 : chy#-50
 if mouse_down.not "can = True"
