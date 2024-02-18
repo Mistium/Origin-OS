@@ -163,7 +163,8 @@ loc 2 2 25 -25
 icon "Left-Arrow" 0.8 : c#c_sidebaricons
 icon "Right-Arrow" 0.8 : chy#-50
 icon "Reload" 0.7 : chy#-50
-if clicked (
+if clicked and can (
+  can = false
   resolve_protocols taburls.[tab]
   network "clear" current_get
   current_get = ""
@@ -209,5 +210,6 @@ if page_type == "" (
   direction 90
 )
 tabs.[tab] = current_tab_name
+if mouse_down.not "can = true"
 frame "clear"
 import "win-buttons"
