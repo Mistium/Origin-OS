@@ -68,7 +68,6 @@ def "render_tabs"
     )
     change_x tab_width * -0.5 + 20
     current = tabs.[i]
-    log "sys" current
     icon current."icon".str 0.8 : c#c_text
     text current."title".str 8 : chx#20
     if tabs.len > 1 (
@@ -113,6 +112,12 @@ def "resolve_protocols" "url"
 endef
 
 opentab "owtp://search.web"
+resolve_protocols "owtp://search.web"
+network "clear" current_get
+current_get = ""
+pages.[tab] = []
+page_type = ""
+onload = true
 
 mainloop:
 ww = window_width
@@ -133,12 +138,12 @@ if selected_input == "search" and "enter".pressed (
 )
 
 resolve_protocols taburls.[tab]
-log "sys" current_get
 network "get" current_get
 if data.str != "" (
   page_data = data.str
   pages.[tab] = data.split(newline)
   current_get = ""
+  onload = true
 )
 
 loc 2 2 70 -59
