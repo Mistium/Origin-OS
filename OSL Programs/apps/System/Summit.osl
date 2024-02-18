@@ -1,462 +1,201 @@
-def "appopt" "optname,opticn,icnsize"
-  loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#222
-  loc 2 2 30 y
-  icon opticn icnsize.destr : c#fff
-  change_x 30
-  text optname 8
+c_sidebarbutton = #333
+c_sidebarselected = accent_colour
+c_sidebaricons = #fff
+c_sidebarback = #111
+c_tabselected = #555
+c_searchback = #151515
+c_searchbar = #222
+c_searchicon = #fff
+c_text = #fff
+c_back = #000
+
+default_tab_width = 300
+
+save "bookmarks.json" "get"
+bookmarks = save-data
+if bookmarks == null (
+  save "bookmarks.json" "set" {}
+  bookmarks = []
+)
+
+owtpurl = "https://raw.githubusercontent.com/Mistium/owtp/main/"
+window "show"
+tab = 1
+pages = []
+tabs = []
+taburls = []
+current_get = ""
+
+def "set_tab_name"
+  name = taburls.[tab].split("/")
+  len = name.len
+  name = name.[len]
+  current_tab_name = {}
+  current_tab_name.key("title") = name
 endef
-def "DrawCategory" "setting,icn_code"
-  temp = x_position
-  if category == setting "c #333" else "c #222"
-  square 30 30 10 1
-  if mouse_touching and clicked.not "square 30 30 13"
+
+def "opentab" "url"
+  resolve_protocols url
+  input_search = url.destr
+  tabs = tabs + {"title":"Loading"}
+  pages = pages + ""
+  taburls = taburls + url
+  tab = tabs.len
+  onload = true
+endef
+
+def "remove_tab" "id"
+  if tab == id "tab -= 1"
+  pages = pages.delete(id)
+  tabs = tabs.delete(id)
+  taburls = taburls.delete(id)
+endef
+
+def "render_tabs"
+  tab_max_width = window_width - 200
+  tab_width = default_tab_width
+  if tabs.len * tab_width > tab_max_width "tab_width = tab_max_width / tabs.len"
+  i = 0
+  loop tabs.len (
+    i += 1
+    x = i - 0.5 * tab_width + 52.5
+    loc 2 2 x -20
+    if tab == i "c c_tabselected" else "c c_searchbar"
+    square tab_width - 15 28 5 1
+    if clicked (
+      tab = i
+      input_search = taburls.[i].destr
+    )
+    change_x tab_width * -0.5 + 20
+    current = tabs.[i]
+    log "sys" current
+    icon current."icon".str 0.8 : c#c_text
+    text current."title".str 8 : chx#20
+    if tabs.len > 1 (
+      loc 2 2 tab_width * 0.5 - 20 + x -20
+      icon "close" 0.5
+      if clicked "remove_tab i"
+      clicked = false
+    )
+  )
+  loc 2 2 x + ( tab_width / 2 ) + 20 -20
+  square 28 28 5 1 : c#c_searchbar
+  icon "add" 0.6 : c#c_text
   if clicked (
-    category = setting
-    subcategory = "none"
-  )
-  icon icn_code 0.8 : c#fff
-  goto temp y_position - 50
-endef
-def "option" "name,icn_code"
-  loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#222
-  if mouse_touching and clicked.not "square frame_width - 25 30 12 1 : c#252525"
-  if clicked "gotosubcategory = name"
-  change_x frame_width - 25 / -2 + 20
-  if icn_code == "" "icn_code = name"
-  icon icn_code 1 : c#fff
-  text name 10 : c#fff chx#30
-  y -= 50
-  page_len += 50
-endef
-def "system"
-  if subcategory == "none" (
-    option "Info" "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5"
-    option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
-    option "Sound" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
-    option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
-    option "Power" "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10"
-    option "Storage" "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
-    option "Multitasking" "w 2 line -10 5 0 10 line 10 5 0 10 line 0 0 -10 5 line 0 0 10 5 line -10 -1 0 -6 line 10 -1 0 -6 line -10 -7 0 -12 line 10 -7 0 -12"
-    option "Community" "w 2 cutcircle 0 4 5 0 180 line -6 -5 6 -5 line 6 -5 8 -10 line -6 -5 -8 -10 line -8 -10 8 -10"
-  )
-  if subcategory == "Info" (
-    loc 2 2 100 -100
-    kernel = origin."kernel"
-    square 0 0 140 : c#444
-    square 0 0 130 : c#222
-    icon "origin-logo" 3 : c#fff
-    loc 2 2 200 -50
-    text "originOS" 15
-    text "" + kernel."name" 12
-    loc 2 2 200 -75
-    text "Version" + origin."version" 8
-    loc 2 2 200 -110
-    text "Kernel:" + kernel."name" + kernel."version" + kernel."type" 8
-    loc 2 2 200 -130
-    text "Storage: N/A" 8
-    loc 2 2 200 -150
-    text "UI Style: Origin-Default" 8
-    loc 2 2 200 -170
-    if system_url.contains("raw.githack.com/Mistium/Origin-OS") (
-      text "BIOS: Offical" 8
-    ) else (
-      if system_url.left(7) == "file://" (
-        text "BIOS: Local" 8
-      ) else (
-        if system_url.contains("/editor?") (
-          text "BIOS: Editor" 8
-        ) else (
-          text "BIOS: Modded" 8
-        )
-      )
-    )
-  )
-  if subcategory == "Display" (
-    loc 2 2 10 -20
-    text "Origin Display Frame Resolution: <screensize_x>x<screensize_y>" 10 : c#fff
-    loc 2 2 10 -100
-    text "Render Mode" 10 : c#fff
-    loc 2 2 60 -130
-    square 100 20 10 : c#333
-    if clicked (
-      terminal "system display pixelated false"
-    )
-    text "Default" 10 : chx#-50 c#fff
-    loc 2 2 180 -130
-    square 100 20 10 : c#333
-    if clicked (
-      terminal "system display pixelated true"
-    )
-    text "Pixelated" 10 : chx#-50 c#fff
-    terminal "system display get invert"
-    toggle_invert = return.divide(100).round.bool
-    loc 2 2 10 -180
-    text "Invert Colours" 10 : c#fff
-    toggle "invert" 20 : c#333 chx#30
-    inp = toggle_invert.int * 100
-    terminal "system display set invert" + inp.str
-  )
-  if subcategory == "Storage" (
-    if network_drive.istype("array").not (
-      if network_drive == "none" (
-        network "my_files_usage"
-      )
-      if new_network_data (
-        if network_data_command == "my_files_usage" (
-          network_drive = network_data.destr
-        )
-        new_network_data = false
-      )
-    )
-    file "open" "Origin/(A) System.folder"
-    y = -160 + 75 + scroll_y
-    loc 999 2 0 y
-    square frame_width - 30 140 10 1 : c#222
-    loc 2 2 80 y
-    icon file.[11] 3.3
-    text "(A) System" 15 : chx#80 chy#30 c#fff
-    loc 2 2 160 y
-    text file.[12] / 1000 ++ "kb / 1000kb" 10
-    loc 999 2 125 / 2 y - 35
-    percent = file.[12] / 1000000
-    bar frame_width - 200 20 10 percent : c#444
-    file "open" "Origin/(B) Local.folder"
-    y = -320 + 75 + scroll_y
-    loc 999 2 0 y
-    square frame_width - 30 140 10 1 : c#222
-    loc 2 2 80 y
-    icon file.[11] 3.3
-    text "(B) Local" 15 : chx#80 chy#30 c#fff
-    loc 2 2 160 y
-    text file.[12] / 1000 ++ "kb / 1000kb" 10
-    loc 999 2 125 / 2 y - 35
-    percent = file.[12] / 1000000
-    bar frame_width - 200 20 10 percent : c#444
-    file "open" "Origin/(C) Users.folder"
-    y = -480 + 75 + scroll_y
-    loc 999 2 0 y
-    square frame_width - 30 140 10 1 : c#222
-    loc 2 2 80 y
-    icon file.[11] 3.3
-    text "(Network)" + username 15 : chx#80 chy#20 c#fff
-    change_x 20
-    if network_drive.[2] == 50000 (
-      text "Free User" 10
-      text "Upgrade: " 10 : c#ccc chx#20
-      square 120 20 10 : c#ededed chx#100
-      if clicked (
-        eval "window.open('https://www.patreon.com/user?u=51594743', '_blank')?.focus() || console.error('Failed to open Patreon tab.');"
-      )
-      image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
-    )
-    if network_drive.[2] == 500000 (
-      text "originDrive" 10
-    )
-    if network_drive.[2] == 2500000 (
-      text "origin Pro" 10
-    )
-    loc 2 2 160 y
-    text network_drive.[1] / 1000 ++ "kb /" + ( network_drive.[2] / 1000 ) ++ "kb" 10
-    loc 999 2 125 / 2 y - 35
-    percent = network_drive.[1] / network_drive.[2]
-    bar frame_width - 200 20 10 percent : c#444
-    page_len = 460
-  )
-  if subcategory == "Community" (
-    loc 2 2 10 -20
-    text "Patreon Supporters:" 10 : c#fff
-    supporters = ["Vernacular"]
-    loc 2 2 10 -40
-    text supporters.join(newline) 10
-    page_len = supporters.len * -10
-  )
-  clicked = false
-endef
-def "network_page"
-  loc 999 2 0 -70
-  square frame_width - 30 100 10 : c#222
-  if network."connected".not (
-    loc 2 2 100 -90
-    square 140 30 10 : c#333
-    if clicked (
-      terminal "connect 3"
-    )
-    text "Reconnect" 10 : c#fff chx#-60
-    loc 2 2 30 -40
-    temp = "Not Connected"
-    square 0 0 10 : c#ae2525
-  )
-  if network."connected" (
-    loc 2 2 30 -40
-    temp = "Connected"
-    square 0 0 10 : c#24ad2c
-  )
-  text temp 10 : c#fff chx#15
-endef
-def "personalisation"
-  if subcategory == "none" (
-    option "Background"
-    option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
-    option "Colours"
-  )
-  if subcategory == "Background" (
-    loc 2 2 15 -30
-    text "Paste Image Url" 10 : c#fff
-    change_x 20
-    square 25 25 10 : c#333
-    if clicked (
-      square 25 25 12 : c#444
-      current_wallpaper = clipboard.str
-    )
-    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
-    current_wallpaper = current_wallpaper.str
-    if wallpapers.contains(current_wallpaper).not (
-      if current_wallpaper.imageinfo("loaded") (
-        wallpapers = wallpapers + current_wallpaper
-        save "wallpapers.json" "set" wallpapers
-        current_wallpaper = ""
-      )
-      if current_wallpaper == clipboard.str (
-        image current_wallpaper 200
-        text "Trying..." 10 : c#fff chx#20
-      )
-    )
-    count = 0
-    loop wallpapers.len (
-      count ++
-      yc = count / 2
-      y = yc.round * -230 + 50 + scroll_y
-      loc -4 2 0 y
-      if count % 2 == 1 "loc 4 2 0 y"
-      w = frame_width / 2 - 30
-      square w 200 10 : c#222
-      cur = wallpapers.[count]
-      if clicked (
-        terminal "system wallpaper" + cur
-      )
-      image cur w 200
-    )
-  page_len = yc.round * 230 + 50
-  )
-  if subcategory == "Dock" (
-    loc 2 2 20 -20
-    text "Reset Dock To Default" 10 : c#fff
-    icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
-    if clicked (
-      segments = ["Main","Applications","Time","Battery","Now Playing"]
-    )
-    loc 2 2 110 -140
-    x2 = x_position
-    x = x2
-    y = y_position
-    count = 0
-    loop segments.len (
-      count += 1
-      goto x y
-      square 180 60 20 1 : c#222
-      clicked = False
-      change -80 -20
-      count2 = count - 1
-      if count > 1 "icon "left-arrow" 0.7 : c#fff"
-      if clicked and can "segments = segments.swap(count2,count)"
-      c = clicked
-      icon "close" 0.5 : c#fff chx#80
-      if clicked and can "segments = segments.delete(count)"
-      c2 = clicked
-      clicked = False
-      if count < segments.len "icon "right-arrow" 0.7" : chx#80
-      count2 = count + 1
-      if clicked and can "segments = segments.swap(count,count2)"
-      if c or c2 or clicked "can = False"
-      change -160 35
-      icon "c #6db2b3 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #456868 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 line -3 -7 3 -7" 1
-      text segments.[count] 9 : c#fff chx#20
-      x += 220
-      if x + 110 > ( window_width / 2 ) (
-        x = x2
-        y -= 90
-      )
-    )
-    goto x y
-    square 180 60 20 1 : c#222
-    square 20 20 20 1 : c#111 chy#-10
-    icon "Add" 0.8 : c#fff
-    change -90 30
-    text "Drop .ode Here" 9
-    if file_dropped != 0 (
-      file "open" "id" file_dropped
-      file "get" "name"
-      f = data
-      segments = segments.append(f)
-    )
-    file_dropped = 0
-    save "segments.txt" "set" segments
-    global "segments"
-  )
-  if subcategory == "Colours" (
-    if accent_select.[1] != "#" (
-      colourpicker "setcol" global_accent
-      accent_select = global_accent
-    )
-    loc 2 2 15 -30
-    text "Accent Colour: <accent_select>" 10 : c#fff
-    change_x 30
-    square 0 0 20 0 : c#accent_select
-    if clicked (
-      colourpicker "setcol" accent_select
-      colourpicker "show"
-    )
-    accent_select = picker_colour
-    if global_accent != accent_select (
-      icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
-      if clicked (
-        colourpicker "setcol" global_accent
-        accent_select = global_accent
-      )
-      loc -2 2 -120 -30
-      square 200 20 15 0 1
-      if clicked and can (
-        can = false
-        network "update" "accent" accent_select
-      )
-      c #222
-      if mouse_touching and clicked.not (
-        square 200 25 12
-      ) else (
-        square 200 25 10
-      )
-      text "Sync With Network" 9 : c#fff chx#-95
-      if mouse_down.not "can = true"
-    )
-  )
-  frame "clear"
-endef
-def "apps"
-  path = "Origin/(C) Users/" ++ username ++ "/Application Data"
-  if subcategory == "none" (
-    y = -40 + scroll_y
-    include path
-    loc 999 2 0 y
-    count = 0
-    loop Application_Data.len (
-      count += 1
-      file "open" application_data.[count]
-      loc 999 2 0 y
-      square frame_width - 25 30 10 1 : c#222
-      if clicked "subcategory = file.[2]"
-      loc 2 2 30 y
-      icon file.[11] 1.2
-      text file.[2] 9 : c#fff chx#30
-      y -= 50
-      page_len += 50
-    )
-  )
-  if subcategory != "none" (
-    y = -80
-    appopt "info" "info" "0.6"
-    y = -130
-    appopt "Launch At Startup" "Origin-Logo" "1"
-    loc -2 2 -30 y
-    toggle "launch_at_start" 20 : c#333
-    y = -180
-    appopt "uninstall" "bin" "1"
+    opentab "owtp://search.web"
   )
 endef
-def "account"
-  loc 999 2 5 -90
-  square frame_width - 25 150 10 : c#111
-  loc 2 2 90 -90
-  image user_icon.str 90
-  loc 2 2 150 -80
-  text username 12 : c#fff
-  loc 2 2 150 -100
-  text "origin Account" 10
-  loc 2 2 20 -200
-  text "Profile Picture Url:" 10
-  loc 999 2 0 -230
-  square frame_width - 50 30 10 : c#111
-  input frame_width - 55 25 "pfpurl"
+
+def "redirect" "url"
+  onload = true
+  resolve_protocols url
+  current_url = url
+  input_search = url.destr
+  cur_tab = {}
+  cur_tab.key("title") = url
+  tabs.[tab] = cur_tab
+  taburls.[tab] = cur_tab
+  network "get" url
 endef
-def "time"
-  loc 999 2 0 -40
-  square frame_width - 20 40 10 1 : c#222
-  loc 999 2 0 -100
-  square frame_width - 20 40 10 1
-  loc 999 2 0 -160
-  square frame_width - 20 40 10 1
-  loc 2 2 20 -40
-  text "Timezone: <timezone>" 8 : c#fff
-  loc 2 2 20 -100
-  milisecond = timestamp.right(3)
-  text "Time: <day_number>:<month_number>:<year> <hour>:<minute>:<second>:<milisecond>" 8
-  loc 2 2 20 -160
-  dt = delta_time * 1000
-  dt = dt.round
-  text "Since Last Frame: <dt>ms" 8
+
+def "resolve_protocols" "url"
+  protocol = url.split("://").[1]
+  current_get = url
+  if protocol == "owtp" (
+    current_get = url.replace("owtp://",owtpurl)
+    if url.right(4) == ".web" or url.right(4).contains(".").not (
+      current_get = current_get ++ "/index.osl"
+    )
+  )
+  urlspl = current_get.split(".")
+  len = urlspl.len
+  page_type = urlspl.[len]
 endef
-def "updates"
-endef
-window "dimensions" 880 500
-dock_location = dock_location
-segments = segments
-accent_select = ""
-network_drive = "none"
-category = "System"
-gotosubcategory = ""
-subcategory = "none"
-save "wallpapers.json" "get"
-wallpapers = save-data.destr
-if wallpapers.len < 1 or wallpapers.istype("array").not (
-  wallpapers = [] + "https://raw.githubusercontent.com/Mistium/Origin-OS/main/wallpapers/originOS%20Flow.png"
-  save "wallpapers.json" "set" wallpapers
-)
+
+opentab "owtp://search.web"
+
 mainloop:
-loc 999 2 0 -25
-square window_width - 7.5 15 30 1 : c#333
-loc 2 999 20 0
-square 50 window_height 10 : c#111
-loc 2 2 25 -25
-DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
-DrawCategory "Network" "w 2 cutcircle 0 -5 14 0 50 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
-DrawCategory "Personalisation" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-DrawCategory "Apps" "w 3 square 7 7 2.5 2.5 square 7 -7 2.5 2.5 square -7 7 2.5 2.5 square -7 -7 2.5 2.5"
-DrawCategory "Account"
-DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
-DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
-DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
-loc 2 2 25 -225
-image user_icon.str 35
-loc 2 2 70 -25
-if subcategory == "none" "text category 10 : c#fff"
-if subcategory != "none" (
-  icon left-arrow 0.6 : c#fff
-  if clicked "subcategory = "none""
-  change_x 30
-  text subcategory 10
+ww = window_width
+loc 999 2 0 -40
+square ww 80 10 1 : c#c_searchback
+items = 1
+render_tabs
+loc -2 2 items * -15 - 10 -60
+square items * 30 28 5 1 : c#c_searchbar
+loc -2 2 -25 -60
+image user_icon.str 25
+offset = items * 30
+loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
+square ww - ( offset + 80 ) 28 5 1
+input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text : chx#10
+if selected_input == "search" and "enter".pressed (
+  redirect input_search.str
 )
-loc 2 2 50 -48
+resolve_protocols taburls.[tab]
+network "get" current_get
+if data.str != "" (
+  page_data = data.str
+  pages.[tab] = data.split(newline)
+  current_get = ""
+)
+loc 2 2 70 -59
+icon "search" 0.6 : c#c_searchicon
+loc 2 999 20 0
+square 50 window_height 10 1 : c#c_sidebarback
+loc 2 2 25 -25
+bookmarked = False
+if current_url != null and bookmarks.contains(current_url) "bookmarked = True"
+c c_sidebarbutton
+loop 3 (
+  square 30 30 10 1
+  change_y -50
+)
+if bookmarked "c c_sidebarselected"
+square 30 30 10 1
+loc 2 -2 25 25
+square 30 30 10 1 : c#c_sidebarbutton
+loc 2 2 25 -25
+icon "Left-Arrow" 0.8 : c#c_sidebaricons
+icon "Right-Arrow" 0.8 : chy#-50
+icon "Reload" 0.7 : chy#-50
+if clicked (
+  resolve_protocols taburls.[tab]
+  network "clear" current_get
+  current_get = ""
+  pages.[tab] = []
+  page_type = ""
+  onload = true
+)
+icon "bookmark" 0.8 : chy#-50
+if mouse_down.not "can = True"
+loc 2 -2 25 25
+icon "More-Vertical" 0.8
+loc 2 2 55 -90
 x = x_position
 y = y_position
-loc -2 -2 10
-c #333
+loc -2 -2 0 -10
+c c_sidebarback
 frame x y x_position y_position page_len
-page_len = 0
-y = -30 + scroll_y
-startx = x_position
-location = category + subcategory
-if category == "System" "system"
-if category == "Network" "network_page"
-if category == "Personalisation" "personalisation"
-if category == "Account" "account"
-if category == "Apps" "apps"
-if category == "Time" "time"
-if category == "Updates" "updates"
-if mouse_down.not "can = True"
-frame "clear"
-if gotosubcategory != "" and mouse_down.not (
-subcategory = gotosubcategory
-gotosubcategory = ""
+page_len = null
+current_tab_name = {}
+current_tab_name.key("title") = input_search.str
+if page_type == "osl" (
+  run pages.[tab]
+  onload = false
 )
+if page_type == "png" (
+  goto 0 0
+  image taburls.[tab].destr.replace("owtp://",owtpurl) frame_width
+  page_data = ""
+)
+if page_type == "txt" (
+  loc 2 2 20 -20 + scroll_y
+  c c_text
+  text page_data.str 10
+  set_tab_name
+  current_tab_name.key("icon") = "txt"
+  page_len = pages.[tab].len * 25
+)
+tabs.[tab] = current_tab_name
+frame "clear"
 import "win-buttons"
