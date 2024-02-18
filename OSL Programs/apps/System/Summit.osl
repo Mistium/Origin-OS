@@ -131,13 +131,16 @@ input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text
 if selected_input == "search" and "enter".pressed (
   redirect input_search.str
 )
+
 resolve_protocols taburls.[tab]
+log "sys" current_get
 network "get" current_get
 if data.str != "" (
   page_data = data.str
   pages.[tab] = data.split(newline)
   current_get = ""
 )
+
 loc 2 2 70 -59
 icon "search" 0.6 : c#c_searchicon
 loc 2 999 20 0
