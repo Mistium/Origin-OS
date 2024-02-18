@@ -143,7 +143,6 @@ if data.str != "" (
   page_data = data.str
   pages.[tab] = data.split(newline)
   current_get = ""
-  onload = true
 )
 
 loc 2 2 70 -59
