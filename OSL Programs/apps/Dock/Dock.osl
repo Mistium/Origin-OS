@@ -20,7 +20,7 @@ def "main"
     goto width / 2 + x + 15 y
   )
   dock_width = x_position - start_x
-  dock_width = dock_width.round
+  dock_width.round
 endef
 
 window "responsive" true
@@ -38,13 +38,12 @@ icon_colour = #fafbfc
 file_loc = "origin/(C) Users/" ++ username ++ "/Dock"
 mainloop:
 movefileloc file_loc
-if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
 window "y" screensize_y / -2 + 35
 import "Origin/(A) System/Docks/positionhandler.osl"
 if y > -80 "main"
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
-  terminal "system windows add" + open
+  window "add" open
   open = 0
 )
