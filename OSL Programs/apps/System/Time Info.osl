@@ -1,0 +1,26 @@
+window "show"
+window "dimensions" 270 140
+mainloop:
+loc 999 2 0 -15
+square 300 20 20 : c#333
+loc 2 2 10 -20
+text "Time" 10 : c#fff
+loc -2 2 -20 -20
+icon "close" 0.7 : hover_size#1.1 hover_cursor#pointer
+if clicked (
+  window "stop"
+)
+loc 2 2 10 -120
+text "<day> <day_number> <month> <year>" 10
+loc 2 2 30 -70
+icon "c #fff w 3 cutcircle 0 0 20 0 180" 1
+pen "down"
+change minute.multiply(6).sin * 10 minute.multiply(6).cos * 10
+loc 2 2 30 -70
+c #aaa
+change hour.multiply(15).sin * 7 hour.multiply(15).cos * 7
+pen "up"
+loc 2 2 60 -60
+text "<hour>:<minute>:<second>" 10 : c#fff
+loc 2 2 60 -85
+text timezone.str 10
