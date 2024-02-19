@@ -5,24 +5,23 @@ width = dock.len * 50 - 10
 change_x width / 2
 x = x_position
 set_y y
-square width height 20 1 0 1
-draw = dock.len != dock_appslen_temp or mouse_touching or bg_redrawn
+square width height 20 0 0 1
 cur = ""
-if draw (
-square width height 20 1
-goto x - ( width / 2 ) + 20 y
+if dock.len != dock_appslen_temp or mouse_touching or bg_redrawn (
+square width height 20
+change_x width / -2 + 20 y
 dock_appslen_temp = dock.len
-applicationscount = 0
-loop dock.len (
-applicationscount += 1
-file "open" dock.[applicationscount]
+count = 0
+loop dock_appslen_temp (
+count ++
+curr = dock.[count]
+file "open" curr
 file "render" 1.7 "interactable"
-square 45 45 0 0 1
 if mouse_touching (
 curx = x_position
 cur = file.[2]
 )
-rightclick "file" dock.[applicationscount]
+rightclick "file" curr
 change_x 50
 )
 )
@@ -31,11 +30,10 @@ if cur != last_cur (
 window "refresh_bg"
 )
 goto curx 20
-square cur.len * 8 10 10 : c#000
-square cur.len * 8 10 10 : c#accent_colour
+square cur.len * 8 10 10 : c#dock_colour
 curlen = cur.len * -4
 change_x curlen
-text cur 8 : c#fff
+text cur 8 : c#icon_colour
 last_cur = cur
 )
 )
