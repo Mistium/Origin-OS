@@ -1,16 +1,20 @@
 width = 105
 change_x 52.5
 x = x_position
-if bg_redrawn "square width height 20"
+square 105 height 20 0 1
+if clicked (
+open = "Time Info"
+)
+if bg_redrawn "square 105 height 20"
 if second != timeode_secondtemp or bg_redrawn (
 timeode_secondtemp = second
-goto x y + 10
-square width - 10 height / 2.3 5 : c#dock_colour
+set_y y + 10
+square 95 height / 2.3 5 : c#dock_colour
 text "<hour>:<minute>:<second>" 9 : c#icon_colour chx#-45
 )
 if day != timeode_daytemp or bg_redrawn (
 timeode_daytemp = day
 goto x y - 10
-square width - 10 height / 2.3 5 : c#dock_colour
+square 95 height / 2.3 5 : c#dock_colour
 text day.trim(0,3) + day_number + month.trim(0,3) 8 : c#icon_colour chx#-45
 )
