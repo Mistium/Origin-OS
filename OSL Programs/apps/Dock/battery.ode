@@ -1,37 +1,13 @@
-window "show"
-window "resizable" false
-window "dimensions" 270 130
-mainloop:
-loc 999 2 0 -15
-square 250 20 20 1 : c#222
-loc 2 2 10 -20
-c #fff
-buf = battery_time_until_full / 60
-bue = battery_time_until_empty / 60
-buf.round
-bue.round
-text "Battery" 10
-loc 2 2 10 -70
-text battery_percent ++ "%" 13
-if battery_charging (
-  text "(charging)" 8 : chx#10
-) else (
-  text "(not charging)" 8 : chx#10
-)
-loc 2 2 10 -110
 if battery_percent < 100 (
-  if battery_charging (
-    text buf + "mins until full" 10
-  ) else (
-    text bue + "mins until empty" 10
-  )
-) else (
-  if battery_charging (
-    text "Full Charge" 10
-  ) else (
-    text bue + "mins until empty" 10
-  )
+width = 60
+set_y y
+square 60 height 20 1 0 1 : chx#30
+x = x_position
+if clicked "open = Battery_Info"
+if battery_temp != battery_percent or bg_redrawn (
+battery_temp = battery_percent
+square 60 height 20 1
+if battery_charging "c global_accent" else "c icon_colour"
+text "<battery_percent>%" 10 : chx#-25
 )
-loc -2 2 -20 -20
-icon "close" 0.7
-if clicked "window stop"
+)
