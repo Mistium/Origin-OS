@@ -492,9 +492,9 @@ gotosubcategory = ""
 subcategory = "none"
 current_pfp = ""
 save "wallpapers.json" "get"
-wallpapers = save-data.destr
+wallpapers = save-data
 if wallpapers.len < 1 or wallpapers.istype("array").not (
-  wallpapers = [] + "https://raw.githubusercontent.com/Mistium/Origin-OS/main/wallpapers/originOS%20Flow.png"
+  wallpapers = ["\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png\""]
   save "wallpapers.json" "set" wallpapers
 )
 save "segments.txt" "set" segments
