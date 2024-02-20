@@ -11,7 +11,7 @@ if exists (
 global "segments" seg
 open = 0
 def "main"
-  goto dock_x y
+  set_y y
   syscount = 0
   loop segments.len (
     syscount ++
@@ -21,7 +21,6 @@ def "main"
   dock_width = x_position - start_x
   dock_width = dock_width.round
 endef
-
 window "responsive" true
 window "hide"
 window "front"
@@ -40,35 +39,7 @@ movefileloc file_loc
 if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
 window "y" screensize_y / -2 + 35
-terminal "get windowpositions"
-data = data + dock_width.round
-if data != datasave (
-  datasave = data
-  data = "" + data.join(" ") + ""
-  dock_x_target = dock_width / -2
-  dock_y_target = 0
-  left = data.contains(" 1,0 ") or data.contains(" 1,-1 ")
-  right = data.contains(" -1,0 ") or data.contains(" -1,-1 ")
-  if ( left and right ) or data.contains(" 0,0 ") (
-    dock_x_target = dock_width / -2
-    dock_y_target = -100
-  ) else (
-    if left "dock_x_target = window_width / -2"
-    if right "dock_x_target = window_width / 2 - dock_width"
-  )
-  dock_x_target = dock_x_target.round
-)
-if delta_time < 0.1 (
-  rou = dock_x.round
-  dock_x += dock_x_target.round - rou * delta_time * 7
-  if rou != dock_x_target (
-    window "refresh_bg"
-  )
-  y += dock_y_target - y.round * delta_time * 3
-  if y.round != dock_y_target.round (
-    window "refresh_bg"
-  )
-)
+import "Origin/(A) System/Docks/positionhandler.osl"
 if y > -80 "main"
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
