@@ -24,7 +24,7 @@ if loaded.not (
   )
 )
 if loaded.not (
-  network "get" current
+  network "getsync" current
   if data != "Loading" "load"
   loc 999 999 137 20
   square 25 25 10 1
