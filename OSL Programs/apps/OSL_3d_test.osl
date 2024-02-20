@@ -36,16 +36,16 @@ if "a".pressed (
   cam_pos.[3] -= cam_rotation.[1].add(90).cos * speed
 )
 if "left arrow".pressed (
-  cam_rotation.[1] -= 5
+  cam_rotation.[1] -= 100 * delta_time
 )
 if "right arrow".pressed (
-  cam_rotation.[1] += 5
+  cam_rotation.[1] += 100 * delta_time
 )
 if "up arrow".pressed (
-  cam_rotation.[2] += 5
+  cam_rotation.[2] += 100 * delta_time
 )
 if "down arrow".pressed (
-  cam_rotation.[2] -= 5
+  cam_rotation.[2] -= 100 * delta_time
 )
 3d "camera" "position" cam_pos
 3d "camera" "rotation" cam_rotation
@@ -56,6 +56,8 @@ text cam_rotation 10
 c #f00
 render_tri [-100,100,0] [100,100,0] [0,-100,0]
 c #00f
-render_tri [-100,-100,10] [-100,-100,0] [0,100,0]
+render_tri [-100,-100,0] [100,-100,0] [0,100,0]
+c #0f0
+render_tri [100,100,0] [100,-100,0] [0,50,0]
 
 import "win-buttons"
