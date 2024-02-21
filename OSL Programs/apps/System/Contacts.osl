@@ -13,11 +13,8 @@ mainloop:
 if new_network_data (
   if network_data_command == "find_account" (
     if network_data != "Account Not Found" (
-      contact = {}
-      contact.key("username") = network_data."username"
-      contact.key("accent_colour") = network_data."accent_colour"
-      contact.key("pfp") = network_data."pfp"
-      contacts = contacts + contact
+      contacts = contacts + network_data
+      save "contacts.json" "set" contacts
     )
   )
   new_network_data = false
@@ -44,14 +41,22 @@ count = 0
 loop contacts.len (
   count ++
   cur = contacts.[count]
-  y = count * -45 + scroll_y
+  y = count - 0.5 * -50 + scroll_y
   loc 2 2 sidewidth / 2 y
-  c cur."accent_colour"
-  square sidewidth - 10 25 15
-  square sidewidth - 10 25 15 : c#333 hover_c#444
-  loc 2 2 20 y
+  c cur."accent"
+  square sidewidth - 20 25 16
+  square sidewidth - 20 25 10 : c#333 hover_c#444
+  loc 2 2 22 y
   image cur."pfp" 30 30
   text cur."username" 10 : chx#30 c#fff
+  loc 2 2 sidewidth - 20 y
+  icon "close" 0.7
+  if clicked and can (
+    can = false
+    contacts = contacts - count
+    save "contacts.json" "set" contacts
+    count --
+  )
 )
 if mouse_down.not (
   can = true
