@@ -41,7 +41,7 @@ def "system"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
     option "Sound" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
     option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
-    option "Power" "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10"
+    option "Boot Applications" "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10"
     option "Storage" "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
     option "Multitasking" "w 2 line -10 5 0 10 line 10 5 0 10 line 0 0 -10 5 line 0 0 10 5 line -10 -1 0 -6 line 10 -1 0 -6 line -10 -7 0 -12 line 10 -7 0 -12"
     option "Community" "w 2 cutcircle 0 4 5 0 180 line -6 -5 6 -5 line 6 -5 8 -10 line -6 -5 -8 -10 line -8 -10 8 -10"
@@ -103,6 +103,37 @@ def "system"
     inp = toggle_invert.int * 100
     terminal "system display set invert" + inp.str
   )
+  if subcategory == "Boot Applications" (
+    boot_apps = user."onboot"
+    loc 2 2 20 -20 + scroll_y
+    text "Drop File Here" 9 : c#fff
+    if file_dropped != 0 (
+      file "open" "id" file_dropped
+      file "get" "name"
+      f = file.[3] ++ "/" ++ file.[2] ++ file.[1]
+      boot_apps = boot_apps.append(f)
+      network "update" "onboot" boot_apps
+      file_dropped = 0
+    )
+    count = 0
+    loop boot_apps.len (
+      count ++
+      y = count + 1 * -40 + scroll_y
+      loc 999 2 0 y
+      square frame_width - 30 20 15 : c#222 hover_c#252525
+      loc 2 2 15 y
+      text boot_apps.[count] 9 : c#fff
+      loc -2 2 -20 y
+      square 20 20 15 : c#333 hover_c#444
+      if clicked and can (
+        can = false
+        boot_apps = boot_apps.delete(count)
+        network "update" "onboot" boot_apps
+      )
+      icon "bin" 0.8 : c#fff
+    )
+    page_len = apps.len * 20
+  )
   if subcategory == "Storage" (
     if network_drive.istype("array").not (
       if network_drive == "none" (
@@ -157,6 +188,9 @@ def "system"
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
     if network_drive.[2] == 500000 (
+      text "Supporter" 10
+    )
+    if network_drive.[2] == 5000000 (
       text "originDrive" 10
     )
     if network_drive.[2] == 50000000 (
@@ -335,8 +369,8 @@ def "personalisation"
       file "get" "name"
       f = data
       segments = segments.append(f)
+      file_dropped = 0
     )
-    file_dropped = 0
     save "segments.txt" "set" segments
     global "segments"
   )
@@ -377,38 +411,6 @@ def "personalisation"
     )
   )
   frame "clear"
-endef
-
-def "apps"
-  path = "Origin/(C) Users/" ++ username ++ "/Application Data"
-  if subcategory == "none" (
-    y = -40 + scroll_y
-    include path
-    loc 999 2 0 y
-    count = 0
-    loop Application_Data.len (
-      count += 1
-      file "open" application_data.[count]
-      loc 999 2 0 y
-      square frame_width - 25 30 10 1 : c#222
-      if clicked "subcategory = file.[2]"
-      loc 2 2 30 y
-      icon file.[11] 1.2
-      text file.[2] 9 : c#fff chx#30
-      y -= 50
-      page_len += 50
-    )
-  )
-  if subcategory != "none" (
-    y = -80
-    appopt "info" "info" "0.6"
-    y = -130
-    appopt "Launch At Startup" "Origin-Logo" "1"
-    loc -2 2 -30 y
-    toggle "launch_at_start" 20 : c#333
-    y = -180
-    appopt "uninstall" "bin" "1"
-  )
 endef
 
 def "account"
