@@ -147,19 +147,19 @@ def "system"
     icon file.[11] 3.3
     text "(Network)" + username 15 : chx#80 chy#20 c#fff
     change_x 20
-    if network_drive.[2] == 50000 (
+    if network_drive.[2] == 150000 (
       text "Free User" 10
       text "Upgrade: " 10 : c#ccc chx#20
       square 120 20 10 : c#ededed chx#100
       if clicked (
-        eval "window.open('https://www.patreon.com/user?u=51594743', '_blank')?.focus() || console.error('Failed to open Patreon tab.');"
+        network "new_tab" "https://www.patreon.com/user?u=51594743"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
     if network_drive.[2] == 500000 (
       text "originDrive" 10
     )
-    if network_drive.[2] == 2500000 (
+    if network_drive.[2] == 5000000 (
       text "origin Pro" 10
     )
     loc 2 2 160 y
@@ -185,6 +185,7 @@ def "system"
   )
   clicked = false
 endef
+
 def "network_page"
   loc 999 2 0 -70
   square frame_width - 30 100 10 : c#222
