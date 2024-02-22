@@ -1,27 +1,29 @@
-// Use the code below to return a json string that contains user media device names
-//
-// Example Output below
-//
-//{
-//  "inputDevices": [
-//    "Default - AirPods",
-//    "AirPods",
-//    "Mist's iphoneXS Microphone",
-//    "MacBook Pro Microphone (Built-in)",
-//    "Immersed (Virtual)",
-//    "Meta Quest Remote Desktop Audio (Virtual)",
-//    "Virtual Desktop Mic (Virtual)",
-//    "Virtual Desktop Speakers (Virtual)"
-//  ],
-//  "outputDevices": [
-//    "Default - AirPods",
-//    "AirPods",
-//    "MacBook Pro Speakers (Built-in)",
-//    "Immersed (Virtual)",
-//    "Meta Quest Remote Desktop Audio (Virtual)",
-//    "Virtual Desktop Mic (Virtual)",
-//    "Virtual Desktop Speakers (Virtual)"
-//  ]
-//}
+navigator.mediaDevices.enumerateDevices().then(devices => {
+  if (devices.length === 0) {
+    console.log("No media devices found.");
+    return;
+  }
+  const uniqueDevices = {};
+  devices.forEach(device => {
+    const deviceId = device.deviceId;
+    if (uniqueDevices[device.label]) {
+      return;
+    }
+	const info = {
+      id: deviceId || 'N/A',
+    };
+    if (device.kind === 'audioinput' && devices.some(d => d.deviceId === deviceId && d.kind === 'audiooutput')) {
+      info.type = 'both'
+    } else if (device.kind === 'audioinput') {
+      info.type = 'input'
+    } else if (device.kind === 'audiooutput') {
+      info.type = 'output'
+    }
+    uniqueDevices[device.label] = info;
+  });
+  return JSON.stringify(uniqueDevices);
+}).catch(err => {
+  return 'Error enumerating devices:' + err;
+});
 
-navigator.mediaDevices.enumerateDevices().then(devices => {if (devices.length === 0) {console.log("No media devices found.");return;}const inputDevices = [];const outputDevices = [];devices.forEach(device => {if (device.kind === 'audioinput') {inputDevices.push(device.label);} else if (device.kind === 'audiooutput') {outputDevices.push(device.label);}});return JSON.stringify({ inputDevices, outputDevices });}).catch(err => {return 'Error enumerating devices:', err;});
+// Use this code to return a json string that contains user media device names //
