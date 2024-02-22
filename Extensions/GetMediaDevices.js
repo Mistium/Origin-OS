@@ -9,7 +9,7 @@ navigator.mediaDevices.enumerateDevices().then(devices => {
     if (uniqueDevices[device.label]) {
       return;
     }
-		const info = {
+    const info = {
       id: deviceId || 'N/A',
     };
     if (device.kind === 'audioinput' && devices.some(d => d.deviceId === deviceId && d.kind === 'audiooutput')) {
@@ -18,7 +18,7 @@ navigator.mediaDevices.enumerateDevices().then(devices => {
       info.type = 'audioinput'
     } else if (device.kind === 'audiooutput') {
       info.type = 'audiooutput'
-		} else if (device.kind === 'videoinput') {
+    } else if (device.kind === 'videoinput') {
       info.type = 'videoinput'
     }
     uniqueDevices[device.label] = info;
