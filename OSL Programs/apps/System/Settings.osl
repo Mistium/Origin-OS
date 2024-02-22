@@ -39,7 +39,7 @@ def "system"
   if subcategory == "none" (
     option "Info" "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
-    option "Sound" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
+    option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
     option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
     option "Boot Applications" "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10"
     option "Storage" "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
@@ -102,6 +102,52 @@ def "system"
     toggle "invert" 20 : c#333 chx#30
     inp = toggle_invert.int * 100
     terminal "system display set invert" + inp.str
+  )
+  if subcategory == "Media" (
+    if media == "" (
+      terminal "get access camera"
+      data2 = data
+      terminal "get access microphone"
+      if data + data2 == "granted granted" (
+        terminal "get mediadevices"
+        media = data
+        keys = media.getall("keys")
+      ) else (
+        media = "Please Grant Origin Microphone And Camera Permissions"
+      )
+    )
+    loc 2 2 10 -40 + scroll_y
+    text "System Volume" 10 : c#fff
+    loc 999 2 0 -90 + scroll_y
+    terminal "system sound get volume"
+    slider_volume = return / 100
+    slider frame_width - 50 20 "volume" 32 : c#111
+    terminal "system sound set volume" + ( slider_volume * 100 )
+    c #fff
+    loc 2 2 10 -160 + scroll_y
+    if media.istype("object") (
+      text "Media Devices" 10
+      count = 0
+      loop keys.len (
+        count ++
+        y = count + 4 * -40 + scroll_y
+        loc 999 2 0 y
+        square frame_width - 30 20 15 : c#222 hover_c#252525
+        cur = keys.[count]
+        cur2 = media.key(cur)
+        loc 2 2 25 y
+        c #444
+        square 0 0 25
+        icon "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80" 0.7 : c#fff
+        text cur 9 : chx#30
+      )
+      page_len = keys.len + 4 * 40
+    ) else (
+      text media 10
+      page_len = 100
+    )
+  ) else (
+    media = ""
   )
   if subcategory == "Boot Applications" (
     boot_apps = user."onboot"
@@ -487,6 +533,7 @@ endef
 
 window "dimensions" 880 500
 dock_location = dock_location
+media = ""
 segments = segments
 accent_select = ""
 network_drive = "none"
