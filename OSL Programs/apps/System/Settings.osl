@@ -37,12 +37,12 @@ endef
 
 def "system"
   if subcategory == "none" (
-    option "Info" "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5"
+    option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
     option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
     option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
-    option "Boot Applications" "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10"
-    option "Storage" "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
+    option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
+    option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
     option "Multitasking" "w 2 line -10 5 0 10 line 10 5 0 10 line 0 0 -10 5 line 0 0 10 5 line -10 -1 0 -6 line 10 -1 0 -6 line -10 -7 0 -12 line 10 -7 0 -12"
     option "Community" "w 2 cutcircle 0 4 5 0 180 line -6 -5 6 -5 line 6 -5 8 -10 line -6 -5 -8 -10 line -8 -10 8 -10"
   )
@@ -496,8 +496,8 @@ def "account"
   icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
     if timer - upload_time > 5 "current_pfp = null.str"
     if current_pfp.imageinfo("loaded") and ( acc_pfp_button_clicked or clicked ) (
-        network "update" "pfp" current_pfp
-        current_pfp = null.str
+      network "update" "pfp" current_pfp
+      current_pfp = null.str
     )
     if current_pfp == clipboard.str (
       loc 2 2 20 -250
