@@ -1,0 +1,17 @@
+network "set_app_id" "resize_battle"
+linked_to = "Who to play with?".ask
+last = timer
+mainloop:
+window "dimensions" 400 window_height
+if new_network_data (
+enemy_height = network_data
+new_network_data = false
+)
+loc 2 2 20 -20
+text "<linked_to>: <enemy_height>" 10 : c#fff
+change_x 30
+text "<username>: <window_width>" 10
+if timer - last > 0.05 (
+last = timer
+network "send" window_height linked_to
+)
