@@ -1,16 +1,19 @@
-window "dimensions" screensize_x * 3 screensize_y
-desktop_x = 0
+network "set_app_id" "mouse_syncer"
+window "dimensions" screensize_x screensize_y
 linked_to = "throwaway"
+window "show"
+last = timer
 mainloop:
 if new_network_data (
   if network_data_from == linked_to (
-    mousex = network_data.[1]
-    mouse_y = network_data.[2]
+    mouse = network_data
   )
   new_network_data = false
 )
-goto mousex mousey
-change_x desktop_x
-square 0 0 10 : c#fff
+goto mouse
+image "https://static-00.iconduck.com/assets.00/mouse-cursor-icon-2048x2048-4tptourf.png" 40
+if timer - last > 0.05 (
+last = timer
+network "send" [] + mouse_x + mouse_y linked_to
+)
 
-network "send" [] + ( mouse_x - screensize_x ) + mouse_y linked_to
