@@ -1,0 +1,16 @@
+window "dimensions" screensize_x * 3 screensize_y
+desktop_x = 0
+linked_to = "throwaway"
+mainloop:
+if new_network_data (
+  if network_data_from == linked_to (
+    mousex = network_data.[1]
+    mouse_y = network_data.[2]
+  )
+  new_network_data = false
+)
+goto mousex mousey
+change_x desktop_x
+square 0 0 10 : c#fff
+
+network "send" [] + ( mouse_x - screensize_x ) + mouse_y linked_to
