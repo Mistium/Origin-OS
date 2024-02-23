@@ -13,11 +13,11 @@
   class InputManager {
     constructor() {
       const textEditingKeys = ['Backspace', 'Delete', 'Enter', 'Tab', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-      this.keyHistory = [];
       this.inputs = {};
       this.currentInput = "";
       this.currentInputChar = 0;
       this.currentInputLine = 1;
+      this.multiline = true;
     }
 
     getInfo() {
@@ -42,9 +42,52 @@
             }
           },
           {
+            opcode: 'CurrentInputID',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'Current Input ID'
+          },
+         {
+            opcode: 'TotalLines',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'Total Lines in Input [ID]',
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "input1"
+              }
+            }
+          },
+          {
+            opcode: 'GetLinesOf',
+            blockType: Scratch.BlockType.REPORTER,
+            text: 'Get Lines Of [ID] As Json',
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "input1"
+              }
+            }
+          },
+          {
             opcode: 'deselectInput',
             blockType: Scratch.BlockType.COMMAND,
             text: 'Deselect inputs',
+          },
+          {
+            opcode: 'deleteAllInputs',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Delete All Inputs',
+          },
+          {
+            opcode: 'deleteInput',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Delete Input [ID]',
+            arguments: {
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "input1",
+              },
+            },
           },
           {
             opcode: 'switchToInput',
@@ -63,14 +106,35 @@
             text: 'Get current cursor position',
           },
           {
-            opcode: 'setCursorLocation',
+            opcode: 'setInput',
             blockType: Scratch.BlockType.COMMAND,
-            text: 'Switch Cursor To Line [Line] And Character [Char]',
+            text: 'Set Input [ID] To [VAL]',
             arguments: {
-              Line: {
-                type: Scratch.ArgumentType.NUMBER,
-                defaultValue: "1",
+              ID: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: "input1",
               },
+              VAL: {
+                type: Scratch.ArgumentType.NUMBER,
+                defaultValue: "",
+              },
+            },
+          },
+         {
+            opcode: 'enableMultiline',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Enable Multiline In Current Input'
+          },
+          {
+            opcode: 'disableMultiline',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Disable Multiline In Current Input'
+          },
+          {
+            opcode: 'setCursorPosition',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Set Cursor Position To [Char]',
+            arguments: {
               Char: {
                 type: Scratch.ArgumentType.NUMBER,
                 defaultValue: "0",
@@ -81,17 +145,57 @@
       };
     }
 
+    deleteAllInputs() {
+      this.inputs = {};
+      this.currentInput = "";
+      this.currentInputChar = 0;
+      this.currentInputLine = 1;
+    }
+
+    enableMultiline() {
+      this.multiline = true;
+    }
+    
+    disableMultiline() {
+      this.multiline = false;
+    }
+    
+    setInput({ID,VAL}) {
+      this.inputs[ID] = VAL;
+    }
+
+    GetLinesOf({ID}) {
+      if (this.inputs[ID]) {
+        const inputLines = this.inputs[ID].split('\n');
+        return JSON.stringify(inputLines);
+      } else {
+        return 0;
+      }
+    }
+    
+    TotalLines({ID}) {
+      if (this.inputs[ID]) {
+        const inputLines = this.inputs[ID].split('\n');
+        return inputLines.length;
+      } else {
+        return 0;
+      }
+    }
+    
     deselectInput() {
       this.currentInput = "";
       this.currentInputChar = 0;
       this.currentInputLine = 1;
     }
     
-    setCursorLocation({ Line,Char }) {
+    setCursorPosition({ Char }) {
       this.currentInputChar = Char;
-      this.currentInputLine = Line;
     }
-    
+
+    CurrentInputID() {
+      return this.currentInput;
+    }
+
     allInputs() {
       return JSON.stringify(this.inputs);
     }
@@ -104,6 +208,15 @@
       this.currentInputChar = 0;
       this.currentInputLine = 1;
     }
+    
+    deleteInput(ID) {
+      if (this.inputs[ID]) {
+        this.inputs[ID] = '';
+        this.currentInput = "";
+        this.currentInputChar = 0;
+        this.currentInputLine = 1;
+      }
+    }
 
     getInputData({ ID }) {
       if (this.inputs[ID]) {
@@ -114,8 +227,10 @@
     }
     
     onKeyDown(event) {
-      const textEditingKeys = ['Backspace', 'Delete', 'Enter', 'Tab', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
-  
+      if (this.currentInput == "") {
+        return;
+      }
+      const textEditingKeys = ['Backspace', 'Delete', 'Enter', 'Tab', 'Escape', 'ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown']
       // Check if Command (Cmd) or Control (Ctrl) keys are pressed
       if (event.metaKey || event.ctrlKey) {
         return; // Skip adding keys when Cmd or Ctrl are pressed
@@ -146,12 +261,12 @@
             }
             break;
           case 'Enter':
+            if 
             if (this.currentInput) {
               this.inputs[this.currentInput] = this.inputs[this.currentInput].slice(0, this.currentInputChar) + '\n' + this.inputs[this.currentInput].slice(this.currentInputChar);
-    
               // Move cursor to the beginning of the next line
-              this.currentInputChar = 0;
               this.currentInputLine++;
+              this.currentInputChar+=2;
             }
             break;
           case 'Tab':
@@ -210,11 +325,7 @@
     }
     
     getCurrentCursorPosition() {
-      const data = {
-        line: this.currentInputLine,
-        character: this.currentInputChar
-      };
-      return JSON.stringify(data);
+      return this.currentInputChar;
     }
     
     onPaste(event) {
@@ -231,18 +342,7 @@
     isKeybind(key) {
       return keybinds.includes(key);
     }
-
-    addKeyToHistory(key) {
-      // Check if the maximum history size is reached
-      if (this.keyHistory.length >= MAX_KEY_HISTORY) {
-        this.keyHistory.pop(); // Remove the last element
-      }
-      
-      // Add the key to the end of the array
-      this.keyHistory.push(key);
-    }
   }
-
   // Create an instance of the InputManager class
   const extension = new InputManager();
 
