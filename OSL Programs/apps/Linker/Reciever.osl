@@ -1,3 +1,4 @@
+permission "request" "terminal"
 network "set_app_id" "linker_handler"
 linked_to = "throwaway"
 window "responsive" true
@@ -7,4 +8,16 @@ if new_network_data (
     window "add" network_data."name"
   )
   new_network_data = false
+)
+
+terminal "-get.windows"
+windows = windows-names
+terminal "get windowpositions"
+if data.contains("-1,0") (
+  id = data.index("-1,0")
+  send_data = {}
+  send_data.key("name") = windows.[id]
+  send_data.key("side") = data.[id]
+  network "send" send_data linked_to
+  terminal "system windows close" + windows.[id]
 )
