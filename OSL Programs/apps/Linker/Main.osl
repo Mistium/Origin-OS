@@ -1,6 +1,6 @@
 permission "request" "terminal"
 network "set_app_id" "linker_handler"
-window "show"
+window "responsive" true
 linked_to = "Mist"
 mainloop:
 terminal "-get.windows"
@@ -12,4 +12,5 @@ if data.contains("-1,0") (
   send_data.key("name") = windows.[id]
   send_data.key("side") = data.[id]
   network "send" send_data linked_to
+  terminal "system windows close" + windows.[id]
 )
