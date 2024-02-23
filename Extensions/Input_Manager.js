@@ -261,7 +261,6 @@
             }
             break;
           case 'Enter':
-            if 
             if (this.currentInput) {
               this.inputs[this.currentInput] = this.inputs[this.currentInput].slice(0, this.currentInputChar) + '\n' + this.inputs[this.currentInput].slice(this.currentInputChar);
               // Move cursor to the beginning of the next line
