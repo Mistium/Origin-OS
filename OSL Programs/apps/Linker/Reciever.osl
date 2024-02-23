@@ -1,0 +1,11 @@
+network "set_app_id" "linker_handler"
+window "show"
+linked_to = "Mist2"
+mainloop:
+if new_network_data (
+  if network_data_from == linked_to (
+    say network_data
+  )
+  new_network_data = false
+)
+import "win-buttons"
