@@ -1,0 +1,31 @@
+def "tab" "name"
+w = name.len * 10
+x = x_position
+change_x w / 2
+if current_tab == name "c #444" else "c #333"
+square w + 5 25 5
+if clicked (
+  current_tab = name
+)
+set_x x
+text name 10 : c#fff
+change_x w - 25
+endef
+current_tab = "join"
+mainloop:
+loc 999 2 0 -20
+square window."width" 20 20 : c#222
+loc 2 2 10 -20
+text "Text Tools" 10 : c#fff
+loc 2 2 10 -60
+tab "Join"
+tab "Split"
+
+if current_tab == "join" (
+  c #333
+  loc 2 2 100 -200
+  textbox 200 200 "join" "" #fff
+  loc 2 2 230 -100
+  text input_join 10 : c#fff
+)
+import "win-buttons"
