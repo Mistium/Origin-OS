@@ -1,0 +1,20 @@
+window "dimensions" 600 400
+window "resizable" false
+
+mainloop:
+c #fff
+loc 2 2 20 -20
+text "View Your Clipboard Unicode Details!" 10
+
+count = 0
+loop clipboard.len (
+  count ++
+  y = count + 2 * -20
+  loc 2 2 20 y
+  cur = clipboard.[count]
+  text "U+" ++ cur.to("unicode") 10
+  loc 2 2 100 y
+  text cur 10 : c#fff
+)
+
+import "win-buttons"
