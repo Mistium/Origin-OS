@@ -1,10 +1,11 @@
 window "show"
-import "win-buttons"
-// TODO: Move import to mainloop (?)
+
+seticon "c #6488ea w 17 dot 0 -5  w 11 dot 0 6 w 3 line -6.7 -3 -4.3 6 line 6.7 -3 4.3 6 w 5 line 8 3 1 -5 w 2 c #fff cutcircle 0 -5 6 90 90 line -6 -5 -3 6 cutcircle 0 6 3 0 90 line 8 3 1 -5 line 1 -5 -1 -3 line 3.5 4 3 6"
+
 window "dimensions" 300 600
 window "resizable" false
 
-def "button" "w,h,r,col,hcol,mcol,ttwr,tsize,tcol,thcol,tmcol"
+def "ah_button" "w,h,r,col,hcol,mcol,ttwr,tsize,tcol,thcol,tmcol"
 square w h r 0 1
 if mouse_touching "col = hcol"
 if mouse_touching "tcol = thcol"
@@ -14,7 +15,7 @@ square w h r : c#col
 change_x info.len * ( tsize / -4.4 )
 text ttwr tsize : c#tcol
 endef
-//makes button module + text
+// makes button module + text
 
 rating = ""
 drank = 0
@@ -37,17 +38,14 @@ rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 3 dot -3 3 cutcircle 0 0 5 90 90"
 if drank < low (
   rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 3 dot -3 3 cutcircle 0 -5.5 5 0 80"
   // frown
-) else (
-  if drank < mid (
-    rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 2 dot -3 2 line -4 -2 4 -2"
-    // meh
-  ) else (
-    if drank == goal (
-     rating = "list"
-     // amazed
-  )
- )
+) else if drank < mid (
+  rating = "w 1.5 cutcircle 0 0 10 0 180 dot 3 2 dot -3 2 line -4 -2 4 -2"
+  // meh
+) else if drank == goal (
+  rating = "list"
+  // amazed
 )
+
 
 percent = drank * ( 100 / goal )
 display = percent.round
@@ -76,12 +74,17 @@ icon "w 1.5 c #6488ea cutcircle 0 0 10" + dir + fill 10
 info = drank.round ++ "oz of" + goal.round ++ "oz"
 goto info.len * -6.5
 text info 12
-//gives user info about drinking idk man
+// gives user info about drinking idk man
 
 goto 0 -100
-button 120 50 3 #fff #ff0000 #fdb0c0 "add 5 oz" 10 #00000 #fff #00000
+ah_button 120 50 3 #fff #ff0000 #fdb0c0 "add 5 oz" 10 #00000 #fff #00000
+if clicked (
+drank += 5
+)
 
 goto -100 -140
 c #fff
 text "<low.round>, <mid.round>, <goal.round>" 10
-//DEBUG ^
+// DEBUG ^
+
+import "win-buttons"
