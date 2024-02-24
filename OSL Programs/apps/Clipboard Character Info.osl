@@ -16,9 +16,9 @@ loop window_height // 20 - 2 (
   y = start * -20
   loc 2 2 20 y
   cur = clipboard.[count]
-  text "U+" ++ cur.to("unicode") 10
+  text "U+" ++ cur.to("unicode") 10 : c#fff
   loc 2 2 100 y
-  text cur 10 : c#fff
+  text cur 10
 )
-
+frame "clear"
 import "win-buttons"
