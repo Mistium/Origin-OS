@@ -6,10 +6,14 @@ c #fff
 loc 2 2 20 -20
 text "View Your Clipboard Unicode Details!" 10
 
-count = 0
-loop clipboard.len (
+c #333
+frame window."left" window."top" - 40 window."right" window."bottom" clipboard.len * 20
+count = scroll_y // 20
+start = 0
+loop window_height // 20 - 2 (
   count ++
-  y = count + 2 * -20
+  start ++
+  y = start * -20
   loc 2 2 20 y
   cur = clipboard.[count]
   text "U+" ++ cur.to("unicode") 10
