@@ -16,7 +16,7 @@ The Most Advanced Gui Based ScratchOS<br>
 Current Kernel Info:
 ```
 Name     -   Flow
-Version  -   0.7.8
+Version  -   0.8.1
 ```
 
 # [Try origin here](https://raw.githack.com/Mistium/Origin-OS/main/originLAUNCHER.html)
