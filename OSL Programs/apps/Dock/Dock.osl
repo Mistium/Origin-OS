@@ -41,7 +41,9 @@ if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
 window "y" screensize_y / -2 + 35
 terminal "get windowpositions"
+log "sys" data
 data = data + dock_width.round
+log "sys" data
 if data != datasave (
   datasave = data
   data = "" + data.join(" ") + ""
