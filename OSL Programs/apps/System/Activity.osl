@@ -111,7 +111,7 @@ text delta 10
 loc 2 2 16 -85
 text "ms" 7
 if memory (
-  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory. jsHeapSizeLimit*100)+'%'".eval
+  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
   loc 2 2 23 - ( ram_use.len * 5 ) -110
   text ram_use 10
   loc 2 2 13.5 -125
@@ -152,6 +152,7 @@ if current_tab == "Network" (
   y = y_position
   loc -2 -2 0 0
   terminal "get packetlist"
+  data.trim(0,400)
   c #333
   frame x y x_position y_position data.len * 40 - 20
   count = scroll_y.divide(40).round
@@ -162,18 +163,18 @@ if current_tab == "Network" (
     square frame_width - 20 25 10 1 : c#111 hover_c#222
     cur = data.[count]
     loc 2 2 30 y
-    recipient = cur."recipient".str
     payload = cur."payload".str
     text payload.str.trim(1,28).str 7 : c#fff
     if payload.len > 28 (
       text "..." 7
     )
+    recipient = cur."recipient".str
     if recipient == "" (
-      recipient = "Fr <-" + cur."source".str
+      recipient = "From -" + cur."source".str
     ) else (
-      recipient = "To ->" + recipient
+      recipient = "Send -" + recipient
     )
-    recipient = cur."timestamp".timestamp("convert-relative") + "   " + recipient
+    recipient = cur."timestamp".destr.timestamp("convert-relative") + "   " + recipient
     loc -2 2 recipient.len * -7 - 15 y
     text recipient.str 7
     y -= 40
