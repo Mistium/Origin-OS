@@ -1,0 +1,14 @@
+totv 6
+setv 1 1000
+setv 2 0
+setv 3 1
+setv 4 0
+setv 5 1
+setv 6 1
+chav 2 3
+svto 6 5
+chav 6 4
+svto 4 5
+svto 5 6
+lthn 2 1 7
+prnt 6
