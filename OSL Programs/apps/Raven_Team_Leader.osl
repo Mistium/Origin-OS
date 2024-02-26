@@ -4,11 +4,8 @@ images = ["https://pbs.twimg.com/media/F-MRnU8WYAAzZ7-.jpg","https://pbs.twimg.c
 
 rand = 1
 mainloop:
-if "space".pressed and can (
-  can = false
-rand = [1,9].random
-) else (
-  if "space".pressed.not "can = true"
+if "space".onpress (
+  rand = [1,9].random
 )
 image images.[rand] null window_height
 import "win-buttons"
