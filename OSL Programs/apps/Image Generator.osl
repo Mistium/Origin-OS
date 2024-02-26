@@ -1,0 +1,17 @@
+my_image = ""
+// setup the variables
+
+mainloop:
+// makes sure to run this every frame
+if my_image == "" (
+  gpt "generate_img" "Generate an image".ask
+  // Send to bot
+
+  my_image = data.str
+  // save the image url to a varible
+)
+image my_image 400
+// draw the image
+
+import "win-buttons"
+// imports the window buttons
