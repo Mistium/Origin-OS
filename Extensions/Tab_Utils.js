@@ -22,12 +22,12 @@
                     {
                         opcode: 'disableTabKey',
                         blockType: Scratch.BlockType.COMMAND,
-                        text: 'Disable Tab Key',
+                        text: 'Use Default Tab Method',
                     },
                     {
                         opcode: 'enableTabKey',
                         blockType: Scratch.BlockType.COMMAND,
-                        text: 'Enable Tab Key',
+                        text: 'Make Tab Into A Normal Key',
                     },
                     {
                         opcode: 'tabKeyPressed',
