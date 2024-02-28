@@ -1,0 +1,13 @@
+def "factorial" "n"
+  result = 1
+  count = 0
+  loop n (
+    count ++
+    result *= count
+  )
+  return = result
+endef
+
+number = 6
+factorial number
+say "Factorial of" + number + "is" + return
