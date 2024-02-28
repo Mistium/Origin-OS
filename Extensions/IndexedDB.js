@@ -120,18 +120,19 @@
             });
         }
 
-        async getAllKeys() {
-            return new Promise((resolve, reject) => {
-                const transaction = this.db.transaction(["data"], "readonly");
-                const objectStore = transaction.objectStore("data");
-                const request = objectStore.getAllKeys();
-                request.onsuccess = function (event) {
-                    resolve(event.target.result);
-                };
-                request.onerror = function (event) {
-                    reject("Error getting keys from database");
-                };
-            });
+        getAllKeys() {
+            const keys = [];
+            const transaction = this.db.transaction(["data"], "readonly");
+            const objectStore = transaction.objectStore("data");
+            const request = objectStore.openCursor();
+            request.onsuccess = function (event) {
+                const cursor = event.target.result;
+                if (cursor) {
+                    keys.push(cursor.value.key);
+                    cursor.continue();
+                }
+            };
+            return keys;
         }
 
         async keyExists({ KEY }) {
