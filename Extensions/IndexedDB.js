@@ -71,6 +71,17 @@
                                 defaultValue: "data"
                             }
                         }
+                    },
+                    {
+                        opcode: 'deleteFromDatabase',
+                        blockType: Scratch.BlockType.COMMAND,
+                        text: 'Delete value with key [KEY] from database',
+                        arguments: {
+                            KEY: {
+                                type: Scratch.ArgumentType.STRING,
+                                defaultValue: "data"
+                            }
+                        }
                     }
                 ]
             };
@@ -120,24 +131,29 @@
             });
         }
 
-        getAllKeys() {
-            const keys = [];
-            const transaction = this.db.transaction(["data"], "readonly");
-            const objectStore = transaction.objectStore("data");
-            const request = objectStore.openCursor();
-            request.onsuccess = function (event) {
-                const cursor = event.target.result;
-                if (cursor) {
-                    keys.push(cursor.value.key);
-                    cursor.continue();
-                }
-            };
-            return keys;
+        async getAllKeys() {
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(["data"], "readonly");
+                const objectStore = transaction.objectStore("data");
+                const request = objectStore.getAllKeys();
+                request.onsuccess = function (event) {
+                    resolve(event.target.result);
+                };
+                request.onerror = function (event) {
+                    reject("Error getting keys from database");
+                };
+            });
         }
 
         async keyExists({ KEY }) {
             const keys = await this.getAllKeys();
             return keys.includes(KEY);
+        }
+
+        deleteFromDatabase({ KEY }) {
+            const transaction = this.db.transaction(["data"], "readwrite");
+            const objectStore = transaction.objectStore("data");
+            objectStore.delete(KEY);
         }
     }
 
