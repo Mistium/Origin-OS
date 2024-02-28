@@ -60,6 +60,17 @@
                         opcode: 'getAllKeys',
                         blockType: Scratch.BlockType.REPORTER,
                         text: 'Get all keys from database',
+                    },
+                    {
+                        opcode: 'keyExists',
+                        blockType: Scratch.BlockType.BOOLEAN,
+                        text: 'Key [KEY] exists in database?',
+                        arguments: {
+                            KEY: {
+                                type: Scratch.ArgumentType.STRING,
+                                defaultValue: "data"
+                            }
+                        }
                     }
                 ]
             };
@@ -121,6 +132,11 @@
                     reject("Error getting keys from database");
                 };
             });
+        }
+
+        async keyExists({ KEY }) {
+            const keys = await this.getAllKeys();
+            return keys.includes(KEY);
         }
     }
 
