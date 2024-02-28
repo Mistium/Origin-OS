@@ -1,0 +1,44 @@
+console = []
+window "show"
+window "dimensions" 800 550
+
+def "console" "command,data1,data2"
+  if command == "log" (
+    console.append(data1)
+  )
+  if command == "replace_line" (
+    console.[data1] = data2
+  )
+  if command == "remove_line" (
+    console.delete(data1)
+  )
+  if command == "clear" (
+    console = []
+  )
+  if command == "run_ui" (
+    frame window."left" window."top" - 30 window."right" window."bottom" console.len * 20
+    c #fff
+    count = scroll_y / 20
+    count.round
+    count2 = 0
+    loop frame_height.divide(20).round (
+      count ++
+      count2 ++
+      loc 2 2 20 count2 * -20 + scroll_y
+      text console.[count] 10
+    )
+    frame "clear"
+
+    loc 999 2 0 -15
+    square window_width 20 10 : c#333
+
+    loc 2 2 10 -15
+    text title 10 : c#fff
+
+    loc -2 2 -15 -15
+    icon "close" 0.7
+    if clicked (
+      window "stop"
+    )
+  )
+endef
