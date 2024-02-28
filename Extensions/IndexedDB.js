@@ -55,6 +55,11 @@
                                 defaultValue: "data"
                             }
                         }
+                    },
+                    {
+                        opcode: 'getAllKeys',
+                        blockType: Scratch.BlockType.REPORTER,
+                        text: 'Get all keys from database',
                     }
                 ]
             };
@@ -100,6 +105,20 @@
                 };
                 request.onerror = function (event) {
                     reject("Error reading from database");
+                };
+            });
+        }
+
+        async getAllKeys() {
+            return new Promise((resolve, reject) => {
+                const transaction = this.db.transaction(["data"], "readonly");
+                const objectStore = transaction.objectStore("data");
+                const request = objectStore.getAllKeys();
+                request.onsuccess = function (event) {
+                    resolve(event.target.result);
+                };
+                request.onerror = function (event) {
+                    reject("Error getting keys from database");
                 };
             });
         }
