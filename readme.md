@@ -28,6 +28,8 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 [Find documentation for osl here](https://github.com/Mistium/Origin-OS/wiki/Origin-Scripting-Language)
 ## Quotes
 
+### quotes are purely satire and may not align with my beliefs
+
 @ionslayer - "origin os is to clean to the point it makes me not like it, likes its not an os experience if your not complaining about them randomly simplifying the right click menu or some apps looking different than they should randomly"
 
 @vernacular7 - "One day, inside di galaxy far away, dey spot an extraterrestrial party animal named Alan. Dis alien, him dey green and full of groove, decide say e go learn di dance moves from Earth. Alan land for di dance floor wit him funky tentacles and start to bust some out-of-dis-world moves. People dey look amazed as him just dey levitate and boogie down, showing say even aliens fit to dance better pass some humans. Di whole crew join di intergalactic dance-off, and soon, Earth and space dey mix for one cosmic party wey nobody go fit forget."
