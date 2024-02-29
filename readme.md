@@ -32,6 +32,8 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 @vernacular7 - "One day, inside di galaxy far away, dey spot an extraterrestrial party animal named Alan. Dis alien, him dey green and full of groove, decide say e go learn di dance moves from Earth. Alan land for di dance floor wit him funky tentacles and start to bust some out-of-dis-world moves. People dey look amazed as him just dey levitate and boogie down, showing say even aliens fit to dance better pass some humans. Di whole crew join di intergalactic dance-off, and soon, Earth and space dey mix for one cosmic party wey nobody go fit forget."
 
+@clinically_insane._. - "hit your kids with bricks if they misbehave"
+
 ## Repo Tracker
 
 [originOS stats](https://repo-tracker.com/r/gh/Mistium/Origin-OS)
