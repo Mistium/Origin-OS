@@ -36,7 +36,7 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 @clinically_insane._. - "I miss my family because mist used my ip to get my general location then raided every house and murdered them and killed my family, overall origin is great though"
 
-@Mist - "I made originOS and did not kill anyone's families"
+@mistium - "I made originOS and did not kill anyone's families"
 
 ## Repo Tracker
 
