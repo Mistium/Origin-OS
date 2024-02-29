@@ -1,4 +1,4 @@
-class SynthesisExtension {
+class SoundUtils {
     constructor(runtime) {
         this.runtime = runtime;
         this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -7,8 +7,8 @@ class SynthesisExtension {
 
     getInfo() {
         return {
-            id: 'synthesis',
-            name: 'Synthesis Extension',
+            id: "SoundUtils",
+            name: 'SoundUtils',
             blocks: [
                 {
                     opcode: 'createChannel',
@@ -120,4 +120,4 @@ class SynthesisExtension {
     }
 }
 
-Scratch.extensions.register(new SynthesisExtension());
+Scratch.extensions.register(new SoundUtils());
