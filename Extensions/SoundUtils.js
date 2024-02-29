@@ -1,7 +1,8 @@
-class SoundUtils {
+class SynthesisExtension {
     constructor(runtime) {
         this.runtime = runtime;
-        this.channels = {};
+        this.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        this.channels = [];
     }
 
     getInfo() {
@@ -10,65 +11,113 @@ class SoundUtils {
             name: 'Synthesis Extension',
             blocks: [
                 {
-                    opcode: 'playSound',
+                    opcode: 'createChannel',
                     blockType: Scratch.BlockType.COMMAND,
-                    text: 'Play [SOUND_TYPE] on channel [CHANNEL]',
+                    text: 'Create channel [CHANNEL]',
                     arguments: {
-                        SOUND_TYPE: {
+                        CHANNEL: {
                             type: Scratch.ArgumentType.STRING,
-                            menu: 'soundTypes',
-                            defaultValue: 'Square'
+                            defaultValue: 'Channel 1'
+                        }
+                    }
+                },
+                {
+                    opcode: 'playTone',
+                    blockType: Scratch.BlockType.COMMAND,
+                    text: 'Play [FREQUENCY]Hz tone on [CHANNEL]',
+                    arguments: {
+                        FREQUENCY: {
+                            type: Scratch.ArgumentType.NUMBER,
+                            defaultValue: 440
                         },
                         CHANNEL: {
-                            type: Scratch.ArgumentType.NUMBER,
-                            defaultValue: 1
+                            type: Scratch.ArgumentType.STRING,
+                            defaultValue: 'Channel 1'
                         }
                     }
                 },
                 {
-                    opcode: 'isSoundPlaying',
-                    blockType: Scratch.BlockType.BOOLEAN,
-                    text: 'Sound playing on channel [CHANNEL]?',
-                    arguments: {
-                        CHANNEL: {
-                            type: Scratch.ArgumentType.NUMBER,
-                            defaultValue: 1
-                        }
-                    }
-                },
-                {
-                    opcode: 'stopSound',
+                    opcode: 'stopAllSounds',
                     blockType: Scratch.BlockType.COMMAND,
-                    text: 'Stop sound on channel [CHANNEL]',
+                    text: 'Stop all sounds on [CHANNEL]',
                     arguments: {
                         CHANNEL: {
-                            type: Scratch.ArgumentType.NUMBER,
-                            defaultValue: 1
+                            type: Scratch.ArgumentType.STRING,
+                            defaultValue: 'Channel 1'
+                        }
+                    }
+                },
+                {
+                    opcode: 'isPlaying',
+                    blockType: Scratch.BlockType.BOOLEAN,
+                    text: 'Sound playing on [CHANNEL]?',
+                    arguments: {
+                        CHANNEL: {
+                            type: Scratch.ArgumentType.STRING,
+                            defaultValue: 'Channel 1'
                         }
                     }
                 }
-            ],
-            menus: {
-                soundTypes: ['Square', 'Sawtooth', 'Sine', 'Triangle', 'White Noise', 'Pink Noise']
-            }
+            ]
         };
     }
 
-    playSound(args) {
-        const { SOUND_TYPE, CHANNEL } = args;
-        // Code to play the specified sound type on the specified channel
-        this.channels[CHANNEL] = { soundType: SOUND_TYPE }; // Store the sound type being played on the channel
+    createChannel(args) {
+        const channel = {
+            name: args.CHANNEL,
+            oscillator: null,
+            playing: false
+        };
+        this.channels.push(channel);
     }
 
-    isSoundPlaying(args) {
-        const { CHANNEL } = args;
-        return !!this.channels[CHANNEL]; // Check if there is a sound being played on the channel
+    playTone(args) {
+        const channelName = args.CHANNEL;
+        const frequency = args.FREQUENCY;
+        const channel = this.channels.find(ch => ch.name === channelName);
+        if (!channel) {
+            console.error(`Channel '${channelName}' not found.`);
+            return;
+        }
+
+        if (!channel.oscillator) {
+            channel.oscillator = this.audioContext.createOscillator();
+            channel.oscillator.type = 'sine'; // Change waveform type here
+            channel.oscillator.connect(this.audioContext.destination);
+        }
+
+        channel.oscillator.frequency.value = frequency;
+        if (!channel.playing) {
+            channel.oscillator.start();
+            channel.playing = true;
+        }
     }
 
-    stopSound(args) {
-        const { CHANNEL } = args;
-        delete this.channels[CHANNEL]; // Stop the sound on the specified channel
+    stopAllSounds(args) {
+        const channelName = args.CHANNEL;
+        const channel = this.channels.find(ch => ch.name === channelName);
+        if (!channel) {
+            console.error(`Channel '${channelName}' not found.`);
+            return;
+        }
+
+        if (channel.oscillator && channel.playing) {
+            channel.oscillator.stop();
+            channel.oscillator = null;
+            channel.playing = false;
+        }
+    }
+
+    isPlaying(args) {
+        const channelName = args.CHANNEL;
+        const channel = this.channels.find(ch => ch.name === channelName);
+        if (!channel) {
+            console.error(`Channel '${channelName}' not found.`);
+            return false;
+        }
+
+        return channel.playing;
     }
 }
 
-Scratch.extensions.register(new SoundUtils());
+Scratch.extensions.register(new SynthesisExtension());
