@@ -49,6 +49,7 @@ loop desktop.len (
   if mouse_touching (
     name = file.[2]
     square name.len * 8 10 10 : c#000 chy#-30
+    rightclick "file" desktop.[applications_count]
     change_x name.len * -4
     text name 8 : c#fff
   )
