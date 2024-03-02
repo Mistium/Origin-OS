@@ -1,0 +1,30 @@
+window "dimensions" 270 140
+window "resizable" False
+window "show"
+file "open" "id" passed_data
+input_main = file.[2] ++ file.[1]
+input_main.destr
+mainloop:
+loc 999 2 0 -63
+square 250 30 10 : c#222
+input 250 23 "main"
+loc 999 2 0 -113
+square 250 30 10 : c#222
+if clicked (
+  dta = input_main.split(".")
+  file "set" "name" dta.[1].destr
+  file "set" "type" "." ++ dta.[2].destr
+)
+change_x -30
+text "Rename" 8 : c#fff
+if mouse_down.not "canclick = True"
+loc 999 2 0 -15
+square 270 20 15 : c#333
+loc -2 2 -15 -15
+icon "close" 0.6 : c#fff
+if clicked (
+window "stop"
+)
+loc 2 2 15 -15
+file "render" 1
+text "Rename File" 9 : chx#20 c#fff
