@@ -1,0 +1,32 @@
+// Developer: @Mistium
+// Description: This app lets you add new files to your downloads folder quickly
+window "show"
+window "resizable" false
+window "dimensions" 270 140
+location = passed_data
+location_spl = location.split("/")
+mainloop:
+loc 999 2 0 -15
+square 270 20 15 : c#333
+loc -2 2 -15 -15
+icon "close" 0.6 : c#fff hover_size#1.1 hover_cursor#pointer
+if clicked (
+window "stop"
+)
+loc 2 2 10 -15
+len = location_spl.len
+text "New in /" ++ location_spl.[len] 9 : c#fff
+
+loc 999 2 0 -63
+square 250 30 10 : c#222
+input 250 23 "name" "Example: 'file.txt'"
+temp = input_name.matchregex("/[^.]+\.[^.]+/gm")
+if temp "c #333" else "c #222"
+loc 999 2 0 -113
+square 250 30 10
+if clicked and temp (
+file "download" input_name.str "" "" location
+window "stop"
+)
+if temp "c #fff" else "c #444"
+text "Create File" 10 : chx#-55
