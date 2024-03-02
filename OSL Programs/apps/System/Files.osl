@@ -1,3 +1,4 @@
+import "win-buttons"
 window "dimensions" 1000 700
 window "show"
 files_path = "Origin/(C) Users/" ++ username
@@ -57,21 +58,20 @@ endef
 
 icons = {}
 file "open" user_path ++ "Desktop.folder"
-icons.key("Desktop") = file.[11]
-log icons
+icons."Desktop" = file.[11]
 file "open" user_path ++ "Downloads.folder"
-icons.key("Downloads") = file.[11]
+icons."Downloads" = file.[11]
 file "open" user_path ++ "Documents.folder"
-icons.key("Documents") = file.[11]
+icons."Documents" = file.[11]
 file "open" user_path ++ "Bin.folder"
-icons.key("Bin") = file.[11]
+icons."Bin" = file.[11]
 file "open" "Origin/(A) System.folder"
-icons.key("System") = file.[11]
+icons."System" = file.[11]
 file "open" "Origin/(B) Local.folder"
-icons.key("Local") = file.[11]
+icons."Local" = file.[11]
 file "open" "Origin/(C) Users.folder"
-icons.key("Users") = file.[11]
-icons.key(username) = "image" + user_icon.str + "20"
+icons."Users" = file.[11]
+icons.[username] = "image" + user_icon.str + "20"
 
 mainloop:
   window_colour = #000
@@ -84,43 +84,26 @@ mainloop:
   sideshow = w > 700
   loc 999 -2 0 12
   square w 30 10 1 : c#c_prim
-  loc -2 2 -30 -70
-  square 25 25 10 1
   loc 999 2 120 -70
   if sideshow (
     loc 2 999 125 0
     square 250 window_height 10
     loc 999 2 105 -70
     w -= 330
-  )
-  if sideshow.not (
+  ) else (
     loc 999 2 20 -70
     w -= 160
   )
   square w 25 10
   input w - 10 25 "path" null 10 c_icon
   w = window_width
-  colour c_prim
   if sideshow.not (
     loc 2 2 50 -70
-    square 65 25 10 1
-  )
-  loc 2 2 105 -25
-  if sideshow.not "loc 2 2 25 -20"
-  icon "settings" 0.8 : c#c_icon
-  if clicked and can (
-    can = false
-    window "add" "File-Info"
-  )
-  change_x 40
-  icon "sort" 0.8
-  if clicked and can (
-    can = false
-    config ascending config.key("ascending").destr.not
+    square 65 25 10 1 : c#c_prim
   )
   loc -2 2 -30 -70
-  colour c_icon
-  icon "search" 0.8
+  square 25 25 10 : c#c_prim
+  icon "search" 0.8 : c#c_icon
   if sideshow (
     y = -60
     folder "Favorites"
@@ -133,5 +116,67 @@ mainloop:
     file_folder "Origin/(B) Local" "Local" "Drives"
     file_folder "Origin/(C) Users/" ++ username username "Drives"
   )
+  loc 2 2 30 -120
+  if sideshow "change 240"
+  text "New |" 11 : c#fff
+  if clicked and can (
+    can = false
+    window "add" "New_File" current_file_path
+  )
+  change -15 2
+  if selected_files.len > 1 (
+    files_buttons = []
+  ) else (
+    file_open = selected_files.[1]
+    file "open" file_open
+    if "System" in file.[13] (
+      files_buttons = ["Open","Copy","Info"]
+    ) else (
+      files_buttons = ["Open","Edit","Copy","Rename","Bin","Info"]
+    )
+    c #fff
+    cur = ""
+    count = 0
+    loop files_buttons.len (
+      count ++
+      icon files_buttons.[count] 0.8 : chx#30
+      if clicked and can (
+        can = false
+        cur = files_buttons.[count]
+        if cur == "open" (
+          file "start"
+        ) else if cur == "edit" (
+          window "add" "studio" file_open
+        ) else if cur == "copy" (
+          clipboard "set" file
+        ) else if cur == "rename" (
+          window "add" "Rename-Helper" file_open
+        ) else if cur == "info" (
+          window "add" "Files_Info" file_open
+        )
+        cur = ""
+        clicked = false
+      )
+    )
+  )
+  if w > 1000 and ( selected_files.len > 0 ) (
+    loc -2 999 -147 -54
+    square 270 window_height - 192 10 1 : c#222
+    if selected_files.len < 2 (
+      loc -2 2 -150 -250
+      file "open" file_open
+      file "render" 5 : c#fff
+      loc -2 2 -280 -330 : c#fff
+      x = x_position
+      text file.[2] ++ file.[1] 10
+      set_x x
+      text "File Info" 8.5 : chy#-35
+      set_x x
+      text "Created:" + file.[9].timestamp("convert-relative") 8.5 : chy#-25
+      set_x x
+      text "Last Edited:" + file.[10].timestamp("convert-relative") 8.5 : chy#-25
+      set_x x
+      text "Size:" + file.[12] + "Bytes" 8.5 : chy#-25
+    )
+  )
   if mouse_down.not "can = True"
-  import "win-buttons"
