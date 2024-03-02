@@ -1,0 +1,51 @@
+save "tasks.json" "get"
+if save-data.istype("array") (
+  tasks = save-data
+) else (
+  tasks = []
+)
+mainloop:
+loc 999 2 0 -20
+square window_width 20 20 : c#222
+loc 2 2 10 -20
+text "To Do" 10 : c#fff
+loc 2 2 150 -70
+square 280 30 10 : c#222
+input 270 27 "new" "Task"
+loc 2 2 150 -120
+square 280 30 10 : c#222
+if input_new != "" and clicked and can (
+can = false
+tasks.append(input_new)
+input_new = null
+save "tasks.json" "set" tasks
+)
+loc 2 2 20 -120
+if input_new != "" "c #fff" else "c #444"
+text "Create New Task" 10
+c #333
+frame window."left" + 300 window."top" - 50 window."right" window."bottom" tasks.len - 0.5 * 50
+if tasks.len == 0 (
+  loc 2 2 20 -20
+  text "No Tasks" 10 : c#fff
+)
+
+count = 0
+loop tasks.len (
+  count ++
+  loc 999 2 0 count - 0.5 * -50 + scroll_y + 5
+  square frame_width - 20 30 10 : c#222
+  change_x frame_width / 2 - 20
+  icon "bin" 0.8 : c#fff hover_size#1.1 cursor#pointer
+  if clicked and can (
+    can = false
+    tasks.delete(count)
+    save "tasks.json" "set" tasks
+    count --
+  )
+  change_x frame_width * -1 + 40
+  text tasks.[count] 10
+)
+if mouse_down.not "can = true"
+frame "clear"
+import "win-buttons"
