@@ -73,12 +73,13 @@ file "open" "Origin/(C) Users.folder"
 icons."Users" = file.[11]
 icons.[username] = "image" + user_icon.str + "20"
 
+window_colour = #000
+c_icon = #fff
+c_prim = #222
+c_seco = #444
+c_tert = #999
+
 mainloop:
-  window_colour = #000
-  c_icon = #fff
-  c_prim = #222
-  c_seco = #444
-  c_tert = #999
   input_path = null
   w = window_width
   sideshow = w > 700
