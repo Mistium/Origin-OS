@@ -12,6 +12,13 @@ canrun = desktop != data or hovered or bg_redrawn
 if canrun.not "exit"
 desktop = data
 if hovered (
+  if file_dropped != 0 (
+    loc 2 2 0 0
+    file "open" file_dropped
+    file "set" "6" x_position - mouse_x * -1
+    file "set" "7" y_position - mouse_y * -1
+    file_dropped = 0
+  )
   if mouse_down and can (
     can = false
     mouse_start_x = mouse_x
@@ -44,7 +51,8 @@ applications_count = 0
 loop desktop.len (
   applications_count ++
   file "open" desktop.[applications_count]
-  goto file.[6] file.[7]
+  loc 2 2 0 0
+  change file.[6] file.[7]
   file "render" 2 "interactable"
   rightclick "file" desktop.[applications_count]
   if mouse_touching (
