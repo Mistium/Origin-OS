@@ -179,4 +179,14 @@ mainloop:
       text "Size:" + file.[12] + "Bytes" 8.5 : chy#-25
     )
   )
+  file "open" current_file_path
+  if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
+  r = file.[12]
+  if 1000 > r (
+    r = r + "B"
+  ) else if 1000000 > r (
+    r = r.divide(100).round / 10 + "KB"
+  )
+  text "<files.len> items | <selected_files.len> selected | <r>" 9 : c#c_icon
+  
   if mouse_down.not "can = True"
