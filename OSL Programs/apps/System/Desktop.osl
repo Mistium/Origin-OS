@@ -15,6 +15,8 @@ if hovered (
   if file_dropped != 0 (
     loc 2 2 0 0
     file "open" file_dropped
+    mouse_x = mouse_x.divide(70).round * 70
+    mouse_y = mouse_y.divide(70).round * 70
     file "set" "6" x_position - mouse_x * -1
     file "set" "7" y_position - mouse_y * -1
     file_dropped = 0
