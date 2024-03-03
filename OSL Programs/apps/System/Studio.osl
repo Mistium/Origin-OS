@@ -99,8 +99,6 @@ if current_studio_page == "Home" (
   w2 = w - 40
   loc 2 2 20 -85
   text "New File" 8
-  loc 2 2 20 -250
-  text "Open File" 8
   loc 999 2 0 -80
   text "Recent Files" 8
 
@@ -125,9 +123,6 @@ if current_studio_page == "Home" (
   )
   icon "Add" 0.5
   text "Create New File" 8 : chx#20
-  loc 2 2 w / 2 - 5 -290
-  square w2 30 10 : c#c_seco
-  input w2 - 10 25 "open" "search icon.icn" 10 c_text
   c c_prim
   frame -10 window_height / 2 - 95 window_width / 2 window_height / -2 recent_2.len * 55
   w = frame_width - 20
