@@ -168,6 +168,16 @@ if bg_redrawn or mouse_touching and settings_open (
   )
   icon "w 2.5 cutcircle 0 0 10 0 135 line 0 0 4 -4 line 0 8 0 7 line 6 6 5 5 line -6 6 -5 5 line -8 0 -7 0 line 8 0 7 0 line -7 -7 -5 -5" 0.7 : c#fff
 
+  change_x 34.4
+  terminal "flags nightmode get"
+  if data "c global_accent" else "c #333"
+  square 0 0 25 : hover_size#1.05
+  if clicked and can (
+    can = false
+    terminal "flags nightmode set" + data.not
+  )
+  icon "sun" 0.7 : c#fff
+
   date = day + day_number + month.trim(1,3)
   loc 999 2 date.len + 0.5 * -4 -277
   text date 8
