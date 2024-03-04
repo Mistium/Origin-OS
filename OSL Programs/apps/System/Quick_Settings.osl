@@ -64,57 +64,64 @@ if bg_redrawn or mouse_touching (
   square 170 30 20 : c#000
 
   loc -2 2 -25 -25
-  c #fff
   if settings_open (
-    icon "w 4 line 10 5 0 -5 cont -10 5" 0.7
+    icon "c #fff w 4 line 10 5 0 -5 cont -10 5" 0.7
   ) else (
-    icon "w 4 line 10 -5 0 5 cont -10 -5" 0.7
+    icon "c #fff w 4 line 10 -5 0 5 cont -10 -5" 0.7
   )
   image user_icon.str 25 : chx#-46
-  icon "w 3 line -8 8 -8 -8 line 0 8 0 -8 line 8 8 8 -8 line 6 6 10 6 line 2 -3 -2 -3 line -6 2 -10 2" 0.8 : chx#-46
+  icon "sun" 0.8 : chx#-46
   if network."connected" "c #fff" else "c #555"
   icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-46
 )
-
-loc 999 2 0 -83
-square 170 30 20 : c#000
-square 30 30 10 : c#171717 chx#-70
-syncable = timer + 270 > last_upload
-if timer > last_upload or ( syncable and clicked and can ) (
-  can = false
-  last_upload = timer + 300
-  syncing = true
-  terminal "system uploadfiles"
-)
-if syncing (
-  direction sync_dir
-  sync_dir += 10
-) else (
-  sync_dir = 90
-)
-if syncable "c #fff" else "c #aaa"
-icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : hover_size#1.05
-c #fff
-direction 90
-change 30 -10
 if syncing (
   if error == "" (
-    text "Syncing" 8
+    last_synced_text = "Syncing"
   ) else (
-    text error 8
+    last_synced_text = error
   )
-)
-if syncing.not (
+) else (
   if last_synced == 0 (
-    text "Not Synced" 8
+    last_synced_text = "Not Synced"
   ) else (
-    text "<last_synced.timestamp(convert-relative)>" 8
+    last_sync_text = last_synced.timestamp(convert-relative)
   )
 )
-loc 999 2 -40 -77
-if used != "used" (
-  text "<used_small>kb / <used_big>kb" 8
+
+loc 999 2 0 -83
+square 170 30 20 0 1
+if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
+  sync_text_temp = last_sync_text
+  loc 999 2 0 -83
+  square 170 30 20 : c#000
+  square 30 30 10 : c#171717 chx#-70
+  syncable = timer + 270 > last_upload
+  if timer > last_upload or ( syncable and clicked and can ) (
+    can = false
+    last_upload = timer + 300
+    syncing = true
+    terminal "system uploadfiles"
+  )
+  if syncing (
+    direction sync_dir
+    sync_dir += 10
+  ) else (
+    sync_dir = 90
+  )
+  if syncable "c #fff" else "c #aaa"
+  icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : hover_size#1.05
+  c #fff
+  direction 90
+  change 30 -10
+  text last_sync_text 8
+
+
+  loc 999 2 -40 -77
+  if used != "used" (
+    text "<used_small>kb / <used_big>kb" 8
+  )
 )
+
 loc 999 999 0 0
 square 170 window_height 20 0 1
 if bg_redrawn or mouse_touching and settings_open (
@@ -140,6 +147,7 @@ if bg_redrawn or mouse_touching and settings_open (
 
   icon "c #333 w 25 dot" 1 : chx#-65
   icon "volume-max" 0.7 : c#fff
+
   loc 2 2 30 -237.5
   terminal "flags donotdisturb get"
   if data "c global_accent" else "c #333"
@@ -149,6 +157,17 @@ if bg_redrawn or mouse_touching and settings_open (
     terminal "flags donotdisturb set" + data.not
   )
   icon "Moon" 0.7 : c#fff
+
+  change_x 34.4
+  terminal "flags performance_mode get"
+  if data "c global_accent" else "c #333"
+  square 0 0 25 : hover_size#1.05
+  if clicked and can (
+    can = false
+    terminal "flags performance_mode set" + data.not
+  )
+  icon "w 2.5 cutcircle 0 0 10 0 135 line 0 0 4 -4 line 0 8 0 7 line 6 6 5 5 line -6 6 -5 5 line -8 0 -7 0 line 8 0 7 0 line -7 -7 -5 -5" 0.7 : c#fff
+
   date = day + day_number + month.trim(1,3)
   loc 999 2 date.len + 0.5 * -4 -277
   text date 8
