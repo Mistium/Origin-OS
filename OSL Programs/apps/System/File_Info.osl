@@ -16,7 +16,7 @@ created = file.[9].destr
 edited = file.[10].destr
 icon = file.[11].destr
 size = file.[12].destr
-config_path = "Origin/(C) Users/" ++ username ++ "/application data/" ++ name ++ "/config.json"
+config_path = user_folder ++ "/application data/" ++ name ++ "/config.json"
 file "open" config_path
 file_config = data
 tabs = ["Info","Edit"]
@@ -28,7 +28,7 @@ if type == ".app" (
   total_keys = config_keys.len
   count = 0
   loop total_keys (
-    count += 1
+    count ++
     current = config_keys.[count].destr
     if true "toggle_" ++ current + "=" + file_config.key(current)
   )
@@ -48,8 +48,7 @@ loop tabs.len (
   square 140 25 10 1 : c#222
   if clicked "tab = tabs.[count]"
   icon tabs.[count] 0.7 : c#fff chx#-60
-  change 20
-  text tabs.[count] 8
+  text tabs.[count] 8 : chx#20
   goto x y_position
 )
 loc 999 999 0 -20
@@ -63,12 +62,12 @@ if tab == "info" (
   text "<name><type>" 9 : c#fff chx#40
   loc 2 2 20 -160
   percent = size / total * 100
-  percent = percent.round
+  percent.round
   text "Size: <size>b (<percent>%)" 8
   loc 2 2 20 -180
-  text "Created: <t:created:r>" 8
+  text "Created:" + created.timestamp("convert-relative") 8
   loc 2 2 20 -200
-  text "Edited: <t:edited:r>" 8
+  text "Edited:" + edited.timestamp("convert-relative") 8
   loc 2 2 20 -220
   text "Location: <loc>/<name><type>" 8
   loc 2 2 20 -240
@@ -90,13 +89,12 @@ if tab == "settings" (
     loc 2 2 20 y3
     current = config_keys.[count].destr
     text current 10 : c#fff
-    c #555
     current_data = file_config.key(current)
     loc -2 2 -40 y3
     isbool = current_data.istype("boolean")
     if isbool "toggle current 25"
     loc -2 2 -120 y3
-    if current_data.istype("string") and isbool.not "input 160 30 current"
+    if current_data.istype("string") and isbool.not "input 160 30 current : c#555"
     output.key(current) = output
   )
 )
