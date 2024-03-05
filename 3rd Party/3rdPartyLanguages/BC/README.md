@@ -1,3 +1,4 @@
+# Warning: this language was not added to origin
 ![Logo](https://github.com/Mistium/Origin-OS/blob/main/3rd%20Party/3rdPartyLanguages/BC/logo.png)
 # **BetterCode Docs** ✨
 - official bettercode docs, version 1.5, this is a documentation for [OriginOS](https://github.com/Mistium/Origin-OS)
