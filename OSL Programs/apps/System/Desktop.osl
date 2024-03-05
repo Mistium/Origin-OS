@@ -15,10 +15,10 @@ if hovered (
   if file_dropped != 0 (
     loc 2 2 0 0
     file "open" file_dropped
-    mouse_x = mouse_x.divide(70).round * 70
-    mouse_y = mouse_y.divide(70).round * 70
-    file "set" "6" x_position - mouse_x * -1
-    file "set" "7" y_position - mouse_y * -1
+    x = x_position - ( mouse_x - 35 ) * -1
+    y = y_position - ( mouse_y + 35 ) * -1
+    file "set" "6" x.divide(70).round * 70
+    file "set" "7" y.divide(70).round * 70
     file_dropped = 0
   )
   if mouse_down and can (
@@ -53,7 +53,7 @@ applications_count = 0
 loop desktop.len (
   applications_count ++
   file "open" desktop.[applications_count]
-  loc 2 2 0 0
+  loc 2 2 35 -35
   change file.[6] file.[7]
   file "render" 2 "interactable"
   rightclick "file" desktop.[applications_count]
