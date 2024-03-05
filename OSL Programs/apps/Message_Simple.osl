@@ -1,3 +1,4 @@
+network "set_app_id" "messager"
 mainloop:
 if new_network_data (
   say network_data
@@ -5,9 +6,10 @@ if new_network_data (
 )
 goto 0 0
 c #333
-input 200 25 "message"
+input 200 25 "message" "message"
 goto 0 -30
-input 200 25 "user"
+c #333
+input 200 25 "user" "recipient"
 if "enter".onpress (
 network "send" input_message input_user
 input_message = null
