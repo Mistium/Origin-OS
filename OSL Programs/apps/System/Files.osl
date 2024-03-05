@@ -135,27 +135,33 @@ mainloop:
     ) else (
       files_buttons = ["Open","Edit","Copy","Rename","Bin","Info"]
     )
-    c #fff
-    cur = ""
-    count = 0
-    loop files_buttons.len (
-      count ++
-      icon files_buttons.[count] 0.8 : chx#30
-      if clicked and can (
-        can = false
-        cur = files_buttons.[count]
-        if cur == "open" (
-          file "start"
-        ) else if cur == "edit" (
-          window "add" "studio" file_open
-        ) else if cur == "copy" (
-          clipboard "set" file
-        ) else if cur == "rename" (
-          window "add" "Rename-Helper" file_open
-        ) else if cur == "info" (
-          window "add" "Files_Info" file_open
+    if selected_files.len == 1 (
+      c #fff
+      cur = ""
+      count = 0
+      loop files_buttons.len (
+        count ++
+        icon files_buttons.[count] 0.8 : chx#30
+        if clicked and can (
+          can = false
+          cur = files_buttons.[count]
+          if cur == "open" (
+            file "start"
+          )
+          if cur == "edit" (
+            window "add" "studio" file_open
+          )
+          if cur == "copy" (
+            clipboard "set" file
+          )
+          if cur == "rename" (
+            window "add" "Rename-Helper" file_open
+          )
+          if cur == "info" (
+            window "add" "Files_Info" file_open
+          )
+          cur = ""
         )
-        cur = ""
         clicked = false
       )
     )
