@@ -38,6 +38,10 @@ if hovered (
     pen "down"
     pen "up"
     pen "opacity" 100
+    fx = frame_x
+    fy = frame_y
+    fw = frame_width
+    fh = frame_height
     frame "clear"
     window "dimensions" screensize_x screensize_y - 70
     window "refresh_bg"
@@ -47,6 +51,9 @@ if hovered (
     )
     can = true
   )
+  goto 0 0
+  square screensize_x screensize_y 1 0 1
+  rightclick "file" 
 )
 if desktop.len == 0 "exit"
 applications_count = 0
