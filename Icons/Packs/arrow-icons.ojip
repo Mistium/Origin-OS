@@ -5,7 +5,7 @@
     "author": "Mist",
     "version": 1
   },
-  "icons": {
+  "data": {
     "up":"w 4 line 10 -5 0 5 line 0 5 -10 -5",
     "down":"w 4 line 10 5 0 -5 line 0 -5 -10 5",
     "left":"w 4 line -5 10 5 0 line -5 -10 5 0",
