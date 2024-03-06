@@ -288,7 +288,7 @@ def "network_page"
   text temp 10 : c#fff chx#15
 endef
 
-def "personalisation"
+def "Appearance"
   if subcategory == "none" (
     option "Background"
     option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
@@ -531,15 +531,23 @@ def "updates"
   text "Current Version:" + version 10 : c#fff
 endef
 
+if passed_data == "" (
+  category = "System"
+  subcategory = "none"
+) else (
+  passed_data.split("/")
+  category = passed_data.[1]
+  subcategory = passed_data.[2]
+)
+
+
 window "dimensions" 880 500
 dock_location = dock_location
 media = ""
 segments = segments
 accent_select = ""
 network_drive = "none"
-category = "System"
 gotosubcategory = ""
-subcategory = "none"
 current_pfp = ""
 save "wallpapers.json" "get"
 wallpapers = save-data
@@ -586,7 +594,7 @@ startx = x_position
 location = category + subcategory
 if category == "System" "system"
 if category == "Network" "network_page"
-if category == "Appearance" "personalisation"
+if category == "Appearance" "Appearance"
 if category == "Account" "account"
 if category == "Apps" "apps"
 if category == "Time" "time"
