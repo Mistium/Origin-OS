@@ -5,7 +5,7 @@
     "author": "Mist",
     "version": 1
   },
-  "icons": {
+  "data": {
     "slightly smiling face":"c #fbba08 w 20 dot 0 0 c #000 w 3 dot -3 3 dot 3 3 cutcircle 0 0 5 18 30",
     "upside-down face":"c #fbba08 w 20 dot 0 0 c #000 w 3 dot -3 -3 dot 3 -3 cutcircle 0 0 5 0 30",
     "neutral face":"c #fbba08 w 20 dot 0 0 c #000 w 3 dot -3 3 dot 3 3 line -4 -4 4 -4",
