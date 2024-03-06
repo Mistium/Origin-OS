@@ -53,7 +53,7 @@ if hovered (
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
-  rightclick "file" 
+  rightclick "desktop"
 )
 if desktop.len == 0 "exit"
 applications_count = 0
