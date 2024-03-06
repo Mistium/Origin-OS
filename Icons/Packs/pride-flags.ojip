@@ -1,0 +1,19 @@
+{
+  "manifest": {
+    "name": "pride-flags",
+    "format": ".icn",
+    "author": "Mist",
+    "version": 1
+  },
+  "icons": {
+    "bisexual-flag": "w 4 c #D60270 line -10 8 10 8 line -10 4 10 4 c #9B4F96 line -10 0 10 0 c #0038A8 line -10 -4 10 -4 line -10 -8 10 -8",
+    "trans-flag": "w 4 c #55CDFC line -10 8 10 8 line -10 -8 10 -8 c #F7A8B8 line -10 4 10 4 line -10 -4 10 -4 c #fff line -10 0 10 0",
+    "nonbinary-flag": "w 6 c #FCF434 line -10 8 10 8 c #fff line -10 3 10 3 c #9C59D1 line -10 -3 10 -3 c #2C2C2C line -10 -8 10 -8",
+    "polygender-flag": "w 4 c #§line -10 8 10 8 c #939393 line -10 4 10 4 c #ED94C5 line -10 0 10 0 c #F5ED81 line -10 -4 10 -4 c #64BBE6 line -10 -8 10 -8",
+    "cisgender-flag": "w 6 c #BFBFBF line -10 6 10 6 c #E0DCDD line -10 0 10 0 c #BFBFBF line -10 -6 10 -6",
+    "pride-flag": "w 3 c #E40303 line -10 6.5 10 6.5 c #FF8C00 line -10 4 10 4 c #FFED00 line -10 1.5 10 1.5 c #008026 line -10 -1.5 10 -1.5 c #24408E line -10 -4 10 -4 c #732982 line -10 -6.5 10 -6.5",
+    "progress-flag": "w 3 c #E40303 line -10 6.5 10 6.5 c #FF8C00 line -10 4 10 4 c #FFED00 line -10 1.5 10 1.5 c #008026 line -10 -1.5 10 -1.5 c #24408E line -10 -4 10 -4 c #732982 line -10 -6.5 10 -6.5 c #fff line -10 6.5 -10 -6.5 w 8 line -7 0 -6 w 3 c #FFAFC8 line -10 7 -4 0 cont -10 -7 c #74D7EE line -7.5 7 -1.5 cont -7.5 -7 c #613915 line -5 7 1 cont -5 -7 c #000 line -2.5 7 3.5 cont -2.5 -7",
+    "asexual-flag": "w 6 c #000 line -10 8 10 8 c #A3A3A3 line -10 3 10 3 c #FFF line -10 -3 10 -3 c #800080 line -10 -8 10 -8",
+    "pansexual-flag": "w 6 c #FF218C line -10 6 10 6 c #FFD800 line -10 0 10 0 c #21B1FF line -10 -6 10 -6"
+  }
+}
