@@ -2,16 +2,20 @@ window "dimensions" 700 500
 can = false
 
 def "inform" "data"
-gpt "inform_bot" "assistant" data
+  gpt "inform_bot" "assistant" data
 endef
 
 permission "request" "terminal"
+permission "request" "files admin"
+
 gpt "new_bot" "assistant"
 gpt "reset_bot" "assistant"
 inform "You are the originOS assistant keep your responses under 56 characters per line"
 inform "the time is" + timestamp.timestamp("convert-full")
 inform "the user's name is" + username
 inform "origin's current version is" + origin."version"
+
+selected_input = "search"
 
 outputs = {}
 settings_pages = [
@@ -38,11 +42,13 @@ settings_pages = [
 input_search = ""
 settings_pages.join(newline)
 terminal "get filepaths"
+files_paths = data.join(newline)
+
 mainloop:
 
 goto 0 0
 square 600 400 30 : c#global_accent
-if "escape".onpress or ( mouse_down and clicked.not and can ) (
+if "escape".onpress or ( mouse_left and clicked.not and can ) (
   window "stop"
 )
 square 600 400 25 : c#050505
@@ -63,13 +69,20 @@ if input_search != temp (
     outputs."main" = input_search.str + "=" + data
     page_len += 150
   )
-  if input_search == "what time is it" (
+  if ["what time is it","what is the time"].contains(input_search) (
     name = "Time"
     outputs."main" = timestamp.timestamp("convert-full")
     page_len += 150
     temp = ""
   )
-  if input_search.len >= 4 and settings_pages.contains(input_search) (
+  if input_search != "" and files_paths.contains(input_search) (
+    re = "^/.*" ++ input_search ++ ".*$/img"
+    outputs."files" = files_paths.regex(re)
+    page_len += outputs."files".len.clamp(1,10) * 40 + 10
+  ) else (
+    outputs."files" = ""
+  )
+  if input_search.len > 3 and settings_pages.contains(input_search) (
     re = "^/.*" ++ input_search ++ ".*$/img"
     outputs."settings" = settings_pages.regex(re)
     page_len += outputs."settings".len * 40 + 10
@@ -97,7 +110,41 @@ if outputs."main" != "" (
   text out txt_size
   y -= 150
 )
-settings = outputs."settings"
+
+files = outputs."files".trim(1,10)
+if files != "" (
+  height = files.len * 40
+  y -= 30
+  y2 = y + scroll_y
+  loc 999 2 0 y2 - ( height / 2 ) + 10
+  square frame_width - 20 height + 20 10 : c#111
+  loc 2 2 15 y2 + 10
+  text "Files" 8 : c#fff
+  count = 0
+  loop files.len (
+    count ++
+    cur_y = -20 + y + scroll_y
+    loc 999 2 0 cur_y
+    file "open" files.[count]
+    square frame_width - 30 25 10 : c#222 hover_c#333
+    if clicked (
+      file "start"
+      window "stop"
+    )
+    rightclick "file" loaded_file
+    loc 2 2 30 cur_y
+    file "render" 1
+    type = file.[1]
+    if type == ".folder" (
+      text file.[2] 10 : c#fff chx#20
+    ) else (
+      text file.[2] ++ type 10 : c#fff chx#20
+    )
+    y -= 40
+  )
+)
+
+settings = outputs."settings".trim(1,3)
 if settings != "" (
   height = settings.len * 40
   y -= 30
