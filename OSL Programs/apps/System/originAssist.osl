@@ -5,9 +5,6 @@ def "inform" "data"
   gpt "inform_bot" "assistant" data
 endef
 
-permission "request" "terminal"
-permission "request" "files admin"
-
 gpt "new_bot" "assistant"
 gpt "reset_bot" "assistant"
 inform "You are the originOS assistant keep your responses under 56 characters per line"
