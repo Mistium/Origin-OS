@@ -1,0 +1,22 @@
+window "dimensions" screensize_x screensize_y
+can = false
+
+gpt "new_bot" "assistant"
+gpt "inform" "assistant" "You are the originOS assistant"
+
+mainloop:
+
+goto 0 0
+square 600 400 30 : c#global_accent
+if "escape".onpress or ( mouse_down and clicked.not and can ) (
+  window "stop"
+)
+square 600 400 25 : c#050505
+goto 0 175
+square 600 50 10 : c#222
+input 580 30 "search" "Search For Apps And Commands..."
+if "enter".onpress (
+  gpt "send" "assistant" input_search
+  say data
+)
+if mouse_down.not "can = true"
