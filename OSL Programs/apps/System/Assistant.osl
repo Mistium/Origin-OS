@@ -1,12 +1,43 @@
 window "dimensions" 700 500
 can = false
+
+def "inform" "data"
+gpt "inform_bot" "assistant" data
+endef
+
 permission "request" "terminal"
 gpt "new_bot" "assistant"
-gpt "inform_bot" "assistant" "You are the originOS assistant"
-outputs = {}
+gpt "reset_bot" "assistant"
+inform "You are the originOS assistant keep your responses under 56 characters per line"
+inform "the time is" + timestamp.timestamp("convert-full")
+inform "the user's name is" + username
+inform "origin's current version is" + origin."version"
 
+outputs = {}
+settings_pages = [
+  "System",
+  "System/Info",
+  "System/Display",
+  "System/Media",
+  "System/Notifications",
+  "System/Boot Applications",
+  "System/Storage",
+  "System/Multitasking",
+  "System/Community",
+  "Network",
+  "Appearance",
+  "Appearance/Background",
+  "Appearance/Dock",
+  "Appearance/Colours",
+  "Account",
+  "Time",
+  "Privacy",
+  "Updates",
+  "Credits"
+]
+input_search = ""
+settings_pages.join(newline)
 terminal "get filepaths"
-clipboard "set" data
 mainloop:
 
 goto 0 0
@@ -17,29 +48,77 @@ if "escape".onpress or ( mouse_down and clicked.not and can ) (
 square 600 400 25 : c#050505
 goto 0 175
 square 600 50 10 : c#222
+input_search.destr
 input 580 30 "search" "Search For Apps And Commands..."
+input_search.str
 if input_search != temp (
-  page_len = 1000
+  page_len = 0
   temp = input_search
   tokens = input_search.split(" ")
   if true "data =" + input_search
+  outputs."main" = ""
+  txt_size = 20
   if data.istype("number") (
-    outputs."math" = data
+    name = "Calculator"
+    outputs."main" = input_search.str + "=" + data
     page_len += 150
+  )
+  if input_search == "what time is it" (
+    name = "Time"
+    outputs."main" = timestamp.timestamp("convert-full")
+    page_len += 150
+    temp = ""
+  )
+  if input_search.len >= 4 and settings_pages.contains(input_search) (
+    re = "^/.*" ++ input_search ++ ".*$/img"
+    outputs."settings" = settings_pages.regex(re)
+    page_len += outputs."settings".len * 40 + 10
   ) else (
-    outputs."math" = ""
+    outputs."settings" = ""
   )
   output_keys = outputs.getall("keys")
 )
+if "enter".pressed (
+  gpt "send" "assistant" input_search
+  outputs."main" = data
+  name = "Gpt Assistant"
+  txt_size = 10
+)
 c #222
 frame -310 130 310 -200 page_len
-if outputs."math" != "" (
+y = 0
+if outputs."main" != "" (
   loc 999 2 0 -75 + scroll_y
   square frame_width - 20 140 10 : c#222
   loc 2 2 20 -20 + scroll_y
-  text "Calculator" 8 : c#ddd
-  out = input_search.str + "=" + outputs."math"
-  loc 999 2 out.len * -10 -75 + scroll_y
-  text out 20
+  text name 8 : c#ddd
+  out = outputs."main"
+  loc 999 2 out.len * txt_size * -0.5 -75 + scroll_y
+  text out txt_size
+  y -= 150
+)
+settings = outputs."settings"
+if settings != "" (
+  height = settings.len * 40
+  y -= 30
+  y2 = y + scroll_y
+  loc 999 2 0 y2 - ( height / 2 ) + 10
+  square frame_width - 20 height + 20 10 : c#111
+  loc 2 2 15 y2 + 10
+  text "Settings" 8 : c#fff
+  count = 0
+  loop settings.len (
+    count ++
+    cur_y = -20 + y + scroll_y
+    loc 999 2 0 cur_y
+    square frame_width - 30 25 10 : c#222 hover_c#333
+    if clicked (
+      window "add" "settings" settings.[count]
+      window "stop"
+    )
+    loc 2 2 15 cur_y
+    text settings.[count] 10 : c#fff
+    y -= 40
+  )
 )
 if mouse_down.not "can = true"
