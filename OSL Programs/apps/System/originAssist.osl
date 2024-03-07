@@ -40,20 +40,24 @@ input_search = ""
 settings_pages.join(newline)
 terminal "get filepaths"
 files_paths = data.join(newline)
+terminal "-get.windows"
+windows = windows-names.join(newline)
+
+h = 400
 
 mainloop:
 
 goto 0 0
-square 600 400 30 : c#global_accent
+square 600 h 30 : c#global_accent
 if "escape".onpress or ( mouse_left and clicked.not and can ) (
   window "stop"
 )
-square 600 400 25 : c#050505
-goto 0 175
+square 600 h 25 : c#050505
+goto 0 h / 2 - 25
 square 600 50 10 : c#222
 input_search.destr
 input 580 30 "search" "Search For Apps And Commands..."
-input_search.str
+input_search.str.to("lower")
 if input_search != temp (
   page_len = 0
   temp = input_search
@@ -66,23 +70,37 @@ if input_search != temp (
     outputs."main" = input_search.str + "=" + data
     page_len += 150
   )
-  if ["what time is it","what is the time"].contains(input_search) (
+  temp = input_search.replace("?","")
+  if ["what time is it","what is the time","whats the hour","whats the god damn hour","whats the fucking time","time","hour"].contains(temp) (
     name = "Time"
-    outputs."main" = timestamp.timestamp("convert-full")
+    outputs."main" = timestamp.timestamp("convert-time")
+    page_len += 150
+    temp = ""
+  )
+  if ["what day is it","whats the day today","day"].contains(temp) (
+    name = "Time"
+    outputs."main" = day + day_num
     page_len += 150
     temp = ""
   )
   if input_search != "" and files_paths.contains(input_search) (
     re = "^/.*" ++ input_search ++ ".*$/img"
     outputs."files" = files_paths.regex(re)
-    page_len += outputs."files".len.clamp(1,10) * 40 + 10
+    page_len += outputs."files".len.clamp(1,10) * 40 + 20
   ) else (
     outputs."files" = ""
+  )
+  if input_search != "" and windows.contains(input_search) (
+    re = "^/.*" ++ input_search ++ ".*$/img"
+    outputs."windows" = windows.regex(re)
+    page_len += outputs."windows".len.clamp(1,4) * 40 + 20
+  ) else (
+    outputs."windows" = ""
   )
   if input_search.len > 3 and settings_pages.contains(input_search) (
     re = "^/.*" ++ input_search ++ ".*$/img"
     outputs."settings" = settings_pages.regex(re)
-    page_len += outputs."settings".len * 40 + 10
+    page_len += outputs."settings".len * 40 + 20
   ) else (
     outputs."settings" = ""
   )
@@ -95,8 +113,8 @@ if "enter".pressed (
   txt_size = 10
 )
 c #222
-frame -310 130 310 -200 page_len
-y = 0
+frame -310 h / 2 - 70 310 h / -2 page_len
+y = 40
 if outputs."main" != "" (
   loc 999 2 0 -75 + scroll_y
   square frame_width - 20 140 10 : c#222
@@ -105,13 +123,17 @@ if outputs."main" != "" (
   out = outputs."main"
   loc 999 2 out.len * txt_size * -0.5 -75 + scroll_y
   text out txt_size
-  y -= 150
+  y -= 200
+)
+if page_len == 0 (
+  loc 2 2 20 -20
+  text "No Results" 10 : c#fff
 )
 
 files = outputs."files".trim(1,10)
 if files != "" (
   height = files.len * 40
-  y -= 30
+  y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - ( height / 2 ) + 10
   square frame_width - 20 height + 20 10 : c#111
@@ -144,7 +166,7 @@ if files != "" (
 settings = outputs."settings".trim(1,3)
 if settings != "" (
   height = settings.len * 40
-  y -= 30
+  y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - ( height / 2 ) + 10
   square frame_width - 20 height + 20 10 : c#111
@@ -162,6 +184,27 @@ if settings != "" (
     )
     loc 2 2 15 cur_y
     text settings.[count] 10 : c#fff
+    y -= 40
+  )
+)
+
+wins = outputs."windows".trim(1,4)
+if wins != "" (
+  height = wins.len * 40
+  y -= 40
+  y2 = y + scroll_y
+  loc 999 2 0 y2 - ( height / 2 ) + 10
+  square frame_width - 20 height + 20 10 : c#111
+  loc 2 2 15 y2 + 10
+  text "Windows" 8 : c#fff
+  count = 0
+  loop wins.len (
+    count ++
+    cur_y = -20 + y + scroll_y
+    loc 999 2 0 cur_y
+    square frame_width - 30 25 10 : c#222 hover_c#333
+    loc 2 2 15 cur_y
+    text wins.[count] 10 : c#fff
     y -= 40
   )
 )
