@@ -31,7 +31,7 @@
           {
             opcode: 'writeToDatabase',
             blockType: Scratch.BlockType.COMMAND,
-            text: 'Write [VALUE] to database with key [KEY]',
+            text: 'Create Key [KEY] and set it to [VALUE]',
             arguments: {
               VALUE: {
                 type: Scratch.ArgumentType.STRING,
@@ -46,7 +46,7 @@
           {
             opcode: 'readFromDatabase',
             blockType: Scratch.BlockType.REPORTER,
-            text: 'Read value from database with key [KEY]',
+            text: 'Read value [KEY]',
             arguments: {
               KEY: {
                 type: Scratch.ArgumentType.STRING,
