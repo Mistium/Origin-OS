@@ -137,13 +137,16 @@
                 const objectStore = transaction.objectStore("data");
                 const request = objectStore.getAllKeys();
                 request.onsuccess = function (event) {
-                    resolve(event.target.result);
+                    const keysArray = event.target.result;
+                    const keysJSON = JSON.stringify(keysArray); // Convert array to JSON string
+                    resolve(keysJSON);
                 };
                 request.onerror = function (event) {
                     reject("Error getting keys from database");
                 };
             });
         }
+
 
         async keyExists({ KEY }) {
             const keys = await this.getAllKeys();
