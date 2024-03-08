@@ -1,0 +1,89 @@
+window "resizable" False
+window "show"
+canclick = False
+operation = ""
+current = 0
+secondary = 0
+def "draw" "x,y,x2,y2,character"
+	loc x y x2 + 15 y2 + 55
+	if operation.str == character "c #f79204" else "c #333"
+	square 50 50 10 1
+	if mouse_down.not "can = True"
+
+	character.destr
+	if can and character.istype("number") (
+		if operation == "" and ( clicked or character.onpress ) (
+	    can = false
+		  c = current
+    	current = current ++ character
+		)
+		if operation != "" and ( clicked or character.onpress ) (
+	    can = false
+		  s = secondary
+	    secondary = secondary ++ character
+		)
+	)
+	if clicked or character.onpress and "+-*/".contains(character) "operation = character.str"
+	if clicked or "enter".pressed and ( character.str == "=" ) (
+		current = current.int
+		secondary = secondary.int
+		if operation == "+" "current += secondary"
+		if operation == "-" "current -= secondary"
+		if operation == "*" "current *= secondary"
+		if operation == "/" "current /= secondary"
+		current = current.str
+		secondary = 0
+		operation = ""
+	)
+	change -10 -5
+	text character.str 20 : c#fff
+endef
+
+window "show"
+window "dimensions" 300 400
+window "resizable" false
+
+mainloop:
+
+loc 999 2 0 -20
+square 300 30 10 1 : c#222
+
+loc 2 2 10 -20
+text "Calculator" 8 : c#fff
+
+draw 2 2 30 -200 "1"
+draw 2 2 100 -200 "2"
+draw 2 2 170 -200 "3"
+draw 2 2 240 -200 "+"
+
+draw 2 2 30 -270 "4"
+draw 2 2 100 -270 "5"
+draw 2 2 170 -270 "6"
+draw 2 2 240 -270 "-"
+
+draw 2 2 30 -340 "7"
+draw 2 2 100 -340 "8"
+draw 2 2 170 -340 "9"
+draw 2 2 240 -340 "*"
+
+draw 2 2 30 -410 "."
+draw 2 2 100 -410 "0"
+draw 2 2 170 -410 "="
+draw 2 2 240 -410 "/"
+
+loc 2 2 20 -70
+if operation == "" "output = current" else "output = secondary"
+text output 20
+
+loc -2 2 -25 -70
+icon "left-arrow" 1
+if clicked or "backspace".pressed and can (
+	can = False
+  temp = current.len - 1
+  temp2 = secondary.len - 1
+  if operation == "" "current = current.left(temp)" else "secondary = secondary.left(temp2)"
+)
+
+loc -2 2 -20 -20
+icon "close" 0.7
+if clicked "window stop"
