@@ -26,6 +26,9 @@ endef
 created_time = timer
 next_update = 0.5
 pen "width" 10
+high = 0
+low = 250
+
 mainloop:
 loc -2 2 -20 -20
 square 25 25 10 : c#222
@@ -94,27 +97,34 @@ if activity_info (
 wwm = window_width - 50 / 100
 whm = window_height / 300
 usage = delta_time.multiply(500).round * 2
-graph = graph.append(usage)
+graph.append(usage)
 if graph.len > 100 "graph = graph.delete(1)"
-terminal "get network"
-network_usage = network_usage + data
-if network_usage.len > 100 "network_usage = network_usage.delete(1)"
 import "side-bar"
 frames = fps.round
+if high < frames "high = frames"
+if low > frames "low = frames"
 loc 2 2 23 - ( frames.len * 5 ) -20
 text frames 10 : c#fff
 loc 2 2 13.5 -40
 text "fps" 7
+loc 2 2 23 - ( high.len * 5 ) -70
+text high 10
+loc 2 2 12 -90
+text "high" 7
+loc 2 2 23 - ( low.len * 5 ) -120
+text low 10
+loc 2 2 13.5 -140
+text "low" 7
 delta = delta_time.multiply(1000).round
-loc 2 2 23 - ( delta.len * 5 ) -70
+loc 2 2 23 - ( delta.len * 5 ) -170
 text delta 10
-loc 2 2 16 -85
+loc 2 2 16 -190
 text "ms" 7
 if memory (
   ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
-  loc 2 2 23 - ( ram_use.len * 5 ) -110
+  loc 2 2 23 - ( ram_use.len * 5 ) -220
   text ram_use 10
-  loc 2 2 13.5 -125
+  loc 2 2 13.5 -240
   text "ram" 7
 )
 tab_w = 100
@@ -152,19 +162,20 @@ if current_tab == "Network" (
   y = y_position
   loc -2 -2 0 0
   terminal "get packetlist"
-  data.trim(0,400)
+  data.trim(1,100)
   c #333
   frame x y x_position y_position data.len * 40 - 20
   count = scroll_y.divide(40).round
   y = scroll_y - 20 + ( count * -40 )
-  loop frame_height.divide(40).ceiling (
+  length = data.len
+  loop frame_height.divide(40).ceiling.clamp(1,length) (
     count ++
     loc 999 2 0 y
     square frame_width - 20 25 10 1 : c#111 hover_c#222
-    cur = data.[count]
+    cur = data.[count].destr
     loc 2 2 30 y
     payload = cur."payload".str
-    text payload.str.trim(1,28).str 7 : c#fff
+    text payload.trim(1,28).str 7 : c#fff
     if payload.len > 28 (
       text "..." 7
     )
