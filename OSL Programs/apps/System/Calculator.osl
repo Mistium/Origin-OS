@@ -78,7 +78,7 @@ text output 20
 loc -2 2 -25 -70
 icon "left-arrow" 1
 if clicked or "backspace".pressed and can (
-	can = False
+  can = False
   temp = current.len - 1
   temp2 = secondary.len - 1
   if operation == "" "current = current.left(temp)" else "secondary = secondary.left(temp2)"
