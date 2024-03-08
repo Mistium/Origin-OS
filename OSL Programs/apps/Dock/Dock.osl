@@ -8,6 +8,7 @@ if exists (
   seg = ["Main","Applications","Time","Battery"]
   file "download" "segments.txt" "" seg segment_dir
 )
+
 global "segments" seg
 open = 0
 def "main"
@@ -21,7 +22,6 @@ def "main"
   dock_width = x_position - dock_x
   dock_width.round
 endef
-
 def "performance_mode"
   loc 2 999
   include user_folder ++ "/Dock"
@@ -48,7 +48,6 @@ def "performance_mode"
   change_x 30
   text "<hour>:<minute>" 10 : c#fff
 endef
-
 window "responsive" true
 window "hide"
 window "front"
