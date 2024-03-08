@@ -5,38 +5,38 @@ operation = ""
 current = 0
 secondary = 0
 def "draw" "x,y,x2,y2,character"
-	loc x y x2 + 15 y2 + 55
-	if operation.str == character "c #f79204" else "c #333"
-	square 50 50 10 1
-	if mouse_down.not "can = True"
+  loc x y x2 + 15 y2 + 55
+  if operation.str == character "c #f79204" else "c #333"
+  square 50 50 10 1
+  if mouse_down.not "can = True"
 
-	character.destr
-	if can and character.istype("number") (
-		if operation == "" and ( clicked or character.onpress ) (
-	    can = false
-		  c = current
-    	current = current ++ character
-		)
-		if operation != "" and ( clicked or character.onpress ) (
-	    can = false
-		  s = secondary
-	    secondary = secondary ++ character
-		)
-	)
-	if clicked or character.onpress and "+-*/".contains(character) "operation = character.str"
-	if clicked or "enter".pressed and ( character.str == "=" ) (
-		current = current.int
-		secondary = secondary.int
-		if operation == "+" "current += secondary"
-		if operation == "-" "current -= secondary"
-		if operation == "*" "current *= secondary"
-		if operation == "/" "current /= secondary"
-		current = current.str
-		secondary = 0
-		operation = ""
-	)
-	change -10 -5
-	text character.str 20 : c#fff
+  character.destr
+  if can and character.istype("number") (
+    if operation == "" and ( clicked or character.onpress ) (
+      can = false
+      c = current
+      current = current ++ character
+    )
+    if operation != "" and ( clicked or character.onpress ) (
+      can = false
+      s = secondary
+      secondary = secondary ++ character
+    )
+  )
+  if clicked or character.onpress and "+-*/".contains(character) "operation = character.str"
+  if clicked or "enter".pressed and ( character.str == "=" ) (
+    current = current.int
+    secondary = secondary.int
+    if operation == "+" "current += secondary"
+    if operation == "-" "current -= secondary"
+    if operation == "*" "current *= secondary"
+    if operation == "/" "current /= secondary"
+    current = current.str
+    secondary = 0
+    operation = ""
+  )
+  change -10 -5
+  text character.str 20 : c#fff
 endef
 
 window "show"
