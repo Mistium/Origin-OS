@@ -1,36 +1,39 @@
 include user_folder ++ "/Dock"
 if data.len != 0 (
-width = data.len * 50 - 10
-change_x width / 2
-set_y y
-square width 40 20 1 0 1
-x = x_position
-cur = ""
-if data.len != dock_temp or mouse_touching or bg_redrawn (
 dock = data
+width = dock.len * 50 - 10
+change_x width / 2
+x = x_position
+set_y y
+square width height 20 1 0 1
+cur = ""
+if dock.len != dock_appslen_temp or mouse_touching or bg_redrawn (
 square width height 20
-goto x - ( width / 2 ) - 30 y
-dock_temp = dock.len
-count = 0
+goto x - ( width / 2 ) + 20 y
+dock_appslen_temp = dock.len
+applicationscount = 0
 loop dock.len (
-count ++
-file "open" dock.[count]
-file "render" 1.7 "interactable" : chx#50
+applicationscount ++
+file "open" dock.[applicationscount]
+file "render" 1.7 "interactable"
+square 45 45 0 0 1
 if mouse_touching (
 curx = x_position
 cur = file.[2]
-rightclick "file" dock.[count]
+)
+rightclick "file" dock.[applicationscount]
+change_x 50
 )
 )
-)
+if cur != "" (
 if cur != last_cur (
 window "refresh_bg"
-if cur != "" (
+)
 goto curx 20
 square cur.len * 8 10 10 : c#000
 curlen = cur.len * -4
 change_x curlen
 text cur 8 : c#fff
-)
-)
 last_cur = cur
+)
+)
