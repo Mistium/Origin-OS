@@ -304,6 +304,7 @@ def "Appearance"
       square 25 25 12 : c#444
       current_wallpaper = clipboard.str
     )
+    current_wallpaper.str
     icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
     if wallpapers.contains(current_wallpaper).not (
       if current_wallpaper.imageinfo("loaded") (
@@ -312,6 +313,7 @@ def "Appearance"
         current_wallpaper = ""
       )
       if current_wallpaper == clipboard.str (
+        image current_wallpaper 0 0
         text "Trying" 10 : c#fff chx#20
         image current_wallpaper 10
       )
@@ -500,7 +502,7 @@ def "account"
     )
     if current_pfp == clipboard.str (
       loc 2 2 20 -250
-      image current_pfp 0
+      image current_pfp 0 0
       text "Trying..." 10 : c#fff chx#20
     )
   )
