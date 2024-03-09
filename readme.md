@@ -75,3 +75,8 @@ debugging
 interacting with accounts
 + way more
 ```
+
+<p align="center">
+Join My Patreon To Help Support Me And originOS and get increased storage space on your origin account<br>
+<a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="25"></a>
+</p>
