@@ -75,18 +75,3 @@ debugging
 interacting with accounts
 + way more
 ```
-## Patreon
-
-Join the originOS patreon for:
-
-- Early access to new originOS versions
-
-- You get 10x the storage space on your originOS account (dm me on discord and i'll increase your storage limit) (500,000 bytes of data)
-
-- You get your name in the supporters tab in the settings app (and packaged with originOS)
-
-- A special role in the originOS discord server
-<p align="center">
-Join Here!<br>
-<a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="25"></a>
-</p>
