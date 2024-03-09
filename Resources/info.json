@@ -1,1 +1,4 @@
-{"server":"wss://cl4.milosantos.com"}
+{
+  "server":"wss://cl4.milosantos.com",
+  "rooms":["originOS"]
+}
