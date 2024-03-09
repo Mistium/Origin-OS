@@ -10,7 +10,7 @@ square 250 30 10 : c#222
 input 250 23 "main"
 loc 999 2 0 -113
 square 250 30 10 : c#222
-if clicked (
+if clicked or "enter".onpress (
   dta = input_main.split(".")
   file "set" "name" dta.[1].destr
   file "set" "type" "." ++ dta.[2].destr
