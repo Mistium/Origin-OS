@@ -14,6 +14,7 @@ if clicked or "enter".onpress (
   dta = input_main.split(".")
   file "set" "name" dta.[1].destr
   file "set" "type" "." ++ dta.[2].destr
+  window "stop"
 )
 change_x -30
 text "Rename" 8 : c#fff
@@ -23,7 +24,7 @@ square 270 20 15 : c#333
 loc -2 2 -15 -15
 icon "close" 0.6 : c#fff
 if clicked (
-window "stop"
+  window "stop"
 )
 loc 2 2 15 -15
 file "render" 1
