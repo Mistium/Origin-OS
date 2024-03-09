@@ -1,0 +1,129 @@
+def "loadperms" "id"
+  file "open" data_path ++ "/" ++ app_names.[id] ++ "/permissions.json"
+  current_app = id
+  app_file_perms = 4
+  if data.contains("File Viewer") "app_file_perms = 3"
+  if data.contains("File Editor") "app_file_perms = 2"
+  if data.contains("File Admin") "app_file_perms = 1"
+  app_terminal = data.contains("terminal")
+  app_notifications = data.contains("notifications")
+  app_permission_edit = data.contains("Permission Editor")
+  app_desktopless = data.contains("All Desktop Interact")
+  app_network = data.contains("network")
+endef
+
+def drawtoggle "name,val,ypos"
+  loc 999 2 0 ypos
+  square frame_width - 20 30 10 1 : c#333
+  loc 2 2 15 ypos
+  text name 8 : c#fff
+  loc -2 2 -25 ypos
+  if val.not "colour #666" else "c #444"
+  square 20 20 10 1
+  if val "c #666" else "c #444"
+  square 20 20 10 1 : chx#-35
+  colour #fff
+  output = val
+  icon "Tick" 0.6
+  if clicked "output = True"
+  icon "Close" 0.6 : chx#35
+  if clicked "output = False"
+endef
+
+data_path = "origin/(C) Users/" ++ username ++ "/Application Data"
+file "open" data_path ++ ".folder"
+apps = file.[4]
+count = 0
+app_names = []
+loop apps.len (
+  count ++
+  file "open" "id" apps.[count]
+  name = file.[2]
+  app_names = app_names.append(name)
+)
+current_app = 1
+
+mainloop:
+window "show"
+loc 999 2 0 -20
+square window_width 30 10 1 : c#222
+loc 2 2 10 -20
+text "Permission Editor" 10 : c#fff
+loc 2 2 0 -45
+x = x_position
+y = y_position
+loc 2 -2 200 0
+c #222
+frame x y x_position y_position apps.len * 45 - 25
+count = 0
+loop apps.len (
+  count ++
+  y = count * -45 + scroll_y + 25
+  loc 999 2 0 y
+  if count == current_app "c #444" else "c #222"
+  square frame_width - 20 30 10 1
+  if clicked "loadperms count"
+  loc 2 2 10 y
+  text app_names.[count] 7 : c#fff
+)
+frame "clear"
+loc 2 2 200 -40
+x = x_position
+y = y_position
+loc -2 -2
+frame x y x_position y_position permslen 1
+loc 999 2 0 -40
+square frame_width - 20 60 10 1 : c#333
+
+loc 2 2 15 -25
+text "Files" 8 : c#fff
+loc 2 2 15 -57
+text option_desc.[app_file_perms] 8
+options = ["Admin","Editor","Viewer","None"]
+option_desc = ["Allows unrestricted access to edit files","Allows access to edit files","Allows access to View Files","Blocks access to all files"]
+perm_names = ["File Admin","File Editor","File Viewer"]
+current = perm_names.[app_file_perms]
+out = []
+if app_file_perms < 4 "out = out.append(current)"
+if not
+loc -2 2 options.len - 0.5 * -90 - 7 -25
+count = 0
+loop options.len (
+  count += 1
+  x = x_position
+  if app_file_perms == count "c #666" else "c #444"
+  square 75 20 10 1
+  if clicked "app_file_perms = count"
+  change_x -35
+  text options.[count] 8 : chx#-35 c#fff
+  goto x + 90 y_position
+)
+file_perm = options.[app_file_perms]
+drawtoggle "Terminal" app_terminal -100
+app_terminal = output
+if output (
+  out.append("terminal")
+)
+drawtoggle "Notifications" app_notifications -145
+app_notifications = output
+if output (
+  out.append("notifications")
+)
+drawtoggle "Permission Editor" app_permission_edit -190
+app_permission_edit = output
+if output (
+  out.append("Permission Editor")
+)
+drawtoggle "Ignore Desktop System" app_desktopless -235
+app_desktopless = output
+if output (
+  out.append("All Desktop Interact")
+)
+drawtoggle "Network Access" app_network -280
+app_network = output
+if output (
+  out.append("network")
+)
+file "set" "data" out
+permslen = 5 * 45 + 55
+import "win-buttons"
