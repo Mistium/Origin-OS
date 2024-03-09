@@ -304,7 +304,6 @@ def "Appearance"
       square 25 25 12 : c#444
       current_wallpaper = clipboard.str
     )
-    current_wallpaper.str
     icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
     if wallpapers.contains(current_wallpaper).not (
       if current_wallpaper.imageinfo("loaded") (
