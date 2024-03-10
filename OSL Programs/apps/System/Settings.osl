@@ -55,10 +55,10 @@ def "system"
           tier = "originDrive"
         )
         if network_drive.[2] == 5000000000 (
-          tier = "origin Pro"
+          tier = "originPro"
         )
         if username == "Mist" (
-          tier = "origin Administrator"
+          tier = "Admin"
         )
         if network_drive.[2] > 999999 (
           used_big = network_drive.[2].divide(1000000).round
