@@ -107,7 +107,7 @@ if input_search != temp (
   output_keys = outputs.getall("keys")
 )
 if "enter".pressed (
-  gpt "send" "assistant" input_search
+  gpt "send" input_search "assistant"
   outputs."main" = data
   name = "Gpt Assistant"
   txt_size = 10
