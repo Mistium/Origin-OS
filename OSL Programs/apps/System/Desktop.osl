@@ -56,9 +56,10 @@ if hovered (
   rightclick "desktop"
 )
 if desktop.len == 0 "exit"
+clipboard "set" desktop
 count = 0
 loop desktop.len (
-  applications_count ++
+  count ++
   file "open" desktop.[count]
   loc 2 2 35 -35
   change file.[6] file.[7]
