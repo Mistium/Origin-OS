@@ -47,22 +47,29 @@ def "system"
       new_network_data = false
     )
   )
-  if network_drive.[2] == 150000 (
+  if network_drive.[2] == 10000000 (
     tier = "Free Tier"
   )
-  if network_drive.[2] == 250000 (
+  if network_drive.[2] == 50000000 (
     tier = "Supporter"
   )
-  if network_drive.[2] == 500000 (
+  if network_drive.[2] == 1000000000 (
     tier = "originDrive"
   )
-  if network_drive.[2] == 50000000 (
+  if network_drive.[2] == 5000000000 (
     tier = "origin Pro"
   )
   if username == "Mist" (
     tier = "origin Administrator"
   )
-  used_big = network_drive.[2].divide(1000).round
+  if network_drive.[2] > 999999 (
+    used_big = network_drive.[2].divide(1000000).round
+    unit = "mb"
+  )
+  if network_drive.[2] > 999999999 (
+    used_big = network_drive.[2].divide(1000000000).round
+    unit = "gb"
+  )
   if subcategory == "none" (
     option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
@@ -87,7 +94,7 @@ def "system"
     loc 2 2 200 -110
     text "Kernel:" + kernel."name" + kernel."version" + kernel."type" 8
     loc 2 2 200 -130
-    text "Storage: " ++ used_big ++ "kb" 8
+    text "Storage: " ++ used_big ++ unit 8
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
     loc 2 2 200 -170
