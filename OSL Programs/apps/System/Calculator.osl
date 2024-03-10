@@ -6,7 +6,7 @@ current = 0
 secondary = 0
 def "draw" "x,y,x2,y2,character"
   loc x y x2 + 15 y2 + 55
-  if operation.str == character "c #f79204" else "c #333"
+  if operation.str == character "c #f77000" else "c #f79204"
   square 50 50 10 1
   if mouse_down.not "can = True"
 
