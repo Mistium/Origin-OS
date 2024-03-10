@@ -461,6 +461,30 @@ def "Appearance"
 endef
 
 def "account"
+if network_drive.istype("array").not (
+      if network_drive == "none" (
+        network "my_files_usage"
+      )
+      if new_network_data (
+        if network_data_command == "my_files_usage" (
+          network_drive = network_data.destr
+        )
+        new_network_data = false
+      )
+    )
+    if network_drive.[2] == 150000 (
+      tier = "Free Tier"
+    )
+    if network_drive.[2] == 500000 (
+      tier = "Supporter"
+    )
+    if network_drive.[2] == 5000000 (
+      tier = "originDrive"
+    )
+    if network_drive.[2] == 50000000 (
+      tier = "origin Pro"
+    )
+)
   loc 999 2 5 -90
   square frame_width - 25 150 10 : c#111
   loc 2 2 90 -90
@@ -483,6 +507,8 @@ def "account"
   text username 12 : c#fff
   loc 2 2 150 -100
   text "origin Account" 10
+  loc 2 2 150 -120
+  text tier 10
   loc 2 2 20 -200
   text "Profile Picture:" 10
   loc 2 2 20 -230
