@@ -15,7 +15,7 @@ def "navigate" "path"
   file "start"
 endef
 
-file "open" "Origin/(C) Users/" ++ username ++ ".folder"
+file "open" user_folder ++ ".folder"
 file "start"
 
 def "folder" "txt"
