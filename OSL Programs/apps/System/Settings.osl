@@ -39,36 +39,38 @@ def "system"
   if network_drive.istype("array").not (
     if network_drive == "none" (
       network "my_files_usage"
+      tier = "Loading..."
+      unit = null
     )
     if new_network_data (
       if network_data_command == "my_files_usage" (
         network_drive = network_data.destr
+        if network_drive.[2] == 10000000 (
+          tier = "Free Tier"
+        )
+        if network_drive.[2] == 50000000 (
+          tier = "Supporter"
+        )
+        if network_drive.[2] == 1000000000 (
+          tier = "originDrive"
+        )
+        if network_drive.[2] == 5000000000 (
+          tier = "origin Pro"
+        )
+        if username == "Mist" (
+          tier = "origin Administrator"
+        )
+        if network_drive.[2] > 999999 (
+          used_big = network_drive.[2].divide(1000000).round
+          unit = "mb"
+        )
+        if network_drive.[2] > 999999999 (
+          used_big = network_drive.[2].divide(1000000000).round
+          unit = "gb"
+        )
       )
       new_network_data = false
     )
-  )
-  if network_drive.[2] == 10000000 (
-    tier = "Free Tier"
-  )
-  if network_drive.[2] == 50000000 (
-    tier = "Supporter"
-  )
-  if network_drive.[2] == 1000000000 (
-    tier = "originDrive"
-  )
-  if network_drive.[2] == 5000000000 (
-    tier = "origin Pro"
-  )
-  if username == "Mist" (
-    tier = "origin Administrator"
-  )
-  if network_drive.[2] > 999999 (
-    used_big = network_drive.[2].divide(1000000).round
-    unit = "mb"
-  )
-  if network_drive.[2] > 999999999 (
-    used_big = network_drive.[2].divide(1000000000).round
-    unit = "gb"
   )
   if subcategory == "none" (
     option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
