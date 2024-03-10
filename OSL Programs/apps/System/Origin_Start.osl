@@ -9,33 +9,29 @@ def "openapp" "name"
 endef
 
 def "find_sizes"
-  use1kb = usage.[1] / 1000
+  use1 = usage.[1] / 1000
   unit = "kb"
-  if use1kb > 1000 (
+  if use1 > 1000 (
     unit = "mb"
-    use1kb = usage.[1] / 1000
-    if use1kb > 1000 (
+    use1 = usage.[1] / 1000
+    if use1 > 1000 (
       unit = "gb"
-      use1kb = usage.[1] / 1000
+      use1 = usage.[1] / 1000
     )
   )
-  use2kb = usage.[2] / 1000
-  unit2 = "kb"
-  if use2kb > 1000 (
-    unit2 = "mb"
-    use2kb = usage.[2] / 1000
-    if use2kb > 1000 (
-      unit2 = "gb"
-      use2kb = usage.[2] / 1000
-    )
+  use2 = usage.[2] / 1000000
+  unit2 = "mb"
+  if use2 > 1000 (
+    unit2 = "gb"
+    use2 = usage.[2] / 1000
   )
-  use1kb.round
-  use2kb.round
+  use1.round
+  use2.round
 endef
 
 target_y = 0
 usage = []
-use1kb = "none"
+use1 = "none"
 
 
 mainloop:
@@ -101,11 +97,11 @@ if usage.len == 0 (
   change_x -100
   text "Loading Storage Info" 10 : c#fff
 ) else (
-  if use1kb == "none" "find_sizes"
+  if use1 == "none" "find_sizes"
   goto -245 260
   text "Storage" 10 : c#fff
   goto -245 230
-  text "Used <use1kb>kb / <use2kb>kb" 9
+  text "Used <use1><unit> / <use2><unit2>" 9
   goto -140 200
   bar 200 20 10 usage.[3] : c#111
   usepercent = usage.[3].multiply(100).round ++ "%"
