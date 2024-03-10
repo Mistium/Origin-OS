@@ -60,7 +60,6 @@ if hovered (
   rightclick "desktop"
 )
 if data.len == 0 "exit"
-clipboard "set" desktop
 count = 0
 loop desktop.len (
   count ++
