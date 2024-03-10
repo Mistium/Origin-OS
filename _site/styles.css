@@ -40,3 +40,21 @@ body {
 .content {
     padding: 20px;
 }
+
+.image-container {
+    position: relative;
+    height: 400px; /* Adjust height according to your needs */
+    overflow: hidden;
+}
+
+.image {
+    position: absolute;
+    width: 100%;
+    opacity: 0.5; /* Adjust opacity if needed */
+    transition: transform 0.5s ease;
+}
+
+.content {
+    height: 2000px; /* Just for demonstration, adjust height according to your content */
+    background-color: #f2f2f2; /* Just for demonstration */
+}
