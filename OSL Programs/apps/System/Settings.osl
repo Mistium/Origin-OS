@@ -36,6 +36,33 @@ def "option" "name,icn_code"
 endef
 
 def "system"
+  if network_drive.istype("array").not (
+      if network_drive == "none" (
+        network "my_files_usage"
+      )
+      if new_network_data (
+        if network_data_command == "my_files_usage" (
+          network_drive = network_data.destr
+        )
+        new_network_data = false
+      )
+    )
+    if network_drive.[2] == 150000 (
+      tier = "Free Tier"
+    )
+    if network_drive.[2] == 250000 (
+      tier = "Supporter"
+    )
+    if network_drive.[2] == 500000 (
+      tier = "originDrive"
+    )
+    if network_drive.[2] == 50000000 (
+      tier = "origin Pro"
+    )
+    if username == Mist (
+      tier = "origin Administrator"
+    )
+  used_big = network_drive.[2].divide(1000).round
   if subcategory == "none" (
     option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
@@ -60,12 +87,12 @@ def "system"
     loc 2 2 200 -110
     text "Kernel:" + kernel."name" + kernel."version" + kernel."type" 8
     loc 2 2 200 -130
-    text "Storage: N/A" 8
+    text "Storage: " ++ used_big ++ "kb" 8
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
     loc 2 2 200 -170
     if system_url.contains("raw.githack.com/Mistium/Origin-OS") (
-      text "BIOS: Offical" 8
+      text "BIOS: Official" 8
     ) else (
       if system_url.left(7) == "file://" (
         text "BIOS: Local" 8
@@ -233,7 +260,7 @@ def "system"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
-    if network_drive.[2] == 500000 (
+    if network_drive.[2] == 250000 (
       text "Supporter" 10
     )
     if network_drive.[2] == 5000000 (
@@ -461,30 +488,6 @@ def "Appearance"
 endef
 
 def "account"
-if network_drive.istype("array").not (
-      if network_drive == "none" (
-        network "my_files_usage"
-      )
-      if new_network_data (
-        if network_data_command == "my_files_usage" (
-          network_drive = network_data.destr
-        )
-        new_network_data = false
-      )
-    )
-    if network_drive.[2] == 150000 (
-      tier = "Free Tier"
-    )
-    if network_drive.[2] == 500000 (
-      tier = "Supporter"
-    )
-    if network_drive.[2] == 5000000 (
-      tier = "originDrive"
-    )
-    if network_drive.[2] == 50000000 (
-      tier = "origin Pro"
-    )
-)
   loc 999 2 5 -90
   square frame_width - 25 150 10 : c#111
   loc 2 2 90 -90
