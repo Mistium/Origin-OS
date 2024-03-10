@@ -69,6 +69,10 @@
         const savedTheme = localStorage.getItem('theme');
         if (savedTheme) {
             setTheme(savedTheme);
+            // Update the toggle switch based on the loaded theme
+            if (savedTheme === 'dark-theme') {
+                document.getElementById('themeToggle').checked = true;
+            }
         } else {
             setTheme('dark-theme'); // Default to dark theme if no theme is saved
         }
