@@ -306,6 +306,7 @@ def "Appearance"
     )
     icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
     if wallpapers.contains(current_wallpaper).not (
+      clipboard "set" current_wallpaper
       if current_wallpaper.imageinfo("loaded") (
         wallpapers.append(current_wallpaper)
         save "wallpapers.json" "set" wallpapers
@@ -336,7 +337,6 @@ def "Appearance"
       if mouse_touching (
         if clicked.not "square 20 20 23 : c#333"
         if clicked and can (
-          clipboard "set" cur
           terminal "system wallpaper" + cur
           network "update" "wallpaper" cur
           can = false
