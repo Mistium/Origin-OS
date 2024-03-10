@@ -3,7 +3,7 @@ window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
 include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
-file "set" 4 data - ""
+file "set" 4 data - null
 
 window "responsive" true
 mainloop:
