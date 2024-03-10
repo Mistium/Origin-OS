@@ -28,8 +28,7 @@ def "folder" "txt"
   square 225 20 10 0 1
   if clicked and can (
     can = false
-    if con.not "hidden = hidden.append(txt)"
-    if con "hidden = hidden.delete(txt)"
+    if con "hidden = hidden.delete(txt)" else "hidden = hidden.append(txt)"
   )
   if mouse_touching "square 225 20 10 : c#c_seco"
   loc 2 2 230 y
@@ -196,4 +195,4 @@ mainloop:
   )
   text "<files.len> items | <selected_files.len> selected | <r>" 9 : c#c_icon
   
-  if mouse_down.not "can = True"
+  if mouse_down.not "can = true"
