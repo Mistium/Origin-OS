@@ -208,17 +208,6 @@ def "system"
     page_len = apps.len * 20
   )
   if subcategory == "Storage" (
-    if network_drive.istype("array").not (
-      if network_drive == "none" (
-        network "my_files_usage"
-      )
-      if new_network_data (
-        if network_data_command == "my_files_usage" (
-          network_drive = network_data.destr
-        )
-        new_network_data = false
-      )
-    )
     file "open" "Origin/(A) System.folder"
     y = -160 + 75 + scroll_y
     loc 999 2 0 y
