@@ -6,7 +6,7 @@ window "front"
 
 window_x = screensize_x / 2 + 128
 window_target_x = -102
-
+used = "used"
 last_upload = timer + 600
 last_synced = 0
 syncing = false
@@ -33,8 +33,26 @@ if new_network_data (
   )
   if network_data_command == "my_files_usage" (
     used = network_data
-    used_small = used.[1].divide(1000).round
-    used_big = used.[2].divide(1000).round
+    use1 = used.[1] / 1000
+    unit = "kb"
+    if use1 > 1000 (
+      unit = "mb"
+      use1 /= 1000
+      if use1 > 1000 (
+        unit = "gb"
+        use1 /= 1000
+      )
+    )
+    use2 = used.[2] / 1000
+    unit2 = "kb"
+    if use2 > 1000 (
+      unit2 = "mb"
+      use2 /= 1000
+      if use2 > 1000 (
+        unit2 = "gb"
+        use2 /= 1000
+      )
+    )
   )
   network_data_command = null
   new_network_data = false
@@ -114,11 +132,9 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   direction 90
   change 30 -10
   text last_sync_text 8
-
-
   loc 999 2 -40 -77
   if used != "used" (
-    text "<used_small>kb / <used_big>kb" 8
+    text "<use1><unit> / <use2><unit2>" 8
   )
 )
 
