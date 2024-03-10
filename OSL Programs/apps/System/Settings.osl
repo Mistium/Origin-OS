@@ -336,6 +336,7 @@ def "Appearance"
       if mouse_touching (
         if clicked.not "square 20 20 23 : c#333"
         if clicked and can (
+          clipboard "set" cur
           terminal "system wallpaper" + cur
           network "update" "wallpaper" cur
           can = false
@@ -347,7 +348,7 @@ def "Appearance"
       if mouse_touching (
         if clicked.not "square 20 20 23 : c#333"
         if clicked and can (
-          wallpapers = wallpapers.delete(count)
+          wallpapers.delete(count)
           can = false
           save "wallpapers.json" "set" wallpapers
         )
