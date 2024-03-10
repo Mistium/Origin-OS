@@ -28,7 +28,7 @@ def "folder" "txt"
   square 225 20 10 0 1
   if clicked and can (
     can = false
-    if con "hidden = hidden.delete(txt)" else "hidden = hidden.append(txt)"
+    if con "hidden.delete(txt)" else "hidden.append(txt)"
   )
   if mouse_touching "square 225 20 10 : c#c_seco"
   loc 2 2 230 y
@@ -48,7 +48,7 @@ def "file_folder" "path_input,txt,folder"
       navigate path_input
     )
     loc 2 2 30 y
-    icon icons.key(txt) 0.9
+    icon icons.[txt] 0.9
     text txt 8 : c#c_icon chx#30
     y -= 35
   )
