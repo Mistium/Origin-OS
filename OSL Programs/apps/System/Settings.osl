@@ -59,6 +59,9 @@ def "system"
     if network_drive.[2] == 50000000 (
       tier = "origin Pro"
     )
+    if username == Mist (
+      tier = "origin Administrator"
+    )
   used_big = network_drive.[2].divide(1000).round
   if subcategory == "none" (
     option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
