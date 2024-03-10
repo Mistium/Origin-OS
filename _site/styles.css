@@ -6,7 +6,7 @@ body {
     padding: 0;
     transition: background-color 0.3s ease;
     background-color: #222;
-    color: #222;
+    color: #fff;
 }
 
 .container {
@@ -39,12 +39,4 @@ body {
 
 .content {
     padding: 20px;
-}
-
-h1 {
-    color: #fff;
-}
-
-p {
-    color: #fff;
 }
