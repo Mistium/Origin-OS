@@ -33,8 +33,8 @@ if new_network_data (
   )
   if network_data_command == "my_files_usage" (
     used = network_data
-    used_small = used.[1].divide(1000).round
-    used_big = used.[2].divide(1000).round
+    used_small = used.[1]
+    used_big = used.[2]
   )
   network_data_command = null
   new_network_data = false
@@ -115,10 +115,34 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   change 30 -10
   text last_sync_text 8
 
+  if used_big > 999 (
+    used_big_fix = used_big.divide(1000).round
+    unit = "kb"
+  )
+  if used_big > 999999 (
+    used_big_fix = used_big.divide(1000000).round
+    unit = "mb"
+  )
+  if used_big > 999999999 (
+    used_big_fix = used_big.divide(1000000000).round
+    unit = "gb"
+  )
+  if used_small > 999 (
+    used_small_fix = used_small.divide(1000).round
+    unit_small = "kb"
+  )
+  if used_small > 999999 (
+    used_small_fix = used_small.divide(1000).round
+    unit_small = "mb"
+  )
+  if used_small > 999999999 (
+    used_small_fix = used_small.divide(1000000).round
+    unit_small = "gb"
+  )
 
   loc 999 2 -40 -77
   if used != "used" (
-    text "<used_small>kb / <used_big>kb" 8
+    text "<used_small_fix><unit_small> / <used_big_fix><unit>" 8
   )
 )
 
