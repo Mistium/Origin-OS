@@ -247,7 +247,7 @@ def "system"
     icon file.[11] 3.3
     text "(Network)" + username 15 : chx#80 chy#20 c#fff
     change_x 20
-    if network_drive.[2] == 150000 (
+    if network_drive.[2] == 10000000 (
       text "Free User" 10
       text "Upgrade: " 10 : c#ccc chx#20
       square 120 20 10 : c#ededed chx#100
@@ -256,17 +256,25 @@ def "system"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
-    if network_drive.[2] == 250000 (
-      text "Supporter" 10
-    )
-    if network_drive.[2] == 5000000 (
-      text "originDrive" 10
-    )
-    if network_drive.[2] == 50000000 (
-      text "origin Pro" 10
-    )
+  if network_drive.[2] == 50000000 (
+    tier = "Supporter"
+  )
+  if network_drive.[2] == 1000000000 (
+    tier = "originDrive"
+  )
+  if network_drive.[2] == 5000000000 (
+    tier = "origin Pro"
+  )
+  if network_drive.[2] > 999999 (
+    used_big = network_drive.[2].divide(1000000).round
+    unit = "mb"
+  )
+  if network_drive.[2] > 999999999 (
+    used_big = network_drive.[2].divide(1000000000).round
+    unit = "gb"
+  )
     loc 2 2 160 y
-    text network_drive.[1] / 1000 ++ "kb /" + ( network_drive.[2] / 1000 ) ++ "kb" 10
+    text network_drive.[1] / 1000 ++ "kb /" + used_big ++ unit 10
     loc 999 2 125 / 2 y - 35
     percent = network_drive.[1] / network_drive.[2]
     bar frame_width - 200 20 10 percent : c#444
