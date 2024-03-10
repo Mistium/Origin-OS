@@ -25,66 +25,11 @@
              <li><a href="https://discord.gg/7DcwkqrZ9S">Dicscord</a></li>
             <!-- Add more menu items as needed -->
         </ul>
-        <div class="theme-toggle">
-            <label class="switch">
-                <input type="checkbox" id="themeToggle">
-                <span class="slider round"></span>
-            </label>
-        </div>
     </div>
 </nav>
 
 <div class="content">
 </div>
-
-<script>
-    const themeToggle = document.getElementById('themeToggle');
-    const body = document.body;
-
-    themeToggle.addEventListener('change', function() {
-        if (this.checked) {
-            body.classList.add('dark-theme');
-        } else {
-            body.classList.remove('dark-theme');
-        }
-    });
-    
-    // Function to set the theme based on user preference
-    function setTheme(themeName) {
-        document.body.className = themeName;
-        localStorage.setItem('theme', themeName);
-    }
-
-    // Function to toggle between light and dark theme
-    function toggleTheme() {
-        if (localStorage.getItem('theme') === 'dark-theme') {
-            setTheme('light-theme');
-        } else {
-            setTheme('dark-theme');
-        }
-    }
-
-    // Function to load the saved theme setting
-    function loadTheme() {
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme) {
-            setTheme(savedTheme);
-            // Update the toggle switch based on the loaded theme
-            if (savedTheme === 'dark-theme') {
-                document.getElementById('themeToggle').checked = true;
-            }
-        } else {
-            setTheme('dark-theme'); // Default to dark theme if no theme is saved
-        }
-    }
-
-    themeToggle.addEventListener('change', function() {
-        toggleTheme();
-    });
-
-    // Load the saved theme setting when the page loads
-    window.onload = loadTheme;
-</script>
 
 </body>
 </html>
