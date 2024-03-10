@@ -38,12 +38,12 @@ body {
 }
 
 .content {
-  padding: 20px;
+  padding: 0px;
 }
 
 .image-container {
   position: relative;
-  height: 100vh;
+  height: 80vh;
   overflow: hidden;
 }
 
@@ -69,14 +69,10 @@ body {
 #Image3 {
   position: absolute;
   top: calc(50% - 5vw);
-  left: calc(50% - 5vw); /* Adjust as needed */
+  left: calc(50% - 5vw);
   transform: translate(-50%, -50%);
 }
 
-/* Add more styles for additional images if needed */
 .content {
-  height: 2000px;
-  /* Just for demonstration, adjust height according to your content */
   background-color: #f2f2f2;
-  /* Just for demonstration */
 }
