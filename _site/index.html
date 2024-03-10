@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Origin</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<nav class="top-nav">
+    <div class="container">
+        <div class="logo">origin.mistium.com</div>
+        <ul class="nav-menu">
+            <li><a href="#">About</a></li>
+            <li><a href="#">Use Origin</a></li>
+            <li><a href="#">Github</a></li>
+            <!-- Add more menu items as needed -->
+        </ul>
+        <div class="theme-toggle">
+            <label class="switch">
+                <input type="checkbox" id="themeToggle">
+                <span class="slider round"></span>
+            </label>
+        </div>
+    </div>
+</nav>
+
+<div class="content">
+</div>
+
+<script>
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    themeToggle.addEventListener('change', function() {
+        if (this.checked) {
+            body.classList.add('dark-theme');
+        } else {
+            body.classList.remove('dark-theme');
+        }
+    });
+</script>
+
+</body>
+</html>
