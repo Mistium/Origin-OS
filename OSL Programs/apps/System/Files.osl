@@ -9,14 +9,14 @@ history_pos = 1
 hidden = []
 input_path = Files_path.destr
 dta = ""
+can = true
 
 def "navigate" "path"
   file "open" path ++ ".folder"
   file "start"
 endef
 
-file "open" user_folder ++ ".folder"
-file "start"
+navigate user_folder
 
 def "folder" "txt"
   con = hidden.contains(txt)
