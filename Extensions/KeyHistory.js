@@ -13,6 +13,7 @@
   class KeyHistoryExtension {
     constructor() {
       this.keyHistory = [];
+      this.pasted = false;
     }
 
     getInfo() {
@@ -74,7 +75,13 @@
     onPaste(event) {
       const pastedText = event.clipboardData.getData('text/plain');
       if (pastedText.trim() !== '') {
-        this.addKeyToHistory(pastedText);
+        if (this.pasted == false) {
+          this.pasted = true;
+          this.addKeyToHistory(pastedText);
+        }
+        setTimeout(() => {
+          this.pasted = false;
+        }, 10)
       }
     }
 
