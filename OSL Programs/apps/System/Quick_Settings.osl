@@ -53,6 +53,8 @@ if new_network_data (
         use2 /= 1000
       )
     )
+    use1.round
+    use2.round
   )
   network_data_command = null
   new_network_data = false
