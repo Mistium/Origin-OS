@@ -42,7 +42,43 @@
             body.classList.remove('dark-theme');
         }
     });
+    
+    // Function to set the theme based on user preference
+    function setTheme(themeName) {
+        document.body.className = themeName;
+        localStorage.setItem('theme', themeName);
+    }
+
+    // Function to toggle between light and dark theme
+    function toggleTheme() {
+        if (localStorage.getItem('theme') === 'dark-theme') {
+            setTheme('light-theme');
+        } else {
+            setTheme('dark-theme');
+        }
+    }
+
+    // Function to load the saved theme setting
+    function loadTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme) {
+            setTheme(savedTheme);
+        } else {
+            setTheme('dark-theme'); // Default to dark theme if no theme is saved
+        }
+    }
+
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    themeToggle.addEventListener('change', function() {
+        toggleTheme();
+    });
+
+    // Load the saved theme setting when the page loads
+    window.onload = loadTheme;
 </script>
+
 
 </body>
 </html>
