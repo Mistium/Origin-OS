@@ -50,10 +50,10 @@ def "system"
     if network_drive.[2] == 150000 (
       tier = "Free Tier"
     )
-    if network_drive.[2] == 500000 (
+    if network_drive.[2] == 250000 (
       tier = "Supporter"
     )
-    if network_drive.[2] == 5000000 (
+    if network_drive.[2] == 500000 (
       tier = "originDrive"
     )
     if network_drive.[2] == 50000000 (
@@ -257,7 +257,7 @@ def "system"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
-    if network_drive.[2] == 500000 (
+    if network_drive.[2] == 250000 (
       text "Supporter" 10
     )
     if network_drive.[2] == 5000000 (
