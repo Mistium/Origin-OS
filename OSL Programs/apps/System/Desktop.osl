@@ -1,8 +1,8 @@
 clicked_id = 0
 window "x" 0
-windowfileloc = "Origin/(C) Users/" ++ username ++ "/Desktop"
+windowfileloc = user_folder ++ "/Desktop"
 include windowfileloc
-file "open" windowfileloc ++ ".folder"
+file "open" windowfileloc ++ ".folder" "onlyaccess"
 file "set" 4 data - ""
 
 window "responsive" true
