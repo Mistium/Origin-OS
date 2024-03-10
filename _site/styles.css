@@ -54,6 +54,7 @@ body {
     transform: translate(-50%, -50%);
     opacity: 0.5; /* Adjust opacity if needed */
     transition: transform 0.5s ease;
+    width: 0.5vw;
 }
 
 .content {
