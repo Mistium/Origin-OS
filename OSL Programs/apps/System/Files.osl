@@ -48,7 +48,7 @@ def "file_folder" "path_input,txt,folder"
       navigate path_input
     )
     loc 2 2 30 y
-    icon icons.[txt] 0.9
+    icon icons.key(txt) 0.9
     text txt 8 : c#c_icon chx#30
     y -= 35
   )
@@ -79,6 +79,7 @@ c_seco = #444
 c_tert = #999
 
 mainloop:
+  if mouse_down.not "can = true"
   input_path = null
   w = window_width
   sideshow = w > 700
@@ -194,5 +195,3 @@ mainloop:
     r = r.divide(100).round / 10 + "KB"
   )
   text "<files.len> items | <selected_files.len> selected | <r>" 9 : c#c_icon
-  
-  if mouse_down.not "can = true"
