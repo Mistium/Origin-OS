@@ -56,14 +56,14 @@ if hovered (
   rightclick "desktop"
 )
 if desktop.len == 0 "exit"
-applications_count = 0
+count = 0
 loop desktop.len (
   applications_count ++
-  file "open" desktop.[applications_count]
+  file "open" desktop.[count]
   loc 2 2 35 -35
   change file.[6] file.[7]
   file "render" 2 "interactable"
-  rightclick "file" desktop.[applications_count]
+  rightclick "file" desktop.[count]
   if mouse_touching (
     name = file.[2]
     square name.len * 8 10 10 : c#000 chy#-30
