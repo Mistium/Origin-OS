@@ -36,6 +36,18 @@ def "option" "name,icn_code"
 endef
 
 def "system"
+  if network_drive.istype("array").not (
+      if network_drive == "none" (
+        network "my_files_usage"
+      )
+      if new_network_data (
+        if network_data_command == "my_files_usage" (
+          network_drive = network_data.destr
+        )
+        new_network_data = false
+      )
+    )
+  used_big = network_drive.[2].divide(1000).round
   if subcategory == "none" (
     option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
     option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
@@ -60,7 +72,7 @@ def "system"
     loc 2 2 200 -110
     text "Kernel:" + kernel."name" + kernel."version" + kernel."type" 8
     loc 2 2 200 -130
-    text "Storage: N/A" 8
+    text "Storage: " ++ used_big ++ "kb" 8
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
     loc 2 2 200 -170
