@@ -305,15 +305,18 @@ def "Appearance"
       current_wallpaper = clipboard.str
     )
     icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
+    current_wallpaper.str
     if wallpapers.contains(current_wallpaper).not (
-      say current_wallpaper
+      say 1
       clipboard "set" current_wallpaper
       if current_wallpaper.imageinfo("loaded") (
-        wallpapers.append(current_wallpaper)
+        say 2
+        wallpapers = wallpapers + current_wallpaper
         save "wallpapers.json" "set" wallpapers
         current_wallpaper = ""
       )
       if current_wallpaper == clipboard.str (
+        say 3
         image current_wallpaper 0 0
         text "Trying" 10 : c#fff chx#20
         image current_wallpaper 10
