@@ -6,7 +6,7 @@ body {
     padding: 0;
     transition: background-color 0.3s ease;
     background-color: #222;
-    color: #fff;
+    color: #222;
 }
 
 .container {
@@ -42,9 +42,9 @@ body {
 }
 
 h1 {
-    color: inherit;
+    color: #fff;
 }
 
 p {
-    color: inherit;
+    color: #fff;
 }
