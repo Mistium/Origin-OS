@@ -37,31 +37,31 @@ endef
 
 def "system"
   if network_drive.istype("array").not (
-      if network_drive == "none" (
-        network "my_files_usage"
+    if network_drive == "none" (
+      network "my_files_usage"
+    )
+    if new_network_data (
+      if network_data_command == "my_files_usage" (
+        network_drive = network_data.destr
       )
-      if new_network_data (
-        if network_data_command == "my_files_usage" (
-          network_drive = network_data.destr
-        )
-        new_network_data = false
-      )
+      new_network_data = false
     )
-    if network_drive.[2] == 150000 (
-      tier = "Free Tier"
-    )
-    if network_drive.[2] == 250000 (
-      tier = "Supporter"
-    )
-    if network_drive.[2] == 500000 (
-      tier = "originDrive"
-    )
-    if network_drive.[2] == 50000000 (
-      tier = "origin Pro"
-    )
-    if username == Mist (
-      tier = "origin Administrator"
-    )
+  )
+  if network_drive.[2] == 150000 (
+    tier = "Free Tier"
+  )
+  if network_drive.[2] == 250000 (
+    tier = "Supporter"
+  )
+  if network_drive.[2] == 500000 (
+    tier = "originDrive"
+  )
+  if network_drive.[2] == 50000000 (
+    tier = "origin Pro"
+  )
+  if username == "Mist" (
+    tier = "origin Administrator"
+  )
   used_big = network_drive.[2].divide(1000).round
   if subcategory == "none" (
     option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
