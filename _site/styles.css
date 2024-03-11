@@ -9,7 +9,7 @@ body {
 }
 
 
-.container {
+.nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -101,6 +101,9 @@ body {
 
 .kernel-info .item {
   opacity: 1;
+  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
   display: flex;
   justify-content: space-between;
 }
@@ -140,7 +143,7 @@ body {
 }
 
 .container {
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
