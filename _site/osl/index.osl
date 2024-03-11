@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+   <head>
+      <meta charset="UTF-8">
+      <title>OSL</title>
+      <meta content="OSL" property="og:title" />
+      <meta content="Origin Scripting Language, the most lifelike turbowarp programming language" property="og:description" />
+      <meta content="https://osl.mistium.com" property="og:url" />
+      <meta content="https://c10.patreonusercontent.com/4/patreon-media/p/campaign/6360032/cd4d79c9837e432d8a738fcb20adddb0/eyJ3IjoyMDB9/1.gif?token-time=2145916800&token-hash=s7N1XbcZeTyM5x9yoeuBVHas76l-DLNV3C1F93rdAUs%3D" property="og:image" />
+      <meta content="#57cdac" data-react-helmet="true" name="theme-color" />
+      <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <link rel="stylesheet" href="styles.css">
+   </head>
+   <body>
+      <nav class="top-nav">
+         <div class="nav-container">
+            <div class="logo">osl.mistium.com</div>
+            <ul class="nav-menu">
+               <li><a href="https://origin.mistium.com">About</a></li>
+               <li><a href="https://launcher.mistium.com">Use Origin</a></li>
+               <li><a href="https://github.com/Mistium/Origin-OS">Github</a></li>
+               <li><a href="http://routermilo.ddns.net:3000/status/origin">Status</a></li>
+               <li><a href="https://osl.mistium.com/">OSL Docs</a></li>
+               <li><a href="https://discord.gg/7DcwkqrZ9S">Discord</a></li>
+               <!-- Add more menu items as needed -->
+            </ul>
+         </div>
+      </nav>
+      <div class="content">
+         <h1>OSL 2</h1>
+         <h2 align="center">
+            The most powerful turbowarp programming language<br>
+         </h2>
+         <!-- Centered Card -->
+         <div class="centered-card">
+            <img src="https://raw.githubusercontent.com/Mistium/osl.mistium.com/main/osl_file.png">
+            <p>Inside originOS, OSL allows you to create scripts and windows easily!</p>
+         </div>
+         <!-- Documentation Cards -->
+         <div class="tabs">
+            <div class="tab" onclick="changeTab(1)">Important</div>
+            <div class="tab" onclick="changeTab(2)">Environment</div>
+            <div class="tab" onclick="changeTab(3)">Data</div>
+            <div class="tab" onclick="changeTab(4)">Inputs</div>
+            <div class="tab" onclick="changeTab(5)">Files</div>
+            <div class="tab" onclick="changeTab(6)">External</div>
+            <div class="tab" onclick="changeTab(7)">Other</div>
+         </div>
+         <div class="underline"></div>
+         <div class="content">
+            <div class="tab-content" id="tabContent1">
+               <div class="docs-grid">
+                  <div class="card">
+                     <h3 class="card-title">Program Flow</h3>
+                     <p>If statements</p>
+                     <p>Loops</p>
+                     <p>While</p>
+                     <p>Until</p>
+                     <p>Subroutines</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Variables</h3>
+                     <p>Setting Variables</p>
+                     <p>Accessing Variables</p>
+                     <p>Arrays</p>
+                     <p>Json Objects</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Ui Elements</h3>
+                     <p>How to Render Text</p>
+                     <p>Rendering Rectangles</p>
+                     <p>The .icn format</p>
+                     <p>Osl ui components list</p>
+                     <p>Customising Ui Elements</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Positioning UI</h3>
+                     <p>About The Osl Ui System</p>
+                     <p>Using goto</p>
+                     <p>Changing the xy position</p>
+                     <p>The Direction system in osl</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">OSL Methods</h3>
+                     <p>Using Methods</p>
+                     <p>Osl methods list</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Operators and expressions</h3>
+                     <p>Basic uses for operators</p>
+                     <p>Advanced operators</p>
+                     <p>Type based functions</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Subroutines</h3>
+                     <p>Making A Subroutine</p>
+                     <p>Using A Subroutine</p>
+                     <p>Inputs In Subroutines</p>
+                     <p>Defining Custom Methods</p>
+                     <p></p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+               </div>
+            </div>
+         </div>
+         <div class="tab-content" id="tabContent2">
+            <div class="docs-grid">
+               <div class="card">
+                  <h3 class="card-title">Window</h3>
+                  <p>Accessing data about the window</p>
+                  <p>Controlling the window</p>
+                  <p>Drag and drop</p>
+                  <p>Window Toggles</p>
+                  <p>Use the default window buttons</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Mouse Cursor</h3>
+                  <p>Setting the mouse cursor</p>
+                  <p>Cursor styles</p>
+                  <p>Getting the current cursor</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+            </div>
+         </div>
+         <div class="tab-content" id="tabContent3">
+            <div class="docs-grid">
+               <div class="card">
+                  <h3 class="card-title">Time</h3>
+                  <p>Accessing data in timestamps</p>
+                  <p>Handling timestamps</p>
+                  <p>Time Variables</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Data Types</h3>
+                  <p>Casting data types</p>
+                  <p>Finding a type</p>
+                  <p>Data type examples</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Using Json</h3>
+                  <p>About</p>
+                  <p>Defining json structures</p>
+                  <p><a href="https://www.json.org/json-en.html">Official Json Docs</a></p>
+                  <p>Data type examples</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+            </div>
+         </div>
+         <div class="tab-content" id="tabContent4">
+            <div class="docs-grid">
+               <div class="card">
+                  <h3 class="card-title">Text Boxes</h3>
+                  <p>Creating A Ui Text Box</p>
+                  <p>Customising Text Boxes</p>
+                  <p>Getting Text Box Data</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Colour Picker</h3>
+                  <p>Using the colour picker</p>
+                  <p>Getting colour data</p>
+                  <p>Handling colour data</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Popup Input</h3>
+                  <p>How to use the .ask method</p>
+                  <p>Handling user input</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+            </div>
+         </div>
+         <div class="tab-content" id="tabContent5">
+            <div class="docs-grid">
+               <div class="card">
+                  <h3 class="card-title">File Handling</h3>
+                  <p>Opening and modifying files</p>
+                  <p>OFSF14 formatting</p>
+                  <p>Getting file matadata</p>
+                  <p>Default File types</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Save Data</h3>
+                  <p>Saving data to the user's origin account</p>
+                  <p>Getting save data</p>
+                  <p>Handling missing save data</p>
+                  <p>Example save data system</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Permission System</h3>
+                  <p>All Permissions</p>
+                  <p>Requesting permissions</p>
+                  <p>Getting my permissions</p>
+                  <p>Handling missing permissions</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Importing files</h3>
+                  <p>Using the import command</p>
+                  <p>Example uses of the import command</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Include Command</h3>
+                  <p>What is the include command?</p>
+                  <p>How to use the include command</p>
+                  <p>Examples of the include command</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+            </div>
+          </div>
+          <div class="tab-content" id="tabContent6">
+               <div class="docs-grid">
+                  <div class="card">
+                     <h3 class="card-title">Iframes</h3>
+                     <p>Setting up an iframe</p>
+                     <p>Getting data from an iframe</p>
+                     <p>Moving and resizing iframes</p>
+                     <p>Removing iframes</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Http commands</h3>
+                     <p>Creating a new http request</p>
+                     <p>Sending data to a discord webhook</p>
+                     <p>Http command list</p>
+                     <p></p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">OSL networking</h3>
+                     <p>Sending data to the origin server</p>
+                     <p>Networking with other users</p>
+                     <p>Client - Server in osl</p>
+                     <p></p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Video Player</h3>
+                     <p>Using the video player component</p>
+                     <p>Accompanying commands</p>
+                     <p>Creating a custom video player ui</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+                  <div class="card">
+                     <h3 class="card-title">Osl Gpt</h3>
+                     <p>Setting up a basic chat</p>
+                     <p>Getting data from the chat</p>
+                     <p>Generating images</p>
+                     <p>Managing chatbots</p>
+                     <!-- Add more documentation items as needed -->
+                  </div>
+               </div>
+            </div>
+            <div class="tab-content" id="tabContent7">
+              <div class="docs-grid">
+                 <div class="card">
+                    <h3 class="card-title">OSL Error Codes</h3>
+                    <p>Error list</p>
+                    <!-- Add more documentation items as needed -->
+                 </div>
+              </div>
+           </div>
+         </div>
+      </div>
+   </body>
+   <script src="script.js"></script>
+</html>
