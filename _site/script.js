@@ -1,6 +1,7 @@
 document.addEventListener('scroll', function() {
     const image1 = document.getElementById('Image1');
     const image3 = document.getElementById('Image3');
+    const image4 = document.getElementById('Image4');
     const scrollY = window.scrollY;
 
     const newPosition = scrollY / 50 + 5;
@@ -10,4 +11,7 @@ document.addEventListener('scroll', function() {
 
     image3.style.top = `calc(50% + ${newPosition* -1}vw)`;
     image3.style.left = `calc(50% + ${newPosition* -1}vw)`;
+    
+    image4.style.width = `calc(50% + ${newPosition}vh)`;
+    image4.style.left = `calc(50% + ${newPosition * -0.05}vw)`;
 });
