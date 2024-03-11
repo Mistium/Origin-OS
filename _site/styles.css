@@ -127,11 +127,15 @@ body {
 
 .quote p {
   margin: 10px 0;
+  max-width: 450px;
 }
 
 .quote blockquote {
   font-style: italic;
   color: #ddd;
+  max-width: 500px;
+  border-radius: 10px;
+  padding: 20px;
 }
 
 .quote footer {
