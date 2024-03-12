@@ -8,6 +8,8 @@ if save_data.istype("array") (
 )
 recent_2 = recent.trim(1,7)
 
+current_studio_page = "Home"
+
 c_text = #fff
 c_prim = #333
 c_seco = #151515
@@ -60,6 +62,10 @@ if current_studio_page == "Recent Files" (
   loc 2 2 25 -25
   square 30 30 15 1 : c#c_prim
   square 30 30 10 1 : c#c_seco hover_c#c_prim
+  if clicked (
+    current_studio_page = "Home"
+  )
+  icon "left-arrow" 0.7 : c#c_text hover_size#1.2
   c #222
   frame window."left" window."top" - 50 window."right" window."bottom" recent.len * 60
   w = frame_width - 20
@@ -75,7 +81,7 @@ if current_studio_page == "Recent Files" (
       square w 40 10 1 : c#c_seco
       if clicked and can (
         can = false
-        window "add" "studio" cur.str
+        current_studio_page = cur.str
       )
     )
     change_x window_width - 90 / -2
@@ -147,6 +153,17 @@ if current_studio_page == "Home" (
     text file.[2] ++ file.[1] 9 : c#c_text
   )
   frame "clear"
+  loc -2 2 -30 -80
+  square 30 15 10 : c#c_prim hover_size#1.1
+  if mouse_touching (
+    cursor "pointer"
+    if clicked and can (
+      can = false
+      current_studio_page = "Recent Files"
+    )
+  )
+  change -12 -1
+  text "All" 8 : c#c_text
   draw_buttons
   exit
 )
