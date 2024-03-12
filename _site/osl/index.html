@@ -14,20 +14,15 @@
       <link rel="stylesheet" href="styles.css">
    </head>
    <body>
-      <nav class="top-nav">
-         <div class="nav-container">
-            <div class="logo">osl.mistium.com</div>
-            <ul class="nav-menu">
-               <li><a href="https://origin.mistium.com">About</a></li>
-               <li><a href="https://launcher.mistium.com">Use Origin</a></li>
-               <li><a href="https://github.com/Mistium/Origin-OS">Github</a></li>
-               <li><a href="http://routermilo.ddns.net:3000/status/origin">Status</a></li>
-               <li><a href="https://origin.mistium.com/osl">OSL Docs</a></li>
-               <li><a href="https://discord.gg/7DcwkqrZ9S">Discord</a></li>
-               <!-- Add more menu items as needed -->
-            </ul>
-         </div>
-      </nav>
+      <div id="topbar"></div>
+      <script>
+         fetch('https://raw.githubusercontent.com/Mistium/Origin-OS/main/_site/topbar.html')
+           .then(response => response.text())
+           .then(html => {
+             document.getElementById('topbar').innerHTML = html;
+           })
+           .catch(error => console.error('Error fetching topbar HTML:', error));
+      </script>
       <div class="content">
          <h1>OSL 2</h1>
          <h2 align="center">
@@ -35,7 +30,7 @@
          </h2>
          <!-- Centered Card -->
          <div class="centered-card">
-            <img src="https://raw.githubusercontent.com/Mistium/Origin-OS/main/_site/resources/osl_file.png">
+            <img src="https://raw.githubusercontent.com/Mistium/osl.mistium.com/main/osl_file.png">
             <p>Inside originOS, OSL allows you to create scripts and windows easily!</p>
          </div>
          <!-- Documentation Cards -->
@@ -221,60 +216,60 @@
                   <!-- Add more documentation items as needed -->
                </div>
             </div>
-          </div>
-          <div class="tab-content" id="tabContent6">
-               <div class="docs-grid">
-                  <div class="card">
-                     <h3 class="card-title">Iframes</h3>
-                     <p>Setting up an iframe</p>
-                     <p>Getting data from an iframe</p>
-                     <p>Moving and resizing iframes</p>
-                     <p>Removing iframes</p>
-                     <!-- Add more documentation items as needed -->
-                  </div>
-                  <div class="card">
-                     <h3 class="card-title">Http commands</h3>
-                     <p>Creating a new http request</p>
-                     <p>Sending data to a discord webhook</p>
-                     <p>Http command list</p>
-                     <p></p>
-                     <!-- Add more documentation items as needed -->
-                  </div>
-                  <div class="card">
-                     <h3 class="card-title">OSL networking</h3>
-                     <p>Sending data to the origin server</p>
-                     <p>Networking with other users</p>
-                     <p>Client - Server in osl</p>
-                     <p></p>
-                     <!-- Add more documentation items as needed -->
-                  </div>
-                  <div class="card">
-                     <h3 class="card-title">Video Player</h3>
-                     <p>Using the video player component</p>
-                     <p>Accompanying commands</p>
-                     <p>Creating a custom video player ui</p>
-                     <!-- Add more documentation items as needed -->
-                  </div>
-                  <div class="card">
-                     <h3 class="card-title">Osl Gpt</h3>
-                     <p>Setting up a basic chat</p>
-                     <p>Getting data from the chat</p>
-                     <p>Generating images</p>
-                     <p>Managing chatbots</p>
-                     <!-- Add more documentation items as needed -->
-                  </div>
+         </div>
+         <div class="tab-content" id="tabContent6">
+            <div class="docs-grid">
+               <div class="card">
+                  <h3 class="card-title">Iframes</h3>
+                  <p>Setting up an iframe</p>
+                  <p>Getting data from an iframe</p>
+                  <p>Moving and resizing iframes</p>
+                  <p>Removing iframes</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Http commands</h3>
+                  <p>Creating a new http request</p>
+                  <p>Sending data to a discord webhook</p>
+                  <p>Http command list</p>
+                  <p></p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">OSL networking</h3>
+                  <p>Sending data to the origin server</p>
+                  <p>Networking with other users</p>
+                  <p>Client - Server in osl</p>
+                  <p></p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Video Player</h3>
+                  <p>Using the video player component</p>
+                  <p>Accompanying commands</p>
+                  <p>Creating a custom video player ui</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+               <div class="card">
+                  <h3 class="card-title">Osl Gpt</h3>
+                  <p>Setting up a basic chat</p>
+                  <p>Getting data from the chat</p>
+                  <p>Generating images</p>
+                  <p>Managing chatbots</p>
+                  <!-- Add more documentation items as needed -->
                </div>
             </div>
-            <div class="tab-content" id="tabContent7">
-              <div class="docs-grid">
-                 <div class="card">
-                    <h3 class="card-title">OSL Error Codes</h3>
-                    <p>Error list</p>
-                    <!-- Add more documentation items as needed -->
-                 </div>
-              </div>
-           </div>
          </div>
+         <div class="tab-content" id="tabContent7">
+            <div class="docs-grid">
+               <div class="card">
+                  <h3 class="card-title">OSL Error Codes</h3>
+                  <p>Error list</p>
+                  <!-- Add more documentation items as needed -->
+               </div>
+            </div>
+         </div>
+      </div>
       </div>
    </body>
    <script src="script.js"></script>
