@@ -63,9 +63,6 @@ dock_colour = #060606
 icon_colour = #fafbfc
 file_loc = user_folder ++ "/Dock"
 
-file "open" file_loc ++ ".folder" "onlyaccess"
-file "set" 4 data - null
-
 mainloop:
 movefileloc file_loc
 if mouse_down.not "canclick = True"
