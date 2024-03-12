@@ -16,20 +16,15 @@
 
   <body>
 
-    <nav class="top-nav">
-      <div class="nav-container">
-        <div class="logo">origin.mistium.com</div>
-        <ul class="nav-menu">
-          <li><a href="#">About</a></li>
-          <li><a href="https://launcher.mistium.com">Use Origin</a></li>
-          <li><a href="https://github.com/Mistium/Origin-OS">Github</a></li>
-          <li><a href="http://routermilo.ddns.net:3000/status/origin">Status</a></li>
-          <li><a href="https://origin.mistium.com/osl">OSL Docs</a></li>
-          <li><a href="https://discord.gg/7DcwkqrZ9S">Discord</a></li>
-          <!-- Add more menu items as needed -->
-        </ul>
-      </div>
-    </nav>
+    <div id="topbar"></div>
+      <script>
+         fetch('https://raw.githubusercontent.com/Mistium/Origin-OS/main/_site/topbar.html')
+           .then(response => response.text())
+           .then(html => {
+             document.getElementById('topbar').innerHTML = html;
+           })
+           .catch(error => console.error('Error fetching topbar HTML:', error));
+      </script>
     <div class="content">
       <h1>originOS Flow</h1>
 
