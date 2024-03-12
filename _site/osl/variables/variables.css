@@ -1,0 +1,69 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7e5f, #57cdac, #222);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh; /* Ensure body fills the viewport height */
+}
+
+  
+  .nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+  }
+  
+  .content {
+    text-align: center;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .nav-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-menu li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  .nav-menu li a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+.content {
+  background-color: #222;
+  margin: 20px;
+  border-radius: 10px;
+  padding: 30px;
+  text-align: left;
+}
+
+.markdown-body pre {
+  margin-top: 0;
+  margin-bottom: 16px;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  background-color: #000;
+  border-radius: 0; /* Remove border radius */
+  padding: 16px; /* Add padding */
+  box-sizing: border-box; /* Ensure padding is included in width calculation */
+}
