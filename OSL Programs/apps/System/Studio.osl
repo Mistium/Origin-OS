@@ -120,7 +120,7 @@ if current_studio_page == "Home" (
     )
     if ( clicked and can ) or ( selected_input == "name" and "enter".onpress ) (
       can = false
-      window "add" "Studio" input_name.str
+      current_studio_page = input_name.str
     )
     change_x w2 / -2 + 15 : c#c_text
   ) else (
@@ -143,7 +143,7 @@ if current_studio_page == "Home" (
       square frame_width - 20 30 15 1 : c#c_prim
       if clicked and can (
         can = false
-        window "add" "studio" cur.str
+        current_studio_page = cur.str
       )
     )
     change w / -2 + 15
