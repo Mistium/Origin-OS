@@ -1,0 +1,59 @@
+window "dimensions" 600 500
+permission "request" "File Admin"
+file "open" user_folder ++ ".folder"
+path = file.[3]
+current = file.[4]
+window "show"
+cur = user_folder
+
+mainloop:
+
+c #333
+frame window."left" window."top" - 30 window."right" window."bottom" current.len * 45
+y = -40 + scroll_y
+count = scroll_y.divide(45).round
+len = current.len
+loop frame_height.divide(45).round.clamp(0,len) (
+  count ++
+  y = count * -45 + scroll_y
+  loc 999 2 0 y
+  file "open" current.[count] "onlyaccess"
+  if file.[1] == ".folder" (
+    square frame_width - 20 30 10 0 1 : c#333
+    if clicked and can (
+      can = false
+      file "open" current.[count]
+      cur = file.[3] ++ "/" ++ file.[2]
+      file "open" cur ++ ".folder"
+      path = file.[3]
+      current = file.[4]
+    )
+  )
+  loc 2 2 25 y
+  file "render" 1
+  file "get" 2
+  text data 10 : c#fff chx#30
+)
+frame "clear"
+
+loc 999 2 0 -20
+square window_width 40 10 : c#222
+loc -2 2 -20 -20
+icon "close" 0.9 : c#fff
+if clicked "window stop"
+if path == "origin" (
+  path = "/origin"
+)
+loc 2 2 20 -20
+if path != null (
+  icon "left-arrow" 0.7 : c#fff
+  if clicked and can (
+    can = false
+    cur = path
+    file "open" path ++ ".folder"
+    path = file.[3]
+    current = file.[4]
+  )
+)
+text cur 10 : chx#20
+if mouse_down.not "can = true"
