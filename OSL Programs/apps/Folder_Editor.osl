@@ -1,0 +1,45 @@
+permission "request" "File Admin"
+if passed_data != 0 (
+  file "open" passed_data
+)
+file "get" 4
+files = data
+mainloop:
+
+out = files
+count = 0
+loop files.len (
+  count ++
+  y = count * -45 - 20
+  loc 999 2 0 y
+  square window_width - 30 30 10 : c#222
+  file "open" files.[count] "onlyaccess"
+  loc 2 2 30 y
+  file "render" 1
+  file "get" 2
+  text data 10 : c#fff chx#20
+  loc -2 2 -115 y
+  square 190 20 10 : c#444 hover_c#555
+  if clicked and can (
+    can = false
+    out.delete(count)
+  )
+  loc -2 2 -205 y
+  text "remove file from folder" 8 : c#fff
+)
+loc 2 2 20 y - 40
+text "Drop a file here to add it to this folder" 10
+if file_dropped != 0 (
+out.append(file_dropped)
+file_dropped = 0
+)
+files = out
+
+file "open" passed_data
+file "set" "data" files
+loc 999 2 0 -20
+square window_width 40 10 : c#111
+loc 2 2 10 -20
+text file.[3] ++ "/" ++ file.[2] 10 : c#fff
+if mouse_down.not "can = true"
+import "win-buttons"
