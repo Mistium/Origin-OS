@@ -7,6 +7,8 @@ window "show"
 cur = user_folder
 selected = null
 
+target_file = passed_data
+
 mainloop:
 
 c #333
@@ -24,7 +26,8 @@ loop frame_height.divide(45).round.clamp(0,len) (
     square frame_width - 20 30 10 : c#333
   )
   square frame_width - 20 30 10 0 1 : c#333
-  if clicked and can (
+  target = target_file == null or ( data == target_file )
+  if clicked and can and target (
     can = false
     file "open" current.[count]
     if file.[1] == ".folder" (
@@ -39,7 +42,8 @@ loop frame_height.divide(45).round.clamp(0,len) (
   loc 2 2 25 y
   file "render" 1
   file "get" 2
-  text data.str 10 : c#fff chx#30
+  if target "c #fff" else "c #aaa"
+  text data.str 10 : chx#30
 )
 frame "clear"
 
