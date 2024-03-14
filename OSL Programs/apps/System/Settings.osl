@@ -448,6 +448,7 @@ def "Appearance"
     square 180 60 20 1 : c#222
     square 20 20 20 1 : c#111 chy#-10
     if clicked and can (
+      log "sys" "pick"
       can = false
       file "pick" "ode"
     )
@@ -645,10 +646,12 @@ if category == "Account" "account"
 if category == "Apps" "apps"
 if category == "Time" "time"
 if category == "Updates" "updates"
+
 if mouse_down.not "can = True"
 frame "clear"
+
 if gotosubcategory != "" and mouse_down.not (
-subcategory = gotosubcategory
-gotosubcategory = ""
+  subcategory = gotosubcategory
+  gotosubcategory = ""
 )
 import "win-buttons"
