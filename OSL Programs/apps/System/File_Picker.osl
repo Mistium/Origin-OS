@@ -22,7 +22,8 @@ loop frame_height.divide(45).round.clamp(0,len) (
   loc 999 2 0 y
   file "open" current.[count] "onlyaccess"
   file "get" 14
-  if data == selected (
+  uuid = data
+  if uuid == selected (
     square frame_width - 20 30 10 : c#333
   )
   file "get" 1
@@ -30,15 +31,15 @@ loop frame_height.divide(45).round.clamp(0,len) (
   target = target_file == null or ( "." ++ target_file == data )
   if clicked and can (
     can = false
-    file "open" current.[count]
-    if file.[1] == ".folder" (
+    if data == ".folder" (
+      file "open" current.[count]
       cur = file.[3] ++ "/" ++ file.[2]
       file "open" cur ++ ".folder"
       path = file.[3]
       current = file.[4]
     ) else (
       if target (
-        selected = file.[14]
+        selected = uuid
       )
     )
   )
