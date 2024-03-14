@@ -68,15 +68,15 @@ loc 999 -2 0 20
 square window_width 20 20 : c#222
 loc 2 -2 10 20
 if selected != null (
-  file "open" selected
-  file "get" 2
-  name = data
-  file "get" 1
-  text name ++ data 10 : c#fff
-  c global_accent
+file "open" selected
+file "get" 2
+name = data
+file "get" 1
+text name ++ data 10 : c#fff
+c global_accent
 ) else (
-  text "Select a file" 10 : c#fff
-  c #444
+text "Select a file" 10 : c#fff
+c #444
 )
 loc -2 -2 -50 20
 square 80 20 10
