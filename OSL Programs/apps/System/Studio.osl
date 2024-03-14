@@ -60,6 +60,7 @@ mainloop:
 
 if new_transmit (
   current_studio_page = transmit_data
+  log "sys" transmit_data
   new_transmit = false
 )
 
