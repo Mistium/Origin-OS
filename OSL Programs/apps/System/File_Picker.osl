@@ -44,7 +44,7 @@ loop frame_height.divide(45).round.clamp(0,len) (
   loc 2 2 25 y
   file "render" 1
   file "get" 1
-  if data == ".folder" or target "c #fff" else "c #aaa"
+  if data == ".folder" or target "c #fff" else "c #888"
   file "get" 2
   text data.str 10 : chx#30
 )
