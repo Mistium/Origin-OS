@@ -58,6 +58,11 @@ endef
 
 mainloop:
 
+if new_transmit (
+  current_studio_page = transmit_data
+  new_transmit = false
+)
+
 if mouse_down.not "can = true"
 
 if current_studio_page == "Recent Files" (
@@ -111,6 +116,15 @@ if current_studio_page == "Home" (
   text "New File" 8
   loc 999 2 0 -80
   text "Recent Files" 8
+  
+loc 2 2 w / 2 - 5 -290
+  square w2 30 10 : c#c_seco
+  if clicked and can (
+    can = false
+    file "pick"
+  )
+  change_x w2 / -2 + 10
+  text "Open File" 9 : c#c_text
 
   loc 2 2 w / 2 - 5 -125
   square w2 30 10 : c#c_seco
