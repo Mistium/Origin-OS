@@ -39,7 +39,7 @@ loop frame_height.divide(45).round.clamp(0,len) (
   loc 2 2 25 y
   file "render" 1
   file "get" 2
-  text data 10 : c#fff chx#30
+  text data.str 10 : c#fff chx#30
 )
 frame "clear"
 
@@ -62,23 +62,27 @@ if path != null (
     current = file.[4]
   )
 )
-text cur 10 : chx#20
+text cur.str 10 : chx#20
 
 loc 999 -2 0 20
 square window_width 20 20 : c#222
 loc 2 -2 10 20
 if selected != null (
-file "open" selected
-file "get" 2
-name = data
-file "get" 1
-text name ++ data 10 : c#fff
-c global_accent
+  file "open" selected
+  file "get" 2
+  name = data
+  file "get" 1
+  text name ++ data 10 : c#fff
+  c global_accent
 ) else (
-text "Select a file" 10 : c#fff
-c #444
+  text "Select a file" 10 : c#fff
+  c #444
 )
 loc -2 -2 -50 20
 square 80 20 10
+if clicked (
+  transmit selected parent
+  window "stop"
+)
 text "Select" 10 : c#fff chx#-30
 if mouse_down.not "can = true"
