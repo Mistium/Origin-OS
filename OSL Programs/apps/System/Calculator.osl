@@ -75,6 +75,7 @@ draw 2 2 240 -410 "/"
 
 loc 2 2 20 -70
 if operation == "" "output = current" else "output = secondary"
+if output == null "output = 0"
 text output 20
 
 loc -2 2 -25 -70
