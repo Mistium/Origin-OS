@@ -2,8 +2,9 @@ window "resizable" False
 window "show"
 canclick = False
 operation = ""
-current = 0
-secondary = 0
+current = null
+secondary = null
+
 def "draw" "x,y,x2,y2,character"
   loc x y x2 + 15 y2 + 55
   if operation.str == character "c #f79204" else "c #333"
@@ -12,26 +13,27 @@ def "draw" "x,y,x2,y2,character"
 
   character.destr
   if can and character.istype("number") (
-    if operation == "" and ( clicked or character.onpress ) (
-      can = false
-      c = current
-      current = current ++ character
-    )
-    if operation != "" and ( clicked or character.onpress ) (
-      can = false
-      s = secondary
-      secondary = secondary ++ character
+    if clicked or character.onpress (
+      if operation == "" (
+        can = false
+        c = current
+        current = current ++ character
+      ) else (
+        can = false
+        s = secondary
+        secondary = secondary ++ character
+      )
     )
   )
   if clicked or character.onpress and "+-*/".contains(character) "operation = character.str"
   if clicked or "enter".pressed and ( character.str == "=" ) (
-    current = current.int
-    secondary = secondary.int
+    current.int
+    secondary.int
     if operation == "+" "current += secondary"
     if operation == "-" "current -= secondary"
     if operation == "*" "current *= secondary"
     if operation == "/" "current /= secondary"
-    current = current.str
+    current.str
     secondary = 0
     operation = ""
   )
@@ -81,7 +83,7 @@ if clicked or "backspace".pressed and can (
   can = False
   temp = current.len - 1
   temp2 = secondary.len - 1
-  if operation == "" "current = current.left(temp)" else "secondary = secondary.left(temp2)"
+  if operation == "" "current.left(temp)" else "secondary.left(temp2)"
 )
 
 loc -2 2 -20 -20
