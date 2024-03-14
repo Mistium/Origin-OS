@@ -7,7 +7,11 @@ window "show"
 cur = user_folder
 selected = null
 
-target_file = passed_data
+if passed_data == null (
+  target_file == null
+) else (
+  target_file = "." ++ passed_data
+)
 
 mainloop:
 
