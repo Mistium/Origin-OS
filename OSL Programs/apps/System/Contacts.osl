@@ -35,7 +35,10 @@ loc 2 2 20 -20
 icon "add" 0.8 : hover_size#1.1
 if clicked and can (
   can = false
-  contacts_add = "Enter an origin username".ask
+  contacts_add = "Enter an origin username".ask.str
+  if contacts_add == null (
+    contacta_add = ""
+  )
 )
 c #222
 frame window."left" window."top" - 47.5 window."left" + sidewidth window."bottom" contacts.len * 45
