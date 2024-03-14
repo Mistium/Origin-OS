@@ -27,7 +27,7 @@ loop frame_height.divide(45).round.clamp(0,len) (
   )
   square frame_width - 20 30 10 0 1 : c#333
   target = target_file == null or ( data == target_file )
-  if clicked and can and target (
+  if clicked and can (
     can = false
     file "open" current.[count]
     if file.[1] == ".folder" (
@@ -36,13 +36,16 @@ loop frame_height.divide(45).round.clamp(0,len) (
       path = file.[3]
       current = file.[4]
     ) else (
-      selected = file.[14]
+      if target (
+        selected = file.[14]
+      )
     )
   )
   loc 2 2 25 y
   file "render" 1
+  file "get" 1
+  if data == ".folder" or target "c #fff" else "c #aaa"
   file "get" 2
-  if target "c #fff" else "c #aaa"
   text data.str 10 : chx#30
 )
 frame "clear"
