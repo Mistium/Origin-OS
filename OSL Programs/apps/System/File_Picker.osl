@@ -7,11 +7,7 @@ window "show"
 cur = user_folder
 selected = null
 
-if passed_data == null (
-  target_file == null
-) else (
-  target_file = "." ++ passed_data
-)
+target_file = passed_data
 
 mainloop:
 
@@ -29,8 +25,9 @@ loop frame_height.divide(45).round.clamp(0,len) (
   if data == selected (
     square frame_width - 20 30 10 : c#333
   )
+  file "get" 1
   square frame_width - 20 30 10 0 1 : c#333
-  target = target_file == null or ( data == target_file )
+  target = target_file == null or ( "." ++ target_file == data )
   if clicked and can (
     can = false
     file "open" current.[count]
@@ -91,7 +88,7 @@ if selected != null (
 )
 loc -2 -2 -50 20
 square 80 20 10
-if clicked (
+if selectd != null and clicked (
   transmit selected parent
   window "stop"
 )
