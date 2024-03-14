@@ -5,11 +5,12 @@ path = file.[3]
 current = file.[4]
 window "show"
 cur = user_folder
+selected = null
 
 mainloop:
 
 c #333
-frame window."left" window."top" - 30 window."right" window."bottom" current.len * 45
+frame window."left" window."top" - 40 window."right" window."bottom" + 35 current.len * 45
 y = -40 + scroll_y
 count = scroll_y.divide(45).round
 len = current.len
@@ -18,15 +19,21 @@ loop frame_height.divide(45).round.clamp(0,len) (
   y = count * -45 + scroll_y
   loc 999 2 0 y
   file "open" current.[count] "onlyaccess"
-  if file.[1] == ".folder" (
-    square frame_width - 20 30 10 0 1 : c#333
-    if clicked and can (
-      can = false
-      file "open" current.[count]
+  file "get" 14
+  if data == selected (
+    square frame_width - 20 30 10 : c#333
+  )
+  square frame_width - 20 30 10 0 1 : c#333
+  if clicked and can (
+    can = false
+    file "open" current.[count]
+    if file.[1] == ".folder" (
       cur = file.[3] ++ "/" ++ file.[2]
       file "open" cur ++ ".folder"
       path = file.[3]
       current = file.[4]
+    ) else (
+      selected = file.[14]
     )
   )
   loc 2 2 25 y
@@ -39,14 +46,14 @@ frame "clear"
 loc 999 2 0 -20
 square window_width 40 10 : c#222
 loc -2 2 -20 -20
-icon "close" 0.9 : c#fff
+icon "close" 0.8 : c#fff
 if clicked "window stop"
 if path == "origin" (
   path = "/origin"
 )
 loc 2 2 20 -20
 if path != null (
-  icon "left-arrow" 0.7 : c#fff
+  icon "left-arrow" 0.8 : c#fff
   if clicked and can (
     can = false
     cur = path
@@ -56,4 +63,22 @@ if path != null (
   )
 )
 text cur 10 : chx#20
+
+loc 999 -2 0 20
+square window_width 20 20 : c#222
+loc 2 -2 10 20
+if selected != null (
+  file "open" selected
+  file "get" 2
+  name = data
+  file "get" 1
+  text name ++ data 10 : c#fff
+  c global_accent
+) else (
+  text "Select a file" 10 : c#fff
+  c #444
+)
+loc -2 -2 -50 20
+square 80 20 10
+text "Select" 10 : c#fff chx#-30
 if mouse_down.not "can = true"
