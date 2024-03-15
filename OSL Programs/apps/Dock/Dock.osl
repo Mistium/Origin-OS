@@ -52,6 +52,7 @@ if user."icon_colour" == null (
 file_loc = user_folder ++ "/Dock"
 
 mainloop:
+
 dock_colour = user."dock_colour"
 icon_colour = user."icon_colour"
 
