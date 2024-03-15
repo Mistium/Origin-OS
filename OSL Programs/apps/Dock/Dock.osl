@@ -59,6 +59,7 @@ dock_x = dock_width / -2
 y = -100
 height = 40
 // Theme
+
 if user."dock_colour" == null (
   network "update" "dock_colour" #060606
 )
