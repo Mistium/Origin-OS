@@ -1,0 +1,2 @@
+permission "give" "Settings" ["File Admin","account","terminal","Permission Editor","Javascript"]
+permission "give" "Studio" ["File Editor","terminal"]
