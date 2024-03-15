@@ -1,3 +1,5 @@
+
+// system
 permission "give" "Kernel" ["Origin","Permission Editor","terminal","Global Save","All Desktop Interact","system"]
 permission "give" "Quick_Settings" ["terminal","Global Save","account","All Desktop Interact","Always Interactable"]
 permission "give" "Dock" ["File Admin","terminal","Global Save","All Desktop Interact","account"]
@@ -8,7 +10,6 @@ permission "give" "Login" ["terminal","Global Save","All Desktop Interact","acco
 permission "give" "Desktop" ["File Admin","Global Save","All Desktop Interact"]
 permission "give" "Permission-Granter" ["Permission Editor","Global Save"]
 permission "give" "Permission_Editor" ["File Editor","Permission Editor","Global Save"]
-permission "give" "Settings" ["File Admin","account","terminal","Permission Editor","Javascript"]
 permission "give" "Process_Opener" ["File Admin","Global Save"]
 permission "give" "Shortcut_Opener" ["File Admin","Global Save"]
 permission "give" "Files_Info" ["File Admin","Global Save"]
@@ -18,3 +19,7 @@ permission "give" "Files" ["File Admin","terminal","Global Save"]
 permission "give" "Origin_Start" ["File Admin","terminal","account","Global Save"]
 permission "give" "Rename-Helper" ["File Admin","Global Save"]
 permission "give" "originAssist" ["File Admin","terminal","Global Save"]
+
+// user
+permission "give" "Settings" ["File Admin","account","terminal","Permission Editor","Javascript"]
+permission "give" "Studio" ["File Editor","terminal"]
