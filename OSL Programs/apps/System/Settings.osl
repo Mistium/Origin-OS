@@ -45,6 +45,7 @@ def "system"
     if new_network_data (
       if network_data_command == "my_files_usage" (
         network_drive = network_data.destr
+        log "sys" network_drive.[2]
         if network_drive.[2] == 10000000 (
           tier = "Free Tier"
         )
