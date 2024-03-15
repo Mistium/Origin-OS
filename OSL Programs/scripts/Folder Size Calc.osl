@@ -1,0 +1,23 @@
+permission "request" "File Admin"
+
+def "check_size" "path"
+  current.append(path)
+  file "open" path
+  files = data
+  size = 0
+  count = 0
+  loop files.len (
+    count ++
+    file "open" files.[count]
+    size += file.str.len
+    file "set" "size" file.str.len
+  )
+  say size
+endef
+
+
+file "open" "Origin/(A) System/System Apps.folder"
+uuid = file.[14]
+
+current = []
+check_size uuid
