@@ -154,6 +154,7 @@ if bg_redrawn or mouse_touching and settings_open (
   loc 999 2 0 -203
   square 170 155 20 : c#bg_colour
 
+  loc 999 2 0 -150
   terminal "system display get brightness"
   slider_brightness = return - 10 / 90
   slider 130 0 "brightness" 32 : c#bg_colour chy#20
