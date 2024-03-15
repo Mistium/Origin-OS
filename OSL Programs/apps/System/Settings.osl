@@ -37,7 +37,7 @@ endef
 
 def "system"
   if network_drive.istype("array").not (
-    if network_drive == "none" (
+    if network_drive == "none" and ( tier == "null" ) (
       network "my_files_usage"
       tier = "Loading..."
       unit = null
@@ -258,23 +258,23 @@ def "system"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
-  if network_drive.[2] == 50000000 (
-    tier = "Supporter"
-  )
-  if network_drive.[2] == 1000000000 (
-    tier = "originDrive"
-  )
-  if network_drive.[2] == 5000000000 (
-    tier = "origin Pro"
-  )
-  if network_drive.[2] > 999999 (
-    used_big = network_drive.[2].divide(1000000).round
-    unit = "mb"
-  )
-  if network_drive.[2] > 999999999 (
-    used_big = network_drive.[2].divide(1000000000).round
-    unit = "gb"
-  )
+    if network_drive.[2] == 50000000 (
+      tier = "Supporter"
+    )
+    if network_drive.[2] == 1000000000 (
+      tier = "originDrive"
+    )
+    if network_drive.[2] == 5000000000 (
+      tier = "origin Pro"
+    )
+    if network_drive.[2] > 999999 (
+      used_big = network_drive.[2].divide(1000000).round
+      unit = "mb"
+    )
+    if network_drive.[2] > 999999999 (
+      used_big = network_drive.[2].divide(1000000000).round
+      unit = "gb"
+    )
     loc 2 2 160 y
     text network_drive.[1] / 1000 ++ "kb /" + used_big ++ unit 10
     loc 999 2 125 / 2 y - 35
@@ -680,6 +680,7 @@ dock_location = dock_location
 media = ""
 segments = segments
 accent_select = ""
+tier = null
 network_drive = "none"
 gotosubcategory = ""
 current_pfp = ""
