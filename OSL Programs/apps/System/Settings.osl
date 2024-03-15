@@ -37,7 +37,7 @@ endef
 
 def "system"
   if network_drive.istype("array").not (
-    if network_drive == "none" and ( tier == "null" ) (
+    if network_drive == "none" and ( tier == null ) (
       network "my_files_usage"
       tier = "Loading..."
       unit = null
