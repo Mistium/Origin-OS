@@ -34,10 +34,11 @@ y = -100
 height = 40
 // Theme
 
-log "sys" user."dock_colour"
+log "sys" user."dock_colour" == null
 
 if user."dock_colour" == null (
   network "update" "dock_colour" #060606
+  log "updated"
 )
 
 if user."icon_colour" == null (
