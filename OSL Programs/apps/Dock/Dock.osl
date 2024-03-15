@@ -60,12 +60,10 @@ y = -100
 height = 40
 // Theme
 if user."dock_colour".[1] != "#" (
-  dock_colour = #060606
-  network "update" "dock_colour" dock_colour
+  network "update" "dock_colour" #060606
 )
 if user."icon_colour".[1] != "#" (
-  icon_colour = #fafbfc
-  network "update" "icon_colour" icon_colour
+  network "update" "icon_colour" #f3f3f3
 )
 file_loc = "origin/(C) Users/" ++ username ++ "/Dock"
 mainloop:
