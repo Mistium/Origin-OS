@@ -19,7 +19,3 @@ permission "give" "Files" ["File Admin","terminal","Global Save"]
 permission "give" "Origin_Start" ["File Admin","terminal","account","Global Save"]
 permission "give" "Rename-Helper" ["File Admin","Global Save"]
 permission "give" "originAssist" ["File Admin","terminal","Global Save"]
-
-// user
-permission "give" "Settings" ["File Admin","account","terminal","Permission Editor","Javascript"]
-permission "give" "Studio" ["File Editor","terminal"]
