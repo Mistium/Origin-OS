@@ -19,6 +19,10 @@ syncing = true
 terminal "system uploadfiles"
 
 mainloop:
+
+bg_colour = user."dock_colour"
+icn_colour = user."icon_colour"
+
 direction 90
 if new_network_data (
   if network_data_command == "Upload_Files" (
@@ -81,18 +85,22 @@ if bg_redrawn or mouse_touching (
     )
   )
   loc 999 2 0 -25
-  square 170 30 20 : c#000
+  square 170 30 20 : c#bg_colour
 
   loc -2 2 -25 -25
+  c icn_colour
   if settings_open (
-    icon "c #fff w 4 line 10 5 0 -5 cont -10 5" 0.7
+    icon "w 4 line 10 5 0 -5 cont -10 5" 0.7
   ) else (
-    icon "c #fff w 4 line 10 -5 0 5 cont -10 -5" 0.7
+    icon "w 4 line 10 -5 0 5 cont -10 -5" 0.7
   )
   image user_icon.str 25 : chx#-46
   icon "sun" 0.8 : chx#-46
-  if network."connected" "c #fff" else "c #555"
+  c icn_colour
   icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-46
+  if network."connected".not (
+    icon "w 3 line 10 10 -10 -10" 0.8
+  )
 )
 if syncing (
   if error == "" (
@@ -113,8 +121,8 @@ square 170 30 20 0 1
 if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   sync_text_temp = last_sync_text
   loc 999 2 0 -83
-  square 170 30 20 : c#000
-  square 30 30 10 : c#171717 chx#-70
+  square 170 30 20 : c#bg_colour
+  change_x -70
   syncable = timer + 270 > last_upload
   if timer > last_upload or ( syncable and clicked and can ) (
     can = false
@@ -128,9 +136,9 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   ) else (
     sync_dir = 90
   )
-  if syncable "c #fff" else "c #aaa"
+  if syncable "c global_accent" else "c icn_colour"
   icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : hover_size#1.05
-  c #fff
+  c icn_colour
   direction 90
   change 30 -10
   text last_sync_text 8
@@ -144,57 +152,55 @@ loc 999 999 0 0
 square 170 window_height 20 0 1
 if bg_redrawn or mouse_touching and settings_open (
   loc 999 2 0 -203
-  square 170 155 20 : c#000
+  square 170 155 20 : c#bg_colour
   loc 999 2 0 -237.5
-  square 170 35 10 : c#171717
-  square 170 80 10 : chy#72.5
 
   terminal "system display get brightness"
   slider_brightness = return - 10 / 90
-  slider 130 0 "brightness" 32 : c#000 chy#20
+  slider 130 0 "brightness" 32 : c#bg_colour chy#20
   terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
 
   icon "c #333 w 25 dot" 1 : chx#-65
-  icon "sun" 0.6 : c#fff
+  icon "sun" 0.6 : c#icn_colour
   change 65 -45
 
   terminal "system sound get volume"
   slider_volume = return / 100
-  slider 130 0 "volume" 32 : c#000
+  slider 130 0 "volume" 32 : c#bg_colour
   terminal "system sound set volume" + ( slider_volume * 100 )
 
   icon "c #333 w 25 dot" 1 : chx#-65
-  icon "volume-max" 0.7 : c#fff
+  icon "volume-max" 0.7 : c#icn_colour
 
   loc 2 2 30 -237.5
   terminal "flags donotdisturb get"
-  if data "c global_accent" else "c #333"
+  if data "c global_accent" else "c bg_colour"
   square 0 0 25 : hover_size#1.05
   if clicked and can (
     can = false
     terminal "flags donotdisturb set" + data.not
   )
-  icon "Moon" 0.7 : c#fff
+  icon "Moon" 0.7 : c#icn_colour
 
   change_x 34.4
   terminal "flags performance_mode get"
-  if data "c global_accent" else "c #333"
+  if data "c global_accent" else "c bg_colour"
   square 0 0 25 : hover_size#1.05
   if clicked and can (
     can = false
     terminal "flags performance_mode set" + data.not
   )
-  icon "w 2.5 cutcircle 0 0 10 0 135 line 0 0 4 -4 line 0 8 0 7 line 6 6 5 5 line -6 6 -5 5 line -8 0 -7 0 line 8 0 7 0 line -7 -7 -5 -5" 0.7 : c#fff
+  icon "w 2.5 cutcircle 0 0 10 0 135 line 0 0 4 -4 line 0 8 0 7 line 6 6 5 5 line -6 6 -5 5 line -8 0 -7 0 line 8 0 7 0 line -7 -7 -5 -5" 0.7 : c#icn_colour
 
   change_x 34.4
   terminal "flags nightmode get"
-  if data "c global_accent" else "c #333"
+  if data "c global_accent" else "c bg_colour"
   square 0 0 25 : hover_size#1.05
   if clicked and can (
     can = false
     terminal "flags nightmode set" + data.not
   )
-  icon "sun" 0.7 : c#fff
+  icon "sun" 0.7 : c#icn_colour
 
   date = day + day_number + month.trim(1,3)
   loc 999 2 date.len + 0.5 * -4 -277
