@@ -465,9 +465,14 @@ def "Appearance"
     global "segments"
   )
   if subcategory == "Colours" (
+    if user."dock_colour".[1] != "#" (
+      network "update" "dock_colour" #060606
+    )
     if accent_select.[1] != "#" (
       colourpicker "setcol" global_accent
       accent_select = global_accent
+      colourpicker "setcol" user."dock_colour"
+      dock_select = user."dock_colour"
     )
     loc 2 2 15 -30
     text "Accent Colour: <accent_select>" 10 : c#fff
@@ -476,7 +481,7 @@ def "Appearance"
     if clicked (
       colourpicker "setcol" accent_select
       colourpicker "show"
-      current = "accent"
+      selected_col = "accent"
     )
     if global_accent != accent_select (
       icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
@@ -500,27 +505,23 @@ def "Appearance"
       if mouse_down.not "can = true"
     )
 
-    if dock_select.[1] != "#" (
-      colourpicker "setcol" #060606
-      dock_select = #060606
-    )
-    loc 2 2 15 -60
-    text "Dock Colour: <accent_select>" 10 : c#fff
+    loc 2 2 15 -80
+    text "Dock Colour: <dock_select>" 10 : c#fff
     change_x 30
     square 0 0 20 0 : c#dock_select
     if clicked (
       colourpicker "setcol" dock_select
       colourpicker "show"
-      current = "dock"
+      selected_col = "dock"
     )
-    accent_select = picker_colour
-    if dock_colour != dock_select (
+    if user."dock_colour" != dock_select (
       icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
       if clicked (
-        colourpicker "setcol" #060606
-        dock_select = #060606
+        colourpicker "setcol" user."dock_colour"
+        dock_select = user."dock_colour"
+        selected_col = null
       )
-      loc -2 2 -120 -60
+      loc -2 2 -120 -80
       square 200 20 15 0 1
       if clicked and can (
         can = false
@@ -536,9 +537,10 @@ def "Appearance"
       text "Sync With Network" 9 : c#fff chx#-95
       if mouse_down.not "can = true"
     )
-    if current == "accent" (
+    if selected_col == "accent" (
       accent_select = picker_colour
-    ) else if current == "dock" (
+    )
+    if selected_col == "dock" (
       dock_select = picker_colour
     )
   )
