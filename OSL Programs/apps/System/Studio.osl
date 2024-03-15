@@ -14,6 +14,8 @@ if passed_data == null (
   current_studio_page = passed_data
 )
 
+window "set_drag_box" [[2,2,40,0],[-2,2,-100,-40]]
+
 c_text = #fff
 c_prim = #333
 c_seco = #151515
