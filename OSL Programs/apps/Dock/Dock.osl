@@ -23,32 +23,6 @@ def "main"
   dock_width.round
 endef
 
-def "performance_mode"
-  loc 2 999
-  include user_folder ++ "/Dock"
-  c #050505
-  if data.len != 0 (
-    dock = data
-    width = dock.len * 50 + 100
-    set_y y
-    square width 40 20 0 1
-    if dock.len != dock_appslen_temp or mouse_touching or bg_redrawn (
-      square width 40 20
-      change_x 20
-      dock_appslen_temp = dock.len
-      applicationscount = 0
-      loop dock.len (
-        applicationscount ++
-        file "open" dock.[applicationscount]
-        file "render" 1.7 "interactable"
-        rightclick "file" dock.[applicationscount]
-        change_x 50
-      )
-    )
-  )
-  change_x 30
-  text "<hour>:<minute>" 10 : c#fff
-endef
 window "responsive" true
 window "hide"
 window "front"
@@ -60,9 +34,12 @@ y = -100
 height = 40
 // Theme
 
+log "sys" user."dock_colour"
+
 if user."dock_colour" == null (
   network "update" "dock_colour" #060606
 )
+
 if user."icon_colour" == null (
   network "update" "icon_colour" #f3f3f3
 )
