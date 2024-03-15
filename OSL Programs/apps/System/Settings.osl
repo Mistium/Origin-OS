@@ -476,8 +476,8 @@ def "Appearance"
     if clicked (
       colourpicker "setcol" accent_select
       colourpicker "show"
+      current = "accent"
     )
-    accent_select = picker_colour
     if global_accent != accent_select (
       icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
       if clicked (
@@ -511,6 +511,7 @@ def "Appearance"
     if clicked (
       colourpicker "setcol" dock_select
       colourpicker "show"
+      current = "dock"
     )
     accent_select = picker_colour
     if dock_colour != dock_select (
@@ -534,6 +535,11 @@ def "Appearance"
       )
       text "Sync With Network" 9 : c#fff chx#-95
       if mouse_down.not "can = true"
+    )
+    if current == "accent" (
+      accent_select = picker_colour
+    ) else if current == "dock" (
+      dock_select = picker_colour
     )
   )
   frame "clear"
