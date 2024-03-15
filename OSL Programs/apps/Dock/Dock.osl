@@ -36,6 +36,10 @@ height = 40
 
 log "sys" user."dock_colour" == null
 
+if user."pfp" == "https://cdn.discordapp.com/attachments/1147471100742209566/1155532513154965634/R_1_2.png" (
+  network "update" "pfp" "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/no-pfp.jpeg" 
+)
+
 if user."dock_colour" == null (
   network "update" "dock_colour" #060606
   log "sys" "updated"
