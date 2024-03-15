@@ -63,6 +63,13 @@ dock_colour = #060606
 icon_colour = #fafbfc
 file_loc = "origin/(C) Users/" ++ username ++ "/Dock"
 mainloop:
+
+if new_transmit (
+  dock_colour = transmit_data."bck"
+  icon_colour = transmit_data."icn"
+  new_transmit = false
+)
+
 movefileloc file_loc
 if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
