@@ -38,7 +38,7 @@ log "sys" user."dock_colour" == null
 
 if user."dock_colour" == null (
   network "update" "dock_colour" #060606
-  log "updated"
+  log "sys" "updated"
 )
 
 if user."icon_colour" == null (
