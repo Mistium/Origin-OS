@@ -468,11 +468,16 @@ def "Appearance"
     if user."dock_colour".[1] != "#" (
       network "update" "dock_colour" #060606
     )
+    if user."icon_colour".[1] != "#" (
+      network "update" "icon_colour" #f3f3f3
+    )
     if accent_select.[1] != "#" (
       colourpicker "setcol" global_accent
       accent_select = global_accent
       colourpicker "setcol" user."dock_colour"
       dock_select = user."dock_colour"
+      colourpicker "setcol" user."icon_colour"
+      icon_select = user."icon_colour"
     )
     loc 2 2 15 -30
     text "Accent Colour: <accent_select>" 10 : c#fff
@@ -537,11 +542,47 @@ def "Appearance"
       text "Sync With Network" 9 : c#fff chx#-95
       if mouse_down.not "can = true"
     )
+
+    loc 2 2 15 -130
+    text "Dock Secondary: <icon_select>" 10 : c#fff
+    change_x 30
+    square 0 0 20 0 : c#icon_select
+    if clicked (
+      colourpicker "setcol" icon_select
+      colourpicker "show"
+      selected_col = "icon"
+    )
+    if user."icon_colour" != icon_select (
+      icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
+      if clicked (
+        colourpicker "setcol" user."icon_colour"
+        icon_select = user."icon_colour"
+        selected_col = null
+      )
+      loc -2 2 -120 -130
+      square 200 20 15 0 1
+      if clicked and can (
+        can = false
+        network "update" "icon_colour" icon_select
+      )
+      if mouse_down.not "can = true"
+      c #222
+      if mouse_touching and clicked.not (
+        square 200 25 12
+      ) else (
+        square 200 25 10
+      )
+      text "Sync With Network" 9 : c#fff chx#-95
+      if mouse_down.not "can = true"
+    )
     if selected_col == "accent" (
       accent_select = picker_colour
     )
     if selected_col == "dock" (
       dock_select = picker_colour
+    )
+    if selected_col == "icon" (
+      icon_select = picker_colour
     )
   )
   frame "clear"
