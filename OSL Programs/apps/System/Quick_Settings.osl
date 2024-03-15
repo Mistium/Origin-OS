@@ -153,14 +153,14 @@ square 170 window_height 20 0 1
 if bg_redrawn or mouse_touching and settings_open (
   loc 999 2 0 -203
   square 170 155 20 : c#bg_colour
-  loc 999 2 0 -237.5
 
   terminal "system display get brightness"
   slider_brightness = return - 10 / 90
   slider 130 0 "brightness" 32 : c#bg_colour chy#20
   terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
 
-  icon "c #333 w 25 dot" 1 : chx#-65
+  c bg_colour
+  icon "w 25 dot" 1 : chx#-65
   icon "sun" 0.6 : c#icn_colour
   change 65 -45
 
@@ -169,7 +169,8 @@ if bg_redrawn or mouse_touching and settings_open (
   slider 130 0 "volume" 32 : c#bg_colour
   terminal "system sound set volume" + ( slider_volume * 100 )
 
-  icon "c #333 w 25 dot" 1 : chx#-65
+  c bg_colour
+  icon "w 25 dot" 1 : chx#-65
   icon "volume-max" 0.7 : c#icn_colour
 
   loc 2 2 30 -237.5
