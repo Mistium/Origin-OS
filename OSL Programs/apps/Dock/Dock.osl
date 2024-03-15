@@ -59,15 +59,16 @@ dock_x = dock_width / -2
 y = -100
 height = 40
 // Theme
-if user."dock_colour".[1] != "#" (
+if user."dock_colour" == null (
   network "update" "dock_colour" #060606
 )
-if user."icon_colour".[1] != "#" (
+if user."icon_colour" == null (
   network "update" "icon_colour" #f3f3f3
 )
-file_loc = "origin/(C) Users/" ++ username ++ "/Dock"
-mainloop:
 
+file_loc = user_folder ++ "/Dock"
+
+mainloop:
 dock_colour = user."dock_colour"
 icon_colour = user."icon_colour"
 
