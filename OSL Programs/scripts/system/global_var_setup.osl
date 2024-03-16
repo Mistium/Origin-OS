@@ -1,6 +1,4 @@
-test = []
-
-global "null" test.[1]
+global "null" 1."null"
 global "days" ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
 global "months" ["January","February","March","April","May","June","July","August","October","November","December"]
 global "user" 0
