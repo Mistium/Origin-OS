@@ -1,4 +1,3 @@
-import "win-buttons"
 window "dimensions" 1000 700
 window "show"
 files_path = "Origin/(C) Users/" ++ username
@@ -195,3 +194,4 @@ mainloop:
     r = r.divide(100).round / 10 + "KB"
   )
   text "<files.len> items | <selected_files.len> selected | <r>" 9 : c#c_icon
+  import "win-buttons"
