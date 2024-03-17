@@ -1,9 +1,6 @@
-
-// system
 permission "give" "Kernel" ["Origin","Permission Editor","terminal","Global Save","All Desktop Interact","system"]
 permission "give" "Quick_Settings" ["terminal","Global Save","account","All Desktop Interact","Always Interactable"]
 permission "give" "Dock" ["File Admin","terminal","Global Save","All Desktop Interact","account"]
-
 permission "give" "Activity" ["terminal","Javascript","Global Save"]
 permission "give" "Terminal" ["terminal","Global Save","network"]
 permission "give" "Login" ["terminal","Global Save","All Desktop Interact","account"]
