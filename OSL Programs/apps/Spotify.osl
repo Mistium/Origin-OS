@@ -6,7 +6,7 @@ secret = "secret:".ask
 http "new"
 http "method" "POST"
 http "type" "application/x-www-form-urlencoded"
-http "sendto" "https://accounts.spotify.com/api/token?grant_type=client_credentials&client_id=d947a18e7b6f42e291d22ef43903ad5c&client_secret=" ++ secret ++ "&code=AQCy20kMMF5sFvQI_Nyl5LtIhZo9WshaHc7uRTKFWZkCrSrXW_NfNLQKo_gvL-Fzdfuf2jRfPrdJaBCo_EdyHFjjbBkGWw7r13nPLNZv7FWJJSc6BXfM9UXoWRXBvoJNtnR9IBDChkMV05hPjlb3hzUeatPx2CUoXcS6jxjCXiF4Zd1zGXjkGKt3abjo0DAs7OB_ddW9xMkSNi9LHXUZZgx_RWY2vf-BcaKTN2C7vN1rgEc3XJ1ykC-FiA-d46SFzyuo4j8245FuguIRoftCX69q&code_verifier" ++ verifier
+http "sendto" "https://accounts.spotify.com/api/token?grant_type=client_credentials&client_id=&client_secret=" ++ secret ++ "&code=AQCy20kMMF5sFvQI_Nyl5LtIhZo9WshaHc7uRTKFWZkCrSrXW_NfNLQKo_gvL-Fzdfuf2jRfPrdJaBCo_EdyHFjjbBkGWw7r13nPLNZv7FWJJSc6BXfM9UXoWRXBvoJNtnR9IBDChkMV05hPjlb3hzUeatPx2CUoXcS6jxjCXiF4Zd1zGXjkGKt3abjo0DAs7OB_ddW9xMkSNi9LHXUZZgx_RWY2vf-BcaKTN2C7vN1rgEc3XJ1ykC-FiA-d46SFzyuo4j8245FuguIRoftCX69q&code_verifier" ++ verifier
 http "wait_response"
 token = response."access_token"
 
