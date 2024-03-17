@@ -1,7 +1,6 @@
-if newline in passed_data (
-  passed_data.split(newline)
-)
+file "open" passed_data
+data.split(newline)
 
-oasm "compile" passed_data
+oasm "compile" data
 oasm data
-say data.join(newline)
+log "console" data.join(newline)
