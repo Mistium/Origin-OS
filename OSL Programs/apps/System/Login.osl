@@ -43,9 +43,8 @@ if new_network_data (
   if network_data_command == "New_Account" (
     signup_return = network_data
     if signup_return == "Account Created Successfully" (
-      current_login = accounts.len + 1
-      network "get_my_accounts"
       signup_return = ""
+      current_login = "login"
     )
     status = ""
   )
