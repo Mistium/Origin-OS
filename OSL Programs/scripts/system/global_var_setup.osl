@@ -36,4 +36,3 @@ global "const_e" 2.718281828459045
 global "wallpaper_url" ""
 global "nowplaying" {}
 global "network" {}
-global "newline" 10.to("unicode")
