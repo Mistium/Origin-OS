@@ -1,0 +1,7 @@
+if newline in passed_data (
+  passed_data.split(newline)
+)
+
+oasm "compile" passed_data
+oasm data
+say data.join(newline)
