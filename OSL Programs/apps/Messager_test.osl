@@ -1,5 +1,5 @@
 network "set_app_id" "messager_test1"
-recipient = "marionumber1121"
+recipient = "Mist"
 messages = []
 mainloop:
 if new_network_data (
