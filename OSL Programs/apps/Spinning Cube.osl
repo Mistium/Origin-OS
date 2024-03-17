@@ -1,0 +1,38 @@
+3d "camera" "position" [0,0,100]
+3d "camera" "rotation" [0,0,180]
+3d "camera" "fov" 100
+
+mainloop:
+
+points = [
+    [50, 50, -50],
+    [50, -50, -50],
+    [-50, -50, -50],
+    [-50, 50, -50],
+    [50, 50, -50],
+    [50, 50, 50],
+    [50, -50, 50],
+    [-50, -50, 50],
+    [-50, 50, 50],
+    [50, 50, 50],
+    [-50, 50, 50],
+    [-50, 50, -50],
+    [-50, -50, -50],
+    [-50, -50, 50],
+    [50, -50, 50],
+    [50, -50, -50]
+]
+
+count = 0
+c #fff
+goto 0 0
+pen "size" 3
+t = timer * 30
+loop points.len (
+  count ++
+  point = points.[count] + [0,0,-60]
+  goto point.vrotate(0,0,-60,t,t,t).vproject("camera")
+  pen "down"
+)
+pen "up"
+import "win-buttons"
