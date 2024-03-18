@@ -1,0 +1,10 @@
+totv 4
+setv 1 1
+setv 2 1
+setv 3 111
+setv 4 222
+subv 2 1
+equl 1 2 10
+prnt 3
+jump 11
+prnt 4
