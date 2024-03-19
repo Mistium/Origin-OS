@@ -97,12 +97,16 @@ if current_studio_page == "Recent Files" (
       )
     )
     change_x window_width - 90 / -2
-    file "open" "id" cur
+    file "open" "id" cur "onlyaccess"
     file "render" 1.5
     loc 2 2 80 y
-    text file.[2] ++ file.[1] 9 : c#c_text
+    file "get" 2
+    name = data
+    file "get" 1
+    text name ++ data 9 : c#c_text
     loc -2 2 -160 y
-    text file.[10].timestamp("convert-relative") 8
+    file "get" 10
+    text data.timestamp("convert-relative") 8
   )
   frame "clear"
   draw_buttons
@@ -168,10 +172,13 @@ loc 2 2 w / 2 - 5 -290
       )
     )
     change w / -2 + 15
-    file "open" cur.str
+    file "open" cur.str "onlyaccess"
     file "render" 1
     loc 2 2 60 y
-    text file.[2] ++ file.[1] 9 : c#c_text
+    file "get" 2
+    name = data
+    file "get" 1
+    text name ++ data 9 : c#c_text
   )
   frame "clear"
   loc -2 2 -30 -80
