@@ -175,12 +175,10 @@ if bg_redrawn or mouse_touching and settings_open (
   icon "volume-max" 0.7 : c#icn_colour
 
   loc 2 2 30 -237.5
-  terminal "flags donotdisturb get"
-  if data "c global_accent" else "c bg_colour"
-  square 0 0 25 : hover_size#1.05
+  square 0 0 25 0 1
   if clicked and can (
     can = false
-    terminal "flags donotdisturb set" + data.not
+    window "add" "StandbyMode"
   )
   icon "Moon" 0.7 : c#icn_colour
 
