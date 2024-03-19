@@ -1,0 +1,17 @@
+window "maximise"
+can = false
+timetemp = null
+mainloop:
+if mouse_down and can (
+  window "stop"
+)
+if mouse_down.not "can = true"
+square window_width window_height 10 : c#000
+time = hour ++ ":" ++ minute ++ ":" ++ second
+goto time.len * -20 0
+c #aaa
+text time 40
+exit_txt = "Click to exit"
+goto exit_txt.len * -5 -100
+c #777
+text exit_txt 10
