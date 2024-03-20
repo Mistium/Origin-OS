@@ -1,0 +1,13 @@
+if passed_data != null (
+  file "open" passed_data "onlyaccess"
+  file "get" 4
+  image "load" data.str passed_data.str
+) else (
+  say "you need to open a file with this app"
+  window "stop"
+)
+mainloop:
+goto 0 0
+image passed_data.str
+
+import "win-buttons"
