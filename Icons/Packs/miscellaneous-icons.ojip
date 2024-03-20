@@ -24,7 +24,7 @@
     "volume-max": "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80",
     "volume-1": "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90",
     "volume-mute": "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 line 5 3 8 -5 line 8 3 5 -5",
-    "atom": "w 2 cutcircle 0 0 12 4.5 45 cutcircle 0 0 12 17 25 cutcircle 0 0 12 -8.5 25 w 8 dot 0 w 4 dot 11 -6 dot -9 -9 dot -6 10",
+    "atom": "w 2 cutcircle 0 0 12 4.5 45 cutcircle 0 0 12 17 25 cutcircle 0 0 12 -8.5 25 w 8 dot 0 0 w 4 dot 11 -6 dot -9 -9 dot -6 10",
     "servers": "w 5 square 0 4 4 0 square 0 -4 4 0 c #383838 dot 4 4 dot 2 4 dot 4 -4 dot 2 -4",
     "server": "w 5 square 0 0 4 0 c #383838 dot 4 0 dot 2 0",
     "eraser": "w 3 line 7 10 -7 -0 line 7 0 -7 -10 line -7 -10 -7 -0 line 7 0 7 10 line -3 2 -3 -5 line -4 1 -4 -7",
