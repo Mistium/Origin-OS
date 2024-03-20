@@ -135,10 +135,18 @@ def "system"
     terminal "system display get invert"
     toggle_invert = return.divide(100).round.bool
     loc 2 2 10 -180
-    text "Invert Colours" 10 : c#fff
+    c #fff
+    text "Invert Colours" 10
     toggle "invert" 20 : c#333 chx#30
     inp = toggle_invert.int * 100
     terminal "system display set invert" + inp.str
+    loc 2 2 10 -220
+    c #fff
+    text "Night Mode" 10
+    terminal "flags nightmode get"
+    toggle_nightmode = data
+    toggle "nightmode" 20 : c#333 chx#70
+    terminal "flags nightmode set" + toggle_nightmode.str
   )
   if subcategory == "Media" (
     if media == "" (
