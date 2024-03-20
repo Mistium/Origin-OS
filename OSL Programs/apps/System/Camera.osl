@@ -25,7 +25,7 @@ square 0 0 55 : c#global_accent
 if clicked and can (
   can = false
   camera "get" "image"
-  file "download" "image at" + timestamp.timestamp("convert-full") ++ ".ougf" null data.to("lz_raw") user_folder ++ "/Pictures"
+  file "download" "image at" + timestamp.timestamp("convert-full") ++ ".ougf" null data user_folder ++ "/Pictures"
   say "image saved to pictures folder"
 )
 square 0 0 50 : c#333
