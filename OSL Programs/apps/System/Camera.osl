@@ -1,0 +1,34 @@
+permission "request" "camera"
+camera_width = 0
+camera "start"
+mainloop:
+if camera_width == 0 (
+  camera "get" "width"
+  if data != "camera is not on" (
+    camera_width = data
+    camera "get" height
+    camera_height = data
+  )
+)
+goto 0 0
+temp = window_width / "camera".imageinfo("width") * 100
+temp2 = window_height / "camera".imageinfo("height") * 100
+if temp2 > temp (
+  stretch [].append(temp).append(temp)
+) else (
+  stretch [].append(temp2).append(temp2)
+)
+image "camera"
+
+loc -2 999 -40 0
+square 0 0 55 : c#global_accent
+if clicked and can (
+  can = false
+  camera "get" "image"
+  file "download" "image at" + timestamp.timestamp("convert-full") ++ ".png" null data user_folder ++ "/Pictures"
+  say "image saved to pictures folder"
+)
+square 0 0 50 : c#333
+icon "camera" 1 : c#fff
+if mouse_down.not "can = true"
+import "win-buttons"
