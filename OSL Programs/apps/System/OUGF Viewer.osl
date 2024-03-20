@@ -1,7 +1,8 @@
 if passed_data != null (
   file "open" passed_data "onlyaccess"
   file "get" 4
-  image "load" data.str passed_data.str
+  uri = data.str
+  image "load" uri passed_data.str
 ) else (
   say "you need to open a file with this app"
   window "stop"
