@@ -57,8 +57,7 @@ if activity_info (
   text "<dt>ms" 15
   if timer - created_time > 1 (
     loc 2 2 90 -100
-    square 140 25 10 : c#222
-    if mouse_touching "square 100 25 10 : c#333"
+    square 140 25 10 : c#222 hover_c#333
     if clicked (
       terminal "system windows close" + page
       window "stop"
