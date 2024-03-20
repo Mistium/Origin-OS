@@ -186,11 +186,13 @@ def "system"
         square 0 0 25
         c #fff
         type = types.[count]
-        if type == "audiooutput" (
+        if type == "audiooutput" or type == "audioboth" (
           icon "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80" 0.7
-        ) else if type == "audioinput" (
+        )
+        if type == "audioinput" (
           icon "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8" 0.7
-        ) else if type == "videoinput" (
+        )
+        if type == "videoinput" (
           icon "w 3 path 8 -6 8 6 -4 6 -4 -6 8 -6 -4 -6 -4 0 -10 -5 -10 5 -4 0 )" 0.7
         )
         text cur 9 : chx#30
