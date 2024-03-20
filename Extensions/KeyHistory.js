@@ -36,6 +36,17 @@
             blockType: Scratch.BlockType.COMMAND,
             text: 'Delete all keys from history',
           },
+          {
+            opcode: 'AddKey',
+            blockType: Scratch.BlockType.COMMAND,
+            text: 'Add [KEY] to key history',
+            arguments: {
+              KEY: {
+                type: Scratch.ArgumentType.STRING,
+                defaultValue: " "
+              },
+            },
+          },
         ],
       };
     }
@@ -54,6 +65,10 @@
       this.keyHistory = [];
     }
 
+    AddKey({ KEY }) {
+      this.addKeyToHistory(KEY);
+    }
+    
     onKeyDown(event) {
       // Check if Command (Cmd) or Control (Ctrl) keys are pressed
       if (event.metaKey || event.ctrlKey) {
