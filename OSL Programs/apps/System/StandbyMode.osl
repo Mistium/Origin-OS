@@ -7,12 +7,10 @@ if mouse_down (
     can = "exit"
   )
 ) else (
-  window "hide"
   if can == "exit" (
     window "stop"
   )
   can = true
-  window "show"
 )
 square window_width window_height 10 : c#000
 time = hour ++ ":" ++ minute ++ ":" ++ second
