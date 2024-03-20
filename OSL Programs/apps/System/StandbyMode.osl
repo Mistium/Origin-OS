@@ -3,10 +3,11 @@ can = false
 timetemp = null
 window "show"
 mainloop:
-if mouse_down and can (
-  can = "exit"
-)
-if mouse_down.not (
+if mouse_down (
+  if can (
+    can = "exit"
+  )
+) else (
   if can == "exit" (
     window "stop"
   )
