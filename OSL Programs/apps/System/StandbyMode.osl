@@ -1,11 +1,18 @@
 window "maximise"
 can = false
 timetemp = null
+window "show"
 mainloop:
 if mouse_down and can (
-  window "stop"
+  can = "exit"
 )
-if mouse_down.not "can = true"
+if mouse_down.not (
+  if can == "exit" (
+    window "stop"
+  )
+  can = true
+  window "show"
+)
 square window_width window_height 10 : c#000
 time = hour ++ ":" ++ minute ++ ":" ++ second
 goto time.len * -20 0
