@@ -8,6 +8,7 @@ if mouse_down (
     can = "exit"
   )
 ) else (
+  window "hide"
   if can == "exit" (
     window "stop"
   )
