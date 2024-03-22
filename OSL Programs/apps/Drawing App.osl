@@ -1,0 +1,22 @@
+new_canvas = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAASwAAAEsCAQAAADTdEb+AAACIElEQVR42u3SQQ0AAAjEME450sEECZ9WwrJMF5yLsTAWxsJYYCyMhbHAWBgLY4GxMBbGAmNhLIwFxsJYGAuMhbEwFhgLY2EsMBbGwlhgLIyFscBYGAtjgbEwFsYCY2EsjAXGwlgYC4yFsTAWGAtjYSwwFsbCWGAsjIWxwFgYC2OBsTAWxgJjYSyMBcbCWBgLjIWxMBYYC2NhLDAWxsJYYCyMhbHAWBgLY4GxMBbGAmNhLIyFsUTAWBgLY4GxMBbGAmNhLIwFxsJYGAuMhbEwFhgLY2EsMBbGwlhgLIyFscBYGAtjgbEwFsYCY2EsjAXGwlgYC4yFsTAWGAtjYSwwFsbCWGAsjIWxwFgYC2OBsTAWxgJjYSyMBcbCWBgLjIWxMBYYC2NhLDAWxsJYYCyMhbHAWBgLY4GxMBbGAmNhLIwFxsJYGAtjGQtjYSyMBcbCWBgLjIWxMBYYC2NhLDAWxsJYYCyMhbHAWBgLY4GxMBbGAmNhLIwFxsJYGAuMhbEwFhgLY2EsMBbGwlhgLIyFscBYGAtjgbEwFsYCY2EsjAXGwlgYC4yFsTAWGAtjYSwwFsbCWGAsjIWxwFgYC2OBsTAWxgJjYSyMBcbCWBgLjIWxMBYYC2NhLIxlLIyFsTAWGAtjYSwwFsbCWGAsjIWxwFgYC2OBsTAWxgJjYSyMBcbCWBgLjIWxMBYYC2NhLDAWxsJYYCyMhbHAWBgLY4Gx+LeyGcDkIkCqKAAAAABJRU5ErkJggg=="
+
+image_id = timestamp.to("sha256") + "canvas"
+
+image "load" new_canvas image_id
+canvas = new_canvas
+uri "start_editing" canvas
+
+mainloop:
+s = 400
+image image_id s * 2
+if clicked (
+  uri "set_pixel" s * -1 + mouse_x.round s - mouse_y.round #000000
+  uri "get_output"
+  canvas = data
+  image "load" data image_id
+)
+
+loc 2 2 20 -20
+x = mouse_x.round + s
+text x.str + ( s - mouse_y.round ) 10 : c#fff
+import "win-buttons"
