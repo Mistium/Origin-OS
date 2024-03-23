@@ -143,7 +143,8 @@ loc 2 2 w / 2 - 5 -290
       square w2 30 15 : c#global_accent
       square w2 30 10 : c#c_prim
     )
-    if clicked and can or selected_input == "name" and "enter".onpress (
+    clicked = clicked and can
+    if selected_input == "name" and "enter".onpress or clicked (
       can = false
       current_studio_page = input_name.str
     )
