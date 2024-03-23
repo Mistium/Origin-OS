@@ -23,7 +23,6 @@ if new_network_data (
     recieved_from = network_data_from
     recieved = true
   )
-  say network_data
   new_network_data = false
 )
 
