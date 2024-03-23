@@ -1,0 +1,176 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Time_Info.osl",
+    "path": "Origin/(A) System/Docks",
+    "name": "Time_Info.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff icn clock 0.4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Battery_Info.osl",
+    "path": "Origin/(A) System/Docks",
+    "name": "Battery_Info.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff icn battery_2 0.4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/main.ode",
+    "path": "Origin/(A) System/Docks/Modules",
+    "name": "main.ode",
+    "icon": ""
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/applications.ode",
+    "path": "Origin/(A) System/Docks/Modules",
+    "name": "applications.ode",
+    "icon": ""
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/time.ode",
+    "path": "Origin/(A) System/Docks/Modules",
+    "name": "time.ode",
+    "icon": ""
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/battery.ode",
+    "path": "Origin/(A) System/Docks/Modules",
+    "name": "battery.ode",
+    "icon": ""
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Login.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Login.osl",
+    "icon": "c #111 w 12 square 0 0 5 5 w 4 c #fff line -2.5 2.5 2.5 0 line -2.5 -2.5 2.5 0"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Desktop.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Desktop.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 w 4 c #fff dot -7 7 dot -7 1 dot -7 -5 dot -1 7 dot -1 1"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Rename_Helper.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Rename-Helper.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff icn edit 0.4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Permission_Editor.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Permission_Editor.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff icn key 0.6"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Origin_Start.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Origin_Start.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff w 2 icn power 0.7"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/File_Info.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Files_Info.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff w 2 line 0 0 0 -5 dot 0 5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Terminal.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Terminal.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #1b8f44 w 1.5 line 0 -4 5 -4 line -6 4 -2 0 cont -6 -4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/OASM%20Runner.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "OASM Runner.osl",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fff icn play 0.4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Quick_Settings.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "Quick_Settings.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn settings 0.5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/New_File.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "New_File.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 icn add 0.5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/StandbyMode.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "StandbyMode.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn moon 0.5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/originAssist.osl",
+    "path": "Origin/(A) System/System Apps",
+    "name": "originAssist.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn search 0.5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Files.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Files.app",
+    "icon": "w 5 c #3ebef4 square 0 -8 10 0 w 5 c #772d1c line 10 6 -5 6 c #ff724f square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -1 8 1 c #772d1c icn origin-logo 0.28 -7 -2.7"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Settings.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Settings.app",
+    "icon": "c #111 w 10 square 0 0 5 5 c #fafafa w 3 icn settings 0.7"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Calculator.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Calculator.app",
+    "icon": "c #d4d4d3 w 10 square 0 0 5 5 c #292929 w 5 square 0 0 4 6 square 0 0 0 3 c #4a4a4a w 3 square 0 5 4 1.2 dot -4 -1 dot 0 -1 dot -4 -5 dot 0 -5 c #f79204 dot 4 -5 dot 4 -1"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Activity.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Activity.app",
+    "icon": "c #111 w 10 square 0 0 5 5 w 2 c #84d5f5 line -7 0 -6 0 cont -5 2 cont -3 -2 cont -1 5 cont 2 -4 cont 4 0 cont 7 0"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Summit.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Summit.app",
+    "icon": "c #6a54b3 w 20 dot 0 0 c #dbdbdb w 7 line -3 -4 0 4 line 3 -4 0 4 line -3 -4 3 -4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Studio.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Studio.app",
+    "icon": "c #0a0303 w 10 square 0 0 5 5 c #702a25 w 1.6 line 2.2 4 6 0 line 2.2 -4 6 0 line -2.2 4 -6 0 line -2.2 -4 -6 0"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Contacts.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Contacts.osl",
+    "icon": "c #000 w 10 square 0 0 5 5 w 7 c #222 square -2 0 3 5 w 3 dot 7 4.5 dot 7 0 dot 7 -4.5 c #fff icn accounts 0.5 -2 0"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Airdrop.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Airdrop.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn network 0.5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Camera.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "Camera.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn camera 0.5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/OUGF%20Viewer.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "OUGF Viewer.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Layout_Builder.osl",
+    "path": "Origin/(A) System/User Applications",
+    "name": "LayoutBuilder.osl",
+    "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn grid 0.5"
+  }
+]
