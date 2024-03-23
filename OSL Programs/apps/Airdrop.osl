@@ -1,4 +1,6 @@
 network "set_app_id" "origin_airdropper"
+window "show"
+window "set_dragbox" [[2,2,60,0],[-2,2,0,-50]]
 
 selected_file = 0
 recieved_data = 0
@@ -18,10 +20,14 @@ if new_network_data (
     size = network_data.str.len + "bytes"
     recieved_name = network_data.[2] ++ network_data.[1]
     recieved_from = network_data_from
-    new_network_data = false
     recieved = true
   )
+  new_network_data = false
 )
+
+loc 2 999 30 0
+square 60 window_height 10 : c#222
+
 
 loc 2 999 30 30
 if mode == "send" "change_y -60"
@@ -47,7 +53,7 @@ icon "upload" 0.7
 if mode == "send" (
   c #fff
   if selected_file == 0 (
-    loc 2 2 20 -20
+    loc 2 2 80 -20
     text "Send Mode" 10
   
     loc 999 -2 0 70
@@ -60,7 +66,7 @@ if mode == "send" (
     icon "file" 0.7 : c#fff
   ) else (
     loc 2 2 20 -20
-    text "File Selected" 10l
+    text "File Selected" 10
   
     goto 0 40
     square 500 30 10 : c#222
@@ -78,12 +84,12 @@ if mode == "send" (
       mode = "sent"
     )
     change_x -240
-    text "Send file to <input_reciever>" 10 : c#fff
+    text "Send file" 10 : c#fff
     // ^ button for sending the file
   )
 )
 if mode == "recieve" (
-  loc 2 2 20 -20
+  loc 2 2 80 -20
   text "Recieve Mode" 10 : c#fff
   if recieved (
     goto recieved_name.len * -8 50
@@ -98,16 +104,29 @@ if mode == "recieve" (
       recieved_data = 0
     )
     goto -140 -70
-    text "put file in /downloads" 10 : c#fff
+    text "Move To /Downloads" 10 : c#fff
+    goto 0 -130
+    square 300 30 20 : c#333 hover_c#444
+    if clicked (
+      recieved = false
+      recieved_data = 0
+    )
+    goto -140 -130
+    text "Discard File" 10 : c#fff
     loc 2 -2 20 20
     text "Recieved From: " + recieved_from 10 : c#fff
   )
 )
 
 if mode == "sent" (
-  loc 2 2 100 -20
+  loc 2 2 80 -20
   text "Sent file" 10
 )
 
 if mouse_down.not "can = true"
-import "win-buttons"
+loc 2 2 30 -30
+square 30 30 20 : c#333 hover_c#444
+if clicked (
+  window "stop"
+)
+icon "close" 0.7 : c#fff
