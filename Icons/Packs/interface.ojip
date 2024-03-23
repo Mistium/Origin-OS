@@ -73,6 +73,7 @@
     "dice_6": "w 3 square 0 0 8.5 8.5 dot 4 4 dot -4 -4 dot 4 -4 dot -4 4 dot -4 0 dot 4 0",
     "sync": "w 4 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5",
     "controller": "w 5 line 6 6 8 6 line -6 6 -8 6 w 7 line 7 5 10 -7 line -7 5 -10 -7 line -6 3 6 3 line -7 -1 7 -1",
-    "microphone": "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8"
+    "microphone": "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8",
+    "network":"w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6"
   }
 }
