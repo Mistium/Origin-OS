@@ -67,7 +67,7 @@ if mode == "send" (
     square 30 30 20 : c#333
     icon "file" 0.7 : c#fff
   ) else (
-    loc 2 2 20 -20
+    loc 2 2 80 -20
     text "File Selected" 10
   
     goto 0 40
