@@ -1,5 +1,11 @@
 [
   {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/Dock.osl",
+    "path": "Origin/(A) System/Docks",
+    "name": "Dock.osl",
+    "icon": "c #111 w 10 square 0 0 5 5"
+  },
+  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Time_Info.osl",
     "path": "Origin/(A) System/Docks",
     "name": "Time_Info.osl",
