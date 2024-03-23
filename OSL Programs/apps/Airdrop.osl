@@ -6,6 +6,7 @@ selected_file = 0
 recieved_data = 0
 mode = "recieve"
 recieved = false
+
 mainloop:
 if new_transmit (
   selected_file = transmit_data
@@ -17,11 +18,12 @@ if new_transmit (
 if new_network_data (
   if recieved_data == 0 (
     recieved_data = network_data
-    size = network_data.str.len + "bytes"
-    recieved_name = network_data.[2] ++ network_data.[1]
+    size = recieved_data.str.len + "bytes"
+    recieved_name = recieved_data.[2] ++ recieved_data.[1]
     recieved_from = network_data_from
     recieved = true
   )
+  say network_data
   new_network_data = false
 )
 
@@ -77,10 +79,10 @@ if mode == "send" (
   
     square 500 30 10 : c#222 hover_c#333
     if clicked and can (
-      selected_file = 0
       can = false
       file "open" selected_file
       network "send" file input_reciever
+      selected_file = 0
       mode = "sent"
     )
     change_x -240
@@ -92,28 +94,28 @@ if mode == "recieve" (
   loc 2 2 80 -20
   text "Recieve Mode" 10 : c#fff
   if recieved (
-    goto recieved_name.len * -8 50
+    goto recieved_name.len * -8 + 20 50
     text recieved_name 16
-    goto size.len * -5 -10
+    goto size.len * -5 + 20 -10
     text size 10 : c#aaa
-    goto 0 -70
+    goto 20 -70
     square 300 30 20 : c#333 hover_c#444
     if clicked (
       recieved = false
       file "download" recieved_name null recieved_data.[4]
       recieved_data = 0
     )
-    goto -140 -70
+    goto -120 -70
     text "Move To /Downloads" 10 : c#fff
-    goto 0 -130
+    goto 20 -130
     square 300 30 20 : c#333 hover_c#444
     if clicked (
       recieved = false
       recieved_data = 0
     )
-    goto -140 -130
+    goto -120 -130
     text "Discard File" 10 : c#fff
-    loc 2 -2 20 20
+    loc 2 -2 80 20
     text "Recieved From: " + recieved_from 10 : c#fff
   )
 )
