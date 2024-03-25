@@ -185,14 +185,14 @@ def "system"
       count = 0
       loop keys.len (
         count ++
-        y = count + 4 * -40 + scroll_y
+        y = count + 2.5 * -60 + scroll_y
         loc 999 2 0 y
-        square frame_width - 30 20 15 : c#222 hover_c#252525
+        square frame_width - 20 40 10 : c#333 hover_c#252525
         cur = keys.[count]
         cur2 = media.key(cur)
-        loc 2 2 25 y
-        c #444
-        square 0 0 25
+        loc 2 2 30 y
+        c #555
+        square 30 30 10
         c #fff
         type = types.[count]
         if type == "audiooutput" or type == "audioboth" (
@@ -206,7 +206,7 @@ def "system"
         )
         text cur 9 : chx#30
       )
-      page_len = keys.len + 4 * 40
+      page_len = keys.len + 2.5 * 60
     ) else (
       text media 10
       page_len = 100
@@ -627,7 +627,7 @@ def "Appearance"
       square frame_width - 20 40 10 : c#333
       loc 2 2 40 y
       c #fff
-      icon ftvalues.[1] 0.8
+      icon ftvalues.[count].[1] 0.8
       c #fff
       text ftkeys.[count] 10 chx#30
     )
@@ -791,3 +791,4 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
+
