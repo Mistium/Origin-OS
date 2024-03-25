@@ -1,4 +1,5 @@
 def "appopt" "optname,opticn,icnsize"
+
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#222
   loc 2 2 30 y
@@ -189,7 +190,6 @@ def "system"
         loc 999 2 0 y
         square frame_width - 20 40 10 : c#333 hover_c#252525
         cur = keys.[count]
-        cur2 = media.key(cur)
         loc 2 2 30 y
         c #555
         square 30 30 10
@@ -202,7 +202,7 @@ def "system"
           icon "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8" 0.7
         )
         if type == "videoinput" (
-          icon "w 3 path 8 -6 8 6 -4 6 -4 -6 8 -6 -4 -6 -4 0 -10 -5 -10 5 -4 0 )" 0.7
+          icon "w 3 line 8 -6 8 6 cont -4 6 cont -4 -6 cont 8 -6 cont -4 -6 cont -4 0 cont -10 -5 cont -10 5 cont -4 0" 0.7
         )
         text cur 9 : chx#30
       )
@@ -229,13 +229,13 @@ def "system"
     count = 0
     loop boot_apps.len (
       count ++
-      y = count + 1 * -40 + scroll_y
+      y = count + 1 * -60 + scroll_y
       loc 999 2 0 y
-      square frame_width - 30 20 15 : c#222 hover_c#252525
+      square frame_width - 20 40 10 : c#333 hover_c#252525
       loc 2 2 15 y
       text boot_apps.[count] 9 : c#fff
-      loc -2 2 -20 y
-      square 20 20 15 : c#333 hover_c#444
+      loc -2 2 -30 y
+      square 30 30 10 : c#555 hover_c#666
       if clicked and can (
         can = false
         boot_apps = boot_apps.delete(count)
@@ -243,7 +243,7 @@ def "system"
       )
       icon "bin" 0.8 : c#fff
     )
-    page_len = apps.len * 20
+    page_len = apps.len + 1 * 60
   )
   if subcategory == "Storage" (
     file "open" "Origin/(A) System.folder"
@@ -624,12 +624,15 @@ def "Appearance"
       count ++
       y = count * -60 + scroll_y + 20
       loc 999 2 0 y
-      square frame_width - 20 40 10 : c#333
-      loc 2 2 40 y
+      square frame_width - 20 40 10 : c#333 hover_c#252525
+      loc 2 2 30 y
+      c #555
+      square 30 30 10
       c #fff
-      icon ftvalues.[count].[1] 0.8
+      ftv = ftvalues.[count]
+      icon ftv.[1] 0.8
       c #fff
-      text ftkeys.[count] 10 chx#30
+      text "<ftv.[2]> (<ftkeys.[count]>)" 10 : chx#30
     )
     page_len = count * 60 - 20
   )
@@ -791,4 +794,3 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
-
