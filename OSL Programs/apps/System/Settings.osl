@@ -162,7 +162,7 @@ def "system"
       terminal "get access camera"
       data2 = data
       terminal "get access microphone"
-      if data + data2 == "granted granted" (
+      if "granted" in ( data + data2 ) (
         terminal "get mediadevices"
         media = data
         keys = media.getall("keys")
@@ -355,6 +355,7 @@ def "Appearance"
     option "Background" "w 3 c #fff square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
     option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
     option "Colours" "w 3 c #fff cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
+    option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
   )
   if subcategory == "Background" (
     loc 2 2 15 -30 + scroll_y
@@ -617,6 +618,21 @@ def "Appearance"
       icon_select = picker_colour
     )
   )
+  if subcategory == "File Types" (
+    count = 0
+    loop ftkeys.len (
+      count ++
+      y = count * -60 + scroll_y + 20
+      loc 999 2 0 y
+      square frame_width - 20 40 10 : c#333
+      loc 2 2 40 y
+      c #fff
+      icon ftvalues.[1] 0.8
+      c #fff
+      text ftkeys.[count] 10 chx#30
+    )
+    page_len = count * 60 - 20
+  )
   frame "clear"
 endef
 
@@ -703,7 +719,6 @@ if passed_data == "" (
   subcategory = passed_data.[2]
 )
 
-
 window "dimensions" 880 500
 dock_location = dock_location
 media = ""
@@ -720,6 +735,10 @@ if wallpapers.len < 1 or wallpapers.istype("array").not (
   save "wallpapers.json" "set" wallpapers
 )
 save "segments.txt" "set" segments
+
+// file type pages
+ftkeys = file_types.getall("keys")
+ftvalues = file_types.getall("values")
 
 mainloop:
 
