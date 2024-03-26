@@ -128,8 +128,9 @@ mainloop:
     files_buttons = []
   ) else (
     file_open = selected_files.[1]
-    file "open" file_open
-    if "System" in file.[13] (
+    file "open" file_open "onlyaccess"
+    file "get" 13
+    if "System" in data (
       files_buttons = ["Open","Copy","Info"]
     ) else (
       files_buttons = ["Open","Edit","Copy","Rename","Bin","Info"]
@@ -170,24 +171,31 @@ mainloop:
     square 270 window_height - 192 10 1 : c#222
     if selected_files.len < 2 (
       loc -2 2 -150 -250
-      file "open" file_open
+      file "open" file_open "onlyaccess"
       file "render" 5 : c#fff
       loc -2 2 -280 -330 : c#fff
       x = x_position
-      text file.[2] ++ file.[1] 10
+      file "get" 1
+      data1 = data
+      file "get" 2
+      text data ++ data1 10
       set_x x
       text "File Info" 8.5 : chy#-35
       set_x x
-      text "Created:" + file.[9].timestamp("convert-relative") 8.5 : chy#-25
+      file "get" 9
+      text "Created:" + data.timestamp("convert-relative") 8.5 : chy#-25
       set_x x
-      text "Last Edited:" + file.[10].timestamp("convert-relative") 8.5 : chy#-25
+      file "get" 10
+      text "Last Edited:" + data.timestamp("convert-relative") 8.5 : chy#-25
       set_x x
-      text "Size:" + file.[12] + "Bytes" 8.5 : chy#-25
+      file "get" 12
+      text "Size:" + data + "Bytes" 8.5 : chy#-25
     )
   )
-  file "open" current_file_path
+  file "open" current_file_path "onlyaccess"
   if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
-  r = file.[12].int
+  file "get" 12
+  r = data.int
   if 1000 > r (
     r = r + "B"
   ) else (
