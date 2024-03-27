@@ -3,12 +3,11 @@
 settings_open = false
 can = false
 window "front"
-
+last_synced = 0
 window_x = screensize_x / 2 + 128
 window_target_x = -102
 used = "used"
 last_upload = timer + 600
-last_synced = 0
 syncing = false
 error = ""
 window "dimensions" 190 300
@@ -112,7 +111,7 @@ if syncing (
   if last_synced == 0 (
     last_synced_text = "Not Synced"
   ) else (
-    last_sync_text = last_synced.timestamp(convert-relative)
+    last_sync_text = last_synced.int.timestamp("convert-relative")
   )
 )
 
