@@ -9,14 +9,11 @@ hidden = []
 input_path = Files_path.destr
 dta = ""
 can = true
-
 def "navigate" "path"
   file "open" path ++ ".folder"
   file "start"
 endef
-
 navigate user_folder
-
 def "folder" "txt"
   con = hidden.contains(txt)
   loc 2 2 125 y
@@ -37,10 +34,9 @@ def "folder" "txt"
     icon "up" 0.6
   )
   change_x -210
-  text txt 8
+  text txt.str 8
   y -= 35
 endef
-
 def "file_folder" "path_input,txt,folder"
   if hidden.contains(folder).not (
     loc 2 2 125 y
@@ -60,7 +56,6 @@ def "file_folder" "path_input,txt,folder"
     y -= 35
   )
 endef
-
 icons = {}
 file "open" user_path ++ "Desktop.folder"
 icons."Desktop" = file.[11]
@@ -77,7 +72,6 @@ icons."Local" = file.[11]
 file "open" "Origin/(C) Users.folder"
 icons."Users" = file.[11]
 icons.[username] = "image" + user_icon.str + "20"
-
 window_colour = #000
 c_icon = #fff
 c_prim = #222
@@ -88,7 +82,6 @@ desktop = user_path ++ "Desktop"
 downloads = user_path ++ "Downloads"
 documents = user_path ++ "Documents"
 bin = user_path ++ "Bin"
-
 mainloop:
   if mouse_down.not "can = true"
   input_path = null
@@ -137,7 +130,7 @@ mainloop:
     window "add" "New_File" current_file_path
   )
   change -15 2
-  if selected_files.len > 1 (
+  if selected_files.len != 1 (
     files_buttons = []
   ) else (
     file_open = selected_files.[1]
@@ -205,7 +198,7 @@ mainloop:
       text "Size:" + data + "Bytes" 8.5 : chy#-25
     )
   )
-  file "open" current_file_path "onlyaccess"
+  file "open" current_file_path ++ ".folder" "onlyaccess"
   if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
   file "get" 4
   c c_icon
