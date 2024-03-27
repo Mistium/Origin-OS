@@ -1,0 +1,226 @@
+c_sidebarbutton = #333
+c_sidebarselected = accent_colour
+c_sidebaricons = #fff
+c_sidebarback = #111
+c_tabselected = #555
+c_searchback = #151515
+c_searchbar = #222
+c_searchicon = #fff
+c_text = #fff
+c_back = #000
+
+default_tab_width = 300
+
+save "bookmarks.json" "get"
+bookmarks = save-data
+if bookmarks == null (
+  save "bookmarks.json" "set" {}
+  bookmarks = []
+)
+
+owtpurl = "https://raw.githubusercontent.com/Mistium/owtp/main/"
+window "show"
+tab = 1
+pages = []
+tabs = []
+taburls = []
+current_get = ""
+onload = false
+loaded = false
+
+def "set_tab_name"
+  name = taburls.[tab].split("/")
+  len = name.len
+  name = name.[len]
+  current_tab_name = {}
+  current_tab_name.key("title") = name
+endef
+
+def "opentab" "url"
+  resolve_protocols url
+  input_search = url.destr
+  tabs = tabs + {"title":"Loading"}
+  pages = pages + ""
+  taburls = taburls + url
+  tab = tabs.len
+  onload = true
+  loaded = false
+endef
+
+def "remove_tab" "id"
+  if tab == id "tab -= 1"
+  pages = pages.delete(id)
+  tabs = tabs.delete(id)
+  taburls = taburls.delete(id)
+endef
+
+def "render_tabs"
+  tab_max_width = window_width - 200
+  tab_width = default_tab_width
+  if tabs.len * tab_width > tab_max_width "tab_width = tab_max_width / tabs.len"
+  i = 0
+  loop tabs.len (
+    i += 1
+    x = i - 0.5 * tab_width + 52.5
+    loc 2 2 x -20
+    if tab == i "c c_tabselected" else "c c_searchbar"
+    square tab_width - 15 28 5 1
+    if clicked (
+      tab = i
+      input_search = taburls.[i].destr
+    )
+    change_x tab_width * -0.5 + 20
+    current = tabs.[i]
+    icon current."icon".str 0.8 : c#c_text
+    text current."title".str 8 : chx#20
+    if tabs.len > 1 (
+      loc 2 2 tab_width * 0.5 - 20 + x -20
+      icon "close" 0.5
+      if clicked "remove_tab i"
+      clicked = false
+    )
+  )
+  loc 2 2 x + ( tab_width / 2 ) + 20 -20
+  square 28 28 5 1 : c#c_searchbar
+  icon "add" 0.6 : c#c_text
+  if clicked (
+    opentab "owtp://search.web"
+  )
+endef
+
+def "redirect" "url"
+  resolve_protocols url
+  current_url = url
+  input_search = url.destr
+  cur_tab = {}
+  cur_tab.key("title") = url
+  tabs.[tab] = cur_tab
+  taburls.[tab] = url
+  onload = true
+  loaded = false
+endef
+
+def "resolve_protocols" "url"
+  spl = url.split("://")
+  protocol = spl.[1]
+  current_get = url
+  if protocol == "owtp" (
+    if url.contains("@") (
+      owtpurl2 = "https://raw.githubusercontent.com/" ++ spl.[2].split("@").[1] ++ "/owtp/main/"
+    ) else (
+      owtpurl2 = owtpurl
+    )
+    current_get = url.replace("owtp://",owtpurl2)
+    url_right = url.right(4)
+    if url_right == ".web" or url_right.contains(".").not (
+      current_get = current_get ++ "/index.osl"
+    )
+  )
+  urlspl = current_get.split(".")
+  len = urlspl.len
+  page_type = urlspl.[len]
+endef
+
+opentab "owtp://search.web"
+resolve_protocols "owtp://search.web"
+network "clear" current_get
+current_get = ""
+pages.[tab] = []
+page_type = ""
+page_data = ""
+
+mainloop:
+ww = window_width
+loc 999 2 0 -40
+square ww 80 10 1 : c#c_searchback
+items = 1
+render_tabs
+loc -2 2 items * -15 - 10 -60
+square items * 30 28 5 1 : c#c_searchbar
+loc -2 2 -25 -60
+image user_icon.str 25
+offset = items * 30
+loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
+square ww - ( offset + 80 ) 28 5 1
+input ww - ( offset + 120 ) 28 "search" "Search Origin or Type A URL" 0 5 c_text : chx#10
+if selected_input == "search" and "enter".pressed (
+  redirect input_search.str
+)
+
+resolve_protocols taburls.[tab]
+network "get" current_get
+if data.str != "Loading" and loaded.not (
+  page_data = data.str
+  pages.[tab] = data.split(newline)
+  loaded = true
+  onload = true
+)
+
+loc 2 2 70 -59
+icon "search" 0.6 : c#c_searchicon
+loc 2 999 20 0
+square 50 window_height 10 1 : c#c_sidebarback
+loc 2 2 25 -25
+c c_sidebarbutton
+loop 4 (
+  square 30 30 10 1
+  change_y -50
+)
+loc 2 -2 25 25
+square 30 30 10 1 : c#c_sidebarbutton
+loc 2 2 25 -25
+icon "Left-Arrow" 0.8 : c#c_sidebaricons
+icon "Right-Arrow" 0.8 : chy#-50
+icon "Reload" 0.7 : chy#-50
+if clicked and can (
+  can = false
+  resolve_protocols taburls.[tab]
+  network "clear" current_get
+  current_get = ""
+  pages.[tab] = []
+  page_type = ""
+  loaded = false
+)
+icon "bookmark" 0.8 : chy#-50
+if mouse_down.not "can = True"
+loc 2 -2 25 25
+icon "More-Vertical" 0.8
+loc 2 2 55 -90
+x = x_position
+y = y_position
+loc -2 -2 0 -10
+c c_sidebarback
+frame x y x_position y_position page_len
+page_len = null
+current_tab_name = {}
+current_tab_name.key("title") = input_search.str
+if page_type == "osl" (
+  run pages.[tab]
+  onload = false
+)
+if ["png","jpg"].contains(page_type) (
+  goto 0 0
+  image taburls.[tab].destr.replace("owtp://",owtpurl) frame_width
+  page_data = ""
+  current_tab_name.["title"] = page_type + "image"
+  current_tab_name.["icon"] = "file"
+)
+if page_type == "txt" (
+  loc 2 2 20 -20 + scroll_y
+  c c_text
+  text page_data.str 10
+  set_tab_name
+  current_tab_name.["icon"] = "txt"
+  page_len = pages.[tab].len * 25
+)
+if page_type == "" (
+  loading += 50 * delta_time
+  direction loading
+  c c_text
+  icon "w 3 cutcircle 0 0 10 -4 65 cutcircle 0 0 10 14 65" 2
+  direction 90
+)
+tabs.[tab] = current_tab_name
+if mouse_down.not "can = true"
+frame "clear"
+import "win-buttons"
