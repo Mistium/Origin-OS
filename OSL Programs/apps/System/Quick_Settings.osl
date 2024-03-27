@@ -8,7 +8,6 @@ window_x = screensize_x / 2 + 128
 window_target_x = -102
 used = "used"
 last_upload = timer + 600
-syncing = false
 error = ""
 window "dimensions" 190 300
 window "responsive" true
