@@ -54,7 +54,7 @@ def "file_folder" "path_input,txt,folder"
       )
     )
     change_x -95
-    icon icons.[txt] 0.9
+    icon icons.[txt].str 0.9
     c c_icon : chx#30
     text txt 8
     y -= 35
