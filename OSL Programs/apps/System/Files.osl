@@ -19,20 +19,24 @@ navigate user_folder
 
 def "folder" "txt"
   con = hidden.contains(txt)
-  foldershow = "up"
-  if con (
-    foldershow = "down"
-  )
   loc 2 2 125 y
   square 225 20 10 0 1
-  if clicked and can (
-    can = false
-    if con "hidden.delete(txt)" else "hidden.append(txt)"
+  if mouse_touching (
+    if clicked and can (
+      can = false
+      if con "hidden.delete(txt)" else "hidden.append(txt)"
+    )
+    c c_seco
+    square 225 20 10
   )
-  if mouse_touching "square 225 20 10 : c#c_seco"
-  loc 2 2 230 y
-  icon foldershow 0.6 : c#c_icon
-  loc 2 2 20 y
+  change_x 100
+  c c_icon
+  if con (
+    icon "down" 0.6
+  ) else (
+    icon "up" 0.6
+  )
+  change_x -210
   text txt 8
   y -= 35
 endef
@@ -41,17 +45,20 @@ def "file_folder" "path_input,txt,folder"
   if hidden.contains(folder).not (
     loc 2 2 125 y
     square 225 20 10 0 1
-    if mouse_touching "square 225 20 10 1 : c#c_seco"
-    if clicked and can (
-      can = false
-      navigate path_input
+    if mouse_touching (
+      c c_seco
+      square 225 20 10
+      if clicked and can (
+        can = false
+        navigate path_input
+      )
     )
-    loc 2 2 30 y
-    icon icons.key(txt) 0.9
-    text txt 8 : c#c_icon chx#30
+    change_x -95
+    icon icons.[txt] 0.9
+    c c_icon : chx#30
+    text txt 8
     y -= 35
   )
-  clicked = false
 endef
 
 icons = {}
@@ -77,6 +84,11 @@ c_prim = #222
 c_seco = #444
 c_tert = #999
 
+desktop = user_path ++ "Desktop"
+downloads = user_path ++ "Downloads"
+documents = user_path ++ "Documents"
+bin = user_path ++ "Bin"
+
 mainloop:
   if mouse_down.not "can = true"
   input_path = null
@@ -96,25 +108,26 @@ mainloop:
   )
   square w 25 10
   input w - 10 25 "path" null 10 c_icon
-  w = window_width
   if sideshow.not (
     loc 2 2 50 -70
     square 65 25 10 1 : c#c_prim
   )
   loc -2 2 -30 -70
-  square 25 25 10 : c#c_prim
-  icon "search" 0.8 : c#c_icon
+  c c_prim
+  square 25 25 10
+  c c_icon
+  icon "search" 0.8
   if sideshow (
     y = -60
     folder "Favorites"
-    file_folder user_path ++ "Desktop" "Desktop" "Favorites"
-    file_folder user_path ++ "Downloads" "Downloads" "Favorites"
-    file_folder user_path ++ "Documents" "Documents" "Favorites"
-    file_folder user_path ++ "Bin" "Bin" "Favorites"
+    file_folder desktop "Desktop" "Favorites"
+    file_folder downloads "Downloads" "Favorites"
+    file_folder documents "Documents" "Favorites"
+    file_folder Bin "Bin" "Favorites"
     folder "Drives"
     file_folder "Origin/(A) System" "System" "Drives"
     file_folder "Origin/(B) Local" "Local" "Drives"
-    file_folder "Origin/(C) Users/" ++ username username "Drives"
+    file_folder user_folder username "Drives"
   )
   loc 2 2 30 -120
   if sideshow "change 240"
