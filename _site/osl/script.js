@@ -1,4 +1,4 @@
-onload = () => {changeTab(1)};
+onload = () => {changeTab(0)};
 
 function changeTab(tabIndex) {
   const tabs = document.querySelectorAll('.tab');
