@@ -7,7 +7,7 @@ In the OSL language, `if` statements are pivotal for controlling the flow of a p
 The basic `if` statement tests a condition. If the condition is true, the commands within the block are executed. If not, the program moves to the next section.
 
 Example:
-```lua
+```js
 if condition (
    say "command1"
    say "command2"
@@ -23,7 +23,7 @@ if condition (
 If the condition in the `if` statement is true, the commands within the first block are executed. Otherwise, the commands within the `else` block are executed.
 
 Example:
-```lua
+```js
 if condition (
    say "command1"
    say "command2"
@@ -42,16 +42,13 @@ if condition (
 Multiple conditions can be checked using `else-if`. If the condition in the `if` statement is false, the program checks the condition in the `else-if`. If that's true, the corresponding block of commands is executed.
 
 Example:
-```lua
+```js
 if condition1 (
    say "command1"
    say "command2"
 ) else if condition2 (
    say "command3"
    say "command4"
-) else (
-   say "command5"
-   say "command6"
 )
 ```
 
@@ -61,13 +58,18 @@ Short forms of `if` and `if-else` statements can be used for concise syntax.
 
 #### Short Form of if Statement:
 
-```lua
+```js
 if condition "command1"
+```
+
+```js
+test_var = "hi"
+if 10 > 3 "say test_var"
 ```
 
 #### Short Form of if-else Statement:
 
-```lua
+```js
 if condition "command1" else "command2"
 ```
 
@@ -83,10 +85,10 @@ Now, let's look at examples for each type of statement:
 
 #### Basic `if` Statement:
 
-```lua
--- Example of a basic if statement
--- If the temperature is greater than 25, it's considered a hot day
-local temperature = 30
+```js
+// Example of a basic if statement
+// If the temperature is greater than 25, it's considered a hot day
+temperature = 30
 if temperature > 25 (
     say "It's a hot day!"
 )
@@ -95,10 +97,10 @@ In this example, the `if` statement checks if the `temperature` variable is grea
 
 #### `if-else` Statement:
 
-```lua
--- Example of an if-else statement
--- Determines if a person is an adult or a minor based on their age
-local age = 17
+```js
+// Example of an if-else statement
+// Determines if a person is an adult or a minor based on their age
+age = 17
 
 if age >= 18 (
     say "You are an adult."
@@ -110,10 +112,10 @@ In this example, the `if-else` statement checks if the `age` variable is greater
 
 #### `else-if` Statement:
 
-```lua
--- Example of an else-if statement
--- Assigns a letter grade based on a numerical grade
-local grade = 85
+```js
+// Example of an else-if statement
+// Assigns a letter grade based on a numerical grade
+grade = 85
 
 if grade >= 90 (
     say "You got an A."
@@ -129,16 +131,16 @@ In this example, the `else-if` statement checks multiple conditions to determine
 
 #### Short Forms:
 
-```lua
--- Short forms of if and if-else statements
--- These provide a concise way to write simple conditional statements
--- Short form of if statement
-local x = 8
-say(x > 5)
+```js
+// Short forms of if and if-else statements
+// These provide a concise way to write simple conditional statements
+// Short form of if statement
+x = 8
+say x > 5
 
--- Short form of if-else statement
-local y = 3
-say(y > 5)
+// Short form of if-else statement
+y = 3
+say y > 5
 ```
 
 In these examples, the short forms of `if` and `if-else` statements are shown. These are useful for writing simple conditional statements in a concise manner. The condition is directly followed by the command to execute if the condition is true. If an `else` block is required, it's written after `else`, followed by the command to execute if the condition is false.
