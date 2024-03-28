@@ -16,7 +16,7 @@ function changeTab(tabIndex) {
   }
 
   // Move the underline to the selected tab or "All" tab
-  const selectedTab = tabIndex === 0 ? tabs[0] : tabs[tabIndex - 1];
+  const selectedTab = tabs[tabIndex]; // No need to subtract 1
   const tabRect = selectedTab.getBoundingClientRect(); // Get bounding rectangle of the tab
   underline.style.width = `${tabRect.width}px`; // Set width to tab's width
   underline.style.transform = `translateX(${tabRect.left}px)`; // Set position to tab's left offset
