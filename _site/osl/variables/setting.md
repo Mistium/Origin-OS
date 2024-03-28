@@ -6,19 +6,19 @@
 
 **Example:**
 - Setting a variable to a single value:
-```
+```js
 count = 10
 ```
 This sets the variable `count` to the value `10`.
 
 - Setting a variable to an array:
-```
+```js
 array = ["hello", "world"]
 ```
 This sets the variable `array` to the array `["hello", "world"]`.
 
 - Setting a variable to a JSON object:
-```
+```js
 obj = {"name": "John", "age": 30}
 ```
 This sets the variable `obj` to the JSON object `{"name": "John", "age": 30}`.
@@ -28,7 +28,7 @@ This sets the variable `obj` to the JSON object `{"name": "John", "age": 30}`.
 - **list.[itemnumber] = "assign-data"**:
 **Description:** Sets the selected item of a list (specified by `[itemnumber]`) to the inputted data ("assign-data").
 **Example:**
-```
+```js
 mylist.[2] = "new_value"
 ```
 This sets the third item in the list `mylist` to the value `"new_value"`.
@@ -38,7 +38,7 @@ This sets the third item in the list `mylist` to the value `"new_value"`.
 - **object.key("key") = "assign-data"**:
 **Description:** Sets the selected key of a JSON object (specified by `"key"`) to the inputted data ("assign-data").
 **Example:**
-```
+```js
 myobject.key("name") = "John"
 ```
 This sets the value associated with the key `"name"` in the JSON object `myobject` to `"John"`.
@@ -46,7 +46,7 @@ This sets the value associated with the key `"name"` in the JSON object `myobjec
 - **object."key" = "assign-data"**:
 **Description:** Sets the selected key of a JSON object (specified by `"key"`) to the inputted data ("assign-data").
 **Example:**
-```
+```js
 myobject."name" = "John"
 ```
 This sets the value associated with the key `"name"` in the JSON object `myobject` to `"John"`.
@@ -54,7 +54,7 @@ This sets the value associated with the key `"name"` in the JSON object `myobjec
 - **object.["key"] = "assign-data"**:
 **Description:** Sets the selected key of a JSON object (specified by `"key"`) to the inputted data ("assign-data").
 **Example:**
-```
+```js
 myobject.["name"] = "John"
 ```
 This sets the value associated with the key `"name"` in the JSON object `myobject` to `"John"`.
@@ -66,7 +66,7 @@ This sets the value associated with the key `"name"` in the JSON object `myobjec
 - **variable += 10**:
 **Description:** Adds 10 to the variable's current value.
 **Example:**
-```
+```js
 count += 5
 ```
 This increments the value of `count` by 5.
@@ -74,7 +74,7 @@ This increments the value of `count` by 5.
 - **variable \*= 5**:
 **Description:** Multiplies the variable's current value by 5.
 **Example:**
-```
+```js
 total *= 2
 ```
 This doubles the value of `total`.
@@ -82,7 +82,7 @@ This doubles the value of `total`.
 - **variable /= 5**:
 **Description:** Divides the variable's current value by 5.
 **Example:**
-```
+```js
 price /= 2
 ```
 This halves the value of `price`.
@@ -90,7 +90,7 @@ This halves the value of `price`.
 - **variable -= 5**:
 **Description:** Subtracts 5 from the variable's current value.
 **Example:**
-```
+```js
 balance -= 10
 ```
 This subtracts 10 from `balance`.
@@ -98,7 +98,7 @@ This subtracts 10 from `balance`.
 - **variable %= 5**:
 **Description:** Performs a modulus operation on the variable's current value.
 **Example:**
-```
+```js
 balance %= 10
 ```
 This does a modulus calculation on `balance`.
@@ -108,7 +108,7 @@ These commands and modifiers enable you to manipulate variables, lists, and JSON
 ### Example Programs:
 
 #### Program 1: Array Manipulation
-```lua
+```js
 // Setting up an array
 colors = ["red", "green", "blue"]
 
@@ -121,20 +121,20 @@ log colors
 ```
 
 #### Program 2: JSON Object Manipulation
-```lua
+```js
 // Setting up a JSON object
 person = {"name": "Alice", "age": 25}
 
 // Updating their age
 person."age" = 26
 
--- Displaying the modified JSON object
+// Displaying the modified JSON object
 log person
 // Output: {"name": "Alice", "age": 26}
 ```
 
 #### Program 3: Arithmetic Operations
-```lua
+```js
 // Setting up variables
 x = 10
 y = 5
@@ -145,7 +145,7 @@ x += y
 y *= 2
 // Doubling y
 
--- Displaying the updated values
+// Displaying the updated values
 log "x:" + x
 // Output: x: 15
 log "y:" + y
