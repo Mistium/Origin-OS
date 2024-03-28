@@ -1,0 +1,59 @@
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 0;
+  transition: background-color 0.3s ease;
+  color: #fff;
+  background: linear-gradient(135deg, #ff7e5f, #57cdac, #222);
+  background-repeat: no-repeat;
+  background-size: cover;
+  min-height: 100vh; /* Ensure body fills the viewport height */
+}
+
+  
+  .nav-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 20px;
+  }
+  
+  .content {
+    text-align: center;
+    align-items: center;
+  }
+  
+  .logo {
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  .nav-menu {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+  }
+  
+  .nav-menu li {
+    display: inline;
+    margin-right: 20px;
+  }
+  
+  .nav-menu li a {
+    text-decoration: none;
+    color: inherit;
+  }
+
+.content {
+  background-color: rgba(34, 34, 34, 0.8); /* Transparent black background */
+  margin: 20px auto; /* Center the content horizontally */
+  border-radius: 10px;
+  padding: 30px;
+  text-align: left;
+  max-width: 800px; /* Adjust max-width as needed for comfortable reading */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add shadow */
+}
