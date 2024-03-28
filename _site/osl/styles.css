@@ -11,7 +11,7 @@ body {
   background: linear-gradient(135deg, #ff7e5f, #57cdac, #222);
   background-repeat: no-repeat;
   background-size: cover;
-  min-height: 100%; /* Ensure body fills the viewport height */
+  min-height: 100vh; /* Ensure body fills the viewport height */
 }
 
   
@@ -116,7 +116,7 @@ body {
 }
 
 .card {
-    max-width: 650px;
+    max-width: 550px;
     min-height: 220px;
     background-color: #222;
     padding: 20px;
@@ -167,7 +167,7 @@ body {
   background-color: #222;
   border-radius: 10px;
   transition: 0.2s;
-  width: 650px;
+  width: 550px;
   margin-left: auto;
   margin-right: auto;
 }
@@ -202,4 +202,24 @@ body {
 
 .tab-content.active {
   display: block;
+}
+
+
+
+@media only screen and (max-width: 500px) {
+  .card {
+    width: 100%;
+    max-width: none; /* Reset max-width */
+  }
+
+  .tabs {
+    width: 80%; /* Adjust tabs width */
+    border-radius: 0; /* Remove border-radius */
+    margin: 0; /* Remove margin */
+  }
+
+  .centered-card {
+    width: 90%; /* Adjust width */
+    max-width: none; /* Reset max-width */
+  }
 }
