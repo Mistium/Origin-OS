@@ -16,17 +16,11 @@ body {
   /* Ensure body fills the viewport height */
 }
 
-
 .nav-container {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 20px;
-}
-
-.content {
-  text-align: center;
-  align-items: center;
 }
 
 .logo {
@@ -58,12 +52,4 @@ body {
   text-align: left;
   max-width: 800px; /* Adjust max-width as needed for comfortable reading */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add shadow */
-}
-
-.tab-content {
-  display: none;
-}
-
-.tab-content.active {
-  display: block;
 }
