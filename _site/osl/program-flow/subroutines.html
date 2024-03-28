@@ -36,7 +36,7 @@
             converter.setOption('simpleLineBreaks', true); // Preserve line breaks
             let html = converter.makeHtml(markdown);
             // Apply style to code blocks to make them stretch across the screen
-            html = html.replace(/<pre>/g, '<pre style="width: calc(100vw - 130px); padding: 16px; background-color: #111; border-radius: 10px;">');
+            html = html.replace(/<pre>/g, '<pre style="width: calc(100vw - 130px); max-width: 800px; padding: 16px; background-color: #111; border-radius: 10px;">');
             document.getElementById('markdown-content').innerHTML = html;
         })
         .catch(error => console.error('Error fetching Markdown content:', error));
