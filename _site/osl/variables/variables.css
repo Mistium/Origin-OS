@@ -49,11 +49,13 @@ body {
   }
 
 .content {
-  background-color: #222;
-  margin: 20px;
+  background-color: rgba(34, 34, 34, 0.8); /* Transparent black background */
+  margin: 20px auto; /* Center the content horizontally */
   border-radius: 10px;
   padding: 30px;
   text-align: left;
+  max-width: 800px; /* Adjust max-width as needed for comfortable reading */
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add shadow */
 }
 
 .markdown-body pre {
