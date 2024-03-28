@@ -57,15 +57,3 @@ body {
   max-width: 800px; /* Adjust max-width as needed for comfortable reading */
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3); /* Add shadow */
 }
-
-.markdown-body pre {
-  margin-top: 0;
-  margin-bottom: 16px;
-  overflow: auto;
-  font-size: 85%;
-  line-height: 1.45;
-  background-color: #000;
-  border-radius: 0; /* Remove border radius */
-  padding: 16px; /* Add padding */
-  box-sizing: border-box; /* Ensure padding is included in width calculation */
-}
