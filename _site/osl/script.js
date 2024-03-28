@@ -1,5 +1,13 @@
 onload = () => {changeTab(0)};
 
+window.addEventListener('resize', function() {
+  const activeTab = document.querySelector('.tab.active');
+  const underline = document.querySelector('.underline');
+  const tabRect = activeTab.getBoundingClientRect();
+  underline.style.width = `${tabRect.width}px`;
+  underline.style.transform = `translateX(${tabRect.left}px)`;
+});
+
 function changeTab(tabIndex) {
   const tabs = document.querySelectorAll('.tab');
   const underline = document.querySelector('.underline');
@@ -16,8 +24,8 @@ function changeTab(tabIndex) {
   }
 
   // Move the underline to the selected tab or "All" tab
-  const selectedTab = tabs[tabIndex]; // No need to subtract 1
-  const tabRect = selectedTab.getBoundingClientRect(); // Get bounding rectangle of the tab
-  underline.style.width = `${tabRect.width}px`; // Set width to tab's width
-  underline.style.transform = `translateX(${tabRect.left}px)`; // Set position to tab's left offset
+  const selectedTab = tabs[tabIndex];
+  const tabRect = selectedTab.getBoundingClientRect();
+  underline.style.width = `${tabRect.width}px`;
+  underline.style.transform = `translateX(${tabRect.left}px)`;
 }
