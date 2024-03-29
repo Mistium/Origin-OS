@@ -119,7 +119,7 @@ def "resolve_protocols" "url"
 endef
 
 
-if passed_data != 0 (
+if passed_data != null (
   file "open" passed_data "onlyaccess"
   file "get" 4
   local_tab = data.split(newline)
