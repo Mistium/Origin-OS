@@ -13,7 +13,9 @@ def "navigate" "path"
   file "open" path ++ ".folder"
   file "start"
 endef
+
 navigate user_folder
+
 def "folder" "txt"
   con = hidden.contains(txt)
   loc 2 2 125 y
@@ -37,6 +39,7 @@ def "folder" "txt"
   text txt.str 8
   y -= 35
 endef
+
 def "file_folder" "path_input,txt,folder"
   if hidden.contains(folder).not (
     loc 2 2 125 y
@@ -56,6 +59,7 @@ def "file_folder" "path_input,txt,folder"
     y -= 35
   )
 endef
+
 icons = {}
 file "open" user_path ++ "Desktop.folder"
 icons."Desktop" = file.[11]
@@ -172,10 +176,11 @@ mainloop:
       )
     )
   )
-  if w > 1000 and ( selected_files.len > 0 ) (
+  log selected_files
+  if window_width > 1000 and selected_files.len > 0 (
     loc -2 999 -147 -54
     square 270 window_height - 192 10 1 : c#222
-    if selected_files.len < 2 (
+    if selected_files.len == 1 (
       loc -2 2 -150 -250
       file "open" file_open "onlyaccess"
       file "render" 5 : c#fff
