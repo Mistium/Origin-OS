@@ -11,30 +11,25 @@ if exists (
 
 global "segments" seg
 open = 0
-def "main"
-  goto dock_x y
-  syscount = 0
-  loop segments.len (
-    syscount ++
-    import segments.[syscount] "ode" : c#dock_colour chx#15
-    goto width / 2 + x + 15 y
-  )
-  dock_width = x_position - dock_x
-  dock_width.round
-endef
 
 window "responsive" true
 window "hide"
 window "front"
 window "y" screensize_y / -2 + 35
-main
+goto dock_x y
+syscount = 0
+loop segments.len (
+  syscount ++
+  import segments.[syscount] "ode" : c#dock_colour chx#15
+  goto width / 2 + x + 15 y
+)
+dock_width = x_position - dock_x
+
 // Parameter setup
-dock_x = dock_width / -2
+dock_x = dock_width.round / -2
 y = -100
 height = 40
 // Theme
-
-log "sys" user."dock_colour" == null
 
 if user."pfp" == "https://cdn.discordapp.com/attachments/1147471100742209566/1155532513154965634/R_1_2.png" (
   network "update" "pfp" "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/no-pfp.jpeg" 
@@ -89,7 +84,17 @@ if delta_time < 0.1 (
     window "refresh_bg"
   )
 )
-if y > -80 "main"
+if y > -80 (
+  goto dock_x y
+  syscount = 0
+  loop segments.len (
+    syscount ++
+    import segments.[syscount] "ode" : c#dock_colour chx#15
+    goto width / 2 + x + 15 y
+  )
+  dock_width = x_position - dock_x
+  dock_width.round
+)
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
   terminal "system windows add" + open
