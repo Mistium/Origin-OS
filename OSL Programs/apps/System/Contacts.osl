@@ -70,4 +70,5 @@ if contacts_add != "" (
   network "find_account" contacts_add
   contacts_add = ""
 )
+frame "clear"
 import "win-buttons"
