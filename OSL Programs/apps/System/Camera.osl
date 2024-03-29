@@ -1,6 +1,10 @@
 permission "request" "camera"
 camera_width = 0
 camera "start"
+camera_back = 0
+camera "use_front"
+camera "get" "hasbackcam"
+hasback = data
 mainloop:
 if camera_width == 0 (
   camera "get" "width"
@@ -11,7 +15,7 @@ if camera_width == 0 (
   )
 )
 goto 0 0
-temp = window_width / "camera".imageinfo("width") * 100
+temp = window_width - 150 / "camera".imageinfo("width") * 100
 temp2 = window_height / "camera".imageinfo("height") * 100
 if temp2 > temp (
   stretch [].append(temp).append(temp)
@@ -30,5 +34,22 @@ if clicked and can (
 )
 square 0 0 50 : c#333
 icon "camera" 1 : c#fff
+
+if hasback (
+  loc -2 999 -40 -60
+  square 0 0 55 : c#global_accent
+  if clicked and can (
+    can = false
+    if camera_back == 0 (
+      camera "use_back"
+      camera_back = 1
+    ) else (
+      camera "use_front"
+      camera_back = 0
+    )
+  )
+  square 0 0 50 : c#333
+  icon "reload" 0.6 : c#fff
+)
 if mouse_down.not "can = true"
 import "win-buttons"
