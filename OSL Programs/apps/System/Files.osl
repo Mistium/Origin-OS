@@ -176,7 +176,6 @@ mainloop:
       )
     )
   )
-  log selected_files
   if window_width > 1000 and selected_files.len > 0 (
     loc -2 999 -147 -54
     square 270 window_height - 192 10 1 : c#222
