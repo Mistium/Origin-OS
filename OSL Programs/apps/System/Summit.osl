@@ -33,7 +33,7 @@ def "set_tab_name"
   len = name.len
   name = name.[len]
   current_tab_name = {}
-  current_tab_name.key("title") = name
+  current_tab_name."title" = name
 endef
 
 def "opentab" "url"
@@ -93,7 +93,7 @@ def "redirect" "url"
   current_url = url
   input_search = url.destr
   cur_tab = {}
-  cur_tab.key("title") = url
+  cur_tab."title" = url
   tabs.[tab] = cur_tab
   taburls.[tab] = url
   onload = true
@@ -113,10 +113,22 @@ def "resolve_protocols" "url"
   urlspl = current_get.split(".")
   len = urlspl.len
   page_type = urlspl.[len]
+  if protocol == "local" (
+    page_type = "local_osl"
+  )
 endef
 
-opentab "owtp://search.web"
-resolve_protocols "owtp://search.web"
+
+if passed_data != 0 (
+  file "open" passed_data "onlyaccess"
+  file "get" 4
+  local_tab = data.split(newline)
+  opentab "local://data"
+  resolve_protocols "local://data"
+) else (
+  opentab "owtp://search.web"
+  resolve_protocols "owtp://search.web"
+)
 network "clear" current_get
 current_get = ""
 pages.[tab] = []
@@ -187,6 +199,10 @@ frame x y x_position y_position page_len
 page_len = null
 current_tab_name = {}
 current_tab_name.key("title") = input_search.str
+if page_type == "local_osl" (
+  run local_type
+  onload = false
+)
 if page_type == "osl" (
   run pages.[tab]
   onload = false
