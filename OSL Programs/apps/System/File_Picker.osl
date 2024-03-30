@@ -1,5 +1,4 @@
 window "dimensions" 600 500
-permission "request" "File Admin"
 file "open" user_folder ++ ".folder"
 path = file.[3]
 current = file.[4]
