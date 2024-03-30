@@ -1,0 +1,27 @@
+totv 10
+getd mousepos 8 9
+setv 1 40
+setv 2 -150
+setv 3 150
+setv 5 #444
+setv 6 #222
+setv 7 10000
+setv 10 #fff
+pene
+pens 7
+setx 0
+sety 0
+penc 6
+pend
+penu
+penc 5
+sety 2
+pens 1
+setx 2
+pend
+setx 3
+penu
+penc 10
+setp 8 9
+pend
+penu
