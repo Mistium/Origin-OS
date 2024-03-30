@@ -99,11 +99,11 @@
   "¿": "line 5 5 20 5 cont 20 23 cont 5 23 cont 5 30 dot 5 40",
   ":": "dot 15 30 dot 15 10",
   ";": "dot 15 30 line 15 5 12 -5",
-  "#": "line 5 5 15 40 line 15 5 25 40 line 5 17 25 17 line 5 27 25 27",
+  "#": "line 7 5 13 40 line 17 5 23 40 line 5 15 24 15 line 6 28 25 28",
   "&": "w 4 line 25 5 10 30 cutcircle 14.5 32 5 2 120 cont 10 24 cutcircle 15 15 10 130 120",
   "@": "line 19 15 19 25 cont 13 25 cont 11 22 cont 11 13 cont 26 13 cont 26 38 cont 4 38 cont 4 5 cont 23 5",
   "$": "line 5 5 25 5 cont 25 20 cont 5 20 cont 5 40 cont 25 40 line 12 0 12 45",
-  "%": "line 10 10 20 35 w 5 dot 25 15 dot 5 28",
+  "%": "w 5 line 8 8 22 37 w 9 dot 24 16 dot 6 29",
   "¡": "line 5 25 5 5 dot 5 40",
   "•": "w 10 dot 15 20",
   "∑": "line 25 40 5 40 cont 15 20 cont 5 5 cont 25 5",
@@ -143,5 +143,8 @@
   "☮": "cutcircle 15 15 15 0 180 line 15 5 15 25 line 21 9 15 15 cont 9 9",
   "½": "line 10 40 10 30 line 5 20 25 30 line 22 5 15 5 cont 15 10 cont 22 13 cont 22 18 cont 15 18",
   "¼": "line 10 40 10 30 line 5 20 25 30 line 22 5 22 18 cont 22 10 cont 15 10 cont 15 18",
-  "¾": "line 7 40 13 40 cont 13 34 cont 7 34 cont 13 34 cont 13 28 cont 7 28 line 5 19 25 26 line 22 5 22 16 cont 22 10 cont 15 10 cont 15 16"
+  "¾": "line 7 40 13 40 cont 13 34 cont 7 34 cont 13 34 cont 13 28 cont 7 28 line 5 19 25 26 line 22 5 22 16 cont 22 10 cont 15 10 cont 15 16",
+  "¶": "line 18 5 18 40 cont 25 40 cont 5 40 cont 5 20 cont 18 20 line 25 5 25 40",
+  "¤":"w 3 cutcircle 15 22 8 0 180 line 21 16 25 12 line 5 32 9 28 line 9 16 5 12 line 25 32 21 28",
+  "¦":"w 3 line 15 40 15 26 line 15 5 15 19"
 }
