@@ -3,8 +3,6 @@ file "install_type" "md" "c #000 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 line 2 
 file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Plain Text" ["Studio","Summit"]
 file "install_type" "osl" "c #cfb23e w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #877429 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #877429 w 1.4 line 1.75 0.5 5.25 -3 cont 1.75 -6.5 line -1.75 0.5 -5.25 -3 cont -1.75 -6.5" "Origin Script" ["Process_Opener","Studio"]
 file "install_type" "app" "c #cfb23e w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #877429 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #877429 w 1.4 line 1.75 0.5 5.25 -3 cont 1.75 -6.5 line -1.75 0.5 -5.25 -3 cont -1.75 -6.5" "Origin Script" ["Process_Opener","Studio"]
-file "install_type" "url" "c #f54ba2 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #942b61 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 icn open 0.4 0 -3" "Internet Link" ["Summit"]
-file "install_type" "oslw" "c #f54ba2 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #942b61 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 icn open 0.4 0 -3" "OSL Website" ["Summit"]
 file "install_type" "lmc" "c #00d67d w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #006e40 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn script 0.4 0 -3" "LMC Script" ["LMC Runner"]
 file "install_type" "ode" "c #6db2b3 w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #456868 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 line -3 -7 3 -7" "Dock Segment" ["Studio"]
 file "install_type" "json" "c #ff724f w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #772d1c line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "JSON File" ["Studio"]
