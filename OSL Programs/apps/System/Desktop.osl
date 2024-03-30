@@ -5,6 +5,8 @@ include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
 file "set" 4 data - null
 
+name = null
+
 window "responsive" true
 mainloop:
 window "y" 35
@@ -63,15 +65,24 @@ if data.len == 0 "exit"
 count = 0
 loop desktop.len (
   count ++
-  file "open" desktop.[count]
+  file "open" desktop.[count] "onlyaccess"
   loc 2 2 35 -35
-  change file.[6] file.[7]
+  file "get" 6
+  change_x data
+  file "get" 7
+  change_y data
   file "render" 2 "interactable"
   rightclick "file" desktop.[count]
   if mouse_touching (
-    name = file.[2]
-    square name.len * 8 10 10 : c#000 chy#-30
-    change_x name.len * -4
-    text name 8 : c#fff
+    file "get" 2
+    square data.len * 8 10 10 : c#000 chy#-30
+    change_x data.len * -4
+    text data 8 : c#fff
+    name = data
+  ) else (
+    if name == data (
+      window "refresh_bg"
+      name = null
+    )
   )
 )
