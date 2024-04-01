@@ -150,15 +150,35 @@ Arrays can be created from a string using the `split()` method.
 #### Syntax:
 
 ```js
-array_name.insert(index,data)
-// Inserts data into an index of the array
+string.split(delimiter)
+// Creates an array from the input string split into parts based on the delimiter
 ```
 
 #### Example:
 
 ```js
-numbers.insert(1,"hello")
-// Inserts the value "hello" at index 1 of the array
+string = "hello how are you?"
+log string.split(" ")
+// logs ["hello","how","are","you?"] to the browser console
+```
+
+### Creating Strings from Arrays
+
+Strings can be created from an array using the `join()` method.
+
+#### Syntax:
+
+```js
+array.join(delimiter)
+// Creates a string from the input array based on the delimiter
+```
+
+#### Example:
+
+```js
+array = ["hello","how","are","you?"]
+log array.join("/")
+// logs "hello/how/are/you?" to the browser console
 ```
 
 ### Finding an element in an array
