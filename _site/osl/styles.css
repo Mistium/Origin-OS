@@ -1,5 +1,6 @@
 html, body {
   min-height: max(100%, 100vh);
+  width: 100vw;
 }
 
 body {
@@ -72,7 +73,7 @@ body {
   }
   
   .centered-card {
-    max-width: 550px;
+    max-width: 700px;
     margin-top: 20px;
     background-color: #222;
     padding: 10px;
@@ -113,7 +114,7 @@ body {
 }
 
 .card {
-    max-width: 550px;
+    max-width: 700px;
     min-height: 220px;
     background-color: #222;
     padding: 20px;
@@ -164,13 +165,13 @@ body {
   background-color: #222;
   border-radius: 10px;
   transition: 0.2s;
-  width: 550px;
+  width: 700px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .tab {
-  min-width: 50px;
+  min-width: 67.5px;
   background-color: #222;
   padding: 10px 10px;
   cursor: pointer;
