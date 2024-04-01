@@ -20,6 +20,10 @@ array_name = [value1, value2, ...]
 numbers = [1, 2, 3, 4, 5]
 
 my_data = ["hello",1,53,{"test":"hi"}]
+
+test = "Array".new(100)
+// creates an array of 100 elements: ["","", ...]
+
 ```
 
 ### Accessing Array Elements
