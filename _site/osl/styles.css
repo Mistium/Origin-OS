@@ -11,7 +11,7 @@ body {
   background: linear-gradient(135deg, #ff7e5f, #57cdac, #222);
   background-repeat: no-repeat;
   background-size: cover;
-  min-height: 100vh; /* Ensure body fills the viewport height */
+  height: calc(100% + 1vh); /* Ensure body fills the viewport height */
 }
 
   
