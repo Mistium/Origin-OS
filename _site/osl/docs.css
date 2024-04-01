@@ -1,5 +1,5 @@
-html {
-  height: max(100%, 100vh);
+html, body {
+  min-height: max(100%, 100vh);
 }
 
 body {
