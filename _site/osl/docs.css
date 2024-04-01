@@ -1,3 +1,7 @@
+html {
+  height: max(100%, 100vh);
+}
+
 body {
   font-family: 'Poppins', sans-serif;
   margin: 0;
