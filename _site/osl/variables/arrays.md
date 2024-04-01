@@ -1,7 +1,3 @@
-Certainly! Here's the documentation for working with arrays:
-
----
-
 ## Arrays
 
 Arrays are used to store multiple values in a single variable. Each value in an array is accessed by its index.
