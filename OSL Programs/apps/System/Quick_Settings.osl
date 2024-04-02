@@ -154,7 +154,7 @@ if bg_redrawn or mouse_touching and settings_open (
 
   loc 999 2 0 -170
   terminal "system display get brightness"
-  slider_brightness = return - 10 / 90
+  slider_brightness = data - 10 / 90
   slider 130 0 "brightness" 32 : c#bg_colour chy#20
   terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
 
@@ -164,7 +164,7 @@ if bg_redrawn or mouse_touching and settings_open (
   change 65 -45
 
   terminal "system sound get volume"
-  slider_volume = return / 100
+  slider_volume = data / 100
   slider 130 0 "volume" 32 : c#bg_colour
   terminal "system sound set volume" + ( slider_volume * 100 )
 
