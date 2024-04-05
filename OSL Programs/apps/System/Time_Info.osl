@@ -6,7 +6,7 @@ square 270 20 15 : c#333
 loc -2 2 -15 -15
 icon "close" 0.6 : c#fff hover_size#1.1 hover_cursor#pointer
 if clicked (
-window "stop"
+  window "stop"
 )
 loc 2 2 10 -15
 text "Time" 9 : c#fff
@@ -17,8 +17,7 @@ icon "c #fff w 3 cutcircle 0 0 20 0 180" 1
 pen "down"
 change minute.multiply(6).sin * 10 minute.multiply(6).cos * 10
 loc 2 2 30 -70
-c #aaa
-change hour.multiply(30).sin * 7 hour.multiply(30).cos * 7
+change hour.multiply(12).sin * 7 hour.multiply(12).cos * 7
 pen "up"
 loc 2 2 60 -60
 text "<hour>:<minute>:<second>" 10 : c#fff
