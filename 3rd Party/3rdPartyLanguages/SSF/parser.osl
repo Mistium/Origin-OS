@@ -1,0 +1,49 @@
+def "splitmain" "input,char"
+  sep = [""]
+  quote = "\""
+  len = 1
+  instr = 0
+  inbra = 0
+  i = 0
+  loop input.len (
+    i ++
+    temp = input.[i]
+    if instr == 0 and inbra == 0 and temp == char (
+      sep.append("")
+      len = sep.len
+    ) else (
+      sep.[len] = sep.[len] ++ temp
+    )
+    if temp == quote (
+      instr = 1 - instr
+    )
+    if instr == 0 (
+      inbra += 0 - ( temp == "}" ) + temp == "{"
+    )
+  )
+endef
+
+def "isobj" "input"
+  len = input.len
+  ret = input.[1] == "{" and input.[len] == "}"
+endef
+
+def "get" "key,ssf"
+  splitmain ssf ","
+  pairs = sep
+  count = 0
+  loop sep.len (
+    count ++
+    splitmain pairs.[count] ":"
+    if sep.[1] == key (
+      isobj sep.[2]
+      if ret (
+        len = sep.[2].len - 1
+        ret = sep.[2].trim(2,len)
+      ) else (
+        ret = sep.[2]
+      )
+      return
+    )
+  )
+endef
