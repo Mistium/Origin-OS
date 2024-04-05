@@ -1,0 +1,77 @@
+buttons = [
+  "GET","POST","PUT","PATCH",
+  "DELETE","HEAD","OPTIONS"
+]
+response = ""
+http "new"
+response_failed = false
+response_success = false
+window "set_dragbox" [[2,2,0,0],[-2,2,-40,-40]]
+selected = 1
+window "show"
+mainloop:
+loc 2 2 40 -20
+count = 0
+loop buttons.len (
+  count ++
+  c #222
+  if selected == count "c #444"
+  square 60 20 10
+  if clicked (
+    selected = count
+  )
+  c #fff
+  x = x_position
+  change_x -30
+  text buttons.[count] 8
+  set_x x + 75
+)
+loc -2 2 -20 -20
+square 20 20 10 : c#222
+if clicked (
+  window "stop"
+)
+icon "close" 0.6 : c#fff
+
+loc 2 2 10 -60
+text "Make a <buttons.[selected]> request to website:" 10 : c#fff
+loc 2 2 0 -100
+set_x -50
+c #333
+w = window_width - 120
+square w 25 10
+input w - 10 25 "Url" "Enter url of website to request"
+if mouse_down.not "can = true"
+loc -2 2 -50 -100
+square 80 25 10 : c#333 hover_c#444 click_c#222
+if clicked and can (
+  can = false
+  http "new"
+  http "method" buttons.[selected]
+  http "body" ""
+  http "type" "text/plain"
+  http "sendto" input_url.str
+)
+c #fff
+change_x -20
+text "Send" 10
+
+http "get_response"
+loc 2 2 10 -150
+c #fff
+text "Recieved a response, code: <response_code>" 10
+loc 2 2 10 -180
+if response_success (
+  text "Response Succeeded" 10
+)
+if response_failed (
+  text "Response Failed" 10
+)
+loc 2 2 10 -220
+text "Recieved:" + response.len + "Text Characters" 10
+loc 2 2 140 -260
+c #333
+button "Copy response to clipboard" 250 25 10 : hover_c#444 click_c#222
+if clicked (
+  clipboard "set" response
+)
