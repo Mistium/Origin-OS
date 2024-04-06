@@ -73,5 +73,5 @@ loc 2 2 140 -260
 c #333
 button "Copy response to clipboard" 250 25 10 : hover_c#444 click_c#222
 if clicked (
-  clipboard "set" response
+  clipboard "set" response.str.destr
 )
