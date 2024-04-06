@@ -14,8 +14,8 @@ include windowfileloc
 window "dimensions" screensize_x screensize_y - 70
 movefileloc windowfileloc
 hovered = window_id_index == window_top_index
-canrun = desktop != data or hovered or bg_redrawn
-if canrun.not "exit"
+canrun = desktop != data or bg_redrawn
+if canrun.not and hovered.not "exit"
 desktop = data
 if hovered (
   if file_dropped != 0 (
@@ -71,7 +71,10 @@ loop desktop.len (
   change_x data
   file "get" 7
   change_y data
-  file "render" 2 "interactable"
+  square 30 30 0 0 1
+  if mouse_touching or canrun (
+    file "render" 2 "interactable"
+  )
   rightclick "file" desktop.[count]
   if mouse_touching (
     file "get" 2
