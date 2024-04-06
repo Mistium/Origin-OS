@@ -3,4 +3,4 @@ data.split(newline)
 
 oasm "compile" data
 oasm data
-log "console" data.join(newline)
+log data.join(newline)
