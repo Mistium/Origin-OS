@@ -1,6 +1,8 @@
 file "open" passed_data
 data.split(newline)
 
+say "Look at js console for result"
 oasm "compile" data
+start = timestamp
 oasm data
-log data.join(newline)
+log newline ++ "Finished Execution:" ++ newline ++ data.join(newline) ++ newline ++ "Completed in" + ( timestamp - start ) ++ "ms"
