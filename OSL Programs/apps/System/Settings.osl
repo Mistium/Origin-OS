@@ -667,7 +667,7 @@ def "account"
   loc 2 2 20 -200
   text "Profile Picture:" 10
   loc 2 2 20 -230
-  text "Click here to paste a image url as your profile picture:" 8.5 : c#fff
+  text "Click to paste an image URL as your profile picture:" 8.5 : c#fff
   change_x 20
   square 25 25 10 : c#333
   if clicked (
@@ -676,8 +676,11 @@ def "account"
     upload_time = timer
   )
   icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
-    if timer - upload_time > 5 "current_pfp = null.str"
-    if current_pfp.imageinfo("loaded") and ( acc_pfp_button_clicked or clicked ) (
+    if timer - upload_time > 5 and current_pfp != "" (
+      current_pfp = ""
+      say "Failed to load pfp, try a different   website or try again"
+    )
+    if current_pfp.imageinfo("loaded") and acc_pfp_button_clicked or clicked (
       network "update" "pfp" current_pfp
       current_pfp = null.str
     )
@@ -687,6 +690,8 @@ def "account"
       text "Trying..." 10 : c#fff chx#20
     )
   )
+  loc 2 2 200 -300
+  c #333
 endef
 
 def "time"
@@ -794,6 +799,3 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
-
-
-
