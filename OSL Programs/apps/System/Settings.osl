@@ -176,7 +176,7 @@ def "system"
     text "System Volume" 10 : c#fff
     loc 999 2 0 -90 + scroll_y
     terminal "system sound get volume"
-    slider_volume = return / 100
+    slider_volume = data / 100
     slider frame_width - 50 20 "volume" 32 : c#111
     terminal "system sound set volume" + ( slider_volume * 100 )
     c #fff
