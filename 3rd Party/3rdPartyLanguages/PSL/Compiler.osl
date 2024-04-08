@@ -1,0 +1,47 @@
+def "compile_psl" "psl"
+  qu = "\""
+  qu.[3]
+  psl.split(newline)
+  comp = ""
+  each "i" "item" psl (
+    item_spl = item.split(" ")
+    data = item.regex("/ */").[1]
+    if item.matchregex("/ *end/") (
+      data.append(")")
+    )
+    if item.matchregex("/ *print/") (
+      len = item.len
+      data = data + "say" ++ item.regex("/print.+$/").[1].trim(6,len)
+    )
+    if item.matchregex("/ *func/") (
+      len = item.len
+      main = item.regex("/func.+$/").[1].trim(6,len)
+      data2 = main.split(" ").delete(1).join(",")
+      data = data + "def" + qu ++ main.split(" ").[1] ++ qu + qu ++ data2 ++ qu
+    )
+    if item.matchregex("/ *if/") (
+      len = item.len
+      data = data + "if" + item.regex("/if.+$/").[1].trim(4,len) + "("
+    )
+    if item.matchregex("/ *while/") (
+      len = item.len
+      data = data + "while" + item.regex("/while.+$/").[1].trim(7,len) + "("
+    )
+    data.append(newline)
+    comp.append(data)
+  )
+  reg = "/@([^ ]+)/g"
+  comp.replace(reg,"<$1>")
+endef
+
+
+mode = "C/F Type c for clipboard data, type f to paste a file uuid"
+if mode == "c" (
+  data = clipboard
+) else if mode == "f" (
+  file "open" "enter a uuid".ask
+)
+// compile code using this block, get output using the comp variable
+compile_psl data
+clipboard "set" comp
+say "You clipboard has been set"
