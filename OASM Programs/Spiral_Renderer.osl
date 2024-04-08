@@ -5,17 +5,17 @@ steps = 4
 
 code = "
 totv 10
-setv 1 #fff
-setv 2 0.5
+setv 1 4095
+setv 2 0
 setv 5 4
-setv 6 57.295
+setv 6 57
 setv 10 10
 penc 1
 pens 2
 pend
 setv 3 0
 setv 4 1000
-labl loop
+labl 238
 chav 3 5
 svto 7 3
 mulv 7 6
@@ -27,8 +27,9 @@ divv 8 10
 cosv 9
 mulv 9 3
 divv 9 10
+penc 7
 setp 8 9
-lthn 3 4 loop
+lthn 3 4 238
 penu
 "
 code.split(newline)
