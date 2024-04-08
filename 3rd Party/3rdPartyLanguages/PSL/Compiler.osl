@@ -11,7 +11,7 @@ def "compile_psl" "psl"
     )
     if item.matchregex("/ *print/") (
       len = item.len
-      data = data ++ "say" ++ item.regex("/print.+$/").[1].trim(6,len)
+      data = data ++ "log" ++ item.regex("/print.+$/").[1].trim(6,len)
     )
     if item.matchregex("/^ *func/") (
       len = item.len
