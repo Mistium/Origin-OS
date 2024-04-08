@@ -1,6 +1,6 @@
 def "compile_psl" "psl"
-  qu = "\""
-  qu.[3]
+  qu =  "
+  qu.[2]
   psl.split(newline)
   comp = ""
   each "i" "item" psl (
@@ -11,35 +11,67 @@ def "compile_psl" "psl"
     )
     if item.matchregex("/ *print/") (
       len = item.len
-      data = data + "say" ++ item.regex("/print.+$/").[1].trim(6,len)
+      data = data ++ "say" ++ item.regex("/print.+$/").[1].trim(6,len)
     )
-    if item.matchregex("/ *func/") (
+    if item.matchregex("/^ *func/") (
       len = item.len
       main = item.regex("/func.+$/").[1].trim(6,len)
-      data2 = main.split(" ").delete(1).join(",")
-      data = data + "def" + qu ++ main.split(" ").[1] ++ qu + qu ++ data2 ++ qu
+      data2 = main.split(" ").delete(1).delete(1).delete(2).delete(3).join(",")
+      data = data ++ "def" + qu ++ main.split(" ").[1] ++ qu + qu ++ data2 ++ qu
     )
-    if item.matchregex("/ *if/") (
+    if item.matchregex("/^ *if/") (
       len = item.len
-      data = data + "if" + item.regex("/if.+$/").[1].trim(4,len) + "("
+      data = data ++ "if" + item.regex("/if.+$/").[1].trim(4,len) + "("
     )
-    if item.matchregex("/ *while/") (
+    if item.matchregex("/^ *while/") (
       len = item.len
-      data = data + "while" + item.regex("/while.+$/").[1].trim(7,len) + "("
+      data = data ++ "while" + item.regex("/while.+$/").[1].trim(7,len) + "("
+    )
+    if item.matchregex("/^ *#/") (
+      len = item.len
+      data = data ++ "//" + item.regex("/#.+$/").[1].trim(2,len)
+    )
+    if data == item.regex("/ */").[1] (
+      data = item
     )
     data.append(newline)
     comp.append(data)
   )
+  temp = comp
+  temp.split(newline)
+  depth = 0
+  for "i" temp.len (
+    item = temp.[i]
+    if item.matchregex("/^ *def/") (
+      depth = 0
+    )
+    if item.matchregex("/^ *if|^ *while/m") (
+      depth ++
+    )
+    if item.matchregex("/^ *\)/") (
+      depth --
+      if depth == -1 (
+        temp.[i] = "endef".destr
+      )
+    )
+    log spl.str + depth
+  )
+  temp.append("init")
+  comp = temp.join(newline)
   reg = "/@([^ ]+)/g"
-  comp.replace(reg,"<$1>")
+  comp.replace(reg,"<$1>").destr
 endef
 
 
-mode = "C/F Type c for clipboard data, type f to paste a file uuid"
+mode = "C/F Type c for clipboard data, type f to paste a file uuid".ask
 if mode == "c" (
   data = clipboard
-) else if mode == "f" (
-  file "open" "enter a uuid".ask
+)
+if mode == "f" (
+  file "open" "Paste a file uuid".ask
+)
+if ["c",f].contains(mode).not (
+  window "stop"
 )
 // compile code using this block, get output using the comp variable
 compile_psl data
