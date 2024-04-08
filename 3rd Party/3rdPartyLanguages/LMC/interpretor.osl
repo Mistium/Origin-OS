@@ -8,11 +8,11 @@ lmc = "code?".ask.replace(" ","")
 lmc_p = []
 count = 0
 loop lmc.len / 3 (
-  count += 1
+  count ++
   out = lmc.[count]
-  count += 1
+  count ++
   out = out ++ lmc.[count]
-  count += 1
+  count ++
   out = out ++ lmc.[count]
   lmc_p = lmc_p.append(out)
 )
@@ -21,19 +21,19 @@ lmc_p = lmc_p.append("000")
 acc = 0
 pc = 0
 loop 99999 (
-  pc += 1
+  pc ++
   c = lmc_p.[pc].[1]
   dt = lmc_p.[pc].[2] ++ lmc_p.[pc].[3]
   dt = dt.destr
   dt2 = dt + 1
-  if c == "0" or ( c == "4" ) "end"
+  if c == "0" or c == "4" "end"
   if c == "1" "acc += lmc_p.[dt2].destr"
   if c == "2" "acc -= lmc_p.[dt2].destr"
   if c == "3" "lmc_p.[dt2] = acc.destr"
   if c == "5" "acc = lmc_p.[dt2].destr"
   if c == "6" "pc = dt"
-  if c == "7" and ( acc == 0 ) "pc = dt"
-  if c == "8" and ( acc > -1 ) "pc = dt"
-  if c == "9" and ( dt.str == "01" ) "acc = input.ask.int"
-  if c == "9" and ( dt.str == "02" ) "say acc.destr"
+  if c == "7" and acc == 0 "pc = dt"
+  if c == "8" and acc > -1 "pc = dt"
+  if c == "9" and dt.str == "01" "acc = input.ask.int"
+  if c == "9" and dt.str == "02" "say acc.destr"
 )
