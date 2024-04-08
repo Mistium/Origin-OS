@@ -15,7 +15,7 @@ pens 2
 pend
 setv 3 0
 setv 4 1000
-labl 238
+labl loop
 chav 3 5
 svto 7 3
 mulv 7 6
@@ -29,7 +29,7 @@ mulv 9 3
 divv 9 10
 penc 7
 setp 8 9
-lthn 3 4 238
+lthn 3 4 loop
 penu
 "
 code.split(newline)
