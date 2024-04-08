@@ -1,0 +1,49 @@
+// This script requires OASM v6 to be supported by osl (any version of originOS v4.9.0 and above)
+
+lines = 10000
+steps = 4
+
+code = "
+totv 10
+setv 1 #fff
+setv 2 0.5
+setv 5 4
+setv 6 57.295
+setv 10 10
+penc 1
+pens 2
+pend
+setv 3 0
+setv 4 1000
+labl loop
+chav 3 5
+svto 7 3
+mulv 7 6
+svto 8 7
+svto 9 7
+sinv 8
+mulv 8 3
+divv 8 10
+cosv 9
+mulv 9 3
+divv 9 10
+setp 8 9
+lthn 3 4 loop
+penu
+"
+code.split(newline)
+oasm "compile" code
+data.[15] = steps
+data.[43] = lines
+
+comp = data
+window "show"
+mainloop:
+goto 0 0
+start = "window.performance.now()".eval
+oasm comp
+loc 2 2 20 -20
+cur = 1000 / ( "window.performance.now()".eval - start )
+text cur + last / 2 10 : c#fff
+last = cur
+import "win-buttons"
