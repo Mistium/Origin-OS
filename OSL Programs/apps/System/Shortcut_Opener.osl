@@ -1,0 +1,5 @@
+file "open" passed_data "onlyaccess"
+file "get" 4
+file "open" data.str
+file "start"
+window "stop"
