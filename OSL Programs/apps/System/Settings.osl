@@ -264,32 +264,8 @@ def "system"
     page_len = boot_apps.len + 2 * 60
   )
   if subcategory == "Storage" (
-    file "open" "Origin/(A) System.folder"
-    y = -160 + 75 + scroll_y
-    loc 999 2 0 y
-    square frame_width - 30 140 10 1 : c#222
-    loc 2 2 80 y
-    icon file.[11] 3.3
-    text "(A) System" 15 : chx#80 chy#30 c#fff
-    loc 2 2 160 y
-    text file.[12] / 1000 ++ "kb / 1000kb" 10
-    loc 999 2 125 / 2 y - 35
-    percent = file.[12] / 1000000
-    bar frame_width - 200 20 10 percent : c#444
-    file "open" "Origin/(B) Local.folder"
-    y = -320 + 75 + scroll_y
-    loc 999 2 0 y
-    square frame_width - 30 140 10 1 : c#222
-    loc 2 2 80 y
-    icon file.[11] 3.3
-    text "(B) Local" 15 : chx#80 chy#30 c#fff
-    loc 2 2 160 y
-    text file.[12] / 1000 ++ "kb / 1000kb" 10
-    loc 999 2 125 / 2 y - 35
-    percent = file.[12] / 1000000
-    bar frame_width - 200 20 10 percent : c#444
     file "open" "Origin/(C) Users.folder"
-    y = -480 + 75 + scroll_y
+    y = -160 + 75 + scroll_y
     loc 999 2 0 y
     square frame_width - 30 140 10 1 : c#222
     loc 2 2 80 y
@@ -328,6 +304,41 @@ def "system"
     percent = network_drive.[1] / network_drive.[2]
     bar frame_width - 200 20 10 percent : c#444
     page_len = 460
+
+    if total_files == 0 (
+      file "open" current.[1] "onlyaccess"
+      file "get" 4
+      dat = data.str
+      file = dat.len ++ "bytes"
+      file "get" 2
+      file = " " * ( 10 - file.len ) + file + "-" + data
+      file "get" 1
+      file.append(data)
+      files.append(file)
+      current.delete(1)
+      file "get" 1
+      if data == ".folder" (
+        file "get" 4
+        current = current ++ data
+      )
+
+      goto 0 scroll_y
+      direction timer.multiply(100).sin * 360
+      icon "w 2 cutcircle 0 0 10 0 90" 3 : c#fff
+
+      if current.len == 0 (
+        total_files = files.len
+        file_data = files.sort("ascending").reverse.trim(1,10)
+      )
+    ) else (
+      loc 2 2 20 -200 + scroll_y
+      text "Biggest Files" 9 : c#fff
+      for "i" file_data.len (
+        loc 2 2 20 i * -30 - 200 + scroll_y
+        text file_data.[i] 9
+      )
+      page_len = file_data.len * 30 + 200
+    )
   )
   if subcategory == "Community" (
     loc 2 2 10 -20
@@ -745,6 +756,12 @@ if passed_data == "" (
   subcategory = passed_data.[2]
 )
 
+file "open" user_folder ++ ".folder"
+current = file.[4]
+files = []
+file_data = ""
+total_files = 0
+
 window "dimensions" 880 500
 dock_location = dock_location
 media = ""
@@ -817,3 +834,4 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
+
