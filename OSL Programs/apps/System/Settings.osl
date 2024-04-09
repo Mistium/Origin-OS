@@ -214,6 +214,7 @@ def "system"
     media = ""
   )
   if subcategory == "Boot Applications" (
+    boot_apps = user."onboot"
     if new_transmit (
       file "open" transmit_data
       f = file.[3] ++ "/" ++ file.[2] ++ file.[1]
@@ -221,12 +222,12 @@ def "system"
       network "update" "onboot" boot_apps
       new_transmit = false
     )
-    boot_apps = user."onboot"
     loc 2 2 20 -20 + scroll_y
-    text "Reset Dock To Default" 10 : c#fff
+    text "Reset Boot To Default: " 10 : c#fff
     icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
     if clicked (
-      segments = ["Main","Applications","Time","Battery"]
+      boot_apps = ["Origin/(A) System/System Apps/Desktop.osl","Origin/(A) System/Docks/Dock.osl","Origin/(A) System/System Apps/Quick_Settings.osl"]
+      network "update" "onboot" boot_apps
     )
     loc 2 2 20 -70 + scroll_y
     text "Drop File Here" 9 : c#fff
@@ -246,7 +247,7 @@ def "system"
     count = 0
     loop boot_apps.len (
       count ++
-      y = count + 1 * -60 + scroll_y
+      y = count + 2 * -60 + scroll_y
       loc 999 2 0 y
       square frame_width - 20 40 10 : c#333 hover_c#252525
       loc 2 2 15 y
@@ -260,7 +261,7 @@ def "system"
       )
       icon "bin" 0.8 : c#fff
     )
-    page_len = apps.len + 1 * 60
+    page_len = boot_apps.len + 2 * 60
   )
   if subcategory == "Storage" (
     file "open" "Origin/(A) System.folder"
