@@ -309,9 +309,9 @@ def "system"
       file "open" current.[1] "onlyaccess"
       file "get" 4
       dat = data.str
-      file = dat.len ++ "bytes"
+      file = dat.len + "bytes"
       file "get" 2
-      file = " " * ( 10 - file.len ) + file + "-" + data
+      file = " " * ( 15 - file.len ) + file + "-" + data
       file "get" 1
       file.append(data)
       files.append(file)
