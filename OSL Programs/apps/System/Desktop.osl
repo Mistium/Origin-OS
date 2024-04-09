@@ -9,13 +9,13 @@ name = null
 
 window "responsive" true
 mainloop:
-window "y" 35
 include windowfileloc
-window "dimensions" screensize_x screensize_y - 70
 movefileloc windowfileloc
 hovered = window_id_index == window_top_index
 canrun = desktop != data or bg_redrawn
-if canrun.not and hovered.not "exit"
+if canrun nor hovered "exit"
+window "y" 35
+window "dimensions" screensize_x screensize_y - 70
 desktop = data
 if hovered (
   if file_dropped != 0 (
