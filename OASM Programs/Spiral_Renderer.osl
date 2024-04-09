@@ -14,8 +14,8 @@ penc 1
 pens 2
 pend
 setv 3 0
-setv 4 1000
-labl loop
+setv 4 10000
+labl 238
 chav 3 5
 svto 7 3
 mulv 7 6
@@ -29,10 +29,11 @@ mulv 9 3
 divv 9 10
 penc 7
 setp 8 9
-lthn 3 4 loop
+lthn 3 4 238
 penu
 "
 code.split(newline)
+clipboard "set" code
 oasm "compile" code
 data.[15] = steps
 data.[43] = lines
@@ -40,6 +41,7 @@ data.[43] = lines
 comp = data
 window "show"
 mainloop:
+comp.[15] = timer / 100
 goto 0 0
 start = "window.performance.now()".eval
 oasm comp
