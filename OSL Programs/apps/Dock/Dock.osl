@@ -48,10 +48,12 @@ if user."icon_colour" == null (
 file_loc = user_folder ++ "/Dock"
 
 mainloop:
-
 dock_colour = user."dock_colour"
 icon_colour = user."icon_colour"
-
+if dock_colour + icon_colour != tempcol (
+  tempcol = dock_colour + icon_colour
+  window "refresh_bg"
+)
 movefileloc file_loc
 if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
@@ -87,9 +89,7 @@ if delta_time < 0.1 (
 )
 if y > -80 (
   goto dock_x y
-  syscount = 0
-  loop segments.len (
-    syscount ++
+  for "syscount" segments.len (
     import segments.[syscount] "ode" : c#dock_colour chx#15
     goto width / 2 + x + 15 y
   )
