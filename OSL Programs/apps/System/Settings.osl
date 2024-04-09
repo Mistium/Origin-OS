@@ -1,5 +1,4 @@
 def "appopt" "optname,opticn,icnsize"
-
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#222
   loc 2 2 30 y
@@ -215,16 +214,28 @@ def "system"
     media = ""
   )
   if subcategory == "Boot Applications" (
+    if new_transmit (
+      file "open" transmit_data
+      f = file.[3] ++ "/" ++ file.[2] ++ file.[1]
+      boot_apps.append(f)
+      network "update" "onboot" boot_apps
+      new_transmit = false
+    )
     boot_apps = user."onboot"
     loc 2 2 20 -20 + scroll_y
     text "Drop File Here" 9 : c#fff
     if file_dropped != 0 (
       file "open" "id" file_dropped
-      file "get" "name"
       f = file.[3] ++ "/" ++ file.[2] ++ file.[1]
       boot_apps = boot_apps.append(f)
       network "update" "onboot" boot_apps
       file_dropped = 0
+    )
+    loc 2 2 20 -50 + scroll_y
+    text "Click here to pick an osl file" 9
+    if clicked and can (
+      file "pick" "osl"
+      can = false
     )
     count = 0
     loop boot_apps.len (
@@ -238,7 +249,7 @@ def "system"
       square 30 30 10 : c#555 hover_c#666
       if clicked and can (
         can = false
-        boot_apps = boot_apps.delete(count)
+        boot_apps.delete(count)
         network "update" "onboot" boot_apps
       )
       icon "bin" 0.8 : c#fff
