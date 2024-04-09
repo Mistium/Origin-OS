@@ -1,3 +1,4 @@
+permission "request" "start run"
 segment_dir = user_folder ++ "/Application Data/Settings"
 segment_url = segment_dir + "/Segments.txt"
 file "exists" segment_url
