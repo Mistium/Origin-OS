@@ -28,7 +28,7 @@ next_update = 0.5
 pen "width" 10
 high = 0
 low = 250
-
+graph = "array".new(100)
 mainloop:
 loc -2 2 -20 -20
 square 25 25 10 : c#222
@@ -95,7 +95,7 @@ if activity_info (
 )
 wwm = window_width - 50 / 100
 whm = window_height / 300
-usage = delta_time.multiply(500).round * 2
+usage = fps / 250 * frame_height
 graph.append(usage)
 if graph.len > 100 "graph = graph.delete(1)"
 import "side-bar"
@@ -146,13 +146,8 @@ icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 
 c #fff
 if current_tab == "Performance" (
   window "responsive" True
-  loc 2 -2 50 graph.[1].destr * whm
-  pen "down"
-  graph_count = 1
-  loop graph.len (
-    graph_count += 1
-    loc 2 -2 graph_count * wwm + 50 graph.[graph_count].destr * whm
-  )
+  goto 25 0
+  graph frame_width frame_height graph
 )
 if current_tab == "Network" (
   window "responsive" False
