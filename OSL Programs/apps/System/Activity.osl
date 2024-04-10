@@ -74,8 +74,9 @@ if activity_info (
     current = windows-names.index(page)
     dt = windows-drawtimes.[current].[1]
     pr = windows-drawtimes.[current].[2]
-    graph = graph.append(dt)
-    if graph.len > 30 "graph = graph.delete(1)"
+    dt2 = dt / 10
+    graph.append(dt2)
+    graph.delete(1)
   )
   c #fff
   count = 0
@@ -85,7 +86,9 @@ if activity_info (
     text pr.[count] 10
   )
   goto 0 0
-  graph wwm whm graph
+  graph window_width - 50 window_height - 50 graph
+  loc -2 -2 -125 10
+  text "Lower is faster" 8
   exit
 )
 wwm = window_width - 50 / 100
@@ -141,8 +144,8 @@ icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 
 c #fff
 if current_tab == "Performance" (
   window "responsive" True
-  goto 25 0
-  graph frame_width frame_height graph
+  goto 25 -25
+  graph window_width - 50 frame_height - 50 graph
 )
 if current_tab == "Network" (
   window "responsive" False
