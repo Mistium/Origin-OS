@@ -10,13 +10,13 @@ JSON (JavaScript Object Notation) is a major part of large data storage in OSL. 
 
 ### JSON Object:
 
-```json
+```js
 object = {"key":"data","key2":"data2"}
 ```
 
 ### JSON Array:
 
-```json
+```js
 array = ["data","data2","data3"]
 ```
 
@@ -32,13 +32,13 @@ For detailed information about JSON, visit the [JSON Documentation](https://www.
 
 To set JSON array items:
 
-```json
+```js
 array.[itemid] = "data"
 ```
 
 ## Setting JSON Keys
 
-```json
+```js
 object."key" = "data"
 object.["key"] = "data"
 ```
@@ -47,7 +47,7 @@ object.["key"] = "data"
 
 ### Adding Data to an Array
 
-```json
+```js
 array = ["data",["data2","data3"]]
 
 temp = array.[2]
@@ -63,7 +63,7 @@ If you run the above code, `array` is now equal to `["data",["data2","data4"]]`.
 
 To access an item of an array, use:
 
-```json
+```js
 item_of_array = array.[index]
 ```
 
@@ -71,7 +71,7 @@ This is the newer replacement command. The older command, `array.item(index)`, i
 
 ### Accessing Object Keys
 
-```json
+```js
 key_of_object = object.["key"]
 key_of_object = object."key"
 key_of_object = object.key("key")
@@ -83,13 +83,13 @@ For simpler examples and usage of JSON objects, consider the following scenarios
 
 ### Student Information
 
-```json
+```js
 student = {"name": "John", "age": 20, "grade": "A"}
 ```
 
 ### Product Information
 
-```json
+```js
 product = {"name": "Laptop", "price": 999.99, "brand": "Apple"}
 
 product."version" = "professional"
@@ -98,5 +98,3 @@ product."version" = "professional"
 product."price" = 9999.99
 // making the value more realistic :3
 ```
-
-These examples demonstrate basic usage of JSON objects to store various types of data. JSON objects allow for organizing related information into a structured format, enhancing data management and retrieval in OSL scripts.
