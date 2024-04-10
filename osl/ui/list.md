@@ -224,7 +224,7 @@ The `graph` command creates a graph from a json array.
 
 ### Example:
 
-![Screenshot 2024-04-10 at 16 09 21](https://github.com/Mistium/Origin-OS/assets/92952823/c7c3da8d-2094-40d0-a47f-1aead02ce382)
+<img src="https://github.com/Mistium/Origin-OS/assets/92952823/c7c3da8d-2094-40d0-a47f-1aead02ce382" style="width: 700px;"></img>
 
 ## Hitbox
 
