@@ -17,12 +17,7 @@
 <div id="topbar"></div>
 <div class="content" id="markdown-content"></div>
 <script>
-    fetch('https://api.github.com/repos/Mistium/Origin-OS/contents/topbar.html')
-        .then(response => response.json())
-        .then(data => {
-            const topbarHtmlUrl = data.download_url;
-            return fetch(topbarHtmlUrl);
-        })
+    fetch('/topbar.html')
         .then(response => response.text())
         .then(html => {
             document.getElementById('topbar').innerHTML = html;
