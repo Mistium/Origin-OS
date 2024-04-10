@@ -1,7 +1,3 @@
-Certainly! Here's an expansion of the documentation for JSON objects and arrays, including simpler examples for the usage of JSON objects:
-
----
-
 # About
 
 JSON (JavaScript Object Notation) is a major part of large data storage in OSL. It allows for much more complex data structures over basic variables.
