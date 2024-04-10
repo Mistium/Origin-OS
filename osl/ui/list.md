@@ -222,6 +222,8 @@ The `graph` command creates a graph from a json array.
 
 - `graph width height array`: Renders a graph
 
+all items in the array are 0-1 from the bottom of the graph to the top of the graph
+
 ### Example:
 
 <img src="https://github.com/Mistium/Origin-OS/assets/92952823/c7c3da8d-2094-40d0-a47f-1aead02ce382" style="width: 700px;"></img>
