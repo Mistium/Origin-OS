@@ -25,7 +25,7 @@ square 100 50 5 0 1
 In this example:
 - A square with a width of 100 pixels, height of 50 pixels, and a border thickness of 5 pixels is drawn.
 - The square is centered on the draw cursor.
-- The square is set to be invisible (0).
+- The square is set to be visible with item 5 of the `100 50 5 0 1` (1).
 
 ---
 
