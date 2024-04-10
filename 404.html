@@ -21,7 +21,7 @@
     <a href="https://origin.mistium.com">Back to home</a>
 </div>
 <script>
-    fetch('https://api.github.com/repos/Mistium/Origin-OS/contents/topbar.html')
+    fetch('/topbar.html')
         .then(response => response.json())
         .then(data => {
             const topbarHtmlUrl = data.download_url;
