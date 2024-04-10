@@ -214,6 +214,18 @@ The vertices are offset by the xy of the triangle element.
 
 # Other UI
 
+## Graph
+
+The `graph` command creates a graph from a json array.
+
+### Command Syntax:
+
+- `graph width height array`: Renders a graph
+
+### Example:
+
+![Screenshot 2024-04-10 at 16 09 21](https://github.com/Mistium/Origin-OS/assets/92952823/c7c3da8d-2094-40d0-a47f-1aead02ce382)
+
 ## Hitbox
 
 The `hitbox` command creates a hidden square for collision detection.
@@ -226,7 +238,11 @@ The `hitbox` command creates a hidden square for collision detection.
 ### Example:
 
 ```
-hitbox 50 50 0 0
+goto 0 0
+hitbox 50 50 mouse_x mouse_y
+if collided (
+  log "the mouse is near 0 0!"
+)
 ```
 
 ---
