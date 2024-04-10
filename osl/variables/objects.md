@@ -1,235 +1,102 @@
-## Arrays
+Certainly! Here's an expansion of the documentation for JSON objects and arrays, including simpler examples for the usage of JSON objects:
 
-Arrays are used to store multiple values in a single variable. Each value in an array is accessed by its index.
+---
 
-### Creating Arrays
+# About
 
-Arrays can be created using square brackets `[]` and separating values with commas.
+JSON (JavaScript Object Notation) is a major part of large data storage in OSL. It allows for much more complex data structures over basic variables.
 
-Values can be any type mixed and matched
+## Defining JSON Objects and Arrays
 
-#### Syntax:
+### JSON Object:
 
-```js
-array_name = [value1, value2, ...]
+```json
+object = {"key":"data","key2":"data2"}
 ```
 
-#### Example:
+### JSON Array:
 
-```js
-numbers = [1, 2, 3, 4, 5]
-
-my_data = ["hello",1,53,{"test":"hi"}]
-
-test = "Array".new(100)
-// creates an array of 100 elements: ["","", ...]
-
+```json
+array = ["data","data2","data3"]
 ```
 
-### Accessing Array Elements
+For more detailed documentation on arrays, refer to the [Array Documentation](https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Arrays).
 
-Array elements are accessed using square brackets `.[index]` and specifying the index of the element.
+---
 
-#### Syntax:
+# Official JSON Documentation
 
-```js
-array_name.[index]
+For detailed information about JSON, visit the [JSON Documentation](https://www.json.org/json-en.html).
+
+## Setting JSON Array Items
+
+To set JSON array items:
+
+```json
+array.[itemid] = "data"
 ```
 
-#### Example:
+## Setting JSON Keys
 
-```js
-log numbers.[2]
-// Outputs 3 to the browser console
+```json
+object."key" = "data"
+object.["key"] = "data"
 ```
 
-### Modifying Array Elements
+## Examples
 
-Array elements can be modified by assigning a new value to a specific index.
+### Adding Data to an Array
 
-#### Syntax:
+```json
+array = ["data",["data2","data3"]]
 
-```js
-array_name.[index] = new_value
+temp = array.[2]
+temp.[2] = "data4"
+array.[2] = temp
 ```
 
-#### Example:
+If you run the above code, `array` is now equal to `["data",["data2","data4"]]`.
 
-```js
-numbers.[0] = 10
-log numbers.[0]
-// Outputs 10 to the browser console
+## Important Note
+
+**Array indexes start at 1!!**
+
+To access an item of an array, use:
+
+```json
+item_of_array = array.[index]
 ```
 
-### Array Length
+This is the newer replacement command. The older command, `array.item(index)`, is not widely used anymore.
 
-The length of an array can be obtained using the `len` property.
+### Accessing Object Keys
 
-#### Syntax:
-
-```js
-array_name.len
+```json
+key_of_object = object.["key"]
+key_of_object = object."key"
+key_of_object = object.key("key")
 ```
 
-#### Example:
+For simpler examples and usage of JSON objects, consider the following scenarios:
 
-```js
-log numbers.len
-// Outputs the length of the array to the browser console
+## Simple JSON Object Examples
+
+### Student Information
+
+```json
+student = {"name": "John", "age": 20, "grade": "A"}
 ```
 
-### Adding Elements to an Array
+### Product Information
 
-New elements can be added to the end of an array using the `append()` method.
+```json
+product = {"name": "Laptop", "price": 999.99, "brand": "Apple"}
 
-#### Syntax:
+product."version" = "professional"
+// set a new key to a value: {"name": "Laptop", "price": 999.99, "brand": "Apple", "version": "professional"}
 
-```js
-array_name.append(new_element);
+product."price" = 9999.99
+// making the value more realistic :3
 ```
 
-#### Example:
-
-```js
-numbers.append(6);
-// adds 6 to the end of the array
-```
-
-### Removing Elements from an Array
-
-Elements can be removed from an array using the `delete()` method.
-
-#### Syntax:
-
-```js
-array_name.delete(int)
-// deletes an item in the array
-```
-
-#### Example:
-
-```js
-numbers.delete(1)
-// deletes the first item in the array
-```
-
-The last element in the array can be removed using the `pop()` method.
-
-#### Syntax:
-
-```js
-array_name = array_name.pop()
-// deletes the last item in the array
-```
-
-#### Example:
-
-```js
-array_name.pop()
-// deletes the last item in the array
-```
-
-### Inserting items into an array
-
-Elements can be inserted into an array using the `insert()` method.
-
-#### Syntax:
-
-```js
-array_name.insert(index,data)
-// Inserts data into an index of the array
-```
-
-#### Example:
-
-```js
-numbers.insert(1,"hello")
-// Inserts the value "hello" at index 1 of the array
-```
-
-### Creating Arrays from strings
-
-Arrays can be created from a string using the `split()` method.
-
-#### Syntax:
-
-```js
-string.split(delimiter)
-// Creates an array from the input string split into parts based on the delimiter
-```
-
-#### Example:
-
-```js
-string = "hello how are you?"
-log string.split(" ")
-// logs ["hello","how","are","you?"] to the browser console
-```
-
-### Creating Strings from Arrays
-
-Strings can be created from an array using the `join()` method.
-
-#### Syntax:
-
-```js
-array.join(delimiter)
-// Creates a string from the input array based on the delimiter
-```
-
-#### Example:
-
-```js
-array = ["hello","how","are","you?"]
-log array.join("/")
-// logs "hello/how/are/you?" to the browser console
-```
-
-### Finding an element in an array
-
-Elements can be found in an array using `index()` method.
-
-#### Syntax:
-
-```js
-array_name.index("item_string")
-// finds an item in the array
-```
-
-#### Example:
-
-```js
-numbers = [2,5,6,1]
-
-log numbers.index(1)
-// logs 4 to the browser console, because `1` is at position 4
-```
-
-### Iterating Over Arrays
-
-Arrays can be iterated using commands such as `loop`
-
-#### Syntax - Loop:
-
-```js
-i = 0
-loop total_loops_to_complete (
-    i ++
-    // iterate the pointer
-    
-    // Access array elements using array_name.[i]
-)
-```
-
-### Example - For Loop:
-
-```js
-numbers = [2,5,6,1]
-i = 0
-loop array_name.len (
-    i ++
-    // iterate the pointer
-    log numbers.[i]
-    // Logs the item of numbers to the browser console
-)
-```
+These examples demonstrate basic usage of JSON objects to store various types of data. JSON objects allow for organizing related information into a structured format, enhancing data management and retrieval in OSL scripts.
