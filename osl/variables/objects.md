@@ -89,7 +89,8 @@ student = {"name": "John", "age": 20, "grade": "A"}
 product = {"name": "Laptop", "price": 999.99, "brand": "Apple"}
 
 product."version" = "professional"
-// set a new key to a value: {"name": "Laptop", "price": 999.99, "brand": "Apple", "version": "professional"}
+// set a new key to a value:
+// {"name": "Laptop", "price": 999.99, "brand": "Apple", "version": "professional"}
 
 product."price" = 9999.99
 // making the value more realistic :3
