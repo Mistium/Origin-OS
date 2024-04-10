@@ -1,0 +1,865 @@
+github = "https://raw.githubusercontent.com/Mistium/Super-Slime-Bros/main/"
+seticon "image https://raw.githubusercontent.com/Mistium/Super-Slime-Bros/main/assets/icon.png 20"
+
+def "switchslime" "type,player"
+  if type == "basic" (
+    out_speed = 4
+    out_knockback = 2
+    out_weight = 1.75
+    out_size = 1
+  )
+  if type == "heavy" (
+    out_speed = 3
+    out_knockback = 4
+    out_weight = 2
+    out_size = 1.5
+  )
+  if type == "light" (
+    out_speed = 5
+    out_knockback = 1
+    out_weight = 1.5
+    out_size = 1
+  )
+  if player == 1 (
+    player1_type = type
+    player1_speed = out_speed
+    player1_knockback = out_knockback
+    player1_gravity = out_weight
+    player1_size = out_size * 200
+  )
+  if player == 2 (
+    player2_type = type
+    player2_speed = out_speed
+    player2_knockback = out_knockback
+    player2_gravity = out_weight
+    player2_size = out_size * 200
+  )
+endef
+
+def "switchability" "swiabi_name,player"
+  if player == 1 (
+    player1_ability = swiabi_name
+    player1_ability_lastused = 0
+  )
+  if player == 2 (
+    player2_ability = swiabi_name
+    player2_ability_lastused = 0
+  )
+endef
+
+def "reset_data"
+  guy1_frm = 0
+  guy1_stretch = 80
+  guy1_direction = 90
+
+  guy2_frm = 0
+  guy2_stretch = -80
+  guy2_direction = 90
+
+  // player main data
+  player1_x = -100
+  player1_y = 50
+  player1_xvel = 0
+  player1_yvel = 0
+  player1_health = 0
+  player1_lives = 3
+  player1_ifrm = 0
+
+  player2_x = 100
+  player2_y = 50
+  player2_xvel = 0
+  player2_yvel = 0
+  player2_health = 0
+  player2_lives = 3
+  player2_ifrm = 0
+
+  // player animation variables
+  player1_anim = "idle"
+  player1_frame = 1
+  player1_endfrm = 3
+
+  player2_anim = "idle"
+  player2_frame = 1
+  player2_endfrm = 3
+
+  // player display variables
+  player1_stretch = -100
+  player1_target = -100
+  player1_grounded = true
+  player1_dir = "r"
+  player1_double = false
+
+  player2_stretch = 100
+  player2_target = 100
+  player2_grounded = true
+  player2_dir = "l"
+  player2_double = false
+
+  shake_x = 0
+  shake_y = 0
+  shake_x_vel = 0
+  shake_y_vel = 0
+
+  p1_lst = timer
+  p2_lst = timer
+
+  cam_x = 0
+  cam_y = 0
+  stage_x = 0
+  stage_y = 0
+endef
+
+main_image = [0,3].random
+
+types = {"basic":"The Basic Slime :/","heavy":"Slower, heavier, less knockback","light":"Faster, lighter, more knockback"}
+abilities = {"heal":"Gain Back Your Health Over Time","double_jump":"Jump While Not Touching The Ground","dash":"Go Really Fast In The Air"}
+
+curlast = 0
+curframe = 0
+player1_ability = "none"
+player2_ability = "none"
+
+switchslime "basic" 1
+switchslime "basic" 2
+switchability "dash" 1
+switchability "dash" 2
+
+window "dimensions" 1200 700
+window "show"
+window "maximise"
+
+stage = 0
+selected_stage = 0
+page = "main"
+window_colour = #fff
+
+def "p1_attack"
+  if timer - p2_ifrm_temp > 0.2 (
+    player2_health += 2
+    player2_yvel += player2_health + 30 / player2_knockback / 10
+    player2_y += 20
+    player2_yvel += 30
+    guy1_frm = [0,5].random
+    guy1_stretch = [80,120].random
+    guy1_direction = [70,110].random
+    guy2_frm = [4,8].random
+    guy2_stretch = [-90,-110].random
+    guy2_direction = [80,100].random
+    if player1_dir == "r" "player2_xvel += player2_health + 60 / player2_knockback"
+    if player1_dir == "l" "player2_xvel -= player2_health + 60 / player2_knockback"
+    zoom = 0.95
+    player2_ifrm = timer
+  )
+  pause = timer + 0.1
+endef
+
+def "p2_attack"
+  if timer - p1_ifrm_temp > 0.2 (
+    player1_health += 2
+    player1_yvel += player1_health + 30 / player1_knockback / 10
+    player1_y += 20
+    player1_yvel += 30
+    guy1_frm = [4,8].random
+    guy1_stretch = [90,110].random
+    guy1_direction = [80,100].random
+    guy2_frm = [0,5].random
+    guy2_stretch = [-80,-120].random
+    guy2_direction = [70,110].random
+    if player2_dir == "r" "player1_xvel += player1_health + 60 / player1_knockback"
+    if player2_dir == "l" "player1_xvel -= player1_health + 60 / player1_knockback"
+    zoom = 0.95
+    player1_ifrm = timer
+  )
+  pause = timer + 0.1
+endef
+
+def "attack" "player,attack_type"
+  if player == 1 and ( attack_type == 1 ) (
+    if timer - p1_ifrm_temp > 0.5 (
+      goto player1_x player1_y + player1_xvel
+      if player1_dir == "r" "change 40" else "change -40"
+      hitbox 200 150 player2_x player2_y
+      if collided "p1_attack"
+    )
+  )
+  if player == 2 and ( attack_type == 1 ) (
+    if timer - p2_ifrm_temp > 0.5 (
+      goto player2_x player2_y + player2_vel
+      if player2_dir == "r" "change 40" else "change -40"
+      hitbox 200 150 player1_x player1_y
+      if collided "p2_attack"
+    )
+  )
+endef
+
+def "collide" "width,height,reset,droppable"
+  hitbox width height player1_x player1_y - 50
+  if p1_upordown and droppable or droppable.not and collided (
+    player1_grounded = true
+    player1_y = reset
+    player1_yvel = 0
+  )
+
+  hitbox width height player2_x player2_y - 50
+  if p2_upordown and droppable or droppable.not and collided (
+    player2_grounded = true
+    player2_y = reset
+    player2_yvel = 0
+  )
+endef
+
+def "ssb_button" "txt,location"
+  change mouse_x - x_position / 40 mouse_y - y_position / 40
+  square 360 40 10 : c#fff
+  if mouse_touching (
+    if clicked and can (
+      can = false
+      page = location
+    )
+    change mouse_x - x_position / 20 mouse_y - y_position / 20
+    square 360 40 20 : c#eee
+  )
+  text txt 10 : c#000 chx#-170
+endef
+
+def "slime" "sli_name,p"
+  if selected == sli_name "square 80 80 15 : c#000"
+  square 80 80 10 : c#eee
+  if clicked "switchslime sli_name p"
+  image github ++ "assets/" ++ sli_name ++ "/walk/" ++ curframe.round ++ ".png" 130
+endef
+
+def "ability" "abi_name,p"
+  if selected == abi_name "square 80 80 15 : c#000"
+  square 80 80 10 : c#eee
+  if clicked "switchability abi_name p"
+  image github ++ "assets/abilities/" ++ abi_name ++ ".png" 80
+endef
+
+def "screenshake" "x_mag,y_mag"
+  shake_x_vel += x_mag * 10
+  shake_y_vel += y_mag * 10
+endef
+
+def "load" "link"
+  // loads an image
+  link = github ++ link ++ ".png"
+  image link 100
+  loading = loading.append(link)
+  loading_total += 1
+endef
+
+def "update_stage_data"
+  if lvl_page == 1 (
+    url = github ++ "assets/stages/spike.png"
+    name = "spike"
+    current_level_view = "Spike"
+  )
+  if lvl_page == 2 (
+    url = github ++ "assets/stages/tree.png"
+    name = "tree"
+    current_level_view = "Tree"
+  )
+  if lvl_page == 3 (
+    url = github ++ "assets/stages/mushroom.png"
+    name = "mushroom"
+    current_level_view = "Mushroom"
+  )
+  selected_stage = url
+  stage_name = name
+endef
+
+reset_data
+
+loading_total = 0
+loading = []
+count = 0
+loop 6 (
+  count += 1
+  load "assets/basic/walk/" ++ count
+)
+count = 0
+loop 3 (
+  count += 1
+  load "assets/basic/idle/" ++ count
+)
+count = 0
+loop 7 (
+  count += 1
+  load "assets/basic/attack1/" ++ count
+)
+count = 0
+loop 6 (
+  count += 1
+  load "assets/heavy/walk/" ++ count
+)
+count = 0
+loop 3 (
+  count += 1
+  load "assets/heavy/idle/" ++ count
+)
+count = 0
+loop 7 (
+  count += 1
+  load "assets/heavy/attack1/" ++ count
+)
+count = 0
+loop 6 (
+  count += 1
+  load "assets/light/walk/" ++ count
+)
+count = 0
+loop 3 (
+  count += 1
+  load "assets/light/idle/" ++ count
+)
+count = 0
+loop 7 (
+  count += 1
+  load "assets/light/attack1/" ++ count
+)
+count = -1
+loop 9 (
+  count += 1
+  load "assets/guy/" ++ count
+)
+load "assets/abilities/dash"
+load "assets/abilities/double_jump"
+load "assets/abilities/heal"
+
+load "assets/ui/controls"
+
+load "assets/stages/mushroom"
+load "assets/stages/spike"
+load "assets/stages/tree"
+
+current_level_view = "Spike"
+tot_lvls = 3
+selected_stage = github ++ "assets/stages/spike.png"
+stage_name = "spike"
+
+mainloop:
+
+if loading.len > 0 (
+  count = 0
+  loop loading.len (
+    count += 1
+    if loading.[count].imageinfo("loaded") (
+      loading_cur = loading.[count]
+      loading = loading.delete(count)
+      count -= 1
+    )
+    image loading.[count] 0
+  )
+  loc 999 999 0 0
+  load_percent = 1 - ( loading.len / loading_total )
+  // calculates the percentage of images loaded
+
+  c #333
+  bar 300 20 10 load_percent
+  loc 999 999 -130 -30
+  text "<load_percent.multiply(100).round>% Loaded" 10 : c#000
+  loc 2 2 20 -20
+  text "Loading: <loading_cur>" 10 : c#000
+  // renders a loading bar for the currently loading images
+
+  loc 2 -2 100 30
+  square 170 30 10 : c#ccc
+  if clicked "window stop"
+
+  loc 2 -2 30 30
+  icon "close" 0.7 : c#000
+  text "Close Game" 10 : chx#20
+
+  exit
+)
+zoom += 1 - zoom / 20
+if page == "win" (
+  loc 2 2 25 -25
+  square 30 30 15 : c#277564
+  icon "home" 1 : c#fff
+  if mouse_touching "cursor pointer"
+  if clicked (
+    stage = 0
+    page = "main"
+  )
+  if player1_lives > 0 (
+    player_image = "https://raw.githubusercontent.com/Mistium/Super-Slime-Bros/main/assets/" ++ player1_type ++ "/walk/1.png"
+    txt = "Player 1 Wins!"
+  ) else (
+    player_image = "https://raw.githubusercontent.com/Mistium/Super-Slime-Bros/main/assets/" ++ player2_type ++ "/walk/1.png"
+    txt = "Player 2 Wins!"
+  )
+  t = timer * 150
+  width += 100 - ( t.sin * 5 ) * 10 - width / 5
+  height += 100 + ( t.sin * 5 ) * 10 - height / 5
+  logo_dir += 90 - logo_dir / 5
+  goto 0 110
+  direction logo_dir
+  image player_image width height
+  if clicked and can (
+    can = false
+    width = 200
+    height = 200
+    logo_dir = [80,100].random
+  )
+  if mouse_down.not "can = true"
+  goto "Player 1 Wins!".len * -10 height * -0.4 + 210
+  text txt 20 : c#000
+  exit
+)
+if stage == 0 and ( page == "main" ) (
+    loc -5 -5 mouse_x / 10 mouse_y / 10
+    image github ++ "assets/stages/spike.png" window_width + 700 / 2
+  )
+  if stage == 0 (
+    loc 2 999 210 0
+    change mouse_x - x_position / 80 mouse_y - y_position / 80
+    square 400 window_height - 30 10 : c#ddd
+    if page == "main" (
+      loc 2 2 mouse_x - x_position / 60 + 30 mouse_y - y_position / 60 - 50
+      text "Super Slime Bros" 20 : c#000
+
+      loc 2 2 210 -120
+      ssb_button "Start Battle" "level_select"
+      lvl_page = 1
+
+      loc 2 2 210 -180
+      ssb_button "Fullscreen Window" "fullscreen"
+
+      loc 2 2 210 -240
+      ssb_button "Quit Game" "quit"
+
+      loc -2 2 mouse_x - x_position / 50 - 170 mouse_y - y_position / 50 - 170
+      square 300 300 10 : c#ddd
+      image github ++ "assets/ui/controls.png" 320
+    )
+    if page == "level_select" (
+      loc 2 2 mouse_x - x_position / 60 + 30 mouse_y - y_position / 60 - 50
+      text "Level Select" 20 : c#000
+      loc 2 -2 210 120
+      ssb_button Play play
+      loc 2 -2 210 60
+      ssb_button "Back to Main Menu" "main"
+
+      if timer - 0.15 > curlast (
+        curframe += 1
+        curlast = timer
+      )
+      if curframe > 6 "curframe = 1"
+
+      c #888
+      loc 2 2 mouse_x - x_position / 50 mouse_y - y_position / 50 - 80
+      x = x_position
+      y = y_position
+      loc 2 -2 mouse_x - x_position / 50 + 400 mouse_y - y_position / 50 + 180
+      frame x y x_position y_position 770
+
+      loc 2 2 190 -200 + scroll_y
+      square 280 340 50 : c#8a3d34
+      square 280 340 40 : c#fff
+      change -150 160
+      text "Player 1" 13 : c#000
+      loc 2 2 40 -70 + scroll_y
+      text "Slime Type" 10
+      loc 2 2 190 -140 + scroll_y
+      square 280 80 25 : c#ddd
+      selected = player1_type
+      slime "basic" 1 : chx#-100
+      slime "light" 1 : chx#100
+      slime "heavy" 1 : chx#100
+      loc 2 2 40 -210 + scroll_y
+      text types.key(selected) 8 : c#000
+
+      loc 2 2 40 -240 + scroll_y
+      text "Slime Ability" 10
+      loc 2 2 190 -310 + scroll_y
+      square 280 80 25 : c#ddd
+      selected = player1_ability
+      ability "dash" 1 : chx#-100
+      ability "heal" 1 : chx#100
+      ability "double_jump" 1 : chx#100
+      loc 2 2 40 -375 + scroll_y
+      text abilities.key(player1_ability) 8 : c#000
+
+      loc 2 2 190 -600 + scroll_y
+      square 280 340 50 : c#345b8a
+      square 280 340 40 : c#fff
+      change -150 160
+      text "Player 2" 13 : c#000
+      loc 2 2 40 -470 + scroll_y
+      text "Slime Type" 10
+      loc 2 2 190 -540 + scroll_y
+      square 280 80 25 : c#ddd
+      selected = player2_type
+      slime "basic" 2 : chx#-100
+      slime "light" 2 : chx#100
+      slime "heavy" 2 : chx#100
+      loc 2 2 40 -615 + scroll_y
+      text types.key(selected) 8 : c#000
+
+      loc 2 2 40 -640 + scroll_y
+      text "Slime Ability" 10
+      loc 2 2 190 -710 + scroll_y
+      square 280 80 25 : c#ddd
+      selected = player2_ability
+      ability "dash" 2 : chx#-100
+      ability "heal" 2 : chx#100
+      ability "double_jump" 2 : chx#100
+      loc 2 2 40 -775 + scroll_y
+      text abilities.key(player2_ability) 8 : c#000
+
+      frame "clear"
+      loc 999 -2 200 40
+      text "<lvl_page>/<tot_lvls> (<current_level_view>)" 10 : c#000
+      loc 999 999 220 30
+      w = selected_stage.imageinfo("width") * ( window_width - 450 - 10 / selected_stage.imageinfo("width") ) - 30
+      h = window_height - 100
+      square w h 15 : c#000
+      square w h 10 : c#ddd
+      frame x_position - ( w / 2 ) y_position + ( h / 2 ) x_position + ( w / 2 ) y_position - ( h / 2 )
+      image selected_stage frame_width - 40
+      frame "clear"
+      loc -2 -2 -40 40
+      square 30 30 15 : c#000
+      square 30 30 10 : c#ddd
+      icon "right-arrow" 1 : c#000
+      if mouse_touching "cursor pointer"
+      if clicked and can (
+        can = false
+        lvl_page += 1
+        if lvl_page > tot_lvls "lvl_page = 1"
+        update_stage_data
+      )
+      loc 2 -2 480 40
+      square 30 30 15 : c#000
+      square 30 30 10 : c#ddd
+      icon "left-arrow" 1 : c#000
+      if mouse_touching "cursor pointer"
+      if clicked and can (
+        can = false
+        lvl_page -= 1
+        if lvl_page < 1 "lvl_page = tot_lvls"
+        update_stage_data
+      )
+    )
+  )
+  if page == "play" (
+    page = 0
+    stage = selected_stage
+    reset_data
+  )
+  if page == "fullscreen" (
+    window "maximise"
+    page = "main"
+  )
+  if page == "quit" (
+    window "stop"
+  )
+  if stage != 0 (
+    p1_upordown = "s".pressed.not and "w".pressed.not
+    p2_upordown = "down arrow".pressed.not and "up arrow".pressed.not
+    shake_x += shake_x_mag * delta_time
+    shake_y += shake_y_mag * delta_time
+    shake_x_mag -= shake_x_mag * 1.5
+    shake_y_mag -= shake_y_mag * 1.5
+    cam_x += player1_x + player2_x / -2 - cam_x * delta_time
+    cam_y += player1_y + player2_y / -2 - cam_y * delta_time
+
+    guy1_stretch += 100 - guy1_stretch / 10
+    guy1_direction += 90 - guy1_direction / 10
+    guy2_stretch += -100 - guy2_stretch / 10
+    guy2_direction += 90 - guy2_direction / 10
+
+    stage_x = cam_x + shake_x
+    stage_y = cam_y + shake_y
+
+    goto stage_x / 7 stage_y / 7
+    image github ++ "assets/background.png" window_width * zoom
+
+    goto stage_x / 5 - ( window_width / 3 ) stage_y / 5
+    direction guy1_direction
+    stretch "x" guy1_stretch
+    image github ++ "assets/guy/" ++ guy1_frm ++ ".png" window_width / 2
+
+    goto stage_x / 5 + ( window_width / 3 ) stage_y / 5
+    direction guy2_direction
+    stretch "x" guy2_stretch
+    image github ++ "assets/guy/" ++ guy2_frm ++ ".png" window_width / 2
+
+    direction 90
+    stretch "x" 100
+    goto stage_x stage_y
+    if stage_name == "tree" "change_y 60"
+    if stage_name == "mushroom" "change_y 105"
+    image stage 1000 * zoom
+
+    not_attack_1 = player1_anim != "attack1"
+    move = "d".pressed or "a".pressed
+    if player1_anim != "walk" and not_attack_1 or move (
+      player1_anim = "walk"
+      player1_frame = 1
+      player1_endfrm = 6
+    ) else (
+      if player1_anim != "idle" and not_attack_1 (
+        player1_anim = "idle"
+        player1_frame = 1
+        player1_endfrm = 3
+      )
+    )
+    if not_attack_1 and "space".pressed (
+      player1_anim = "attack1"
+      player1_frame = 1
+      player1_endfrm = 7
+    )
+    clipboard "set" player1_anim
+
+    not_attack_2 = player2_anim != "attack1"
+    move = "right arrow".pressed or "left arrow".pressed
+    if player2_anim != "walk" and not_attack_2 or move (
+      player2_anim = "walk"
+      player2_frame = 1
+      player2_endfrm = 6
+    ) else (
+      if player2_anim != "idle" and not_attack_2 (
+        player2_anim = "idle"
+        player2_frame = 1
+        player2_endfrm = 3
+      )
+    )
+    if not_attack_2 and "enter".pressed (
+      player2_anim = "attack1"
+      player2_frame = 1
+      player2_endfrm = 7
+    )
+
+    if player1_dir == "r" "player1_target = 100" else "player1_target = -100"
+    if player2_dir == "r" "player2_target = 100" else "player2_target = -100"
+
+    player1_speedmod = player1_speed
+    if player1_grounded "player1_speedmod += 2"
+    if player1_ability == "dash" and player1_grounded.not "player1_speedmod *= 2"
+    if timer - player1_ifrm < 0.5 "player1_speedmod /= 4"
+
+    player2_speedmod = player2_speed
+    if player2_grounded "player2_speedmod += 2"
+    if player2_ability == "dash" and player2_grounded.not "player2_speedmod *= 2"
+    if timer - player2_ifrm < 0.5 "player2_speedmod /= 4"
+
+    if player1_ability == "heal" "player1_health -= 0.02"
+    if player2_ability == "heal" "player2_health -= 0.02"
+
+    player1_health.clamp(0,9999)
+    player2_health.clamp(0,9999)
+
+    if "d".pressed (
+      player1_xvel += player1_speedmod
+      player1_dir = "r"
+    )
+    if "a".pressed (
+      player1_xvel -= player1_speedmod
+      player1_dir = "l"
+    )
+    if player1_ability == "double_jump" and player1_double and "w".pressed and player1_grounded.not (
+      player1_yvel = 30
+      player1_stretch *= 0.3
+      player1_target *= 0.1
+      player1_double = false
+    )
+    if "w".pressed and player1_grounded (
+      player1_yvel = 30
+      player1_grounded = false
+      player1_stretch *= 0.3
+      player1_target *= 0.1
+      player1_double = true
+    )
+  
+    if "right arrow".pressed (
+      player2_xvel += player2_speedmod
+      player2_dir = "r"
+    )
+    if "left arrow".pressed (
+      player2_xvel -= player2_speedmod
+      player2_dir = "l"
+    )
+    if player2_ability == "double_jump" and player2_double and "up arrow".pressed and player2_grounded.not (
+      player2_yvel = 30
+      player2_stretch *= 0.3
+      player2_target *= 0.1
+      player2_double = false
+    )
+    if "up arrow".pressed and player2_grounded (
+      player2_yvel = 30
+      player2_grounded = false
+      player2_stretch *= 0.3
+      player2_target *= 0.1
+      player2_startdou = true
+    )
+    if player2_startdou and "up arrow".pressed.not (
+      player2_double = true
+    )
+    player1_yvel -= player1_gravity
+    player1_xvel *= 0.8
+    player1_x += player1_xvel * delta_time * 35
+    player1_y += player1_yvel * delta_time * 50
+
+    player2_yvel -= player2_gravity
+    player2_xvel *= 0.8
+    player2_x += player2_xvel * delta_time * 35
+    player2_y += player2_yvel * delta_time * 50
+
+    player1_stretch += player1_target - player1_stretch * delta_time * 5
+    player2_stretch += player2_target - player2_stretch * delta_time * 5
+
+    if timer - 0.15 > p1_lst (
+      player1_frame += 1
+      p1_lst = timer
+    )
+    if timer - 0.15 > p2_lst (
+      player2_frame += 1
+      p2_lst = timer
+    )
+    p1_ifrm_temp = player1_ifrm
+    p2_ifrm_temp = player2_ifrm
+    if player1_anim == "attack1" "attack 1 1"
+    if player2_anim == "attack1" "attack 2 1"
+
+    if player1_frame > player1_endfrm (
+      if player1_anim == "attack1" (
+        player1_anim = "idle"
+        player1_endfrm = 3
+      )
+      player1_frame = 1
+    )
+    if player2_frame > player2_endfrm (
+      if player2_anim == "attack1" (
+        player2_anim = "idle"
+        player2_endfrm = 3
+      )
+      player2_frame = 1
+    )
+
+    if player1_y < -2000 (
+      player1_x = 0
+      player1_y = 500
+      player1_xvel = 0
+      player1_yvel = 0
+      player1_lives -= 1
+      player1_ifrm = timer + 3
+      player1_health = 0
+      zoom = 0.8
+    )
+    if player2_y < -2000 (
+      player2_x = 0
+      player2_y = 500
+      player2_xvel = 0
+      player2_yvel = 0
+      player2_lives -= 1
+      player2_ifrm = timer + 3
+      player2_health = 0
+      zoom = 0.8
+    )
+
+    if player1_lives < 1 (
+      page = "win"
+    )
+    if player2_lives < 1 (
+      page = "win"
+    )
+
+    if stage_name == "spike" (
+      goto 0 -30
+      collide 1000 60 30 false
+      goto 250 165
+      collide 200 40 210 true
+      goto -320 195
+      collide 200 40 240 true
+      goto -20 330
+      collide 160 40 380 true
+    )
+    if stage_name == "tree" (
+      goto 0 -30
+      collide 1000 60 30 false
+      goto 350 120
+      collide 100 40 180 true
+      goto -320 195
+      collide 200 40 240 true
+      goto -20 330
+      collide 160 40 380 true
+    )
+    if stage_name == "mushroom" (
+      goto 0 -30
+      collide 1000 60 30 false
+      goto -260 80
+      collide 80 40 130 true
+      goto -340 290
+      collide 190 40 350 true
+      goto -160 240
+      collide 110 40 290 true
+      goto -60 260
+      collide 110 60 310 true
+      goto 30 280
+      collide 110 60 350 true
+      goto 300 380
+      collide 190 40 430 true
+    )
+
+    z = 20 * zoom
+    goto player1_x * zoom + cam_x player1_y * zoom + cam_y + 20
+    if player1_type == "heavy" "change_y 25 * zoom"
+    stretch "x" player1_stretch.int
+    image "https://raw.githubusercontent.com/Mistium/Super-Slime-Bros/main/assets/" ++ player1_type ++ "/" ++ player1_anim ++ "/" ++ player1_frame.round ++ ".png" player1_size * zoom
+    text player1_frame.round + "/" + player1_endfrm 10 : c#000
+    change_y 60 * zoom
+    square z z 10 * zoom : c#8a3d34
+    change_x -5 * zoom
+    text "1" 10 * zoom : c#fff
+
+    goto player2_x * zoom + cam_x player2_y * zoom + cam_y + 20
+    if player2_type == "heavy" "change_y 25 * zoom"
+    stretch "x" player2_stretch.int
+    image "https://raw.githubusercontent.com/Mistium/Super-Slime-Bros/main/assets/" ++ player2_type ++ "/" ++ player2_anim ++ "/" ++ player2_frame.round ++ ".png" player2_size * zoom
+    change_y 60 * zoom
+    square z z 10 * zoom : c#345b8a
+    change_x -5 * zoom
+    text "2" 10 * zoom : c#fff
+
+    loc 999 -2 -90 35
+    square 150 50 20 : c#000
+    square 150 50 10 : c#8a3d34
+
+    loc 999 -2 90 35
+    square 150 50 20 : c#000
+    square 150 50 10 : c#345b8a
+
+    loc 999 -2 90 100
+    square 150 30 10 : c#333
+    loc 999 -2 -90 100
+    square 150 30 10 : c#333
+
+    loc 999 -2 -160 35
+    text "1: <player1_health.round>%" 15 : c#fff
+
+    loc 999 -2 20 35
+    text "2: <player2_health.round>%" 15
+
+    loc 999 -2 -150 100
+    text "<player1_lives> Lives Left" 10
+
+    loc 999 -2 30 100
+    text "<player2_lives> Lives Left" 10
+
+    loc 2 2 25 -25
+    square 30 30 15 : c#277564
+    icon "home" 1 : c#fff
+    if mouse_touching "cursor pointer"
+    if clicked (
+      stage = 0
+      page = "main"
+    )
+  )
+if mouse_down.not "can = true"
+frame "clear"
+
+loc -2 -2 -80 20
+text fps + "fps" 10 : c#000
