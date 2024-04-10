@@ -59,7 +59,7 @@ if activity_info (
     loc 2 2 90 -100
     square 140 25 10 : c#222 hover_c#333
     if clicked (
-      terminal "system windows close" + page
+      terminal "kill" + page
       window "stop"
     )
     icon "close" 0.7 : c#fff chx#-50
@@ -84,18 +84,13 @@ if activity_info (
     loc 2 2 10 count * -20 - 120
     text pr.[count] 10
   )
-  loc 2 -2 0 graph.[1].destr * whm
-  pen "down"
-  graph_count = 1
-  loop graph.len (
-    graph_count += 1
-    loc 2 -2 graph_count * wwm graph.[graph_count].destr * whm
-  )
+  goto 0 0
+  graph wwm whm graph
   exit
 )
 wwm = window_width - 50 / 100
 whm = window_height / 300
-usage = fps / 250 * frame_height
+usage = fps / 250
 graph.append(usage)
 if graph.len > 100 "graph = graph.delete(1)"
 import "side-bar"
@@ -209,7 +204,7 @@ if current_tab == "Render Info" (
       can = false
       window "add" "Activity" windows-names.[count]
     )
-    rightclick "window" windows-ids.[count]
+    rightclick "window" windows-names.[count]
     loc 2 2 15 y
     text windows-names.[count] 7 : c#fff
     loc -2 2 -50 y
