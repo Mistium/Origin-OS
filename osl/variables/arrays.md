@@ -226,10 +226,30 @@ loop total_loops_to_complete (
 ```js
 numbers = [2,5,6,1]
 i = 0
-loop array_name.len (
+loop numbers.len (
     i ++
     // iterate the pointer
     log numbers.[i]
     // Logs the item of numbers to the browser console
 )
 ```
+
+```js
+numbers = [2,5,6,1]
+
+for "i" numbers.len (
+    log numbers.[i]
+    // Logs the item of numbers to the browser console
+)
+```
+
+```js
+numbers = [2,5,6,1]
+
+each "i" "item" numbers (
+    log i
+    log item
+    // Logs all numbers and indexes to the browser console
+)
+```
+
