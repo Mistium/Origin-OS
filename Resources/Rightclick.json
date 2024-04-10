@@ -1,6 +1,6 @@
 {
   "file": {
-    ".app": [
+    ".osl": [
       "Open",
       "Edit",
       "View Contents",
@@ -14,7 +14,8 @@
       "Compress",
       "Copy",
       "Paste",
-      "Copy Path"
+      "Copy Path",
+      "Copy Link To Script"
     ],
     ".shortcut": [
       "Open",
