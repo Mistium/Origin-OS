@@ -19,7 +19,7 @@ Name     -   Flow
 Version  -   0.8.1
 ```
 
-# [Try origin here](https://raw.githack.com/Mistium/Origin-OS/main/originLAUNCHER.html)
+# [Try origin here](https://launcher.mistium.com)
 
 # [Download Origin As An App](https://github.com/MILO123PRO/Origin-OS/releases)
 (Performance has been known to suffer so this is unrecommended)
