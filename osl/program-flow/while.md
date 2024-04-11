@@ -2,7 +2,7 @@
   - The `while` statement repeats a block of code while a condition is true.
 
 Example:
-```lua
+```js
 while boolean (
    command
    command
@@ -10,7 +10,7 @@ while boolean (
 ```
 
 ### Syntax:
-```
+```js
 while <condition> (
     <commands>
 )
@@ -20,7 +20,7 @@ while <condition> (
 - `<commands>`: The commands to be executed within the loop.
 
 ### Example:
-```lua
+```js
 while distance_to_object < 10 (
     robot "moveForward" 10
     robot "turnLeft" 10
@@ -36,7 +36,7 @@ In this example, the robot will keep moving forward and turning left as long as 
   - The `until` statement repeats a block of code until a condition is true.
 
 Example:
-```lua
+```js
 until boolean (
    command
    command
@@ -44,7 +44,7 @@ until boolean (
 ```
 
 ### Syntax:
-```lua
+```js
 until <condition> (
     <commands>
 )
@@ -54,7 +54,7 @@ until <condition> (
 - `<commands>`: The commands to be executed within the loop.
 
 ### Example:
-```lua
+```js
 until isGoalReached (
   // do things to get to goal
 )
@@ -64,8 +64,8 @@ In this example, the robot will keep moving forward until the goal is reached.
 
 ### Additional Examples and Use Cases:
 1. **User Input Validation with `while`:**
-```lua
--- Ask for user input until a valid value is entered
+```js
+// Ask for user input until a valid value is entered
 userInput = null
 while userInput != null (
     userInput = "hello".ask
@@ -74,9 +74,9 @@ while userInput != null (
 This example demonstrates how the `while` statement can be used to repeatedly prompt the user for input until a valid value is entered.
 
 2. **Waiting for External Event with `until`:**
-```lua
--- Wait until a sensor detects an object
-local objectDetected = false
+```js
+// Wait until a sensor detects an object
+objectDetected = false
 until objectDetected (
     robot "get_data"
     objectDetected = robot."detected"
