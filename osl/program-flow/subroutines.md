@@ -2,9 +2,9 @@
 
 ### Definition Syntax:
 
-```lua
+```js
 def "name" "input1,input2,input3,input4"
-    -- Your custom command logic here
+    // Your custom command logic here
 endef
 ```
 
@@ -16,7 +16,7 @@ You can use spaces in a custom command's variable definiton if you want, the par
 
 ### Usage Syntax:
 
-```lua
+```js
 name "arg1" "arg2" ...
 ```
 
@@ -25,7 +25,7 @@ name "arg1" "arg2" ...
 
 ### Example:
 
-```lua
+```js
 def "test_command" "input1,input2"
     log input1
     log input2
@@ -36,9 +36,9 @@ endef
 
 ### Syntax:
 
-```lua
+```js
 event "value1" "condition" "value2"
-    -- Your event logic here
+    // Your event logic here
 endev
 ```
 
@@ -50,11 +50,11 @@ endev
 
 ### Example:
 
-```lua
+```js
 event "space" "pressed"
-    if touched_ground then
+    if touched_ground (
         y_velocity = 30
-    end
+    )
 endev
 ```
 
