@@ -44,7 +44,7 @@ c icon_colour
 loc -2 999 -140 10
 text "<hour>:<minute>" 10
 loc -2 999 -140 -10
-text "<day> <day_number> <month.trim(1,3)>" 10
+text "<day.trim(1,3)> <day_number> <month.trim(1,3)>" 10
 
 loc -2 999 -220
 b = battery_percent
