@@ -1,0 +1,70 @@
+window "dimensions" screensize_x 60
+permission "request" "start run"
+wicn = "w 3 square -5 5 3 3 square 5 5 3 3 square 5 -5 3 3 square -5 -5 3 3 w 5 dot 5 5 dot 5 -5 dot -5 -5 dot -5 5"
+sicn = "w 3 cutcircle -2 2 8 0 180 w 3 line 4 -4 12 -12"
+window "front"
+frame "clear"
+window "responsive" true
+permission "request" "File Admin"
+mainloop:
+dock_colour = user."dock_colour"
+icon_colour = user."icon_colour"
+folder = user_folder ++ "/dock"
+movefileloc folder
+include folder
+dock = data
+width = dock.len * 50 + 90
+window "y" screensize_y / -2 + 28
+square window_width 60 10 : c#dock_colour
+goto width / -2 0
+c icon_colour
+icon wicn 1.2
+if clicked and can (
+  can = false
+  window "add" "origin_Start"
+)
+change_x 40
+icon sicn 1
+if clicked and can (
+  can = false
+  window "add" "originAssist"
+)
+change_x 50
+count = 0
+loop dock.len (
+  count ++
+  file "open" dock.[count] "onlyaccess"
+  s = 1.5
+  square 40 40 0 0 1
+  if mouse_touching "s += 0.3"
+  file "render" s "interactable"
+  change_x 50
+)
+c icon_colour
+loc -2 999 -140 10
+text "<hour>:<minute>" 10
+loc -2 999 -140 -10
+text "<day> <day_number> <month.trim(1,3)>" 10
+
+loc -2 999 -220
+b = battery_percent
+bat = "battery_0"
+if b > 25 (
+bat = "battery_1"
+if b > 50 (
+bat = "battery_2"
+if b > 75 (
+bat = "battery_3"
+if b > 99 (
+bat = "battery_4"
+)
+)
+)
+)
+if battery_charging (
+bat = "battery_charging"
+)
+icon bat 1.2
+text "<b>%" 10 : chx#20
+
+if mouse_down.not "can = true"
