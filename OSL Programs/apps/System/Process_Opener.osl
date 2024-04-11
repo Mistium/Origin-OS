@@ -1,9 +1,4 @@
 file "open" passed_data "onlyaccess"
-file "get" 1
-d1 = data
-file "get" 2
-d2 = data
-file "get" 3
-d3 = data
-window "add" d3 ++ "/" ++ d2 ++ d1
+file "get" 14
+window "add" data
 window "stop"
