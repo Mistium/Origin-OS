@@ -1,0 +1,43 @@
+window "dimensions" 350 400
+page = "perms"
+mainloop:
+loc 2 2 10 -20
+text "Installer" 10 : c#fff
+if page == "perms" (
+  goto 0 50
+  c #000
+  button "Missing Permissions" 0 40
+  goto 0 0
+  c #333
+  button "Give Permissions" 200 30
+  if clicked (
+    permission "request" "terminal"
+    permission "request" "account"
+    permission "request" "file editor"
+  )
+  permission "get"
+  permissions.to("lower")
+  if permissions.contains("terminal") and permissions.contains("account") and permissions.contains("file editor") (
+    page = "installer"
+  )
+)
+if page == "installer" (
+  goto 0 0
+  c #333
+  button "Install Win11 Dock" 200 30
+  if clicked (
+    path = user_folder ++ "/Applications/win-11.osl"
+    file "open" path
+    file "delete" path
+    network "getsync" "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Win11.osl"
+    file "download" "win-11.osl" null data.str.destr user_folder ++ "/Applications"
+    boot = user."onboot"
+    boot.delete("Origin/(A) System/Docks/Dock.osl")
+    boot.delete(path)
+    boot.append(path)
+    terminal "kill dock"
+    window "add" path
+    network "update" "onboot" boot
+  )
+)
+import "win-buttons"
