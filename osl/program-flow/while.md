@@ -1,5 +1,3 @@
-Sure, here's the documentation for the `while` and `until` statements:
-
 ## while condition (commands):
   - The `while` statement repeats a block of code while a condition is true.
 
