@@ -2,7 +2,7 @@
   - The `loop` statement repeats a block of code a specified number of times.
 
 Example:
-```lua
+```js
 loop 5 (
    command
    command
@@ -10,7 +10,7 @@ loop 5 (
 ```
 
 ### Syntax:
-```
+```js
 loop <number-of-times> (
     <commands>
 )
@@ -20,7 +20,7 @@ loop <number-of-times> (
 - `<commands>`: The commands to be executed within the loop.
 
 ### Example:
-```lua
+```js
 loop 3 (
     moveForward
     turnLeft
@@ -31,7 +31,7 @@ In this example, the robot will move forward and then turn left three times.
 
 ### Additional Examples and Use Cases:
 1. **Fibonacci Sequence Generation:**
-```lua
+```js
 // Generate Fibonacci sequence up to n terms
 def "fibonacci" "total_loops"
     a = 0
@@ -54,7 +54,7 @@ loop 10 (
 This example demonstrates how the `loop` command can be used to repeatedly generate the Fibonacci sequence with a specified number of terms.
 
 2. **Repeated Task Execution:**
-```lua
+```js
 // Perform a task repeatedly for a certain duration
 def "performTask"
     // Your task implementation goes here
