@@ -226,9 +226,7 @@ all items in the array are 0-1 from the bottom of the graph to the top of the gr
 
 ### Example:
 
-| Example Code | Activity App |
-| --- | --- |
-| <img src="https://github.com/Mistium/Origin-OS/assets/92952823/c7c3da8d-2094-40d0-a47f-1aead02ce382" style="width: 350px;"></img> | <img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb310d6d-c937-441b-a3b9-01e8459896d7" style="width: 350px;"></img> |
+<img src="https://github.com/Mistium/Origin-OS/assets/92952823/c7c3da8d-2094-40d0-a47f-1aead02ce382" style="width: 350px;"></img><img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb310d6d-c937-441b-a3b9-01e8459896d7" style="width: 350px;"></img>
 
 ## Hitbox
 
