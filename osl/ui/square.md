@@ -30,8 +30,11 @@ In this example:
 ## Additional Examples:
 
 ```
-square 50 50 2 1 // Draws a visible square with width and height of 50 pixels and a border thickness of 2 pixels
-square 30 30 0 0 // Draws an invisible square (hitbox) with width and height of 30 pixels and no border
+square 50 50 2 1
+// Draws a visible square with width and height of 50 pixels and a border thickness of 2 pixels
+
+square 30 30 0 0
+// Draws an invisible square (hitbox) with width and height of 30 pixels and no border
 ```
 
 ## Additional Notes:
