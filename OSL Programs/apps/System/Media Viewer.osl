@@ -7,6 +7,8 @@ if passed_data != null (
   say "you need to open a file with this app"
   window "stop"
 )
+window "show"
+
 mainloop:
 goto 0 0
 image passed_data.str
