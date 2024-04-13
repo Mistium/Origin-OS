@@ -131,7 +131,7 @@ mainloop:
   text "New |" 11 : c#fff
   if clicked and can (
     can = false
-    window "add" "New_File" current_file_path
+    window "add" "New_File" files_app_path
   )
   change -15 2
   if selected_files.len != 1 (
@@ -202,7 +202,7 @@ mainloop:
       text "Size:" + data + "Bytes" 8.5 : chy#-25
     )
   )
-  file "open" current_file_path ++ ".folder" "onlyaccess"
+  file "open" files_app_path ++ ".folder" "onlyaccess"
   if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
   file "get" 4
   c c_icon
