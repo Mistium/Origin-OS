@@ -13,17 +13,20 @@ if passed_data != null (
   uri = data.str
   if type == "image" (
     image "load" uri passed_data.str
+    w = passed_data.imageinfo("width")
+    h = passed_data.imageinfo("height")
   )
   if type == "video" (
     video "load" uri passed_data.str
+    w = passed_data.videoinfo("width")
+    h = passed_data.videoinfo("height")
   )
 ) else (
   say "you need to open a file with this app"
   window "stop"
 )
 window "show"
-w = passed_data.imageinfo("width")
-h = passed_data.imageinfo("height")
+
 mainloop:
 goto 0 -25
 temp = window_width - 50 / w * 100
