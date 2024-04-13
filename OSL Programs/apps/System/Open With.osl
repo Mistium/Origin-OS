@@ -1,0 +1,11 @@
+file "pick" [["osl","app"],"Open This file with a .app or .osl"]
+
+mainloop:
+
+if new_transmit (
+  if transmit_data == "closed" (
+    window "stop"
+  )
+  window "open" transmit_data passed_data.str
+  new_transmit = false
+)
