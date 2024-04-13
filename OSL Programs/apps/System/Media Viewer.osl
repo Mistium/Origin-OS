@@ -11,4 +11,9 @@ mainloop:
 goto 0 0
 image passed_data.str
 
-import "win-buttons"
+loc -2 2 -20 -20
+icon "close" 0.7
+if clicked (
+  image "clear" uri
+  window "stop"
+)
