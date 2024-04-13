@@ -17,6 +17,9 @@ if passed_data == null (
       display_message = passed_data.[2].str
       passed_data.[1]
     )
+    each "i" "item" passed_data (
+      passed_data.[i] = "i" ++ passed_data.[i]
+    )
     target_file = passed_data
     files_allowed_text = passed_data.join(" or ")
   )
@@ -41,7 +44,7 @@ loop frame_height.divide(45).round.clamp(0,len) (
   )
   file "get" 1
   square frame_width - 20 30 10 0 1 : c#333
-  target = target_file == null or ( "." ++ target_file == data )
+  target = target_file == null or target_file.contains(data)
   if clicked and can (
     can = false
     if data == ".folder" (
