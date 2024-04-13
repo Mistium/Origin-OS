@@ -3,10 +3,20 @@ if passed_data != null (
   file "get" 2
   name = data
   file "get" 1
+  if [".gif",".mp4"].contains(data) (
+    type = "video"
+  ) else 
+    type = "image"
+  )
   name.append(data)
   file "get" 4
   uri = data.str
-  image "load" uri passed_data.str
+  if type == "image" (
+    image "load" uri passed_data.str
+  )
+  if type == "video" (
+    video "load" uri passed_data.str
+  )
 ) else (
   say "you need to open a file with this app"
   window "stop"
@@ -23,8 +33,12 @@ if temp2 > temp (
 ) else (
   stretch [].append(temp2).append(temp2)
 )
-image passed_data.str 
-
+if type == "image" (
+  image passed_data.str 
+)
+if type == "video" (
+  video passed_data.str
+)
 loc 2 2 10 -20
 text "<name> (<w>x<h>)" 10 : c#fff
 loc -2 2 -20 -20
