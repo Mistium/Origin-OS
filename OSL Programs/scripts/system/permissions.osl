@@ -10,7 +10,7 @@ permission "give" "Permission_Editor" ["File Editor","Permission Editor","Global
 permission "give" "Process_Opener" ["File Admin","Global Save"]
 permission "give" "Shortcut_Opener" ["File Admin","Global Save"]
 permission "give" "Files_Info" ["File Admin","Global Save"]
-permission "give" "Files_Picker" ["File Admin","Global Save"]
+permission "give" "File_Picker" ["File Admin","Global Save"]
 permission "give" "Logs" ["terminal","Global Save"]
 permission "give" "Errors" ["terminal","Global Save"]
 permission "give" "Files" ["File Admin","terminal","Global Save"]
