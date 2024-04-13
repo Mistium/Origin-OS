@@ -1,4 +1,20 @@
 {
-  "server":"wss://cl4.milosantos.com",
-  "rooms":["originOS"]
+  "server": "wss://cl4.milosantos.com",
+  "rooms": [
+    "originOS"
+  ],
+  "binary_file_types": [
+    "PDF",
+    "JPEG",
+    "PNG",
+    "GIF",
+    "MP3",
+    "MP4",
+    "DOCX",
+    "XLSX",
+    "PPTX",
+    "ZIP",
+    "RAR",
+    "MPG"
+  ]
 }
