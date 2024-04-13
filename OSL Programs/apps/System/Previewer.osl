@@ -1,5 +1,9 @@
 if passed_data != null (
   file "open" passed_data "onlyaccess"
+  file "get" 2
+  name = data
+  file "get" 1
+  name.append(data)
   file "get" 4
   uri = data.str
   image "load" uri passed_data.str
@@ -13,8 +17,11 @@ mainloop:
 goto 0 0
 image passed_data.str
 
+loc 2 2 10 -20
+text name.str 10 : c#fff
 loc -2 2 -20 -20
-icon "close" 0.7
+square 20 20 10 : c#333
+icon "close" 0.7 : c#fff
 if clicked (
   image "clear" uri
   window "stop"
