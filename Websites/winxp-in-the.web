@@ -1,0 +1,5 @@
+url = "https://lrusso.github.io/VirtualXP/VirtualXP.htm"
+current_tab_name = "Windows XP"
+
+mainloop:
+iframe url "iframe1" 0 -20 window."width" window."height" - 40
