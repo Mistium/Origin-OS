@@ -40,7 +40,7 @@ if type == "image" (
   image passed_data.str 
 )
 if type == "video" (
-  video passed_data.str
+  video passed_data.str temp temp
 )
 loc 2 2 10 -20
 text "<name> (<w>x<h>)" 10 : c#fff
