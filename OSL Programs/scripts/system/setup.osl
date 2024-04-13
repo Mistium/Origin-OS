@@ -1,3 +1,5 @@
+graphics_icn = "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn camera 0.4 0 -2"
+
 file "install_type" "folder" "c #772d1c square 0 2 10 4 c #ff724f square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0" "Folder" ["Files"]
 file "install_type" "md" "c #000 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #ddd w 2 line -4 -5 -4 0 cont 0 -5 cont 4 0 cont 4 -5" "Markdown" ["Studio","Summit"]
 file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Plain Text" ["Studio","Summit"]
@@ -13,4 +15,10 @@ file "install_type" "ocf" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 
 file "install_type" "zip" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0" "Zip Archive" []
 file "install_type" "shortcut" "" "Alias File" ["Shortcut_Opener"]
 file "install_type" "oasm" "c #6f4aa5 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #2b1d40 icn atom 0.4 0 -2" "Origin Assembly" ["OASM Runner"]
-file "install_type" "ougf" "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn camera 0.4 0 -2" "Origin Url Graphics" ["OUGF Viewer"]
+
+file "install_type" "png" graphics_icn "PNG Image" ["Media Viewer"]
+file "install_type" "jpg" graphics_icn "JPG Image" ["Media Viewer"]
+file "install_type" "jpeg" graphics_icn "JPEG Image" ["Media Viewer"]
+file "install_type" "webp" graphics_icn "WEBP Image" ["Media Viewer"]
+file "install_type" "mp4" graphics_icn "MP4 Video" ["Media Viewer"]
+file "install_type" "webm" graphics_icn "WEB Media" ["Media Viewer"]
