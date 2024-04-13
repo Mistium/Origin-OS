@@ -167,8 +167,9 @@ if current_tab == "Network" (
     cur = data.[count].destr
     loc 2 2 30 y
     payload = cur."payload".str
-    text payload.trim(1,28).str 7 : c#fff
-    if payload.len > 28 (
+    width = window_width - 400 // 7
+    text payload.trim(1,width).str 7 : c#fff
+    if payload.len > width (
       text "..." 7
     )
     recipient = cur."recipient".str
