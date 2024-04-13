@@ -6,7 +6,21 @@ window "show"
 cur = user_folder
 selected = null
 
-target_file = passed_data
+display_message = "Select a <files_allowed_text>"
+
+if passed_data == null (
+  target_file = null
+  files_allowed_text = "File"
+) else (
+  if passed_data.istype("array") (
+    if passed_data.[1].istype("array") (
+      display_message = passed_data.[2]
+      passed_data.[1]
+    )
+    target_file = passed_data
+    files_allowed_text = passed_data.join(" or ")
+  )
+)
 
 mainloop:
 
@@ -83,13 +97,14 @@ if selected != null (
   text name ++ data 10 : c#fff
   c global_accent
 ) else (
-  text "Select a file" 10 : c#fff
+
+  text display_message 10 : c#fff
   c #444
 )
 loc -2 -2 -50 20
 square 80 20 10
-if selectd != null and clicked (
-  transmit selected parent
+if selected != null and clicked (
+  transmit "" parent
   window "stop"
 )
 text "Select" 10 : c#fff chx#-30
