@@ -69,6 +69,10 @@
   "Y": "line 15 5 15 20 cont 5 40 line 15 20 25 40",
   "z": "line 5 25 25 25 cont 5 5 cont 25 5",
   "Z": "line 25 5 5 5 cont 25 40 cont 5 40",
+  "é": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 line 13 32 18 36",
+  "è": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 line 18 32 13 36",
+  "ë": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 dot 10 32 dot 20 32",
+  "ê": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 line 5 33 15 40 cont 25 33"
   "+": "line 15 10 15 30 line 5 20 25 20",
   "-": "line 5 20 25 20",
   "÷": "line 5 20 25 20 dot 15 25 dot 15 15",
