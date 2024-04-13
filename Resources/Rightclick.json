@@ -19,7 +19,6 @@
     ],
     ".shortcut": [
       "Open",
-      "Edit",
       "View Original File",
       "-",
       "Move To Bin",
@@ -28,7 +27,6 @@
       "Rename",
       "Duplicate",
       "-",
-      "Compress",
       "Copy",
       "Paste",
       "Copy Path"
@@ -74,7 +72,6 @@
     ],
     "other": [
       "Open",
-      "Edit",
       "-",
       "Move To Bin",
       "-",
