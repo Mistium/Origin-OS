@@ -4,7 +4,7 @@ path = file.[3]
 current = file.[4]
 window "show"
 cur = user_folder
-selected = null
+selected = ""
 
 display_message = "Select a <files_allowed_text>"
 
@@ -71,7 +71,7 @@ loc -2 2 -20 -20
 icon "close" 0.8 : c#fff
 if clicked (
   window "stop"
-  transmit "" parent
+  transmit "closed" parent
 )
 if path == "origin" (
   path = "/origin"
@@ -92,7 +92,7 @@ text cur.str 10 : chx#20
 loc 999 -2 0 20
 square window_width 20 20 : c#222
 loc 2 -2 10 20
-if selected != null (
+if selected != "" (
   file "open" selected
   file "get" 2
   name = data
@@ -100,14 +100,13 @@ if selected != null (
   text name ++ data 10 : c#fff
   c global_accent
 ) else (
-
   text display_message 10 : c#fff
   c #444
 )
 loc -2 -2 -50 20
 square 80 20 10
-if selected != null and clicked (
-  transmit "" parent
+if selected != "" and clicked (
+  transmit selected parent
   window "stop"
 )
 text "Select" 10 : c#fff chx#-30
