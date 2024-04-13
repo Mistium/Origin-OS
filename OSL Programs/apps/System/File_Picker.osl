@@ -14,7 +14,7 @@ if passed_data == null (
 ) else (
   if passed_data.istype("array") (
     if passed_data.[1].istype("array") (
-      display_message = passed_data.[2]
+      display_message = passed_data.[2].str
       passed_data.[1]
     )
     target_file = passed_data
@@ -69,7 +69,10 @@ loc 999 2 0 -20
 square window_width 40 10 : c#222
 loc -2 2 -20 -20
 icon "close" 0.8 : c#fff
-if clicked "window stop"
+if clicked (
+  window "stop"
+  transmit "" parent
+)
 if path == "origin" (
   path = "/origin"
 )
