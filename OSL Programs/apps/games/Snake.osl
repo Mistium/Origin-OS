@@ -1,66 +1,63 @@
-save "highscore" "get"
-highscore = save-data
-if save-data == null "highscore = 0"
+save "highscore.txt" "get"
+highscore = save_data
+if save_data == null "highscore = 0"
+
 def "move" "x,y"
-x += head_x
-y += head_y
-snakex = snakex.append(x)
-snakey = snakey.append(y)
+  x += head_x
+  y += head_y
+  snakex.append(x)
+  snakey.append(y)
 endef
+
 t = 0
 snakex = [0]
 snakey = [0]
 snake_dir = 0
 mode = "Menu"
 window "resizable" False
-window "dimensions" 580 400
+window "dimensions" 400 430
 score = 0
-slider_speed = 0.8
+slider_speed = 0.3
+
 mainloop:
-colour #555
-loc 999 999 -190 -10
-square 200 380 5
-loc 999 2 0 -10
-square window_width 10 13
-colour #fff
-loc 2 2 0 -10
-text "Snake - Written by Mist entirely in OSL" 7
-loc 2 2 0 -40
-text "Highscore:" + Highscore 8
-loc 2 2 0 -60
-text "Score:" + snakelen 8
+c #222
+loc 999 2 0 -20
+square window_width 10 30
+c #fff
+loc 2 2 10 -20
+text "Snake | Highest: <highscore>" 9
+
 if mode == "Menu" (
-  c #444
-  loc 999 999 -200 -70
-  speed_display = ( 1 - slider_speed ) * 10
-  text speed_display.round 10 : c#fff
-  colour #777
-  loc 999 999 -200
+  c #777
+  goto 0 0
   square 150 20 10 1
   snakelen = 1
-  snakex = ["100"]
-  snakey = ["-10"]
+  snakex = ["0"]
+  snakey = ["-20"]
   if clicked (
     mode = "play"
     snakedir = "w"
-    head_x = 100
-    head_y = -10
+    head_x = 0
+    head_y = -20
     move 0 20
-    foodx = [-9,9].random * 20 + 100
-    foody = [-9,9].random * 20 - 10
+    foodx = [-9,9].random * 20
+    foody = [-9,9].random * 20 - 20
   )
 )
 if mode == "menu" (
-  colour #fff
+  c #fff
   change_x -20
   text "Play" 9
 )
 if mode == "Play" (
-  if highscore < snakelen "highscore = snakelen"
-  if "w".onpress and ( snakedir != "s" ) "snakedir = "w""
-  if "s".pressed and ( snakedir != "w" ) "snakedir = "s""
-  if "a".pressed and ( snakedir != "d" ) "snakedir = "a""
-  if "d".pressed and ( snakedir != "a" ) "snakedir = "d""
+  if highscore < snakelen (
+    highscore = snakelen
+    save "highscore.txt" highscore
+  )
+  if "w".onpress and snakedir != "s" "snakedir = "w""
+  if "s".pressed and snakedir != "w" "snakedir = "s""
+  if "a".pressed and snakedir != "d" "snakedir = "a""
+  if "d".pressed and snakedir != "a" "snakedir = "d""
 
   if timer - slider_speed > t (
     t = timer
@@ -72,27 +69,29 @@ if mode == "Play" (
   temp = snakex.len
   head_x = snakex.[temp].int
   head_y = snakey.[temp].int
-  count = snakex.len + 1
+  count = temp + 1
   loop snakelen (
-    count -= 1
+    count --
     draw_x = snakex.[count].int
     draw_y = snakey.[count].int
     goto draw_x draw_y
     if draw_x == head_x and ( draw_y == head_y ) and ( count < snakex.len ) "mode = "menu""
-    colour #65ad5b
-    if snakex.len - count % 2 == 0 "colour #416f3b"
-    if count == snakex.len "colour #cd0000"
-    square 12 12 5 1
+    c #65ad5b
+    if snakex.len - count % 2 == 0 "c #416f3b"
+    if count == snakex.len "c #cd0000"
+    square 13 13 6 1
   )
 
-  if ( head_x > 280 ) or ( head_x < -80 ) or ( head_y > 180 ) or ( head_y < -200 ) "mode = "menu""
-  colour #cd0000
+  if ( head_x > 180 ) or ( head_x < -180 ) or ( head_y > 160 ) or ( head_y < -210 ) (
+    mode = "menu"
+  )
+  c #cd0000
   goto foodx foody
   square 5 5 10
   if head_x == foodx and ( head_y == foody ) (
-    snakelen += 1
-    foodx = [-9,9].random * 20 + 100
-    foody = [-9,9].random * 20 - 10
+    snakelen ++
+    foodx = [-9,9].random * 20
+    foody = [-9,9].random * 20 - 20
   )
 )
 import "win-buttons"
