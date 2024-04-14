@@ -1,136 +1,19 @@
 {
-  "file": {
-    ".osl": [
-      "Open",
-      "Edit",
-      "View Contents",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "Compress",
-      "Copy",
-      "Paste",
-      "Copy Path",
-      "Copy Link To Script"
-    ],
-    ".shortcut": [
-      "Open",
-      "View Original File",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "Copy",
-      "Paste",
-      "Copy Path"
-    ],
-    ".folder": [
-      "Open",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "New Folder Inside",
-      "Remove Folder",
-      "Copy",
-      "Paste",
-      "Copy Path"
-    ],
-    ".ocf": [
-      "Uncompress",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "Copy",
-      "Copy Path"
-    ],
-    ".zip": [
-      "Extract Here",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "Copy",
-      "Copy Path"
-    ],
-    "other": [
-      "Open",
-      "Edit"
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "Compress",
-      "Copy",
-      "Paste",
-      "Copy Path"
-    ]
+  "file": { 
+    ".osl": ["Open","Edit","View Contents","-","Move To Bin","-","Info","Rename","Duplicate","-","Compress","Copy","Paste","Copy Path","Copy Link To Script"],
+    ".shortcut": ["Open","View Original File","-","Move To Bin","-","Info","Rename","Duplicate","-","Copy","Paste","Copy Path"],
+    ".folder": ["Open","-","Move To Bin","-","Info","Rename","Duplicate","-","New Folder Inside","Remove Folder","Copy","Paste","Copy Path"],
+    ".ocf": ["Uncompress","-","Move To Bin","-","Info","Rename","Duplicate","-","Copy","Copy Path"],
+    ".zip": ["Extract Here","-","Move To Bin","-","Info","Rename","Duplicate","-","Copy","Copy Path"],
+    ".png": ["Open","Edit Image","-","Move To Bin","-","Info","Rename","Duplicate","-","Compress","Copy","Paste","Copy Path"],
+    ".jpeg": ["Open","Edit Image","-","Move To Bin","-","Info","Rename","Duplicate","-","Compress","Copy","Paste","Copy Path"],
+    ".jpg": ["Open","Edit Image","-","Move To Bin","-","Info","Rename","Duplicate","-","Compress","Copy","Paste","Copy Path"],
+    ".webm": ["Open","Edit Image","-","Move To Bin","-","Info","Rename","Duplicate","-","Compress","Copy","Paste","Copy Path"],
+    "other": ["Open","Edit","-","Move To Bin","-","Info","Rename","Duplicate","-","Compress","Copy","Paste","Copy Path"]
   },
-  "text": {
-    "other": [
-      "Cut",
-      "Copy",
-      "Paste"
-    ]
-  },
-  "window": {
-    "other": [
-      "Move Desktop",
-      "Show File",
-      "-",
-      "Application Info",
-      "View App Errors",
-      "-",
-      "Fullscreen Window",
-      "Minimise Window",
-      "Close Window"
-    ]
-  },
-  "tab": {
-    "other": [
-      "Move Tab Left",
-      "Move Tab Right",
-      "-",
-      "Duplicate Tab",
-      "Reload Tab",
-      "Close Tab"
-    ]
-  },
-  "image": {
-    "other": [
-      "Copy Image Url"
-    ]
-  },
-  "desktop": {
-    "other": [
-      "Change Wallpaper",
-      "-",
-      "New Folder Inside",
-      "New File",
-      "-",
-      "Info",
-      "Paste",
-      "Copy Path"
-    ]
-  }
+  "text": { "other": ["Cut","Copy","Paste"] },
+  "window": { "other": ["Move Desktop","Show File","-","Application Info","View App Errors","-","Fullscreen Window","Minimise Window","Close Window"] },
+  "tab": { "other": ["Move Tab Left","Move Tab Right","-","Duplicate Tab","Reload Tab","Close Tab"] },
+  "image": { "other": ["Copy Image Url"] },
+  "desktop": { "other": ["Change Wallpaper","-","New Folder Inside","New File","-","Info","Paste","Copy Path"] }
 }
