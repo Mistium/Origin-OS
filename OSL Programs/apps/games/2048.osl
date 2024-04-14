@@ -38,8 +38,9 @@ def "generate"
     count2 = 0
     loop 4 (
       count2 ++
-      if tiles.[count].[count2] == 0 (
-        empty_tiles = empty_tiles + ( [] + count + count2 )
+      if tiles.arr[count].arr[count2] == 0 (
+        data = [].append(count).append(count2)
+        empty_tiles.append(data)
       )
     )
   )
@@ -48,10 +49,10 @@ def "generate"
     if [0,9].random < 9 "random_num = 2" else "random_num = 4"
     rand = [1] + emptlen
     rand = rand.random
-    rand = empty_tiles.[rand]
+    rand = empty_tiles.arr[rand]
     rand1 = rand.[1]
     rand2 = rand.[2]
-    temp = tiles.[rand1]
+    temp = tiles.arr[rand1]
     temp.[rand2] = random_num
     tiles.[rand1] = temp
   )
@@ -66,10 +67,11 @@ def "rotate" dir
       cur = []
       count = 4
       loop 4 (
-        cur = cur + tiles.[count].[count2]
+        data = tiles.arr[count].arr[count2]
+        cur.append(data)
         count --
       )
-      out = out + cur
+      out.append(cur)
       count2 ++
     )
   )
@@ -85,12 +87,12 @@ loop 4 (
     loop 3 (
       count ++
       count2 = count - 1
-      cur_row = tiles.[row]
-      if cur_row.[count2] == 0 and ( cur_row.[count] > 0 ) (
-        cur_row.[count2] = cur_row.[count]
+      cur_row = tiles.arr[row]
+      if cur_row.arr[count2] == 0 and ( cur_row.arr[count] > 0 ) (
+        cur_row.[count2] = cur_row.arr[count]
         cur_row.[count] = 0
       )
-      if cur_row.[count] == cur_row.[count2] (
+      if cur_row.arr[count] == cur_row.arr[count2] (
         cur_row.[count2] *= 2
         cur_row.[count] = 0
       )
@@ -109,12 +111,12 @@ loop 4 (
     loop 4 (
       count ++
       count2 = count + 1
-      cur_row = tiles.[row]
-      if cur_row.[count2] == 0 and ( cur_row.[count] > 0 ) (
-        cur_row.[count2] = cur_row.[count]
+      cur_row = tiles.arr[row]
+      if cur_row.arr[count2] == 0 and ( cur_row.arr[count] > 0 ) (
+        cur_row.[count2] = cur_row.arr[count]
         cur_row.[count] = 0
       )
-      if cur_row.[count] == cur_row.[count2] (
+      if cur_row.arr[count] == cur_row.arr[count2] (
         cur_row.[count2] *= 2
         cur_row.[count] = 0
       )
@@ -132,7 +134,7 @@ loop 4 (
   loop 4 (
     count2 ++
     goto count2 - 2.5 * 100 count - 2.5 * -100
-    current = tiles.[count].[count2]
+    current = tiles.arr[count].arr[count2]
     c colours.key(current)
     square 80 80 10
     text current 20 : c#776e65
@@ -161,5 +163,8 @@ if "s".onpress (
   rotate
   rotate
   generate
+)
+if "space".onpress (
+  rotate
 )
 import "win-buttons"
