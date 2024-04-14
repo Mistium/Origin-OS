@@ -13,10 +13,10 @@ def "find_sizes"
   unit = "kb"
   if use1 > 1000 (
     unit = "mb"
-    use1 = usage.[1] / 1000
+    use1 = use1.[1] / 1000
     if use1 > 1000 (
       unit = "gb"
-      use1 = usage.[1] / 1000
+      use1 = use1.[1] / 1000
     )
   )
   use2 = usage.[2] / 1000000
