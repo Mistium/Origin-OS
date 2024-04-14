@@ -23,16 +23,6 @@ icn_colour = user."icon_colour"
 
 direction 90
 if new_network_data (
-  if network_data_command == "Upload_Files" (
-    if network_data.len == 32 (
-      last_synced = timestamp
-      syncing = false
-      error = ""
-    ) else (
-      error = network_data
-    )
-    network "My_Files_Usage"
-  )
   if network_data_command == "my_files_usage" (
     used = network_data
     use1 = used.[1] / 1000
@@ -100,18 +90,13 @@ if bg_redrawn or mouse_touching (
     icon "w 3 line 10 10 -10 -10" 0.8
   )
 )
-if syncing (
-  if error == "" (
-    last_synced_text = "Syncing"
-  ) else (
-    last_synced_text = error
-  )
+
+terminal "get filechanges"
+data.len
+if data == 0 (
+  last_sync_text = "No Unsynced Changes"
 ) else (
-  if last_synced == 0 (
-    last_synced_text = "Not Synced"
-  ) else (
-    last_sync_text = last_synced.int.timestamp("convert-relative")
-  )
+  last_sync_text = "<data> files are syncing"
 )
 
 loc 999 2 0 -83
@@ -121,23 +106,9 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   loc 999 2 0 -83
   square 170 30 20 : c#bg_colour
   change_x -70
-  syncable = timer + 270 > last_upload and clicked and can
-  if timer > last_upload or syncable (
-    can = false
-    last_upload = timer + 300
-    syncing = true
-    terminal "system uploadfiles"
-  )
-  if syncing (
-    direction sync_dir
-    sync_dir += 10
-  ) else (
-    sync_dir = 90
-  )
-  if syncable "c global_accent" else "c icn_colour"
-  icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : hover_size#1.05
   c icn_colour
   direction 90
+  icon "w 3 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5" 0.7 : hover_size#1.05
   change 30 -10
   text last_sync_text 8
   loc 999 2 -40 -77
