@@ -7,14 +7,13 @@ last_synced = 0
 window_x = screensize_x / 2 + 128
 window_target_x = -102
 used = "used"
-last_upload = timer + 600
 error = ""
 window "dimensions" 190 300
 window "responsive" true
 can = false
-last_upload = timer + 300
 syncing = true
 network "my_files_usage"
+last_check = timer
 
 mainloop:
 
@@ -93,6 +92,7 @@ if bg_redrawn or mouse_touching (
 
 if timer - last_check > 300 (
   network "my_files_usage"
+  last_check = timer
 )
 
 terminal "get filechanges"
