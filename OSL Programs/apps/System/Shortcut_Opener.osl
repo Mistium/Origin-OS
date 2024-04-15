@@ -1,5 +1,8 @@
 file "open" passed_data "onlyaccess"
 file "get" 4
+app = ".app"
+osl = ".osl"
+data.replace(app,osl)
 file "open" data.str
 file "start"
 window "stop"
