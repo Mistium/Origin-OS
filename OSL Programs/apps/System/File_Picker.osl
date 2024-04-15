@@ -18,10 +18,14 @@ if passed_data == null (
       passed_data.[1]
     )
     each "i" "item" passed_data (
-      passed_data.[i] = "i" ++ passed_data.[i]
+      passed_data.[i] = "." ++ passed_data.[i]
     )
     target_file = passed_data
     files_allowed_text = passed_data.join(" or ")
+  ) else (
+    passed_data = "." ++ passed_data
+    target_file = [].append(passed_data)
+    files_allowed_text = passed_data.str
   )
 )
 
