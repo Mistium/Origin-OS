@@ -1,0 +1,7 @@
+window "responsive" true
+window "dimensions" 0 0
+permission "request" "simulate inputs"
+mainloop:
+if "space".pressed (
+  simulate "leftclick" mouse_x mouse_y
+)
