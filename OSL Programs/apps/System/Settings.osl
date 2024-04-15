@@ -142,7 +142,7 @@ def "system"
     )
     text "Pixelated" 10 : chx#-50 c#fff
     terminal "system display get invert"
-    toggle_invert = return.divide(100).round.bool
+    toggle_invert = data.divide(100).round.bool
     loc 2 2 10 -180
     c #fff
     text "Invert Colours" 10
@@ -834,4 +834,3 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
-
