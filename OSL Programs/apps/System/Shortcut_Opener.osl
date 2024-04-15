@@ -1,9 +1,5 @@
 file "open" passed_data "onlyaccess"
 file "get" 4
-app = "/.app$/g"
-osl = ".osl"
-data.replace(app,osl)
-log data
 file "open" data.str
 file "start"
 window "stop"
