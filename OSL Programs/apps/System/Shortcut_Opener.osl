@@ -1,6 +1,6 @@
 file "open" passed_data "onlyaccess"
 file "get" 4
-app = ".app"
+app = "/.app$/g"
 osl = ".osl"
 data.replace(app,osl)
 file "open" data.str
