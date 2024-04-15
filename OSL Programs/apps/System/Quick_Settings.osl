@@ -100,7 +100,11 @@ data.len
 if data == 0 (
   last_sync_text = "Files are synced"
 ) else (
-  last_sync_text = "<data> actions"
+  if data == 1 (
+    last_sync_text = "1 action"
+  ) else (
+    last_sync_text = "<data> actions"
+  )
 )
 
 loc 999 2 0 -83
@@ -118,6 +122,8 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   loc 999 2 -40 -77
   if used != "used" (
     text "<use1><unit> / <use2><unit2>" 8
+  ) else (
+    text "Unknown Usage Data" 8
   )
 )
 
