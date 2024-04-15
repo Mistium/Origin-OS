@@ -2,6 +2,7 @@ file "open" passed_data "onlyaccess"
 file "get" 4
 app = "/.app$/g"
 osl = ".osl"
+log data
 data.replace(app,osl)
 file "open" data.str
 file "start"
