@@ -474,14 +474,14 @@ def "Appearance"
       icon "close" 0.5 : c#fff chy#-20
       if clicked and can (
         can = false
-        segments = segments.delete(count)
+        segments.delete(count)
       )
       if count > 1 (
         icon "left-arrow" 0.7 : c#fff chx#-80
         if clicked and can (
           can = false
           count2 = count - 1
-          segments = segments.swap(count2,count)
+          segments.swap(count2,count)
         )
       )
       if count < segments.len (
@@ -490,7 +490,7 @@ def "Appearance"
         if clicked and can (
           can = false
           count2 = count + 1
-          segments = segments.swap(count,count2)
+          segments.swap(count,count2)
         )
       )
       goto x - 80 y + 17.5
@@ -520,8 +520,11 @@ def "Appearance"
       segments.append(f)
       file_dropped = 0
     )
-    save "segments.txt" "set" segments
-    global "segments"
+    save "segments.txt" "get"
+    if segments != save_data (
+      save "segments.txt" "set" segments
+      global "segments"
+    )
   )
   if subcategory == "Colours" (
     if user."dock_colour".[1] != "#" (
@@ -834,3 +837,5 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
+
+
