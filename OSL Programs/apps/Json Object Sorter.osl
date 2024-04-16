@@ -1,0 +1,10 @@
+network "getsync" "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Fonts/origin.ojff"
+json = data.replace(newline,null)
+keys = json.destr.getall("keys")
+clipboard "set" keys
+keys.sort("ascending")
+output = {}
+each "i" "item" keys (
+  output.[item] = json.destr.[item]
+)
+clipboard "set" output.str
