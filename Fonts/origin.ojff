@@ -133,6 +133,7 @@
   "Н": "line 5 40 5 5 line 5 20 25 20 line 25 5 25 40",
   "о": "line 5 25 25 25 cont 25 5 cont 5 5 cont 5 25",
   "О": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5",
+  "п": "line 5 5 5 40 cont 25 25 cont 25 5",
   "П": "line 5 5 5 40 cont 25 40 cont 25 5",
   "р": "line 5 -10 5 25 cont 25 25 cont 25 5 cont 5 5",
   "Р": "line 5 5 5 40 cont 25 40 cont 25 20 cont 5 20",
