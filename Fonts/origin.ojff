@@ -1,10 +1,4 @@
 {
-  "origin": {
-    "version": "5",
-    "monowidth": "True",
-    "character_width": "30",
-    "size": "1"
-  },
   "0": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5 line 5 5 25 40",
   "1": "line 5 25 15 40 cont 15 5 line 5 5 25 5",
   "2": "line 5 40 25 40 cont 25 30 cont 5 15 cont 5 5 cont 25 5",
@@ -15,6 +9,12 @@
   "7": "line 5 40 25 40 cont 5 5",
   "8": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5 line 5 20 25 20",
   "9": "line 25 20 5 20 cont 5 40 line 25 5 25 40 cont 5 40",
+  "origin": {
+    "version": "5",
+    "monowidth": "True",
+    "character_width": "30",
+    "size": "1"
+  },
   " ": "",
   "!": "line 15 40 15 15 dot 15 5",
   "\"": "line 5 40 5 30 line 20 40 20 30",
@@ -48,10 +48,6 @@
   "A": "line 5 5 17.5 40 cont 30 5 line 10 15 25 15",
   "b": "line 10 40 10 5 cont 5 5  line 10 25 25 25 cont 25 5 cont 10 5",
   "B": "line 22 25 25 30 cont 25 40 cont 5 40 cont 5 5 cont 25 5 cont 25 20 cont 22 25 cont 5 25",
-  "В": "line 22 25 25 30 cont 25 40 cont 5 40 cont 5 5 cont 25 5 cont 25 20 cont 22 25 cont 5 25",
-  "в": "line 22 15 25 18 cont 25 25 cont 5 25 cont 5 5 cont 25 5 cont 25 12 cont 22 15 cont 5 15",
-  "г": "line 5 5 5 25 cont 25 25",
-  "Г": "line 5 5 5 35 cont 25 35",
   "c": "line 20 5 5 5 cont 5 25 cont 20 25",
   "C": "line 25 40 5 40 cont 5 5 cont 25 5",
   "d": "line 25 45 25 5 cont 5 5 cont 5 25 cont 25 25",
@@ -122,6 +118,10 @@
   "ë": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 dot 10 32 dot 20 32",
   "÷": "line 5 20 25 20 dot 15 25 dot 15 15",
   "π": "line 5 20 25 20 line 10 5 10 20 line 20 20 20 8 cont 25 5",
+  "В": "line 22 25 25 30 cont 25 40 cont 5 40 cont 5 5 cont 25 5 cont 25 20 cont 22 25 cont 5 25",
+  "в": "line 22 15 25 18 cont 25 25 cont 5 25 cont 5 5 cont 25 5 cont 25 12 cont 22 15 cont 5 15",
+  "г": "line 5 5 5 25 cont 25 25",
+  "Г": "line 5 5 5 35 cont 25 35",
   "е": "line 25 5 5 5 cont 5 25 cont 25 26 cont 25 15 cont 15 15",
   "Е": "line 25 40 5 40 cont 5 5 cont 25 5 line 5 22 25 22",
   "и": "line 5 25 5 5 cont 25 25 cont 25 5",
