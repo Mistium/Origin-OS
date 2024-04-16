@@ -6,7 +6,6 @@ def "inform" "data"
 endef
 
 gpt "new_bot" "assistant"
-gpt "reset_bot" "assistant"
 inform "You are the originOS assistant keep your responses under 56 characters per line"
 inform "the time is" + timestamp.timestamp("convert-full")
 inform "the user's name is" + username
@@ -107,7 +106,7 @@ if input_search != temp (
   output_keys = outputs.getall("keys")
 )
 if "enter".pressed (
-  gpt "send" input_search "assistant"
+  gpt "send" "assistant" input_search.str
   outputs."main" = data
   name = "Gpt Assistant"
   txt_size = 10
