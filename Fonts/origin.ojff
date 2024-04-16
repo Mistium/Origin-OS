@@ -89,7 +89,7 @@
   "s": "line 25 25 5 25 cont 5 14 cont 25 14 cont 25 5 cont 5 5",
   "S": "line 5 5 25 5 cont 25 20 cont 5 20 cont 5 40 cont 25 40",
   "t": "line 15 35 15 5 cont 20 5 line 5 25 25 25",
-	"т": "line 15 5 15 25 line 5 25 25 25",
+  "т": "line 15 5 15 25 line 5 25 25 25",
   "T": "line 15 5 15 40 line 5 40 25 40",
   "u": "line 5 25 5 5 cont 25 7 cont 25 5 cont 25 25",
   "U": "line 5 40 5 5 cont 25 5 cont 25 40",
