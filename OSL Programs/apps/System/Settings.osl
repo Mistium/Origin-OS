@@ -341,18 +341,24 @@ def "system"
     )
   )
   if subcategory == "Community" (
-    loc 2 2 10 -20
+    loc 2 2 110 -30
+    button "My Patreon" 200 25 10 : c#333
+    if clicked and can (
+      can = false
+      http "newtab" "https://www.patreon.com/user?u=51594743"
+    )
+    loc 2 2 10 -70
     text "Patreon Supporters:" 10 : c#fff
-    supporters = ["Vernacular","Pablo Estevez"]
+    supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","","--- Free ---","Viofile","Milodev123"]
     
-    loc 2 2 10 -40
+    loc 2 2 10 -100
     count = scroll_y.divide(20).round
     loop frame_height.divide(20).round (
       count ++
-      loc 2 2 10 count * -20 + scroll_y - 40
+      loc 2 2 10 count * -20 + scroll_y - 100
       text supporters.[count] 10
     )
-    page_len = supporters.len * 20 + 40
+    page_len = supporters.len * 20 + 100
   )
   clicked = false
 endef
