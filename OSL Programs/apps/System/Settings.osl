@@ -829,6 +829,11 @@ if passed_data == "" (
   subcategory = passed_data.[2]
 )
 
+save "settings" "set_directory"
+if save_data != "Success" (
+  say "Failed To Access Save Directory"
+  window "stop"
+)
 file "open" user_folder ++ ".folder"
 current = file.[4]
 files = []
