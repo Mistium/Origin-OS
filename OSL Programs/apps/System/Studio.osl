@@ -1,4 +1,5 @@
 window "show"
+save "Studio" "set_directory"
 save "recent_files.json" "get"
 if save_data.istype("array") (
   recent = save_data
