@@ -750,6 +750,70 @@ def "updates"
   text "Current Version:" + version 10 : c#fff
 endef
 
+def "credits"
+  if contributors == "none" (
+    network "getsync" "https://api.github.com/repos/Mistium/Origin-OS/contributors"
+    contributors = data.replace(newline,)
+    c_names = contributors.destr.getall("login")
+    c_imgs = contributors.destr.getall("avatar_url")
+  )
+  page_len = 290
+  w = frame_width / 2 - 40
+  loc 4 2 2.5 -120 + scroll_y
+  c #222
+  square w 200 20
+  change_y 25
+  c global_accent
+  square w 150 15
+  c #222
+  square w 150 8
+  c #fff
+  x = x_position
+  change_x -95
+  icon "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10" 1.5
+  change_x 30
+  text "Origin Network" 13
+  change -25 -18
+  text "v4" 8
+  set_x x - ( w / 2 - 10 )
+  change_y -90
+  text "Provided By Milodev123" 9
+  set_x x
+  change_y -70
+  c #222
+  square w 40 20
+  change_x w / -2 + 10
+  c #fff
+  text "Full Extensions List >" 9 -100
+  loc -4 2 -2.5 -95 + scroll_y
+  c #222
+  square w 150 20
+  x = x_position
+  change w / -2 + 30 40
+  image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
+  c #fff
+  change 30 12
+  text "Turbowarp" 12
+  change -162 -32
+  n = newline
+  text "      Thanks to GarboMuffin<n>and the scratch team for<n>making turbowarp possible" 9
+  set_x x
+  change_y -175
+  c #222
+  square w 100 20
+  set_x 20
+  change_y 40
+  text "Github Contributors >" 9 : c#fff
+  set_x 30
+  change_y -30
+  i = 0
+  loop c_imgs.len (
+    i ++
+    image c_imgs.[i].str 25 25
+    change_x 30
+  )
+endef
+
 if passed_data == "" (
   category = "System"
   subcategory = "none"
@@ -764,6 +828,7 @@ current = file.[4]
 files = []
 file_data = ""
 total_files = 0
+contributors = "none"
 
 window "dimensions" 880 500
 dock_location = dock_location
@@ -787,7 +852,6 @@ ftkeys = file_types.getall("keys")
 ftvalues = file_types.getall("values")
 
 mainloop:
-
 loc 999 2 0 -25
 square window_width - 7.5 15 30 1 : c#333
 loc 2 999 100 0
@@ -800,6 +864,7 @@ DrawCategory "Account"
 DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
 DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
+DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
 loc 2 2 25 -175
 image user_icon.str 35 35
 loc 2 2 230 -25
@@ -828,6 +893,7 @@ if category == "Account" "account"
 if category == "Apps" "apps"
 if category == "Time" "time"
 if category == "Updates" "updates"
+if category == "Credits" "credits"
 
 if mouse_down.not "can = True"
 frame "clear"
@@ -837,5 +903,3 @@ if gotosubcategory != "" and mouse_down.not (
   gotosubcategory = ""
 )
 import "win-buttons"
-
-
