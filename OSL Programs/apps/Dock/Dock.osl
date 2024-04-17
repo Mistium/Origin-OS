@@ -3,12 +3,17 @@ save "Settings" "set_directory"
 save "segments.txt" "exists"
 if exists (
   save "segments.txt" "get"
-  seg = save_data
+  if save_data.istype("Array') (
+    seg = save_data
+  ) else (
+    seg = ["Main","Applications","Time","Battery"]
+    save "segments.txt" "set" seg
+  )
 ) else (
   seg = ["Main","Applications","Time","Battery"]
   save "segments.txt" "set" seg
 )
-
+save "Dock@System" "set_directory"
 global "segments" seg
 open = 0
 
