@@ -66,3 +66,30 @@ loop 10 (
 )
 ```
 Here, the `loop` command is used to execute a task function multiple times, which can be useful for performing repetitive tasks within a program.
+
+## For loop
+```
+// Usage:
+for "i" 10 (
+  log i
+)
+// logs the numbers 1-10
+
+// Usage:
+for "i" list.len (
+  log list.[i]
+)
+// logs the items in array "list"
+```
+
+## Each loop
+```
+
+// Usage:
+each "i" "item" list (
+  log i
+  log item
+  log list.[i]
+)
+// logs the items in array "list"
+```
