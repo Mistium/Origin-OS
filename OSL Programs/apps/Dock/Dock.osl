@@ -1,13 +1,12 @@
 permission "request" "start run"
-segment_dir = user_folder ++ "/Application Data/Settings"
-segment_url = segment_dir ++ "/Segments.txt"
-file "exists" segment_url
+save "Settings" "set_directory"
+save "segments.txt" "exists"
 if exists (
-  file "open" segment_url
-  seg = file.[4]
+  save "segments.txt" "get"
+  seg = save_data
 ) else (
   seg = ["Main","Applications","Time","Battery"]
-  file "download" "segments.txt" "" seg segment_dir
+  save "segments.txt" "set" seg
 )
 
 global "segments" seg
