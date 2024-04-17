@@ -1,0 +1,14 @@
+{
+  "file viewer": "Allows apps to read file data",
+  "simulate inputs": "(Careful) This app wants to use your keyboard",
+  "account": "(Careful) This app wants to edit your account",
+  "javascript": "(Careful) This app wants to run JavaScript",
+  "permission editor": "(Careful) This app wants to edit permissions",
+  "file editor": "(Careful) This app wants access to edit any file",
+  "file admin": "(Careful) Gives full access to the file system",
+  "start run": "(Careful) This app wants to run when you log in",
+  "terminal": "(Careful) This allows an app full system access",
+  "camera": "(Careful) This app wants to use your camera",
+  "screen record": "(Careful) This app wants to see your screen",
+  "save admin": "(Careful) This lets the app edit all save data"
+}
