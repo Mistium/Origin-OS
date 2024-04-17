@@ -1,8 +1,8 @@
 window "show"
-total = 50
+total = 300
 list = []
 loop total (
-  rand = "0123456789".hash(2)
+  rand = [0,100].random / 100
   list = list.append(rand)
 )
 sound "instrument" 20
@@ -10,20 +10,14 @@ current = 1
 cycles = 0
 mainloop:
 w = window_width / total
-pen "size" 5
-loc 2 -2 0 50
-pen "down"
-c = 0
-loop total (
-  c += 1
-  c #fff
-  if c == current "c accent_colour"
-  loc 2 -2 c * w 50 + list.[c].destr
-)
-current += 1
+c #fff
+pen "size" 3
+goto 0 -25
+graph window_width window_height - 50 list
+current ++
 if current > ( total - cycles ) (
   current = 1
-  cycles += 1
+  cycles ++
 )
 c1 = current + 1
 if list.[current] > list.[c1] (
