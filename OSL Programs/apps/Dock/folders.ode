@@ -1,0 +1,17 @@
+width = 200
+change_x 100
+x = x_position
+set_y y
+square 200 height 20 1
+change_x -75
+file "open" user_folder ++ "/Downloads.folder" "onlyaccess"
+file "render" 1.7 "interactable"
+change_x 50
+file "open" user_folder ++ "/Documents.folder" "onlyaccess"
+file "render" 1.7 "interactable"
+change_x 50
+file "open" user_folder ++ "/Applications.folder" "onlyaccess"
+file "render" 1.7 "interactable"
+change_x 50
+file "open" user_folder ++ "/Bin.folder" "onlyaccess"
+file "render" 1.7 "interactable"
