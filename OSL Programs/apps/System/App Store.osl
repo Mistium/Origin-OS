@@ -153,7 +153,8 @@ c #fff
 icon "upload" 0.7
 change_x 20
 text "Upload Your Apps" 9
-if clicked (
+if clicked and can (
+  can = false
   http "newtab" "https://github.com/Mistium/apps/tree/main"
 )
 
