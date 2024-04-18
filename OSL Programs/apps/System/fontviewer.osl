@@ -1,0 +1,18 @@
+//made by Pnada on discord :3
+mainloop:
+  c #fff
+  loc 2 2 5 -20
+  text "Origin font tester - Pnada" 12
+  loc 2 2 10 -60
+  text "the quick brown jumps over the lazy dog - 4" 4
+  loc 2 2 10 -80
+  text "THE QUICK BROWN JUMPS OVER THE LAZY DOG - 4" 4
+  loc 2 2 10 -100
+  text "the quick brown jumps over the lazy dog - 8" 8
+  loc 2 2 10 -120
+  text "THE QUICK BROWN JUMPS OVER THE LAZY DOG - 8" 8
+  loc 2 2 10 -150
+  text "the quick brown jumps over the lazy dog - 12" 12
+  loc 2 2 10 -180
+  text "THE QUICK BROWN JUMPS OVER THE LAZY DOG - 12" 12
+import "win-buttons"
