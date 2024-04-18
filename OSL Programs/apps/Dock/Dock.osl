@@ -1,10 +1,10 @@
 permission "request" "start run"
 save "Settings" "set_directory"
 save "segments.txt" "exists"
+exists = save_data
 seg = ["Main","Applications","Folders","Time","Battery"]
+
 save "segments.txt" "get"
-log save_data
-log save_data.type
 if exists and save_data.istype("Array") (
   seg = save_data
 ) else (
@@ -16,7 +16,7 @@ open = 0
 
 window "responsive" true
 window "hide"
-window "front"
+
 window "y" screensize_y / -2 + 35
 goto dock_x y
 syscount = 0
@@ -33,15 +33,9 @@ y = -100
 height = 40
 // Theme
 
-if user."pfp" == "https://cdn.discordapp.com/attachments/1147471100742209566/1155532513154965634/R_1_2.png" (
-  network "update" "pfp" "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/no-pfp.jpeg" 
-)
-
 if user."dock_colour" == null (
   network "update" "dock_colour" #060606
-  log "sys" "updated"
 )
-
 if user."icon_colour" == null (
   network "update" "icon_colour" #f3f3f3
 )
