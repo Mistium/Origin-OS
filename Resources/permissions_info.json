@@ -2,7 +2,7 @@
   "file viewer":         "Allows apps to read file data",
   "display":             "This app wants to edit rendering settings",
   "simulate inputs":     "(Careful) This app wants to use your keyboard",
-  "global variables":    "(Careful) This app wants to edit global data"
+  "global variables":    "(Careful) This app wants to edit global data",
   "account":             "(Careful) This app wants to edit your account",
   "javascript":          "(Careful) This app wants to run JavaScript",
   "permission editor":   "(Careful) This app wants to edit permissions",
