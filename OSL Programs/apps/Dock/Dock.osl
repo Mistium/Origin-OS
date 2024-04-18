@@ -3,7 +3,7 @@ save "Settings" "set_directory"
 save "segments.txt" "exists"
 if exists (
   save "segments.txt" "get"
-  if save_data.istype("Array') (
+  if save_data.istype("Array") (
     seg = save_data
   ) else (
     seg = ["Main","Applications","Time","Battery"]
