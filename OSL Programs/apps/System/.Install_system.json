@@ -211,7 +211,7 @@
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/App%20Store.osl",
-    "path": "Origin/(A) System/User Applicationss",
+    "path": "Origin/(A) System/User Applications",
     "name": "App Store.osl",
     "icon": "c #111 w 12 square 0 0 5 5 w 4 c #fff icn store 0.7"
   }
