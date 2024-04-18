@@ -1,7 +1,7 @@
 permission "request" "start run"
 save "Settings" "set_directory"
 save "segments.txt" "exists"
-seg = ["Main","Applications","Time","Battery"]
+seg = ["Main","Applications","Folders","Time","Battery"]
 save "segments.txt" "get"
 if exists and save_data.istype("Array") (
   seg = save_data
