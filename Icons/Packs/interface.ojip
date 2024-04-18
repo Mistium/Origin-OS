@@ -54,7 +54,7 @@
     "rename": "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0",
     "sort": "w 3 line 10 5 5 10 cont 5 -10 line -5 10 -5 -10 cont -10 -5",
     "grid": "w 2 square 7.5 7.5 5 5 square -7.5 7.5 5 5 square -7.5 -7.5 5 5 square 7.5 -7.5 5 5",
-    "grid-full": "w 2 square 6 6 3 3 square -6 6 3 3 square -6 -6 3 3 square 6 -6 3 3 w 5 line 6 6 6 6 line -6 6 -6 6 line -6 -6 -6 -6line 6 -6 6 -6",
+    "grid-full": "w 3 square 7.5 7.5 5 5 square -7.5 7.5 5 5 square -7.5 -7.5 5 5 square 7.5 -7.5 5 5 w 10 dot 7.5 7.5 dot -7.5 7.5 dot 7.5 -7.5 dot -7.5 -7.5",
     "grid-apps": "w 2 square -7.5 7.5 5 5 square 7.5 7.5 5 5 square -7.5 -7.5 5 5 cutcircle 7.5 -7.5 5 0 180",
     "bin": "w 3 line 5 -10 7 7 cont -7 7 cont -5 -10 cont 5 -10 line -6 7 -5 10 cont 5 10 cont 6 7",
     "tags": "w 3 line 10 10 2 10 cont -10 -2 cont -2 -10 cont 10 2 cont 10 10 dot 5 5",
