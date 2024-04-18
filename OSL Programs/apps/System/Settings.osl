@@ -466,7 +466,7 @@ def "Appearance"
     text "Reset Dock To Default" 10 : c#fff
     icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
     if clicked (
-      segments = ["Main","Applications","Time","Battery"]
+      segments = ["Main","Applications","Folders","Time","Battery"]
     )
     loc 2 2 110 -140
     x2 = x_position
