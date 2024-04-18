@@ -30,6 +30,12 @@
     "icon": ""
   },
   {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/folders.ode",
+    "path": "Origin/(A) System/Docks/Modules",
+    "name": "folders.ode",
+    "icon": ""
+  },
+  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/time.ode",
     "path": "Origin/(A) System/Docks/Modules",
     "name": "time.ode",
