@@ -1,5 +1,6 @@
 {
   "file viewer": "Allows apps to read file data",
+  "display": "This app wants to edit rendering settings",
   "simulate inputs": "(Careful) This app wants to use your keyboard",
   "account": "(Careful) This app wants to edit your account",
   "javascript": "(Careful) This app wants to run JavaScript",
