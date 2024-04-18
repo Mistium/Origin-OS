@@ -1,0 +1,161 @@
+window "show"
+page = "APPSTORE// Loading"
+
+def "tab" "name"
+  if name == page "c #333" else "c #222"
+  square sidebar_width - 15 40 10 : hover_c#333
+  if clicked "page = name"
+  change_y -60
+endef
+
+icons = {}
+
+mainloop:
+
+ww = window_width
+wh = window_height
+sidebar_width = ww / 5
+if sidebar_width < 300 "sidebar_width = 300"
+loc 999 2 0 -20
+square ww 40 10 1 : c#111
+loc 2 2 sidebar_width + 20 -20
+text page_name 9 : c#fff
+
+c #333
+frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
+
+if page == "APPSTORE// Loading" (
+  page_name = "Loading..."
+  t = timer * 100
+  direction t.sin * 360
+  icon "cutcircle 0 0 10 0 90" 5 : c#fff
+  direction 90
+  network "get" "https://raw.githubusercontent.com/Mistium/apps/main/apps.json"
+  if data != "loading" (
+    apps = data.replace(newline,).destr
+    page = "APPSTORE// Store"
+  )
+)
+
+if page == "APPSTORE// store" (
+  page_name = "Store"
+  app_h = frame_width / 2
+  count = scroll_y.divide(70).round - 1
+  len = apps.len
+  loop frame_height.divide(70).ceiling.clamp(0,len) + 1 (
+    count ++
+    y = count - 0.5 * -70 + scroll_y
+    loc 999 2 0 y
+    cur = apps.[count]
+    square frame_width - 20 50 10 : c#222 hover_c#333
+    if clicked (
+      page = cur
+      app_tab = "Description"
+    )
+    loc 2 2 30 y
+    if icons.contains(cur).not (
+       network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ cur.to("url") ++ "/icon.icn"
+       if data.str != "loading" (
+         icons.[cur] = data.replace(newline,)
+      ) 
+    )
+    icon icons.[cur] 1.5
+    loc 2 2 60 y
+    text cur.to("title") 10 : c#fff
+  )
+  len = apps.len - 0.5 * 70
+)
+
+if page == "APPSTORE// profile" (
+  page_name = "Profile"
+)
+
+if page == "APPSTORE// library" (
+  page_name = "Library"
+)
+
+if page == "APPSTORE// search" (
+  page_name = "Search"
+)
+
+app_page = page.contains("APPSTORE// ").not
+
+if app_page (
+  network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ page.to("url") ++ "/info.json"
+  current_app = data
+  cur = current_app."title".to("lower")
+  desc = current_app."description"
+  desc.str
+  txt = "-" ++ newline
+  txt.destr
+  for "i" desc.len * 9 / frame_width (
+    p = frame_width / 9 - 4 * i - 1
+    desc.insert(p,txt)
+    desc.str
+  )
+  w = frame_width
+  loc 999 2 0 -50
+  square w 130 10 1 : c#222
+  loc 2 2 60 -60
+  icon icons.[cur].str 3
+  loc 2 2 140 -50
+  text cur.to("title") 10 : c#fff
+  loc 2 2 140 -80
+  text "By" + current_app."author" 9
+  loc 2 2 20 -160
+  text desc 9
+  loc -2 -2 -40 40
+  square 0 0 65 : c#555
+  square 0 0 60 : c#222 hover_c#333
+  if clicked (
+    terminal "app install" + cur
+    log terminal_output
+    say cur + "Has been installed to /Applications"
+  )
+  icon "download" 1 : c#fff
+  len = 0
+)
+frame "clear"
+
+loc 2 999 sidebar_width / 2 0
+square sidebar_width wh 20 1 : c#111
+
+loc 2 2 sidebar_width / 2 + 3 -30
+tab "APPSTORE// Profile"
+change_y -15
+tab "APPSTORE// Store"
+tab "APPSTORE// Search"
+tab "APPSTORE// Library"
+
+loc 2 2 30 -30
+image user_icon.str 30
+change 30
+text username 10 : c#fff
+
+loc 2 2 30 -105
+icon "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5" 1
+change_x 20
+text "Store" 9
+loc 2 2 30 -165
+icon "search" 1
+change_x 20
+text "Search" 9
+loc 2 2 30 -225
+icon "w 3 line 0 6 10 10 cont 10 -6 cont 0 -10 cont 0 6 cont -10 10 cont -10 -6 cont 0 -10" 1
+change_x 20
+text "Library" 9
+
+loc 2 -2 sidebar_width / 2 + 5 30
+c #222
+square sidebar_width - 15 30 10 : hover_c#333
+loc 2 -2 30 30
+c #fff
+icon "upload" 0.7
+change_x 20
+text "Upload Your Apps" 9
+if clicked (
+  http "newtab" "https://github.com/Mistium/apps/tree/main"
+)
+
+if mouse_down.not "can = true"
+import "win-buttons"
