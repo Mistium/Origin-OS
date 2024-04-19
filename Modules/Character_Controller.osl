@@ -1,0 +1,36 @@
+if setup (
+cam_pos = [0,0,0]
+cam_rotation = [0,0,0]
+speed = 4
+setup = false
+)
+if "w".pressed (
+cam_pos.[1] += cam_rotation.[1].sin * speed
+cam_pos.[3] += cam_rotation.[1].cos * speed
+)
+if "s".pressed (
+cam_pos.[1] -= cam_rotation.[1].sin * speed
+cam_pos.[3] -= cam_rotation.[1].cos * speed
+)
+if "d".pressed (
+cam_pos.[1] += cam_rotation.[1].add(90).sin * speed
+cam_pos.[3] += cam_rotation.[1].add(90).cos * speed
+)
+if "a".pressed (
+cam_pos.[1] -= cam_rotation.[1].add(90).sin * speed
+cam_pos.[3] -= cam_rotation.[1].add(90).cos * speed
+)
+if "left arrow".pressed (
+cam_rotation.[1] -= 100 * delta_time
+)
+if "right arrow".pressed (
+cam_rotation.[1] += 100 * delta_time
+)
+if "up arrow".pressed (
+cam_rotation.[2] += 100 * delta_time
+)
+if "down arrow".pressed (
+cam_rotation.[2] -= 100 * delta_time
+)
+3d "camera" "position" cam_pos
+3d "camera" "rotation" cam_rotation
