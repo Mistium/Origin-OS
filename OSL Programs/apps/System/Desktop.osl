@@ -34,9 +34,9 @@ if hovered (
     window "refresh_bg"
   )
   if mouse_down (
-    frame mouse_start_x mouse_start_y mouse_x mouse_y
     sqw = mouse_start_x - mouse_x
     sqh = mouse_start_y - mouse_y
+    frame mouse_start_x mouse_start_y mouse_x mouse_y
     goto 0 0
     c #000
     pen "opacity" 70
