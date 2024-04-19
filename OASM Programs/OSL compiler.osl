@@ -1,0 +1,47 @@
+file "open" "9456a6b8eb8725fc236e001cc43d894a"
+data.split(newline)
+
+variables = []
+compout = []
+each "i" "item" data (
+  inputs = item.split(" ")
+  cmd = inputs.[1]
+  in1 = inputs.[2]
+  in2 = inputs.[3]
+  comp = ""
+  if "=" in in1 (
+    if variables.contains(cmd) (
+      pos = variables.index(cmd)
+    ) else (
+      variables.append(cmd)
+      pos = variables.len
+    )
+    pos = pos + in2
+    if in1 == "=" (
+      comp = "setv" + pos
+    )
+    if in1 == "+=" (
+      comp = "chav" + pos
+    )
+    if in1 == "-=" (
+      comp = "subv" + pos
+    )
+    if in1 == "*=" (
+      comp = "mulv" + pos
+    )
+    if in1 == "/=" (
+      comp = "divv" + pos
+    )
+    if in1 == "%=" (
+      comp = "modv" + pos
+    )
+  )
+  if cmd == "log" (
+    comp = "prnt" + variables.index(in1)
+  )
+  compout.append(comp)
+)
+prepend = "totv" + variables.len
+compout = prepend.destr + compout
+log variables
+log compout
