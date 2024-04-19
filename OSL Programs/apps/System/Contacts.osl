@@ -1,3 +1,5 @@
+save "contacts" "set_directory"
+
 seticon "c #000 w 10 square 0 0 5 5 w 7 c #222 square -2 0 3 5 w 3 dot 7 4.5 dot 7 0 dot 7 -4.5 c #fff icn accounts 0.5 -2 0"
 
 window "show"
