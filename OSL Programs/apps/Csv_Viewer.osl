@@ -1,0 +1,62 @@
+csv = "
+Username;Identifier;First name;Last name
+booker12;9012;Rachel;Booker
+grey07;2070;Laura;Grey
+johnson81;4081;Craig;Johnson
+jenkins46;9346;Mary;Jenkins
+smith79;5079;Jamie;Smith
+"
+
+table = csv.split(newline).pop()
+each "i" "item" table (
+  table.[i] = item.split(";")
+)
+columns = table.[1].len
+mainloop:
+new = "Array".new(columns)
+loc 2 2 70 -25
+c #333
+button "Add Row" 110 25 10
+if clicked and can (
+  can = false
+  table.append(new)
+)
+loc 2 2 195 -25
+c #333
+button "Add Column" 110 25 10
+if clicked and can (
+  can = false
+  columns ++
+  each "i" "item" table (
+    table.[i] = item.append("")
+  )
+)
+loc 2 2 320 -25
+c #333
+button "Remove Column" 110 25 10
+if columns > 0 and clicked and can (
+  can = false
+  columns --
+  each "i" "item" table (
+    table.[i] = item.pop()
+  )
+)
+loc 2 2 445 -25
+c #333
+button "Remove Row" 110 25 10
+if clicked and can (
+  can = false
+  table.pop()
+)
+c #333
+frame window."left" window."top" - 50 window."right" window."bottom" table.len - 1 * 20
+each "i" "item" table (
+  loc 2 2 20 -20 - ( i - 1 * 20 ) + scroll_y
+  each "i2" "item2" item (
+    text item2.padend(15," ") ++ "|" 10 : c#fff
+  )
+)
+frame "clear"
+
+if mouse_down.not "can = true"
+import "win-buttons"
