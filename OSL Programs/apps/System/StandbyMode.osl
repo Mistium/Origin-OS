@@ -1,5 +1,6 @@
 can = false
 timetemp = null
+window "responsive" true
 mainloop:
 window "dimensions" screensize_x screensize_y
 if mouse_down (
