@@ -1,0 +1,7 @@
+setv time 0
+setv div 31536000000
+setv offset 1970
+getd timestamp time
+divv time div
+chav time offset
+prnt time
