@@ -718,7 +718,7 @@ def "account"
       current_pfp = ""
       say "Failed to load pfp, try a different   website or try again"
     )
-    if current_pfp.imageinfo("loaded") and acc_pfp_button_clicked or clicked (
+    if current_pfp.imageinfo("loaded") and ( acc_pfp_button_clicked or clicked ) (
       network "update" "pfp" current_pfp
       current_pfp = null.str
     )
