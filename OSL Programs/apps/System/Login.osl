@@ -187,7 +187,7 @@ if current_login == "add" (
   if signin_return != "" "c #491515"
   square 320 30 20
   if clicked or "enter".pressed and ( status == "" ) (
-    network "New_Account" input_signup_name input_signup_pass
+    network "new_account" input_signup_name input_signup_pass
     status = "Waiting"
   )
   text "Create Account" 8 : c#fff chx#-150
