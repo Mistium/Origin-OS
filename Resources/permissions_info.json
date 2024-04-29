@@ -4,7 +4,6 @@
   "simulate inputs":     "(Careful) This app wants to use your keyboard",
   "global variables":    "(Careful) This app wants to edit global data",
   "account":             "(Careful) This app wants to edit your account",
-  "javascript":          "(Careful) This allows an app full system access",
   "permission editor":   "(Careful) This app wants to edit permissions",
   "file editor":         "(Careful) This app wants to edit all files",
   "file admin":          "(Careful) Gives full access to the file system",
@@ -12,6 +11,7 @@
   "terminal":            "(Careful) This allows an app full system access",
   "camera":              "(Careful) This app wants to use your camera",
   "screen record":       "(Careful) This app wants to see your screen",
-  "save admin":          "(Careful) This lets the app edit all save data"
-  "kernel":              "(Careful) This gives the app raw system acess"
+  "save admin":          "(Careful) This lets the app edit all save data",
+  "javascript":          "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
+  "kernel":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS"
 }
