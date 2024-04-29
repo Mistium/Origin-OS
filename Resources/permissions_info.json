@@ -13,4 +13,5 @@
   "camera":              "(Careful) This app wants to use your camera",
   "screen record":       "(Careful) This app wants to see your screen",
   "save admin":          "(Careful) This lets the app edit all save data"
+  "kernel":              "(Careful) This gives the app raw system acess"
 }
