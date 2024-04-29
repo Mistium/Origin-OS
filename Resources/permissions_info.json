@@ -4,7 +4,7 @@
   "simulate inputs":     "(Careful) This app wants to use your keyboard",
   "global variables":    "(Careful) This app wants to edit global data",
   "account":             "(Careful) This app wants to edit your account",
-  "javascript":          "(Careful) This app wants to run JavaScript",
+  "javascript":          "(Careful) This allows an app full system access",
   "permission editor":   "(Careful) This app wants to edit permissions",
   "file editor":         "(Careful) This app wants to edit all files",
   "file admin":          "(Careful) Gives full access to the file system",
