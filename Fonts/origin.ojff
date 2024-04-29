@@ -2,7 +2,7 @@
   "0": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5 line 5 5 25 40",
   "1": "line 5 25 15 40 cont 15 5 line 5 5 25 5",
   "2": "line 5 40 25 40 cont 25 30 cont 5 15 cont 5 5 cont 25 5",
-  "3": "cutcircle 15 13 8.5 11.5 120 cutcircle 15 30.5 8.5 6.5 120",
+  "3": "w 3 cutcircle 15 13 8.5 11.5 120 cutcircle 15 30.5 8.5 6.5 120",
   "4": "line 25 20 5 20 cont 5 40 line 25 5 25 40",
   "5": "line 25 40 5 40 cont 5 22 cont 25 22 cont 25 8 cont 20 5 cont 10 5 cont 5 8",
   "6": "line 25 40 5 40 cont 5 5 cont 25 5 cont 25 20 cont 5 25",
