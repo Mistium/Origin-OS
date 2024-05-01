@@ -10,6 +10,7 @@ if exists and save_data.istype("Array") (
 ) else (
   save "segments.txt" "set" seg
 )
+
 save "Dock@System" "set_directory"
 global "segments" seg
 open = 0
@@ -19,9 +20,7 @@ window "hide"
 
 window "y" screensize_y / -2 + 35
 goto dock_x y
-syscount = 0
-loop segments.len (
-  syscount ++
+for "syscount" segments.len (
   import segments.[syscount] "ode" : c#dock_colour chx#15
   goto width / 2 + x + 15 y
 )
