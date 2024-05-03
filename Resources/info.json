@@ -1,8 +1,7 @@
 {
   "server": "wss://cl4.milosantos.com",
   "rooms": [
-    "originOS",
-    "AkameOS"
+    "originOS"
   ],
   "binary_file_types": [
     "PDF",
