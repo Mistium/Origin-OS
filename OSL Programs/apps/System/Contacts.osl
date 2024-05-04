@@ -4,9 +4,9 @@ seticon "c #000 w 10 square 0 0 5 5 w 7 c #222 square -2 0 3 5 w 3 dot 7 4.5 dot
 
 window "show"
 save "contacts.json" "exists"
-if save-data (
+if save_data (
   save "contacts.json" "get"
-  contacts = save-data
+  contacts = save_data
 ) else (
   save "contacts.json" "set" []
   contacts = []
