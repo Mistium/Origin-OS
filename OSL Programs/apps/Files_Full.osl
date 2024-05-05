@@ -10,19 +10,18 @@ input_path = Files_path.destr
 dta = ""
 can = true
 folder_button = ""
-
+selected_files = []
+file_move_id = 0
+file_drag_id = 0
 
 temp = {}
 temp."icon" = ["c","#772d1c","square","0","2","10","4","c","#ff724f","square","-8","6","2","2","line","-5","7","3","0","square","0","-1","10","5","w","8","square","0","-0.5","5","0"]
 temp."title" = username
 temp."url" = user_folder
-if tabs.istype("array").not (
-  tabs = []
-)
+tabs = []
 newtab = {}
 newtab."position" = 1
 newtab."history" = [].append(temp)
-newtab = [].append(newtab)
 tabs.append(newtab)
 current_tab = 1
 
@@ -31,7 +30,19 @@ def "navigate" "path"
   file "start"
 endef
 
-navigate user_folder
+if passed_data == null (
+  navigate user_folder
+) else (
+  navigate passed_data
+)
+
+def "tab_set" "data1,data2"
+  data = tabs.[current_tab]."history"
+  data.[data1] = data2
+  temp = tabs.[current_tab]
+  temp."history" = data
+  tabs.[current_tab] = temp
+endef
 
 def "folder" "txt"
   con = hidden.contains(txt)
@@ -148,7 +159,7 @@ mainloop:
   text "New |" 11 : c#fff
   if clicked and can (
     can = false
-    window "add" "New_File" files_app_path
+    window "add" "New_File" files_path
   )
   change -15 2
   if selected_files.len != 1 (
@@ -219,7 +230,7 @@ mainloop:
       text "Size:" + data + "Bytes" 8.5 : chy#-25
     )
   )
-  file "open" files_app_path ++ ".folder" "onlyaccess"
+  file "open" files_path ++ ".folder" "onlyaccess"
   if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
   file "get" 4
   c c_icon
@@ -230,7 +241,7 @@ mainloop:
     total_width -= 253
     offset += 253
   )
-  positions = tabs.getall("positions")
+  positions = tabs.getall("position")
   width = total_width / tabs.len - 15
   width2 = width + 15
   count = 0
@@ -254,12 +265,13 @@ mainloop:
     icon cur."icon".str 0.8
     if width > 50 (
       change_x 20
+      c c_icon
       text cur."title".str 8 0
     )
     loc 2 2 0 -22.5
     change_x count * width2 - temp - 20
     square 20 20 0 0 1
-    if onclick (
+    if onclick and tabs.len > 1 (
       tabs.delete(count)
       if count > 1 "current_tab --"
     )
@@ -276,7 +288,6 @@ mainloop:
       newtab = {}
       newtab."position" = 1
       newtab."history" = [].append(temp)
-      newtab = [].append(newtab)
       tabs.append(newtab)
       current_tab = tabs.len
     )
@@ -284,15 +295,15 @@ mainloop:
   )
   cur = tabs.[current_tab]
   position = cur."position"
-  files_app_path = cur."history".[position]."url"
-  file "open" files_app_path ++ ".folder" "onlyaccess"
+  files_path = cur."history".[position]."url"
+  file "open" files_path ++ ".folder" "onlyaccess"
+  file "get" 4
+  files = data
   if folder_button != "" (
     loc -2 2 -85 -120
     square 140 20 10 : c#c_seco
     if onclick (
       if folder_button == "Empty Bin" (
-        file "get" 4
-        files = data
         each "i" "item" files (
           file "open" item "onlyaccess"
           file "delete"
@@ -303,6 +314,132 @@ mainloop:
     )
     text folder_button 8 : chx#-65 c#c_icon
   )
-  movefileloc files_app_path
+  file "close"
+  movefileloc files_path
   c c_prim
+  if files_temp != files (
+    files_temp = files
+    folder_button = ""
+    if files_path == ( user_folder ++ "/bin" ) (
+      if files.len > 0 (
+        folder_button = "Empty Bin"
+      )
+    )
+    file "open" files_path ++ ".folder" "onlyaccess"
+    file "get" 12
+    folder_uuid = data
+    file "get" 11
+    tab_set "icon" data
+    file "get" 4
+    files = data
+    files_path.to("title")
+    each "i" "item" files (
+      file "open" item "onlyaccess"
+      file "set" 12 file.str.len
+      file "get" 2
+      if data == "" (
+        files.delete(i)
+      )
+    )
+  )
+  if window_width > 700 "loc 2 2 260 -140" else "loc 2 2 5 -140"
+  temp_x = x_position
+  temp_y = y_position
+  if window_width > 1000 and selected_files != [] "loc -2 -2 -293 30" else "loc -2 -2 -4 32"
+  frame temp_x temp_y x_position y_position files.len
+  rightclick ["New Folder Inside","New File"] [].append(folder_uuid)
+  total_files = files.len
+  if total_files > 0 (
+    count = scroll_y // 45
+    temp = frame_height / 45
+    if count + temp > ( total_files - 1 ) (
+      temp = total_files - count
+    )
+    loop temp (
+      count ++
+      draw_y = 16 + scroll_y - ( count * 45 )
+      loc 999 2 0 draw_y
+      current_file = files.[count]
+      if selected_files.contains(current_file) (
+        c global_accent
+        square frame_width - 20 20 15
+        c c_prim
+        square frame_width - 20 30 10
+      ) else (
+        c c_prim
+        square frame_width - 20 30 15 0 1
+      )
+      if touching_square and ( mouse_down nor file_dropped == 0 ) (
+        file "open" folder_uuid
+        file "get" 4
+        file "set" 4 data.delete(file_dropped).insert(file_dropped,count)
+        file_dropped = 0
+      )
+      if file_drag_id == 0 (
+        rightclick "file" selected_files
+        if onclick and file_move_id == 0 (
+          if "control".pressed (
+            if selected_files.contains(current_file) (
+              selected_files.delete(current_file)
+            ) else (
+              selected_files.append(current_file)
+            )
+          ) else (
+            if "shift".pressed (
+              temp = selected_files.last()
+              temp = files.index(temp)
+              if temp < count (
+                temp ++
+                selected_files = selected_files ++ files.trim(temp,count)
+              ) else (
+                temp --
+                selected_files = selected_files ++ files.trim(count,temp)
+              )
+            ) else (
+              selected_files = [].append(current_file)
+            )
+          )
+        )
+      ) else (
+        if file_drag_id == current_file (
+          if mouse_down nor mouse_touching (
+            file_drag_id = 0
+            if mouse_touching.not (
+              
+            ) else (
+            
+            )
+          )
+        )
+      )
+      loc 2 2 30 draw_y
+      file "open" current_file "onlyaccess"
+      file "render" 1 : c#c_icon
+      file "get" 2
+      data2 = data.str
+      file "get" 1
+      change_x 30
+      c c_icon
+      file "get" 1
+      if data == ".folder" (
+        text data2.str 9
+        loc -2 2 -300 draw_y
+        text "Folder" 9
+        loc -2 2 -100 draw_y
+        file "get" 4
+        text data.len + "Items" 9
+      ) else (
+        text data2.str ++ data.str 9
+        loc -2 2 -300 draw_y
+        data = file_types.[data]
+        if data == null (
+          text "File" 9
+        ) else (
+          text data.[2].str 9 
+        )
+      )
+    )
+  )
+  
+  frame "clear"
   import "win-buttons"
