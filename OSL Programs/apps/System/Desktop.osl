@@ -69,7 +69,7 @@ loop desktop.len (
   file "render" 2 "interactable"
   rightclick "file" desktop.[count]
   file "get" 2
-  data.trim(1,10)
+  data.trim(1,8)
   square data.len * 8 10 10 : c#000 chy#-30
   change_x data.len * -4
   text data 8 : c#fff
