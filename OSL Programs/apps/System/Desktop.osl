@@ -12,11 +12,10 @@ name = null
 window "responsive" true
 mainloop:
 include windowfileloc
-movefileloc windowfileloc
 hovered = window_id_index == window_top_index
 canrun = desktop != data or bg_redrawn
 if canrun nand hovered "exit"
-
+movefileloc windowfileloc
 window "y" 35
 window "dimensions" screensize_x screensize_y - 70
 desktop = data
