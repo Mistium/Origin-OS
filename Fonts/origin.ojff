@@ -74,6 +74,8 @@
   "M": "line 5 5 5 40 cont 15 20 cont 25 40 cont 25 5",
   "n": "line 5 5 5 25 cont 25 25 cont 25 5",
   "N": "line 25 40 25 5 cont 5 40 cont 5 5",
+  "ñ": "line 5 34 10 37 cont 20 31 cont 25 34 line 5 5 5 25 cont 25 25 cont 25 5",
+  "Ñ": "line 5 50 10 53 cont 20 47 cont 25 50 line 25 40 25 5 cont 5 40 cont 5 5"
   "o": "line 5 25 25 25 cont 25 5 cont 5 5 cont 5 25",
   "O": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5",
   "p": "line 5 -10 5 25 cont 25 25 cont 25 5 cont 5 5",
