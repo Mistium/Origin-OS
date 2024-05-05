@@ -4,29 +4,26 @@ windowfileloc = user_folder ++ "/Desktop"
 include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
 file "set" 4 data - null
-
-
 positions = {}
 name = null
-
 window "responsive" true
 mainloop:
 include windowfileloc
-hovered = window_id_index == window_top_index
-canrun = desktop != data or bg_redrawn
-if canrun nand hovered "exit"
+nhvr = window_id_index != window_top_index
+cnrn = desktop != data or bg_redrawn
+if cnrn.not and nhvr "exit"
 movefileloc windowfileloc
 window "y" 35
 window "dimensions" screensize_x screensize_y - 70
 desktop = data
-if hovered (
+if nhvr.not (
   if file_dropped != 0 (
     loc 2 2 0 0
     file "open" file_dropped
-    x = x_position - ( mouse_x - 35 ) * -1
-    y = y_position - ( mouse_y + 35 ) * -1
-    file "set" "6" x.divide(70).round * 70
-    file "set" "7" y.divide(70).round * 70
+    x = x_position - ( mouse_x - 35 ) * -1 / 70
+    y = y_position - ( mouse_y + 35 ) * -1 / 70
+    file "set" "6" x.round * 70
+    file "set" "7" y.round * 70
     file_dropped = 0
   )
   if mouse_down and can (
@@ -74,7 +71,7 @@ loop desktop.len (
   file "get" 7
   change_y data
   square 30 30 0 0 1
-  if mouse_touching or canrun (
+  if mouse_touching or cnrn (
     file "render" 2 "interactable"
     rightclick "file" desktop.[count]
   )
