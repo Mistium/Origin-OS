@@ -5,6 +5,8 @@ include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
 file "set" 4 data - null
 
+
+positions = {}
 name = null
 
 window "responsive" true
@@ -14,6 +16,7 @@ movefileloc windowfileloc
 hovered = window_id_index == window_top_index
 canrun = desktop != data or bg_redrawn
 if canrun nor hovered "exit"
+
 window "y" 35
 window "dimensions" screensize_x screensize_y - 70
 desktop = data
