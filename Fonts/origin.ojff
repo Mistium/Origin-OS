@@ -74,8 +74,6 @@
   "M": "line 5 5 5 40 cont 15 20 cont 25 40 cont 25 5",
   "n": "line 5 5 5 25 cont 25 25 cont 25 5",
   "N": "line 25 40 25 5 cont 5 40 cont 5 5",
-  "ñ": "line 5 34 10 37 cont 20 31 cont 25 34 line 5 5 5 25 cont 25 25 cont 25 5",
-  "Ñ": "line 5 50 10 53 cont 20 47 cont 25 50 line 25 40 25 5 cont 5 40 cont 5 5"
   "o": "line 5 25 25 25 cont 25 5 cont 5 5 cont 5 25",
   "O": "line 5 5 25 5 cont 25 40 cont 5 40 cont 5 5",
   "p": "line 5 -10 5 25 cont 25 25 cont 25 5 cont 5 5",
@@ -120,6 +118,8 @@
   "é": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 line 13 32 18 36",
   "ê": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 line 5 33 15 40 cont 25 33",
   "ë": "line 25 5 5 5 cont 5 25 cont 25 25 cont 25 15 cont 15 15 dot 10 32 dot 20 32",
+  "ñ": "line 5 34 10 37 cont 20 31 cont 25 34 line 5 5 5 25 cont 25 25 cont 25 5",
+  "Ñ": "line 5 50 10 53 cont 20 47 cont 25 50 line 25 40 25 5 cont 5 40 cont 5 5",
   "÷": "line 5 20 25 20 dot 15 25 dot 15 15",
   "π": "line 5 20 25 20 line 10 5 10 20 line 20 20 20 8 cont 25 5",
   "В": "line 22 25 25 30 cont 25 40 cont 5 40 cont 5 5 cont 25 5 cont 25 20 cont 22 25 cont 5 25",
