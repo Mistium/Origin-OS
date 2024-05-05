@@ -55,7 +55,7 @@ if hovered (
   square screensize_x screensize_y 1 0 1
   rightclick "desktop"
 )
-if desktop == [] nor canrun "exit"
+if desktop == [] or canrun.not "exit"
 count = 0
 loop desktop.len (
   count ++
