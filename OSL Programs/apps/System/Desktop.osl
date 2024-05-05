@@ -6,8 +6,8 @@ file "open" windowfileloc ++ ".folder" "onlyaccess"
 file "set" 4 data - null
 
 name = null
-
 window "responsive" true
+
 mainloop:
 include windowfileloc
 movefileloc windowfileloc
@@ -27,8 +27,7 @@ if hovered (
     file "set" "7" y.divide(70).round * 70
     file_dropped = 0
   )
-  if mouse_down and can (
-    can = false
+  if mouse_ondown (
     mouse_start_x = mouse_x
     mouse_start_y = mouse_y
     window "refresh_bg"
@@ -51,17 +50,12 @@ if hovered (
     frame "clear"
     window "dimensions" screensize_x screensize_y - 70
     window "refresh_bg"
-  ) else (
-    if can.not (
-      window "refresh_bg"
-    )
-    can = true
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
   rightclick "desktop"
 )
-if data == [] "exit"
+if desktop == [] nor canrun "exit"
 count = 0
 loop desktop.len (
   count ++
@@ -72,20 +66,11 @@ loop desktop.len (
   file "get" 7
   change_y data
   square 30 30 0 0 1
-  if mouse_touching or canrun (
-    file "render" 2 "interactable"
-    rightclick "file" desktop.[count]
-  )
-  if mouse_touching (
-    file "get" 2
-    square data.len * 8 10 10 : c#000 chy#-30
-    change_x data.len * -4
-    text data 8 : c#fff
-    name = data
-  ) else (
-    if name == data (
-      window "refresh_bg"
-      name = null
-    )
-  )
+  file "render" 2 "interactable"
+  rightclick "file" desktop.[count]
+  file "get" 2
+  data.trim(1,10)
+  square data.len * 8 10 10 : c#000 chy#-30
+  change_x data.len * -4
+  text data 8 : c#fff
 )
