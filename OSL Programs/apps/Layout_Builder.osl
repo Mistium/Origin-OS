@@ -116,7 +116,7 @@ if current_element != "" and frame_focused (
     if current_element == "box" (
       new_element = new_element + 80 + 40 + 20 + #fff
     )
-    current_layout = current_layout + new_element
+    current_layout.append(new_element)
     current_element = ""
   )
 )
