@@ -676,19 +676,19 @@ def "Appearance"
     page_len = count * 60 - 20
   )
   if subcategory == "mouse" (
-    loc 2 2 20 -20
+    loc 2 2 10 -20
     text "Scroll Wheel Speed" 9 : c#fff
-    loc 2 2 100 -60
+    loc 2 2 110 -60
     c #222
     terminal "get scrollspeed"
     toggle_invert = data.[1] == "-"
     slider_scrollsp = data
-    slider 180 10 10 "scrollsp"
-    loc 2 2 20 -110
+    slider 180 10 "scrollsp" 10
+    loc 2 2 10 -110
     text "Invert Scroll Direction" 9 : c#fff
     change_x 30
-    toggle "invert" 30 30 : c#333
-    terminal "system scrollspeed" + slider_scrollsp * toggle_invert.int * -1
+    toggle "invert" 20 : c#333
+    terminal "system scrollspeed" + slider_scrollsp * toggle_invert.int
   )
   frame "clear"
 endef
