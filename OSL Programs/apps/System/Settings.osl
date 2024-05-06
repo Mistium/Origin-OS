@@ -391,6 +391,7 @@ def "Appearance"
     option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
     option "Colours" "w 3 c #fff cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
     option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
+    option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
   )
   if subcategory == "Background" (
     loc 2 2 15 -30 + scroll_y
@@ -673,6 +674,20 @@ def "Appearance"
       text "<ftv.[2]> (<ftkeys.[count]>)" 10 : chx#30
     )
     page_len = count * 60 - 20
+  )
+  if subcategory == "mouse" (
+    loc 2 2 20 -20
+    text "Scroll Wheel Speed" 9 : c#fff
+    loc 2 2 100 -20
+    c #222
+    terminal "get scrollspeed"
+    toggle_invert = data.[1] == "-"
+    slider_scrollsp = data
+    slider 180 10 10 "scrollsp"
+    text "Invert Scroll Direction" 9 : c#fff
+    change_x 30
+    toggle "invert" 30 30 : c#333
+    terminal "system scrollspeed" + slider_scrollsp * toggle_invert.int * -1
   )
   frame "clear"
 endef
