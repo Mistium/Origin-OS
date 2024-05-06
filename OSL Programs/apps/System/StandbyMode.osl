@@ -3,6 +3,7 @@ timetemp = null
 window "responsive" true
 exit_txt = "Click to exit"
 p = second - 1
+window "maximise"
 mainloop:
 window "dimensions" screensize_x screensize_y
 if mouse_down (
@@ -13,16 +14,17 @@ if mouse_down (
   if can == "exit" (
     window "stop"
   ) else (
-  	can = true
-	)
+    can = true
+  )
 )
-if second == p "exit"
-square window_width window_height 10 : c#000
-p = second
-time = hour ++ ":" ++ minute ++ ":" ++ second
-goto time.len * -20 0
-c #aaa
-text time 40
-goto exit_txt.len * -5 -100
-c #777
-text exit_txt 10
+if second != p (
+  square window_width window_height 10 : c#000
+  p = second
+  time = hour ++ ":" ++ minute ++ ":" ++ second
+  goto time.len * -20 0
+  c #aaa
+  text time 40
+  goto exit_txt.len * -5 -100
+  c #777
+  text exit_txt 10
+)
