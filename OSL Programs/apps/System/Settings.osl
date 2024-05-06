@@ -566,8 +566,7 @@ def "Appearance"
       )
       loc -2 2 -120 -30
       square 200 20 15 0 1
-      if clicked and can (
-        can = false
+      if onclick (
         network "update" "accent" accent_select
       )
       c #222
@@ -702,11 +701,25 @@ def "Appearance"
     change_x 30
     toggle "invert" 20 : c#333
     if toggle_invert (
-      temp = 1
+      temp = slider_scrollsp
     ) else (
-      temp = -1
+      temp = slider_scrollsp * -1
     )
-    terminal "system scrollspeed" + ( slider_scrollsp * temp )
+    terminal "system scrollspeed" + temp
+    if temp != user."scrollspeed" (
+      loc -2 2 -120 -140
+      square 200 20 15 0 1
+      if onclick (
+        network "update" "scrollspeed" temp
+      )
+      c #222
+      if mouse_touching and clicked.not (
+        square 200 25 12
+      ) else (
+        square 200 25 10
+      )
+      text "Sync With Network" 9 : c#fff chx#-95
+    )
   )
   frame "clear"
 endef
