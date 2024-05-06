@@ -1,3 +1,4 @@
+permission "request" "account"
 window_y = screensize_y * -1.2
 window "dimensions" screensize_x screensize_y
 
@@ -9,24 +10,24 @@ def "openapp" "name"
 endef
 
 def "find_sizes"
-  use1 = usage.[1] / 1000
+  use1 = usage.[1].int / 1000
   unit = "kb"
   if use1 > 1000 (
     unit = "mb"
-    use1 = use1.[1] / 1000
+    use1 = use1.int / 1000
     if use1 > 1000 (
       unit = "gb"
-      use1 = use1.[1] / 1000
+      use1 = use1.int / 1000
     )
   )
-  use2 = usage.[2] / 1000000
+  use2 = usage.[2].int / 1000000
   unit2 = "mb"
   if use2 > 1000 (
     unit2 = "gb"
-    use2 = usage.[2] / 1000
+    use2 = use2.int / 1000
   )
-  use1.round
-  use2.round
+  use1 = ( use1 * 10 ).round / 10
+  use2 = ( use2 * 10 ).round / 10
 endef
 
 target_y = 0
@@ -37,8 +38,11 @@ use1 = "none"
 mainloop:
 
 if new_network_data (
-  usage = network_data
-  new_network_data = false
+  if network_data_command == "my_files_usage" (
+    usage = network_data
+    log usage
+    new_network_data = false
+  )
 )
 
 window_y += target_y - window_y / 5
@@ -120,7 +124,7 @@ if mouse_touching (
 image "https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=banner2" 320
 
 network "get" "https://api.github.com/repos/Mistium/Origin-OS"
-repo_data = data
+repo_data = data.str
 goto -180 -10
 square 320 100 10 : c#333
 if mouse_touching (
