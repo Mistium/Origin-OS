@@ -678,17 +678,35 @@ def "Appearance"
   if subcategory == "mouse" (
     loc 2 2 10 -20
     text "Scroll Wheel Speed" 9 : c#fff
-    loc 2 2 110 -60
-    c #222
     terminal "get scrollspeed"
-    toggle_invert = data.[1] == "-"
-    slider_scrollsp = data
-    slider 180 10 "scrollsp" 10
-    loc 2 2 10 -110
+    toggle_invert = data.[1] != "-"
+    slider_scrollsp = data.abs.clamp(-10,10)
+    if slider_scrollsp.abs < 1 (
+      if slider_scrollsp > 0 (
+        slider_scrollsp = 1
+      ) else (
+        slider_scrollsp = -1
+      )
+    )
+    loc 2 2 10 -90
+    text "Scrolling " ++ ( ( slider_scrollsp * 10 ).round / 10 ) ++ "x speed" 9 : c#fff
+    slider_scrollsp --
+    slider_scrollsp /= 9
+    c #222
+    loc 999 2 0 -60
+    slider frame_width - 30 20 "scrollsp" 10
+    slider_scrollsp *= 9
+    slider_scrollsp ++
+    loc 2 2 10 -140
     text "Invert Scroll Direction" 9 : c#fff
     change_x 30
     toggle "invert" 20 : c#333
-    terminal "system scrollspeed" + slider_scrollsp * toggle_invert.int
+    if toggle_invert (
+      temp = 1
+    ) else (
+      temp = -1
+    )
+    terminal "system scrollspeed" + ( slider_scrollsp * temp )
   )
   frame "clear"
 endef
