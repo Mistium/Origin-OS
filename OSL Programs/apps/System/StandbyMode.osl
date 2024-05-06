@@ -1,6 +1,8 @@
 can = false
 timetemp = null
 window "responsive" true
+exit_txt = "Click to exit"
+p = second - 1
 mainloop:
 window "dimensions" screensize_x screensize_y
 if mouse_down (
@@ -10,15 +12,17 @@ if mouse_down (
 ) else (
   if can == "exit" (
     window "stop"
-  )
-  can = true
+  ) else (
+  	can = true
+	)
 )
+if second == p "exit"
 square window_width window_height 10 : c#000
+p = second
 time = hour ++ ":" ++ minute ++ ":" ++ second
 goto time.len * -20 0
 c #aaa
 text time 40
-exit_txt = "Click to exit"
 goto exit_txt.len * -5 -100
 c #777
 text exit_txt 10
