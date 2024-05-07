@@ -1,5 +1,7 @@
 // Developer: @Mistium
 // Description: This app shows quick info about your device
+permission "request" "account"
+permission "request" "terminal"
 settings_open = false
 can = false
 window "front"
@@ -17,95 +19,62 @@ last_check = timer
 
 mainloop:
 
-bg_colour = user."dock_colour"
-icn_colour = user."icon_colour"
-
 direction 90
-if new_network_data (
-  if network_data_command == "my_files_usage" (
-    used = network_data
-    use1 = used.[1] / 1000
-    unit = "kb"
-    if use1 > 1000 (
-      unit = "mb"
-      use1 /= 1000
-      if use1 > 1000 (
-        unit = "gb"
-        use1 /= 1000
-      )
-    )
-    use2 = used.[2] / 1000
-    unit2 = "kb"
-    if use2 > 1000 (
-      unit2 = "mb"
-      use2 /= 1000
-      if use2 > 1000 (
-        unit2 = "gb"
-        use2 /= 1000
-      )
-    )
-    use1.round
-    use2.round
+
+if timer - last_check_2 > 0.5 (
+  terminal "get filechanges"
+  changes = data.len
+  last_check_2 = timer
+  if timer - last_check > 300 (
+    network "my_files_usage"
+    last_check = timer
   )
-  network_data_command = null
-  new_network_data = false
+  bg_colour = user."dock_colour"
+  icn_colour = user."icon_colour"
+  if new_network_data (
+    if network_data_command == "my_files_usage" (
+      used = network_data
+      use1 = used.[1] / 1000
+      unit = "kb"
+      if use1 > 1000 (
+        unit = "mb"
+        use1 /= 1000
+        if use1 > 1000 (
+          unit = "gb"
+          use1 /= 1000
+        )
+      )
+      use2 = used.[2] / 1000
+      unit2 = "kb"
+      if use2 > 1000 (
+        unit2 = "mb"
+        use2 /= 1000
+        if use2 > 1000 (
+          unit2 = "gb"
+          use2 /= 1000
+        )
+      )
+      use1.round
+      use2.round
+    )
+    network_data_command = null
+    new_network_data = false
+  )
+)
+
+if changes == 0 (
+  last_sync_text = "Files are synced"
+) else (
+  if changes == 1 (
+    last_sync_text = "1 action"
+  ) else (
+    last_sync_text = "<changes> actions"
+  )
 )
 
 window_x += window_target_x - window_x / 10
 window "x" screensize_x / 2 + window_x
 window "y" screensize_y / 2 - 160
-
-loc 999 2 0 -25
-square 170 30 20 0 1
-if bg_redrawn or mouse_touching (
-  if clicked and can (
-    settings_cha = true
-    can = false
-  )
-  if mouse_down.not (
-    if settings_cha (
-      if mouse_touching "settings_open = settings_open.not"
-      settings_cha = false
-      if settings_open.not (
-        window "refresh_bg"
-      )
-    )
-  )
-  loc 999 2 0 -25
-  square 170 30 20 : c#bg_colour
-
-  loc -2 2 -25 -25
-  c icn_colour
-  if settings_open (
-    icon "w 4 line 10 5 0 -5 cont -10 5" 0.7
-  ) else (
-    icon "w 4 line 10 -5 0 5 cont -10 -5" 0.7
-  )
-  image user_icon.str 25 : chx#-46
-  icon "sun" 0.8 : chx#-46
-  c icn_colour
-  icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-46
-  if network."connected".not (
-    icon "w 3 line 10 10 -10 -10" 0.8
-  )
-)
-
-if timer - last_check > 300 (
-  network "my_files_usage"
-  last_check = timer
-)
-
-terminal "get filechanges"
-data.len
-if data == 0 (
-  last_sync_text = "Files are synced"
-) else (
-  if data == 1 (
-    last_sync_text = "1 action"
-  ) else (
-    last_sync_text = "<data> actions"
-  )
-)
 
 loc 999 2 0 -83
 square 170 30 20 0 1
@@ -127,62 +96,95 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   )
 )
 
-loc 999 999 0 0
-square 170 window_height 20 0 1
-if bg_redrawn or mouse_touching and settings_open (
-  loc 999 2 0 -203
-  square 170 155 20 : c#bg_colour
+goto 0 0
+square 170 280 20 0 1
+if bg_redrawn or mouse_touching (
+  loc 999 2 0 -25
+  square 170 30 20 0 1
+  if bg_redrawn or mouse_touching (
+    if onclick (
+      settings_cha = true
+    )
+    if mouse_down.not (
+      if settings_cha (
+        if mouse_touching "settings_open = settings_open.not"
+        settings_cha = false
+        if settings_open.not (
+          window "refresh_bg"
+        )
+      )
+    )
+    loc 999 2 0 -25
+    square 170 30 20 : c#bg_colour
 
-  loc 999 2 0 -170
-  terminal "system display get brightness"
-  slider_brightness = data - 10 / 90
-  slider 130 0 "brightness" 32 : c#bg_colour chy#20
-  terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
-
-  c bg_colour
-  icon "w 25 dot" 1 : chx#-65
-  icon "sun" 0.6 : c#icn_colour
-  change 65 -45
-
-  terminal "system sound get volume"
-  slider_volume = data / 100
-  slider 130 0 "volume" 32 : c#bg_colour
-  terminal "system sound set volume" + ( slider_volume * 100 )
-
-  c bg_colour
-  icon "w 25 dot" 1 : chx#-65
-  icon "volume-max" 0.7 : c#icn_colour
-
-  loc 2 2 30 -237.5
-  square 0 0 25 0 1
-  if clicked and can (
-    can = false
-    window "add" "StandbyMode"
+    loc -2 2 -25 -25
+    c icn_colour
+    if settings_open (
+      icon "w 4 line 10 5 0 -5 cont -10 5" 0.7
+    ) else (
+      icon "w 4 line 10 -5 0 5 cont -10 -5" 0.7
+    )
+    image user_icon.str 25 : chx#-46
+    icon "sun" 0.8 : chx#-46
+    c icn_colour
+    icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : chx#-46
+    if network."connected".not (
+      icon "w 3 line 10 10 -10 -10" 0.8
+    )
   )
-  icon "Moon" 0.7 : c#icn_colour
 
-  change_x 34.4
-  terminal "flags performance_mode get"
-  if data "c global_accent" else "c bg_colour"
-  square 0 0 25 : hover_size#1.05
-  if clicked and can (
-    can = false
-    terminal "flags performance_mode set" + data.not
+  if settings_open (
+    loc 999 2 0 -203
+    square 170 155 20 : c#bg_colour
+
+    loc 999 2 0 -170
+    terminal "system display get brightness"
+    slider_brightness = data - 10 / 90
+    slider 130 0 "brightness" 32 : c#bg_colour chy#20
+    terminal "system display set brightness" + ( slider_brightness * 90 + 10 )
+
+    c bg_colour
+    icon "w 25 dot" 1 : chx#-65
+    icon "sun" 0.6 : c#icn_colour
+    change 65 -45
+
+    terminal "system sound get volume"
+    slider_volume = data / 100
+    slider 130 0 "volume" 32 : c#bg_colour
+    terminal "system sound set volume" + ( slider_volume * 100 )
+
+    c bg_colour
+    icon "w 25 dot" 1 : chx#-65
+    icon "volume-max" 0.7 : c#icn_colour
+
+    loc 2 2 30 -237.5
+    square 0 0 25 0 1
+    if onclick (
+      window "add" "StandbyMode"
+    )
+    icon "Moon" 0.7 : c#icn_colour
+
+    change_x 34.4
+    terminal "flags performance_mode get"
+    if data "c global_accent" else "c bg_colour"
+    square 0 0 25 : hover_size#1.05
+    if onclick (
+      terminal "flags performance_mode set" + data.not
+    )
+    icon "w 2.5 cutcircle 0 0 10 0 135 line 0 0 4 -4 line 0 8 0 7 line 6 6 5 5 line -6 6 -5 5 line -8 0 -7 0 line 8 0 7 0 line -7 -7 -5 -5" 0.7 : c#icn_colour
+
+    change_x 34.4
+    terminal "flags nightmode get"
+    if data "c global_accent" else "c bg_colour"
+    square 0 0 25 : hover_size#1.05
+    if onclick (
+      terminal "flags nightmode set" + data.not
+    )
+    icon "sun" 0.7 : c#icn_colour
+
+    date = day + day_number + month.trim(1,3)
+    loc 999 2 date.len + 0.5 * -4 -277
+    text date 8
   )
-  icon "w 2.5 cutcircle 0 0 10 0 135 line 0 0 4 -4 line 0 8 0 7 line 6 6 5 5 line -6 6 -5 5 line -8 0 -7 0 line 8 0 7 0 line -7 -7 -5 -5" 0.7 : c#icn_colour
-
-  change_x 34.4
-  terminal "flags nightmode get"
-  if data "c global_accent" else "c bg_colour"
-  square 0 0 25 : hover_size#1.05
-  if clicked and can (
-    can = false
-    terminal "flags nightmode set" + data.not
-  )
-  icon "sun" 0.7 : c#icn_colour
-
-  date = day + day_number + month.trim(1,3)
-  loc 999 2 date.len + 0.5 * -4 -277
-  text date 8
 )
 if mouse_down.not "can = true"
