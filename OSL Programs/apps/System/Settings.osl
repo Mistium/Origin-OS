@@ -245,8 +245,9 @@ def "system"
     )
     loc 2 2 20 -100 + scroll_y
     text "Click here to pick an osl file" 9
-    if onclick (
+    if clicked and can (
       file "pick" "osl"
+      can = false
     )
     count = 0
     loop boot_apps.len (
