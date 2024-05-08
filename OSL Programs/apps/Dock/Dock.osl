@@ -61,7 +61,7 @@ if data != datasave (
   dock_y_target = 0
   left = data.contains(" 1,0 ") or data.contains(" 1,-1 ")
   right = data.contains(" -1,0 ") or data.contains(" -1,-1 ")
-  if ( left and right ) or data.contains(" 0,0 ") (
+  if left and right or data.contains(" 0,0 ") (
     dock_x_target = dock_width / -2
     dock_y_target = -100
   ) else (
@@ -87,8 +87,7 @@ if y > -80 (
     import segments.[syscount] "ode" : c#dock_colour chx#15
     goto width / 2 + x + 15 y
   )
-  dock_width = x_position - dock_x
-  dock_width.round
+  dock_width = ( x_position - dock_x ).round
 )
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
