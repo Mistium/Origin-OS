@@ -61,10 +61,8 @@ if nhvr.not (
   rightclick "desktop"
 )
 if data == [] "exit"
-count = 0
-loop desktop.len (
-  count ++
-  file "open" desktop.[count] "onlyaccess"
+each "count" "app_id" desktop.len (
+  file "open" app_id "onlyaccess"
   loc 2 2 35 -35
   file "get" 6
   change_x data
@@ -73,7 +71,7 @@ loop desktop.len (
   square 30 30 0 0 1
   if mouse_touching or cnrn (
     file "render" 2 "interactable"
-    rightclick "file" desktop.[count]
+    rightclick "file" app_id
   )
   file "get" 2
   if mouse_touching (
