@@ -61,7 +61,7 @@ if nhvr.not (
   rightclick "desktop"
 )
 if data == [] "exit"
-each "count" "app_id" desktop.len (
+each "i" "app_id" desktop (
   file "open" app_id "onlyaccess"
   loc 2 2 35 -35
   file "get" 6
