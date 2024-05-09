@@ -1,5 +1,7 @@
 // Developer: @Mistium
 // Description: This application lets you view and edit your accounts
+// This app is not in use at all
+
 
 permission "request" "account_manager"
 
