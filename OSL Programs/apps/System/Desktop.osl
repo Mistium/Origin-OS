@@ -20,10 +20,8 @@ if nhvr.not (
   if file_dropped != 0 (
     loc 2 2 0 0
     file "open" file_dropped
-    x = x_position - ( mouse_x - 35 ) * -1 / 70
-    y = y_position - ( mouse_y + 35 ) * -1 / 70
-    file "set" "6" x.round * 70
-    file "set" "7" y.round * 70
+    file "set" "6" ( x_position - ( mouse_x - 35 ) * -1 / 70 ).round * 70
+    file "set" "7" ( y_position - ( mouse_y + 35 ) * -1 / 70 ).round * 70
     file_dropped = 0
   )
   if mouse_down and can (
