@@ -1,0 +1,47 @@
+window "dimensions" 350 240
+window "resizable" False
+window "show"
+file "open" passed_data
+input_main = null
+input_replace = null
+mainloop:
+loc 999 2 0 -63
+square 330 30 10 : c#222
+input 330 23 "main" "Find Value"
+loc 999 2 0 -113
+square 330 30 10 : c#222
+if onclick (
+  file "get" 4
+  data.str
+  temp = input_main.destr
+  say "Found" + data.str.count(temp)
+)
+change_x -35
+text "Find All" 8 : c#fff
+loc 999 2 0 -163
+square 330 30 10 : c#222
+input 330 23 "replace" "Replace With"
+loc 999 2 0 -213
+square 330 30 10 : c#222
+if onclick or "enter".onpress (
+  file "get" 4
+  data.str
+  temp = input_main.destr
+  temp2 = input_replace.destr
+  say "Replaced" + data.str.count(temp)
+  data.replace(temp,temp2)
+  transmit data parent
+)
+change_x -30
+text "Replace" 8 : c#fff
+if mouse_down.not "canclick = True"
+loc 999 2 0 -15
+square 350 20 15 : c#333
+loc -2 2 -15 -15
+icon "close" 0.6 : c#fff
+if clicked (
+  window "stop"
+)
+loc 2 2 15 -15
+file "render" 1
+text "Find And Replace" 9 : chx#20 c#fff
