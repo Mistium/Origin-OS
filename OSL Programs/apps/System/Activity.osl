@@ -160,7 +160,7 @@ if current_tab == "Network" (
   count = scroll_y.divide(40).round
   y = scroll_y - 20 + ( count * -40 )
   length = data.len
-  loop frame_height.divide(40).ceiling.clamp(1,length) (
+  loop ( frame_height / 40 ).ceiling.clamp(1,length) (
     count ++
     loc 999 2 0 y
     square frame_width - 20 25 10 1 : c#111 hover_c#222
