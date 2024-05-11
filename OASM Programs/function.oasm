@@ -1,0 +1,20 @@
+setv line 0
+setv 2 2
+setv msg hi
+labl myfunction
+prnt msg
+jmpv line
+
+// other code can go here
+
+getd "line" line
+chav line 2
+jump line
+
+getd "line" line
+chav line 2
+jump myfunction
+
+getd "line" line
+chav line 2
+jump myfunction
