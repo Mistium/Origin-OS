@@ -20,7 +20,7 @@
     "no-entry":"w 20§c #900812 dot 0 0 w 3 c #fff square 0 0 5 1",
     "prohibited":"c #900812 w 3 cutcircle 0 0 10 0 180 line -7 7 7 -7",
     "zzz":"w 3§line 3 10 10 10§cont 3 0§cont 10 0§w 2§line -4 3 0 3§cont -4 -5§cont 0 -5§w 1.5§line -10 -5 -7 -5§cont -10 -10§cont -7 -10",
-    "splash":"c #459edb w 10 dot 5 5 w 7 dot -6 -6 w 5 dot 7 -7 w 3 line 4.5 8.5 -3 7 cont 2.5 2.5 line -4.2 -5.1 -8 cont -8 -6 w 2 line 7.68 -5.7 4 -4 cont 5.7 -7.8",
+    "splash":"c #459edb w 10 dot 5 5 w 7 dot -6 -6 w 5 dot 7 -7 w 3 line 4.5 8.5 -3 7 cont 2.5 2.5 line -4.2 -5.1 -8 0 cont -8 -6 w 2 line 7.68 -5.7 4 -4 cont 5.7 -7.8",
     "star-of-david":"w 2 line 0 10 10 -5 cont -10 -5 cont 0 10 line 0 -10 10 5 cont -10 5 cont 0 -10",
     "latin-cross":"w 3 line 0 10 0 -10 line -7 3 7 3",
     "peace-symbol":"w 3 line 0 10 0 -10 cutcircle 0 0 10 0 180 line 7 -7 0 0 cont -7 -7",
