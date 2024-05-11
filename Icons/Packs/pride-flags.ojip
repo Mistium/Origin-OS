@@ -5,7 +5,7 @@
     "author": "Mist",
     "version": 1
   },
-  "icons": {
+  "data": {
     "bisexual-flag": "w 4 c #D60270 line -10 8 10 8 line -10 4 10 4 c #9B4F96 line -10 0 10 0 c #0038A8 line -10 -4 10 -4 line -10 -8 10 -8",
     "trans-flag": "w 4 c #55CDFC line -10 8 10 8 line -10 -8 10 -8 c #F7A8B8 line -10 4 10 4 line -10 -4 10 -4 c #fff line -10 0 10 0",
     "nonbinary-flag": "w 6 c #FCF434 line -10 8 10 8 c #fff line -10 3 10 3 c #9C59D1 line -10 -3 10 -3 c #2C2C2C line -10 -8 10 -8",
