@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "name": "flufi pack",
+    "format": ".icn",
+    "author": "Flufi",
+    "version": 1
+  },
+  "data": {
+    "pgm":"w 3 cutcircle 0 0 9 0 100 w 3cutcircle 0 0 8 90 50 w 7 dot 0 0",
+    "pcs":"c #873fcf w 6  square 0 -2 5 6  square -2 3 3 5  w 3  c #592a89 line 2 9.5 6.5 5 cont 2 5  cont 2 9.5  c #592a89 w 1.4  line 1.75 0.5 5.25 -3  cont 1.75 -6.5  line -1.75 0.5 -5.25 -3  cont -1.75 -6.5",
+    "plist":"c #0062ff w 4 line -2 8 5 8 line -2 0 5 0 line -2 -8 5 -8 c #0041a8 line -3 8 -8 0 line 3 0 -8 0 line -3 -8 -8 0 w 6 c #6500a8 dot 5 8 dot 5 0 dot 5 -8",
+    "pprj":"c #0062ff w 3 line -2.5 -8 -5 -8 cont -7 0 cont -10 0 cont -7 0 cont -5 8 cont -2.5 8 line 2.5 -8 5 -8 cont 7 0 cont 10 0 cont 7 0 cont 5 8 cont 2.5 8",
+    "ptheme":"w 5 c #4675d4 square 3 8 8 .1 c #7aa7ff square 3 -2 7.75 4 line -4 -2 10 -2",
+    "pcs-interpreter":"c #873fcf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #592a89 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #592a89 w 1.5 cutcircle 0 -4 5 0 100 w 1.5 cutcircle 0 -4 4.5 90 50 w 3.5 dot 0 -4",
+    "psl+":"c #00378f square 0 0 10 10 w 10 square 0 0 5 5 c #5c9bff w 2.5 line -7 -7 -7 8 cont -1 8 cont -1 2 cont -7 2 line 3 3 3 -7 line -2 -2 8 -2",
+    "pinfo":"w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0 0 dot 0 -5",
+    "pwarning":"w 5 c #ffa600 line -8 -8 0 8 cont 8 -8 cont -8 -8 w 11 dot 0 -2 w 5 c #000 line 0 5 0 0 dot 0 -6",
+    "perror":"c #ff2a00 w 3 line -3 8 3 8 cont 8 3 cont 8 -3 cont 3 -8 cont -3 -8 cont -8 -3 cont -8 3 cont -3 8 w 17 dot 0 0 c #000 w 4 dot 0 -6 line 0 6 0 0",
+    "plang":"c #0041a8 w 6 square 0 0 7 7 w 8 square 0 0 4 4 w 2 c #0062ff line -3 -2 -3 -6 cont -1 -6 line 2 -6 2 -2 cont 6 -6 cont 6 -2 line -6 -6 -6 6 cont -1 6 cont -1 1 cont -6 1",
+    "pdoc":"c #fef5d2 w 3 square 0 0 5 7 w 9 line 0 -3 0 3 c #0f0f0f w 2.5 dot -4 3 dot -4 -1 dot -4 -5 line -3 6.5 3 6.5 line -1 3 2 3 line -1 -1 0 -1 line -1 -5 4 -5",
+    "pfiles":"c #0062b8 w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #004785 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 c #002e57 line -6 -9 -6 9 cont -1.5 9 cont -1.5 4.5 cont -6 4.5 line -2 -6 -2 1 cont 0 1 line -3 -2 0 -2 line 3 1 3 -6 cont 6 -6",
+    "pdm":"c #050505 w 3 square 0 -.5 10 9 w 8 square 0 -.5 6 6 dot 0 0 c #171717 w 3 square 0 8 10 1 c #ffffff dot -8 2 dot -8 -2 dot -8 -6 line -4 2 5 2 line -4 -2 1 -2 line -4 -6 3 -6"
+  }
+}
