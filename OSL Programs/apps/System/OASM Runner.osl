@@ -3,6 +3,6 @@ data.split(newline)
 
 say "Look at js console for result"
 oasm "compile" data
-start = timestamp
+start = performance
 oasm data
-log newline ++ "Finished Execution:" ++ newline ++ data.join(newline) ++ newline ++ "Completed in" + ( timestamp - start ) ++ "ms"
+log newline ++ "Finished Execution:" ++ newline ++ data.join(newline) ++ newline ++ "Completed in" + ( performance - start ) ++ "ms"
