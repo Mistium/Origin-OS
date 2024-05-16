@@ -1,9 +1,0 @@
-file "open" passed_data
-data.split(newline)
-
-say "Look at js console for result"
-otas "transpile" data
-oasm "compile" data
-start = performance
-oasm data
-log newline ++ "Finished OTAS Execution:" ++ newline ++ data.join(newline) ++ newline ++ "Completed in" + ( performance - start ) ++ "ms"
