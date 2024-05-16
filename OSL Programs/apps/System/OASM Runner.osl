@@ -1,5 +1,8 @@
 file "open" passed_data
 data.split(newline)
+if file.[1] == "otas" (
+  otas "transpile" data
+)
 
 say "Look at js console for result"
 oasm "compile" data
