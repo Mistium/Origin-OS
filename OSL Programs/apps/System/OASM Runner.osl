@@ -1,6 +1,6 @@
 file "open" passed_data
 data.split(newline)
-if file.[1] == "otas" (
+if file.[1] == ".otas" (
   otas "transpile" data
 )
 
