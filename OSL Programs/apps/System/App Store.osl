@@ -61,7 +61,7 @@ if page == "APPSTORE// store" (
     )
     icon icons.[cur] 1.5
     loc 2 2 60 y
-    text cur.to("title") 10 : c#fff
+    text cur.toTitle() 10 : c#fff
   )
   len = apps.len - 0.5 * 70
 )
@@ -83,7 +83,7 @@ app_page = page.contains("APPSTORE// ").not
 if app_page (
   network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ page.to("url") ++ "/info.json"
   current_app = data
-  cur = current_app."title".to("lower")
+  cur = current_app."title".toLower()
   desc = current_app."description"
   desc.str
   txt = "-" ++ newline
@@ -99,7 +99,7 @@ if app_page (
   loc 2 2 60 -60
   icon icons.[cur].str 3
   loc 2 2 140 -50
-  text cur.to("title") 10 : c#fff
+  text cur.toTitle() 10 : c#fff
   loc 2 2 140 -80
   text "By" + current_app."author" 9
   loc 2 2 20 -160
