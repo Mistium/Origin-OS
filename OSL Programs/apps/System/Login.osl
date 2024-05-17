@@ -74,7 +74,7 @@ text "<day> <day_number> <month>" 10
 
 count = 0
 loop accounts.len (
-  count += 1
+  count ++
   current = accounts.[count]
   loc 2 -2 50 50
   change_x count - 1 * 70
