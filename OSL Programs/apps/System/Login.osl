@@ -77,7 +77,7 @@ loop accounts.len (
   count += 1
   current = accounts.[count]
   loc 2 -2 50 50
-  change_x count - 1 * 70s
+  change_x count - 1 * 70
   c current."accent"
   square 50 50 15
   c #000
