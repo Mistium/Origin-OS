@@ -67,13 +67,6 @@ if accounts == "" (
   exit
 )
 
-loc -2 2 -150 -70
-square 240 100 10 : c#000
-loc -2 2 -250 -65
-text "<hour>:<minute>" 30 : c#fff
-loc -2 2 -250 -100
-text "<day> <day_number> <month>" 10
-
 count = 0
 loop accounts.len (
   count ++
