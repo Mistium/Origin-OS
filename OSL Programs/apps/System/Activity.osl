@@ -91,11 +91,17 @@ if activity_info (
   text "Lower is faster" 8
   exit
 )
+if timer - last_timer > next_update and paused.not (
+  last_timer = timer
+  dt = delta_time
+  terminal "-get.windows"
+  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
+)
 wwm = window_width - 50 / 100
 whm = window_height / 300
 usage = fps / 250
 graph.append(usage)
-if graph.len > 100 "graph = graph.delete(1)"
+if graph.len > 100 graph.delete(1)"
 import "side-bar"
 frames = fps.round
 if high < frames "high = frames"
@@ -112,13 +118,12 @@ loc 2 2 23 - ( low.len * 5 ) -120
 text low 10
 loc 2 2 13.5 -140
 text "low" 7
-delta = delta_time.multiply(1000).round
+delta = ( delta_time * 1000 ).round
 loc 2 2 23 - ( delta.len * 5 ) -170
 text delta 10
 loc 2 2 16 -190
 text "ms" 7
 if memory (
-  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
   loc 2 2 23 - ( ram_use.len * 5 ) -220
   text ram_use 10
   loc 2 2 13.5 -240
@@ -138,7 +143,7 @@ if paused "c global_accent" else "c #333"
 square 25 25 10
 if clicked and can (
   can = false
-  paused = paused.not
+  paused.not
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
 c #fff
@@ -153,8 +158,12 @@ if current_tab == "Network" (
   x = x_position
   y = y_position
   loc -2 -2 0 0
-  terminal "get packetlist"
-  data.trim(1,100)
+  if timer - last_timer > next_update and paused.not (
+    last_timer = timer
+    dt = delta_time
+    terminal "get packetlist"
+    packets = data.trim(1,100)
+  )
   c #333
   frame x y x_position y_position data.len * 40 - 20
   count = scroll_y.divide(40).round
@@ -164,7 +173,7 @@ if current_tab == "Network" (
     count ++
     loc 999 2 0 y
     square frame_width - 20 25 10 1 : c#111 hover_c#222
-    cur = data.[count].destr
+    cur = packets.[count].destr
     loc 2 2 30 y
     payload = cur."payload".str
     width = window_width - 400 // 7
@@ -190,11 +199,6 @@ if current_tab == "Render Info" (
   x = x_position
   y = y_position
   loc -2 -2 0 0
-  if timer - last_timer > next_update and paused.not (
-    last_timer = timer
-    dt = delta_time
-    terminal "-get.windows"
-  )
   c #333
   frame x y x_position y_position windows-names.len * 40
   y = scroll_y - 20
