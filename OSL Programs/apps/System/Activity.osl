@@ -135,10 +135,10 @@ loc 2 2 455 -20
 tab "Disk"
 loc 2 -2 25 25
 if paused "c global_accent" else "c #333"
-square 25 25 10
+square 25 25 10 : tooltip#Pause
 if clicked and can (
   can = false
-  paused = paused.not
+  paused.not
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
 c #fff
