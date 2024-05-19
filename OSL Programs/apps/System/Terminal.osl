@@ -17,10 +17,8 @@ permission "request" "terminal"
 mainloop:
 
 if new_network_data (
-  from = "Recieved Message From > " + network_data_from
-  terminal.append(from)
-  terminal.append(network_data)
-  terminal.append()
+  msg = network_data_from + "> " + network_data
+  terminal.append(msg)
   new_network_data = false
 )
 
