@@ -15,6 +15,14 @@ input_1 = null
 permission "request" "terminal"
 mainloop:
 
+if new_network_data (
+  from = "Recieved Message From > " + network_data_from
+  terminal.append(from)
+  terminal.append(network_data)
+  terminal.append()
+  new_network_data = false
+)
+
 loops = terminal.len
 c #222
 frame window_width / -2 window_height / 2 - 40 window_width / 2 window_height / -2 loops + 1 * 30
