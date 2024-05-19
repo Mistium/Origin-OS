@@ -6,6 +6,7 @@ def "clearall"
   terminal = []
 endef
 
+network "set_app_id" "terminal@system"
 window "set_dragbox" [[2,2,0,0],[-2,2,-100,-30]]
 
 user_start = username ++ "/: "
