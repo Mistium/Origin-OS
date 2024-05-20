@@ -28,7 +28,7 @@ next_update = 0.5
 pen "width" 10
 high = 0
 low = 250
-graph = "array".new(100)
+graph = 100.newArray()
 mainloop:
 loc -2 2 -20 -20
 square 25 25 10 : c#222
