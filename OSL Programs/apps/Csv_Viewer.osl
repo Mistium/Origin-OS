@@ -53,7 +53,7 @@ frame window."left" window."top" - 50 window."right" window."bottom" table.len -
 each "i" "item" table (
   loc 2 2 20 -20 - ( i - 1 * 20 ) + scroll_y
   each "i2" "item2" item (
-    text item2.padend(15," ") ++ "|" 10 : c#fff
+    text item2.padEnd(15," ") ++ "|" 10 : c#fff
   )
 )
 frame "clear"
