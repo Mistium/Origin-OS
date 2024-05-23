@@ -46,7 +46,7 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 @liahws_the_rat - "Cmon do the thug shaker, I know you can do it"
 
-@rattusdong - "originOS very good, it allows my deepest desires to be realised"
+@rattusdong - "I want death to *come* for me"
 
 ## Repo Tracker
 
