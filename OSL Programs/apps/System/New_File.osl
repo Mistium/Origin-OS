@@ -20,7 +20,7 @@ text "New in /" ++ location_spl.[len] 9 : c#fff
 loc 999 2 0 -63
 square 250 30 10 : c#222
 input 250 23 "name" "Example: 'file.txt'"
-temp = input_name.matchRegex("/[^.]+\.[^.]+/gm")
+temp = input_name.matchregex("/[^.]+\.[^.]+/gm")
 if temp "c #333" else "c #222"
 loc 999 2 0 -113
 square 250 30 10
