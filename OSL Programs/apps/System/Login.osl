@@ -5,8 +5,8 @@ wrong = 1234567890.to("md5")
 paged = null
 window "hide"
 current_login = 1
-network_accounts = "Array".new(0)
-network_data = "Array".new(0)
+network_accounts = []
+network_data = []
 
 new_network_data = false
 login_return = ""
