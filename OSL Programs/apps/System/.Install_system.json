@@ -238,5 +238,11 @@
     "path": "Origin/(A) System/Modules",
     "name": "Character_Controller.osl",
     "icon": ""
+  },
+  {
+    "url": "https://github.com/Mistium/Origin-OS/blob/main/Modules/Window_Tools.osl",
+    "path": "Origin/(A) System/Modules",
+    "name": "Window_Tools.osl",
+    "icon": ""
   }
 ]
