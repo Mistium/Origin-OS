@@ -240,7 +240,7 @@
     "icon": ""
   },
   {
-    "url": "https://github.com/Mistium/Origin-OS/blob/main/Modules/Window_Tools.osl",
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Modules/Window_Tools.osl",
     "path": "Origin/(A) System/Modules",
     "name": "Window_Tools.osl",
     "icon": ""
