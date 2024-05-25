@@ -1,0 +1,11 @@
+base = {"op":2,"d":"","s":null,"t":null}
+
+def "login"
+  disc_ws = "wss://gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
+  temp = base
+  d = {"op":2,"d":{"token":"","intents": 513, "properties":{"$os":"TurboWarp","$browser":"TurboWarp","$device":"TurboWarp"},"presence":{"status":"TurboWarp","afk":false}},"s":null,"t":null}."d"
+  d."token" =
+
+  temp."d" = d
+  disc_ws.wsSend("")
+endef
