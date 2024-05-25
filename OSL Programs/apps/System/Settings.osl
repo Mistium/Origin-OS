@@ -810,7 +810,7 @@ endef
 def "credits"
   if contributors == "none" (
     network "getsync" "https://api.github.com/repos/Mistium/Origin-OS/contributors"
-    contributors = data.replace(newline,)
+    contributors = data.replace(newline,"")
     c_names = contributors.destr.getall("login")
     c_imgs = contributors.destr.getall("avatar_url")
   )
