@@ -808,11 +808,6 @@ def "updates"
 endef
 
 def "credits"
-  if contributors == "none" (
-    contributors = [{"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},{"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},{"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},{"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},{"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},{"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},{"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},{"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},{"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}]
-    c_names = contributors.destr.getall("login")
-    c_imgs = contributors.destr.getall("avatar_url")
-  )
   page_len = 290
   w = frame_width / 2 - 40
   loc 4 2 2.5 -120 + scroll_y
@@ -889,7 +884,9 @@ current = file.[4]
 files = []
 file_data = ""
 total_files = 0
-contributors = "none"
+contributors = [{"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},{"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},{"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},{"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},{"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},{"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},{"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},{"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},{"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}]
+c_names = contributors.destr.getall("login")
+c_imgs = contributors.destr.getall("avatar_url")
 
 window "dimensions" 880 500
 dock_location = dock_location
