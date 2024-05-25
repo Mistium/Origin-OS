@@ -933,7 +933,7 @@ loc 2 2 230 -25
 if subcategory == "none" "text category 10 : c#fff"
 if subcategory != "none" (
   square 20 20 10 : c#555 hover_c#666 chx#10
-  icon left-arrow 0.6 : c#fff
+  icon "left-arrow" 0.6 : c#fff
   if clicked "subcategory = "none""
   change_x 20
   text subcategory 10
