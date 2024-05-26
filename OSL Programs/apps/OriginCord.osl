@@ -112,7 +112,7 @@ def "draw_chat" "cur_msgs"
     msg = cur_msgs.[count]
     loc 999 2 0 y
     if msg.[4] (
-      square frame_width 20 10 : #625228
+      square frame_width 20 10 : c#625228
     ) else (
       square frame_width 20 10 0 1
     )
