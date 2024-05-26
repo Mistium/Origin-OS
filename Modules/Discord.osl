@@ -1,5 +1,5 @@
 base = {"op":2,"d":"","s":null,"t":null}
-d = {"token":"","intents":513,"properties":{"$os":"TurboWarp","$browser":"TurboWarp","$device":"TurboWarp"}}
+d = {"token":"","intents":513,"properties":{"$os":"originOS","$browser":"originOS","$device":"originOS"}}
 logged_in = false
 messages = []
 window "responsive" true
