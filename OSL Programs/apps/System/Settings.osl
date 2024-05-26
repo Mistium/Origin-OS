@@ -406,19 +406,25 @@ def "Appearance"
       can = false
       square 25 25 12 : c#444
       current_wallpaper = clipboard.str
+      try = true
+      started_loading = timer
     )
     icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
     current_wallpaper.str
-    if wallpapers.contains(current_wallpaper).not (
+    if wallpapers.contains(current_wallpaper).not and try (
       if current_wallpaper.imageinfo("loaded") (
-        wallpapers = wallpapers + current_wallpaper
+        wallpapers.append(current_wallpaper)
         save "wallpapers.json" "set" wallpapers
         current_wallpaper = ""
+        try = false
       )
-      if current_wallpaper == clipboard.str (
-        image current_wallpaper 0 0
-        text "Trying" 10 : c#fff chx#20
-        image current_wallpaper 10
+      if started_loading - 10 > timer (
+        say "Failed to load bg, try a different    website or try again"
+        try = false
+      )
+      image current_wallpaper 0 0
+      text "Trying" 10 : c#fff chx#20
+      image current_wallpaper 10
       )
     )
     wallpaper_data = "Wallpapers:" + wallpapers.len
@@ -887,6 +893,7 @@ total_files = 0
 contributors = [{"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},{"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},{"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},{"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},{"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},{"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},{"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},{"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},{"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}]
 c_names = contributors.destr.getall("login")
 c_imgs = contributors.destr.getall("avatar_url")
+try = false
 
 window "dimensions" 880 500
 dock_location = dock_location
