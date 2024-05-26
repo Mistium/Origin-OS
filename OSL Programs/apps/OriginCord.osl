@@ -51,7 +51,7 @@ originCord_icn = "c #5865f2 w 20 dot 0 0 c #fff w 3 line 3 2 5 -2 cont 3 -3 cont
 seticon originCord_icn
 permission "request" "notifications"
 
-save "discord@mistium" "set_directory"
+save "originCord@mistium" "set_directory"
 save "token.txt" "exists"
 if save_data (
   save "token.txt" "get"
