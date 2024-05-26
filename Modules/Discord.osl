@@ -1,11 +1,21 @@
 base = {"op":2,"d":"","s":null,"t":null}
+d = {"token":"","intents":513,"properties":{"$os":"TurboWarp","$browser":"TurboWarp","$device":"TurboWarp"}}
 
-def "login"
-  disc_ws = "wss://gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
+def "login" "token"
+  disc_ws = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
   temp = base
-  d = {"op":2,"d":{"token":"","intents": 513, "properties":{"$os":"TurboWarp","$browser":"TurboWarp","$device":"TurboWarp"},"presence":{"status":"TurboWarp","afk":false}},"s":null,"t":null}."d"
-  d."token" =
+  status = "online"
+  d."token" = token.destr
+  temp."d" = d.JsonClean()
+  disc_ws.wsSend(temp)
+  heartbeat_msg = {"op":1,"d":null}
+  last_heartbeat = timer
+endef
 
-  temp."d" = d
-  disc_ws.wsSend("")
+def "heartbeat"
+  log "heartbeat"
+  if last_heartbeat < timer (
+    last_heartbeat = timer + 41.25
+    disc_ws.wsSend(heartbeat_msg)
+  )
 endef
