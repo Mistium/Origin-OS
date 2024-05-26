@@ -1,21 +1,44 @@
 base = {"op":2,"d":"","s":null,"t":null}
 d = {"token":"","intents":513,"properties":{"$os":"TurboWarp","$browser":"TurboWarp","$device":"TurboWarp"}}
+logged_in = false
+messages = []
+window "responsive" true
+
+def "connect"
+  discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
+  log "connected"
+endef
 
 def "login" "token"
-  disc_ws = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
   temp = base
   status = "online"
-  d."token" = token.destr
-  temp."d" = d.JsonClean()
-  disc_ws.wsSend(temp)
+  dat = d
+  dat."token" = token.destr
+  temp."d" = dat
+  discord.wsSend(temp)
   heartbeat_msg = {"op":1,"d":null}
-  last_heartbeat = timer
+  last_heartbeat = timer + 41.25
 endef
 
 def "heartbeat"
-  log "heartbeat"
   if last_heartbeat < timer (
     last_heartbeat = timer + 41.25
     disc_ws.wsSend(heartbeat_msg)
   )
+endef
+
+def "get_data"
+  cmd = msg."t"
+endef
+
+def "get_content"
+  data = msg."d"."content"
+endef
+
+def "sent_by"
+  data = msg."d"."author"
+endef
+
+def "send_message" "content, channel"
+  log ( "https://proxy.milosantos.com/turbowarpbot/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content ).get()
 endef
