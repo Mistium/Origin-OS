@@ -52,6 +52,10 @@ seticon originCord_icn
 permission "request" "notifications"
 
 save "originCord@mistium" "set_directory"
+if save_data == "Failed (Permissions)" (
+  say "OriginCord cannot load without save admin"
+  permission "request" "save admin"
+)
 save "token.txt" "exists"
 if save_data (
   save "token.txt" "get"
