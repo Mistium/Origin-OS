@@ -9,8 +9,6 @@ properties."$device" = system_os.destr
 d = {"token":"","intents":513}
 d."properties" = properties
 
-logged_in = false
-messages = []
 window "responsive" true
 // make the window run even when unfocused
 
