@@ -1,0 +1,247 @@
+base = {"op":2,"d":"","s":null,"t":null}
+// base packet
+
+properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
+properties."$browser" = system_browser.destr
+properties."$device" = system_os.destr
+// get system properties
+
+d = {"token":"","intents":513}
+d."properties" = properties
+
+window "responsive" true
+// make the window run even when unfocused
+
+def "connect"
+  discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
+  log "connected"
+endef
+
+def "login" "token"
+  temp = base
+  status = "online"
+  dat = d
+  dat."token" = token.destr
+  temp."d" = dat
+  discord.wsSend(temp)
+  heartbeat_msg = {"op":1,"d":null}
+  last_heartbeat = timer + 41.25
+endef
+
+def "heartbeat"
+  if last_heartbeat < timer (
+    last_heartbeat = timer + 41.25
+    discord.wsSend(heartbeat_msg)
+  )
+endef
+
+def "send_message" "content, channel"
+  if ( "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content ).get()
+endef
+
+def "dm_user" "content, user_id"
+  channel = ( "https://origin.milosantos.com/discord/createdm.php?recipient_id=" ++ user_id ++ "&token=" ++ token ).get()
+  send_message content channel
+endef
+
+import "window_tools"
+
+originCord_icn = "c #5865f2 w 20 dot 0 0 c #fff w 3 line 3 2 5 -2 cont 3 -3 cont 2 -2 cont -2 -2 cont -3 -3 cont -5 -2 cont -3 2.5 cont -2 2.5 cont -1 1.7 cont 1 1.7 cont 2 2.5 cont 3 2.5 w 4.5 line -2 0 2 0 c #5865f2 w 2.5 dot 2 -1 dot -2 -1"
+
+seticon originCord_icn
+permission "request" "notifications"
+
+save "discord@mistium" "set_directory"
+save "token.txt" "exists"
+if save_data (
+  save "token.txt" "get"
+  token_in = save_data.str
+) else (
+  token_in = "Enter A Discord Bot Token".ask
+  if token_in != "" (
+    save "token.txt" "set" token_in.str
+  ) else (
+    window "stop"
+  )
+)
+connect
+wait 1
+login token_in
+messages = {}
+
+def "async_msg" "content, channel"
+  link = "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content.str
+  network "getsync" link
+endef
+
+def "draw_channels"
+  c #333
+  frame window."left" window."top" - 40 window."left" + 300 window."bottom" + 50 channels.len - 0.5 * 40
+  count = scroll_y // 40
+  loop window_height // 40 (
+    count ++
+    y = count - 0.5 * -40 + scroll_y
+    channel = channels.[count]
+    loc 999 2 0 y
+    if channel == current_channel "c #333" else "c #222"
+    square 270 25 10
+    if clicked (
+      current_channel = channel
+      ping_channels.[count] = 0
+    )
+    loc 2 2 20 y
+    if ping_channels.[count] > 0 (
+      change_x 10
+      icon "c #de0a26 w 10 dot 0 0 c #fff w 2 line 0 3 0 0 dot 0 -3" 2
+      change_x 10
+    )
+    text channel."name" 10 : c#fff
+  )
+  frame "clear"
+endef
+
+def "draw_chat" "cur_msgs"
+  img_display = ""
+  c #333
+  len = cur_msgs.len
+  frame window."left" + 300 window."top" - 40 window."right" window."bottom" + 40 len * 40 "chat"
+  count = scroll_ychat // 40
+  y = scroll_ychat - 20
+  loop ( window_height // 40 ).clamp(0,len) (
+    count ++
+    msg = cur_msgs.[count]
+    loc 999 2 0 y
+    if msg.[4] (
+      square frame_width 20 10 : #625228
+    ) else (
+      square frame_width 20 10 0 1
+    )
+    hover = mouse_touching
+    loc 2 2 20 y
+    author = msg."author"
+    image msg.[3] 30 30
+    change_x 20
+    text msg.[1].str + ">" + msg.[2].str 10 : c#fff
+    if msg.[5] != [] (
+      text "(hover to view attachment)" 7 : c#aaa
+      if hover (
+        img_display = msg.[5].[1]."url"
+      )
+    )
+    y -= 40
+  )
+  frame "clear"
+endef
+
+mainloop:
+heartbeat
+
+if discord.wsHasnew() (
+  msg = discord.wsGetnext()
+  cmd = msg."t"
+  if cmd == "ready" (
+    discord_user = msg."d"."user"
+    discord_id = discord_user."id"
+    discord_pfp = "https://cdn.discordapp.com/avatars/" ++ discord_id ++ "/" ++ discord_user."avatar" ++ ".png"
+    discord_username = discord_user."username"
+  )
+  if cmd == "GUILD_CREATE" (
+    channels = msg."d"."channels"
+    out_channels = []
+    categories = {}
+    ping_channels = []
+    loop channels.len (
+      out_channels.append("")
+      ping_channels.append(0)
+    )
+    each "i" "channel" channels (
+      type = channel."type"
+      position = channel."position"
+      out_channels.[position] = channel.JsonClean()
+    )
+    channels = out_channels
+  )
+  if cmd == "MESSAGE_CREATE" (
+    channel = msg."d"."channel_id"
+    msg_cha = messages.[channel]
+    if msg_cha.istype("Array").not (
+      messages.[channel] = []
+      msg_cha = []
+    )
+    temp = msg."d"
+    message = []
+    name = temp."author"."username"
+    content = temp."content"
+    author = temp."author"
+    attachments = temp."attachments"
+    if attachments.len > 0 (
+      out = []
+      each "i" "attachment" attachments (
+        if attachment."content_type" == "image/png" (
+          out.append(attachment)
+        )
+      )
+      attachments = out
+    )
+    ping = false
+    pings = content.regex("/<@\d+>/gm")
+    if pings.len > 0 (
+      my_ping = "<@" ++ discord_id ++ ">"
+      each "i" "ping" pings (
+        if ping == my_ping (
+          ping_loc = channels.getall("id").index(channel)
+          notify originCord_icn "You got pinged by" + author."username" "in" + channels.[ping_loc]."name"
+          ping_repl = "@" ++ discord_username
+          content.replace(my_ping,ping_repl)
+          ping_channels.[ping_loc] += 1
+          ping = true
+        )
+      )
+    )
+    pfp = "https://cdn.discordapp.com/avatars/" ++ author."id" ++ "/" ++ author."avatar" ++ ".png"
+    message.append(name)
+    message.append(content)
+    message.append(pfp)
+    message.append(ping)
+    message.append(attachments)
+    messages.[channel] = msg_cha.append(message)
+  )
+)
+loc 999 2 0 -20
+square window_width 30 10 : c#333
+loc 2 2 20 -20
+icon originCord_icn 1
+change_x 20
+text "originCord" 10 : c#fff
+draw_channels
+channel_id = current_channel."id"
+draw_chat messages.[channel_id]
+loc 2 -2 150 25
+square 280 30 10 : c#222
+change_x -120
+image discord_pfp 30 30
+change_x 20
+text discord_username 9 : c#fff
+if img_display != "" (
+  goto 0 0
+  w = img_display.imageinfo("width")
+  h = img_display.imageinfo("height")
+  temp = window_width - 50 / w * 70
+  temp2 = window_height - 50 / h * 70
+  if temp2 > temp (
+    stretch [].append(temp).append(temp)
+  ) else (
+    stretch [].append(temp2).append(temp2)
+  )
+  image img_display.str
+)
+w = window_width - 320
+loc 999 -2 150 25
+c #222
+square w 30 10
+input w 30 "message"
+import "win-buttons"
+if "enter".pressed and input_message != "" (
+  async_msg input_message.to("url") channel_id
+  input_message = ""
+)
