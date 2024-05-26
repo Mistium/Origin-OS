@@ -45,8 +45,8 @@ endef
 
 def "sent_by"
   data = msg."d"."author"
-  username = data."username"
-  user_id = data."id"
+  sent_from = data."username"
+  sent_id = data."id"
 endef
 
 def "send_message" "content, channel"
