@@ -40,7 +40,8 @@ def "get_data"
 endef
 
 def "get_content"
-  data = msg."d"."content"
+  content = msg."d"."content"
+  channel = msg."d"."channel_id"
 endef
 
 def "sent_by"
