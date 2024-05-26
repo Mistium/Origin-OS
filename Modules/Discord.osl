@@ -51,5 +51,5 @@ def "sent_by"
 endef
 
 def "send_message" "content, channel"
-  log ( "https://proxy.milosantos.com/turbowarpbot/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content ).get()
+  log ( "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content ).get()
 endef
