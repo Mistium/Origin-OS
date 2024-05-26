@@ -178,5 +178,6 @@
   "◻": "square 15 15 13 13",
   "◽": "square 15 15 10 10",
   "☮": "cutcircle 15 15 15 0 180 line 15 5 15 25 line 21 9 15 15 cont 9 9",
-  "ɐ": "line 0 25 25 25 cont 25 10 cont 20 5 cont 5 5 cont 5 25"
+  "ɐ": "line 0 25 25 25 cont 25 10 cont 20 5 cont 5 5 cont 5 25",
+  "😭": "c #fbba08 w 20 dot 0 0 w 3 c #3d8ef4 line 3 3 3 -8 line -3 3 -3 -8 c #000 dot -3 3 dot 3 3 w 4 dot 0 -3"
 }
