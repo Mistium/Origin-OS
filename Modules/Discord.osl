@@ -2,8 +2,8 @@ base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
-properties."$browser" = system_browser
-properties."$device" = system_os
+properties."$browser" = system_browser.destr
+properties."$device" = system_os.destr
 // get system properties
 
 d = {"token":"","intents":513}
