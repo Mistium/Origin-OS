@@ -1,8 +1,18 @@
 base = {"op":2,"d":"","s":null,"t":null}
-d = {"token":"","intents":513,"properties":{"$os":"originOS","$browser":"originOS","$device":"originOS"}}
+// base packet
+
+properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
+properties."$browser" = system_browser
+properties."$device" = system_os
+// get system properties
+
+d = {"token":"","intents":513}
+d."properties" = properties
+
 logged_in = false
 messages = []
 window "responsive" true
+// make the window run even when unfocused
 
 def "connect"
   discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
@@ -23,7 +33,7 @@ endef
 def "heartbeat"
   if last_heartbeat < timer (
     last_heartbeat = timer + 41.25
-    disc_ws.wsSend(heartbeat_msg)
+    discord.wsSend(heartbeat_msg)
   )
 endef
 
