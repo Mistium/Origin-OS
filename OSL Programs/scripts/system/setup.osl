@@ -32,5 +32,3 @@ file "install_type" "gif" graphics_icn "Gif Video" ["Previewer"]
 
 file "install_type" "cfg" icon_cfg "Config"
 file "install_type" "log" icon_log "Debug logs"
-
-permission "request" "start run"
