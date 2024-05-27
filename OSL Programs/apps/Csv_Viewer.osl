@@ -1,19 +1,21 @@
-csv = "
-Username;Identifier;First name;Last name
-booker12;9012;Rachel;Booker
-grey07;2070;Laura;Grey
-johnson81;4081;Craig;Johnson
-jenkins46;9346;Mary;Jenkins
-smith79;5079;Jamie;Smith
-"
+def "load_csv" "csv"
+  table = csv.split(newline).pop()
+  each "i" "item" table (
+    table.[i] = item.split(",")
+  )
+  columns = table.[1].len
+endef
 
-table = csv.split(newline).pop()
-each "i" "item" table (
-  table.[i] = item.split(";")
-)
-columns = table.[1].len
 mainloop:
-new = "Array".new(columns)
+if file_dropped != 0 (
+  file "open" file_dropped "onlyaccess"
+  file "get" 1
+  if data == ".csv" (
+    file "get" 4
+    load_csv data
+  )
+)
+new = columns.newArray()
 loc 2 2 70 -25
 c #333
 button "Add Row" 110 25 10
