@@ -909,7 +909,7 @@ if wallpapers.len < 1 or wallpapers.istype("array").not (
     "\"https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg\"",
     "\"https://images.pexels.com/photos/7919/pexels-photo.jpg\"",
     "\"https://images.unsplash.com/photo-1697048851717-81d7cbee7ed2\"",
-    "\"https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg\"",
+    "\"https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg\""
   ]
   save "wallpapers.json" "set" wallpapers
 )
