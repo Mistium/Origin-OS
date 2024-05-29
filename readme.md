@@ -15,8 +15,8 @@ The Most Advanced Gui Based ScratchOS<br>
 
 Current Kernel Info:
 ```
-Name     -   Flow
-Version  -   0.8.1
+Name     -   Rift
+Version  -   0.9.5
 ```
 
 # [Try origin here](https://launcher.mistium.com)
