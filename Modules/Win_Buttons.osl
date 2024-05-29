@@ -1,23 +1,17 @@
 window "show"
 direction 90
-c #444
-loc -2 2 -20 -20
-square 15 15 10
-change_x -29
-square 15 15 10
-change_x -29
-square 15 15 10
-change_x 58
-c #fff
-icon "close" 0.6 : hover_size#1.1
+loc -2 2 -45 -20
+square 70 17 10 : c#444
+change_x 25
+icon "close" 0.6 : c#fff hover_size#1.1
 if clicked (
 window "stop"
 )
-icon "down" 0.6 : chx#-29 hover_size#1.1
+icon "down" 0.6 : chx#-25 hover_size#1.1
 if clicked (
 window "minimise"
 )
-icon "maximise" 0.6 : chx#-29 hover_size#1.1
+icon "maximise" 0.6 : chx#-25 hover_size#1.1
 if clicked (
 window "maximise"
 )
