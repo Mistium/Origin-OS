@@ -146,7 +146,7 @@ if app_page (
   square 150 30 15 : c#global_accent
   square 150 30 10 : c#333 hover_c#444
   if onclick (
-    if installed (
+    if installed and version == install_version (
       file "open" app_path "onlyaccess"
       file "start"
       file "close"
@@ -161,19 +161,26 @@ if app_page (
   c #fff
   change_x -60
   if installed (
-    if version < 
-    icon "reload" 0.7
-    text "Update" 9 : chx#20
+    if version < install_version (
+      icon "reload" 0.7
+      text "Update" 9 : chx#20
+    ) else (
+      icon "play" 0.7
+      text "Open" 9 : chx#20
+    )
     loc -2 2 -90 -85
     square 150 30 15 : c#global_accent
     square 150 30 10 : c#333 hover_c#444
     if onclick (
-      file "open" user_folder ++ "/applications/"
+      terminal "app uninstall" + cur
+      say cur + "Has been installed to /Applications"
+      save "installed.json" "get"
+      save "installed.json" "set" save_data.delete(cur,version)
     )
     change_x -60
     c #fff
-    icon "play" 0.7
-    text "Open" 9 : chx#20
+    icon "Bin" 0.7
+    text "Uninstall" 9 : chx#20
   ) else (
     icon "download" 0.7
     text "Install" 9 : chx#20
