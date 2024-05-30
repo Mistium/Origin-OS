@@ -292,5 +292,12 @@
     "name": "Window_Tools.osl",
     "icon": "",
     "version":"1"
+  },
+  {
+    "url": "https://origin.mistium.com/OSL%20Programs/scripts/system/global_var_setup.osl",
+    "path": "Origin/(A) System/Kernel And Setup",
+    "name": "setup_global_variables.osl",
+    "icon": "",
+    "version":"1"
   }
 ]
