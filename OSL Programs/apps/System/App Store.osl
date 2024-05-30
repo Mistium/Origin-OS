@@ -121,7 +121,8 @@ if app_page (
     app_path = user_folder ++ "/applications/" ++ cur ++ ".osl"
     file "exists" app_path
     installed = save_data.contains(cur) and exists
-    install_version = save_data.[cur]
+    install_version = save_data.[cur].int
+    log install_version
   )
   desc = current_app."description".str
   version = current_app."version"
@@ -152,30 +153,31 @@ if app_page (
       file "close"
     ) else (
       terminal "app install" + cur
-      say cur + "Has been installed to /Applications"
       save "installed.json" "get"
-      save "installed.json" "set" save_data.insert(cur,version)
+      save "installed.json" "set" save_data.insert(cur,install_version)
+      say cur + "Has been installed to /Applications"
+      installed = true
     )
-    installed = true
   )
   c #fff
   change_x -60
   if installed (
-    if version < install_version (
-      icon "reload" 0.7
-      text "Update" 9 : chx#20
-    ) else (
+    if version == install_version (
       icon "play" 0.7
       text "Open" 9 : chx#20
+    ) else (
+      icon "reload" 0.7
+      text "Update" 9 : chx#20
     )
     loc -2 2 -90 -85
     square 150 30 15 : c#global_accent
     square 150 30 10 : c#333 hover_c#444
     if onclick (
       terminal "app uninstall" + cur
-      say cur + "Has been installed to /Applications"
       save "installed.json" "get"
       save "installed.json" "set" save_data.delete(cur,version)
+      say cur + "Has been uninstalled"
+      installed = false
     )
     change_x -60
     c #fff
