@@ -4,7 +4,7 @@ window "resizable" false
 mainloop:
 loc 999 2 0 -15
 square 270 20 15 : c#333
-c #fff
+c #fff
 loc -2 2 -15 -15
 icon "close" 0.6 : hover_size#1.1 hover_cursor#pointer
 if clicked (
