@@ -6,10 +6,11 @@ def "inform" "data"
 endef
 
 gpt "new_bot" "assistant"
-inform "You are the originOS assistant keep your responses under 56 characters per line"
-inform "the time is" + timestamp.timestamp("convert-full")
-inform "the user's name is" + username
-inform "origin's current version is" + origin."version"
+inform "You are the originOS assistant"
+inform "Keep your responses under 56 characters of text no matter what"
+inform "The time is" + timestamp.timestamp("convert-full")
+inform "The user's name is" + username
+inform "Origin's current version is" + origin."version"
 
 selected_input = "search"
 
@@ -29,6 +30,7 @@ settings_pages = [
   "Appearance/Background",
   "Appearance/Dock",
   "Appearance/Colours",
+  "Appearance/Mouse",
   "Account",
   "Time",
   "Privacy",
