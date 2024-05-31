@@ -51,7 +51,12 @@ def "sent_by"
 endef
 
 def "send_message" "content, channel"
-  if ( "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content ).get()
+  link = "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content.str
+  if origin."version" < 501 (
+    network "get" link
+  ) else (
+    network "getasync" link
+  )
 endef
 
 def "dm_user" "content, user_id"
