@@ -8,13 +8,16 @@ properties."$device" = system_os.destr
 
 d = {"token":"","intents":513}
 d."properties" = properties
+messages = {}
+channels = []
+guilds = []
 
 window "responsive" true
 // make the window run even when unfocused
 
 def "connect"
   discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
-  log "connected"
+  wait 0.6
 endef
 
 def "login" "token"
@@ -62,4 +65,48 @@ endef
 def "dm_user" "content, user_id"
   channel = ( "https://origin.milosantos.com/discord/createdm.php?recipient_id=" ++ user_id ++ "&token=" ++ token ).get()
   send_message content channel
+endef
+
+def "discord_getpfp"
+  data = "https://cdn.discordapp.com/avatars/" ++ author."id" ++ "/" ++ author."avatar" ++ ".png"
+endef
+
+def "discord_getmessages"
+  if discord.wsHasnew() (
+    msg = discord.wsGetnext()
+    cmd = msg."t"
+    msg = msg."d"
+    if cmd == "ready" (
+      discord_user = msg."d"."user"
+      discord_id = discord_user."id"
+      discord_pfp = "https://cdn.discordapp.com/avatars/" ++ discord_id ++ "/" ++ discord_user."avatar" ++ ".png"
+      discord_username = discord_user."username"
+    )
+    if cmd == "GUILD_CREATE" (
+      guild = msg."d"
+      channels = guild."channels"
+      out_channels = []
+      categories = {}
+      ping_channels = []
+      loop channels.len (
+        out_channels.append("")
+      )
+      each "i" "channel" channels (
+        position = channel."position"
+        out_channels.[position] = channel.JsonClean()
+      )
+      channels = out_channels
+      name = guild."name"
+      icon = "https://cdn.discordapp.com/icons/" ++ guild."id" ++ "/" ++ guild."icon" ++ ".png?size=96"
+      temp = []
+      temp.append(name)
+      temp.append(icon)
+      temp.append(channels)
+      guilds.append(temp)
+    )
+    if cmd == "MESSAGE_CREATE" (
+      channel = msg."channel"
+      messages.[channel] =  messages.[channel].append(msg)
+    )
+  )
 endef
