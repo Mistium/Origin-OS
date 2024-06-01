@@ -2,8 +2,8 @@
   "manifest": {
     "name": "pride-flags",
     "format": ".icn",
-    "author": "Mist",
-    "version": 1
+    "author": "Mist,Flufi",
+    "version": 2
   },
   "data": {
     "bisexual-flag": "w 2.5 c #D60270 square 0 8 10 .9 square 0 4 10 .9 c #9B4F96 square 0 0 10 .9 c #0038A8 square 0 -4 10 .9 square 0 -8 10 .9",
