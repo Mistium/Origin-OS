@@ -1,3 +1,6 @@
+permission "request" "terminal"
+save_limit = "Scratch.vm.runtime.frameLoop.framerate".eval
+terminal "system runtime fps_limit 10"
 can = false
 timetemp = null
 window "responsive" true
@@ -12,6 +15,7 @@ if mouse_down (
   )
 ) else (
   if can == "exit" (
+    terminal "system runtime fps_limit ".append(save_limit)
     window "stop"
   ) else (
     can = true
