@@ -27,6 +27,7 @@ def "login" "token"
   dat."token" = token.destr
   temp."d" = dat
   discord.wsSend(temp)
+  temp = ""
   heartbeat_msg = {"op":1,"d":null}
   last_heartbeat = timer + 41.25
 endef
