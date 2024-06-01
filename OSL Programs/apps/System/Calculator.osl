@@ -5,21 +5,39 @@ operation = ""
 current = null
 secondary = null
 
-def "draw" "x,y,x2,y2,character"
-  loc x y x2 + 15 y2 + 55
-  if operation.str == character "c #f79204" else "c #333"
-  square 50 50 10 1
-  if mouse_down.not "can = True"
+save "calculator@system" "set_directory"
+
+colours = {
+  "buttons":"#111",
+  "buttons_hover":"#333",
+  "operators":"#f79204",
+  "operators_hover":"#f7ae43",
+  "background":"#050505",
+  "top_bar":"#111",
+  "calc_area":"#222",
+  "remove_hover":"#444",
+  "text":"#ddd"
+}
+
+if "colours.json".saveExists() (
+  save "colours.json" "get"
+  colours = save_data
+) else (
+  save "colours.json" "set" colours
+)
+
+def "draw" "x, y, x2, y2, character"
+  loc x y x2 + 5 y2 + 65
+  if operation.str == character "square 55 55 10 : c#co hover_c#coh" else "square 55 55 10 : c#cb hover_c#cbh"
 
   character.destr
-  if can and character.istype("number") (
+  if can and character.istype("number") or character.str == "." (
     if clicked or character.onpress (
+      can = false
       if operation == "" (
-        can = false
         c = current
         current = current ++ character
       ) else (
-        can = false
         s = secondary
         secondary = secondary ++ character
       )
@@ -38,20 +56,32 @@ def "draw" "x,y,x2,y2,character"
     operation = ""
   )
   change -10 -5
-  text character.str 20 : c#fff
+  text character.str 20 : c#ct
 endef
 
-window "show"
-window "dimensions" 300 400
-window "resizable" false
 
+cb = colours."buttons"
+cbh = colours."buttons_hover"
+co = colours."operators"
+coh = colours."operators_hover"
+cca = colours."calc_area"
+ctb = colours."top_bar"
+ct = colours."text"
+rh = colours."remove_hover"
+
+window "show"
+window "dimensions" 280 380
+window "resizable" false
 mainloop:
 
-loc 999 2 0 -20
-square 300 30 10 1 : c#222
+loc 999 2 0 -22.5
+square 265 30 10 1 : c#ctb
 
-loc 2 2 10 -20
-text "Calculator" 8 : c#fff
+loc 999 2 0 -72.5
+square 265 40 10 : c#cca
+
+loc 2 2 20 -22.5
+text "Calculator" 9 : c#ct
 
 draw 2 2 30 -200 "1"
 draw 2 2 100 -200 "2"
@@ -66,27 +96,29 @@ draw 2 2 240 -270 "-"
 draw 2 2 30 -340 "7"
 draw 2 2 100 -340 "8"
 draw 2 2 170 -340 "9"
-draw 2 2 240 -340 "*"
+draw 2 2 240 -340 "x"
 
 draw 2 2 30 -410 "."
 draw 2 2 100 -410 "0"
 draw 2 2 170 -410 "="
-draw 2 2 240 -410 "/"
+draw 2 2 240 -410 "÷"
 
-loc 2 2 20 -70
+loc 2 2 25 -72.5
 if operation == "" "output = current" else "output = secondary"
 if output == null "output = 0"
-text output 20
+text output 15
 
-loc -2 2 -25 -70
-icon "left-arrow" 1
+loc -2 2 -27.5 -72.5
+square 40 40 10 : c#cca hover_c#ch
+icon "left-arrow" 0.7 : c#ct
 if clicked or "backspace".pressed and can (
-  can = False
+  can = false
   temp = current.len - 1
   temp2 = secondary.len - 1
   if operation == "" "current.left(temp)" else "secondary.left(temp2)"
 )
 
-loc -2 2 -20 -20
-icon "close" 0.7
+loc -2 2 -22.5 -22.5
+icon "close" 0.6
 if clicked "window stop"
+if mouse_down.not "can = True"
