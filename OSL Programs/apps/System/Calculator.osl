@@ -43,14 +43,14 @@ def "draw" "x, y, x2, y2, character"
       )
     )
   )
-  if clicked or character.onpress and "+-*/".contains(character) "operation = character.str"
+  if clicked or character.onpress and "+-x÷".contains(character) "operation = character.str"
   if clicked or "enter".pressed and ( character.str == "=" ) (
     current.int
     secondary.int
     if operation == "+" "current += secondary"
     if operation == "-" "current -= secondary"
-    if operation == "*" "current *= secondary"
-    if operation == "/" "current /= secondary"
+    if operation == "x" "current *= secondary"
+    if operation == "÷" "current /= secondary"
     current.str
     secondary = 0
     operation = ""
