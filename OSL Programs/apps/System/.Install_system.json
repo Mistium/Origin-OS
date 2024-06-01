@@ -287,7 +287,7 @@
     "version":"1"
   },
   {
-    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Modules/window_tools.osl",
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Scripts/window_tools.osl",
     "path": "Origin/(A) System/Modules",
     "name": "Window_Tools.osl",
     "icon": "",
