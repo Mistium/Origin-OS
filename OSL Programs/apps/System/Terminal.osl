@@ -6,6 +6,7 @@ def "clearall"
   terminal = []
 endef
 
+network "set_app_id" "terminal@system"
 window "set_dragbox" [[2,2,0,0],[-2,2,-100,-30]]
 
 user_start = username ++ "/: "
@@ -14,6 +15,12 @@ canenter = True
 input_1 = null
 permission "request" "terminal"
 mainloop:
+
+if new_network_data (
+  msg = network_data_from + "> " + network_data
+  terminal.append(msg)
+  new_network_data = false
+)
 
 loops = terminal.len
 c #222

@@ -1,4 +1,3 @@
-```
 url = ""
 title = ""
 window_colour = #000
@@ -9,4 +8,3 @@ loc 2 2 20 -20
 text title 10 : c#title_colour
 iframe url "iframe1" 0 -20 window."width" window."height" - 40
 import "win-buttons"
-```

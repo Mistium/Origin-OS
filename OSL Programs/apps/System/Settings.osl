@@ -808,12 +808,6 @@ def "updates"
 endef
 
 def "credits"
-  if contributors == "none" (
-    network "getsync" "https://api.github.com/repos/Mistium/Origin-OS/contributors"
-    contributors = data.replace(newline,)
-    c_names = contributors.destr.getall("login")
-    c_imgs = contributors.destr.getall("avatar_url")
-  )
   page_len = 290
   w = frame_width / 2 - 40
   loc 4 2 2.5 -120 + scroll_y
@@ -890,7 +884,9 @@ current = file.[4]
 files = []
 file_data = ""
 total_files = 0
-contributors = "none"
+contributors = [{"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},{"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},{"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},{"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},{"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},{"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},{"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},{"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},{"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}]
+c_names = contributors.destr.getall("login")
+c_imgs = contributors.destr.getall("avatar_url")
 
 window "dimensions" 880 500
 dock_location = dock_location
@@ -904,14 +900,24 @@ current_pfp = ""
 save "wallpapers.json" "get"
 wallpapers = save-data
 if wallpapers.len < 1 or wallpapers.istype("array").not (
-  wallpapers = ["\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png\"","\"https://images.unsplash.com/photo-1696193846016-f0a30c035e70\"","\"https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg\"","\"https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg\"","\"https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg\"","\"https://images.pexels.com/photos/7919/pexels-photo.jpg\"","\"https://images.unsplash.com/photo-1697048851717-81d7cbee7ed2\"","\"https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg\""]
+  wallpapers = [
+    "\"https://images.unsplash.com/photo-1542396601-dca920ea2807\"",
+    "\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png\"",
+    "\"https://images.unsplash.com/photo-1696193846016-f0a30c035e70\"",
+    "\"https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg\"",
+    "\"https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg\"",
+    "\"https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg\"",
+    "\"https://images.pexels.com/photos/7919/pexels-photo.jpg\"",
+    "\"https://images.unsplash.com/photo-1697048851717-81d7cbee7ed2\"",
+    "\"https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg\""
+  ]
   save "wallpapers.json" "set" wallpapers
 )
 save "segments.txt" "set" segments
 
 // file type pages
-ftkeys = file_types.getall("keys")
-ftvalues = file_types.getall("values")
+ftkeys = file_types.getKeys()
+ftvalues = file_types.getValues()
 
 mainloop:
 loc 999 2 0 -25
@@ -933,7 +939,7 @@ loc 2 2 230 -25
 if subcategory == "none" "text category 10 : c#fff"
 if subcategory != "none" (
   square 20 20 10 : c#555 hover_c#666 chx#10
-  icon left-arrow 0.6 : c#fff
+  icon "left-arrow" 0.6 : c#fff
   if clicked "subcategory = "none""
   change_x 20
   text subcategory 10

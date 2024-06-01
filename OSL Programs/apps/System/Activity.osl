@@ -28,7 +28,7 @@ next_update = 0.5
 pen "width" 10
 high = 0
 low = 250
-graph = "array".new(100)
+graph = 100.newArray()
 mainloop:
 loc -2 2 -20 -20
 square 25 25 10 : c#222
@@ -135,10 +135,10 @@ loc 2 2 455 -20
 tab "Disk"
 loc 2 -2 25 25
 if paused "c global_accent" else "c #333"
-square 25 25 10
+square 25 25 10 : tooltip#Pause
 if clicked and can (
   can = false
-  paused = paused.not
+  paused.not
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
 c #fff

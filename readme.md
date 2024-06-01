@@ -15,8 +15,8 @@ The Most Advanced Gui Based ScratchOS<br>
 
 Current Kernel Info:
 ```
-Name     -   Flow
-Version  -   0.8.1
+Name     -   Rift
+Version  -   0.9.5
 ```
 
 # [Try origin here](https://launcher.mistium.com)
@@ -45,6 +45,8 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 @felix9390 - "Origin? damn mist killed my pet and family, she destroyed my pc and said me to bring money, she robbed 50 banks with 69million dollars, overall, OriginOS is alright"
 
 @liahws_the_rat - "Cmon do the thug shaker, I know you can do it"
+
+@rattusdong - "I want death to *come* for me"
 
 ## Repo Tracker
 

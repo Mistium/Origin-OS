@@ -1,0 +1,4 @@
+def "seticon" "icon"
+  file "open" my_uuid
+  file "set" 11 icon
+endef
