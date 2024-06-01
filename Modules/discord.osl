@@ -8,7 +8,7 @@ properties."$device" = system_os.destr
 
 d = {"token":"","intents":513}
 d."properties" = properties
-messages = {}
+messages = []
 channels = []
 guilds = []
 
@@ -54,12 +54,7 @@ def "sent_by"
 endef
 
 def "send_message" "content, channel"
-  link = "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content.str
-  if origin."version" < 501 (
-    network "get" link
-  ) else (
-    network "getasync" link
-  )
+  network "getasync" "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content.str
 endef
 
 def "dm_user" "content, user_id"
