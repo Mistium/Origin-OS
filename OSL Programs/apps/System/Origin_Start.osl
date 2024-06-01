@@ -54,13 +54,10 @@ if mouse_down and clicked.not "window stop"
 
 goto 0 0
 square 0 700 10 : c#111
-
 goto 0 325
 square 700 50 10 : c#151515
-
 goto 0 -325
 square 700 50 10
-
 goto -325 325
 image user_icon.str 40
 
@@ -135,10 +132,20 @@ if mouse_touching (
 )
 goto -290 -10
 image "https://static-00.iconduck.com/assets.00/github-icon-2048x1988-jzvzcf2t.png" 60
-goto -230 10
-text "Origin-OS" 13 : c#fff
-goto -222 -25
+goto -230 2
+text "Github" 13 : c#fff
+goto -222 -27
 icon "w 3 line 0 9.5 5 3 cont 10 3 cont 5 -2 cont 7 -10 cont 0 -5 cont -7 -10 cont -5 -2 cont -10 3 cont -5 3 cont 0 9.5" 0.7
 text data."stargazers_count" 10 : chx#15
 icon "eye" 0.7 : chx#30
 text data."subscribers_count" 10 : chx#15
+
+goto -180 -130
+square 320 100 10 : c#111
+change_x -110
+icon "origin-logo" 2.5 : c#fff
+change 50 10
+c #fff
+text "originOS" 13
+change -50 -20
+text "v" ++ origin."version" 10

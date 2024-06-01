@@ -6,8 +6,8 @@
     "version": 1
   },
   "data": {
-    "pgm":"w 3 cutcircle 0 0 9 0 100 w 3cutcircle 0 0 8 90 50 w 7 dot 0 0",
-    "pcs":"c #873fcf w 6  square 0 -2 5 6  square -2 3 3 5  w 3  c #592a89 line 2 9.5 6.5 5 cont 2 5  cont 2 9.5  c #592a89 w 1.4  line 1.75 0.5 5.25 -3  cont 1.75 -6.5  line -1.75 0.5 -5.25 -3  cont -1.75 -6.5",
+    "pgm":"w 3 cutcircle 0 0 9 0 100 w 3 cutcircle 0 0 8 90 50 w 7 dot 0 0",
+    "pcs":"c #873fcf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #592a89 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #592a89 w 1.4 line 1.75 0.5 5.25 -3 cont 1.75 -6.5 line -1.75 0.5 -5.25 -3 cont -1.75 -6.5",
     "plist":"c #0062ff w 4 line -2 8 5 8 line -2 0 5 0 line -2 -8 5 -8 c #0041a8 line -3 8 -8 0 line 3 0 -8 0 line -3 -8 -8 0 w 6 c #6500a8 dot 5 8 dot 5 0 dot 5 -8",
     "pprj":"c #0062ff w 3 line -2.5 -8 -5 -8 cont -7 0 cont -10 0 cont -7 0 cont -5 8 cont -2.5 8 line 2.5 -8 5 -8 cont 7 0 cont 10 0 cont 7 0 cont 5 8 cont 2.5 8",
     "ptheme":"w 5 c #4675d4 square 3 8 8 .1 c #7aa7ff square 3 -2 7.75 4 line -4 -2 10 -2",
