@@ -18,7 +18,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Time_Info.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn clock 0.4",
-    "version":"2"
+    "version":"3"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Battery_Info.osl",
