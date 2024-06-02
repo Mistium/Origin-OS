@@ -63,7 +63,6 @@ mainloop:
 
 if new_transmit (
   current_studio_page = transmit_data
-  log "sys" transmit_data
   new_transmit = false
 )
 
@@ -117,7 +116,7 @@ if current_studio_page == "Recent Files" (
 if current_studio_page == "Home" (
   loc 2 2 30 -30
   image user_icon.str 30
-  text "Heya <username>!" 10 : c#c_text chx#30
+  text `Heya ${username}!` 10 : c#c_text chx#30
   w = window_width / 2
   w2 = w - 40
   loc 2 2 20 -85
