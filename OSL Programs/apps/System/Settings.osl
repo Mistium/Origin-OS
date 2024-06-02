@@ -126,7 +126,7 @@ def "system"
   )
   if subcategory == "Display" (
     loc 2 2 10 -20
-    text "Origin Resolution: <screensize_x>x<screensize_y>" 10 : c#fff
+    text `Origin Resolution: ${screensize_x}x${screensize_y}` 10 : c#fff
     loc 2 2 10 -100
     text "Render Mode" 10 : c#fff
     loc 2 2 60 -130
@@ -553,7 +553,7 @@ def "Appearance"
       icon_select = user."icon_colour"
     )
     loc 2 2 15 -30
-    text "Accent Colour: <accent_select>" 10 : c#fff
+    text `Accent Colour: ${accent_select}` 10 : c#fff
     change_x 30
     square 0 0 25 0 : c#fff
     square 0 0 20 0 : c#accent_select
@@ -584,7 +584,7 @@ def "Appearance"
     )
 
     loc 2 2 15 -80
-    text "Dock Colour: <dock_select>" 10 : c#fff
+    text `Dock Colour: ${dock_select}` 10 : c#fff
     change_x 30
     square 0 0 25 0 : c#fff
     square 0 0 20 0 : c#dock_select
@@ -618,7 +618,7 @@ def "Appearance"
     )
 
     loc 2 2 15 -130
-    text "Dock Secondary: <icon_select>" 10 : c#fff
+    text `Dock Secondary: ${icon_select}` 10 : c#fff
     change_x 30
     square 0 0 25 0 : c#fff
     square 0 0 20 0 : c#icon_select
@@ -674,7 +674,7 @@ def "Appearance"
       ftv = ftvalues.[count]
       icon ftv.[1] 0.8
       c #fff
-      text "<ftv.[2]> (<ftkeys.[count]>)" 10 : chx#30
+      text `${ftv.[2]} (${ftkeys.[count]})` 10 : chx#30
     )
     page_len = count * 60 - 20
   )
@@ -791,14 +791,14 @@ def "time"
   loc 999 2 0 -160
   square frame_width - 20 40 10 1
   loc 2 2 20 -40
-  text "Timezone: <timezone>" 8 : c#fff
+  text `Timezone: ${timezone}` 8 : c#fff
   loc 2 2 20 -100
   milisecond = timestamp.right(3)
-  text "Time: <day_number>:<month_number>:<year> <hour>:<minute>:<second>:<milisecond>" 8
+  text `Time: ${day_number}:${month_number}:${year} ${hour}:${minute}:${second}:${milisecond}` 8
   loc 2 2 20 -160
   dt = delta_time * 1000
   dt = dt.round
-  text "Since Last Frame: <dt>ms" 8
+  text `Since Last Frame: ${dt}ms` 8
 endef
 
 def "updates"
@@ -847,7 +847,7 @@ def "credits"
   text "Turbowarp" 12
   change -162 -32
   n = newline
-  text "      Thanks to GarboMuffin<n>and the scratch team for<n>making turbowarp possible" 9
+  text `      Thanks to GarboMuffin${n}and the scratch team for${n}making turbowarp possible` 9
   set_x x
   change_y -175
   c #222
