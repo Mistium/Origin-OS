@@ -8,6 +8,6 @@ if battery_temp != battery_percent or bg_redrawn (
 battery_temp = battery_percent
 square 60 height 20 1
 if battery_charging "c global_accent" else "c icon_colour"
-text "<battery_percent>%" 10 : chx#-25
+text `${battery_percent}%` 10 : chx#-25
 )
 )
