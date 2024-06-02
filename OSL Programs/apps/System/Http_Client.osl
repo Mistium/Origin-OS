@@ -44,7 +44,7 @@ if clicked (
 icon "close" 0.6 : c#fff
 
 loc 2 2 10 -60
-text "Make a <buttons.[selected]> request to website:" 10 : c#fff
+text `Make a ${buttons.[selected]} request to website:` 10 : c#fff
 loc 2 2 0 -100
 set_x -50
 c #333
@@ -92,7 +92,7 @@ if response_failed nor response_success (
 )
 loc 2 2 10 -220
 c #fff
-text "Recieved a response, code: <response_code>" 10
+text `Recieved a response, code: ${response_code}` 10
 change_x 30
 // draws whether the request succeeded lol
 if response_success (
