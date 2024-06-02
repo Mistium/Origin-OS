@@ -26,7 +26,7 @@ if tab == "Clock" (
     loc 999 2 0 y
     square 400 100 20 : c#222
     loc 999 2 -180 y
-    text "<hour>:<minute>" 20 : c#fff
+    text `${hour}:$minute}` 20 : c#fff
   )
 )
 import "win-buttons"
