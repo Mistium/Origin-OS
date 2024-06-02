@@ -90,7 +90,7 @@ if bg_redrawn or mouse_touching or ( last_sync_text != sync_text_temp ) (
   text last_sync_text 8
   loc 999 2 -40 -77
   if used != "used" (
-    text "<use1><unit> / <use2><unit2>" 8
+    text `${use1}${unit} / ${use2}${unit2}` 8
   ) else (
     text "Unknown Usage Data" 8
   )
