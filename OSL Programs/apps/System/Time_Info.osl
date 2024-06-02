@@ -13,15 +13,17 @@ if clicked (
 loc 2 2 10 -15
 text "Time" 9
 loc 2 2 10 -120
-text "<day> <day_number> <month> <year>" 10
+text `${day} ${day_number} ${month} ${year}` 10
 loc 2 2 30 -70
 icon "c #fff w 3 cutcircle 0 0 20 0 180" 1
 pen "down"
-change ( minute 6 ).sin * 10 ( minute * 6 ).cos * 10
+temp = minute * 6
+change temp.sin * 10 temp.cos * 10
 loc 2 2 30 -70
-change ( hour * 12 ).sin * 7 ( hour * 12 ).cos * 7
+temp = hour * 12
+change temp.sin * 7 temp.cos * 7
 pen "up"
 loc 2 2 60 -60
-text "<hour>:<minute>:<second>" 10 : c#fff
+text `${hour}:${minute}:${second}` 10 : c#fff
 loc 2 2 60 -85
 text timezone.str 10
