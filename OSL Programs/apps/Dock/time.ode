@@ -13,7 +13,7 @@ c dock_colour
 square 95 15 5
 c icon_colour
 change_x -45
-text "<hour>:<minute>:<second>" 9
+text `${hour}:${minute}:${second}` 9
 )
 if day != timeode_daytemp or bg_redrawn (
 timeode_daytemp = day
