@@ -22,13 +22,13 @@ change_x 35
 
 count = 0
 loop dock.len (
-count += 1
-file "open" dock.[count]
-s = 1.5
-square 40 40 0 0 1
-if mouse_touching "s += 0.3"
-file "render" s "interactable"
-change_x 50
+  count ++
+  file "open" dock.[count]
+  s = 1.5
+  square 40 40 0 0 1
+  if mouse_touching "s += 0.3"
+  file "render" s "interactable"
+  change_x 50
 )
 c #fff
 loc -2 999 -140 10
@@ -40,19 +40,19 @@ loc -2 999 -220
 b = battery_percent
 bat = "battery_0"
 if b > 25 (
-bat = "battery_1"
-if b > 50 (
-bat = "battery_2"
-if b > 75 (
-bat = "battery_3"
-if b > 99 (
-bat = "battery_4"
-)
-)
-)
+  bat = "battery_1"
+  if b > 50 (
+    bat = "battery_2"
+    if b > 75 (
+      bat = "battery_3"
+      if b > 99 (
+        bat = "battery_4"
+      )
+    )
+  )
 )
 if battery_charging (
-bat = "battery_charging"
+  bat = "battery_charging"
 )
 icon bat 1.2
-text "<b>%" 10 : chx#20
+text "${b}%" 10 : chx#20
