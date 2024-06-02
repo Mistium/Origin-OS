@@ -59,19 +59,17 @@ if tab == "info" (
   file "render" 3
   rightclick "file" passed_data
   n = newline
-  text "<name><type>" 9 : c#fff chx#40
+  text `${name}${type}` 9 : c#fff chx#40
   loc 2 2 20 -160
-  percent = size / total * 100
-  percent.round
-  text "Size: <size>b (<percent>%)" 8
+  text `Size: ${size}b` 8
   loc 2 2 20 -180
   text "Created:" + created.timestamp("convert-relative") 8
   loc 2 2 20 -200
   text "Edited:" + edited.timestamp("convert-relative") 8
   loc 2 2 20 -220
-  text "Location: <loc>/<name><type>" 8
+  text `Location: ${loc}/${name}${type}` 8
   loc 2 2 20 -240
-  text "Type: <type>" 8
+  text `Type: ${type}` 8
 )
 if tab == "settings" (
   ww = window_width
@@ -97,8 +95,6 @@ if tab == "settings" (
     if current_data.istype("string") and isbool.not "input 160 30 current : c#555"
     output.key(current) = output
   )
-)
-if tab == "settings" (
   page_len = y2 * -1
   frame "clear"
   loc 999 -2 0 30
@@ -138,21 +134,19 @@ if tab == "edit" (
     icon actions.[count] 0.8 : c#fff chx#-65
     change 245
   )
-)
-if tab == "edit" (
-loc 2 2 60 -120
-text "Copy As Json" 8
-if clicked "clipboard "set" file_json.str"
-loc 2 2 235 -120
-text "Show File" 8
-if clicked ""
-loc 2 2 420 -120
-text "Open File" 8
-if clicked and can (
-file "open" "id" passed_data
-file "start"
-can = False
-)
+  loc 2 2 60 -120
+  text "Copy As Json" 8
+  if clicked "clipboard "set" file_json.str"
+  loc 2 2 235 -120
+  text "Show File" 8
+  if clicked ""
+  loc 2 2 420 -120
+  text "Open File" 8
+  if clicked and can (
+    file "open" "id" passed_data
+    file "start"
+    can = False
+  )
 )
 can = mouse_down.not
 frame "clear"
