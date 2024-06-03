@@ -206,5 +206,5 @@ mainloop:
   if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
   file "get" 4
   c c_icon
-  text "<files.len> items | <selected_files.len> selected" 9
+  text `${files.len} items | ${selected_files.len} selected` 9
   import "win-buttons"
