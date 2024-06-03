@@ -505,7 +505,7 @@ def "Appearance"
       loc 999 2 0 y
       square frame_width - 20 40 10 : c#333 hover_c#252525
       loc 2 2 15 y
-      text boot_apps.[count] 9 : c#fff
+      text segments.[count] 9 : c#fff
       loc -2 2 -30 y
       square 30 30 10 : c#555 hover_c#666
       if onclick (
@@ -514,7 +514,7 @@ def "Appearance"
         global "segments"
       )
       icon "bin" 0.8 : c#fff
-      if count > 0 (
+      if count > 1 (
         square 30 30 10 : c#555 hover_c#666 chx#-45
         if onclick (
           count2 = count - 1
