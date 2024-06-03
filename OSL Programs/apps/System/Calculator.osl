@@ -28,7 +28,11 @@ if "colours.json".saveExists() (
 
 def "draw" "x, y, x2, y2, character"
   loc x y x2 + 5 y2 + 65
-  if operation.str == character "square 55 55 10 : c#co hover_c#coh" else "square 55 55 10 : c#cb hover_c#cbh"
+  if operation.str == character (
+    square 55 55 10 : c#co hover_c#coh
+  ) else (
+    square 55 55 10 : c#cb hover_c#cbh
+  )
 
   character.destr
   if can and character.istype("number") or character.str == "." (
