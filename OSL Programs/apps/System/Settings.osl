@@ -11,7 +11,8 @@ def "DrawCategory" "setting,icn_code"
   temp = x_position
   if category == setting "c #444" else "c #222"
   square 190 30 10 1 : chx#80
-  if mouse_touching "square 190 30 15 1 : c#333"
+  c #333
+  if mouse_touching "square 190 30 15 1"
   if clicked (
     category = setting
     subcategory = "none"
