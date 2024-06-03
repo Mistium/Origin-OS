@@ -277,7 +277,7 @@
     "path": "Origin/(A) System/Modules",
     "name": "Win-Buttons.osl",
     "icon": "",
-    "version":"1"
+    "version":"2"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Modules/Character_Controller.osl",
