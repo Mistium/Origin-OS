@@ -508,7 +508,8 @@ def "Appearance"
       text segments.[count] 9 : c#fff
       loc -2 2 -30 y
       square 30 30 10 : c#555 hover_c#666
-      if onclick (
+      if clicked and can (
+        can = false
         segments.delete(count)
         save "segments.txt" "set" segments
         global "segments"
@@ -516,7 +517,8 @@ def "Appearance"
       icon "bin" 0.8 : c#fff
       if count > 1 (
         square 30 30 10 : c#555 hover_c#666 chx#-45
-        if onclick (
+        if clicked and can (
+          can = false
           count2 = count - 1
           segments.swap(count2,count)
           save "segments.txt" "set" segments
@@ -526,7 +528,8 @@ def "Appearance"
       )
       if count < segments.len (
         square 30 30 10 : c#555 hover_c#666 chx#-45
-        if onclick (
+        if clicked and can (
+          can = false
           count2 = count + 1
           segments.swap(count,count2)
           save "segments.txt" "set" segments
