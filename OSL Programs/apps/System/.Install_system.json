@@ -193,7 +193,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Files.osl",
     "icon": "w 5 c #3ebef4 square 0 -8 10 0 w 5 c #772d1c line 10 6 -5 6 c #ff724f square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -1 8 1 c #772d1c icn origin-logo 0.28 -7 -2.7",
-    "version":"1"
+    "version":"2"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Settings.osl",
