@@ -463,6 +463,82 @@ def "Appearance"
   if subcategory == "Dock" (
     if new_transmit (
       file "open" transmit_data
+      f = file.[3] ++ "/" ++ file.[2] ++ file.[1]
+      segments.append(f)
+      save "segments.txt" "set" segments
+      global "segments"
+      new_transmit = false
+    )
+    loc 2 2 20 -20 + scroll_y
+    text "Reset Dock To Default: " 10 : c#fff
+    icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
+    if clicked (
+      segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
+      save "segments.txt" "set" segments
+      global "segments"
+    )
+    loc 2 2 20 -70 + scroll_y
+    text "Drop File Here" 9 : c#fff
+    if file_dropped != 0 (
+      file "open" file_dropped "onlyaccess"
+      file "get" 3
+      d3 = data
+      file "get" 2
+      d2 = data
+      file "get" 1
+      f = d3 ++ "/" ++ d2 ++ data
+      segments.append(f)
+      save "segments.txt" "set" segments
+      global "segments"
+      file_dropped = 0
+    )
+    loc 2 2 20 -100 + scroll_y
+    text "Click here to pick an osl file" 9
+    if clicked and can (
+      file "pick" "osl"
+      can = false
+    )
+    count = 0
+    loop segments.len (
+      count ++
+      y = count + 2 * -60 + scroll_y
+      loc 999 2 0 y
+      square frame_width - 20 40 10 : c#333 hover_c#252525
+      loc 2 2 15 y
+      text boot_apps.[count] 9 : c#fff
+      loc -2 2 -30 y
+      square 30 30 10 : c#555 hover_c#666
+      if onclick (
+        segments.delete(count)
+        save "segments.txt" "set" segments
+        global "segments"
+      )
+      icon "bin" 0.8 : c#fff
+      if count > 0 (
+        square 30 30 10 : c#555 hover_c#666 chx#-45
+        if onclick (
+          count2 = count - 1
+          segments.swap(count2,count)
+          save "segments.txt" "set" segments
+          global "segments"
+        )
+        icon "up" 0.8 : c#fff
+      )
+      if count < segments.len (
+        square 30 30 10 : c#555 hover_c#666 chx#-45
+        if onclick (
+          count2 = count + 1
+          segments.swap(count,count2)
+          save "segments.txt" "set" segments
+          global "segments"
+        )
+        icon "down" 0.8 : c#fff
+      )
+    )
+    page_len = segments.len + 2 * 60
+  )
+    if new_transmit (
+      file "open" transmit_data
       file "get" 2
       segments.append(data)
       new_transmit = false
@@ -471,7 +547,7 @@ def "Appearance"
     text "Reset Dock To Default" 10 : c#fff
     icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
     if clicked (
-      segments = ["Main","Applications","Folders","Time","Battery"]
+      segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
     )
     loc 2 2 110 -140
     x2 = x_position
