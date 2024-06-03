@@ -940,11 +940,14 @@ DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 
 loc 2 2 25 -175
 image user_icon.str 35 35
 loc 2 2 230 -25
-if subcategory == "none" "text category 10 : c#fff"
-if subcategory != "none" (
+if subcategory == "none" (
+  text category 10 : c#fff
+) else (
   square 20 20 10 : c#555 hover_c#666 chx#10
   icon "left-arrow" 0.6 : c#fff
-  if clicked "subcategory = "none""
+  if clicked (
+    subcategory = "none"
+  )
   change_x 20
   text subcategory 10
 )
