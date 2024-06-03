@@ -274,7 +274,7 @@
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Scripts/win_buttons.osl",
-    "path": "Origin/(A) System/Window Utils",
+    "path": "Origin/(A) System/Modules",
     "name": "Win-Buttons.osl",
     "icon": "",
     "version":"1"
