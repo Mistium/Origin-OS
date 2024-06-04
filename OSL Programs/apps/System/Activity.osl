@@ -92,7 +92,7 @@ if activity_info (
 )
 wwm = window_width - 50 / 100
 whm = window_height / 300
-usage = fps / 250
+usage = fps / fps_limit
 graph.append(usage)
 if graph.len > 100 "graph = graph.delete(1)"
 import "side-bar"
@@ -111,7 +111,7 @@ loc 2 2 23 - ( low.len * 5 ) -120
 text low 10
 loc 2 2 13.5 -140
 text "low" 7
-delta = delta_time.multiply(1000).round
+delta = ( delta_time * 1000 ).round
 loc 2 2 23 - ( delta.len * 5 ) -170
 text delta 10
 loc 2 2 16 -190
