@@ -214,7 +214,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Activity.osl",
     "icon": "c #111 w 10 square 0 0 5 5 w 2 c #84d5f5 line -7 0 -6 0 cont -5 2 cont -3 -2 cont -1 5 cont 2 -4 cont 4 0 cont 7 0",
-    "version":"2"
+    "version":"3"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Summit.osl",
