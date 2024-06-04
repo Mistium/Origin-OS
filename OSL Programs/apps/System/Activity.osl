@@ -92,7 +92,7 @@ if activity_info (
 )
 wwm = window_width - 50 / 100
 whm = window_height / 300
-usage = fps / fps_limit
+usage = ( fps / fps_limit ).clamp(0,1)
 graph.append(usage)
 if graph.len > 100 "graph = graph.delete(1)"
 import "side-bar"
@@ -223,6 +223,9 @@ if current_tab == "Render Info" (
   text "System" 7
   loc -2 2 -50 y
   text dt.multiply(1000).round - tot.round 7
+)
+if current_tab == "Disk" (
+  minimised_text = "Disk"
 )
 if mouse_down.not "can = true"
 frame "clear"
