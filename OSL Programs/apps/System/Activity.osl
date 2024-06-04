@@ -1,6 +1,5 @@
 permission "request" "terminal"
 permission "request" "Javascript"
-minimised_text = "<fps>"
 window "show"
 window "dimensions" 600 400
 current_tab = "no_perms"
@@ -54,7 +53,7 @@ if activity_info (
   loc 2 2 20 -20
   text page 10 : c#fff
   loc 2 2 20 -50
-  text "<dt>ms" 15
+  text `${dt}ms` 15
   if timer - created_time > 1 (
     loc 2 2 90 -100
     square 140 25 10 : c#222 hover_c#333
@@ -143,11 +142,13 @@ if clicked and can (
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
 c #fff
 if current_tab == "Performance" (
+  minimised_text = "Fps"
   window "responsive" True
   goto 25 -25
   graph window_width - 50 frame_height - 50 graph
 )
 if current_tab == "Network" (
+  minimised_text = "Net"
   window "responsive" False
   loc 2 2 50 -45
   x = x_position
@@ -185,6 +186,7 @@ if current_tab == "Network" (
   )
 )
 if current_tab == "Render Info" (
+  minimised_text = "Info"
   window "responsive" False
   loc 2 2 50 -45
   x = x_position
