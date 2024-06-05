@@ -102,7 +102,7 @@ if usage.len == 0 (
   goto -245 260
   text "Storage" 10 : c#fff
   goto -245 230
-  text `Used ${use1}${unit>} / ${use2}${unit2}` 9
+  text `Used ${use1}${unit} / ${use2}${unit2}` 9
   goto -140 200
   bar 200 20 10 usage.[3] : c#111
   usepercent = usage.[3].multiply(100).round ++ "%"
