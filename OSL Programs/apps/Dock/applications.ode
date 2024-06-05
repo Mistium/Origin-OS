@@ -1,4 +1,13 @@
-include user_folder ++ "/Dock"
+include user_folder ++ "/dock"
+if file_dropped != 0 (
+  file "open" user_folder ++ "/dock.folder" "onlyaccess"
+  file "get" 4
+  data.delete(file_dropped)
+  pos = ( mouse_x - x_position / 50 + 0.5 ).round
+  data.insert(pos,file_dropped)
+  file "set" 4 data
+  file_dropped = 0
+)
 if data.len != 0 (
   width = data.len * 50 - 10
   change_x width / 2
