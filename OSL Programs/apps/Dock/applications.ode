@@ -1,13 +1,4 @@
 include user_folder ++ "/dock"
-if file_dropped != 0 (
-  file "open" user_folder ++ "/dock.folder" "onlyaccess"
-  file "get" 4
-  data.delete(file_dropped)
-  pos = ( mouse_x - x_position / 50 + 0.5 ).round
-  data.insert(pos,file_dropped)
-  file "set" 4 data
-  file_dropped = 0
-)
 if data.len != 0 (
   width = data.len * 50 - 10
   change_x width / 2
@@ -16,6 +7,15 @@ if data.len != 0 (
   square width height 20 1 0 1
   cur = ""
   if data.len != dock_len or mouse_touching or bg_redrawn (
+    if file_dropped != 0 (
+      file "open" user_folder ++ "/dock.folder" "onlyaccess"
+      file "get" 4
+      data.delete(file_dropped)
+      pos = ( mouse_x - x_position / 50 + 0.5 ).round
+      data.insert(pos,file_dropped)
+      file "set" 4 data
+      file_dropped = 0
+    )
     dock = data
     square width height 20
     goto x - ( width / 2 ) + 20 y
