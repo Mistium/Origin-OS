@@ -68,7 +68,7 @@ if changes == 0 (
   if changes == 1 (
     last_sync_text = "1 action"
   ) else (
-    last_sync_text = "<changes> actions"
+    last_sync_text = `${changes} actions`
   )
 )
 
