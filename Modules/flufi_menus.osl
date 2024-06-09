@@ -1,0 +1,170 @@
+menucur = ""
+menucur_x = 0
+menu_width = 150
+menu_height = 300
+
+// menu code
+def "menutab" "name,icon,size"
+  w = name.len * 10 + 30
+  if compact (
+    w = 20
+  )
+  if name == menucur (
+    w = menu_width
+  )
+  ox = w * -.5 + 25
+  menux += w * .5
+
+  loc 2 2 menux -60
+  square w + 5 25 7 : c#333 hover_c#444
+  if mouse_touching and click (
+    if menucur != name (
+      menucur = name
+    ) else (
+      menucur = ""
+    )
+    menu_update = true
+  )
+  icon icon size : chx#ox chx#-15 c#fff
+  if compact.not (
+    text name 10 : c#fff chx#15
+  )
+  menux += w * .5 + 20
+  if menucur == name (
+    sub = w * -1 - 20
+    menucur_x = menux + sub
+    if menu_update.not (
+      loc 2 2 menux -60
+      icon "down" .7 : chx#-30
+    )
+  )
+endef
+hadsubopened = false
+def "menuitem" "item"
+  set_x svx
+  dir = item.split("@").[2]
+  item = item.split("@").[1]
+  inmenu = dir.split("-").contains(state) or dir == ""
+  comp = item.split("=")
+  item = comp.[1]
+  text = item
+  if item.[1] == "+" (
+    change_y item.split("+").[2] * -1
+  ) else (
+    if item.[1] != "-" (
+      if inmenu (
+        square menu_width - 10 20 7 : c#555 chy#-35 hover_c#666
+      ) else (
+        square menu_width - 10 20 7 : c#444 chy#-35
+      )
+      text = item.split(":").[1]
+      sub_opened = false or hadsubopened
+      sub_is = comp.len > 1
+      if mouse_touching and inmenu (
+        if comp.len == 1 (
+          if click (
+             op = item.split(":").[2]
+             op.runOp()
+          )
+        ) else (
+          sub_opened = true
+          anysubopened = true
+        )
+      )
+      if sub_is (
+        offset = menu_width * .5 - 12
+        change_x offset
+        icon "left" .6 : c#fff
+        change_x offset * -1
+        if sub_opened "drawsubmenu comp.[2]"
+      )
+    ) else (
+      change_y -35
+      len = text.len - 1
+      text = text.right(len)
+    )
+    if inmenu "c #fff" else "c #777"
+    text text 10 : chx#tox
+  )
+endef
+// THIS WAS A PAIN TO MAKE, DO NOT EDIT FOR YOUR THE SAKE OF YOUR SANITY.
+def "drawsubmenu" "submenu"
+  ox = x_position
+  oy = y_position
+  osvx = svx
+  otext = text
+  submenu_trans = submenu.replace("|",":").replace("?","/").replace("*",";")
+  sub_height = -5
+  each "subi" "subitem" submenu_trans.split(";") (
+    if subitem.[1] == "+" "sub_height += subitem.split("+").[2]" else "sub_height += 35"
+  )
+  change_x menu_width * .5 + 20
+  change_y sub_height * -.5 + 15
+  square menu_width sub_height 10 : c#222 chx#x
+  square menu_width + 15 sub_height 2 0 1 : c#fff
+  if mouse_touching "anysubopen = true"
+  change_y sub_height * .25
+  square menu_width + 10 35 2 0 1 : c#fff chx#-25
+  if mouse_touching "anysubopen = true"
+  change_y sub_height * -.25
+  change_x 25
+  change_y sub_height * .25 + 1
+  svx = x_position
+  change_y 35
+  each "subi" "subitem" submenu_trans.split(";") (
+    menuitem subitem false
+  )
+  change_x menu_width * -1 - 20
+  svx = osvx
+  text = otext
+  set_x ox
+  set_y oy
+endef
+method "op.runOp()"
+  params = op.split("/")
+  
+  //operations
+  
+  say params
+endmethod
+def "drawmenus"
+  anysubopen = talse
+  if menu_update.not and menucur != "" (
+    // get height
+    menu_height = -5
+    curmenudata = menus.[menucur]
+    each "i" "item" curmenudata.split(";") (
+      if item.[1] == "+" "menu_height += item.split("+").[2]" else "menu_height += 35"
+    )
+    loc 2 2 menucur_x -90
+    x = menu_width * .5
+    y = menu_height * -.5
+    square menu_width menu_height 10 : c#222 chx#x chy#y
+    change_y menu_height * .5 + 20
+    svx = x_position
+    tox = menu_width * -.5 + 7.5
+    
+    // draw items
+    curmenudata = menus.[menucur]
+    each "i" "item" curmenudata.split(";") (
+      menuitem item
+    )
+    hadsubopened = anysubopen
+  )
+endef
+
+clicknot = false
+
+def "defining"
+  // click detection
+  click = mouse_down and clicknot
+  clicknot = mouse_down.not
+
+  // menubar
+  menu_update = false
+  menux = 12
+endef
+
+def "update"
+  drawmenus
+endef
