@@ -103,7 +103,7 @@ def "drawsubmenu" "submenu"
   square menu_width sub_height 10 : c#222 chx#x
   square menu_width + 15 sub_height 2 0 1 : c#fff
   if mouse_touching "anysubopen = true"
-  change_y sub_height * .25
+  change_y sub_height - 35 * .5 + 1
   square menu_width + 10 35 2 0 1 : c#fff chx#-25
   if mouse_touching "anysubopen = true"
   change_y sub_height * -.25
