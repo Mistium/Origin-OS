@@ -905,7 +905,7 @@ save "wallpapers.json" "get"
 wallpapers = save-data
 if wallpapers.len < 1 or wallpapers.istype("array").not (
   wallpapers = [
-    "\"https://images.unsplash.com/photo-1542396601-dca920ea2807\"",
+    "\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png\"",
     "\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png\"",
     "\"https://images.unsplash.com/photo-1696193846016-f0a30c035e70\"",
     "\"https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg\"",
