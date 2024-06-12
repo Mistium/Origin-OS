@@ -6,11 +6,10 @@ window "show"
 cur = user_folder
 selected = ""
 
-display_message = "Select a <files_allowed_text>"
-
 if passed_data == null (
   target_file = null
   files_allowed_text = "File"
+  display_message = `Select a File`
 ) else (
   if passed_data.istype("array") (
     if passed_data.[1].istype("array") (
@@ -22,10 +21,12 @@ if passed_data == null (
     )
     target_file = passed_data
     files_allowed_text = passed_data.join(" or ")
+    display_message = `Select a ${files_allowed_text}`
   ) else (
     passed_data = "." ++ passed_data
     target_file = [].append(passed_data)
     files_allowed_text = passed_data.str
+    display_message = `Select a ${files_allowed_text}`
   )
 )
 
