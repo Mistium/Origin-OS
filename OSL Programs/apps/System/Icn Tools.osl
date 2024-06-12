@@ -1,0 +1,185 @@
+all_icon_states = []
+child_windows = []
+
+def "loadicn" "icn_code"
+  icn_code.replace(newline," ")
+  icon_code = icn_code
+  preview_code = icn_code
+  all_icon_states.append(icn_code)
+  mode = ""
+  icnformat icon_code
+endef
+
+def "editicn" "icn,mul,mde"
+  code = icn.split(" ")
+  i = 0
+  loop code.len (
+    i ++
+    if code.[i].type == "number" and last != "c" (
+      if mde == "weight" and last == "w" (
+        code.[i] *= mul
+        code.[i] = ( code.[i] * 100 ).round / 100
+      )
+      if mde == "resize" (
+        i5 = i - 5
+        i4 = i - 4
+        if code.[i5] != "cutcircle" and code.[i4] != "cutcircle" (
+          code.[i] *= mul
+          code.[i] = ( code.[i] * 100 ).round / 100
+        )
+      )
+    )
+    last = code.[i]
+  )
+  data = code.join(" ")
+endef
+
+def "togglemode" "mde"
+  if clicked and can (
+    can = false
+    if mode == mde (
+      mode = ""
+    ) else (
+      mode = mde
+    )
+  )
+endef
+
+def "icnformat" "icn"
+  code = icn.split(" ")
+  out = ""
+  i = 0
+  loop code.len (
+    i ++
+    cur = code.[i]
+    if cur.istype("number").not (
+      out.append(newline)
+    )
+    out.append(cur)
+    out.append(" ")
+  )
+  display_code = out.split(newline)
+endef
+
+loadicn ""
+
+zoom = 1
+offset_x = 0
+offset_y = 0
+
+sidebar_width = 250
+mainloop:
+if new_transmit (
+  if child_windows.contains(transmit_source) (
+    file "open" transmit_data "onlyaccess"
+    file "get" 4
+    loadicn data.str
+    file "close"
+    child_windows.delete(transmit_source)
+  )
+  new_transmit = false
+)
+top = window.top - 40
+frame window.left top window.left + sidebar_width window.bottom + 45
+square frame_width frame_height 130 : c#333
+each "i" "item" display_code (
+  loc 2 2 10 i * -20
+  text item.str 8 : c#fff
+)
+frame "clear"
+loc 2 -2 sidebar_width / 2 20
+square sidebar_width - 10 30 10 : c#444 hover_c#555 click_c#333
+if clicked (
+  clipboard "set" icon_code
+)
+change_x "Copy To Clipboard".len * -5
+text "Copy To Clipboard" 10 : c#fff
+frame window.left + sidebar_width top window.right window.bottom
+goto offset_x offset_y
+icon "w 1 c #333 square 0 0 10 10 square 0 0 20 20 line -9999 0 9999 0 line 0 9999 0 -9999" zoom
+c #fff
+icon preview_code zoom
+
+// mouse ui
+goto mouse_x mouse_y
+icon "w 1 c#333 line -9999 0 9999 0 line 0 9999 -0 -9999" 1
+change 5 10
+text ( mouse_x / zoom ).round.str ++ "," ++ ( mouse_y / zoom ).round 9
+mx = mouse_x
+my = mouse_y
+frame "clear"
+
+loc -2 -2 -50 30
+square 60 20 20 : c#222
+
+change_x -100
+if mode == "resize" "c #444" else "c #222"
+square 80 20 20
+togglemode "resize"
+
+change_x -105
+if mode == "weight" "c #444" else "c #222"
+square 70 20 20
+togglemode "weight"
+
+loc -2 -2 -30 30 : c#fff
+icon "add" 0.7
+if onclick (
+  zoom *= 2
+)
+change_x -40
+icon "minus" 0.7
+if onclick (
+  zoom *= 0.5
+)
+change_x -110
+icon "maximise" 0.7
+text "Resize" 9 : chx#15
+change_x -175
+icon "circle-full" 0.7
+text "Weight" 9 : chx#15
+loc 999 2 0 -20
+square window_width 40 10 : c#222
+loc 2 2 10 -22
+text "Icon Tools" 10 : c#fff
+change_x 80
+button "load clipboard" 120 23 10 : c#333 hover_c#444
+if clicked (
+  loadicn clipboard
+)
+loc 2 2 320 -22
+button "open file" 100 23 10 : c#333 hover_c#444
+if clicked and can (
+  can = false
+  file "pick" "icn"
+  child_windows.append(data)
+)
+
+if mouse_down (
+  offset_x += mx - prev_x
+  offset_y += my - prev_y
+)
+prev_x = mx
+prev_y = my
+
+if mode == "" (
+  preview_code = icon_code
+  multiplier = 1
+) else (
+  loc 2 2 50 -80
+  square 60 20 20 : c#222
+  if mouse_down and can (
+    multiplier += mx - last_mx
+  )
+  multiplier = ( multiplier * 100 ).round / 100
+  last_mx = mx
+  text multiplier 10 : c#fff
+  editicn icon_code multiplier mode
+  preview_code = data
+  if "enter".onpress (
+    loadicn preview_code
+  )
+)
+
+if mouse_down.not "can = true"
+import "win-buttons"
