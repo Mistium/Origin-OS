@@ -2,8 +2,6 @@
 3d "camera" "rotation" [0,0,180]
 3d "camera" "fov" 100
 
-mainloop:
-
 points = [
     [50, 50, -50],
     [50, -50, -50],
@@ -22,6 +20,8 @@ points = [
     [50, -50, 50],
     [50, -50, -50]
 ]
+
+mainloop:
 
 count = 0
 c #fff
