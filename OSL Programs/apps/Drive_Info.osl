@@ -1,0 +1,40 @@
+window "show"
+window "resizable" false
+window "dimensions" 270 140
+permission "request" "kernel"
+
+systemvars "getlist" "Files"
+files = data
+total_files = data.len // 14
+pointer = files.index("Origin/(C) Users") - 1
+name = files.[pointer]
+size = files.join(" ").len
+measure = "b"
+if size > 1000 (
+  size = ( size / 100 ).round / 10
+  measure = "kb"
+)
+if size > 1000 (
+  size = ( size / 100 ).round / 10
+  measure = "mb"
+)
+size.append(measure)
+mainloop:
+loc 999 2 0 -15
+square window_width 20 15 : c#333
+loc 2 2 10 -15
+text "Your Drive Info" 9 : c#fff
+loc -2 2 -15 -15
+icon "close" 0.6 : hover_size#1.1 hover_cursor#pointer
+if clicked (
+  window "stop"
+)
+
+loc 2 2 10 -55
+text `Account: ${name}` 9
+
+loc 2 2 10 -85
+text `Files: ${total_files}` 9
+
+loc 2 2 10 -115
+text `Size: ${size}` 9
