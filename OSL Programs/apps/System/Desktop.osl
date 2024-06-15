@@ -10,7 +10,7 @@ window "responsive" true
 mainloop:
 include windowfileloc
 nhvr = window_id_index != window_top_index
-cnrn = desktop != data or bg_redrawn
+cnrn = desktop != data
 if cnrn.not and nhvr "exit"
 movefileloc windowfileloc
 window "y" 35
@@ -67,7 +67,7 @@ each "i" "app_id" desktop (
   file "get" 7
   change_y data
   square 30 30 0 0 1
-  if mouse_touching or cnrn (
+  if mouse_touching or cnrn or rerender_topwindow_overlap (
     file "render" 2 "interactable"
     rightclick "file" app_id
   )
