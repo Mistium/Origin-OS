@@ -6,7 +6,11 @@ seg = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modul
 
 save "segments.txt" "get"
 log save_data
-if exists and save_data.istype("Array") and save_data.contains("/") (
+log "segments.txt".saveExists() 
+log save_data.istype("Array")
+log save_data.contains("/")
+
+if "segments.txt".saveExists() and save_data.istype("Array") and save_data.contains("/") (
   seg = save_data
 ) else (
   save "segments.txt" "set" seg
