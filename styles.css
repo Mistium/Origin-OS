@@ -1,4 +1,5 @@
-html, body {
+html,
+body {
   min-height: max(100%, 100vh);
 }
 
