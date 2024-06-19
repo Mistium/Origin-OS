@@ -494,9 +494,9 @@ def "Appearance"
       file_dropped = 0
     )
     loc 2 2 20 -100 + scroll_y
-    text "Click here to pick an osl file" 9
+    text "Click here to pick an ode file" 9
     if clicked and can (
-      file "pick" "osl"
+      file "pick" "ode"
       can = false
     )
     count = 0
