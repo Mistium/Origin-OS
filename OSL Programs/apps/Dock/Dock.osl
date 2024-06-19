@@ -5,6 +5,7 @@ exists = save_data
 seg = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
 
 save "segments.txt" "get"
+log save_data
 if exists and save_data.istype("Array") and save_data.contains("/") (
   seg = save_data
 ) else (
