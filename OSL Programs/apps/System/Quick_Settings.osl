@@ -202,10 +202,10 @@ if bg_redrawn or mouse_touching (
     icon cur.icon.str 1 : c#icn_colour
     change 25 6
     start_x = x_position
-    text cur.title.str 8
+    text cur.title.str.trim(1,17) 8 : c#icn_colour
     set_x start_x
     change_y -17
-    text cur.text.str 7
+    text cur.text.str.trim(1,18) 7
     if notifications.len > 1 (
       loc 999 2 0 y - 40
       square 65 15 10 : c#bg_colour
