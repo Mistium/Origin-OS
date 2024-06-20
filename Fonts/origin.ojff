@@ -82,7 +82,7 @@
   "P": "line 5 5 5 40 cont 25 40 cont 25 20 cont 5 20",
   "q": "line 25 -10 25 25 cont 5 25 cont 5 5 cont 25 5",
   "Q": "line 25 5 8 5 cont 5 25 cont 8 40 cont 22 40 cont 25 25 cont 22 5 line 15 15 25 0",
-  "r": "line 5 5 5 25 cont 5 23 cont 22 25",
+  "r": "line 5 5 5 27 line 5 25 20 25",
   "R": "line 5 5 5 40 cont 25 40 cont 25 20 cont 15 20 cont 25 5",
   "s": "line 25 25 5 25 cont 5 14 cont 25 14 cont 25 5 cont 5 5",
   "S": "line 5 5 25 5 cont 25 20 cont 5 20 cont 5 40 cont 25 40",
