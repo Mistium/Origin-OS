@@ -26,7 +26,7 @@ if timer - last_check_2 > 0.5 (
   terminal "get filechanges"
   changes = data.len
   last_check_2 = timer
-  notifications = []
+  notifications = allNotify()
   if timer - last_check > 300 (
     network "my_files_usage"
     last_check = timer
@@ -199,13 +199,13 @@ if bg_redrawn or mouse_touching (
     square 170 25 20 : c#bg_colour
     cur = notifications.[1]
     change_x -70
-    icon cur.[1].str 1 : c#icn_colour
+    icon cur.icon.str 1 : c#icn_colour
     change 25 6
     start_x = x_position
-    text cur.[2].str 8
+    text cur.title.str 8
     set_x start_x
     change_y -17
-    text cur.[3].str 7
+    text cur.text.str 7
     if notifications.len > 1 (
       loc 999 2 0 y - 40
       square 65 15 10 : c#bg_colour
