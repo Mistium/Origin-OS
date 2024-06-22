@@ -21,8 +21,6 @@ Version  -   0.9.5
 
 # [Try origin here](https://launcher.mistium.com)
 
-(Performance has been known to suffer so this is unrecommended)
-
 
 originOS is a shell for running osl.
 
