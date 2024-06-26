@@ -166,32 +166,9 @@
       "Close Window"
     ]
   },
-  "tab": {
-    "other": [
-      "Move Tab Left",
-      "Move Tab Right",
-      "-",
-      "Duplicate Tab",
-      "Reload Tab",
-      "Close Tab"
-    ]
-  },
   "image": {
     "other": [
       "Copy Image Url"
-    ]
-  },
-  "desktop": {
-    "other": [
-      "Change Wallpaper",
-      "-",
-      "Upload File",
-      "New Folder Inside",
-      "New File",
-      "-",
-      "Info",
-      "Paste",
-      "Copy Path"
     ]
   }
 }
