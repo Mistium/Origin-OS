@@ -235,7 +235,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Contacts.osl",
     "icon": "c #000 w 10 square 0 0 5 5 w 7 c #222 square -2 0 3 5 w 3 dot 7 4.5 dot 7 0 dot 7 -4.5 c #fff icn accounts 0.5 -2 0",
-    "version":"1"
+    "version":"1.1"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Airdrop.osl",
@@ -280,7 +280,7 @@
     "version":"3"
   },
   {
-    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Modules/Character_Controller.osl",
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Modules/character_controller.osl",
     "path": "Origin/(A) System/Modules",
     "name": "Character_Controller.osl",
     "icon": "",
