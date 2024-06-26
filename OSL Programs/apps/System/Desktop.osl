@@ -1,3 +1,12 @@
+save "desktop@system" "set_directory"
+
+if "theme.json".saveExists() (
+  theme = "theme.json".saveGet().JsonClean()
+) else (
+  theme = {"app_size":"1.8"}
+)
+app_size = theme.app_size
+
 clicked_id = 0
 window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
@@ -7,6 +16,7 @@ file "set" 4 data - null
 positions = {}
 name = null
 window "responsive" true
+
 mainloop:
 include windowfileloc
 nhvr = window_id_index != window_top_index
@@ -56,10 +66,10 @@ if nhvr.not (
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
-  rightclick "desktop"
+  rightclick ["Change Wallpaper","-","Upload File","New Folder Inside","New File","-","Info","Paste","Copy Path","-","Big Icons","Normal Icons","Small Icons"]
 )
 if data == [] "exit"
-each "i" "app_id" desktop (
+each i app_id desktop (
   file "open" app_id "onlyaccess"
   loc 2 2 35 -35
   file "get" 6
@@ -68,7 +78,7 @@ each "i" "app_id" desktop (
   change_y data
   square 30 30 0 0 1
   if mouse_touching or cnrn (
-    file "render" 2 "interactable"
+    file "render" app_size "interactable"
     rightclick "file" app_id
   )
   file "get" 2
