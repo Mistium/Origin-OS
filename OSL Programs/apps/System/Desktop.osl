@@ -13,6 +13,8 @@ windowfileloc = user_folder ++ "/Desktop"
 include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
 file "set" 4 data - null
+file "get" 14
+desktop_uuid = data
 positions = {}
 name = null
 window "responsive" true
@@ -66,7 +68,7 @@ if nhvr.not (
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
-  rightclick ["Change Wallpaper","-","Upload File","New Folder Inside","New File","-","Info","Paste","Copy Path","-","Big Icons","Normal Icons","Small Icons"]
+  rightclick ["Change Wallpaper","-","Upload File","New Folder Inside","New File","-","Info","Paste","Copy Path","-","Big Icons","Normal Icons","Small Icons"] desktop_uuid
 )
 if data == [] "exit"
 each i app_id desktop (
