@@ -1,5 +1,6 @@
+permission "request" "save admin"
 save "contacts" "set_directory"
-
+import "window_tools"
 seticon "c #000 w 10 square 0 0 5 5 w 7 c #222 square -2 0 3 5 w 3 dot 7 4.5 dot 7 0 dot 7 -4.5 c #fff icn accounts 0.5 -2 0"
 
 window "show"
@@ -12,6 +13,8 @@ if save_data (
   contacts = []
 )
 contacts_add = ""
+
+current_view = ""
 mainloop:
 
 if new_network_data (
@@ -42,35 +45,48 @@ if clicked and can (
     contacta_add = ""
   )
 )
-c #222
-frame window."left" window."top" - 47.5 window."left" + sidewidth window."bottom" contacts.len * 45
+c #555
+frame window."left" window."top" - 47.5 window."left" + sidewidth + 5 window."bottom" contacts.len * 45
 count = 0
 loop contacts.len (
   count ++
   cur = contacts.[count]
   y = count - 0.5 * -50 + scroll_y
-  loc 2 2 sidewidth / 2 y
+  loc 2 2 frame_width / 2 y
   c cur."accent"
-  square sidewidth - 20 25 16
-  square sidewidth - 20 25 10 : c#333 hover_c#444
+  square frame_width - 20 25 16
+  if clicked (
+    current_view = cur
+  )
+  square frame_width - 20 25 10 : c#333 hover_c#444
   loc 2 2 22 y
   image cur."pfp" 30 30
   text cur."username" 10 : chx#30 c#fff
-  loc 2 2 sidewidth - 20 y
+  loc 2 2 frame_width - 20 y
   icon "close" 0.7
   if clicked and can (
     can = false
-    contacts = contacts - count
+    contacts = contacts.delete(count)
     save "contacts.json" "set" contacts
     count --
   )
 )
+frame "clear"
 if mouse_down.not (
   can = true
+)
+if current_view != "" (
+  frame window."left" + sidewidth window."top" - 47.5 window."right" window."bottom"
+  loc 999 2 0 -100
+  name = current_view."username"
+  image current_view."pfp" 180 180
+  loc 999 2 name.len * -5 -210
+  text name 10 : c#fff
+  loc 999 2 -120
+  frame "clear"
 )
 if contacts_add != "" (
   network "find_account" contacts_add
   contacts_add = ""
 )
-frame "clear"
 import "win-buttons"
