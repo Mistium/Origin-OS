@@ -2,8 +2,7 @@
   "manifest": {
     "name": "emoji",
     "format": ".icn",
-    "author": "Mist",
-    "version": 1
+    "author": "Mist"
   },
   "data": {
     "slightly smiling face":"c #fbba08 w 20 dot 0 0 c #000 w 3 dot -3 3 dot 3 3 cutcircle 0 0 5 18 30",
