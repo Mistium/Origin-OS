@@ -1,6 +1,7 @@
 all_icon_states = []
 child_windows = []
 
+
 def "loadicn" "icn_code"
   icn_code.replace(newline," ")
   icon_code = icn_code
@@ -60,6 +61,14 @@ def "icnformat" "icn"
   )
   display_code = out.split(newline)
 endef
+
+if passed_data != "" (
+  file "open" passed_data "onlyaccess"
+  file "get" 4
+  loadicn data
+  file "close"
+  passed_data = ""
+)
 
 loadicn ""
 
