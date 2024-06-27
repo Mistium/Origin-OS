@@ -1,18 +1,18 @@
-{
-  "interface": {
+[
+  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Icons/Packs/interface.ojip",
     "version": "4"
   },
-  "miscellaneous-icons": {
+  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Icons/Packs/miscellaneous-icons.ojip",
     "version": "1"
   },
-  "pride-flags": {
+  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Icons/Packs/pride-flags.ojip",
     "version": "3"
   },
-  "emoji": {
+  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Icons/Packs/emoji.ojip",
     "version": "2"
   }
-}
+]
