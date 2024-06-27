@@ -242,7 +242,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "OMail.osl",
     "icon": "c #121 w 10 square 0 0 5 5 w 2.5 c #fff line -6 5 0 0 cont 6 5 cont 6 -5 cont -6 -5 cont -6 5 cont 6 5 w 4 line 4 4 -4 4 cont 0 3",
-    "version":"1"
+    "version":"1.1"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Airdrop.osl",
