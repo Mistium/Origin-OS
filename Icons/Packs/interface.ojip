@@ -2,8 +2,7 @@
   "manifest": {
     "name": "interface",
     "format": ".icn",
-    "author": "Mist",
-    "version": 1
+    "author": "Mist"
   },
   "data": {
     "log-in": "w 3 line -10 5 -10 10 cont 10 10 cont 10 -10 cont -10 -10 cont -10 -5 line -2 5 3 0 line -2 -5 3 0 line -10 0 3",
