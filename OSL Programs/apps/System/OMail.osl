@@ -1,0 +1,188 @@
+network "server" "omail_getinfo"
+
+current_email = 0
+all_mail = []
+if passed_data == "" (
+  page = "main"
+) else (
+  page = passed_data
+)
+
+def "icon_button" "icn, size"
+  square 40 40 10 : c#333 hover_c#444
+  icon icn size : c#fff
+  change_x 60
+endef
+
+def "topbar"
+  loc 999 2 0 -20
+  square window_width 40 10 : c#222
+  loc 2 2 10 -22
+  text "OMail" 9 : c#eee
+endef
+
+def "run_ui"
+  topbar
+  c #333
+  frame window.left window.top - 40 window.left + 300 window.bottom + 60 all_mail.len * 50 - 16
+  count = scroll_y // 50
+  len = all_mail.len
+  if len == 0 (
+    loc 2 2 10 -25
+    text "You have no omails" 10 : c#fff
+  )
+  loop (frame_height / 50).clamp(0,len) (
+    count ++
+    item = all_mail.[count]
+    y = 16 + scroll_y - (count * 50)
+    loc 999 2 0 y
+    if current_email == count "c #333" else "c #222"
+    square frame_width - 20 40 10
+    if clicked (
+      current_email = count
+      email_data = item
+      if item.body == "" (
+        network "server" "omail_getid" count
+        email_data.body = "loading...."
+      )
+    )
+    y += 5
+    c #fff
+    loc -2 2 -95 y
+    text item.date 8
+    y -= 15
+    loc 2 2 15 y
+    text item.title 8
+    if item.from == username (
+      loc 2 2 15 y + 20
+      text "to >" + item.recipient 9
+      loc -2 2 -25 y
+      icon "send" 0.6
+    ) else (
+      loc 2 2 15 y + 20
+      text item.from 9
+      loc -2 2 -25 y
+      icon "down-arrow" 0.6
+    )
+  )
+  frame "clear"
+  loc 2 -2 150 30
+  square 300 60 0 : c#222
+  change_x -120
+  icon_button "reload" 0.6
+  if clicked and can (
+    can = false
+    all_mail = []
+    current_email = 0
+    network "server" "omail_getinfo"
+  )
+  if current_email != 0 (
+    icon_button "bin" 0.7
+    if clicked and can (
+      network "server" "omail_delete" current_email
+      email_data = {}
+      all_mail.delete(current_email)
+      current_email = 0
+    )
+    icon_button "bookmark" 0.7
+    icon_button "copy" 0.7
+    if clicked and can (
+      clipboard "set" email_data.body
+    )
+  )
+  icon_button "add" 0.7
+  if clicked and can (
+    can = false
+    window "add" window.file.uuid "new"
+  )
+  if current_email != 0 (
+    frame window.left + 305 window.top - 45 window.right window.bottom
+    square 0 0 100000 : c#111
+    loc 999 2 0 -20
+    square frame_width 20 10 : c#222
+    c #fff
+    loc 2 2 10 -20
+    if email_data.from == username (
+      text "You sent this to >" + email_data.recipient 10
+    ) else (
+      text "You got this from >" + email_data.from 10
+    )
+    loc 2 2 10 -60
+    text email_data.title 12
+    loc 2 2 10 -100
+    text email_data.body.wrapText(frame_width - 30 / 10) 10
+    frame "clear"
+  )
+endef
+
+def "new_omail"
+  topbar
+  window "dimensions" 600 700
+  loc 999 2 0 -80
+  square frame_width - 30 25 20 : c#222
+  change_x -20
+  input frame_width - 80 25 "recipient" "Type the username of the person to send this too"
+  input_recipient.strip().trim(0,20)
+  loc -2 2 -30 -80
+  icon "send" 0.8 : c#fff
+  if mouse_touching (
+    cursor "pointer"
+  )
+  if clicked and can (
+    can = false
+    omail_data = {}
+    omail_data.recipient = input_recipient
+    omail_data.title = input_title
+    omail_data.body = input_body
+    network "server" "omail_send" omail_data
+    window "stop"
+  )
+  
+  loc 999 2 0 -150
+  square frame_width - 30 25 20 : c#222
+  input frame_width - 30 25 "title" "Type the title of the omail here"
+  input_title.trim(0,50)
+  
+  loc 999 -2 0 frame_height - 200 / 2
+  input frame_width - 50 frame_height - 200 "body"
+  
+  square frame_width - 30 frame_height - 200 20 : c#222
+  if "enter".onpress (
+    len = input_body.len
+    input_body.insert(len,newline)
+  )
+  loc 2 2 10 -230
+  text input_body.wrapText(frame_width - 30 / 10) 10 : c#fff
+  if (timer % 1).round == 0 and  (
+    text "_" 10
+  )
+endef
+
+mainloop:
+if new_network_data (
+  command = network_data_command
+  if command == "omail_total" (
+    total_mail = network_data
+  )
+  if command == "omail_getinfo" (
+    all_mail = network_data
+    each i mail all_mail (
+      date = mail.timestamp.timestamp("convert-date").replace("-","/")
+      all_mail.[i] = mail.insert("date",date)
+    )
+  )
+  if command == "omail_getid" (
+    i = network_data.[1]
+    data = network_data.[2].body
+    all_mail.[i] = all_mail.[i].insert("body",data)
+    if current_email == i (
+      email_data = all_mail.[i]
+    )
+  )
+  new_network_data = false
+)
+
+if mouse_down.not "can = true"
+if page == "main" "run_ui"
+if page == "new" "new_omail"
+import "win-buttons"
