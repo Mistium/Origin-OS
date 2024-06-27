@@ -131,9 +131,10 @@ def "new_omail"
   if clicked and can (
     can = false
     omail_data = {}
-    omail_data.recipient = input_recipient
-    omail_data.title = input_title
-    omail_data.body = input_body
+    omail_data.recipient = input_recipient.toLower()
+    omail_data.title = input_title.destr
+    omail_data.body = input_body.destr
+    log omail_data
     network "server" "omail_send" omail_data
     window "stop"
   )
