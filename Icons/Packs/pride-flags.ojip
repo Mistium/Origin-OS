@@ -3,7 +3,6 @@
     "name": "pride-flags",
     "format": ".icn",
     "author": "Mist,Flufi",
-    "version": 3
   },
   "data": {
     "pride-flag":"w 1.5 c #E40300 square 0 6.5 10 .6 c #FF8C00 square 0 4 10 .6 c #FFED00 square 0 1.25 10 .6 c #008026 square 0 -1.25 10 .6 c #24408E square 0 -4 10 .6 c #732982 square 0 -6.5 10 .6",
