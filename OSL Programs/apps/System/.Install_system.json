@@ -241,7 +241,7 @@
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/OMail.osl",
     "path": "Origin/(A) System/User Applications",
     "name": "OMail.osl",
-    "icon": "c #121 w 10 square 0 0 5 5 w 2.5 c #fff line -6 5 0 0 cont 6 5 cont 6 -5 cont -6 -5 cont -6 5 cont 6 5 w 4 line 4 4 -4 4 cont 0 3",
+    "icon": "c #6eebd0 w 20 dot 0 0 w 3 c #0e5748 line -6 -5 -6 5 cont 0 0 cont 6 5 cont 6 -5 c #111",
     "version":"1.1"
   },
   {
