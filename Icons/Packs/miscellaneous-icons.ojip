@@ -2,8 +2,7 @@
   "manifest": {
     "name": "miscellaneous-icons",
     "format": ".icn",
-    "author": "Mist",
-    "version": 1
+    "author": "Mist"
   },
   "data": {
     "square-full": "w 5 line 5 5 5 -5 line 5 -5 -5 -5 line -5 -5 -5 5 line -5 5 5 5 w 10 dot",
