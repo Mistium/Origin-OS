@@ -14,7 +14,7 @@ def "icons_norm"
 endef
 
 def "icons_small"
-  app_size = 1.3
+  app_size = 1.7
   theme.app_size = app_size
   save "theme.json" "set" theme
 endef
