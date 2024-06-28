@@ -1,4 +1,4 @@
-bin = "Binary:".ask
+bin = "Binary:".ask()
 count = bin.len + 1
 out = 0
 val = 1
