@@ -68,7 +68,7 @@ In this example, the robot will keep moving forward until the goal is reached.
 // Ask for user input until a valid value is entered
 userInput = null
 while userInput != null (
-    userInput = "hello".ask
+    userInput = "hello".ask()
 )
 ```
 This example demonstrates how the `while` statement can be used to repeatedly prompt the user for input until a valid value is entered.
