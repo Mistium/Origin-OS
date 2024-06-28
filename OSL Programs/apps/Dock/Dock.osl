@@ -82,7 +82,7 @@ if delta_time < 0.1 (
 if y > -80 (
   width = 0
   goto dock_x y
-  each segment segments (
+  each i segment segments (
     import segment "ode" : c#dock_colour chx#15
     goto width / 2 + x + 15 y
   )
