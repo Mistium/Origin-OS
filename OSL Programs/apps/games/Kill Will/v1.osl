@@ -105,7 +105,7 @@ last_dist = -1
 loop render.len (
   count ++
   cur = render.[count]
-  render_object cur.[1] cur.[2] cur.[3].contents 100 100
+  render_object cur.[1] cur.[2] cur.[3].contents() 100 100
 )
 if mouse_down (
 frame += 0.3
