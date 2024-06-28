@@ -1,4 +1,4 @@
-num = "denary:".ask
+num = "denary:".ask()
 temp = num % 2
 start = 2
 out = ""
