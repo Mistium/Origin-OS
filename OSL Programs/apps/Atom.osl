@@ -7,7 +7,7 @@ playericon = {"type":"icn","x":"0","y":"0","layer":"1","scale":"1","shown":"1","
 
 confirm_delete = 0
 
-save "runtime" "folder"
+save "atom@mistium" "set_directory"
 
 data_panel = false
 sidebar_width = 300
@@ -17,6 +17,8 @@ window "dimensions" 1000 600
 
 scale = 1
 
+\n = newline
+
 def "object" "id"
   y = id * -30 + -90
   loc 2 2 sidebar_width / 2 y
@@ -24,31 +26,31 @@ def "object" "id"
   square sidebar_width - 30 20 10 1 1
   if current_object != current and clicked (
     current_object = current
-    current_object_data = current_object.contents
-    current_attributes = current_object_data.key("attributes")
-    input_x = current_object_data.key("x").destr
-    input_y = current_object_data.key("y").destr
-    input_z = current_object_data.key("layer").destr
-    input_scale = current_object_data.key("scale").destr
+    current_object_data = current_object.contents()
+    current_attributes = current_object_data.attributes
+    input_x = current_object_data.x.destr
+    input_y = current_object_data.y.destr
+    input_z = current_object_data.layer.destr
+    input_scale = current_object_data.scale.destr
     get_attribute_data
   )
   if current_object == current "square sidebar_width - 20 20 10 1 : c#555"
   c #fff
   loc 2 2 sidebar_width - 20 y
-  current_ext = current.contents.key("type")
+  current_ext = current.contents().type
   if current == "camera" "icon camera 0.7"
   if current_ext == "osl" "icon script 0.5"
   if current_ext == "icn" "icon file 0.7"
   loc 2 2 10 y
   text current 8
-  if current.contents.contains("data") "text . ++ current_ext 8"
+  if current.contents().contains("data") "text . ++ current_ext 8"
 endef
 
 def "renderobject" "object_data"
-  goto object_data.key("x").destr object_data.key("y").destr
-  type = object_data.key("type")
-  if type == "icn" and ( object_data.key("shown") == 1 ) (
-    icon object_data.key("data") 1 * object_data.key("scale").destr * scale
+  goto object_data.x.destr object_data.y.destr
+  type = object_data.type
+  if type == "icn" and ( object_data.shown == 1 ) (
+    icon object_data.data 1 * object_data.scale.destr * scale
   )
   if type == "camera" (
     icon "camera" 1 : c#accent_colour
@@ -58,7 +60,7 @@ endef
 def "get_attribute_data"
   count = 0
   loop current_attributes.len (
-    count2 += 1
+    count2 ++
     log current_attributes.[count2]
   )
 endef
@@ -80,7 +82,7 @@ def "attribute" "id"
     count2 += 1
     y -= 40
     loc 2 2 x + 20 y
-    name = fields.getall("keys").[count2]
+    name = fields.getKeys().[count2]
     text name 8 : c#aaa
     loc 2 2 x * 2 - 105 y
     square 180 20 10 1 : c#333
@@ -172,10 +174,10 @@ if current_object != -1 and data_panel (
     input 180 25 "scale" "scale" : c#333
 
     y = -170
-    current_object_data.key("x") = input_x
-    current_object_data.key("y") = input_y
-    current_object_data.key("layer") = input_z
-    current_object_data.key("scale") = input_scale
+    current_object_data.x = input_x
+    current_object_data.y = input_y
+    current_object_data.layer = input_z
+    current_object_data.scale = input_scale
     if true current_object + "= current_object_data"
   )
 )
@@ -208,8 +210,8 @@ square frame_width frame_height 5 : c#accent_colour
 
 count = 0
 loop objects.len (
-  count += 1
-  renderobject ATOM_objects.[count].contents
+  count ++
+  renderobject ATOM_objects.[count].contents()
 )
 
 frame "clear"
@@ -235,7 +237,7 @@ if confirm_delete != 0 (
   square 400 200 20 : c#accent_colour
   square 400 200 15 1 : c#222
   goto -190 70
-  text "Are you sure you want to remove the attribute:<newline>'<current_attributes.[confirm_delete].[1]>'<newline><newline>on <newline><newline>'<current_object>'" 8 : c#fff
+  text `Are you sure you want to remove the attribute:${\n}'${current_attributes.[confirm_delete].[1]}'${\n}${\n}on ${\n}${\n}'${current_object}'` 8 : c#fff
   goto -102 -72
   square 185 40 10 1 : c#444
   if clicked "confirm_delete = 0"
