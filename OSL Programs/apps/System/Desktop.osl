@@ -1,10 +1,51 @@
 save "desktop@system" "set_directory"
 
+
+def "icons_big"
+  app_size = 2.5
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+endef
+
+def "icons_norm"
+  app_size = 2
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+endef
+
+def "icons_small"
+  app_size = 1.3
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+endef
+
+
+desktop_rightclick = [
+  "Change Wallpaper",
+  "-",
+  "Upload File",
+  "New Folder Inside",
+  "New File",
+  "-",
+  "Info",
+  "Paste",
+  "Copy Path",
+  "-",
+  [
+    "File Icon Size",
+    {"Big Icons":"icons_big"},
+    {"Normal Icons":"icons_norm"},
+    {"Small Icons":"icons_small"}
+  ]
+]
+
 if "theme.json".saveExists() (
   theme = "theme.json".saveGet().JsonClean()
 ) else (
   theme = {"app_size":"1.8"}
+  save "theme.json" "set" theme
 )
+
 app_size = theme.app_size
 
 clicked_id = 0
@@ -68,7 +109,7 @@ if nhvr.not (
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
-  rightclick ["Change Wallpaper","-","Upload File","New Folder Inside","New File","-","Info","Paste","Copy Path","-",["File Icon Size","Big Icons","Normal Icons","Small Icons"]] desktop_uuid
+  rightclick desktop_rightclick desktop_uuid
 )
 if data == [] "exit"
 each i app_id desktop (
