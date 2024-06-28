@@ -2,21 +2,20 @@ bike_gears = []
 ringnum = 0
 inputgears = true
 while inputgears (
-  gears = "How many gears on the bike?".ask.int
-  if ( gears > 7 ) or ( gears < 2 ) (
-    print "Too many gears, must be between 1 and 8"
+  gears = "How many gears on the bike?".ask().int
+  if (gears > 7) or (gears < 2) (
+    say "Too many gears, must be between 1 and 8"
   )
-  if ( gears < 8 ) and ( gears > 1 ) "inputgears = false"
+  if (gears < 8) and (gears > 1) "inputgears = false"
 )
 previousteeth = 100
 teeth = 101
-iterate "count" 0 gears 1 (
+each count gear gears (
   while teeth >= previousteeth (
-    teeth = "How many teeth for gear" + count ++ "?"
-    teeth = teeth.ask.int
+    teeth = ("How many teeth for gear" + count ++ "?").ask().int
   )
   previousteeth = teeth
-  print teeth + "Teeth on this Gear"
-  bike_gears = bike_gears.append(teeth)
+  say teeth + "Teeth on this Gear"
+  bike_gears.append(teeth)
 )
-print bike_gears
+say bike_gears
