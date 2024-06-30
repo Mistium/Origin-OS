@@ -1,7 +1,7 @@
 {
   "server": "wss://rotur.milosantos.com",
   "rooms": [
-    "originOS"
+    "roturTW"
   ],
   "binary_file_types": [
     "PDF",
