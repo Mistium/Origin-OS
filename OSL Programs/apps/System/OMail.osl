@@ -24,17 +24,17 @@ endef
 def "run_ui"
   topbar
   c #333
-  frame window.left window.top - 40 window.left + 300 window.bottom + 60 all_mail.len * 50 - 16
+  frame window.left window.top - 45 window.left + 300 window.bottom + 60 all_mail.len * 50 - 20
   count = scroll_y // 50
   len = all_mail.len
   if len == 0 (
-    loc 2 2 10 -25
+    loc 2 2 10 -20
     text "You have no omails" 10 : c#fff
   )
   loop (frame_height / 50).clamp(0,len) (
     count ++
     item = all_mail.[count]
-    y = 16 + scroll_y - (count * 50)
+    y = 20 + scroll_y - (count * 50)
     loc 999 2 0 y
     if current_email == count "c #333" else "c #222"
     square frame_width - 20 40 10
@@ -82,7 +82,16 @@ def "run_ui"
       network "server" "omail_delete" current_email
       email_data = {}
       all_mail.delete(current_email)
-      current_email = 0
+      if current_email == all_mail.len (
+        current_email = 0
+      ) else (
+        current_email = count
+        email_data = item
+        if item.body == "" (
+          network "server" "omail_getid" count
+          email_data.body = "loading...."
+        )
+      )
     )
     icon_button "bookmark" 0.7
     icon_button "copy" 0.7
