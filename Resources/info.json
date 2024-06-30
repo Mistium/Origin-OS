@@ -3,6 +3,7 @@
   "rooms": [
     "roturTW"
   ],
+  "name":"sys-origin.System",
   "binary_file_types": [
     "PDF",
     "JPEG",
