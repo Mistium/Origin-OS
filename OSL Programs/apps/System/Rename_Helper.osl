@@ -1,7 +1,7 @@
 window "dimensions" 270 140
 window "resizable" False
 window "show"
-file "open" "id" passed_data
+file "open" passed_data
 input_main = file.[2] ++ file.[1]
 input_main.destr
 mainloop:
