@@ -22,11 +22,11 @@ if data.len != 0 (
     dock_len = dock.len
     each app dock (
       file "open" app "onlyaccess"
-      file "render" 2 "interactable"
+      file "render" 1.7 "interactable"
       square 45 45 0 0 1
       if mouse_touching (
         curx = x_position
-        file "get" 1.7
+        file "get" 2
         cur = data
       )
       rightclick "file" app
