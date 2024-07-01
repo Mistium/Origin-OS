@@ -1,0 +1,133 @@
+save "beepify@mistium" "set_directory"
+log save_data
+
+def "loadTrack" "id"
+  headers = {}
+  headers.ID = id
+  response = ("https://originfy.milosantos.com?song=" ++ id).get().JsonClean()
+  song_data.id = response
+  log song_data
+  song_keys.append(id)
+  url = response.mp3_url
+  sound url "load"
+endef
+
+def "seconds.origifyTime()"
+  this.mins = (seconds / 60).floor
+  return this.mins ++ ":" ++ (seconds - (this.mins * 60)).padStart(2,0)
+endef
+
+current = ""
+playing = false
+song_data = {}
+
+loading_music = false
+if "songs.json".saveExists() (
+  save "songs.json" "get"
+  log save_data
+  song_data = save_data
+) else (
+  save "songs.json" "set" {}
+  song_data = {}
+)
+song_keys = song_data.getKeys()
+if song_keys.len > 0 "loading_music = true"
+
+loaded_total = 1
+total_songs = song_keys.len
+current = {}
+current.duration = 0
+current.image = ""
+current.url = ""
+mainloop:
+if loading_music (
+  c #fff
+  loc 2 2 10 -20
+  text "Loaded" ++ (loading_total - 1) ++ "/" ++ total_songs 10
+  loc 2 2 10 -40
+  text "Loading your music" 10
+  loading_total ++
+  if loading_total == song_keys.len (
+    loading_music = false
+  )
+  import "win-buttons"
+  current = song_keys.[loading_total]
+  loadTrack current
+  exit
+)
+
+loc 999 2 0 -20
+square window_width 40 : c#151515
+loc 2 2 10 -20
+text "Beepify" 10 : c#fff
+loc 2 2 110 -20
+icon "add" 0.6
+if clicked and can (
+  can = false
+  track_id = "enter spotify track url".ask()
+  if track_id.contains("https://open.spotify.com/track/") (
+    track_id.regex("/track\/(.*?)(?=\?|$)/g").[1]
+    track_id.right(track_id.len - 6)
+  )
+  loadTrack track_id
+  current.image = response.cover_url
+  current.name = response.song_name
+  current.url = response.mp3_url
+  current.duration = response.duration
+)
+frame window.left window.top - 40 window.left + 300 window.bottom + 60 my_songs.len
+loc 2 2 0 -30
+each song song_keys (
+  set_x 0
+  song = song_data.[song]
+  square frame_width - 20 30 10 : c#333
+  change_x frame_width / -2 + 30
+  change_y -30
+)
+frame "clear"
+loc 999 -2 0 30
+square window_width 60 : c#151515
+loaded_song = current.url.soundinfo("loaded") and current.url != ""
+
+loc 2 -2 30 30
+if loaded_song (
+  image current.image 50 50
+  text current.name 10 : c#fff chx#30
+)
+loc -6 -2 0 30
+square window_width / 1.5 60 : c#222
+if loaded_song (
+  loc 6 -2 30 30
+  icon "c #444 w 50 dot 0 0" 0.7
+  c #fff
+  if playing (
+    icon "pause" 0.7
+    sound current.url "play"
+  ) else (
+    icon "play" 0.7
+    sound current.url "pause"
+  )
+  current.time = current.url.soundinfo("current_time").round
+  if clicked and can (
+    playing.not
+    can = false
+  )
+  loc -6 -2 25 40
+  c #111
+  slider window_width / 1.5 - 80 10 "time" 10
+  loc 6 -2 65 15
+  if clicked (
+    current.time = (slider_time * current.duration)
+    sound current.url "start" current.time
+    if playing.not (
+      sound current.url "pause"
+    )
+    current.time = current.time.floor
+  ) else (
+    slider_time = current.time / current.duration
+  )
+
+  text current.time.origifyTime() ++ "/" ++ current.duration.round.origifyTime() 9 : c#ddd
+)
+if mouse_down.not "can = true"
+import "win-buttons"
