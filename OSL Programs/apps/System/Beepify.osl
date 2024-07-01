@@ -1,15 +1,44 @@
 save "beepify@mistium" "set_directory"
-log save_data
 
 def "loadTrack" "id"
-  headers = {}
-  headers.ID = id
-  response = ("https://originfy.milosantos.com?song=" ++ id).get().JsonClean()
-  song_data.id = response
-  log song_data
-  song_keys.append(id)
-  url = response.mp3_url
-  sound url "load"
+  if id == "" (
+    song_data.delete(id)
+    save "songs.json" "set" song_data
+  ) else (
+  network "get" "https://originfy.milosantos.com?song=" ++ id
+  response = data
+  if response.type == "object" (
+    response.JsonClean()
+    song_data.[id] = response
+    save "songs.json" "set" song_data
+    if song_keys.contains(id).not (
+      song_keys.append(id)
+    )
+    url = response.mp3_url
+    sound url "load"
+    if loading != [] (
+      loading.delete(1)
+    )
+  ) else (
+    if response != "loading" (
+      if loading != [] (
+        loading.delete(1)
+      )
+    )
+    )
+  )
+endef
+
+def "loadSong" "song"
+  sound current.url "pause"
+  current = {}
+  current.url = song.mp3_url
+  current.image = song.cover_url
+  current.name = song.song_name
+  current.duration = song.duration
+  sound current.url "load"
+  sound current.url "start" 0
+  sound current.url "pause"
 endef
 
 def "seconds.origifyTime()"
@@ -17,14 +46,14 @@ def "seconds.origifyTime()"
   return this.mins ++ ":" ++ (seconds - (this.mins * 60)).padStart(2,0)
 endef
 
-current = ""
 playing = false
 song_data = {}
+
+loading = []
 
 loading_music = false
 if "songs.json".saveExists() (
   save "songs.json" "get"
-  log save_data
   song_data = save_data
 ) else (
   save "songs.json" "set" {}
@@ -33,26 +62,22 @@ if "songs.json".saveExists() (
 song_keys = song_data.getKeys()
 if song_keys.len > 0 "loading_music = true"
 
-loaded_total = 1
+loaded_total = 0
 total_songs = song_keys.len
+loading = song_keys
 current = {}
 current.duration = 0
 current.image = ""
 current.url = ""
+window "show"
+
 mainloop:
-if loading_music (
+if loading.len > 0 (
   c #fff
   loc 2 2 10 -20
-  text "Loaded" ++ (loading_total - 1) ++ "/" ++ total_songs 10
-  loc 2 2 10 -40
   text "Loading your music" 10
-  loading_total ++
-  if loading_total == song_keys.len (
-    loading_music = false
-  )
   import "win-buttons"
-  current = song_keys.[loading_total]
-  loadTrack current
+  loadTrack loading.[1]
   exit
 )
 
@@ -64,30 +89,46 @@ loc 2 2 110 -20
 icon "add" 0.6
 if clicked and can (
   can = false
-  track_id = "enter spotify track url".ask()
-  if track_id.contains("https://open.spotify.com/track/") (
-    track_id.regex("/track\/(.*?)(?=\?|$)/g").[1]
-    track_id.right(track_id.len - 6)
+  track_id = "enter spotify track url or id".ask()
+  
+  if track_id != "" (
+    if track_id.contains("https://open.spotify.com/track/") (
+      track_id.regex("/track\/(.*?)(?=\?|$)/g").[1]
+      track_id.right(track_id.len - 6)
+    )
+    loadTrack track_id
   )
-  loadTrack track_id
-  current.image = response.cover_url
-  current.name = response.song_name
-  current.url = response.mp3_url
-  current.duration = response.duration
 )
-frame window.left window.top - 40 window.left + 300 window.bottom + 60 my_songs.len
-loc 2 2 0 -30
-each song song_keys (
-  set_x 0
-  song = song_data.[song]
-  square frame_width - 20 30 10 : c#333
-  change_x frame_width / -2 + 30
-  change_y -30
+c #333
+frame window.left window.top - 40 window.left + 300 window.bottom + 60 song_keys.len * 50
+loc 2 2 0 -30 + scroll_y
+w = frame_width - 20
+count = (scroll_y / 50).round
+loop ((frame_height / 50).round + 1).clamp(0,song_keys.len) (
+  count ++
+  key = song_keys.[count]
+  y = count * -50 + 20 + scroll_y
+  loc 999 2 0 y
+  song = song_data.[key]
+  if current_song == key "c #333" else "c #222"
+  square frame_width - 20 30 10
+  if clicked and can (
+    can = false
+    current_song = key
+    loadSong song
+  )
+  change_x frame_width / -2 + 25
+  image song.cover_url 30 30
+  text song.song_name 8 : c#fff chx#20
 )
 frame "clear"
 loc 999 -2 0 30
 square window_width 60 : c#151515
-loaded_song = current.url.soundinfo("loaded") and current.url != ""
+if current.contains("url") (
+  loaded_song = current.url.soundinfo("loaded") and current.url != ""
+) else (
+  loaded_song = false
+)
 
 loc 2 -2 30 30
 if loaded_song (
