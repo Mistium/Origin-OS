@@ -26,7 +26,7 @@ if data.len != 0 (
       square 45 45 0 0 1
       if mouse_touching (
         curx = x_position
-        file "get" 2
+        file "get" 1.7
         cur = data
       )
       rightclick "file" app
