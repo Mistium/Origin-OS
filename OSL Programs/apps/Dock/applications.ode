@@ -4,34 +4,32 @@ if data.len != 0 (
   change_x width / 2
   x = x_position
   set_y y
-  square width height 20 1 0 1
+  square width height 30 1 0 1
   cur = ""
   if data.len != dock_len or mouse_touching or bg_redrawn (
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
       data.delete(file_dropped)
-      pos = ( mouse_x - ( x - ( width / 2 ) ) / 50 + 0.5 ).round
+      pos = (mouse_x - (x - (width / 2)) / 50).round
       data.insert(pos,file_dropped)
       file "set" 4 data
       file_dropped = 0
     )
     dock = data
     square width height 20
-    goto x - ( width / 2 ) + 20 y
+    goto x - (width / 2) + 20 y
     dock_len = dock.len
-    count = 0
-    loop dock.len (
-      count ++
-      file "open" dock.[count] "onlyaccess"
-      file "render" 1.7 "interactable"
+    each app dock (
+      file "open" app "onlyaccess"
+      file "render" 2 "interactable"
       square 45 45 0 0 1
       if mouse_touching (
         curx = x_position
         file "get" 2
         cur = data
       )
-      rightclick "file" dock.[count]
+      rightclick "file" app
       change_x 50
     )
   )
@@ -40,7 +38,7 @@ if data.len != 0 (
       window "refresh_bg"
     )
     goto curx 20
-    square cur.len * 8 10 10 : c#000
+    square cur.len * 8 10 12 : c#000
     change_x cur.len * -4
     text cur 8 : c#fff
     last_cur = cur
