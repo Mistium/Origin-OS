@@ -1,30 +1,34 @@
 save "beepify@mistium" "set_directory"
 
+def "remove_playlist" "info"
+  playlists.delete(info.[1])
+endef
+
 def "loadTrack" "id"
   if id == "" (
     song_data.delete(id)
     save "songs.json" "set" song_data
   ) else (
-  network "get" "https://originfy.milosantos.com?song=" ++ id
-  response = data
-  if response.type == "object" (
-    response.JsonClean()
-    song_data.[id] = response
-    save "songs.json" "set" song_data
-    if song_keys.contains(id).not (
-      song_keys.append(id)
-    )
-    url = response.mp3_url
-    sound url "load"
-    if loading != [] (
-      loading.delete(1)
-    )
-  ) else (
-    if response != "loading" (
+    network "get" "https://originfy.milosantos.com?song=" ++ id
+    response = data
+    if response.type == "object" (
+      response.JsonClean()
+      song_data.[id] = response.delete("mp3_url")
+      save "songs.json" "set" song_data
+      if song_keys.contains(id).not (
+        song_keys.append(id)
+      )
+      url = response.mp3_url
+      sound url "load"
       if loading != [] (
         loading.delete(1)
       )
-    )
+    ) else (
+      if response != "loading" (
+        if loading != [] (
+          loading.delete(1)
+        )
+      )
     )
   )
 endef
@@ -32,13 +36,14 @@ endef
 def "loadSong" "song"
   sound current.url "pause"
   current = {}
-  current.url = song.mp3_url
-  current.image = song.cover_url
-  current.name = song.song_name
+  current.url = song.mp3_url.str
+  current.image = song.cover_url.str
+  current.name = song.song_name.str
   current.duration = song.duration
   sound current.url "load"
   sound current.url "start" 0
   sound current.url "pause"
+  log "load song"
 endef
 
 def "seconds.origifyTime()"
@@ -46,21 +51,107 @@ def "seconds.origifyTime()"
   return this.mins ++ ":" ++ (seconds - (this.mins * 60)).padStart(2,0)
 endef
 
-playing = false
-song_data = {}
+def "render_tracks" "tracks"
+  if tracks == "all" (
+    tracks = song_keys
+  )
+  loc 2 2 0 -30 + scroll_y
+  w = frame_width - 20
+  count = (scroll_y / 50).round
+  loop ((frame_height / 50).round + 1).clamp(0,tracks.len) (
+    count ++
+    y = count * -50 + 20 + scroll_y
+    loc 999 2 0 y
+    key = tracks.[count]
+    song = song_data.[key]
+    if song != null (
+      if current_song == key "c #333" else "c #222"
+      if loading.contains(key) "c #111"
+      square frame_width - 20 30 10
+      if clicked and can (
+        can = false
+        current_song = key
+        loadSong song
+      )
+      change_x frame_width / -2 + 25
+      image song.cover_url.str 30 30
+      text song.song_name.str 8 : c#fff chx#20
+    )
+  )
+endef
 
+def "render_playlists" "playlist_data"
+  loc 2 2 0 -30 + scroll_y
+  w = frame_width - 20
+  count = (scroll_y / 50).round
+  loop ((frame_height / 50).round + 1).clamp(0,playlist_data.len) (
+    count ++
+    y = count * -50 + 20 + scroll_y
+    loc 999 2 0 y
+    cur = playlist_data.[count]
+    if cur != null (
+      if current_playlist == count "c #333" else "c #222"
+      square frame_width - 20 30 10
+      rightclick playlist_rightclick count
+      if clicked and can (
+        can = false
+        current_playlist = count
+      )
+      change_x frame_width / -2 + 25
+      if cur.image != null (
+        image cur.image.str 30 30
+        change_x 20
+      )
+      text cur.name.str 8 : c#fff
+    )
+  )
+endef
+
+playing = false
+
+song_data = {}
 loading = []
 
 loading_music = false
 if "songs.json".saveExists() (
   save "songs.json" "get"
   song_data = save_data
+  save "playlists.json" "get"
+  playlists = save_data
 ) else (
   save "songs.json" "set" {}
-  song_data = {}
+  song_data = {} 
+  playlists = [{"name":"main","songs":["6o0IytQVis0KjQCkcFtqGD"]}]
+  save "playlists.json" "set" playlists
 )
+playlists = [
+  {
+    "name":"All Songs",
+    "image":"",
+    "songs":"all"
+  },
+  {
+    "name":"teletype",
+    "image":"https://i.scdn.co/image/ab67616d0000b273319985d0968916cb82f55df5",
+    "songs":["6o0IytQVis0KjQCkcFtqGD"]
+  },
+  {
+    "name":"softwilly",
+    "image":"https://i.scdn.co/image/ab67616d0000b2730808cca865c9bf9d653009ef",
+    "songs":["1ClLVL8w0vngTIq7Afrne6","5lZtXVDsSQaa43CfCuTx1F"]
+  }
+]
+
+playlist_rightclick = [
+  {"delete playlist":"remove_playlist"}
+]
 song_keys = song_data.getKeys()
+each key song_keys (
+  network "clear" "https://originfy.milosantos.com?song=" ++ key
+)
 if song_keys.len > 0 "loading_music = true"
+
+current_playlist = ""
 
 loaded_total = 0
 total_songs = song_keys.len
@@ -75,11 +166,30 @@ mainloop:
 if loading.len > 0 (
   c #fff
   loc 2 2 10 -20
-  text "Loading your music" 10
-  import "win-buttons"
+  text `Loading your music ${loading.len} Remaining` 10
   loadTrack loading.[1]
-  exit
 )
+
+
+c #333
+frame window.left window.top - 40 window.left + 250 window.top - 200
+goto 0 0
+square frame_width frame_height : c#222
+square frame_width - 20 30 10 : c#333
+change_x frame_width / -2 + 10
+text "New Playlist" 9 : c#fff
+frame "clear"
+c #333
+frame window.left window.top - 200 window.left + 250 window.bottom + 60 playlists.len * 50
+render_playlists playlists
+frame "clear"
+
+c #333
+frame window.left + 250 window.top - 40 window.right - 250 window.bottom + 60 song_keys.len * 50
+if current_playlist != null (
+  render_tracks playlists.[current_playlist].songs
+)
+frame "clear"
 
 loc 999 2 0 -20
 square window_width 40 : c#151515
@@ -96,32 +206,10 @@ if clicked and can (
       track_id.regex("/track\/(.*?)(?=\?|$)/g").[1]
       track_id.right(track_id.len - 6)
     )
-    loadTrack track_id
+    loading.append(track_id)
   )
 )
-c #333
-frame window.left window.top - 40 window.left + 300 window.bottom + 60 song_keys.len * 50
-loc 2 2 0 -30 + scroll_y
-w = frame_width - 20
-count = (scroll_y / 50).round
-loop ((frame_height / 50).round + 1).clamp(0,song_keys.len) (
-  count ++
-  key = song_keys.[count]
-  y = count * -50 + 20 + scroll_y
-  loc 999 2 0 y
-  song = song_data.[key]
-  if current_song == key "c #333" else "c #222"
-  square frame_width - 20 30 10
-  if clicked and can (
-    can = false
-    current_song = key
-    loadSong song
-  )
-  change_x frame_width / -2 + 25
-  image song.cover_url 30 30
-  text song.song_name 8 : c#fff chx#20
-)
-frame "clear"
+
 loc 999 -2 0 30
 square window_width 60 : c#151515
 if current.contains("url") (
@@ -143,16 +231,19 @@ if loaded_song (
   c #fff
   if playing (
     icon "pause" 0.7
-    sound current.url "play"
   ) else (
     icon "play" 0.7
-    sound current.url "pause"
   )
   current.time = current.url.soundinfo("current_time").round
   if clicked and can (
-    playing.not
     can = false
+    if playing (
+      sound current.url "pause"
+    ) else (
+      sound current.url "play"
+    )
   )
+  playing = current.url.soundinfo("playing")
   loc -6 -2 25 40
   c #111
   slider window_width / 1.5 - 80 10 "time" 10
@@ -170,5 +261,6 @@ if loaded_song (
 
   text current.time.origifyTime() ++ "/" ++ current.duration.round.origifyTime() 9 : c#ddd
 )
+
 if mouse_down.not "can = true"
 import "win-buttons"
