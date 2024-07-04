@@ -180,7 +180,7 @@ if mode == "" (
   if mouse_down and can (
     multiplier += mx - last_mx
   )
-  multiplier = ( multiplier * 100 ).round / 100
+  multiplier = ( multiplier * 1000 ).round / 1000
   last_mx = mx
   text multiplier 10 : c#fff
   editicn icon_code multiplier mode
