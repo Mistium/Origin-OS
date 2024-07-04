@@ -19,6 +19,12 @@ def "icons_small"
   save "theme.json" "set" theme
 endef
 
+def "icons_hide"
+  app_size = 0
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+endef
+
 
 desktop_rightclick = [
   "Change Wallpaper",
@@ -32,10 +38,12 @@ desktop_rightclick = [
   "Copy Path",
   "-",
   [
-    "File Icon Size",
+    "View",
     {"Big Icons":"icons_big"},
     {"Normal Icons":"icons_norm"},
-    {"Small Icons":"icons_small"}
+    {"Small Icons":"icons_small"},
+    "-",
+    {"Hide Icons":"icons_hide"}
   ]
 ]
 
@@ -64,6 +72,7 @@ mainloop:
 include windowfileloc
 nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn
+
 if cnrn.not and nhvr "exit"
 movefileloc windowfileloc
 window "y" 35
@@ -112,6 +121,7 @@ if nhvr.not (
   rightclick desktop_rightclick desktop_uuid
 )
 if data == [] "exit"
+if app_size == 0 "exit"
 each i app_id desktop (
   file "open" app_id "onlyaccess"
   loc 2 2 35 -35
