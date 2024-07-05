@@ -1,9 +1,14 @@
+// icons
 graphics_icn = "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn camera 0.4 0 -2"
 assembly_icn = "c #6f4aa5 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #2b1d40 icn atom 0.4 0 -2"
+
+python_icn = "c #3377bb w 4 square -2 2.5 5 .5 square -7 -1 .5 4 square 2 6 1 2 square -1 7.5 4 .5 c #ffffff w 3 dot -4 7.5 c #ffbb33 w 4 square 2 -2.5 5 .5 square 7 1 .5 4 square -2 -6 1 2 square 1 -7.5 4 .5 c #ffffff w 3 dot 4 -7.5"
+javascript_icn = ""
 
 icon_cfg = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9 cont 2 7 line -2 -7 -1.5 -9 cont 1.5 -9 cont 2 -7 line 7 -2 9 -1.5 cont 9 1.5 cont 7 2 line -7 -2 -9 -1.5 cont -9 1.5 cont -7 2 line -5.5 3 -7.5 6 cont -6 7.5 cont -3 5.5 line 5.5 3 7.5 6 cont 6 7.5 cont 3 5.5 line -5.5 -3 -7.5 -6 cont -6 -7.5 cont -3 -5.5 line 5.5 -3 7.5 -6 cont 6 -7.5 cont 3 -5.5 w 3 dot 0 8 dot 8 0 dot 0 -8 dot -8 0 dot -6 -6 dot 6 -6 dot -6 6 dot 6 6 "
 icon_log = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0  dot 0 -5"
 
+// main
 file "install_type" "folder" "c #772d1c square 0 2 10 4 c #ff724f square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0" "Folder" ["Origin/(A) System/User Applications/Files.osl"]
 file "install_type" "md" "c #000 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #ddd w 2 line -4 -5 -4 0 cont 0 -5 cont 4 0 cont 4 -5" "Markdown" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Plain Text" ["Origin/(A) System/User Applications/Studio.osl"]
@@ -19,9 +24,13 @@ file "install_type" "ocf" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 
 file "install_type" "zip" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0" "Zip Archive" []
 file "install_type" "shortcut" "" "Alias File" ["Origin/(A) System/System Apps/Shortcut_Opener.osl"]
 
+// languages
 file "install_type" "oasm" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
 file "install_type" "otas" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
+file "install_type" "py" python_icn "Python" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "js" javascript_icn "Javascript" ["Origin/(A) System/User Applications/Studio.osl"]
 
+// graphics
 file "install_type" "png" graphics_icn "PNG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "jpg" graphics_icn "JPG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "jpeg" graphics_icn "JPEG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
@@ -30,5 +39,6 @@ file "install_type" "mp4" graphics_icn "MP4 Video" ["Origin/(A) System/User Appl
 file "install_type" "webm" graphics_icn "WEB Media" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "gif" graphics_icn "Gif Video" ["Origin/(A) System/User Applications/Previewer.osl"]
 
+// info
 file "install_type" "cfg" icon_cfg "Config" []
 file "install_type" "log" icon_log "Debug logs" []
