@@ -5,6 +5,7 @@ assembly_icn = "c #6f4aa5 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 
 python_icn = "c #3377bb w 4 square -2 2.5 5 .5 square -7 -1 .5 4 square 2 6 1 2 square -1 7.5 4 .5 c #ffffff w 3 dot -4 7.5 c #ffbb33 w 4 square 2 -2.5 5 .5 square 7 1 .5 4 square -2 -6 1 2 square 1 -7.5 4 .5 c #ffffff w 3 dot 4 -7.5"
 javascript_icn = "w 3 c #ffca28 square 0 0 8.5 8.5 w 10 square 0 0 4 4 w 2 c #111 line -0.2 -0.2 -0.2 -6 cutcircle -2.15 -6 1.9 17 70 cutcircle 5.4 -1.6 1.6 -4 90 cutcircle 5.4 -6 1.8 16 90 line 7 -5.3 4.48 -3"
 c_icn = "w 20 c #649ad2 dot 0 0 w 4 c #004482 line 0 0 -8 -4.6 cont 0 -9.4 cont 8 -4.6 cont 0 0 w 10 dot 0 -4.7 w 4 c #00589c line 0 0 8 4.6 cont 8 -4.6 cont 0 0 w 8 dot 5 0 c #649ad2 w 4 line 8 4.6 -8 -4.6 cont -8 4.6 cont 0 9.4 cont 8 4.6 w 3.3 c #fff cutcircle 0 0 5 -9 140"
+html_icn = "c #e44d26 w 2 line -7.5 8 7.5 8 cont 6 -8 cont 0 -10.5 cont -6 -8 cont -7.5 8 w 4 line -5 6 5 6 cont 4 -6 cont 0 -8 cont -4 -6 cont -5 6 w 6 line 0 3 0 -3 c #f16529 w 2 line 5 -7 6 7 cont 1 7 cont 1 -8.5 cont 4 -7 w 4 line 3 5 3 -5 c #ffffff w 1 line 5.5 6 -5.5 6 cont -4.5 -1 cont 2.5 -1 cont 2 -5 cont 0 -6 cont -2 -5 cont -2.25 -4 cont -4.25 -4 cont -4 -6 cont 0 -8 cont 4 -6 cont 5 1 cont -2.5 1 cont -2.75 4 cont 5.25 4 cont 5.5 6 w 2.5 line 4 5 -4.5 5 cont -3 0 cont 4 0 cont 3 -5 cont 0 -6.5 cont -3 -5 cont -3 -5"
 
 icon_cfg = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9 cont 2 7 line -2 -7 -1.5 -9 cont 1.5 -9 cont 2 -7 line 7 -2 9 -1.5 cont 9 1.5 cont 7 2 line -7 -2 -9 -1.5 cont -9 1.5 cont -7 2 line -5.5 3 -7.5 6 cont -6 7.5 cont -3 5.5 line 5.5 3 7.5 6 cont 6 7.5 cont 3 5.5 line -5.5 -3 -7.5 -6 cont -6 -7.5 cont -3 -5.5 line 5.5 -3 7.5 -6 cont 6 -7.5 cont 3 -5.5 w 3 dot 0 8 dot 8 0 dot 0 -8 dot -8 0 dot -6 -6 dot 6 -6 dot -6 6 dot 6 6 "
 icon_log = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0  dot 0 -5"
@@ -31,6 +32,7 @@ file "install_type" "otas" assembly_icn "Origin Assembly" ["Origin/(A) System/Sy
 file "install_type" "py" python_icn "Python" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "js" javascript_icn "Javascript" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "c" c_icn "C File" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "html" html_icn "HTML File" ["Origin/(A) System/User Applications/Studio.osl"]
 
 // graphics
 file "install_type" "png" graphics_icn "PNG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
