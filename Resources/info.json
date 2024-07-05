@@ -1,5 +1,5 @@
 {
-  "server": "wss://rotur.milosantos.com",
+  "server": "wss://rotur.mistium.com",
   "rooms": [
     "roturTW"
   ],
