@@ -30,18 +30,21 @@ y = -100
 height = 40
 // Theme
 
-if user."dock_colour" == null (
+if user.dock_colour == null (
   network "update" "dock_colour" #060606
 )
-if user."icon_colour" == null (
+if user.icon_colour == null (
   network "update" "icon_colour" #f3f3f3
+)
+if user.theme == null (
+  network "update" "theme" {"primary":"#333","secondary":"#222","tertiary":"#111"}
 )
 
 file_loc = user_folder ++ "/Dock"
 
 mainloop:
-dock_colour = user."dock_colour"
-icon_colour = user."icon_colour"
+dock_colour = user.dock_colour
+icon_colour = user.icon_colour
 if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour
   window "refresh_bg"
