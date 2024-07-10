@@ -2,6 +2,7 @@ window "show"
 page = "APPSTORE// Loading"
 permission "request" "file admin"
 permission "request" "terminal"
+permission "request" "save admin"
 
 window "dimensions" 1000 600
 save "appstore@system" "set_directory"
@@ -34,8 +35,7 @@ frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
 
 if page == "APPSTORE// Loading" (
   page_name = "Loading..."
-  t = timer * 100
-  direction t.sin * 360
+  direction timer * 360
   icon "cutcircle 0 0 10 0 90" 5 : c#fff
   direction 90
   network "get" "https://raw.githubusercontent.com/Mistium/apps/main/apps.json"
@@ -48,13 +48,13 @@ if page == "APPSTORE// Loading" (
 if page == "APPSTORE// store" (
   page_name = "Store"
   app_h = frame_width / 2
-  count = ( scroll_y / 70 ).round - 1
+  count = (scroll_y / 70).round - 1
   len = apps.len
-  loop ( frame_height / 70 ).ceiling.clamp(0,len) + 1 (
+  loop (frame_height / 70).ceiling.clamp(0,len) + 1 (
     count ++
     y = count - 0.5 * -70 + scroll_y
     loc 999 2 0 y
-    cur = apps.[count]
+    cur = apps[count]
     square frame_width - 20 50 10 : c#222 hover_c#333
     if clicked (
       page = cur
@@ -65,7 +65,7 @@ if page == "APPSTORE// store" (
     if icons.contains(cur).not (
        network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ cur.to("url") ++ "/icon.icn"
        if data.str != "loading" (
-         icons.[cur] = data.replace(newline,"")
+         icons[cur] = data.replace(newline,"")
       ) 
     )
     icon icons.[cur] 1.5
@@ -85,11 +85,11 @@ if page == "APPSTORE// library" (
   app_h = frame_width / 2
   count = ( scroll_y / 70 ).round - 1
   len = library_apps.len
-  loop ( frame_height / 70 ).ceiling.clamp(0,len) + 1 (
+  loop (frame_height / 70).ceiling.clamp(0,len) + 1 (
     count ++
     y = count - 0.5 * -70 + scroll_y
     loc 999 2 0 y
-    file "open" library_apps.[count] "onlyaccess"
+    file "open" library_apps[count] "onlyaccess"
     square frame_width - 20 50 10 : c#222 hover_c#333
     loc -2 2 -35 y
     square 30 30 10 : c#333
@@ -114,80 +114,81 @@ app_page = page.contains("APPSTORE// ").not
 
 if app_page (
   network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ page.to("url") ++ "/info.json"
-  current_app = data
-  cur = current_app."title".toLower()
-  if installed == 0 and cur != "" (
-    save "installed.json" "get"
-    app_path = user_folder ++ "/applications/" ++ cur ++ ".osl"
-    file "exists" app_path
-    installed = save_data.contains(cur) and exists
-    install_version = save_data.[cur].int
-    log install_version
-  )
-  desc = current_app."description".str
-  version = current_app."version"
-  txt = ( "-" ++ newline ).destr
-  for "i" desc.len * 9 / frame_width (
-    p = frame_width / 9 - 4 * i - 1
-    desc.insert(p,txt)
-    desc.str
-  )
-  w = frame_width
-  loc 999 2 0 -50
-  square w 130 10 1 : c#222
-  loc 2 2 60 -60
-  icon icons.[cur].str 3
-  loc 2 2 140 -50
-  text cur.toTitle() + "(v" ++ version ++ ")" 10 : c#fff
-  loc 2 2 140 -80
-  text "By" + current_app."author" 9
-  loc 2 2 20 -160
-  text desc 9
-  if installed "loc -2 2 -90 -35" else "loc -2 2 -90 -60"
-  square 150 30 15 : c#global_accent
-  square 150 30 10 : c#333 hover_c#444
-  if onclick (
-    if installed and version == install_version (
-      file "open" app_path "onlyaccess"
-      file "start"
-      file "close"
-    ) else (
-      terminal "app install" + cur
+  if data == "Loading" (
+    direction timer * 360
+    icon "cutcircle 0 0 10 0 90" 5 : c#fff
+    direction 90
+  ) else (
+    current_app = data
+    cur = current_app."title".toLower()
+    if installed == 0 and cur != "" (
       save "installed.json" "get"
-      save "installed.json" "set" save_data.insert(cur,install_version)
-      say cur + "Has been installed to /Applications"
-      installed = true
+      app_path = user_folder ++ "/applications/" ++ cur ++ ".osl"
+      file "exists" app_path
+      installed = save_data.contains(cur) and exists
+      install_version = save_data[cur].int
     )
-  )
-  c #fff
-  change_x -60
-  if installed (
-    if version == install_version (
-      icon "play" 0.7
-      text "Open" 9 : chx#20
-    ) else (
-      icon "reload" 0.7
-      text "Update" 9 : chx#20
-    )
-    loc -2 2 -90 -85
+    desc = current_app."description".str
+    w = frame_width
+    loc 999 2 0 -50
+    square w 130 10 1 : c#222
+    loc 2 2 60 -60
+    icon icons[cur].str 3
+    loc 2 2 140 -50
+    text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#fff
+    loc 2 2 140 -80
+    text "By" + current_app."author" 9
+    loc 2 2 20 -160
+    text desc.wrapText((window_width - 350) / 9) 9
+    if installed "loc -2 2 -90 -35" else "loc -2 2 -90 -60"
     square 150 30 15 : c#global_accent
     square 150 30 10 : c#333 hover_c#444
-    if onclick (
-      terminal "app uninstall" + cur
-      save "installed.json" "get"
-      save "installed.json" "set" save_data.delete(cur,version)
-      say cur + "Has been uninstalled"
-      installed = false
+    if clicked and can (
+      can = false
+      if installed and current_app.version == install_version (
+        file "open" app_path "onlyaccess"
+        file "start"
+        file "close"
+      ) else (
+        terminal "app install" + cur
+        save "installed.json" "get"
+        install_version = current_app.version
+        save_data[cur] = install_version
+        save "installed.json" "set" save_data
+        say cur + "Has been installed to /Applications"
+        installed = true
+      )
     )
-    change_x -60
     c #fff
-    icon "Bin" 0.7
-    text "Uninstall" 9 : chx#20
-  ) else (
-    icon "download" 0.7
-    text "Install" 9 : chx#20
+    change_x -60
+    if installed (
+      if current_app.version == install_version (
+        icon "play" 0.7
+        text "Open" 9 : chx#20
+      ) else (
+        icon "reload" 0.7
+        text "Update" 9 : chx#20
+      )
+      loc -2 2 -90 -85
+      square 150 30 15 : c#global_accent
+      square 150 30 10 : c#333 hover_c#444
+      if clicked and can (
+        can = false
+        terminal "app uninstall" + cur
+        save "installed.json" "get"
+        save "installed.json" "set" save_data.delete(cur,version)
+        say cur + "Has been uninstalled"
+        installed = false
+      )
+      change_x -60
+      icon "Bin" 0.7 : c#fff
+      text "Uninstall" 9 : chx#20
+    ) else (
+      icon "download" 0.7
+      text "Install" 9 : chx#20
+    )
+    len = 0
   )
-  len = 0
 )
 frame "clear"
 
