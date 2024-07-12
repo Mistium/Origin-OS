@@ -43,7 +43,7 @@ if type == "video" (
   video passed_data.str temp temp
 )
 loc 2 2 10 -20
-text `${name} (${w}x${h})` 10 : c#fff
+text `${name} ${w}x${h}` 10 : c#fff
 loc -2 2 -20 -20
 square 20 20 10 : c#333
 icon "close" 0.7 : c#fff
