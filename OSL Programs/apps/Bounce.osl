@@ -1,24 +1,26 @@
-people_x = "array".new(100)
-people_y = "array".new(100)
-pd = "array".new(100)
+people_x = 100.newArray()
+people_y = 100.newArray()
+pd = 100.newArray()
 count = 0
 loop 100 (
-count += 1
-people_x.[count] = 0
-people_y.[count] = 0
-pd.[count] = 0
+  count ++
+  people_x[count] = 0
+  people_y[count] = 0
+  pd[count] = 0
 )
 mainloop:
 count = 0
 c #fff
 loop 20 (
-count += 1
-goto people_x.[count].destr people_y.[count].destr
-icon "w 4 dot 0 0" 1
-d = [0,0].dist(x_position,y_position)
-if d.int >= 100 "pd.[count] += 180"
-people_x.[count] += pd.[count].destr.sin * ( d / 10 + 1 )
-people_y.[count] += pd.[count].destr.cos * ( d / 10 + 1 )
-pd.[count] += [-10,10].random
+  count += 1
+  goto people_x[count].destr people_y[count].destr
+  icon "w 4 dot 0 0" 1
+  d = [0,0].dist(x_position,y_position)
+  if d.int >= 100 (
+    pd[count] += 180
+  )
+  people_x[count] += pd[count].destr.sin * (d / 10 + 1)
+  people_y[count] += pd[count].destr.cos * (d / 10 + 1)
+  pd[count] += [-10,10].random
 )
 import "win-buttons"
