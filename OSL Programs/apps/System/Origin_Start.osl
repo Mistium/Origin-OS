@@ -148,4 +148,6 @@ change 50 10
 c #fff
 text "originOS" 13
 change -50 -20
-text "v" ++ origin."version" 10
+versionarray = origin."version".split()
+version = versionarray.first() ++ "." ++ versionarray.pop().last() ++ "." ++ versionarray.last()
+text "v" ++ version 10
