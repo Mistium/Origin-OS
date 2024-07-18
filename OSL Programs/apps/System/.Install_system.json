@@ -1,12 +1,5 @@
 [
   {
-    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/newfolder.json",
-    "path": "Origin/(A) System",
-    "name": "Modules.folder",
-    "icon": "",
-    "version":"1"
-  },
-  {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/Dock.osl",
     "path": "Origin/(A) System/Docks",
     "name": "Dock.osl",
