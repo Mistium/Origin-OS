@@ -62,20 +62,20 @@ endef
 
 icons = {}
 file "open" user_path ++ "Desktop.folder"
-icons."Desktop" = file.[11]
+icons.Desktop = file[11]
 file "open" user_path ++ "Downloads.folder"
-icons."Downloads" = file.[11]
+icons.Downloads = file[11]
 file "open" user_path ++ "Documents.folder"
-icons."Documents" = file.[11]
+icons.Documents = file[11]
 file "open" user_path ++ "Bin.folder"
-icons."Bin" = file.[11]
+icons.Bin = file[11]
 file "open" "Origin/(A) System.folder"
-icons."System" = file.[11]
+icons.System = file[11]
 file "open" "Origin/(B) Local.folder"
-icons."Local" = file.[11]
+icons.Local = file[11]
 file "open" "Origin/(C) Users.folder"
-icons."Users" = file.[11]
-icons.[username] = "image" + user_icon.str + "20"
+icons.Users = file[11]
+icons[username] = "image" + user_icon + "20"
 window_colour = #000
 c_icon = #fff
 c_prim = #222
