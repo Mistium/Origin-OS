@@ -354,7 +354,7 @@ def "system"
     )
     loc 2 2 10 -70
     text "Patreon Supporters:" 10 : c#fff
-    supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","","--- Free ---","Viofile","Milodev123"]
+    supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","Milodev123","","--- Free ---","Viofile"]
     
     loc 2 2 10 -100
     count = scroll_y.divide(20).round
@@ -812,60 +812,68 @@ def "updates"
 endef
 
 def "credits"
-  page_len = 290
-  w = frame_width / 2 - 40
-  loc 4 2 2.5 -120 + scroll_y
-  c #222
-  square w 200 20
-  change_y 25
-  c global_accent
-  square w 150 15
-  c #222
-  square w 150 8
-  c #fff
-  x = x_position
-  change_x -95
-  icon "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10" 1.5
-  change_x 30
-  text "Origin Network" 13
-  change -25 -18
-  text "v4" 8
-  set_x x - ( w / 2 - 10 )
-  change_y -90
-  text "Provided By Milodev123" 9
-  set_x x
-  change_y -70
-  c #222
-  square w 40 20
-  change_x w / -2 + 10
-  c #fff
-  text "Full Extensions List >" 9 -100
-  loc -4 2 -2.5 -95 + scroll_y
-  c #222
-  square w 150 20
-  x = x_position
-  change w / -2 + 30 40
-  image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
-  c #fff
-  change 30 12
-  text "Turbowarp" 12
-  change -162 -32
-  n = newline
-  text `      Thanks to GarboMuffin${n}and the scratch team for${n}making turbowarp possible` 9
-  set_x x
-  change_y -175
-  c #222
-  square w 100 20
-  set_x 20
-  change_y 40
-  text "Github Contributors >" 9 : c#fff
-  set_x 30
-  change_y -30
-  i = 0
-  loop c_imgs.len (
-    i ++
-    image c_imgs.[i].str 25 25
-    change_x 30
+  if subcategory == "none" (
+    page_len = 290
+    w = frame_width / 2 - 40
+    loc 4 2 2.5 -120 + scroll_y
+    square w 200 20 : c#222
+    square w 150 15 : chy#25 c#global_accent
+    square w 150 8 : c#222
+    c #fff
+    x = x_position
+    change_x -65
+    icon "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10" 1.3
+    text "roturTw" 15 : chx#30
+    change -25 -18
+    text "v5" 8
+    set_x x - ( w / 2 - 10 )
+    change_y -90
+    text "Powering originNetworking" 9
+    set_x x
+    change_y -70
+    square w 40 20 : c#222
+    if clicked (
+      subcategory = "Extensions"
+      extensions = "JSON.stringify(Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions)))".eval
+      extensions.prepend("Total:" + extensions.len)
+    )
+    change_x w / -2 + 10
+    text "Full Extensions List >" 9 -100 : c#fff
+    loc -4 2 -2.5 -95 + scroll_y
+    square w 150 20 : c#222
+    x = x_position
+    change w / -2 + 30 40
+    image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
+    change 30 12
+    text "Turbowarp" 12 : c#fff
+    change -162 -32
+    text "      Thanks to GarboMuffin and the scratch team for making turbowarp possible".wrapText(w / 9 - 1) 9
+    set_x x
+    change_y -175
+    square w 100 20 : c#222
+    set_x 20
+    change_y 40
+    text "Github Contributors >" 9 : c#fff
+    set_x 30
+    change_y -30
+    i = 0
+    loop c_imgs.len (
+      i ++
+      image c_imgs[i].str 25 25
+      change_x 30
+    )
+  )
+  if subcategory == "Extensions" (
+    count = 0
+    loop extensions.len (
+      count ++
+      y = count - 0.5 * -60 + scroll_y
+      loc 999 2 0 y
+      square frame_width - 20 40 10 : c#222
+      loc 2 2 15 y
+      text extensions[count] 9 : c#fff
+    )
+    page_len = extensions.len - 0.5 * 60
   )
 endef
 
