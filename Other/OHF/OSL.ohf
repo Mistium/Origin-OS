@@ -9,7 +9,7 @@
   },
   "overrides": {
     "origin.comments": "#aaaaaa",
-    "origin.integers": "#5c9bec",
+    "origin.numbers": "#5c9bec",
     "origin.strings": "#9cc6ff"
   },
   "categories": {
@@ -88,8 +88,8 @@
         "say"
       ]
     },
-    "maths": {
-      "color": "",
+    "operators": {
+      "color": "#ffec9c",
       "tokens": [
         "+",
         "-",
@@ -97,6 +97,14 @@
         "/",
         "%",
         "^",
+        "?",
+        "in",
+        "notIn",
+        "b+",
+        "b-",
+        "b*",
+        "b/",
+        "b^",
         "++",
         "--",
         "=",
@@ -105,16 +113,13 @@
         "*=",
         "/=",
         "%=",
-        "^="
-      ]
-    },
-    "comparisons": {
-      "color": "",
-      "tokens": [
+        "^=",
         "==",
         "!=",
         "<",
         ">",
+        "!>",
+        "!<",
         "<=",
         ">=",
         "===",
@@ -122,7 +127,7 @@
       ]
     },
     "logic": {
-      "color": "",
+      "color": "#5ba5ec",
       "tokens": [
         "true",
         "false",
