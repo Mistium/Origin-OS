@@ -1,0 +1,147 @@
+{
+  "manifest": {
+    "name": "OSL",
+    "version": "1",
+    "extensions": [
+      ".osl",
+      ".ode"
+    ]
+  },
+  "overrides": {
+    "origin.comments": "#aaaaaa",
+    "origin.integers": "#5c9bec",
+    "origin.strings": "#9cc6ff"
+  },
+  "categories": {
+    "ui": {
+      "color": "#b7fbff",
+      "tokens": [
+        "text",
+        "icon",
+        "image",
+        "sound",
+        "video",
+        "square",
+        "dropdown",
+        "button",
+        "toggle",
+        "slider",
+        "input",
+        "bar",
+        "iframe",
+        "graph"
+      ]
+    },
+    "positioning":{
+      "color": "#bbb7ff",
+      "tokens":[
+        "loc",
+        "goto",
+        "change_x",
+        "change_y",
+        "change",
+        "set_x",
+        "set_y",
+        "direction",
+        "pointat"
+      ]
+    },
+    "window":{
+      "color":"#b63ceb",
+      "tokens":[
+        "window",
+        "mainloop:",
+        "import"
+      ]
+    },
+    "programflow": {
+      "color": "#eb3c3c",
+      "tokens": [
+        "if",
+        "else",
+        "while",
+        "until",
+        "for",
+        "loop",
+        "each",
+        "break",
+        "switch",
+        "case",
+        "default"
+      ]
+    },
+    "functions":{
+      "color":"#eb7f3c",
+      "tokens":[
+        "function",
+        "return",
+        "def",
+        "endef"
+      ]
+    },
+    "logging":{
+      "color":"#42f7b1",
+      "tokens":[
+        "log",
+        "warn",
+        "error",
+        "say"
+      ]
+    },
+    "maths": {
+      "color": "",
+      "tokens": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "^",
+        "++",
+        "--",
+        "=",
+        "+=",
+        "-=",
+        "*=",
+        "/=",
+        "%=",
+        "^="
+      ]
+    },
+    "comparisons": {
+      "color": "",
+      "tokens": [
+        "==",
+        "!=",
+        "<",
+        ">",
+        "<=",
+        ">=",
+        "===",
+        "!=="
+      ]
+    },
+    "logic": {
+      "color": "",
+      "tokens": [
+        "true",
+        "false",
+        "null",
+        "not",
+        "and",
+        "or",
+        "nor",
+        "nand",
+        "xor",
+        "xnor"
+      ]
+    },
+    "brackets":{
+      "color":"#9cc6ff",
+      "tokens":[
+        "(",
+        ")"
+      ]
+    }
+  }
+}
