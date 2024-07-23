@@ -21,7 +21,7 @@ while count < code.len (
       memory[pointer] -= 1
       break
     case "."
-      output_buffer = output_buffer ++ memory[pointer].chr()
+      output_buffer += memory[pointer].chr()
       break
     case ","
       memory[pointer] = "Input a Character".ask().ord()
