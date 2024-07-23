@@ -1,0 +1,93 @@
+def "brainfuck.setup"
+  this.return_char = 13.chr()
+  code = data.replace(newline,"").replace(this.return_char,"")
+  memory = [0]
+  cur = 0
+  memory_slots = 1
+  pointer = 1
+  input_buffer = ""
+  output_buffer = ""
+  count = 0
+endef
+
+def "brainfuck.exec" "token"
+  switch token (
+      case ">"
+        memory[pointer] = cur
+        pointer += 1
+        if pointer > memory_slots (
+          memory.append(0)
+          memory_slots ++
+        )
+        cur = memory[pointer]
+        break
+      case "<"
+        memory[pointer] = cur
+        if pointer > 1 "pointer -= 1"
+        cur = memory[pointer]
+        break
+      case "+"
+        if cur == 255 (
+          cur = 0
+        ) else (
+          cur += 1
+        )
+        break
+      case "-"
+        if cur == 0 (
+          cur = 255
+        ) else (
+          cur -= 1
+        )
+        break
+      case "."
+        output_buffer += cur.chr()
+        break
+      case ","
+        cur = "Input a Character".ask().ord()
+        break
+      case "["
+        if cur == 0 (
+          openLoops = 1
+          while openLoops > 0 (
+            count ++
+            c = code[count]
+            if c == "[" (
+              openLoops ++
+            ) else (
+              if c == "]" (
+                openLoops --
+              )
+            )
+          )
+        )
+        break
+      case "]"
+        if cur != 0 (
+          openLoops = 1
+          while openLoops > 0 (
+            count --
+            c = code[count]
+            if c == "[" (
+              openLoops --
+            ) else (
+              if c == "]" (
+                openLoops ++
+              )
+            )
+          )
+        )
+        break
+      default
+        log "unknown cmd" + code[count].ord()
+        break
+    )
+endef
+
+def "brainfuck.run" "code"
+  brainfuck.setup
+  while count < code.len (
+    count ++
+    brainfuck.exec code[count]
+  )
+endef
