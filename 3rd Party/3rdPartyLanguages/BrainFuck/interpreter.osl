@@ -1,31 +1,51 @@
-code = "Code".ask()
-memory = 3000.newArray()
+code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
+memory = 30.newVector()
 pointer = 1
 input_buffer = ""
 output_buffer = ""
 
 count = 0
-
-loop code.len (
+while count < code.len (
   count ++
-  run_c = code[count]
-
-  if run_c == ">" "pointer += 1"
-  if run_c == "<" "pointer -= 1"
-  if run_c == "+" "memory.[pointer] += 1"
-  if run_c == "-" "memory.[pointer] -= 1"
-  if run_c == "." (
-    output_buffer = output_buffer ++ memory[pointer].from("unicode")
-  )
-  if run_c == "," (
-    memory[pointer] = "Input a Character".ask.to("unicode")
-  )
-  if run_c == "[" and (pointer == 0) (
-    count += code.trim(count, 99999999).index("]")
-  )
-  if run_c == "]" and (memory.[pointer] != 0) (
-    data = code.len - count
-    count -= code.reverse.trim(data, 99999999).index("[") + 1
+  switch code[count] (
+    case ">"
+      pointer += 1
+      break
+    case "<"
+      pointer -= 1
+      break
+    case "+"
+      memory[pointer] += 1
+      break
+    case "-"
+      memory[pointer] -= 1
+      break
+    case "."
+      output_buffer = output_buffer ++ memory[pointer].chr()
+      break
+    case ","
+      memory[pointer] = "Input a Character".ask().ord()
+      break
+    case "["
+      if memory[pointer] == 0 (
+        openLoops = 1
+        while openLoops > 0 (
+          count ++
+          if code[count] == "[" "openLoops ++"
+          if code[count] == "]" "openLoops --"
+        )
+      )
+      break
+    case "]"
+      if memory[pointer] != 0 (
+        openLoops = 1
+        while openLoops > 0 (
+          count --
+          if code[count] == "[" "openLoops --"
+          if code[count] == "]" "openLoops ++"
+        )
+      )
+      break
   )
 )
 
