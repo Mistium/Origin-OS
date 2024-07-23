@@ -1,43 +1,67 @@
-code = "++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++."
-memory = 30.newVector()
+this.return_char = 13.chr()
+code = data.replace(newline,"").replace(this.return_char,"")
+memory = [0]
+cur = 0
+memory_slots = 1
 pointer = 1
 input_buffer = ""
 output_buffer = ""
-
 count = 0
 while count < code.len (
   count ++
   switch code[count] (
     case ">"
+      memory[pointer] = cur
       pointer += 1
+      if pointer > memory_slots (
+        memory.append(0)
+        memory_slots ++
+      )
+      cur = memory[pointer]
       break
     case "<"
-      pointer -= 1
+      memory[pointer] = cur
+      if pointer > 1 "pointer -= 1"
+      cur = memory[pointer]
       break
     case "+"
-      memory[pointer] += 1
+      if cur == 255 (
+        cur = 0
+      ) else (
+        cur += 1
+      )
       break
     case "-"
-      memory[pointer] -= 1
+      if cur == 0 (
+        cur = 255
+      ) else (
+        cur -= 1
+      )
       break
     case "."
-      output_buffer += memory[pointer].chr()
+      output_buffer += cur.chr()
       break
     case ","
-      memory[pointer] = "Input a Character".ask().ord()
+      cur = "Input a Character".ask().ord()
       break
     case "["
-      if memory[pointer] == 0 (
+      if cur == 0 (
         openLoops = 1
         while openLoops > 0 (
           count ++
-          if code[count] == "[" "openLoops ++"
-          if code[count] == "]" "openLoops --"
+          c = code[count]
+          if c == "[" (
+            openLoops ++
+          ) else (
+            if c == "]" (
+              openLoops --
+            )
+          )
         )
       )
       break
     case "]"
-      if memory[pointer] != 0 (
+      if cur != 0 (
         openLoops = 1
         while openLoops > 0 (
           count --
@@ -46,8 +70,8 @@ while count < code.len (
         )
       )
       break
+    default
+      log "unknown cmd" + code[count].ord()
+      break
   )
 )
-
-say output_buffer
-window "stop"
