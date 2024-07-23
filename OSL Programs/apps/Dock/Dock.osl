@@ -37,7 +37,7 @@ if user.icon_colour == null (
   network "update" "icon_colour" #f3f3f3
 )
 if user.theme.len < 5 or user.theme.type != "object" (
-  network "update" "theme" {"primary":"#777","secondary":"#555","tertiary":"#333","text":"#fff","background":"#050505"}
+  network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505"}
 )
 
 file_loc = user_folder ++ "/Dock"
