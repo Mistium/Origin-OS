@@ -2,7 +2,7 @@ file "open" passed_data "onlyaccess"
 file "get" 4
 
 return_char = 13.chr()
-code = data.replace(newline,"").replace(return_char,"")
+code = data.replace("/[^\[\]><+-.,]+/gm","")
 
 memory = [0]
 cur = 0
@@ -21,7 +21,7 @@ while count < code.len and change_count < 250 (
     case ">"
       memory[pointer] = cur
       pointer += 1
-      if pointer > memory_slots (
+      if pointer >= memory_slots (
         memory.append(0)
         memory_slots ++
       )
@@ -29,7 +29,9 @@ while count < code.len and change_count < 250 (
       break
     case "<"
       memory[pointer] = cur
-      if pointer > 1 "pointer -= 1"
+      if pointer > 0 (
+        pointer -= 1
+      )
       cur = memory[pointer]
       break
     case "+"
@@ -90,7 +92,7 @@ while count < code.len and change_count < 250 (
 )
 
 loc 2 2 20 -20
-text "Instruction:" + count.str.padStart(5,"0") + "Total Memory:" + memory_slots + "Locations" 10 : c#fff
+text "Instruction:" + count.str.padStart(5,"0") + "Pointer:" + pointer + "Value:" + cur + "Total Memory:" + memory_slots + "Locations" 10 : c#fff
 loc 2 2 20 -50
 text output_buffer 10
 import "win-buttons"
