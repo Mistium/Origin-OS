@@ -29,6 +29,7 @@ file "install_type" "shortcut" "" "Alias File" ["Origin/(A) System/System Apps/S
 // languages
 file "install_type" "oasm" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
 file "install_type" "otas" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
+file "install_type" "bf" assembly_icn "BrainFuck" ["Origin/(A) System/System Apps/Brainfuck.osl"]
 file "install_type" "py" python_icn "Python" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "js" javascript_icn "Javascript" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "c" c_icn "C File" ["Origin/(A) System/User Applications/Studio.osl"]
