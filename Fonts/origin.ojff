@@ -1,4 +1,10 @@
 {
+  "origin": {
+    "version": "6",
+    "monowidth": "True",
+    "character_width": "30",
+    "size": "1"
+  },
   "0": "w 5.53 line 10 5 20 5 line 20 5 25 10.25 line 25 10.25 25 31.25 line 25 31.25 20 36.5 line 20 36.5 10 36.5 line 10 36.5 5 31.25 line 5 31.25 5 10.25 line 5 10.25 10 5 line 10 10.25 20 31.25 ",
   "1": "w 5.53 line 15 5 15 36.5 line 25 5 5 5 line 15 36.5 5 26 ",
   "2": "w 5.53 line 10 36.5 20 36.5 line 10 36.5 5 31.25 line 20 36.5 25 31.25 line 25 31.25 25 26 line 5 5 25 5 line 25 26 5 5 ",
@@ -92,12 +98,6 @@
   "ä": "w 5.53 line 10 5 25 5 line 10 5 5 10.25 line 10 15.5 5 10.25 line 10 15.5 20 15.5 line 20 15.5 25 10.25 line 25 20.75 25 5 line 25 20.75 20 26 line 20 26 10 26 dot 10 31.25 dot 20 31.25 ",
   "ö": "w 5.53 line 10 5 20 5 line 20 26 10 26 line 5 20.75 5 10.25 line 25 10.25 25 20.75 line 20 26 25 20.75 line 25 10.25 20 5 line 10 5 5 10.25 line 5 20.75 10 26 dot 10 31.25 dot 20 31.25 ",
   "ü": "w 5.53 line 20 5 10 5 line 10 5 5 10.25 line 5 26 5 10.25 line 20 5 25 10.25 line 25 10.25 25 26 dot 20 31.25 dot 10 31.25",
-  "origin": {
-    "version": "6",
-    "monowidth": "True",
-    "character_width": "30",
-    "size": "1"
-  },
   "\r": "",
   "\n": "",
   "(": "cutcircle 34 23 24 -9 45",
