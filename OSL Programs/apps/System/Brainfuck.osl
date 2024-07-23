@@ -1,6 +1,9 @@
 file "open" passed_data "onlyaccess"
 file "get" 4
-code = data
+
+return_char = 13.chr()
+code = data.replace(newline,"").replace(return_char,"")
+
 memory = [0]
 cur = 0
 memory_slots = 1
@@ -87,7 +90,7 @@ while count < code.len and change_count < 250 (
 )
 
 loc 2 2 20 -20
-text "Instruction:" + count.str + "Total Memory:" + memory_slots ++ "Locations" 10 : c#fff
+text "Instruction:" + count.str.padStart(5,"0") + "Total Memory:" + memory_slots + "Locations" 10 : c#fff
 loc 2 2 20 -50
 text output_buffer 10
 import "win-buttons"
