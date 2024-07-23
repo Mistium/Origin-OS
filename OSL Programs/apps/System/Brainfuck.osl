@@ -1,27 +1,35 @@
 file "open" passed_data "onlyaccess"
 file "get" 4
-
 return_char = 13.chr()
 code = data.replace("/[^\[\]><+-.,]+/gm","")
 
-memory = [0]
-cur = 0
-memory_slots = 1
-pointer = 1
-input_buffer = ""
-output_buffer = ""
-count = 0
+def "reset"
+  memory = [0]
+  cur = 0
+  memory_slots = 1
+  pointer = 1
+  input_buffer = ""
+  output_buffer = ""
+  count = 0
+  running = false
+  inp_chr = 1
+endef
 
+reset
 mainloop:
-change_count = 0
-while count < code.len and change_count < 250 (
+if running (
+  change_count = 0
+) else (
+  change_count = 500
+)
+while count < code.len and change_count < 500 (
   count ++
   change_count ++
   switch code[count] (
     case ">"
       memory[pointer] = cur
       pointer += 1
-      if pointer >= memory_slots (
+      if pointer > memory_slots (
         memory.append(0)
         memory_slots ++
       )
@@ -52,7 +60,8 @@ while count < code.len and change_count < 250 (
       output_buffer += cur.chr()
       break
     case ","
-      cur = "Input a Character".ask().ord()
+      memory[pointer] = input_main[inp_chr].ord()
+      inp_chr ++
       break
     case "["
       if cur == 0 (
@@ -93,6 +102,28 @@ while count < code.len and change_count < 250 (
 
 loc 2 2 20 -20
 text "Instruction:" + count.str.padStart(5,"0") + "Pointer:" + pointer + "Value:" + cur + "Total Memory:" + memory_slots + "Locations" 10 : c#fff
-loc 2 2 20 -50
+loc 2 2 110 -50
+square 170 20 10 : c#333
+input 170 25 "main" "Input" 0
+change_x 130
+square 40 20 10 : c#333
+if onclick (
+  if running (
+    reset
+    running = false
+  ) else (
+    running = true
+  )
+)
+c #fff
+if running (
+  text "reset" 8 : chx#-20
+) else (
+  text "run" 8 : chx#-15
+)
+loc 2 2 20 -90
+out = output_buffer.split(newline)
+len = out.len
+output_buffer = out.trim((len - 10).clamp(1,len),len).join(newline)
 text output_buffer 10
 import "win-buttons"
