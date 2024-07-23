@@ -1,4 +1,4 @@
-def "brainfuck.setup"
+def "setup@brainfuck"
   this.return_char = 13.chr()
   code = data.replace(newline,"").replace(this.return_char,"")
   memory = [0]
@@ -10,7 +10,7 @@ def "brainfuck.setup"
   count = 0
 endef
 
-def "brainfuck.exec" "token"
+def "exec@brainfuck" "token"
   switch token (
       case ">"
         memory[pointer] = cur
@@ -84,10 +84,10 @@ def "brainfuck.exec" "token"
     )
 endef
 
-def "brainfuck.run" "code"
-  brainfuck.setup
+def "run@brainfuck" "code"
+  setup@brainfuck
   while count < code.len (
     count ++
-    brainfuck.exec code[count]
+    exec@brainfuck code[count]
   )
 endef
