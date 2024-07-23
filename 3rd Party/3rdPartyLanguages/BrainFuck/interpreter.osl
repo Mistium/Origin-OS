@@ -1,5 +1,5 @@
-code = "Code".ask
-memory = "Array".new(3000)
+code = "Code".ask()
+memory = 3000.newArray()
 pointer = 1
 input_buffer = ""
 output_buffer = ""
@@ -7,23 +7,23 @@ output_buffer = ""
 count = 0
 
 loop code.len (
-  count += 1
-  run_c = code.[count]
+  count ++
+  run_c = code[count]
 
   if run_c == ">" "pointer += 1"
   if run_c == "<" "pointer -= 1"
   if run_c == "+" "memory.[pointer] += 1"
   if run_c == "-" "memory.[pointer] -= 1"
   if run_c == "." (
-    output_buffer = output_buffer ++ memory.[pointer].from("unicode")
+    output_buffer = output_buffer ++ memory[pointer].from("unicode")
   )
   if run_c == "," (
-    memory.[pointer] = "Input a Character".ask.to("unicode")
+    memory[pointer] = "Input a Character".ask.to("unicode")
   )
-  if run_c == "[" and ( pointer == 0 ) (
+  if run_c == "[" and (pointer == 0) (
     count += code.trim(count, 99999999).index("]")
   )
-  if run_c == "]" and ( memory.[pointer] != 0 ) (
+  if run_c == "]" and (memory.[pointer] != 0) (
     data = code.len - count
     count -= code.reverse.trim(data, 99999999).index("[") + 1
   )
