@@ -49,6 +49,7 @@ body {
 .image {
   width: 80%;
   transition: 0.2s;
+  border-radius: 10px;
 }
 
 .image:hover {
