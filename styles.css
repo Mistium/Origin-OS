@@ -9,7 +9,7 @@ body {
   padding: 0;
   transition: background-color 0.3s ease;
   color: #fff;
-  background: linear-gradient(135deg, #000, #57cdac);
+  background: linear-gradient(135deg, #3b273f, #050a28);
 }
 
 .nav-container {
@@ -40,23 +40,19 @@ body {
   color: inherit;
 }
 
-.content {
-  padding: 0px;
-}
-
 .image-container {
   position: relative;
-  height: 50vw;
+  height: 60vw;
   overflow: hidden;
 }
 
 .image {
-  width: 50%;
+  width: 80%;
   transition: 0.2s;
 }
 
 .image:hover {
-  width: 52%;
+  width: 82%;
   transition: 0.2s;
 }
 
@@ -88,11 +84,10 @@ body {
 }
 
 .kernel-info {
-  background-color: #111;
+  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 10px;
   opacity: 0.9;
   padding: 20px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   max-width: 700px;
   margin: 0 auto;
 }
@@ -119,38 +114,7 @@ body {
 
 .kernel-info .item:nth-child(even) {
   opacity: 1;
-  background-color: #222;
-}
-
-.quote {
-  background-color: #333;
-  border-radius: 5px;
-  padding: 20px;
-}
-
-.quote h3 {
-  margin-top: 0;
-  font-size: 20px;
-  color: #fff;
-}
-
-.quote p {
-  margin: 10px 0;
-  max-width: 450px;
-}
-
-.quote blockquote {
-  font-style: italic;
-  color: #ddd;
-  max-width: 600px;
-  border-radius: 10px;
-  padding: 20px;
-}
-
-.quote footer {
-  margin-top: 10px;
-  font-size: 14px;
-  color: #888;
+  background-color: rgba(0, 0, 0, 0.4);
 }
 
 .badges {
@@ -162,12 +126,12 @@ body {
 
 .badges:hover {
   color: #ddd;
-  scale: 1.05;
+  scale: 1.1;
   transition: 0.2s;
 }
 
 .card-svg-bg {
-  background-color: #222;
+  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 10px;
   width: 100px;
   height: 100px;
@@ -179,12 +143,9 @@ body {
 }
 
 .card {
-  border-color: #57cdac;
-  border-width: 2px;
-  background-color: #111;
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   padding: 20px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   max-width: 700px;
   max-height: 180px;
@@ -220,7 +181,7 @@ body {
 .card-content a {
   opacity: 1;
   font-size: medium;
-  background-color: #333;
+  background-color: rgba(0, 0, 0, 1);
   padding: 10px;
   border-radius: 5px;
   margin-top: 0px;
@@ -230,6 +191,6 @@ body {
 
 .card-content a:hover {
   font-size: medium;
-  background-color: #444;
+  background-color: rgba(0, 0, 0, 0.4);
   color: #ddd;
 }
