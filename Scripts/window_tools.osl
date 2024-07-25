@@ -2,3 +2,8 @@ def "seticon" "icon"
   file "open" my_uuid
   file "set" 11 icon
 endef
+
+def "restart@window_tools"
+  window "add" window.file.uuid
+  window "stop"
+endef
