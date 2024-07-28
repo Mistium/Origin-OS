@@ -1,23 +1,30 @@
+permission "request" "save admin"
+permission "request" "javascript"
+permission "request" "terminal"
+permission "request" "file admin"
+permission "request" "account"
+
 def "appopt" "optname,opticn,icnsize"
   loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#222
+  square frame_width - 25 30 10 1 : c#prim
   loc 2 2 30 y
-  icon opticn icnsize.destr : c#fff
+  icon opticn icnsize.destr : c#txtc
   change_x 30
   text optname 8
 endef
 
 def "DrawCategory" "setting,icn_code"
   temp = x_position
-  if category == setting "c #444" else "c #222"
-  square 190 30 10 1 : chx#80
-  c #333
-  if mouse_touching "square 190 30 15 1"
-  if clicked (
+  change_x 80
+  if category == setting (
+    square 195 25 10 1 : c#tert
+  )
+  square 190 30 10 1 : c#prim
+  if onclick (
     category = setting
     subcategory = "none"
   )
-  icon icn_code 0.8 : c#fff chx#-80
+  icon icn_code 0.8 : c#txtc chx#-80
   change 20
   text setting 10
   goto temp y_position - 50
@@ -25,13 +32,15 @@ endef
 
 def "option" "name,icn_code"
   loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#222
-  if mouse_touching and clicked.not "square frame_width - 25 30 12 1 : c#252525"
-  if clicked "gotosubcategory = name"
+  square frame_width - 25 30 10 1 : c#prim
+  if mouse_touching (
+    square frame_width - 25 30 12 1 : c#seco
+    if onclick "gotosubcategory = name"
+  )
   change_x frame_width - 25 / -2 + 20
   if icn_code == "" "icn_code = name"
-  icon icn_code 1 : c#fff
-  text name 10 : c#fff chx#30
+  icon icn_code 1 : c#txtc
+  text name 10 : chx#30
   y -= 50
   page_len += 50
 endef
@@ -41,7 +50,7 @@ def "system"
     mem = "navigator.deviceMemory".eval
     cores = "navigator.hardwareConcurrency".eval
 
-    if network_drive == "none" and ( tier == null ) (
+    if network_drive == "none" and tier == null (
       network "my_files_usage"
       tier = "Loading..."
       unit = null
@@ -49,28 +58,27 @@ def "system"
     if new_network_data (
       if network_data_command == "my_files_usage" (
         network_drive = network_data.destr
-        log "sys" network_drive.[2]
-        if network_drive.[2] == 100000000 (
+        if network_drive[2] == 100000000 (
           tier = "Free Tier"
         )
-        if network_drive.[2] == 500000000 (
+        if network_drive[2] == 500000000 (
           tier = "Supporter"
         )
-        if network_drive.[2] == 1000000000 (
+        if network_drive[2] == 1000000000 (
           tier = "originDrive"
         )
-        if network_drive.[2] == 5000000000 (
+        if network_drive[2] == 5000000000 (
           tier = "originPro"
         )
         if username == "Mist" (
           tier = "Admin"
         )
-        if network_drive.[2] > 999999 (
-          used_big = network_drive.[2].divide(1000000).round
+        if network_drive[2] > 999999 (
+          used_big = (network_drive[2] / 1000000).round
           unit = "mb"
         )
-        if network_drive.[2] > 999999999 (
-          used_big = network_drive.[2].divide(1000000000).round
+        if network_drive[2] > 999999999 (
+          used_big = (network_drive[2] / 1000000000).round
           unit = "gb"
         )
       )
@@ -90,31 +98,31 @@ def "system"
   if subcategory == "Info" (
     loc 2 2 100 -100
     kernel = origin."kernel"
-    square 0 0 140 : c#444
-    square 0 0 130 : c#222
-    icon "origin-logo" 3 : c#fff
+    square 0 0 140 : c#seco
+    square 0 0 130 : c#prim
+    icon "origin-logo" 3 : c#txtc
     loc 2 2 200 -50
-    text "originOS" 15
-    text "" + kernel."name" 12
+    text "originOS " 15
+    text kernel.name 12
     loc 2 2 200 -75
-    text "Version" + origin."version" 8
+    text "Version" + origin.version 8
     loc 2 2 200 -110
-    text "Kernel:" + kernel."name" + kernel."version" + kernel."type" 8
+    text "Kernel:" + kernel.name + kernel.version + kernel.type 8
     loc 2 2 200 -130
     text "Storage: " ++ used_big ++ unit 8
     loc 2 2 200 -150
     text "UI Style: Origin-Default" 8
     loc 2 2 200 -170
-    if system_url.contains("raw.githack.com/Mistium/Origin-OS") (
-      text "BIOS: Official" 8
+    if system_url.startsWith("https://origin.mistium.com") (
+      text "HOST: Official" 8
     ) else (
       if system_url.left(7) == "file://" (
-        text "BIOS: Local" 8
+        text "HOST: Local" 8
       ) else (
         if system_url.contains("/editor?") (
-          text "BIOS: Editor" 8
+          text "HOST: Editor" 8
         ) else (
-          text "BIOS: Modded" 8
+          text "HOST: Modded" 8
         )
       )
     )
@@ -127,35 +135,20 @@ def "system"
   )
   if subcategory == "Display" (
     loc 2 2 10 -20
-    text `Origin Resolution: ${screensize_x}x${screensize_y}` 10 : c#fff
-    loc 2 2 10 -100
-    text "Render Mode" 10 : c#fff
-    loc 2 2 60 -130
-    square 100 20 10 : c#333
-    if clicked (
-      terminal "system display pixelated false"
-    )
-    text "Default" 10 : chx#-50 c#fff
-    loc 2 2 180 -130
-    square 100 20 10 : c#333
-    if clicked (
-      terminal "system display pixelated true"
-    )
-    text "Pixelated" 10 : chx#-50 c#fff
+    text `Origin Resolution: ${screensize_x}x${screensize_y}` 10 : c#txtc
     terminal "system display get invert"
-    toggle_invert = data.divide(100).round.bool
-    loc 2 2 10 -180
-    c #fff
+    toggle_invert = (data / 100).round.bool
+    loc 2 2 10 -70
+    c txtc
     text "Invert Colours" 10
-    toggle "invert" 20 : c#333 chx#30
+    toggle "invert" 20 : c#prim chx#30
     inp = toggle_invert.int * 100
     terminal "system display set invert" + inp.str
-    loc 2 2 10 -220
-    c #fff
-    text "Night Mode" 10
+    loc 2 2 10 -110
+    text "Night Mode" 10 : c#txtc
     terminal "flags nightmode get"
     toggle_nightmode = data
-    toggle "nightmode" 20 : c#333 chx#70
+    toggle "nightmode" 20 : c#prim chx#70
     terminal "flags nightmode set" + toggle_nightmode.str
   )
   if subcategory == "Media" (
@@ -163,7 +156,7 @@ def "system"
       terminal "get access camera"
       data2 = data
       terminal "get access microphone"
-      if "granted" in ( data + data2 ) (
+      if "granted" in (data + data2) (
         terminal "get mediadevices"
         media = data
         keys = media.getall("keys")
@@ -173,28 +166,26 @@ def "system"
       )
     )
     loc 2 2 10 -40 + scroll_y
-    text "System Volume" 10 : c#fff
+    text "System Volume" 10 : c#txtc
     loc 999 2 0 -90 + scroll_y
     terminal "system sound get volume"
     slider_volume = data / 100
-    slider frame_width - 50 20 "volume" 32 : c#111
+    slider frame_width - 50 20 "volume" 32 : c#prim
     terminal "system sound set volume" + ( slider_volume * 100 )
-    c #fff
+    c txtc
     loc 2 2 10 -160 + scroll_y
     if media.istype("object") (
       text "Media Devices" 10
-      count = 0
-      loop keys.len (
-        count ++
+      for count keys.len (
         y = count + 2.5 * -60 + scroll_y
         loc 999 2 0 y
-        square frame_width - 20 40 10 : c#333 hover_c#252525
-        cur = keys.[count]
+        square frame_width - 20 40 10 : c#prim hover_c#seco
+        cur = keys[count]
         loc 2 2 30 y
-        c #555
+        c seco
         square 30 30 10
-        c #fff
-        type = types.[count]
+        c txtc
+        type = types[count]
         if type == "audiooutput" or type == "audioboth" (
           icon "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80" 0.7
         )
@@ -215,23 +206,23 @@ def "system"
     media = ""
   )
   if subcategory == "Boot Applications" (
-    boot_apps = user."onboot"
+    boot_apps = user.onboot
     if new_transmit (
       file "open" transmit_data
-      f = file.[3] ++ "/" ++ file.[2] ++ file.[1]
+      f = file[3] ++ "/" ++ file[2] ++ file[1]
       boot_apps.append(f)
       network "update" "onboot" boot_apps
       new_transmit = false
     )
     loc 2 2 20 -20 + scroll_y
-    text "Reset Boot To Default: " 10 : c#fff
+    text "Reset Boot To Default: " 10 : c#txtc
     icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
-    if clicked (
+    if onclick (
       boot_apps = ["Origin/(A) System/System Apps/Desktop.osl","Origin/(A) System/Docks/Dock.osl","Origin/(A) System/System Apps/Quick_Settings.osl"]
       network "update" "onboot" boot_apps
     )
     loc 2 2 20 -70 + scroll_y
-    text "Drop File Here" 9 : c#fff
+    text "Drop File Here" 9 : c#txtc
     if file_dropped != 0 (
       file "open" file_dropped "onlyaccess"
       file "get" 3
@@ -255,16 +246,16 @@ def "system"
       count ++
       y = count + 2 * -60 + scroll_y
       loc 999 2 0 y
-      square frame_width - 20 40 10 : c#333 hover_c#252525
+      square frame_width - 20 40 10 : c#prim
       loc 2 2 15 y
-      text boot_apps.[count] 9 : c#fff
+      text boot_apps[count] 9 : c#txtc
       loc -2 2 -30 y
-      square 30 30 10 : c#555 hover_c#666
+      square 30 30 10 : c#seco hover_c#tert
       if onclick (
         boot_apps.delete(count)
         network "update" "onboot" boot_apps
       )
-      icon "bin" 0.8 : c#fff
+      icon "bin" 0.8 : c#txtc
     )
     page_len = boot_apps.len + 2 * 60
   )
@@ -274,44 +265,44 @@ def "system"
     loc 999 2 0 y
     square frame_width - 30 140 10 1 : c#222
     loc 2 2 80 y
-    icon file.[11] 3.3
-    text "(Network)" + username 15 : chx#80 chy#20 c#fff
+    icon file[11] 3.3
+    text "(Network)" + username 15 : chx#80 chy#20 c#txtc
     change_x 20
-    if network_drive.[2] == 10000000 (
+    if network_drive[2] == 10000000 (
       text "Free User" 10
       text "Upgrade: " 10 : c#ccc chx#20
       square 120 20 10 : c#ededed chx#100
-      if clicked (
+      if onclick (
         network "new_tab" "https://www.patreon.com/user?u=51594743"
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
     )
-    if network_drive.[2] == 50000000 (
+    if network_drive[2] == 50000000 (
       tier = "Supporter"
     )
-    if network_drive.[2] == 1000000000 (
+    if network_drive[2] == 1000000000 (
       tier = "originDrive"
     )
-    if network_drive.[2] == 5000000000 (
+    if network_drive[2] == 5000000000 (
       tier = "origin Pro"
     )
-    if network_drive.[2] > 999999 (
-      used_big = network_drive.[2].divide(1000000).round
+    if network_drive[2] > 999999 (
+      used_big = (network_drive[2] / 1000000).round
       unit = "mb"
     )
-    if network_drive.[2] > 999999999 (
-      used_big = network_drive.[2].divide(1000000000).round
+    if network_drive[2] > 999999999 (
+      used_big = (network_drive[2] / 1000000000).round
       unit = "gb"
     )
     loc 2 2 160 y
-    text network_drive.[1] / 1000 ++ "kb /" + used_big ++ unit 10
+    text network_drive[1] / 1000 ++ "kb /" + used_big ++ unit 10
     loc 999 2 125 / 2 y - 35
-    percent = network_drive.[1] / network_drive.[2]
+    percent = network_drive[1] / network_drive[2]
     bar frame_width - 200 20 10 percent : c#444
     page_len = 460
 
     if total_files == 0 (
-      file "open" current.[1] "onlyaccess"
+      file "open" current[1] "onlyaccess"
       file "get" 4
       dat = data.str
       file = dat.len + "bytes"
@@ -328,8 +319,8 @@ def "system"
       )
 
       goto 0 scroll_y
-      direction timer.multiply(100).sin * 360
-      icon "w 2 cutcircle 0 0 10 0 90" 3 : c#fff
+      direction (timer * 100).sin * 360
+      icon "w 2 cutcircle 0 0 10 0 90" 3 : c#txtc
 
       if current.len == 0 (
         total_files = files.len
@@ -338,22 +329,21 @@ def "system"
     ) else (
       loc 2 2 20 -200 + scroll_y
       text "Biggest Files" 9 : c#fff
-      for "i" file_data.len (
+      for i file_data.len (
         loc 2 2 20 i * -30 - 200 + scroll_y
-        text file_data.[i] 9
+        text file_data[i] 9
       )
       page_len = file_data.len * 30 + 200
     )
   )
   if subcategory == "Community" (
     loc 2 2 110 -30
-    button "My Patreon" 200 25 10 : c#333
-    if clicked and can (
-      can = false
+    button "My Patreon" 200 25 10 : c#prim
+    if onclick (
       http "newtab" "https://www.patreon.com/user?u=51594743"
     )
     loc 2 2 10 -70
-    text "Patreon Supporters:" 10 : c#fff
+    text "Patreon Supporters:" 10 : c#txtc
     supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","Milodev123","","--- Free ---","Viofile"]
     
     loc 2 2 10 -100
@@ -370,45 +360,44 @@ endef
 
 def "network_page"
   loc 999 2 0 -70
-  square frame_width - 30 100 10 : c#222
-  if network."connected".not (
+  square frame_width - 30 100 10 : c#prim
+  if network.connected.not (
     loc 2 2 100 -90
-    square 140 30 10 : c#333
+    square 140 30 10 : c#prim
     if clicked (
-      terminal "connect 3"
+      terminal "reconnect"
     )
-    text "Reconnect" 10 : c#fff chx#-60
+    text "Reconnect" 10 : c#txtc chx#-60
     loc 2 2 30 -40
     temp = "Not Connected"
     square 0 0 10 : c#ae2525
-  )
-  if network."connected" (
+  ) else (
     loc 2 2 30 -40
     temp = "Connected"
     square 0 0 10 : c#24ad2c
   )
-  text temp 10 : c#fff chx#15
+  text temp 10 : c#txtc chx#15
 endef
 
 def "Appearance"
   if subcategory == "none" (
-    option "Background" "w 3 c #fff square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
+    option "Background" "w 3 square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
     option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
-    option "Colours" "w 3 c #fff cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
+    option "Colours" "w 3 cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
     option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
     option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
   )
   if subcategory == "Background" (
     loc 2 2 15 -30 + scroll_y
-    text "Paste Image Url" 10 : c#fff
+    text "Paste Image Url" 10 : c#txtc
     change_x 20
-    square 25 25 10 : c#333
-    if clicked and can (
+    square 25 25 10 : c#prim
+    if onclick (
       can = false
-      square 25 25 12 : c#444
+      square 25 25 12 : c#seco
       current_wallpaper = clipboard.str
     )
-    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
+    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
     current_wallpaper.str
     if wallpapers.contains(current_wallpaper).not (
       if current_wallpaper.imageinfo("loaded") (
@@ -418,46 +407,43 @@ def "Appearance"
       )
       if current_wallpaper == clipboard.str (
         image current_wallpaper 0 0
-        text "Trying" 10 : c#fff chx#20
+        text "Trying" 10 : c#txtc chx#20
         image current_wallpaper 10
       )
     )
     wallpaper_data = "Wallpapers:" + wallpapers.len
-    loc -2 2 -15 - ( wallpaper_data.len * 10 ) -30 + scroll_y
+    loc -2 2 -15 - (wallpaper_data.len * 10) -30 + scroll_y
     text wallpaper_data 10
-    count = 0
-    loop wallpapers.len (
-      count ++
+    for count wallpapers.len (
       yc = count / 2
       y = yc.round * -230 + 50 + scroll_y
       loc -4 2 0 y
       if count % 2 == 1 "loc 4 2 0 y"
       w = frame_width / 2 - 30
-      square w 200 10 : c#222
-      cur = wallpapers.[count]
+      square w 200 10 : c#prim
+      cur = wallpapers[count]
       image cur w 200
       change_x -40
-      square 20 20 20 : c#222
+      square 20 20 20 : c#prim
       if mouse_touching (
-        if clicked.not "square 20 20 23 : c#333"
+        if clicked.not "square 20 20 23"
         if clicked and can (
           terminal "system wallpaper" + cur
           network "update" "wallpaper" cur
           can = false
         )
       )
-      icon "tick" 0.7 : c#fff
+      icon "tick" 0.7 : c#txtc
       change_x 80
-      square 20 20 20 : c#222
+      square 20 20 20 : c#prim
       if mouse_touching (
-        if clicked.not "square 20 20 23 : c#333"
-        if clicked and can (
+        if clicked.not "square 20 20 23"
+        if onclick (
           wallpapers.delete(count)
-          can = false
           save "wallpapers.json" "set" wallpapers
         )
       )
-      icon "bin" 0.7 : c#fff
+      icon "bin" 0.7 : c#txtc
     )
     page_len = yc.round * 230 + 50
   )
@@ -471,18 +457,15 @@ def "Appearance"
       new_transmit = false
     )
     loc 2 2 20 -20 + scroll_y
-    text "Reset Dock To Default: " 10 : c#fff
+    text "Reset Dock To Default: " 10 : c#txtc
     icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
     if clicked (
       segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
       save "segments.txt" "set" segments
-      terminal "kill \"Origin/(A) System/Docks/Dock.osl\""
-      wait 0.1
-      window "add" "Origin/(A) System/Docks/Dock.osl"
       global "segments"
     )
     loc 2 2 20 -70 + scroll_y
-    text "Drop File Here" 9 : c#fff
+    text "Drop File Here" 9 : c#txtc
     if file_dropped != 0 (
       file "open" file_dropped "onlyaccess"
       file "get" 3
@@ -507,20 +490,21 @@ def "Appearance"
       count ++
       y = count + 2 * -60 + scroll_y
       loc 999 2 0 y
-      square frame_width - 20 40 10 : c#333 hover_c#252525
+      square frame_width - 20 40 10 : c#prim hover_c#seco
       loc 2 2 15 y
-      text segments.[count] 9 : c#fff
+      text segments[count] 9 : c#txtc
       loc -2 2 -30 y
-      square 30 30 10 : c#555 hover_c#666
+      square 30 30 10 : c#seco hover_c#tert
       if clicked and can (
         can = false
         segments.delete(count)
         save "segments.txt" "set" segments
         global "segments"
       )
-      icon "bin" 0.8 : c#fff
+      icon "bin" 0.8 : c#txtc
       if count > 1 (
-        square 30 30 10 : c#555 hover_c#666 chx#-45
+      change_x -45
+        square 30 30 10 : c#seco hover_c#tert
         if clicked and can (
           can = false
           count2 = count - 1
@@ -528,10 +512,11 @@ def "Appearance"
           save "segments.txt" "set" segments
           global "segments"
         )
-        icon "up" 0.8 : c#fff
+        icon "up" 0.8 : c#txtc
       )
       if count < segments.len (
-        square 30 30 10 : c#555 hover_c#666 chx#-45
+        change_x -45
+        square 30 30 10 : c#seco hover_c#tert
         if clicked and can (
           can = false
           count2 = count + 1
@@ -539,30 +524,30 @@ def "Appearance"
           save "segments.txt" "set" segments
           global "segments"
         )
-        icon "down" 0.8 : c#fff
+        icon "down" 0.8 : c#txtc
       )
     )
     page_len = segments.len + 2 * 60
   )
   if subcategory == "Colours" (
-    if user."dock_colour".[1] != "#" (
+    if user.dock_colour[1] != "#" (
       network "update" "dock_colour" #060606
     )
-    if user."icon_colour".[1] != "#" (
+    if user.icon_colour[1] != "#" (
       network "update" "icon_colour" #f3f3f3
     )
-    if accent_select.[1] != "#" (
+    if accent_select[1] != "#" (
       colourpicker "setcol" global_accent
       accent_select = global_accent
-      colourpicker "setcol" user."dock_colour"
-      dock_select = user."dock_colour"
-      colourpicker "setcol" user."icon_colour"
-      icon_select = user."icon_colour"
+      colourpicker "setcol" user.dock_colour
+      dock_select = user.dock_colour
+      colourpicker "setcol" user.icon_colour
+      icon_select = user.icon_colour
     )
     loc 2 2 15 -30
-    text `Accent Colour: ${accent_select}` 10 : c#fff
+    text `Accent Colour: ${accent_select}` 10 : c#txtc
     change_x 30
-    square 0 0 25 0 : c#fff
+    square 0 0 25 0
     square 0 0 20 0 : c#accent_select
     if clicked (
       colourpicker "setcol" accent_select
@@ -570,7 +555,8 @@ def "Appearance"
       selected_col = "accent"
     )
     if global_accent != accent_select (
-      icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
+      icon "w 40 dot" 0.6 : c#prim chx#30
+      icon "reload" 0.5 : c#txtc
       if clicked (
         colourpicker "setcol" global_accent
         accent_select = global_accent
@@ -591,17 +577,18 @@ def "Appearance"
     )
 
     loc 2 2 15 -80
-    text `Dock Colour: ${dock_select}` 10 : c#fff
+    text `Dock Colour: ${dock_select}` 10 : c#txtc
     change_x 30
-    square 0 0 25 0 : c#fff
+    square 0 0 25 0
     square 0 0 20 0 : c#dock_select
     if clicked (
       colourpicker "setcol" dock_select
       colourpicker "show"
       selected_col = "dock"
     )
-    if user."dock_colour" != dock_select (
-      icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
+    if user.dock_colour != dock_select (
+      icon "w 40 dot" 0.6 : c#prim chx#30
+      icon "reload" 0.5 : c#txtc
       if clicked (
         colourpicker "setcol" user."dock_colour"
         dock_select = user."dock_colour"
@@ -614,31 +601,32 @@ def "Appearance"
         network "update" "dock_colour" dock_select
       )
       if mouse_down.not "can = true"
-      c #222
+      c prim
       if mouse_touching and clicked.not (
         square 200 25 12
       ) else (
         square 200 25 10
       )
-      text "Sync With Network" 9 : c#fff chx#-95
+      text "Sync With Network" 9 : c#txtc chx#-95
       if mouse_down.not "can = true"
     )
 
     loc 2 2 15 -130
-    text `Dock Secondary: ${icon_select}` 10 : c#fff
+    text `Dock Secondary: ${icon_select}` 10 : c#txtc
     change_x 30
-    square 0 0 25 0 : c#fff
+    square 0 0 25 0
     square 0 0 20 0 : c#icon_select
     if clicked (
       colourpicker "setcol" icon_select
       colourpicker "show"
       selected_col = "icon"
     )
-    if user."icon_colour" != icon_select (
-      icon "w 40 dot c #fff w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#333 chx#30
+    if user.icon_colour != icon_select (
+      icon "w 40 dot" 0.6 : c#prim chx#30
+      icon "reload" 0.5 : c#txtc
       if clicked (
-        colourpicker "setcol" user."icon_colour"
-        icon_select = user."icon_colour"
+        colourpicker "setcol" user.icon_colour
+        icon_select = user.icon_colour
         selected_col = null
       )
       loc -2 2 -120 -130
@@ -648,13 +636,13 @@ def "Appearance"
         network "update" "icon_colour" icon_select
       )
       if mouse_down.not "can = true"
-      c #222
+      c prim
       if mouse_touching and clicked.not (
         square 200 25 12
       ) else (
         square 200 25 10
       )
-      text "Sync With Network" 9 : c#fff chx#-95
+      text "Sync With Network" 9 : c#txtc chx#-95
       if mouse_down.not "can = true"
     )
     if selected_col == "accent" (
@@ -673,21 +661,20 @@ def "Appearance"
       count ++
       y = count * -60 + scroll_y + 20
       loc 999 2 0 y
-      square frame_width - 20 40 10 : c#333 hover_c#252525
+      square frame_width - 20 40 10 : c#prim hover_c#seco
       loc 2 2 30 y
-      c #555
+      c seco
       square 30 30 10
-      c #fff
+      c txtc
       ftv = ftvalues.[count]
       icon ftv.[1] 0.8
-      c #fff
-      text `${ftv.[2]} (${ftkeys.[count]})` 10 : chx#30
+      text `${ftv[2]} (${ftkeys[count]})` 10 : chx#30 c#txtc
     )
     page_len = count * 60 - 20
   )
   if subcategory == "mouse" (
     loc 2 2 10 -20
-    text "Scroll Wheel Speed" 9 : c#fff
+    text "Scroll Wheel Speed" 9 : c#txtc
     terminal "get scrollspeed"
     toggle_invert = data.[1] != "-"
     slider_scrollsp = data.abs.clamp(-10,10)
@@ -699,7 +686,7 @@ def "Appearance"
       )
     )
     loc 2 2 10 -90
-    text "Scrolling " ++ ( ( slider_scrollsp * 10 ).round / 10 ) ++ "x speed" 9 : c#fff
+    text "Scrolling " ++ ((slider_scrollsp * 10).round / 10) ++ "x speed" 9 : c#txtc
     slider_scrollsp --
     slider_scrollsp /= 9
     c #222
@@ -708,9 +695,9 @@ def "Appearance"
     slider_scrollsp *= 9
     slider_scrollsp ++
     loc 2 2 10 -140
-    text "Invert Scroll Direction" 9 : c#fff
+    text "Invert Scroll Direction" 9 : c#txtc
     change_x 30
-    toggle "invert" 20 : c#333
+    toggle "invert" 20 : c#prim
     if toggle_invert (
       temp = slider_scrollsp
     ) else (
@@ -723,13 +710,13 @@ def "Appearance"
       if onclick (
         network "update" "scrollspeed" temp
       )
-      c #222
+      c prim
       if mouse_touching and clicked.not (
         square 200 25 12
       ) else (
         square 200 25 10
       )
-      text "Sync With Network" 9 : c#fff chx#-95
+      text "Sync With Network" 9 : c#txtc chx#-95
     )
   )
   frame "clear"
@@ -737,7 +724,7 @@ endef
 
 def "account"
   loc 999 2 5 -90
-  square frame_width - 25 150 10 : c#111
+  square frame_width - 25 150 10 : c#prim
   loc 2 2 90 -90
   image user_icon.str 90 90
   square 90 90 12 0 1
@@ -748,14 +735,14 @@ def "account"
   )
   acc_pfp_button_clicked = clicked
   if mouse_touching (
-    square 25 25 12 : c#222
-    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
+    square 25 25 12 : c#seco
+    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
     loc 2 2 90 -50
-    square 81 10 20 : c#222
-    text "Paste Url" 9 : chx#-40.5 c#fff
+    square 81 10 20 : c#seco
+    text "Paste Url" 9 : chx#-40.5 c#txtc
   )
   loc 2 2 150 -80
-  text username 12 : c#fff
+  text username 12 : c#txtc
   loc 2 2 150 -100
   text "origin Account" 10
   loc 2 2 150 -120
@@ -763,15 +750,15 @@ def "account"
   loc 2 2 20 -200
   text "Profile Picture:" 10
   loc 2 2 20 -230
-  text "Click to paste an image URL as your profile picture:" 8.5 : c#fff
+  text "Click to paste an image URL as your profile picture:" 8.5 : c#txtc
   change_x 20
-  square 25 25 10 : c#333
+  square 25 25 10 : c#prim
   if clicked (
-    square 25 25 12 : c#444
+    square 25 25 12 : c#seco
     current_pfp = clipboard.str
     upload_time = timer
   )
-  icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#fff
+  icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
     if timer - upload_time > 5 and current_pfp != "" (
       current_pfp = ""
       say "Failed to load pfp, try a different   website or try again"
@@ -783,22 +770,22 @@ def "account"
     if current_pfp == clipboard.str (
       loc 2 2 20 -250
       image current_pfp 0 0
-      text "Trying..." 10 : c#fff chx#20
+      text "Trying..." 10 : c#txtc chx#20
     )
   )
   loc 2 2 200 -300
-  c #333
+  c prim
 endef
 
 def "time"
   loc 999 2 0 -40
-  square frame_width - 20 40 10 1 : c#222
+  square frame_width - 20 40 10 1 : c#prim
   loc 999 2 0 -100
   square frame_width - 20 40 10 1
   loc 999 2 0 -160
   square frame_width - 20 40 10 1
   loc 2 2 20 -40
-  text `Timezone: ${timezone}` 8 : c#fff
+  text `Timezone: ${timezone}` 8 : c#txtc
   loc 2 2 20 -100
   milisecond = timestamp.right(3)
   text `Time: ${day_number}:${month_number}:${year} ${hour}:${minute}:${second}:${milisecond}` 8
@@ -809,9 +796,9 @@ def "time"
 endef
 
 def "updates"
-  version = origin.key("version")
+  version = origin.version
   loc 2 2 20 -20 + scroll_y
-  text "Current Version:" + version 10 : c#fff
+  text "Current Version:" + version 10 : c#txtc
 endef
 
 def "credits"
@@ -819,10 +806,10 @@ def "credits"
     page_len = 290
     w = frame_width / 2 - 40
     loc 4 2 2.5 -120 + scroll_y
-    square w 200 20 : c#222
+    square w 200 20 : c#prim
     square w 150 15 : chy#25 c#global_accent
-    square w 150 8 : c#222
-    c #fff
+    square w 150 8 : c#prim
+    c txtc
     x = x_position
     change_x -65
     icon "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10" 1.3
@@ -859,17 +846,13 @@ def "credits"
     text "Github Contributors >" 9 : c#fff
     set_x 30
     change_y -30
-    i = 0
-    loop c_imgs.len (
-      i ++
+    for i c_imgs.len (
       image c_imgs[i].str 25 25
       change_x 30
     )
   )
   if subcategory == "Extensions" (
-    count = 0
-    loop extensions.len (
-      count ++
+    for count extensions.len (
       y = count - 0.5 * -60 + scroll_y
       loc 999 2 0 y
       square frame_width - 20 40 10 : c#222
@@ -885,8 +868,8 @@ if passed_data == "" (
   subcategory = "none"
 ) else (
   passed_data.split("/")
-  category = passed_data.[1]
-  subcategory = passed_data.[2]
+  category = passed_data[1]
+  subcategory = passed_data[2]
 )
 
 save "settings" "set_directory"
@@ -895,7 +878,7 @@ if save_data != "Success" (
   window "stop"
 )
 file "open" user_folder ++ ".folder"
-current = file.[4]
+current = file[4]
 files = []
 file_data = ""
 total_files = 0
@@ -930,15 +913,20 @@ if wallpapers.len < 1 or wallpapers.istype("array").not (
 )
 save "segments.txt" "set" segments
 
+prim = user.theme.primary
+seco = user.theme.secondary
+tert = user.theme.tertiary
+txtc = user.theme.text
+window_colour = user.theme.background
+
+main
 // file type pages
 ftkeys = file_types.getKeys()
 ftvalues = file_types.getValues()
 
 mainloop:
-loc 999 2 0 -25
-square window_width - 7.5 15 30 1 : c#333
-loc 2 999 100 0
-square 220 window_height 10 : c#111
+loc 999 2 110 -25
+square window_width - 220 50 0 1 : c#prim
 loc 2 2 25 -25
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Network" "w 2 cutcircle 0 -5 14 0 50 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
@@ -952,10 +940,10 @@ loc 2 2 25 -175
 image user_icon.str 35 35
 loc 2 2 230 -25
 if subcategory == "none" (
-  text category 10 : c#fff
+  text category 10 : c#txtc
 ) else (
-  square 20 20 10 : c#555 hover_c#666 chx#10
-  icon "left-arrow" 0.6 : c#fff
+  square 20 20 10 : c#seco hover_c#666 chx#10
+  icon "left-arrow" 0.6 : c#txtc
   if clicked (
     subcategory = "none"
   )
@@ -966,7 +954,7 @@ loc 2 2 215 -48
 x = x_position
 y = y_position
 loc -2 -2 0
-c #333
+c seco
 frame x y x_position y_position page_len
 page_len = 0
 y = -30 + scroll_y
