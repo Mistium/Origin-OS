@@ -5,27 +5,6 @@ operation = ""
 current = null
 secondary = null
 
-save "calculator@system" "set_directory"
-
-colours = {
-  "buttons":"#111",
-  "buttons_hover":"#333",
-  "operators":"#f79204",
-  "operators_hover":"#f7ae43",
-  "background":"#050505",
-  "top_bar":"#111",
-  "calc_area":"#222",
-  "remove_hover":"#444",
-  "text":"#ddd"
-}
-
-if "colours.json".saveExists() (
-  save "colours.json" "get"
-  colours = save_data
-) else (
-  save "colours.json" "set" colours
-)
-
 def "draw" "x, y, x2, y2, character"
   loc x y x2 + 5 y2 + 65
   if operation.str == character (
@@ -64,14 +43,15 @@ def "draw" "x, y, x2, y2, character"
 endef
 
 
-cb = colours."buttons"
-cbh = colours."buttons_hover"
-co = colours."operators"
-coh = colours."operators_hover"
-cca = colours."calc_area"
-ctb = colours."top_bar"
-ct = colours."text"
-rh = colours."remove_hover"
+cb = user.theme.primary
+cbh = user.theme.secondary
+co = #f79204
+coh = #f7ae43
+cca = user.theme.primary
+ctb = user.theme.primary
+ct = user.theme.text
+rh = user.theme.tertiary
+window_colour = user.theme.background
 
 window "show"
 window "dimensions" 280 380
