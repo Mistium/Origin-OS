@@ -19,12 +19,22 @@ file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #
 file "install_type" "lmc" "c #00d67d w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #006e40 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn script 0.4 0 -3" "LMC Script" []
 file "install_type" "ode" "c #6db2b3 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #456868 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 line -3 -7 3 -7" "Dock Segment" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "json" "c #ff724f w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #772d1c line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "JSON File" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "csv" icon_cfg "Comma Separated Value document" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "ojff" "c #489c54 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #306a38 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "Origin Font" ["Font_Loader"]
 file "install_type" "obj" "c #edfff3 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #566a5e line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn cube 0.5 1 -4" "3d Model" []
 file "install_type" "icn" "" "Origin Icon" ["Origin/(A) System/User Applications/Studio.osl","Origin/(A) System/System Apps/Icn Tools.osl"]
 file "install_type" "ocf" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0" "Compressed" []
 file "install_type" "zip" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0" "Zip Archive" []
 file "install_type" "shortcut" "" "Alias File" ["Origin/(A) System/System Apps/Shortcut_Opener.osl"]
+
+// binary data
+file "install_type" "so" "" "Shared Object Library" []
+file "install_type" "exe" "" "Windows Executable" []
+file "install_type" "dll" "" "Dynamic Link :ibrary" []
+file "install_type" "msi" "" "Windows Installer Package" []
+file "install_type" "scr" "" "Windows Screensaver" []
+file "install_type" "iso" "" "ISO Disk Image" []
+file "install_type" "img" "" "Disk Image" []
 
 // languages
 file "install_type" "oasm" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
@@ -42,6 +52,10 @@ file "install_type" "png" graphics_icn "PNG Image" ["Origin/(A) System/User Appl
 file "install_type" "jpg" graphics_icn "JPG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "jpeg" graphics_icn "JPEG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "webp" graphics_icn "WEBP Image" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "odd" graphics_icn "WEBP Image" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "bmp" graphics_icn "BMP Image" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "ico" graphics_icn "ICO Image" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "tiff" graphics_icn "TIFF Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "mp4" graphics_icn "MP4 Video" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "webm" graphics_icn "WEB Media" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "gif" graphics_icn "Gif Video" ["Origin/(A) System/User Applications/Previewer.osl"]
