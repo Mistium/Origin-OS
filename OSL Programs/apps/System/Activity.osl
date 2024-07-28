@@ -13,28 +13,35 @@ memory = "typeof performance.memory !== 'undefined'".eval
 paused = false
 graph = []
 network_usage = []
+
 def "tab" "name"
   selected = name == current_tab
-  if selected.not "c #111"
-  if selected "c #333"
+  if selected "c seco" else "c prim"
   square tab_w 25 10 1
-  if clicked "current_tab = name"
+  if onclick "current_tab = name"
   change_x tab_w / -2 + 5
-  text name 8 : c#fff
+  text name 8 : c#txtc
 endef
+
 created_time = timer
 next_update = 0.5
 pen "width" 10
 high = 0
 low = 250
 graph = 100.newArray()
+
+prim = user.theme.primary
+seco = user.theme.secondary
+tert = user.theme.tertiary
+txtc = user.theme.text
+
 mainloop:
 loc -2 2 -20 -20
-square 25 25 10 : c#222
+square 25 25 10 : c#prim
 if clicked "window stop"
 square 25 25 10 : chx#-40
 if clicked "window minimise.str"
-icon "down" 0.7 : c#fff
+icon "down" 0.7 : c#txtc
 icon "close" 0.7 : chx#40
 if clicked "window stop"
 if current_tab == "no_perms" (
@@ -51,17 +58,17 @@ if current_tab == "no_perms" (
 )
 if activity_info (
   loc 2 2 20 -20
-  text page 10 : c#fff
+  text page 10 : c#txtc
   loc 2 2 20 -50
   text `${dt}ms` 15
   if timer - created_time > 1 (
     loc 2 2 90 -100
-    square 140 25 10 : c#222 hover_c#333
+    square 140 25 10 : c#prim hover_c#seco
     if clicked (
       terminal "kill" + page
       window "stop"
     )
-    icon "close" 0.7 : c#fff chx#-50
+    icon "close" 0.7 : c#txtc chx#-50
     text "Force Quit" 7 : chx#20
   )
   wwm = window_width / 30
@@ -71,18 +78,18 @@ if activity_info (
     dt = delta_time
     terminal "-get.windows"
     current = windows-names.index(page)
-    dt = windows-drawtimes.[current].[1]
-    pr = windows-drawtimes.[current].[2]
+    dt = windows-drawtimes[current][1]
+    pr = windows-drawtimes[current][2]
     dt2 = dt / 10
     graph.append(dt2)
     graph.delete(1)
   )
-  c #fff
+  c #txtc
   count = 0
   loop pr.len (
     count ++
     loc 2 2 10 count * -20 - 120
-    text pr.[count] 10
+    text pr[count] 10
   )
   goto 0 0
   graph window_width - 50 window_height - 50 graph
@@ -92,33 +99,35 @@ if activity_info (
 )
 wwm = window_width - 50 / 100
 whm = window_height / 300
-usage = ( fps / fps_limit ).clamp(0,1)
+usage = (fps / fps_limit).clamp(0,1)
 graph.append(usage)
-if graph.len > 100 "graph = graph.delete(1)"
+if graph.len > 100 (
+  graph.delete(1)
+)
 import "side-bar"
 frames = fps.round
 if high < frames "high = frames"
 if low > frames "low = frames"
 loc 2 2 23 - ( frames.len * 5 ) -20
-text frames 10 : c#fff
+text frames 10 : c#txtc
 loc 2 2 13.5 -40
 text "fps" 7
-loc 2 2 23 - ( high.len * 5 ) -70
+loc 2 2 23 - (high.len * 5) -70
 text high 10
 loc 2 2 12 -90
 text "high" 7
-loc 2 2 23 - ( low.len * 5 ) -120
+loc 2 2 23 - (low.len * 5) -120
 text low 10
 loc 2 2 13.5 -140
 text "low" 7
-delta = ( delta_time * 1000 ).round
-loc 2 2 23 - ( delta.len * 5 ) -170
+delta = (delta_time * 1000).round
+loc 2 2 23 - (delta.len * 5) -170
 text delta 10
 loc 2 2 16 -190
 text "ms" 7
 if memory (
   ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
-  loc 2 2 23 - ( ram_use.len * 5 ) -220
+  loc 2 2 23 - (ram_use.len * 5) -220
   text ram_use 10
   loc 2 2 13.5 -240
   text "ram" 7
@@ -133,14 +142,12 @@ tab "Network"
 loc 2 2 455 -20
 tab "Disk"
 loc 2 -2 25 25
-if paused "c global_accent" else "c #333"
+if paused "c global_accent" else "c prim"
 square 25 25 10 : tooltip#Pause
-if clicked and can (
-  can = false
+if onclick (
   paused.not
 )
-icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#fff
-c #fff
+icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
 if current_tab == "Performance" (
   minimised_text = "Fps"
   window "responsive" True
@@ -156,7 +163,7 @@ if current_tab == "Network" (
   loc -2 -2 0 0
   terminal "get packetlist"
   data.trim(1,100)
-  c #333
+  c prim
   frame x y x_position y_position data.len * 40 - 20
   count = scroll_y.divide(40).round
   y = scroll_y - 20 + ( count * -40 )
@@ -164,12 +171,12 @@ if current_tab == "Network" (
   loop ( frame_height / 40 ).ceiling.clamp(1,length) (
     count ++
     loc 999 2 0 y
-    square frame_width - 20 25 10 1 : c#111 hover_c#222
-    cur = data.[count].destr
+    square frame_width - 20 25 10 1 : c#prim hover_c#seco
+    cur = data[count].destr
     loc 2 2 30 y
-    payload = cur."payload".str
+    payload = cur.payload.str
     width = window_width - 400 // 7
-    text payload.trim(1,width).str 7 : c#fff
+    text payload.trim(1,width).str 7 : c#txtc
     if payload.len > width (
       text "..." 7
     )
@@ -197,7 +204,7 @@ if current_tab == "Render Info" (
     dt = delta_time
     terminal "-get.windows"
   )
-  c #333
+  c prim
   frame x y x_position y_position windows-names.len * 40
   y = scroll_y - 20
   tot = 0
@@ -205,16 +212,15 @@ if current_tab == "Render Info" (
   loop windows-names.len (
     count ++
     loc 999 2 0 y
-    square frame_width - 20 25 10 1 : c#111 hover_c#222
-    if clicked and can (
-      can = false
-      window "add" "Activity" windows-names.[count]
+    square frame_width - 20 25 10 1 : c#prim hover_c#seco
+    if onclick (
+      window "add" "Activity" windows-names[count]
     )
-    rightclick "window" windows-names.[count]
+    rightclick "window" windows-names[count]
     loc 2 2 15 y
-    text windows-names.[count] 7 : c#fff
+    text windows-names[count] 7 : c#txtc
     loc -2 2 -50 y
-    d = windows-drawtimes.[count].[1]
+    d = windows-drawtimes[count][1]
     tot += d
     text d.str 7
     y -= 40
