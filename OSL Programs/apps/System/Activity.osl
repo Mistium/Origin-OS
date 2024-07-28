@@ -34,6 +34,7 @@ prim = user.theme.primary
 seco = user.theme.secondary
 tert = user.theme.tertiary
 txtc = user.theme.text
+window_colour = user.theme.background
 
 mainloop:
 loc -2 2 -20 -20
