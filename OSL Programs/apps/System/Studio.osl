@@ -17,52 +17,41 @@ if passed_data == null (
 
 window "set_dragbox" [[2,2,40,0],[-2,2,-150,-40]]
 
-c_text = #fff
-c_prim = #333
-c_seco = #151515
-window_colour = #000
+c_text = user.theme.text
+c_prim = user.theme.primary
+c_seco = user.theme.secondary
+window_colour = user.theme.background
 
 def "draw_buttons"
   loc -2 2 -20 -20
+
   square 20 20 10 : c#c_prim hover_size#1.1
   icon "close" 0.6 : c#c_text
-  if clicked "window stop.str"
+  if clicked (
+    window "stop"
+  )
+
   square 20 20 10 : c#c_prim chx#-40
   if mouse_touching "square 20 20 12"
   icon "down" 0.6 : c#c_text
-  if clicked "window minimise.str"
+  if clicked (
+    window "minimise"
+  )
+
   square 20 20 10 : c#c_prim chx#-40
   if mouse_touching "square 20 20 12"
   icon "maximise" 0.6 : c#c_text
-  if clicked "window maximise.str"
-  square 20 20 10 1 : c#c_prim chx#-40
-  if mouse_touching "square 20 20 12"
-  c c_text
-  if c_prim == #333 (
-    icon "moon" 0.6
-  ) else (
-    icon "sun" 0.6
-  )
-  if clicked and can (
-    can = false
-    if c_prim == #333 (
-      c_text = #000
-      c_prim = #ddd
-      c_seco = #ccc
-      window_colour = #eee
-    ) else (
-      c_text = #fff
-      c_prim = #333
-      c_seco = #151515
-      window_colour = #000
-    )
+  if onclick (
+    window "maximise"
   )
 endef
 
 mainloop:
 
 if new_transmit (
-  current_studio_page = transmit_data
+  if window.children.contains(transmit_source) (
+    current_studio_page = transmit_data
+  )
   new_transmit = false
 )
 
@@ -71,29 +60,30 @@ if mouse_down.not "can = true"
 if current_studio_page == "Recent Files" (
   loc 2 2 60 -22
   text "Recent Files" 10 : c#c_text
+
   loc 2 2 25 -25
   square 30 30 15 1 : c#c_prim
   square 30 30 10 1 : c#c_seco hover_c#c_prim
-  if clicked (
+  if onclick (
     current_studio_page = "Home"
   )
   icon "left-arrow" 0.7 : c#c_text hover_size#1.2
-  c #222
+
+  c c_prim
   frame window."left" window."top" - 50 window."right" window."bottom" recent.len * 60
   w = frame_width - 20
-  count = scroll_y.divide(60).round
-  loop frame_height.divide(60).round (
+  count = (scroll_y / 60).round
+  loop (frame_height / 60).round (
     count ++
     y = count * -60 + 30 + scroll_y
     loc 999 2 0 y
     square w 40 10 1 : c#c_seco cursor#pointer
-    cur = recent.[count]
+    cur = recent[count]
     if mouse_touching (
       square w 40 15 1 : c#global_accent
       square w 40 10 1 : c#c_seco
-      if clicked and can (
-        can = false
-        current_studio_page = cur.str
+      if onclick (
+        current_studio_page = cur.tostr()
       )
     )
     change_x window_width - 90 / -2
@@ -115,19 +105,20 @@ if current_studio_page == "Recent Files" (
 
 if current_studio_page == "Home" (
   loc 2 2 30 -30
-  image user_icon.str 30
+  image user_icon.tostr() 30
   text `Heya ${username}!` 10 : c#c_text chx#30
+
   w = window_width / 2
   w2 = w - 40
   loc 2 2 20 -85
   text "New File" 8
+
   loc 999 2 0 -80
   text "Recent Files" 8
   
-loc 2 2 w / 2 - 5 -290
+  loc 2 2 w / 2 - 5 -290
   square w2 30 10 : c#c_seco
-  if clicked and can (
-    can = false
+  if onclick (
     file "pick"
   )
   change_x w2 / -2 + 10
@@ -143,10 +134,8 @@ loc 2 2 w / 2 - 5 -290
       square w2 30 15 : c#global_accent
       square w2 30 10 : c#c_prim
     )
-    clicked = clicked and can
-    if selected_input == "name" and "enter".onpress or clicked (
-      can = false
-      current_studio_page = input_name.str
+    if selected_input == "name" and "enter".onpress or onclick (
+      current_studio_page = input_name.tostr()
     )
     change_x w2 / -2 + 15 : c#c_text
   ) else (
@@ -155,20 +144,18 @@ loc 2 2 w / 2 - 5 -290
   )
   icon "Add" 0.5
   text "Create New File" 8 : chx#20
+
   c c_prim
   frame -10 window_height / 2 - 95 window_width / 2 window_height / -2 recent_2.len * 55
   w = frame_width - 20
-  count = 0
-  loop recent_2.len (
-    count ++
+  for count recent_2.len (
     y = count * -55 + 25 + scroll_y
     loc 999 2 0 y
     square w 30 10 1 : c#c_seco cursor#pointer
-    cur = recent_2.[count]
+    cur = recent_2[count]
     if mouse_touching (
       square frame_width - 20 30 15 1 : c#c_prim
-      if clicked and can (
-        can = false
+      if onclick (
         current_studio_page = cur.str
       )
     )
@@ -186,8 +173,7 @@ loc 2 2 w / 2 - 5 -290
   square 30 15 10 : c#c_prim hover_size#1.1
   if mouse_touching (
     cursor "pointer"
-    if clicked and can (
-      can = false
+    if onclick (
       current_studio_page = "Recent Files"
     )
   )
