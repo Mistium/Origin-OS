@@ -25,20 +25,20 @@ window_colour = user.theme.background
 def "draw_buttons"
   loc -2 2 -20 -20
 
-  square 20 20 10 : c#c_prim hover_size#1.1
+  square 20 20 10 : c#c_seco hover_size#1.1
   icon "close" 0.6 : c#c_text
   if clicked (
     window "stop"
   )
 
-  square 20 20 10 : c#c_prim chx#-40
+  square 20 20 10 : c#c_seco chx#-40
   if mouse_touching "square 20 20 12"
   icon "down" 0.6 : c#c_text
   if clicked (
     window "minimise"
   )
 
-  square 20 20 10 : c#c_prim chx#-40
+  square 20 20 10 : c#c_seco chx#-40
   if mouse_touching "square 20 20 12"
   icon "maximise" 0.6 : c#c_text
   if onclick (
@@ -142,6 +142,7 @@ if current_studio_page == "Home" (
     square w2 30 10 1 : c#c_seco
     change_x w2 / -2 + 15 : c#c_prim
   )
+  c c_text
   icon "Add" 0.5
   text "Create New File" 8 : chx#20
 
@@ -186,7 +187,7 @@ if current_studio_page == "Home" (
 loc 2 999 75 -25
 square 40 window_height - 50 10 1 : c#c_prim
 loc 999 2 0 -22
-square window_width 30 20 : c#c_seco
+square window_width 30 20 : c#c_prim
 loc 2 999 25 0
 square 35 window_height 20
 draw_buttons
