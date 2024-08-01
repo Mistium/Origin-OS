@@ -7,7 +7,7 @@ if save_data.istype("array") (
   save "recent_files.json" "set" []
   recent = []
 )
-recent_2 = recent.trim(1,7)
+recent_2 = recent.trim(1,10)
 
 if passed_data == null (
   current_studio_page = "Home"
@@ -25,20 +25,20 @@ window_colour = user.theme.background
 def "draw_buttons"
   loc -2 2 -20 -20
 
-  square 20 20 10 : c#c_prim hover_size#1.1
+  square 20 20 10 : c#c_seco hover_size#1.1
   icon "close" 0.6 : c#c_text
-  if clicked (
+  if onclick (
     window "stop"
   )
 
-  square 20 20 10 : c#c_prim chx#-40
+  square 20 20 10 : c#c_seco chx#-40 hover_size#1.1
   if mouse_touching "square 20 20 12"
   icon "down" 0.6 : c#c_text
-  if clicked (
+  if onclick (
     window "minimise"
   )
 
-  square 20 20 10 : c#c_prim chx#-40
+  square 20 20 10 : c#c_seco chx#-40 hover_size#1.1
   if mouse_touching "square 20 20 12"
   icon "maximise" 0.6 : c#c_text
   if onclick (
@@ -63,17 +63,18 @@ if current_studio_page == "Recent Files" (
 
   loc 2 2 25 -25
   square 30 30 15 1 : c#c_prim
-  square 30 30 10 1 : c#c_prim hover_c#c_seco
+  square 30 30 10 1 : hover_c#c_seco
   if onclick (
     current_studio_page = "Home"
   )
   icon "left-arrow" 0.7 : c#c_text hover_size#1.2
 
   c c_prim
-  frame window.left window.top - 50 window.right window.bottom recent.len * 60
+  frame window.left window.top - 50 window.right window.bottom recent.len - 0.5 * 60
   w = frame_width - 20
-  count = (scroll_y / 60).round
-  loop (frame_height / 60).round (
+  len = recent.len
+  count = ((scroll_y / 60).round - 1).clamp(0,len)
+  loop (frame_height / 60 + 2).round.clamp(0,len) (
     count ++
     y = count * -60 + 30 + scroll_y
     loc 999 2 0 y
@@ -87,16 +88,23 @@ if current_studio_page == "Recent Files" (
       )
     )
     change_x window_width - 90 / -2
-    file "open" "id" cur "onlyaccess"
-    file "render" 1.5
-    loc 2 2 80 y
-    file "get" 2
-    name = data
-    file "get" 1
-    text name ++ data 9 : c#c_text
-    loc -2 2 -160 y
-    file "get" 10
-    text data.timestamp("convert-relative") 8
+    file "open" cur "onlyaccess"
+    if loaded_file != 0 (
+      file "render" 1.5
+      loc 2 2 80 y
+      file "get" 2
+      name = data
+      file "get" 1
+      text name ++ data 9 : c#c_text
+      loc -2 2 -160 y
+      file "get" 10
+      text data.timestamp("convert-relative") 8
+    ) else (
+      recent.delete(count)
+      save "recent_files.json" "set" recent
+      count --
+    )
+    file "close"
   )
   frame "clear"
   draw_buttons
@@ -117,7 +125,7 @@ if current_studio_page == "Home" (
   text "Recent Files" 8
   
   loc 2 2 w / 2 - 5 -290
-  square w2 30 10 : c#c_prim
+  square w2 30 10 : c#c_seco
   if onclick (
     file "pick"
   )
@@ -132,7 +140,7 @@ if current_studio_page == "Home" (
     square w2 30 10 : c#c_prim cursor#pointer
     if mouse_touching (
       square w2 30 15 : c#global_accent
-      square w2 30 10 : c#c_prim
+      square w2 30 10 : c#c_seco
     )
     if selected_input == "name" and "enter".onpress or onclick (
       current_studio_page = input_name.tostr()
@@ -140,8 +148,9 @@ if current_studio_page == "Home" (
     change_x w2 / -2 + 15 : c#c_text
   ) else (
     square w2 30 10 1 : c#c_seco
-    change_x w2 / -2 + 15 : c#c_tert
+    change_x w2 / -2 + 15 : c#c_prim
   )
+  c c_text
   icon "Add" 0.5
   text "Create New File" 8 : chx#20
 
@@ -161,12 +170,19 @@ if current_studio_page == "Home" (
     )
     change w / -2 + 15
     file "open" cur.str "onlyaccess"
-    file "render" 1
-    loc 2 2 60 y
-    file "get" 2
-    name = data
-    file "get" 1
-    text name ++ data 9 : c#c_text
+    if loaded_file !== 0 (
+      file "render" 1
+      loc 2 2 60 y
+      file "get" 2
+      name = data
+      file "get" 1
+      text name ++ data 9 : c#c_text
+    ) else (
+      recent.delete(count)
+      save "recent_files.json" "set" recent
+      count --
+      recent2 = recent.trim(1,10)
+    )
   )
   frame "clear"
   loc -2 2 -30 -80
@@ -189,4 +205,16 @@ loc 999 2 0 -22
 square window_width 30 20 : c#c_prim
 loc 2 999 25 0
 square 35 window_height 20
+if preview_open "right = window.right - 400" else "right = window.right"
 draw_buttons
+
+loc 2 2 25 -25
+loop sidebar_items (
+  c c_seco
+  square 30 30 10 1 : cursor#pointer
+  if mouse_touching (
+    if mouse_left "square 30 30 12 1" else "square 30 30 15 1"
+  )
+  change_y -50
+)
+sidebar_items = 0
