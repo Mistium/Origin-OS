@@ -14,6 +14,7 @@ if passed_data == null (
 ) else (
   current_studio_page = passed_data
 )
+sidebar_items = 0
 
 window "set_dragbox" [[2,2,40,0],[-2,2,-150,-40]]
 
