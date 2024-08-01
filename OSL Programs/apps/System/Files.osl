@@ -128,16 +128,15 @@ mainloop:
   )
   loc 2 2 30 -120
   if sideshow "change 240"
-  text "New |" 11 : c#fff
-  if clicked and can (
-    can = false
+  text "New |" 11 : c#c_icon
+  if onclick (
     window "add" "New_File" files_app_path
   )
   change -15 2
   if selected_files.len != 1 (
     files_buttons = []
   ) else (
-    file_open = selected_files.[1]
+    file_open = selected_files[1]
     file "open" file_open "onlyaccess"
     file "get" 13
     if "System" in data (
@@ -146,15 +145,12 @@ mainloop:
       files_buttons = ["Open","Edit","Copy","Rename","Bin","Info"]
     )
     if selected_files.len == 1 (
-      c #fff
+      c c_icon
       cur = ""
-      count = 0
-      loop files_buttons.len (
-        count ++
-        icon files_buttons.[count] 0.8 : chx#30
-        if clicked and can (
-          can = false
-          cur = files_buttons.[count]
+      for count files_buttons.len (
+        icon files_buttons[count] 0.8 : chx#30
+        if onclick (
+          cur = files_buttons[count]
           if cur == "open" (
             file "start"
           )
@@ -178,12 +174,12 @@ mainloop:
   )
   if window_width > 1000 and selected_files.len > 0 (
     loc -2 999 -147 -54
-    square 270 window_height - 192 10 1 : c#222
+    square 270 window_height - 192 10 1 : c#c_prim
     if selected_files.len == 1 (
       loc -2 2 -150 -250
       file "open" file_open "onlyaccess"
-      file "render" 5 : c#fff
-      loc -2 2 -280 -330 : c#fff
+      file "render" 5 : c#c_icon
+      loc -2 2 -280 -330 : c#c_icon
       x = x_position
       file "get" 1
       data1 = data
