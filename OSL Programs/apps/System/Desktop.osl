@@ -47,6 +47,8 @@ desktop_rightclick = [
   ]
 ]
 
+desktop_rightclick_temp = desktop_rightclick
+
 if "theme.json".saveExists() (
   theme = "theme.json".saveGet().JsonClean()
 ) else (
@@ -66,6 +68,7 @@ file "get" 14
 desktop_uuid = data
 positions = {}
 name = null
+apps_temp - ""
 window "responsive" true
 
 mainloop:
@@ -118,6 +121,17 @@ if nhvr.not (
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
+
+  terminal "get extensions"
+  if data != apps_temp (
+    apps_temp = data
+    desktop_rightclick = desktop_rightclick_temp
+    each i app data (
+      data[i] = app.JsonParse()
+    )
+    desktop_rightclick.append(["apps"].append(data))
+  )
+
   rightclick desktop_rightclick desktop_uuid
 )
 if data == [] "exit"
