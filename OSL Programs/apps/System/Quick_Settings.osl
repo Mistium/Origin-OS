@@ -25,6 +25,7 @@ direction 90
 if timer - last_check_2 > 0.5 (
   terminal "get filechanges"
   changes = data.len
+  data = ""
   last_check_2 = timer
   notifications = allNotify()
   if timer - last_check > 300 (
