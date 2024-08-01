@@ -1,9 +1,11 @@
 def "print" "data"
   terminal = terminal.destr ++ data.destr
+  loops += data.destr.len
 endef
 
 def "clearall"
   terminal = []
+  loops = 0
 endef
 
 network "set_app_id" "terminal@system"
@@ -22,6 +24,7 @@ tert = user.theme.tertiary
 txtc = user.theme.text
 window_colour = user.theme.background
 
+loops = 0
 mainloop:
 if new_network_data (
   msg = network_data_from + "> " + network_data
@@ -29,29 +32,36 @@ if new_network_data (
   new_network_data = false
 )
 
-loops = terminal.len
 c prim
-frame window_width / -2 window_height / 2 - 40 window_width / 2 window_height / -2 loops + 1 * 30
+frame window.left window.top - 40 window.right window.bottom + 40 loops * 30
 
 c #468058
 loc 2 2 10 0
-for count loops (
-  loc 2 2 10 count * -30 + scroll_y
+count = ((scroll_y / 30 - 1).round).clamp(0,loops)
+loop (frame_height / 30 + 3).round.clamp(0,loops) (
+  count ++
+  y = count * -30 + 15 + scroll_y
+  loc 2 2 10 y
   text terminal[count].str 10
 )
-set_x window.left + 10
-change_y -30
-text user_start 10
-set_x user_start.len * 5
-c window_colour
-input window_width - (user_start.len + 2 * 10) 30 1 null null #468058
 frame "clear"
+loc 999 -2 0 20
+square window.width 40 10 : c#prim
+loc 2 -2 10 20
+text user_start 10 : c#txtc
+set_x user_start.len * 5
+c prim
+input window_width - (user_start.len + 2 * 10) 30 1 null null #468058
+
 if "enter".onpress (
   last = input_1
   terminal input_1.str
   input_1 = username ++ "/: " ++ input_1.str
   terminal = terminal.destr.append(input_1)
-  terminal = terminal.destr ++ terminal_output
+  
+  terminal = terminal.destr ++ terminal_output.destr
+  loops = terminal.len
+  terminal_output = []
   input_1 = null
 )
 if "up arrow".pressed "input_1 = last"
