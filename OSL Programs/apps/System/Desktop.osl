@@ -63,7 +63,7 @@ window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
 include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
-file "set" 4 data - null
+file "set" 4 data.delete("")
 file "get" 14
 desktop_uuid = data
 positions = {}
@@ -85,8 +85,8 @@ if nhvr.not (
   if file_dropped != 0 (
     loc 2 2 0 0
     file "open" file_dropped
-    file "set" "6" ( x_position - ( mouse_x - 35 ) * -1 / 70 ).round * 70
-    file "set" "7" ( y_position - ( mouse_y + 35 ) * -1 / 70 ).round * 70
+    file "set" "6" (x_position - (mouse_x - 35) * -1 / 70).round * 70
+    file "set" "7" (y_position - (mouse_y + 35) * -1 / 70).round * 70
     file_dropped = 0
   )
   if mouse_down and can (
@@ -128,6 +128,7 @@ if nhvr.not (
     desktop_rightclick = desktop_rightclick_temp
     each i app data (
       data[i] = app.JsonParse()
+      log data[i]
     )
     desktop_rightclick.append(["Apps"].append(data))
   )
