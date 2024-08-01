@@ -129,7 +129,7 @@ if nhvr.not (
     each i app data (
       data[i] = app.JsonParse()
     )
-    desktop_rightclick.append(["apps"].append(data))
+    desktop_rightclick.append(["Apps"].append(data))
   )
 
   rightclick desktop_rightclick desktop_uuid
