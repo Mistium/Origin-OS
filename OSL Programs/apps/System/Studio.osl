@@ -205,7 +205,7 @@ square 40 window_height - 50 10 1 : c#c_prim
 loc 999 2 0 -22
 square window_width 30 20 : c#c_prim
 loc 2 999 25 0
-square 35 window_height 20
+square 35 window_height 20 : c#c_seco
 if preview_open "right = window.right - 400" else "right = window.right"
 draw_buttons
 
