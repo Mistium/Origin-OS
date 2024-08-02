@@ -1,5 +1,7 @@
 window "dimensions" 700 500
 can = false
+permission "request" "file admin"
+permission "request" "terminal"
 
 def "inform" "data"
   gpt "inform_bot" "assistant" data
@@ -7,10 +9,11 @@ endef
 
 gpt "new_bot" "assistant"
 inform "You are the originOS assistant"
-inform "Keep your responses under 56 characters of text no matter what"
-inform "The time is" + timestamp.timestamp("convert-full")
 inform "The user's name is" + username
-inform "Origin's current version is" + origin."version"
+inform "Origin's current version is" + origin.version
+inform "originOS is a web based operating system built on scratch"
+inform "Studio is a simple text editor that can be used to edit files"
+inform "studio can run icn, osl, js, python, oasm and otas, but it only able to edit other files like text"
 
 selected_input = "search"
 
@@ -31,6 +34,7 @@ settings_pages = [
   "Appearance/Dock",
   "Appearance/Colours",
   "Appearance/Mouse",
+  "Appearance/File Types",
   "Account",
   "Time",
   "Privacy",
@@ -44,13 +48,17 @@ files_paths = data.join(newline)
 terminal "-get.windows"
 windows = windows-names.join(newline)
 
+inform "The users files are listed from oldest at the top to youngest at the bottom as: " ++ files_paths
+inform "The user has these apps open: " ++ windows
+inform "Don't use any formatting other than # or ## or ###"
+
 h = 400
 
 mainloop:
 
 goto 0 0
 square 600 h 30 : c#global_accent
-if "escape".onpress or ( mouse_left and clicked.not and can ) (
+if "escape".onpress or (mouse_left and clicked.not and can) (
   window "stop"
 )
 square 600 h 25 : c#050505
@@ -64,79 +72,141 @@ if input_search != temp (
   temp = input_search
   tokens = input_search.split(" ")
   if true "data =" + input_search
-  outputs."main" = ""
+  outputs.main = ""
   txt_size = 20
+  txt_sizes = ["20"]
   if data.istype("number") (
     name = "Calculator"
-    outputs."main" = input_search.str + "=" + data
+    outputs.main = [].append(input_search.str + "=" + data)
     page_len += 150
+    segment_length = 150
   )
   temp = input_search.replace("?","")
   if ["what time is it","what is the time","whats the hour","whats the god damn hour","whats the fucking time","time","hour"].contains(temp) (
     name = "Time"
-    outputs."main" = timestamp.timestamp("convert-time")
+    outputs.main = [].append(timestamp.timestamp("convert-time"))
     page_len += 150
+    segment_length = 150
     temp = ""
   )
   if ["what day is it","whats the day today","day"].contains(temp) (
     name = "Time"
-    outputs."main" = day + day_num
+    outputs.main = [].append(day + day_number)
     page_len += 150
+    segment_length = 150
     temp = ""
   )
   if input_search != "" and files_paths.contains(input_search) (
     re = "^/.*" ++ input_search ++ ".*$/img"
-    outputs."files" = files_paths.regex(re)
-    page_len += outputs."files".len.clamp(1,10) * 40 + 20
+    outputs.files = files_paths.regex(re)
+    page_len += outputs.files.len.clamp(1,10) * 40 + 20
   ) else (
-    outputs."files" = ""
+    outputs.files = ""
   )
   if input_search != "" and windows.contains(input_search) (
     re = "^/.*" ++ input_search ++ ".*$/img"
-    outputs."windows" = windows.regex(re)
-    page_len += outputs."windows".len.clamp(1,4) * 40 + 20
+    outputs.windows = windows.regex(re)
+    page_len += outputs.windows.len.clamp(1,4) * 40 + 20
   ) else (
-    outputs."windows" = ""
+    outputs.windows = ""
   )
   if input_search.len > 3 and settings_pages.contains(input_search) (
     re = "^/.*" ++ input_search ++ ".*$/img"
-    outputs."settings" = settings_pages.regex(re)
-    page_len += outputs."settings".len * 40 + 20
+    outputs.settings = settings_pages.regex(re)
+    page_len += outputs.settings.len * 40 + 20
   ) else (
-    outputs."settings" = ""
+    outputs.settings = ""
   )
   output_keys = outputs.getall("keys")
 )
-if "enter".pressed (
+if "enter".onpress (
+  outputs.main = "GPT Is Thinking"
   gpt "send" "assistant" input_search.str
-  outputs."main" = data
-  name = "Gpt Assistant"
+  input_search = ""
+  temp = ""
+  data.wrapText(58)
+  data.split(newline)
+  txt_sizes = []
   txt_size = 10
+  code_block = 0
+  each i line data (
+    if line.startsWith("```") (
+      data[i] = "```"
+      code_block = 1 - code_block
+    )
+    if code_block == 0 (
+      if line.startsWith("### ") (
+        data[i] = line.trim(5,line.len)
+        txt_sizes.append(txt_size + 1)
+      ) else (
+        if line.startsWith("## ") (
+          data[i] = line.trim(4,line.len)
+          txt_sizes.append(txt_size + 3)
+        ) else (
+          if line.startsWith("# ") (
+            data[i] = line.trim(3,line.len)
+            txt_sizes.append(txt_size + 5)
+          ) else (
+            txt_sizes.append(txt_size)
+          )
+        )
+      )
+    )
+  )
+  outputs.main = data
+  segment_length = data.len * 20 + 100
+  page_len += segment_length
+  name = "Gpt Assistant"
 )
 c #222
 frame -310 h / 2 - 70 310 h / -2 page_len
 y = 40
-if outputs."main" != "" (
-  loc 999 2 0 -75 + scroll_y
-  square frame_width - 20 140 10 : c#222
+code_block = 0
+if outputs.main != "" (
+  loc 999 2 0 segment_length / -2 + scroll_y
+  square frame_width - 20 segment_length 10 : c#222
   loc 2 2 20 -20 + scroll_y
   text name 8 : c#ddd
-  out = outputs."main"
-  loc 999 2 out.len * txt_size * -0.5 -75 + scroll_y
-  text out txt_size
-  y -= 200
+  out = outputs.main
+  loc 2 2 20 -75 + scroll_y
+  x = x_position
+  each i line out (
+    switch line (
+      case "---"
+        set_x 0
+        square frame_width - 30 0 10 : c#444
+        c #ddd
+        break
+      case "```"
+        code_block = 1 - code_block
+        square frame_width - 30 20 5 : c#444
+        break
+      default
+        if code_block == 1 (
+          set_x 0
+          square frame_width - 30 20 5 : c#333
+          c #ddd
+        )
+        set_x x
+        size = txt_sizes[i]
+        text line size
+        break
+    )
+    change_y size * -2
+  )
+  y -= segment_length
 )
 if page_len == 0 (
   loc 2 2 20 -20
   text "No Results" 10 : c#fff
 )
 
-files = outputs."files".trim(1,10)
+files = outputs.files.trim(1,10)
 if files != "" (
   height = files.len * 40
   y -= 40
   y2 = y + scroll_y
-  loc 999 2 0 y2 - ( height / 2 ) + 10
+  loc 999 2 0 y2 - (height / 2) + 10
   square frame_width - 20 height + 20 10 : c#111
   loc 2 2 15 y2 + 10
   text "Files" 8 : c#fff
@@ -145,7 +215,7 @@ if files != "" (
     count ++
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
-    file "open" files.[count]
+    file "open" files[count]
     square frame_width - 30 25 10 : c#222 hover_c#333
     if clicked (
       file "start"
@@ -154,22 +224,24 @@ if files != "" (
     rightclick "file" loaded_file
     loc 2 2 30 cur_y
     file "render" 1
-    type = file.[1]
+    type = file[1]
+    c #fff
+    change_x 20
     if type == ".folder" (
-      text file.[2] 10 : c#fff chx#20
+      text file[2] 10
     ) else (
-      text file.[2] ++ type 10 : c#fff chx#20
+      text file[2] ++ type 10
     )
     y -= 40
   )
 )
 
-settings = outputs."settings".trim(1,3)
+settings = outputs.settings.trim(1,3)
 if settings != "" (
   height = settings.len * 40
   y -= 40
   y2 = y + scroll_y
-  loc 999 2 0 y2 - ( height / 2 ) + 10
+  loc 999 2 0 y2 - (height / 2) + 10
   square frame_width - 20 height + 20 10 : c#111
   loc 2 2 15 y2 + 10
   text "Settings" 8 : c#fff
@@ -180,16 +252,16 @@ if settings != "" (
     loc 999 2 0 cur_y
     square frame_width - 30 25 10 : c#222 hover_c#333
     if clicked (
-      window "add" "settings" settings.[count]
+      window "add" "settings" settings[count]
       window "stop"
     )
     loc 2 2 15 cur_y
-    text settings.[count] 10 : c#fff
+    text settings[count] 10 : c#fff
     y -= 40
   )
 )
 
-wins = outputs."windows".trim(1,4)
+wins = outputs.windows.trim(1,4)
 if wins != "" (
   height = wins.len * 40
   y -= 40
@@ -205,7 +277,7 @@ if wins != "" (
     loc 999 2 0 cur_y
     square frame_width - 30 25 10 : c#222 hover_c#333
     loc 2 2 15 cur_y
-    text wins.[count] 10 : c#fff
+    text wins[count] 10 : c#fff
     y -= 40
   )
 )
