@@ -7,6 +7,10 @@
       ".ode"
     ]
   },
+  "parser":{
+    "type":"regex",
+    "data":"/\"(?:[^\\\\\"]*|\\\\\"?)*\"|[()\\[\\],]+|[\\d.]+\\d|\\.?[^\\[\\],. \\n()]+| +/gm"
+  },
   "overrides": {
     "origin.comments": "#aaaaaa",
     "origin.numbers": "#5c9bec",
