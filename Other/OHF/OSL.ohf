@@ -7,9 +7,9 @@
       ".ode"
     ]
   },
-  "parser":{
-    "type":"regex",
-    "data":"/\"(?:[^\\\\\"]*|\\\\\"?)*\"|[()\\[\\],]+|[\\d.]+\\d|\\.?[^\\[\\],. \\n()]+| +/gm"
+  "parser": {
+    "type": "regex",
+    "data": "/\"(?:[^\\\\\"]*|\\\"?)*\" ?|[(),]+ ?|[\\[\\]]+ ?|[{}:]+ ?|[\\d.]+\\d ?|\\.?[^\\[\\],. \\n()]+ ?|\\./gm"
   },
   "overrides": {
     "origin.comments": "#aaaaaa",
@@ -36,9 +36,9 @@
         "graph"
       ]
     },
-    "positioning":{
+    "positioning": {
       "color": "#bbb7ff",
-      "tokens":[
+      "tokens": [
         "loc",
         "goto",
         "change_x",
@@ -50,9 +50,9 @@
         "pointat"
       ]
     },
-    "window":{
-      "color":"#b63ceb",
-      "tokens":[
+    "window": {
+      "color": "#b63ceb",
+      "tokens": [
         "window",
         "mainloop:",
         "import"
@@ -74,18 +74,18 @@
         "default"
       ]
     },
-    "functions":{
-      "color":"#eb7f3c",
-      "tokens":[
+    "functions": {
+      "color": "#eb7f3c",
+      "tokens": [
         "function",
         "return",
         "def",
         "endef"
       ]
     },
-    "logging":{
-      "color":"#42f7b1",
-      "tokens":[
+    "logging": {
+      "color": "#42f7b1",
+      "tokens": [
         "log",
         "warn",
         "error",
@@ -145,9 +145,9 @@
         "xnor"
       ]
     },
-    "brackets":{
-      "color":"#9cc6ff",
-      "tokens":[
+    "brackets": {
+      "color": "#9cc6ff",
+      "tokens": [
         "(",
         ")"
       ]
