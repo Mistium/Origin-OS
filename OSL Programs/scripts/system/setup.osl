@@ -27,6 +27,9 @@ file "install_type" "ocf" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 
 file "install_type" "zip" "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0" "Zip Archive" []
 file "install_type" "shortcut" "" "Alias File" ["Origin/(A) System/System Apps/Shortcut_Opener.osl"]
 
+// data formats
+file "install_type" "xml" "c #7c3b73 w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #5e2856 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 1.5 c #fff line -3.25 -1 -5.75 -4 cont -3.25 -7 line 3.25 -1 5.75 -4 cont 3.25 -7 line -1 -6.25 1 -1.75" "Markup" ["Origin/(A) System/User Applications/Studio.osl"]
+
 // binary data
 file "install_type" "so" "" "Shared Object Library" []
 file "install_type" "exe" "" "Windows Executable" []
