@@ -143,14 +143,13 @@ if app_page (
     if installed "loc -2 2 -90 -35" else "loc -2 2 -90 -60"
     square 150 30 15 : c#global_accent
     square 150 30 10 : c#333 hover_c#444
-    if clicked and can (
-      can = false
+    if onclick (
       if installed and current_app.version == install_version (
         file "open" app_path "onlyaccess"
         file "start"
         file "close"
       ) else (
-        terminal "app install" + cur
+        terminal "app install" + cur.str
         save "installed.json" "get"
         install_version = current_app.version
         save_data[cur] = install_version
@@ -172,9 +171,8 @@ if app_page (
       loc -2 2 -90 -85
       square 150 30 15 : c#global_accent
       square 150 30 10 : c#333 hover_c#444
-      if clicked and can (
-        can = false
-        terminal "app uninstall" + cur
+      if onclick (
+        terminal "app uninstall" + cur.str
         save "installed.json" "get"
         save "installed.json" "set" save_data.delete(cur,version)
         say cur + "Has been uninstalled"
@@ -228,8 +226,7 @@ c #fff
 icon "upload" 0.7
 change_x 20
 text "Upload Your Apps" 9
-if clicked and can (
-  can = false
+if onclick (
   http "newtab" "https://github.com/Mistium/apps/tree/main"
 )
 
