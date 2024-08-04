@@ -2,6 +2,7 @@ window "dimensions" 700 500
 can = false
 permission "request" "file admin"
 permission "request" "terminal"
+permission "request" "kernel"
 
 def "inform" "data"
   gpt "inform_bot" "assistant" data
@@ -51,14 +52,16 @@ windows = windows-names.join(newline)
 inform "The users files are listed from oldest at the top to youngest at the bottom as: " ++ files_paths
 inform "The user has these apps open: " ++ windows
 inform "Don't use any formatting other than # or ## or ###"
-
+inform "To access a file, YOU need to type the following and without any other text and starting the message with: '<FILEREAD>path' like <FILEREAD>origin/(c) users/username/downloads/test.osl, you will get an automated response from the user of the file array"
+inform "To open or run a file you must type the the following and without any other text and starting the message with: '<FILEOPEN>path' like <FILEOPEN>origin/(c) users/username/downloads/test.osl and you will get an automated response from the user of 'File Opened'"
+inform "You care able to open multiple files sequentially by responding to the file data with another open file request"
 h = 400
 
 mainloop:
 
 goto 0 0
 square 600 h 30 : c#global_accent
-if "escape".onpress or (mouse_left and clicked.not and can) (
+if "escape".onpress or (clicked.not and mouse_left) (
   window "stop"
 )
 square 600 h 25 : c#050505
@@ -121,7 +124,28 @@ if input_search != temp (
 )
 if "enter".onpress (
   outputs.main = "GPT Is Thinking"
+  goto -300 120
+  text "GPT Is Thinking" 10 : c#fff
   gpt "send" "assistant" input_search.str
+  if data.startsWith("<FILEOPEN>") (
+    path = data.right(data.len - 10).strip()
+    file "open" path "onlyaccess"
+    file "start"
+    file "close"
+    window "stop"
+    data = ""
+  )
+  while data.startsWith("<FILEREAD>") (
+    square 200 40 10 : c#222
+    change_x "Reading File".len * -5
+    text "Reading File" 10 : c#fff
+    path = data.right(data.len - 10).strip()
+    goto -300 120
+    text path 10
+    file "open" path
+    gpt "send" "assistant" file
+    file "close"
+  )
   input_search = ""
   temp = ""
   data.wrapText(58)
@@ -151,6 +175,8 @@ if "enter".onpress (
           )
         )
       )
+    ) else (
+      txt_sizes.append(txt_size)
     )
   )
   outputs.main = data
@@ -179,7 +205,6 @@ if outputs.main != "" (
         break
       case "```"
         code_block = 1 - code_block
-        square frame_width - 30 20 5 : c#444
         break
       default
         if code_block == 1 (
