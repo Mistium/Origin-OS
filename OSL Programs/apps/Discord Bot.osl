@@ -1,0 +1,107 @@
+import "discord" from "packages"
+connect
+wait 0.6
+login ""
+
+def "sendslash" "content, inid, intoken"
+  content = content.join("%0A").append("```").prepend("```")
+  link = "https://origin.milosantos.com/discord/replyinteraction.php?interaction_id=" ++ inid ++ "&interaction_token=" ++ intoken ++ "&content=" ++ content.str
+  network "getasync" link
+endef
+
+def "run_eval"
+  if out.regex("/\.[^\d ]/gm").len > 0 (
+    if (sent_from == owner or content.contains(".get(").not) (
+      if true "out =" + (out).str
+    ) else (
+      out = "ur just silly and cringe"
+    )
+  ) else (
+    if true "out =" + (out).str
+  )
+endef
+
+owner = "mistium"
+
+messages = 0
+assistant = gptNew()
+permission "request" "file admin"
+permission "request" "terminal"
+window "dimensions" 200 200
+
+mainloop:
+heartbeat
+
+if discord.wsHasnew() (
+  msg = discord.wsGetnext()
+  cmd = msg.t
+  if cmd == "ready" (
+    bot_user = msg.d.user
+    bot_name = bot_user.username
+    bot_pfp = "https://cdn.discordapp.com/avatars/" ++ bot_user.id ++ "/" ++ bot_user.avatar ++ ".png?size=512"
+    log "logged in as" + bot_name
+  )
+  sent_by
+  if cmd == "INTERACTION_CREATE" (
+    data = msg.d.data
+    if data.name == "trm" (
+      if msg.d.member.user.username == owner (
+        terminal data.options[1].value
+        send = terminal_output
+      ) else (
+        send = ["Only Mistium can use the terminal command"]
+      )
+      sendslash send msg.d.id.str msg.d.token.str
+    )
+  )
+  if cmd == "MESSAGE_CREATE" and sent_from != bot_name (
+    get_content
+    if content.startsWith("!hello") (
+      send_message "Hello world!" channel
+    )
+    if content.startsWith("!dm") (
+      dm_user "test" sent_id
+    )
+    if content.startsWith("!gpt ") (
+      num = content.len - 5
+      content.right(num)
+      content = msg.d.author.username + "says:" + content
+      send_message assistant.gptSend(content) channel
+    )
+    if content.startsWith("!term ") and sent_from == owner) (
+      num = content.len - 6
+      terminal content.right(num)
+      send_message "```" ++ terminal_output.join("%0A") ++ "```" channel
+    )
+    if content.startsWith("!osl") (
+      if sent_from == owner (
+        out = content.split(newline).delete(1)
+        run out
+        send_message data channel
+      ) else (
+        send_message "You cannot use this command" channel
+      )
+    )
+    if content.startsWith("!eval ") (
+      num = content.len - 6
+      out = content.right(num)
+      if out.contains("token").not (
+        run_eval
+      ) else (
+        send_message ":/" channel
+      )
+      out = "none"
+    )
+  )
+  messages ++
+)
+
+goto 0 0
+image bot_pfp 170
+goto bot_name.len * -5 -80
+text bot_name 10
+loc 2 2 20 -20
+direction timer * 200
+icon "w 3 cutcircle 0 0 10 0 100" 1
+import "win-buttons"
+// comment :D
