@@ -4,6 +4,8 @@ permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "save admin"
 
+stats = "https://apps.mistium.com/stats".get()
+
 window "dimensions" 1000 600
 save "appstore@system" "set_directory"
 if "installed.json".saveExists().not (
@@ -113,14 +115,14 @@ if page == "APPSTORE// search" (
 app_page = page.contains("APPSTORE// ").not
 
 if app_page (
-  network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ page.to("url") ++ "/info.json"
+  network "get" "https://apps.mistium.com/info?appname=" ++ page.to("url")
   if data == "Loading" (
     direction timer * 360
     icon "cutcircle 0 0 10 0 90" 5 : c#fff
     direction 90
   ) else (
     current_app = data
-    cur = current_app."title".toLower()
+    cur = current_app.title.toLower()
     if installed == 0 and cur != "" (
       save "installed.json" "get"
       app_path = user_folder ++ "/applications/" ++ cur ++ ".osl"
@@ -128,7 +130,7 @@ if app_page (
       installed = save_data.contains(cur) and exists
       install_version = save_data[cur].int
     )
-    desc = current_app."description".str
+    desc = current_app.description.str
     w = frame_width
     loc 999 2 0 -50
     square w 130 10 1 : c#222
@@ -137,8 +139,13 @@ if app_page (
     loc 2 2 140 -50
     text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#fff
     loc 2 2 140 -80
-    text "By" + current_app."author" 9
-    loc 2 2 20 -160
+    text "By" + current_app.author 9
+    loc 2 2 30 -145
+    icon "eye" 0.7
+    text stats.views[cur] 10 : chx#20
+    icon "download" 0.6 : chx#20
+    text stats.downloads[cur] 10 : chx#20
+    loc 2 2 20 -180
     text desc.wrapText((window_width - 350) / 9) 9
     if installed "loc -2 2 -90 -35" else "loc -2 2 -90 -60"
     square 150 30 15 : c#global_accent
