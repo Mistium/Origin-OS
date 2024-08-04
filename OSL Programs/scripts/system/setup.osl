@@ -33,7 +33,7 @@ file "install_type" "xml" "c #7c3b73 w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -
 // binary data
 file "install_type" "so" "" "Shared Object Library" []
 file "install_type" "exe" "" "Windows Executable" []
-file "install_type" "dll" "" "Dynamic Link :ibrary" []
+file "install_type" "dll" "" "Dynamic Link Library" []
 file "install_type" "msi" "" "Windows Installer Package" []
 file "install_type" "scr" "" "Windows Screensaver" []
 file "install_type" "iso" "" "ISO Disk Image" []
