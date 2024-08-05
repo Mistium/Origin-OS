@@ -1,121 +1,164 @@
 <!DOCTYPE html>
-<title>originOS</title>
-<meta content="originOS" property="og:title" />
-<meta content="A scratch based desktop gui made by @mistium" property="og:description" />
-<meta content="https://origin.mistium.com" property="og:url" />
-<meta content="https://c10.patreonusercontent.com/4/patreon-media/p/campaign/6360032/cd4d79c9837e432d8a738fcb20adddb0/eyJ3IjoyMDB9/1.gif?token-time=2145916800&token-hash=s7N1XbcZeTyM5x9yoeuBVHas76l-DLNV3C1F93rdAUs%3D" property="og:image" />
-<meta content="#57cdac" data-react-helmet="true" name="theme-color" />
 <html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta content="originOS" property="og:title" />
+  <meta content="A scratch based desktop gui made by @mistium" property="og:description" />
+  <meta content="https://origin.mistium.com" property="og:url" />
+  <meta content="https://c10.patreonusercontent.com/4/patreon-media/p/campaign/6360032/cd4d79c9837e432d8a738fcb20adddb0/eyJ3IjoyMDB9/1.gif?token-time=2145916800&token-hash=s7N1XbcZeTyM5x9yoeuBVHas76l-DLNV3C1F93rdAUs%3D" property="og:image" />
+  <meta content="#57cdac" name="theme-color" />
+  <title>originOS</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div id="topbar"></div>
+  <script>
+    fetch('/topbar.html')
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('topbar').innerHTML = html;
+      })
+      .catch(error => console.error('Error fetching topbar HTML:', error));
+  </script>
 
-  <head>
-    <meta charset="UTF-8">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/x-icon" href="favicon.ico">
-    <link rel="stylesheet" href="styles.css">
-  </head>
+<script>
+  function createStar() {
+      const star = document.createElement('div');
+      star.classList.add('star');
+      const size = Math.random() * 3;
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      const yPosition = Math.random() * window.innerHeight;
+      star.xPosition = Math.random() * window.innerWidth;
+      star.yPosition = yPosition;
+      star.style.top = `${star.yPosition}px`;
+      star.style.left = `${star.xPosition}px`;
+      star.style.opacity = 1 - (yPosition / (window.innerHeight / 4));
 
-  <body>
+      document.body.appendChild(star);
+  }
 
-    <div id="topbar"></div>
-      <script>
-         fetch('/topbar.html')
-           .then(response => response.text())
-           .then(html => {
-             document.getElementById('topbar').innerHTML = html;
-           })
-           .catch(error => console.error('Error fetching topbar HTML:', error));
-      </script>
-    <div class="content">
+  function createStars(count) {
+      for (let i = 0; i < count; i++) {
+          createStar();
+      }
+  }
+
+  function initStars() {
+      const numberOfStars = 500; // Adjust the number of stars here
+      createStars(numberOfStars);
+  }
+
+  initStars();
+  const stars = document.querySelectorAll('.star');
+
+
+  window.addEventListener('resize', () => {
+      stars.forEach(star => {
+          star.xPosition = Math.random() * window.innerWidth;
+          star.style.left = `${star.xPosition}px`;
+      });
+  });
+
+
+  window.addEventListener('mousemove', (event) => {
+      stars.forEach(star => {
+          distance = Math.sqrt(Math.pow(event.clientX - star.xPosition, 2) + Math.pow(event.clientY - star.yPosition, 2));
+          star.style.opacity = 1 - (distance / window.innerHeight * 2);
+          if (star.style.opacity < 0) {
+              star.style.opacity = 0;
+          }
+          star.style.opacity += Math.random() * 0.3;
+      });
+  });
+  
+</script>
+
+  <header class="header-container">
+    <div class="title">
       <h1>originOS Rift</h1>
-
-      <h2 align="center">
-        The Most Advanced Gui Based TurbowarpOS<br>
-      </h2>
-      <h3>
-        <a href="/originLauncher" style="text-decoration: none; color: aliceblue; background-color: rgba(10, 10, 10, 0.7); border-radius: 10px; padding: 10px; transition-duration: 0.2s; display: inline-block;" 
-        onmouseover="this.style.transform = 'scale(1.05)'" 
-        onmouseout="this.style.transform = 'scale(1)'">
-            Launch originOS
-        </a>
-    </h3>
-    
-      <div>
-        <a class="badges" href="https://discord.gg/HNycesXRy5"><img src="https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=shield" height="20" alt="Discord Badge"></a>
-        <a class="badges"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb34c493-a76d-460c-88f0-7d18d3908eb3" height="20" alt="webOS Badge"></a>
-        <a class="badges"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" height="20" alt="OSL2 Badge"></a>
-        <a class="badges" href="https://github.com/Mistium/Origin-OS/issues"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" height="20" alt="Github Issues Badge"></a>
-        <a class="badges" href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="20" alt="Patreon Badge"></a>
-      </div>
-      <div class="image-container">
-        <img class="image" src="Resources/Desktop3.png" id="Image1" alt="image 1">
-        <img class="image" src="Resources/Desktop2.png" id="Image2" alt="image 2">
-        <img class="image" src="Resources/Desktop1.png" id="Image3" alt="image 3">
-      </div>
-      <script src="script.js"></script>
-
-      <div class="content">
-        <br>Views<br>
-        <img src="https://count.getloli.com/get/@mistium-origin?theme=rule34" alt=":views" height="100" />
-        <div class="kernel-info">
-          <h1>originKernel</h1>
-          <div class="item">
-            <p>Name</p>
-            <p>Rift</p>
-          </div>
-          <br>
-          <div class="item">
-            <p>Kernel</p>
-            <p>v0.9.5</p>
-          </div>
-          <div class="item">
-            <p>OSL2</p>
-            <p>v1.8.7</p>
-          </div>
-          <div class="item">
-            <p>OTS</p>
-            <p>v0.5.5</p>
-          </div>
-          <div class="item">
-            <p>ICN</p>
-            <p>v0.3.9</p>
-          </div>
-          <div class="item">
-            <p>Net</p>
-            <p>v4</p>
-          </div>
-        </div>
-        <div class="card">
-            <div class="card-svg-bg">
-                <svg class="card-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512"><path d="M339.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L568.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S517.7-4.4 499.1 9.6L262.4 187.2c-24 18-38.2 46.1-38.4 76.1L339.3 367.1zm-19.6 25.4l-116-104.4C143.9 290.3 96 339.6 96 400c0 3.9 .2 7.8 .6 11.6C98.4 429.1 86.4 448 68.8 448H64c-17.7 0-32 14.3-32 32s14.3 32 32 32H208c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/></svg>
-            </div>
-            <div class="card-content">
-                <h2>Customisation</h2>
-                <p>origin can be configured to allow you to load wallpapers from a url and install custom docks, allowing you to customise the look and feel of the os to your liking</p>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-svg-bg">
-                <svg class="card-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"/></svg>
-            </div>
-            <div class="card-content">
-                <h2>Power</h2>
-                <p>The OSL2 parser allows for incredible power to be given to the user over the system, the apps that run on it, and the code of the apps themselves.</p>
-                <a href="https://origin.mistium.com/osl">OSL Documentation</a>
-            </div>
-        </div>
-        <div class="card">
-            <div class="card-svg-bg">
-            <svg class="card-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0z"/></svg>
-            </div>
-
-            <div class="card-content">
-                <h2>Security</h2>
-                <p>originOS includes a full permissions system to protect the user from malicious applications and block apps from accessing resources without the user's permission</p>
-                <a href="https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Permissions-And-Configurations">About the permissions system</a>
-            </div>
-        </div>
-      </div>
+      <h2>The Most Advanced GUI-Based TurbowarpOS</h2>
     </div>
-  </body>
+    <div class="badges-container">
+      <a class="badges" href="https://discord.gg/HNycesXRy5">
+        <img src="https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=shield" alt="Discord Badge">
+      </a>
+      <a class="badges" href="#">
+        <img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb34c493-a76d-460c-88f0-7d18d3908eb3" alt="webOS Badge">
+      </a>
+      <a class="badges" href="#">
+        <img src="https://github.com/Mistium/Origin-OS/assets/92952823/87b4b8b8-5da3-4471-ab5d-2eaf82756538" alt="OSL2 Badge">
+      </a>
+      <a class="badges" href="https://github.com/Mistium/Origin-OS/issues">
+        <img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" alt="Github Issues Badge">
+      </a>
+      <a class="badges" href="https://www.patreon.com/user/membership?u=51594743">
+        <img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" alt="Patreon Badge">
+      </a>
+      <a class="badges" href="https://github.com/RoturTW">
+        <img src="https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/Rotur%20Badge.png" alt="Rotur Badge">
+      </a>
+    </div>
+  </header>
+
+  <main class="content">
+    <a href="https://origin.mistium.com/originLauncher">
+      <button class="use-button">Boot originOS</button>
+    </a>
+    <section class="image-container">
+      <img class="image" src="https://origin.mistium.com/Resources/Desktop3.png" id="Image1" alt="Image 1">
+      <img class="image" src="https://origin.mistium.com/Resources/Desktop2.png" id="Image2" alt="Image 2">
+      <img class="image" src="https://origin.mistium.com/Resources/Desktop1.png" id="Image3" alt="Image 3">
+    </section>
+
+    <section class="cards">
+      <div class="card">
+        <div class="card-svg-bg">
+          <svg class="card-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512">
+            <path d="M339.3 367.1c27.3-3.9 51.9-19.4 67.2-42.9L568.2 74.1c12.6-19.5 9.4-45.3-7.6-61.2S517.7-4.4 499.1 9.6L262.4 187.2c-24 18-38.2 46.1-38.4 76.1L339.3 367.1zm-19.6 25.4l-116-104.4C143.9 290.3 96 339.6 96 400c0 3.9 .2 7.8 .6 11.6C98.4 429.1 86.4 448 68.8 448H64c-17.7 0-32 14.3-32 32s14.3 32 32 32H208c61.9 0 112-50.1 112-112c0-2.5-.1-5-.2-7.5z"/>
+          </svg>
+        </div>
+        <div class="card-content">
+          <h2>Customization</h2>
+          <p>origin can be configured to allow you to load wallpapers from a URL and install custom docks, allowing you to customize the look and feel of the OS to your liking.</p>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-svg-bg">
+          <svg class="card-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M288 32c0-17.7-14.3-32-32-32s-32 14.3-32 32V256c0 17.7 14.3 32 32 32s32-14.3 32-32V32zM143.5 120.6c13.6-11.3 15.4-31.5 4.1-45.1s-31.5-15.4-45.1-4.1C49.7 115.4 16 181.8 16 256c0 132.5 107.5 240 240 240s240-107.5 240-240c0-74.2-33.8-140.6-86.6-184.6c-13.6-11.3-33.8-9.4-45.1 4.1s-9.4 33.8 4.1 45.1c38.9 32.3 63.5 81 63.5 135.4c0 97.2-78.8 176-176 176s-176-78.8-176-176c0-54.4 24.7-103.1 63.5-135.4z"/>
+          </svg>
+        </div>
+        <div class="card-content">
+          <h2>Power</h2>
+          <p>The OSL2 parser allows for incredible power to be given to the user over the system, the apps that run on it, and the code of the apps themselves.</p>
+          <a href="https://origin.mistium.com/osl">OSL Documentation</a>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-svg-bg">
+          <svg class="card-svg" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+            <path d="M256 0c4.6 0 9.2 1 13.4 2.9L457.7 82.8c22 9.3 38.4 31 38.3 57.2c-.5 99.2-41.3 280.7-213.6 363.2c-16.7 8-36.1 8-52.8 0C57.3 420.7 16.5 239.2 16 140c-.1-26.2 16.3-47.9 38.3-57.2L242.7 2.9C246.8 1 251.4 0 256 0z"/>
+          </svg>
+        </div>
+        <div class="card-content">
+          <h2>Security</h2>
+          <p>originOS includes a full permissions system to protect the user from malicious applications and block apps from accessing resources without the user's permission.</p>
+          <a href="https://github.com/Mistium/Origin-OS/wiki/OSL-%E2%80%90-Permissions-And-Configurations">About the permissions system</a>
+        </div>
+      </div>
+      <section class="views">
+        <p>Views</p>
+        <img src="https://count.getloli.com/get/@mistium-origin?theme=rule34" alt=":views" height="100" />
+      </section>
+    </section>
+  </main>
+  
+  <script src="script.js"></script>
+</body>
 </html>
