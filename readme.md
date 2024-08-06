@@ -1,4 +1,4 @@
-# originOS Flow
+# originOS Rift
 
 <p align="center">
 The Most Advanced Gui Based ScratchOS<br>
