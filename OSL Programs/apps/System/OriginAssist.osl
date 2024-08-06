@@ -47,7 +47,7 @@ settings_pages.join(newline)
 terminal "get filepaths"
 files_paths = data.join(newline)
 terminal "-get.windows"
-windows = windows-names.join(newline)
+windows = windows_names.join(newline)
 
 inform "The users files are listed from oldest at the top to youngest at the bottom as: " ++ files_paths
 inform "The user has these apps open: " ++ windows
