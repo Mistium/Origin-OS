@@ -1,5 +1,5 @@
 def "generate_completion" "history"
   obj = {}
   obj.messages = history
-  response = "https://ai.milosantos.com/blackbox".http("POST",obj,{"Content-Type":"application/json"}).choices.[1].message.content
+  response = "https://ai.milosantos.com/blackbox".http("POST",obj,{"Content-Type":"application/json"}).choices[1].message.content
 endef
