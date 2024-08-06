@@ -5,7 +5,7 @@ window "dimensions" 600 400
 current_tab = "no_perms"
 terminal "-get.windows"
 activity_info = false
-if windows-names.contains(passed_data) (
+if windows_names.contains(passed_data) (
   activity_info = true
   page = passed_data
 )
@@ -78,9 +78,9 @@ if activity_info (
     last_timer = timer
     dt = delta_time
     terminal "-get.windows"
-    current = windows-names.index(page)
-    dt = windows-drawtimes[current][1]
-    pr = windows-drawtimes[current][2]
+    current = windows_names.index(page)
+    dt = windows_drawtimes[current][1]
+    pr = windows_drawtimes[current][2]
     dt2 = dt / 10
     graph.append(dt2)
     graph.delete(1)
@@ -109,7 +109,7 @@ import "side-bar"
 frames = fps.round
 if high < frames "high = frames"
 if low > frames "low = frames"
-loc 2 2 23 - ( frames.len * 5 ) -20
+loc 2 2 23 - (frames.len * 5) -20
 text frames 10 : c#txtc
 loc 2 2 13.5 -40
 text "fps" 7
@@ -166,10 +166,10 @@ if current_tab == "Network" (
   data.trim(1,100)
   c prim
   frame x y x_position y_position data.len * 40 - 20
-  count = scroll_y.divide(40).round
-  y = scroll_y - 20 + ( count * -40 )
+  count = (scroll_y / 40).round
+  y = scroll_y - 20 + (count * -40)
   length = data.len
-  loop ( frame_height / 40 ).ceiling.clamp(1,length) (
+  loop (frame_height / 40).ceiling.clamp(1,length) (
     count ++
     loc 999 2 0 y
     square frame_width - 20 25 10 1 : c#prim hover_c#seco
@@ -206,22 +206,20 @@ if current_tab == "Render Info" (
     terminal "-get.windows"
   )
   c prim
-  frame x y x_position y_position windows-names.len * 40
+  frame x y x_position y_position windows_names.len * 40
   y = scroll_y - 20
   tot = 0
-  count = 0
-  loop windows-names.len (
-    count ++
+  for count windows_names.len (
     loc 999 2 0 y
     square frame_width - 20 25 10 1 : c#prim hover_c#seco
     if onclick (
-      window "add" "Activity" windows-names[count]
+      window "add" "Activity" windows_names[count]
     )
-    rightclick "window" windows-names[count]
+    rightclick "window" windows_names[count]
     loc 2 2 15 y
-    text windows-names[count] 7 : c#txtc
+    text windows_names[count] 7 : c#txtc
     loc -2 2 -50 y
-    d = windows-drawtimes[count][1]
+    d = windows_drawtimes[count][1]
     tot += d
     text d.str 7
     y -= 40
@@ -229,7 +227,7 @@ if current_tab == "Render Info" (
   loc 2 2 10 y
   text "System" 7
   loc -2 2 -50 y
-  text dt.multiply(1000).round - tot.round 7
+  text (dt * 1000).round - tot.round 7
 )
 if current_tab == "Disk" (
   minimised_text = "Disk"
