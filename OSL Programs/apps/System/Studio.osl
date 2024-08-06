@@ -21,6 +21,7 @@ window "set_dragbox" [[2,2,40,0],[-2,2,-150,-40]]
 c_text = user.theme.text
 c_prim = user.theme.primary
 c_seco = user.theme.secondary
+c_tert = user.theme.tertiary
 window_colour = user.theme.background
 
 def "draw_buttons"
