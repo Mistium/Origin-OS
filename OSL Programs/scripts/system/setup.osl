@@ -49,6 +49,7 @@ file "install_type" "c" c_icn "C File" ["Origin/(A) System/User Applications/Stu
 file "install_type" "html" html_icn "HTML File" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "css" css_icn "CSS File" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "osl" osl_icn "Origin Script" ["Origin/(A) System/System Apps/Process_Opener.osl","Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "owf" osl_icn "Origin Website" ["Origin/(A) System/User Applications/Summit.osl"]
 
 // graphics
 file "install_type" "png" graphics_icn "PNG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
