@@ -29,6 +29,8 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 [Find documentation for osl here](https://github.com/Mistium/Origin-OS/wiki/Origin-Scripting-Language)
 ## Quotes
 
+- Mistium: When people assume your scratchOS is a linux distro is when you have reached the peak of human accomplishment
+
 ### quotes are purely satire and may not align with my beliefs
 
 @ionslayer - "origin os is to clean to the point it makes me not like it, likes its not an os experience if your not complaining about them randomly simplifying the right click menu or some apps looking different than they should randomly"
