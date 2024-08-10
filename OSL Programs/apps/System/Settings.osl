@@ -45,40 +45,6 @@ def "option" "name,icn_code"
   page_len += 50
 endef
 
-def "appearence_colour"
-  loc 2 2 15 -30
-  text `Accent Colour: ${accent_select}` 10 : c#txtc
-  change_x 30
-  square 0 0 25 0
-  square 0 0 20 0 : c#accent_select
-  if clicked (
-    colourpicker "setcol" accent_select
-    colourpicker "show"
-    selected_col = "accent"
-  )
-  if global_accent != accent_select (
-    icon "w 40 dot" 0.6 : c#prim chx#30
-    icon "reload" 0.5 : c#txtc
-    if clicked (
-      colourpicker "setcol" global_accent
-      accent_select = global_accent
-    )
-    loc -2 2 -120 -30
-    square 200 20 15 0 1
-    if onclick (
-      network "update" "accent" accent_select
-    )
-    c #222
-    if mouse_touching and clicked.not (
-      square 200 25 12
-    ) else (
-      square 200 25 10
-    )
-    text "Sync With Network" 9 : c#fff chx#-95
-    if mouse_down.not "can = true"
-  )
-endef
-
 def "system"
   if network_drive.istype("array").not (
     mem = "navigator.deviceMemory".eval
@@ -1112,7 +1078,7 @@ tert = user.theme.tertiary
 txtc = user.theme.text
 window_colour = user.theme.background
 
-main
+system
 // file type pages
 ftkeys = file_types.getKeys()
 ftvalues = file_types.getValues()
