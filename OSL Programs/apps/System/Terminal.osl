@@ -1,3 +1,5 @@
+file "use_type" "ots"
+
 def "print" "data"
   terminal = terminal.destr ++ data.destr
   loops += data.destr.len
@@ -12,6 +14,17 @@ if passed_data != "" (
   file "open" passed_data "onlyaccess"
   file "get" 4
   ots_script = data.split(newline)
+  each i line ots_script (
+    if line.startsWith("if ") or line.startsWith("jump ") (
+      line.split(" ")
+      if line.last()[1] == ":" (
+        idx = ots_script.index(line.last())
+        line[line.len] = idx
+        ots_script[i] = line.join(" ").destr
+      )
+    )
+  )
+  log ots_script
 ) else (
   ots_script = ""
 )
@@ -64,36 +77,56 @@ input window_width - (user_start.len + 2 * 10) 30 1 null null #468058
 
 if ots_script != "" (
   cur = ots_script[ots_i]
-  if cur.startsWith("input ") (
-    if taking_input (
-      cur.oslTokenise()
-      terminal.append(cur[2])
-      loops ++
-      taking_var = cur[cur.len-1] == ">>"
-      taking_input = false
-    )
-    if "enter".onpress (
-      if taking_var (
-        cmd = cur.oslTokenise().last() ++ " = " ++ input_1.str
-        terminal cmd
+  cur_spl = cur.oslTokenise()
+  switch cur_spl[1] (
+    case "input"
+      if taking_input (
+        terminal.append(cur_spl[2])
+        loops ++
+        taking_var = cur_spl[cur_spl.len-1] == ">>"
+        taking_input = false
       )
-      terminal.append(username ++ "/: " ++ input_1.str)
-      loops ++
-      input_1 = ""
-      ots_i ++
-      taking_input = true
-    )
-  ) else (
-    if cur != "" (
-      terminal cur
-      terminal = terminal ++ terminal_output
-      terminal_output = []
-      loops = terminal.len
-      ots_i ++
-      if ots_i > ots_script.len (
-        ots_script = ""
+      if "enter".onpress (
+        if taking_var (
+          cmd = cur_spl.last() ++ " = " ++ input_1.str
+          terminal cmd
+        )
+        terminal.append(username ++ "/: " ++ input_1.str)
+        loops ++
+        input_1 = ""
+        ots_i ++
+        taking_input = true
       )
-    )
+      break
+    case "if"
+      terminal "echo" + cur_spl[2]
+      if terminal_output[1].bool == true (
+        ots_i = cur_spl.last() + 1
+      ) else (
+        ots_i ++
+      )
+      break
+    case "jump"
+      ots_i = cur_spl[2]
+      break
+    case ""
+    case "#"
+      ots_i ++
+      break
+    default
+      if cur[1] != ":" (
+        terminal cur
+        terminal = terminal ++ terminal_output
+        terminal_output = []
+        loops = terminal.len
+        ots_i ++
+        if ots_i > ots_script.len (
+          ots_script = ""
+          terminal.append("Program Finished...")
+          loops ++
+        )
+      )
+      break
   )
 ) else (
   if "enter".onpress (
