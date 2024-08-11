@@ -78,7 +78,6 @@ input window_width - (user_start.len + 2 * 10) 30 1 null null #468058
 if ots_script != "" (
   cur = ots_script[ots_i]
   cur_spl = cur.oslTokenise()
-  log cur
   switch cur_spl[1] (
     case "input"
       if taking_input (
@@ -116,7 +115,6 @@ if ots_script != "" (
       break
     default
       if cur[1] != ":" (
-        log cur
         terminal cur
         terminal = terminal ++ terminal_output
         terminal_output = []
@@ -157,4 +155,3 @@ loc 2 2 10 -20
 text "Terminal" 10 : c#txtc
 
 import "win-buttons"
-
