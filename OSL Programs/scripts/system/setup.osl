@@ -9,6 +9,8 @@ html_icn = "c #e44d26 w 2 line -7.5 8 7.5 8 cont 6 -8 cont 0 -10.5 cont -6 -8 co
 css_icn = "c #264de4 w 2 line -7.5 8 7.5 8 cont 6 -8 cont 0 -10.5 cont -6 -8 cont -7.5 8 w 4 line -5 6 5 6 cont 4 -6 cont 0 -8 cont -4 -6 cont -5 6 w 6 line 0 3 0 -3 c #2965f1 w 2 line 5 -7 6 7 cont 1 7 cont 1 -8.5 cont 4 -7 w 4 line 3 5 3 -5 c #ffffff w 1 line 5.25 5.75 -5.25 5.75 cont -5 4 cont 2.5 4 cont 2.25 1 cont -4.5 1 cont -4.25 -1 cont 2 -1 cont 2 -5 cont 0 -6 cont -2 -5 cont -2.25 -4 cont -4.25 -4 cont -4 -6 cont 0 -8 cont 4 -6 cont 5.5 5.5 w 2.5 line -4 5 4 5 cont 3.5 0 cont -3 0 line 3.5 0 3 -5 cont 0 -7 cont -3 -5 cont -3 -5"
 osl_icn = "w 3 c #ebda6e square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 cont 0 10 w 17 dot 0 0 c #7e763f w 3 line 10 0 0 -10 cont -10 0 cont 10 0 w 15.8 c #b2a55c dot 0 0 c #413e25 icn origin-logo 0.5"
 owf_icn = "w 3 c #644ea7 square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 cont 0 10 w 17 dot 0 0 c #302552 w 3 line 10 0 0 -10 cont -10 0 cont 10 0 w 15.8 c #5e547d dot 0 0 c #d3cce8 icn origin-logo 0.5"
+ots_icn = "c #1c452a w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #1b8f44 w 1.5 line 0 -4 4 -4 line -4 3 -1 0 cont -4 -3"
+
 
 icon_cfg = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9 cont 2 7 line -2 -7 -1.5 -9 cont 1.5 -9 cont 2 -7 line 7 -2 9 -1.5 cont 9 1.5 cont 7 2 line -7 -2 -9 -1.5 cont -9 1.5 cont -7 2 line -5.5 3 -7.5 6 cont -6 7.5 cont -3 5.5 line 5.5 3 7.5 6 cont 6 7.5 cont 3 5.5 line -5.5 -3 -7.5 -6 cont -6 -7.5 cont -3 -5.5 line 5.5 -3 7.5 -6 cont 6 -7.5 cont 3 -5.5 w 3 dot 0 8 dot 8 0 dot 0 -8 dot -8 0 dot -6 -6 dot 6 -6 dot -6 6 dot 6 6 "
 icon_log = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0  dot 0 -5"
@@ -41,9 +43,10 @@ file "install_type" "iso" "" "ISO Disk Image" []
 file "install_type" "img" "" "Disk Image" []
 
 // languages
-file "install_type" "oasm" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
-file "install_type" "otas" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl"]
-file "install_type" "bf" assembly_icn "BrainFuck" ["Origin/(A) System/System Apps/Brainfuck.osl"]
+file "install_type" "oasm" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl","Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "otas" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl","Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "ots" ots_icn "Terminal Script" ["Origin/(A) System/System Apps/Terminal.osl","Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "bf" assembly_icn "BrainFuck" ["Origin/(A) System/System Apps/Brainfuck.osl","Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "py" python_icn "Python" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "js" javascript_icn "Javascript" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "c" c_icn "C File" ["Origin/(A) System/User Applications/Studio.osl"]
