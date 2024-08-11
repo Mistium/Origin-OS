@@ -24,7 +24,6 @@ if passed_data != "" (
       )
     )
   )
-  log ots_script
 ) else (
   ots_script = ""
 )
