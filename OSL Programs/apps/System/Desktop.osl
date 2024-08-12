@@ -126,6 +126,7 @@ if nhvr.not (
   goto 0 0
   square screensize_x screensize_y 1 0 1
 
+  data_temp = data
   terminal "get extensions"
   if data != apps_temp (
     apps_temp = data
@@ -135,6 +136,7 @@ if nhvr.not (
     len = desktop_rightclick.len
     desktop_rightclick[len] = ["Apps"].concat(data)
   )
+  data = data_temp
 
   rightclick desktop_rightclick desktop_uuid
 )
