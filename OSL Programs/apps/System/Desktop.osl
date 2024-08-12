@@ -25,11 +25,15 @@ def "icons_hide"
   save "theme.json" "set" theme
 endef
 
+def "upload_file"
+  terminal "upload /desktop"
+endef
+
 
 desktop_rightclick = [
   "Change Wallpaper",
   "-",
-  "Upload File",
+  {"Upload File":"upload_file"},
   "New Folder Inside",
   "New File",
   "-",
