@@ -125,12 +125,11 @@ if nhvr.not (
   terminal "get extensions"
   if data != apps_temp (
     apps_temp = data
-    desktop_rightclick = desktop_rightclick_temp
-    each i app data (
-      data[i] = app.JsonParse()
-      log data[i]
+    each i extension data (
+      data[i] = extension
     )
-    desktop_rightclick.append(["Apps"].append(data))
+    desktop_rightclick = [[]]
+    desktop_rightclick[1] = ["Apps"].concat(data)
   )
 
   rightclick desktop_rightclick desktop_uuid
