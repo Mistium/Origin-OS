@@ -34,8 +34,8 @@ target_y = 0
 usage = []
 use1 = "none"
 
-versionarray = origin.version.split(".")
-version = versionarray[1] ++ "." ++ versionarray[2] ++ "." ++ versionarray[3]
+v = origin.version
+version = v.trim(1,v.len - 2) ++ "." ++ v[v.len - 1] ++ "." ++ v[v.len]
 
 mainloop:
 
