@@ -36,7 +36,7 @@ if user.dock_colour == null (
 if user.icon_colour == null (
   network "update" "icon_colour" #f3f3f3
 )
-if user.theme.len < 5 or user.theme.type != "object" (
+if user.theme.len < 5 or user.theme.istype("object").not (
   network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505"}
 )
 
