@@ -10,7 +10,7 @@ def "openapp" "name"
 endef
 
 def "find_sizes"
-  use1 = usage.[1].int / 1000
+  use1 = usage[1].int / 1000
   unit = "kb"
   if use1 > 1000 (
     unit = "mb"
@@ -20,20 +20,22 @@ def "find_sizes"
       use1 = use1.int / 1000
     )
   )
-  use2 = usage.[2].int / 1000000
+  use2 = usage[2].int / 1000000
   unit2 = "mb"
   if use2 > 1000 (
     unit2 = "gb"
     use2 = use2.int / 1000
   )
-  use1 = ( use1 * 10 ).round / 10
-  use2 = ( use2 * 10 ).round / 10
+  use1 = (use1 * 10).round / 10
+  use2 = (use2 * 10).round / 10
 endef
 
 target_y = 0
 usage = []
 use1 = "none"
 
+versionarray = origin.version.split(".")
+version = versionarray[1] ++ "." ++ versionarray[2] ++ "." ++ versionarray[3]
 
 mainloop:
 
@@ -104,9 +106,9 @@ if usage.len == 0 (
   goto -245 230
   text `Used ${use1}${unit} / ${use2}${unit2}` 9
   goto -140 200
-  bar 200 20 10 usage.[3] : c#111
-  usepercent = usage.[3].multiply(100).round ++ "%"
-  goto -295 - ( usepercent.len * 8 ) 230
+  bar 200 20 10 usage[3] : c#111
+  usepercent = (usage[3] * 100).round ++ "%"
+  goto -295 - (usepercent.len * 8) 230
   text usepercent 16 : c#fff
 )
 
@@ -148,4 +150,4 @@ change 50 10
 c #fff
 text "originOS" 13
 change -50 -20
-text "v" ++ origin."version" 10
+text "v" ++ version 10
