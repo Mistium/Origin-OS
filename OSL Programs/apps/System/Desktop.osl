@@ -44,6 +44,10 @@ desktop_rightclick = [
     {"Small Icons":"icons_small"},
     "-",
     {"Hide Icons":"icons_hide"}
+  ],
+  [
+    "Apps",
+    "None"
   ]
 ]
 
@@ -128,8 +132,8 @@ if nhvr.not (
     each i extension data (
       data[i] = extension
     )
-    desktop_rightclick = [[]]
-    desktop_rightclick[1] = ["Apps"].concat(data)
+    len = desktop_rightclick.len
+    desktop_rightclick[len] = ["Apps"].concat(data)
   )
 
   rightclick desktop_rightclick desktop_uuid
