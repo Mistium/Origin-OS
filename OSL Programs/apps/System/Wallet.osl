@@ -57,7 +57,7 @@ if menu == "transfer" (
   )
   square 360 25 10
   if onclick and can (
-    if balance - input_amount <= 0 (
+    if balance < (input_amount + 1) (
       say "Too Few Credits For This Transaction"
     ) else (
       if input_amount.int < 0.01 (
@@ -77,8 +77,8 @@ if menu == "transfer" (
       )
     )
   )
-  change_x -70
-  text "Transfer Credits" 8 : c#fff
+  change_x -160
+  text "Transfer Credits (Costs 1 Per Transfer)" 8 : c#fff
 ) else (
   if menu == "Sent" (
     loc 999 2 50 -70
