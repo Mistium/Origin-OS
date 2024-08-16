@@ -17,7 +17,7 @@ square window.width 40 10
 loc 2 2 10 -20
 text "My Wallet" 10 : c#txtc
 loc 2 2 100 -100
-icon "w 1 elipse 0 0 10 0.5 100 elipse 0 0 10 0.5 160 elipse 0 0 10 0.5 220" 4
+icon "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220" 4
 
 loc 2 2 100 - (balance.len * 10) -180
 text balance 20
