@@ -1,92 +1,118 @@
-permission "request" "save admin"
-save "contacts" "set_directory"
-import "window_tools"
-seticon "c #000 w 10 square 0 0 5 5 w 7 c #222 square -2 0 3 5 w 3 dot 7 4.5 dot 7 0 dot 7 -4.5 c #fff icn accounts 0.5 -2 0"
+permission "request" "account"
 
-window "show"
-save "contacts.json" "exists"
-if save_data (
-  save "contacts.json" "get"
-  contacts = save_data
-) else (
-  save "contacts.json" "set" []
-  contacts = []
-)
-contacts_add = ""
+prim = user.theme.primary
+seco = user.theme.secondary
+tert = user.theme.tertiary
+txtc = user.theme.text
 
-current_view = ""
+page = "Friends"
+selected_user = ""
+sending = false
+
+
 mainloop:
-
-if new_network_data (
-  if network_data_command == "find_account" (
-    if network_data != "Account Not Found" (
-      contacts = contacts + network_data
-      save "contacts.json" "set" contacts
+list = page == "Friends" ? user["sys.friends"] user["sys.requests"]
+loc 2 999 150 0
+square 300 window_height 10 : c#prim
+loc 2 2 10 -20
+text page 10 : c#txtc
+loc 2 2 280 -20
+icon "add" 0.5
+if onclick (
+  sending = true
+  selected_user = ""
+)
+length = list.len
+frame window.left window.top - 50 window.left + 300 window.bottom + 50 length
+  if length == 0 (
+    loc 2 2 10 -20
+    text `No ${page}` 10 : c#txtc
+  ) else (
+    count = (scroll_y / 40).round
+    y = scroll_y - 20 + (count * -40)
+    loop (frame_height / 40).ceiling.clamp(1,length) (
+      count ++
+      loc 999 2 0 y
+      square frame_width - 20 25 13 : c#seco
+      square frame_width - 20 25 10 : c#prim hover_c#seco
+      if onclick (
+        selected_user = list[count]
+      )
+      text list[count] 10 : c#txtc chx#-135
+      y -= 40
     )
   )
-  new_network_data = false
+frame "clear"
+loc 2 -2 150 30
+square 300 50 10 : c#tert
+loc 2 -2 80 30
+square 130 30 10 : c#prim hover_c#seco
+if onclick (
+  page = "Friends"
+  selected_user = ""
 )
-loc 999 2 0 -20
-square window_width 30 15 : c#222
+text "Friends" 9 : c#txtc chx#-32
+loc 2 -2 225 30
+square 130 30 10 : c#prim hover_c#seco
+if onclick (
+  page = "Requests"
+  selected_user = ""
+)
+text "Requests" 9 : c#txtc chx#-35
+frame window.left + 300 window.top - 50 window.right window.bottom
+if selected_user == "" (
+  if sending (
+    loc 2 2 15 -25
+    text selected_user 10 : c#txtc
+    w = frame_width - 35
+    loc 9999 2 0 -65
+    square w 30 12 : c#prim
+    input w - 10 30 "username" "Enter The Username To Request" txtc
+    loc 9999 2 0 -120
+    square w 30 12 : c#prim hover_c#seco
+    if onclick (
+      network "server" "friend_request" input_username
+      selected_user = ""
+      sending = false
+    )
+    text "Send Request" 10 : c#txtc chx#-60
+  ) else (
+    loc 2 2 15 -25
+    text "Select a user" 10 : c#txtc
+  )
+) else (
+  w = frame_width - 35
+  loc 2 2 15 -25
+  text selected_user 10 : c#txtc
+  if page == "Requests" (
 
-sidewidth = window_width / 3
-loc 3 999 0 0
-square sidewidth window_height 15 : c#222
-loc 3 2 0 -20
-square sidewidth 30 15 : c#333
-loc 3 2 -36 -20
-text "Contacts" 9 : c#fff
-loc 2 2 20 -20
-icon "add" 0.8 : hover_size#1.1
-if clicked and can (
-  can = false
-  contacts_add = "Enter an origin username".ask.str
-  if contacts_add == null (
-    contacta_add = ""
+    loc 9999 2 0 -65
+    square w 30 12 : c#global_accent
+    if onclick (
+      network "server" "friend_accept" selected_user
+      selected_user = ""
+    )
+    square w 30 9 : c#prim hover_c#seco
+    text "Accept Request" 10 : c#txtc chx#-65
+
+
+    loc 9999 2 0 -120
+    square w 30 12 : c#prim hover_c#seco
+    if onclick (
+      network "server" "friend_decline" selected_user
+      selected_user = ""
+    )
+    text "Decline Request" 10 : c#txtc chx#-70
   )
-)
-c #555
-frame window."left" window."top" - 47.5 window."left" + sidewidth + 5 window."bottom" contacts.len * 45
-count = 0
-loop contacts.len (
-  count ++
-  cur = contacts.[count]
-  y = count - 0.5 * -50 + scroll_y
-  loc 2 2 frame_width / 2 y
-  c cur."accent"
-  square frame_width - 20 25 16
-  if clicked (
-    current_view = cur
-  )
-  square frame_width - 20 25 10 : c#333 hover_c#444
-  loc 2 2 22 y
-  image cur."pfp" 30 30
-  text cur."username" 10 : chx#30 c#fff
-  loc 2 2 frame_width - 20 y
-  icon "close" 0.7
-  if clicked and can (
-    can = false
-    contacts = contacts.delete(count)
-    save "contacts.json" "set" contacts
-    count --
+  if page == "Friends" (
+    loc 9999 2 0 -65
+    square w 30 12 : c#prim hover_c#seco
+    if onclick (
+      network "server" "friend_remove" selected_user
+      selected_user = ""
+    )
+    text "Remove Friend" 10 : c#txtc chx#-60
   )
 )
 frame "clear"
-if mouse_down.not (
-  can = true
-)
-if current_view != "" (
-  frame window."left" + sidewidth window."top" - 47.5 window."right" window."bottom"
-  loc 999 2 0 -100
-  name = current_view."username"
-  image current_view."pfp" 180 180
-  loc 999 2 name.len * -5 -210
-  text name 10 : c#fff
-  loc 999 2 -120
-  frame "clear"
-)
-if contacts_add != "" (
-  network "find_account" contacts_add
-  contacts_add = ""
-)
 import "win-buttons"
