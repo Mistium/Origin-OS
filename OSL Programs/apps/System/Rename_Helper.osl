@@ -1,31 +1,44 @@
 window "dimensions" 270 140
 window "resizable" False
 window "show"
-file "open" passed_data
-input_main = file.[2] ++ file.[1]
+file "open" passed_data "onlyaccess"
+// handle big files
+
+file "get" 2
+name = data
+file "get" 1
+type = data
+
+
+prim = user.theme.primary
+seco = user.theme.secondary
+txtc = user.theme.text
+window_colour = user.theme.background
+
+input_main = name ++ type
 input_main.destr
+
 mainloop:
 loc 999 2 0 -63
-square 250 30 10 : c#222
+square 250 30 10 : c#prim
 input 250 23 "main"
 loc 999 2 0 -113
-square 250 30 10 : c#222
+square 250 30 10 : c#prim
 if clicked or "enter".onpress (
   dta = input_main.split(".")
-  file "set" "name" dta.[1].destr
-  file "set" "type" "." ++ dta.[2].destr
+  file "set" 2 dta.item(1).destr
+  file "set" 1 "." ++ dta.item(2).destr
   window "stop"
 )
 change_x -30
-text "Rename" 8 : c#fff
-if mouse_down.not "canclick = True"
+text "Rename" 8 : c#txtc
 loc 999 2 0 -15
-square 270 20 15 : c#333
+square 270 20 15 : c#seco
 loc -2 2 -15 -15
-icon "close" 0.6 : c#fff
+icon "close" 0.6 : c#txtc
 if clicked (
   window "stop"
 )
 loc 2 2 15 -15
 file "render" 1
-text "Rename File" 9 : chx#20 c#fff
+text "Rename File" 9 : chx#20 c#txtc
