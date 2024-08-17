@@ -1,5 +1,29 @@
-def "generate_completion" "history"
+def "blackbox" "history"
   obj = {}
   obj.messages = history
-  response = "https://ai.milosantos.com/blackbox".http("POST",obj,{"Content-Type":"application/json"}).choices[1].message.content
+  response = "https://ai.milosantos.com/blackbox".http("POST",obj,{"Content-Type":"application/json"}).choices.[1].message.content
+endef
+
+def "generate_completion" "history, model, api_key"
+  if authed = true (
+    obj = {}
+    obj.messages = history
+    obj.api_key = api_key.destr
+    obj.model = model.destr
+    http "new"
+    http "method" "POST"
+    http "type" "application/json"
+    http "body" obj
+    http "sendto" "https://ai.milosantos.com/v1/chat/completions"
+    http "wait_response"
+    if response_code == "200" (
+      response = response.destr.choices.[1].message.content
+    ) 
+    if response_code == "500" (
+      response = "Internal Server Error"
+    )
+    if response_code == "400" (
+      response = "Invalid API Key."
+    )
+  )
 endef
