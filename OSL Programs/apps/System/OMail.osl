@@ -13,6 +13,7 @@ prim = user.theme.primary
 seco = user.theme.secondary
 tert = user.theme.tertiary
 txtc = user.theme.text
+window_colour = user.theme.background
 
 def "icon_button" "icn, size"
   square 40 40 10 : c#seco hover_c#prim
