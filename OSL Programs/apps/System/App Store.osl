@@ -12,9 +12,15 @@ if "installed.json".saveExists().not (
   save "installed.json" "set" {}
 )
 
+prim = user.theme.primary
+seco = user.theme.secondary
+tert = user.theme.tertiary
+txtc = user.theme.text
+window_colour = user.theme.background
+
 def "tab" "name"
-  if name == page "c #333" else "c #222"
-  square sidebar_width - 15 40 10 : hover_c#333
+  if name == page "c seco" else "c prim"
+  square sidebar_width - 15 40 10 : hover_c#seco
   if clicked "page = name"
   change_y -60
 endef
@@ -28,17 +34,17 @@ wh = window_height
 sidebar_width = ww / 5
 if sidebar_width < 300 "sidebar_width = 300"
 loc 999 2 0 -20
-square ww 40 10 1 : c#111
+square ww 40 10 1 : c#prim
 loc 2 2 sidebar_width + 20 -20
-text page_name 9 : c#fff
+text page_name 9 : c#txtc
 
-c #333
+c prim
 frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
 
 if page == "APPSTORE// Loading" (
   page_name = "Loading..."
   direction timer * 360
-  icon "cutcircle 0 0 10 0 90" 5 : c#fff
+  icon "cutcircle 0 0 10 0 90" 5 : c#txtc
   direction 90
   network "get" "https://raw.githubusercontent.com/Mistium/apps/main/apps.json"
   if data != "loading" (
@@ -57,7 +63,7 @@ if page == "APPSTORE// store" (
     y = count - 0.5 * -70 + scroll_y
     loc 999 2 0 y
     cur = apps[count]
-    square frame_width - 20 50 10 : c#222 hover_c#333
+    square frame_width - 20 50 10 : c#prim hover_c#seco
     if clicked (
       page = cur
       app_tab = "Description"
@@ -70,9 +76,9 @@ if page == "APPSTORE// store" (
          icons[cur] = data.replace(newline,"")
       ) 
     )
-    icon icons.[cur] 1.5
+    icon icons[cur] 1.5
     loc 2 2 60 y
-    text cur.toTitle() 10 : c#fff
+    text cur.toTitle() 10 : c#txtc
   )
   len = apps.len - 0.5 * 70
 )
@@ -92,10 +98,10 @@ if page == "APPSTORE// library" (
     y = count - 0.5 * -70 + scroll_y
     loc 999 2 0 y
     file "open" library_apps[count] "onlyaccess"
-    square frame_width - 20 50 10 : c#222 hover_c#333
+    square frame_width - 20 50 10 : c#prim hover_c#seco
     loc -2 2 -35 y
-    square 30 30 10 : c#333
-    icon "play" 0.8 : c#fff
+    square 30 30 10 : c#seco
+    icon "play" 0.8 : c#txtc
     if onclick (
       file "start"
     )
@@ -103,7 +109,7 @@ if page == "APPSTORE// library" (
     file "render" 1.5
     loc 2 2 60 y
     file "get" 2
-    text data.toTitle() 10 : c#fff
+    text data.toTitle() 10 : c#txtc
   )
   len = library_apps.len - 0.5 * 70
 )
@@ -118,7 +124,7 @@ if app_page (
   network "get" "https://apps.mistium.com/info?appname=" ++ page.to("url")
   if data == "Loading" (
     direction timer * 360
-    icon "cutcircle 0 0 10 0 90" 5 : c#fff
+    icon "cutcircle 0 0 10 0 90" 5 : c#txtc
     direction 90
   ) else (
     current_app = data
@@ -133,11 +139,11 @@ if app_page (
     desc = current_app.description.str
     w = frame_width
     loc 999 2 0 -50
-    square w 130 10 1 : c#222
+    square w - 20 130 10 1 : c#prim
     loc 2 2 60 -60
     icon icons[cur].str 3
     loc 2 2 140 -50
-    text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#fff
+    text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#txtc
     loc 2 2 140 -80
     text "By" + current_app.author 9
     loc 2 2 30 -145
@@ -149,7 +155,7 @@ if app_page (
     text desc.wrapText((window_width - 350) / 9) 9
     if installed "loc -2 2 -90 -35" else "loc -2 2 -90 -60"
     square 150 30 15 : c#global_accent
-    square 150 30 10 : c#333 hover_c#444
+    square 150 30 10 : c#prim hover_c#seco
     if onclick (
       if installed and current_app.version == install_version (
         file "open" app_path "onlyaccess"
@@ -165,7 +171,7 @@ if app_page (
         installed = true
       )
     )
-    c #fff
+    c txtc
     change_x -60
     if installed (
       if current_app.version == install_version (
@@ -177,7 +183,7 @@ if app_page (
       )
       loc -2 2 -90 -85
       square 150 30 15 : c#global_accent
-      square 150 30 10 : c#333 hover_c#444
+      square 150 30 10 : c#prim hover_c#seco
       if onclick (
         terminal "app uninstall" + cur.str
         save "installed.json" "get"
@@ -186,7 +192,7 @@ if app_page (
         installed = false
       )
       change_x -60
-      icon "Bin" 0.7 : c#fff
+      icon "Bin" 0.7 : c#txtc
       text "Uninstall" 9 : chx#20
     ) else (
       icon "download" 0.7
@@ -198,7 +204,7 @@ if app_page (
 frame "clear"
 
 loc 2 999 sidebar_width / 2 0
-square sidebar_width wh 20 1 : c#111
+square sidebar_width wh 20 1 : c#prim
 
 loc 2 2 sidebar_width / 2 + 3 -30
 tab "APPSTORE// Profile"
@@ -208,9 +214,9 @@ tab "APPSTORE// Search"
 tab "APPSTORE// Library"
 
 loc 2 2 30 -30
-image user_icon.str 30
+image user_icon 30
 change 30
-text username 10 : c#fff
+text username 10 : c#txtc
 
 loc 2 2 30 -105
 icon "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5" 1
@@ -226,10 +232,10 @@ change_x 20
 text "Library" 9
 
 loc 2 -2 sidebar_width / 2 + 5 30
-c #222
-square sidebar_width - 15 30 10 : hover_c#333
+c prim
+square sidebar_width - 15 30 10 : hover_c#seco
 loc 2 -2 30 30
-c #fff
+c txtc
 icon "upload" 0.7
 change_x 20
 text "Upload Your Apps" 9
