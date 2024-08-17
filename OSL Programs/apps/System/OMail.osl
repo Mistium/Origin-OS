@@ -1,3 +1,4 @@
+permission "request" "account"
 network "server" "omail_getinfo"
 
 current_email = 0
@@ -8,17 +9,22 @@ if passed_data == "" (
   page = passed_data
 )
 
+prim = user.theme.primary
+seco = user.theme.secondary
+tert = user.theme.tertiary
+txtc = user.theme.text
+
 def "icon_button" "icn, size"
-  square 40 40 10 : c#333 hover_c#444
-  icon icn size : c#fff
+  square 40 40 10 : c#seco hover_c#prim
+  icon icn size : c#txtc
   change_x 60
 endef
 
 def "topbar"
   loc 999 2 0 -20
-  square window_width 40 10 : c#222
+  square window_width 40 10 : c#prim
   loc 2 2 10 -22
-  text "OMail" 9 : c#eee
+  text "OMail" 9 : c#txtc
 endef
 
 def "run_ui"
@@ -29,14 +35,14 @@ def "run_ui"
   len = all_mail.len
   if len == 0 (
     loc 2 2 10 -20
-    text "You have no omails" 10 : c#fff
+    text "You have no omails" 10 : c#txtc
   )
   loop (frame_height / 50).clamp(0,len) (
     count ++
-    item = all_mail.[count]
+    item = all_mail[count]
     y = 20 + scroll_y - (count * 50)
     loc 999 2 0 y
-    if current_email == count "c #333" else "c #222"
+    if current_email == count "c seco" else "c prim"
     square frame_width - 20 40 10
     if clicked (
       current_email = count
@@ -47,7 +53,7 @@ def "run_ui"
       )
     )
     y += 5
-    c #fff
+    c txtc
     loc -2 2 -95 y
     text item.date 8
     y -= 15
@@ -67,7 +73,7 @@ def "run_ui"
   )
   frame "clear"
   loc 2 -2 150 30
-  square 300 60 0 : c#222
+  square 300 60 0 : c#seco
   change_x -120
   icon_button "reload" 0.6
   if clicked and can (
@@ -106,10 +112,10 @@ def "run_ui"
   )
   if current_email != 0 (
     frame window.left + 305 window.top - 45 window.right window.bottom
-    square 0 0 100000 : c#111
+    square 0 0 100000 : c#prim
     loc 999 2 0 -20
-    square frame_width 20 10 : c#222
-    c #fff
+    square frame_width 20 10 : c#seco
+    c txtc
     loc 2 2 10 -20
     if email_data.from == username (
       text "You sent this to >" + email_data.recipient 10
@@ -128,12 +134,12 @@ def "new_omail"
   topbar
   window "dimensions" 600 700
   loc 999 2 0 -80
-  square frame_width - 30 25 20 : c#222
+  square frame_width - 30 25 20 : c#prim
   change_x -20
   input frame_width - 80 25 "recipient" "Type the username of the person to send this too"
   input_recipient.strip().trim(0,20)
   loc -2 2 -30 -80
-  icon "send" 0.8 : c#fff
+  icon "send" 0.8 : c#txtc
   if mouse_touching (
     cursor "pointer"
   )
@@ -149,20 +155,20 @@ def "new_omail"
   )
   
   loc 999 2 0 -150
-  square frame_width - 30 25 20 : c#222
+  square frame_width - 30 25 20 : c#prim
   input frame_width - 30 25 "title" "Type the title of the omail here"
   input_title.trim(0,50)
   
   loc 999 -2 0 frame_height - 200 / 2
   input frame_width - 50 frame_height - 200 "body"
   
-  square frame_width - 30 frame_height - 200 20 : c#222
+  square frame_width - 30 frame_height - 200 20 : c#prim
   if "enter".onpress (
     len = input_body.len
     input_body.insert(len,newline)
   )
   loc 2 2 10 -230
-  text input_body.wrapText(frame_width - 30 / 10) 10 : c#fff
+  text input_body.wrapText(frame_width - 30 / 10) 10 : c#txtc
   if (timer % 1).round == 0 and  (
     text "_" 10
   )
@@ -178,15 +184,15 @@ if new_network_data (
     all_mail = network_data
     each i mail all_mail (
       date = mail.timestamp.timestamp("convert-date").replace("-","/")
-      all_mail.[i] = mail.insert("date",date)
+      all_mail[i] = mail.insert("date",date)
     )
   )
   if command == "omail_getid" (
-    i = network_data.[1]
-    data = network_data.[2].body
-    all_mail.[i] = all_mail.[i].insert("body",data)
+    i = network_data[1]
+    data = network_data[2].body
+    all_mail.[i] = all_mail[i].insert("body",data)
     if current_email == i (
-      email_data = all_mail.[i]
+      email_data = all_mail[i]
     )
   )
   new_network_data = false
