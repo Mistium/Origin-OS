@@ -54,14 +54,14 @@ if new_network_data (
 )
 
 c prim
-frame window.left window.top - 40 window.right window.bottom + 40 loops * 30
+frame window.left window.top - 40 window.right window.bottom + 40 loops * 20
 
 c #468058
 loc 2 2 10 0
-count = ((scroll_y / 30 - 1).round).clamp(0,loops)
-loop (frame_height / 30 + 3).round.clamp(0,loops) (
+count = ((scroll_y / 20 - 1).round).clamp(0,loops)
+loop (frame_height / 20 + 3).round.clamp(0,loops) (
   count ++
-  y = count * -30 + 15 + scroll_y
+  y = count * -20 + 10 + scroll_y
   loc 2 2 10 y
   text terminal[count] 10
 )
