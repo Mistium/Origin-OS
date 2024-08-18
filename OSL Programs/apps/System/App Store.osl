@@ -136,24 +136,47 @@ if app_page (
       installed = save_data.contains(cur) and exists
       install_version = save_data[cur].int
     )
+    y = -50 + scroll_y
     desc = current_app.description.str
     w = frame_width
-    loc 999 2 0 -50
+    loc 999 2 0 y
     square w - 20 130 10 1 : c#prim
-    loc 2 2 60 -60
+    loc 2 2 60 y - 10
     icon icons[cur].str 3
-    loc 2 2 140 -50
+    loc 2 2 140 y
     text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#txtc
-    loc 2 2 140 -80
+    loc 2 2 140 y - 30
     text "By" + current_app.author 9
-    loc 2 2 30 -145
+    loc 2 2 30 y - 95
     icon "eye" 0.7
     text stats.views[cur] 10 : chx#20
     icon "download" 0.6 : chx#20
     text stats.downloads[cur] 10 : chx#20
-    loc 2 2 20 -180
-    text desc.wrapText((window_width - 350) / 9) 9
-    if installed "loc -2 2 -90 -35" else "loc -2 2 -90 -60"
+    loc 2 2 20 y - 130
+    screenshots = current_app.screenshots
+    text_width = window_width - sidebar_width - 30
+    desc.wrapText(text_width / 9)
+    len = desc.count(newline) * 21 + 170
+    if screenshots.len > 0 and window_width > 800 (
+      loc -2 2 -196 y - 110
+      screenshots.trim(1,5)
+      each screenshot screenshots (
+        url = "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ page.to("url") ++ "/screenshots/" ++ screenshot
+        change_y -108
+        image url 384 216
+        change_y -118
+      )
+      loc 2 2 20 y - 130
+      desc = current_app.description.str
+      desc.wrapText(text_width - 400 / 9)
+      len = desc.count(newline) * 21 + 170
+      sc_len = screenshots.len * 226 + 170
+      if len < sc_len (
+        len = sc_len
+      )
+    )
+    text desc 9
+    if installed "loc -2 2 -100 y + 15" else "loc -2 2 -100 y - 10"
     square 150 30 15 : c#global_accent
     square 150 30 10 : c#prim hover_c#seco
     if onclick (
@@ -181,7 +204,7 @@ if app_page (
         icon "reload" 0.7
         text "Update" 9 : chx#20
       )
-      loc -2 2 -90 -85
+      loc -2 2 -100 y - 35
       square 150 30 15 : c#global_accent
       square 150 30 10 : c#prim hover_c#seco
       if onclick (
@@ -198,7 +221,6 @@ if app_page (
       icon "download" 0.7
       text "Install" 9 : chx#20
     )
-    len = 0
   )
 )
 frame "clear"
