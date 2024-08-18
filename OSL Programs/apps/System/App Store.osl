@@ -117,6 +117,9 @@ if page == "APPSTORE// library" (
 if page == "APPSTORE// search" (
   page_name = "Search"
 )
+if page == "APPSTORE// marketplace" (
+  page_name = "Marketplace"
+)
 
 app_page = page.contains("APPSTORE// ").not
 
@@ -233,6 +236,7 @@ tab "APPSTORE// Profile"
 change_y -15
 tab "APPSTORE// Store"
 tab "APPSTORE// Search"
+tab "APPSTORE// Marketplace"
 tab "APPSTORE// Library"
 
 loc 2 2 30 -30
@@ -241,17 +245,20 @@ change 30
 text username 10 : c#txtc
 
 loc 2 2 30 -105
-icon "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5" 1
-change_x 20
-text "Store" 9
+icon "w 1.5 square -4 4 2 2 square -4 -4 2 2 square 4 4 2 2 line 4 -2 4 -6 line 2 -4 6 -4 w 4 dot -4 -4 dot 4 4 dot -4 4" 1.7
+text "Store" 9 : chx#22
+
 loc 2 2 30 -165
 icon "search" 1
-change_x 20
-text "Search" 9
+text "Search" 9 : chx#20
+
 loc 2 2 30 -225
+icon "w 3 line -7 -10 -10 2 cont 10 2 cont 7 -10 cont -7 -10 line -6 2 -4 10 cont 4 10 cont 6 2" 1
+text "Marketplace" 9 : chx#20
+
+loc 2 2 30 -285
 icon "w 3 line 0 6 10 10 cont 10 -6 cont 0 -10 cont 0 6 cont -10 10 cont -10 -6 cont 0 -10" 1
-change_x 20
-text "Library" 9
+text "Library" 9 : chx#20
 
 loc 2 -2 sidebar_width / 2 + 5 30
 c prim
