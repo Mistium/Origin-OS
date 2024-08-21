@@ -46,7 +46,7 @@ if page == "APPSTORE// Loading" (
   direction timer * 360
   icon "cutcircle 0 0 10 0 90" 5 : c#txtc
   direction 90
-  network "get" "https://raw.githubusercontent.com/Mistium/apps/main/apps.json"
+  network "get" "https://raw.githubusercontent.com/RoturTW/apps/main/apps.json"
   if data != "loading" (
     apps = data.replace(newline,"").destr
     page = "APPSTORE// Store"
@@ -71,10 +71,10 @@ if page == "APPSTORE// store" (
     )
     loc 2 2 30 y
     if icons.contains(cur).not (
-       network "get" "https://raw.githubusercontent.com/Mistium/apps/main/all/" ++ cur.to("url") ++ "/icon.icn"
+       network "get" "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ cur.to("url") ++ "/icon.icn"
        if data.str != "loading" (
          icons[cur] = data.replace(newline,"")
-      ) 
+       )
     )
     icon icons[cur] 1.5
     loc 2 2 60 y
@@ -269,7 +269,7 @@ icon "upload" 0.7
 change_x 20
 text "Upload Your Apps" 9
 if onclick (
-  http "newtab" "https://github.com/Mistium/apps/tree/main"
+  http "newtab" "https://github.com/RoturTW/apps/tree/main"
 )
 
 if mouse_down.not "can = true"
