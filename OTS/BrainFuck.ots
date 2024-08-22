@@ -1,0 +1,119 @@
+script = ++++++++[>++++[>++>+++>+++>+<<<<-]>+>+>->>+[<]<-]>>.>---.+++++++..+++.>>.<-.<.+++.------.--------.>>+.>++.
+
+script = >>>->+[[[<<+>+>-]++++++[<<++++++++>>-]<<-.[-]<]++++++++++.[-]>>>++<[[-[[>>>]<<<-[+>>>]<<<[<<<]+>]<-[+>++++++++++>>]>]>>>[[>+<-]>>>]<<[-[<++>-[<++>-[<++>-[<++>-[<[-]>-[<++>-]>>[<+<]>[->]<++<<]]]]]<+<<]>]>[>>>]<<<]
+
+script = ++++++++[>+>++++<<-]>++>>+<[-[>>+<<-]+>>]>+[-<<<[->[+[-]+>++>>>-<<]<[<]>>++++++[<<+++++>>-]+<<++.[-]<<]>.>+[>>]>+]
+
+length $script >> len
+
+pointer = 0
+memory = 0
+0 = 0
+total = 1
+out = ""
+
+i = 0
+:start
+:next
+clear
+echo $i
+echo $out
+if $i >= $len :end
+
+calc $script item $i >> char
+
+if $char == "+" :add
+if $char == "-" :sub
+if $char == ">" :right
+if $char == "<" :left
+if $char == "." :print
+if $char == "," :input
+if $char == "[" :loop_start
+if $char == "]" :loop_end
+jump :break
+
+:add
+  if $memory != 255 :askip
+    memory = 0
+    $pointer = 0
+    jump :break
+  :askip
+  calc $memory + 1 >> memory
+  $pointer = $memory
+  jump :break
+
+:sub
+  if $memory != 0 :sskip
+    memory = 255
+    $pointer = 255
+    jump :break
+  :sskip
+  calc $memory - 1 >> memory
+  $pointer = $memory
+  jump :break
+
+:right
+  $pointer = $memory
+  calc $pointer + 1 >> pointer
+  if $pointer <= $total :total
+    calc $total + 1 >> total
+    $pointer = 0
+  :total
+  memory = $$pointer
+  jump :break
+
+:left
+  $pointer = $memory
+  memory = 0
+  if $pointer == 0 :break
+  calc $pointer - 1 >> pointer
+  memory = $$pointer
+  jump :break
+
+:print
+  chr $memory >> prnt_out
+  out += $prnt_out
+  jump :break
+
+:input
+  input "Enter a character" >> memory
+  jump :break
+
+:loop_start
+  if $memory != 0 :break
+  openloops = 1
+  :ls_loopnext
+    calc $i + 1 >> i
+    if $openloops == 0 :break
+    if $i > $len :break
+    calc $script item $i >> char
+
+    if $char != "[" :ls_openLoop
+      calc $openloops + 1 >> openloops
+    :ls_openLoop
+    if $char != "]" :ls_closeLoop
+      calc $openloops - 1 >> openloops
+    :ls_closeLoop
+  jump :ls_loopnext
+
+:loop_end
+  if $memory == 0 :break
+  openloops = 1
+  :le_loopnext
+    calc $i - 1 >> i
+    if $openloops == 0 :break
+    if $i > $len :break
+    calc $script item $i >> char
+
+    if $char != "[" :le_openLoop
+      calc $openloops - 1 >> openloops
+    :le_openLoop
+    if $char != "]" :le_closeLoop
+      calc $openloops + 1 >> openloops
+    :le_closeLoop
+  jump :le_loopnext
+
+:break
+calc $i + 1 >> i
+jump :next
+:end
