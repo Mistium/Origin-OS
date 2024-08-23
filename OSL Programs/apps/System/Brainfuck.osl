@@ -17,6 +17,11 @@ endef
 
 reset
 mainloop:
+if window.height != temp_height (
+  temp_height = window.height
+  txt_height = (len - (window.height / 23)).clamp(1,len)
+)
+
 if running (
   change_count = 0
 ) else (
@@ -124,6 +129,6 @@ if running (
 loc 2 2 20 -90
 out = output_buffer.split(newline)
 len = out.len
-output_buffer = out.trim((len - 10).clamp(1,len),len).join(newline)
+output_buffer = out.trim(txt_height,len).join(newline)
 text output_buffer 10
 import "win-buttons"
