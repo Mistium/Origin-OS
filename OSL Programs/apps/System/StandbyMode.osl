@@ -1,34 +1,43 @@
-permission "request" "terminal"
-save_limit = "Scratch.vm.runtime.frameLoop.framerate".eval
-terminal "system runtime fps_limit 10"
+window.framerate = 3
+
 can = false
 timetemp = null
 window "responsive" true
-exit_txt = "Click to exit"
-p = second - 1
+exit_txt = "Move Your Mouse To Exit"
+p = 0
+prim = user.theme.primary
+seco = user.theme.secondary
+tert = user.theme.tertiary
+back = user.theme.background
+txtc = user.theme.text
+temp = mouse_x
 window "maximise"
 mainloop:
 window "dimensions" screensize_x screensize_y
-if mouse_down (
-  if can (
-    can = "exit"
-  )
-) else (
-  if can == "exit" (
-    terminal "system runtime fps_limit ".append(save_limit)
-    window "stop"
-  ) else (
-    can = true
-  )
+cursor "hide"
+if mouse_x != temp (
+  window "stop"
 )
 if second != p (
-  square window_width window_height 10 : c#000
+  square window_width window_height 10 : c#back
   p = second
+  
   time = hour ++ ":" ++ minute ++ ":" ++ second
   goto time.len * -20 0
-  c #aaa
-  text time 40
-  goto exit_txt.len * -5 -100
-  c #777
-  text exit_txt 10
+  text time 40 : c#txtc
+  
+  date = day.trim(1,3) + day_number + month.trim(1,3)
+  goto date.len * -7 -60
+  text date 14 : c#txtc
+  
+  loc 9999 -2 exit_txt.len * -5 20
+  text exit_txt 10 : c#txtc
+  loc 9999 -2 0 20
+  c back
+  pen "opacity" 40
+  change_x -100
+  pen "down"
+  pen "size" 40
+  change_x 200
+  pen "up"
 )
