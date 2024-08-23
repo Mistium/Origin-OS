@@ -47,6 +47,8 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 @rattusdong - "I want death to *come* for me"
 
+@elitehampter - "It's not illegal if you dont get caught"
+
 ## Repo Tracker
 
 [originOS stats](https://repo-tracker.com/r/gh/Mistium/Origin-OS)
