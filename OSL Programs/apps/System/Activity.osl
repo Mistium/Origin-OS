@@ -47,7 +47,7 @@ icon "close" 0.7 : chx#40
 if clicked "window stop"
 if current_tab == "no_perms" (
   permission "get"
-  if permissions.contains("terminal") (
+  if window.permissions.contains("terminal") (
     current_tab = "Render Info"
   ) else (
     if current_tab == "no_perms" (
@@ -183,7 +183,7 @@ if current_tab == "Network" (
     )
     recipient = cur."recipient".str
     if recipient == "" (
-      recipient = "From -" + cur."source".str
+      recipient = "From -" + cur.source.str
     ) else (
       recipient = "Send -" + recipient
     )
