@@ -1,4 +1,7 @@
 
+
+
+
 file "use_type" "ots"
 
 def "print" "data"
@@ -11,11 +14,13 @@ def "clearall"
   loops = 0
 endef
 
+
+mode = "norm"
+
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
   file "get" 4
-  data.replace("/^[\n ]+|#[^\n]+\n?/gm","")
-  // remove blank lines and comments
+  data.replace("/^[ \n\t]*/gm","")
   ots_script = data.split(newline)
   each i line ots_script (
     if line.startsWith("if ") or line.startsWith("jump ") (
@@ -27,6 +32,7 @@ if passed_data != "" (
       )
     )
   )
+  mode = "ots"
 ) else (
   ots_script = ""
 )
@@ -49,10 +55,19 @@ window_colour = user.theme.background
 loops = 0
 taking_input = false
 ots_i = 1
+
 mainloop:
 if new_network_data (
-  msg = network_data_from + "> " + network_data
-  terminal.append(msg)
+  if packet.data.istype("array") (
+    msg = packet.username + "> " + packet.data[0]
+    each line packet.data.delete(1) (
+      terminal.append(line)
+      loops += 1
+    )
+  ) else (
+    terminal.append(packet.username + "> " + packet.data)
+    loops += 1
+  )
   new_network_data = false
 )
 
@@ -79,64 +94,81 @@ input window_width - (user_start.len + 2 * 10) 30 1 null null #468058
 
 if ots_script != "" (
   loop taking_input ? 1 100 (
-  cur = ots_script[ots_i]
-  cur_spl = cur.oslTokenise()
-  switch cur_spl[1] (
-    case "input"
-      if taking_input (
-        terminal.append(cur_spl[2])
-        loops ++
-        taking_var = cur_spl[cur_spl.len-1] == ">>"
-        taking_input = false
-      )
-      if "enter".onpress (
-        if taking_var (
-          cmd = cur_spl.last() ++ " = " ++ input_1.str
-          terminal cmd
+    cur = ots_script[ots_i]
+    cur_spl = cur.oslTokenise()
+    switch cur_spl[1] (
+      case "input"
+        if taking_input (
+          terminal.append(cur_spl[2])
+          loops ++
+          taking_var = cur_spl[cur_spl.len-1] == ">>"
+          taking_input = false
         )
-        terminal.append(username ++ "/: " ++ input_1.str)
-        loops ++
-        input_1 = ""
+        if "enter".onpress (
+          if taking_var (
+            cmd = cur_spl.last() ++ " = " ++ input_1.str
+            terminal cmd
+          )
+          terminal.append(username ++ "/: " ++ input_1.str)
+          loops ++
+          input_1 = ""
+          ots_i ++
+          taking_input = true
+        )
+        break
+      case "if"
+        if cur_spl.len == 5 (
+          terminal "calc" + cur_spl.trim(2,4).join(" ")
+        ) else (
+          terminal "echo" + cur_spl[2]
+        )
+        if terminal_output[1].bool == true (
+          ots_i = cur_spl.last() + 1
+        ) else (
+          ots_i ++
+        )
+        break
+      case "jump"
+        ots_i = cur_spl[2]
+        break
+      case ""
+      case "#"
         ots_i ++
-        taking_input = true
-      )
-      break
-    case "if"
-      if cur_spl.len == 5 (
-        terminal "calc" + cur_spl.trim(2,4).join(" ")
-      ) else (
-        terminal "echo" + cur_spl[2]
-      )
-      if terminal_output[1].bool == true (
-        ots_i = cur_spl.last() + 1
-      ) else (
+        break
+      default
+        if cur[1] != ":" (
+          terminal cur
+          terminal = terminal ++ terminal_output
+          terminal_output = []
+          loops = terminal.len
+        )
         ots_i ++
-      )
-      break
-    case "jump"
-      ots_i = cur_spl[2]
-      break
-    default
-      if cur[1] != ":" (
-        terminal cur
-        terminal = terminal ++ terminal_output
-        terminal_output = []
-        loops = terminal.len
-      )
-      ots_i ++
-      if ots_i > ots_script.len (
-        ots_script = ""
-        terminal.append("Program Finished...")
-        loops ++
-      )
-      break
-  )
+        if ots_i > ots_script.len (
+          ots_script = ""
+          terminal.append("Program Finished...")
+          loops ++
+        )
+        break
+    )
   )
 ) else (
+  if mode == "SRE" (
+    if "enter".onpress (
+      network "SRE" input_1 sre_target
+      terminal = terminal.destr.append(username ++ "/:" ++ input_1)
+    )
+  )
+  if mode == "norm" (
   if "enter".onpress (
     last = input_1
     try (
-      terminal input_1.str
+      if input_1.startsWith("SRE ") (
+        mode = "SRE"
+        network ""
+        sre_target = input_1.split(" ")[2]
+      ) else (
+        terminal input_1.str
+      )
       input_1 = username ++ "/: " ++ input_1.str
       terminal = terminal.destr.append(input_1)
     
@@ -149,6 +181,7 @@ if ots_script != "" (
     loops = terminal.len
     terminal_output = []
     input_1 = null
+  )
   )
 )
 if "up arrow".pressed "input_1 = last"
