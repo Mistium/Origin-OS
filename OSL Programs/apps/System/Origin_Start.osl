@@ -133,7 +133,7 @@ if mouse_touching (
   )
 )
 goto -290 -10
-image "https://static-00.iconduck.com/assets.00/github-icon-2048x1988-jzvzcf2t.png" 60
+image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/github_icon.png" 60
 goto -230 2
 text "Github" 13 : c#fff
 goto -222 -27
