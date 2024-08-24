@@ -66,13 +66,9 @@ if menu == "transfer" (
         if input_recipient == username (
           say "You Cannot Send To Yourself"
         ) else (
-          input_amount.int
-          input_recipient.destr
-          transfer = {}
-          transfer.recipient = input_recipient.destr
-          transfer.amount = input_amount
-          network "server" "currency_transfer" transfer
-          menu = "sent"
+          rotur "transfer" input_amount.int input_recipient
+          input_amount = null
+          input_recipient = null
         )
       )
     )
