@@ -1042,7 +1042,7 @@ c_imgs = contributors.destr.getall("avatar_url")
 window "dimensions" 880 500
 dock_location = dock_location
 media = ""
-segments = segments
+segments = user.origin_dock
 accent_select = ""
 tier = null
 network_drive = "none"
@@ -1064,7 +1064,6 @@ if wallpapers.len < 1 or wallpapers.istype("array").not (
   ]
   save "wallpapers.json" "set" wallpapers
 )
-save "segments.txt" "set" segments
 
 prim = user.theme.primary
 seco = user.theme.secondary
