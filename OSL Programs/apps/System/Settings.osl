@@ -4,6 +4,9 @@ permission "request" "terminal"
 permission "request" "file admin"
 permission "request" "account"
 
+v = origin.version
+version = v.trim(1,v.len - 2) ++ "." ++ v[v.len - 1] ++ "." ++ v[v.len]
+
 def "appopt" "optname,opticn,icnsize"
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#prim
@@ -105,7 +108,7 @@ def "system"
     text "originOS " 15
     text kernel.name 12
     loc 2 2 200 -75
-    text "Version" + origin.version 8
+    text "Version" + version 8
     loc 2 2 200 -110
     text "Kernel:" + kernel.name + kernel.version + kernel.type 8
     loc 2 2 200 -130
@@ -955,7 +958,6 @@ def "time"
 endef
 
 def "updates"
-  version = origin.version
   loc 2 2 20 -20 + scroll_y
   text "Current Version:" + version 10 : c#txtc
 endef
