@@ -449,11 +449,15 @@ def "Appearance"
   )
   if subcategory == "Dock" (
     if new_transmit (
-      file "open" transmit_data
-      f = file[3] ++ "/" ++ file.[2] ++ file.[1]
+      file "open" transmit_data "onlyaccess"
+      file "get" 3
+      this.path = data
+      file "get" 2
+      this.name = data
+      file "get" 1
+      f = this.path ++ "/" ++ name ++ data
       segments.append(f)
-      save "segments.txt" "set" segments
-      global "segments"
+      network "update" "origin_dock" segments
       new_transmit = false
     )
     loc 2 2 20 -20 + scroll_y
@@ -461,33 +465,29 @@ def "Appearance"
     icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
     if clicked (
       segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
-      save "segments.txt" "set" segments
-      global "segments"
+      network "update" "origin_dock" segments
     )
     loc 2 2 20 -70 + scroll_y
     text "Drop File Here" 9 : c#txtc
     if file_dropped != 0 (
       file "open" file_dropped "onlyaccess"
       file "get" 3
-      d3 = data
+      this.path = data
       file "get" 2
-      d2 = data
+      this.name = data
       file "get" 1
-      f = d3 ++ "/" ++ d2 ++ data
+      f = this.path ++ "/" ++ name ++ data
       segments.append(f)
-      save "segments.txt" "set" segments
-      global "segments"
+      network "update" "origin_dock" segments
       file_dropped = 0
     )
     loc 2 2 20 -100 + scroll_y
     text "Click here to pick an ode file" 9
-    if clicked and can (
+    if onclick (
       file "pick" "ode"
       can = false
     )
-    count = 0
-    loop segments.len (
-      count ++
+    for count segments.len (
       y = count + 2 * -60 + scroll_y
       loc 999 2 0 y
       square frame_width - 20 40 10 : c#prim hover_c#seco
@@ -495,34 +495,28 @@ def "Appearance"
       text segments[count] 9 : c#txtc
       loc -2 2 -30 y
       square 30 30 10 : c#seco hover_c#tert
-      if clicked and can (
-        can = false
+      if onclick (
         segments.delete(count)
-        save "segments.txt" "set" segments
-        global "segments"
+        network "update" "origin_dock" segments
       )
       icon "bin" 0.8 : c#txtc
       if count > 1 (
       change_x -45
         square 30 30 10 : c#seco hover_c#tert
-        if clicked and can (
-          can = false
+        if onclick (
           count2 = count - 1
           segments.swap(count2,count)
-          save "segments.txt" "set" segments
-          global "segments"
+          network "update" "origin_dock" segments
         )
         icon "up" 0.8 : c#txtc
       )
       if count < segments.len (
         change_x -45
         square 30 30 10 : c#seco hover_c#tert
-        if clicked and can (
-          can = false
+        if onclick (
           count2 = count + 1
           segments.swap(count,count2)
-          save "segments.txt" "set" segments
-          global "segments"
+          network "update" "origin_dock" segments
         )
         icon "down" 0.8 : c#txtc
       )
