@@ -10,16 +10,18 @@ if "segments.txt".saveExists() and save_data.istype("Array") and save_data.join(
 )
 
 save "Dock@System" "set_directory"
-global "segments" seg
 open = 0
 
 window "responsive" true
 window "hide"
 
 window "y" screensize_y / -2 + 35
+
+segments = user.origin_dock
+
 goto dock_x y
 for "syscount" segments.len (
-  import segments.[syscount] "ode" : c#dock_colour chx#15
+  import segments[syscount] "ode" : c#dock_colour chx#15
   goto width / 2 + x + 15 y
 )
 dock_width = x_position - dock_x
@@ -30,6 +32,9 @@ y = -100
 height = 40
 // Theme
 
+if user.origin_dock != seg (
+  network "update" "origin_dock" seg
+)
 if user.dock_colour == null (
   network "update" "dock_colour" #060606
 )
@@ -45,6 +50,10 @@ file_loc = user_folder ++ "/Dock"
 mainloop:
 dock_colour = user.dock_colour
 icon_colour = user.icon_colour
+if segments != user.origin_dock (
+  segments = user.origin_dock
+  window "refresh_bg"
+)
 if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour
   window "refresh_bg"
