@@ -1,4 +1,5 @@
-window "dimensions" 700 500
+
+window "dimensions" 809 500
 can = false
 permission "request" "file admin"
 permission "request" "terminal"
@@ -55,20 +56,23 @@ inform "Don't use any formatting other than # or ## or ###"
 inform "To access a file, YOU need to type the following and without any other text and starting the message with: '<FILEREAD>path' like <FILEREAD>origin/(c) users/username/downloads/test.osl, you will get an automated response from the user of the file array"
 inform "To open or run a file you must type the the following and without any other text and starting the message with: '<FILEOPEN>path' like <FILEOPEN>origin/(c) users/username/downloads/test.osl and you will get an automated response from the user of 'File Opened'"
 inform "You care able to open multiple files sequentially by responding to the file data with another open file request"
+w = 647.2
 h = 400
+left = w / -2
+right = w / 2
 
 mainloop:
 
 goto 0 0
-square 600 h 30 : c#global_accent
+square w h 30 : c#global_accent
 if "escape".onpress or (clicked.not and mouse_left) (
   window "stop"
 )
-square 600 h 25 : c#050505
+square w h 25 : c#050505
 goto 0 h / 2 - 25
-square 600 50 10 : c#222
+square w 50 10 : c#222
 input_search.destr
-input 580 30 "search" "Search For Apps And Commands..."
+input w-20 30 "search" "Search For Apps And Commands..."
 input_search.str.toLower()
 if input_search != temp (
   page_len = 0
@@ -124,7 +128,7 @@ if input_search != temp (
 )
 if "enter".onpress (
   outputs.main = "GPT Is Thinking"
-  goto -300 120
+  goto left 120
   text "GPT Is Thinking" 10 : c#fff
   gpt "send" "assistant" input_search.str
   if data.startsWith("<FILEOPEN>") (
@@ -180,12 +184,12 @@ if "enter".onpress (
     )
   )
   outputs.main = data
-  segment_length = data.len * 20 + 100
+  segment_length = data.len * 23 + 100
   page_len += segment_length
   name = "Gpt Assistant"
 )
 c #222
-frame -310 h / 2 - 70 310 h / -2 page_len
+frame left-10 h / 2 - 70 right+10 h / -2 page_len
 y = 40
 code_block = 0
 if outputs.main != "" (
@@ -196,6 +200,7 @@ if outputs.main != "" (
   out = outputs.main
   loc 2 2 20 -75 + scroll_y
   x = x_position
+  y_start = y_position
   each i line out (
     switch line (
       case "---"
