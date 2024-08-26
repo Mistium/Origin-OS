@@ -965,7 +965,7 @@ def "credits"
     c txtc
     x = x_position
     change_x -65
-    icon "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10" 1.3
+    icon "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220" 1.3
     text "roturTw" 15 : chx#30
     change -25 -18
     text "v5" 8
@@ -974,29 +974,29 @@ def "credits"
     text "Powering originNetworking" 9
     set_x x
     change_y -70
-    square w 40 20 : c#222
+    square w 40 20 : c#prim
     if clicked (
       subcategory = "Extensions"
       extensions = "JSON.stringify(Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions)))".eval
       extensions.prepend("Total:" + extensions.len)
     )
     change_x w / -2 + 10
-    text "Full Extensions List >" 9 -100 : c#fff
+    text "Full Extensions List >" 9 -100 : c#txtc
     loc -4 2 -2.5 -95 + scroll_y
-    square w 150 20 : c#222
+    square w 150 20 : c#prim
     x = x_position
     change w / -2 + 30 40
     image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
     change 30 12
-    text "Turbowarp" 12 : c#fff
+    text "Turbowarp" 12 : c#txtc
     change -162 -32
     text "      Thanks to GarboMuffin and the scratch team for making turbowarp possible".wrapText(w / 9 - 1) 9
     set_x x
     change_y -175
-    square w 100 20 : c#222
+    square w 100 20 : c#prim
     set_x 20
     change_y 40
-    text "Github Contributors >" 9 : c#fff
+    text "Github Contributors >" 9 : c#txtc
     set_x 30
     change_y -30
     for i c_imgs.len (
@@ -1008,9 +1008,9 @@ def "credits"
     for count extensions.len (
       y = count - 0.5 * -60 + scroll_y
       loc 999 2 0 y
-      square frame_width - 20 40 10 : c#222
+      square frame_width - 20 40 10 : c#prim
       loc 2 2 15 y
-      text extensions[count] 9 : c#fff
+      text extensions[count] 9 : c#txtc
     )
     page_len = extensions.len - 0.5 * 60
   )
