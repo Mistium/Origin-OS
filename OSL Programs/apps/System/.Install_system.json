@@ -4,7 +4,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Dock.osl",
     "icon": "c #111 w 10 square 0 0 5 5",
-    "version":"2.8"
+    "version":"2.9"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Time_Info.osl",
