@@ -26,9 +26,6 @@ y = -100
 height = 40
 // Theme
 
-if user.origin_dock != seg (
-  network "update" "origin_dock" seg
-)
 if user.dock_colour == null (
   network "update" "dock_colour" #060606
 )
