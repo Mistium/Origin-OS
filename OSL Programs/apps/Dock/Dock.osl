@@ -1,14 +1,4 @@
 permission "request" "start run"
-save "Settings" "set_directory"
-seg = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
-
-save "segments.txt" "get"
-if "segments.txt".saveExists() and save_data.istype("Array") and save_data.join("").contains("/") (
-  seg = save_data
-) else (
-  save "segments.txt" "set" seg
-)
-
 save "Dock@System" "set_directory"
 open = 0
 
@@ -18,6 +8,10 @@ window "hide"
 window "y" screensize_y / -2 + 35
 
 segments = user.origin_dock
+if segments.type != "array" (
+  segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
+  network "update" "origin_dock" segments
+)
 
 goto dock_x y
 for "syscount" segments.len (
