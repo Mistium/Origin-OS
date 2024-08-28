@@ -4,9 +4,6 @@ permission "request" "terminal"
 permission "request" "file admin"
 permission "request" "account"
 
-v = origin.version
-version = v.trim(1,v.len - 2) ++ "." ++ v[v.len - 1] ++ "." ++ v[v.len]
-
 def "appopt" "optname,opticn,icnsize"
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#prim
@@ -108,7 +105,7 @@ def "system"
     text "originOS " 15
     text kernel.name 12
     loc 2 2 200 -75
-    text "Version" + version 8
+    text "Version" + origin.version 8
     loc 2 2 200 -110
     text "Kernel:" + kernel.name + kernel.version + kernel.type 8
     loc 2 2 200 -130
@@ -832,7 +829,7 @@ def "Appearance"
     loc 2 2 10 -20
     text "Scroll Wheel Speed" 9 : c#txtc
     terminal "get scrollspeed"
-    toggle_invert = data.[1] != "-"
+    toggle_invert = data[1] != "-"
     slider_scrollsp = data.abs.clamp(-10,10)
     if slider_scrollsp.abs < 1 (
       if slider_scrollsp > 0 (
@@ -879,58 +876,50 @@ def "Appearance"
 endef
 
 def "account"
-  loc 999 2 5 -90
-  square frame_width - 25 150 10 : c#prim
-  loc 2 2 90 -90
+  loc 999 2 0 -90
+  square frame_width - 60 100 10 : c#prim
+  
+  loc 2 2 80 -90
   image user_icon.str 90 90
   square 90 90 12 0 1
-  if clicked (
-    square 25 25 12 0 1
-    current_pfp = clipboard.str
-    upload_time = timer
+  if timer - upload_time < 5 and current_pfp != "" (
+    direction timer * 300
+    icon "cutcircle 0 0 10 0 90" 1 : c#txtc
+    direction 90
+  ) else (
+    if mouse_touching (
+      if clicked (
+        current_pfp = clipboard.str
+        upload_time = timer
+      )
+      square 25 25 12 : c#seco
+      icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
+      loc 2 2 90 -50
+      square 81 10 20 : c#seco
+      text "Paste Url" 9 : chx#-40.5 c#txtc
+    )
   )
-  acc_pfp_button_clicked = clicked
-  if mouse_touching (
-    square 25 25 12 : c#seco
-    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-    loc 2 2 90 -50
-    square 81 10 20 : c#seco
-    text "Paste Url" 9 : chx#-40.5 c#txtc
-  )
-  loc 2 2 150 -80
-  text username 12 : c#txtc
-  loc 2 2 150 -100
-  text "origin Account" 10
+  loc 2 2 150 -70
+  text username 15 : c#txtc
+  loc 2 2 150 -95
+  text user.system + "Account" 10
   loc 2 2 150 -120
   text tier 10
-  loc 2 2 20 -200
-  text "Profile Picture:" 10
-  loc 2 2 20 -230
-  text "Click to paste an image URL as your profile picture:" 8.5 : c#txtc
-  change_x 20
-  square 25 25 10 : c#prim
-  if clicked (
-    square 25 25 12 : c#seco
-    current_pfp = clipboard.str
-    upload_time = timer
-  )
-  icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-    if timer - upload_time > 5 and current_pfp != "" (
+  if current_pfp != "" (
+    image current_pfp 0 0
+    if timer - upload_time > 5 (
       current_pfp = ""
       say "Failed to load pfp, try a different   website or try again"
     )
-    if current_pfp.imageinfo("loaded") and ( acc_pfp_button_clicked or clicked ) (
+    log current_pfp
+    if current_pfp.imageinfo("loaded") (
       network "update" "pfp" current_pfp
-      current_pfp = null.str
-    )
-    if current_pfp == clipboard.str (
-      loc 2 2 20 -250
-      image current_pfp 0 0
-      text "Trying..." 10 : c#txtc chx#20
+      current_pfp = ""
     )
   )
-  loc 2 2 200 -300
-  c prim
+  
+  square 
+  
 endef
 
 def "time"
@@ -952,6 +941,7 @@ def "time"
 endef
 
 def "updates"
+  version = origin.version
   loc 2 2 20 -20 + scroll_y
   text "Current Version:" + version 10 : c#txtc
 endef
