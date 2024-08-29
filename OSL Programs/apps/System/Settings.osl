@@ -32,7 +32,7 @@ endef
 
 def "option" "name,icn_code"
   loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#prim
+  square frame_width-25 30 10 1 : c#prim
   if mouse_touching (
     square frame_width - 25 30 12 1 : c#seco
     if onclick "gotosubcategory = name"
@@ -615,7 +615,6 @@ def "Appearance"
       )
       loc -2 2 -120 y
       square 200 20 15 0 1 : c#prim
-      log onclick
       if onclick (
         network "update" "icon_colour" icon_select
       )
@@ -819,8 +818,8 @@ def "Appearance"
       c seco
       square 30 30 10
       c txtc
-      ftv = ftvalues.[count]
-      icon ftv.[1] 0.8
+      ftv = ftvalues[count]
+      icon ftv[1] 0.8
       text `${ftv[2]} (${ftkeys[count]})` 10 : chx#30 c#txtc
     )
     page_len = count * 60 - 20
@@ -894,7 +893,7 @@ def "account"
       )
       square 25 25 12 : c#seco
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      loc 2 2 90 -50
+      loc 2 2 80 -50
       square 81 10 20 : c#seco
       text "Paste Url" 9 : chx#-40.5 c#txtc
     )
@@ -911,14 +910,27 @@ def "account"
       current_pfp = ""
       say "Failed to load pfp, try a different   website or try again"
     )
-    log current_pfp
     if current_pfp.imageinfo("loaded") (
       network "update" "pfp" current_pfp
       current_pfp = ""
     )
   )
+  if network.connected (
+    network "get" "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json"
+    all_badges = data
+  )
   
-  square 
+  badges = user["sys.badges"]
+  loc -2 2 -30 - (badges.len * 15) -170
+  square badges.len * 30 20 10 : c#prim
+  change_x badges.len - 1 * 15
+  each badge badges (
+    icon all_badges[badge].icon 1.2 : tooltip#badge
+    if onclick (
+      say all_badges[badge].description
+    )
+    change_x -30
+  )
   
 endef
 
