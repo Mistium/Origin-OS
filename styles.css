@@ -9,9 +9,63 @@ body {
   padding: 0;
   transition: background-color 0.3s ease;
   color: #fff;
-  background: rgb(87,205,172);
-background: linear-gradient(45deg, rgba(87,205,172,1) 0%, rgba(17,17,17,1) 10%, rgba(17,17,17,1) 90%, rgba(87,205,172,1) 100%);
+  background: rgb(42,27,64);
+  background: linear-gradient(45deg, rgba(42,27,64,1) 0%, rgba(17,17,17,1) 20%, rgba(17,17,17,1) 80%, rgba(19,20,90,1) 100%);
 }
+
+.container {
+  display: flex;
+  justify-content: space-between;
+  padding: 20px;
+}
+
+.image-container {
+  position: relative;
+  height: 60vw;
+  overflow: hidden;
+  width: auto;
+}
+
+.views {
+  margin-bottom: 20px;
+}
+
+.use-button {
+  background-color: rgb(0, 0, 0, 0.8);
+  border-radius: 5px;
+  height: 50px;
+  width: 200px;
+  text-decoration: none;
+  color: #fff;
+  border: #000000;
+  border-radius: 10x;
+  scale: 1;
+  transition: 0.1s;
+  align-items: center;
+  justify-content: center;
+  display: flex;
+}
+
+.use-button:hover {
+  background-color: rgba(0, 0, 0, 0.4);
+  scale: 1.05;
+  transition: 0.2s;
+  color: #ddd;
+}
+
+.star {
+  position: absolute;
+  background: white;
+  border-radius: 50%;
+  padding: 1px;
+  transition: 1s;
+}
+
+.image {
+  max-width: 100%;
+  height: auto;
+}
+
 
 .nav-container {
   display: flex;
@@ -41,105 +95,237 @@ background: linear-gradient(45deg, rgba(87,205,172,1) 0%, rgba(17,17,17,1) 10%, 
   color: inherit;
 }
 
+.image-container {
+  position: relative;
+  height: 60vw;
+  overflow: hidden;
+}
+
+.image {
+  width: 80%;
+  transition: 0.2s;
+  border-radius: 10px;
+}
+
+.image:hover {
+  width: 82%;
+  transition: 0.2s;
+}
+
+#Image1 {
+  position: absolute;
+  top: 50% + 5vw;
+  left: 50% + 5vw;
+  transform: translate(-50%, -50%);
+}
+
+/* Specify styles for the other images */
+#Image2 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  /* Adjust as needed */
+  transform: translate(-50%, -50%);
+}
+
+#Image3 {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
 .content {
-  padding: 0px;
   text-align: center;
-}
-
-.profile-card {
-  border-radius: 15px;
-  background-color: #222;
   padding: 20px;
-  margin: 10px;
-  width: 300px;
-  display: inline-block;
-  vertical-align: top;
-  transition: 0.2s;
+  align-items: center;
+  justify-content: center;
 }
 
-.profile-card:hover {
-  background-color: #252525;
-  transition: 0.2s;
-  scale: 1.05;
+.content h1 {
+  font-size: 2rem;
+  margin: 0;
 }
 
-.profile-card h2 {
-  padding: 0px;
+.kernel-info {
+  background-color: rgba(0, 0, 0, 0.4);
+  border-radius: 10px;
+  opacity: 0.9;
+  padding: 20px;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.kernel-info h1 {
   opacity: 1;
+  font-size: 24px;
+  margin-top: 0;
+}
+
+.kernel-info p {
+  opacity: 1;
+  margin: 10px 0;
+}
+
+.kernel-info .item {
+  opacity: 1;
+  border-radius: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.kernel-info .item:nth-child(even) {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.header-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
+.try-button {
+  left: 10px;
+  background-color: rgba(0, 0, 0, 1);
+  padding: 10px;
+  border-radius: 5px;
+  text-decoration: none;
   color: #fff;
+  border: #000000;
+  border-radius: 10x;
+  scale: 1;
+  transition: 0.2s;
 }
 
-.profile-card p {
-  opacity: 1;
+.try-button:hover {
+  left: 10px;
+  background-color: rgba(0, 0, 0, 0.4);
+  scale: 1.05;
+  transition: 0.2s;
   color: #ddd;
 }
 
-.profile-image {
-  margin: 20px;
+.title {
+  flex: 1;
+}
+
+.title h1 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.title h2 {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+.badges-container {
+  list-style: none; /* Removes default list styling */
+  padding: 0;
+  margin: 0;
+  display: flex; /* Aligns items in a row */
+  flex-wrap: wrap; /* Allows items to wrap onto the next line */
+  right: 10px;
+  align-items: right;
+  justify-content: right;
+}
+
+.badges-container li {
+  margin-right: 10px; /* Adjust spacing between items as needed */
+}
+
+.badges-container a {
+  display: inline-block; /* Ensures that the link and image fit properly */
+}
+
+.badges {
+  text-decoration: none;
+  color: #fff;
+  scale: 1;
+  transition: 0.2s;
+  margin-right: 10px;
+  min-width: 120px;
+  height: 25px;
+}
+
+.badges img {
+  width: 100%;
+  height: 100%;
+  border-radius: 5px;
+}
+
+.badges:hover {
+  color: #ddd;
+  scale: 1.05;
+  transition: 0.2s;
+}
+
+
+.card-svg-bg {
+  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 10px;
   width: 100px;
   height: 100px;
-  margin: 0 auto;
-  display: block;
+  padding: 40px;
 }
 
-a:focus,
-a:active {
-  color: #fff;
-  outline: none;
+.card-svg {
+  fill: #fff;
 }
 
-.projects {
-  text-align: center;
-}
-
-.project-card {
-  border-radius: 15px;
-  background-color: #222;
+.card {
+  background-color: rgba(0, 0, 0, 0.4);
+  display: flex;
   padding: 20px;
-  margin: 10px;
+  border-radius: 10px;
   max-width: 700px;
-  min-height: 200px;
-  display: inline-block;
-  vertical-align: top;
-  transition: 0.2s;
-  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+  max-height: 180px;
+  margin: 20px auto;
+  transition-duration: 0.2s;
+  overflow: hidden;
 }
 
-.project-card img {
-  width: 100%;
-  border-radius: 10px;
+.card:hover {
   opacity: 1;
-  height: auto;
+  scale: 1.025;
+  transition-duration: 0.2s;
 }
 
-.project-card h3 {
-  margin: 15px 0;
+.card-content {
+  opacity: 1;
+  flex: 1;
+  margin: 20px;
 }
 
-.project-card p {
-  margin: 15px 0;
+.card-content h2 {
+  opacity: 1;
+  font-size: 1.5rem;
+  margin: 0px 0px;
 }
 
-.project-card a {
-  border-radius: 10px;
-  display: inline-block;
-  margin: 15px 0;
-  width: 300px;
-  padding: 10px 15px;
-  background-color: #333;
-  color: #ddd;
+.card-content p {
+  opacity: 1;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.card-content a {
+  opacity: 1;
+  font-size: medium;
+  background-color: rgba(0, 0, 0, 1);
+  padding: 10px;
+  border-radius: 5px;
+  margin-top: 0px;
   text-decoration: none;
-  box-shadow: 10px 10px 10px rgba(0, 0, 0, 0.5);
+  color: #fff;
 }
 
-.project-card a:hover {
-  background-color: #444;
-  transition: 0.2s;
-}
-
-.project-card:hover {
-  background-color: #252525;
-  transition: 0.2s;
-  scale: 1.05;
+.card-content a:hover {
+  font-size: medium;
+  background-color: rgba(0, 0, 0, 0.4);
+  color: #ddd;
 }
