@@ -2,6 +2,7 @@
   "file viewer":         "Allows apps to read file data",
   "display":             "This app wants to edit rendering settings",
   "notifications":       "Allows an app to send notifications",
+  "rmail":               "Allows an app to read and view your rmails",
   "simulate inputs":     "(Careful) This app wants to use your keyboard",
   "global variables":    "(Careful) This app wants to edit global data",
   "account":             "(Careful) This app wants to edit your account",
