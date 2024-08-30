@@ -208,10 +208,6 @@ sharing_with.destr
 if new_network_data (
   if packet.username == sharing_with (
     systemvars "setlist" "App // Data" packet.data
-  ) else (
-    if "Allow " ++ packet.username ++ " To Overwrite Your Current File And Start A Collab Session? Y/N".ask == "Y" (
-      sharing_with = packet.from
-    ) 
   )
   new_network_data = false
 )
