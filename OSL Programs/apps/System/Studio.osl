@@ -1,4 +1,6 @@
 window "show"
+network "set_app_id" "Studio"
+
 save "Studio" "set_directory"
 save "recent_files.json" "get"
 if save_data.istype("array") (
@@ -201,6 +203,13 @@ if current_studio_page == "Home" (
   exit
 )
 
+if new_network_data (
+  if packet.from == sharing_with (
+    systemvars "setlist" "App // Data" packet.data
+  )
+  new_network_data = false
+)
+
 loc 2 999 75 -25
 square 40 window_height - 50 10 1 : c#c_seco
 loc 999 2 0 -22
@@ -213,7 +222,7 @@ draw_buttons
 loc 2 2 25 -25
 loop sidebar_items (
   c c_seco
-  square 30 30 10 1 : cursor#pointer
+  square 30 30 10 1
   if mouse_touching (
     if mouse_left "square 30 30 12 1" else "square 30 30 15 1"
   )
