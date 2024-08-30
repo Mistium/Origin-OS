@@ -76,7 +76,7 @@ file "get" 14
 desktop_uuid = data
 positions = {}
 name = null
-apps_temp - ""
+apps_temp = ""
 window "responsive" true
 
 mainloop:
