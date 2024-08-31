@@ -31,13 +31,13 @@ if target == 1000 (
 width = (110 / screensize_y) * screensize_x
 loc 2 2 width / 2 + 20 y
 for d total_desktops (
-  c d == current_desktop ? global_accent icn_colour
+  c d - 1 == current_desktop ? global_accent icn_colour
   square width 110 15
   c bg_colour
   square width 110 10
   if onclick (
-    systemvars "setvar" "Desktop // Current" d
-    current_desktop = d
+    systemvars "setvar" "Desktop // Current" d - 1
+    current_desktop = d - 1
   )
   c icn_colour
   change_x d.len * -10
