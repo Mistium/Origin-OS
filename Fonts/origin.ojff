@@ -193,7 +193,7 @@
   "◻": "square 15 15 13 13",
   "◽": "square 15 15 10 10",
   "☮": "cutcircle 15 15 15 0 180 line 15 5 15 25 line 21 9 15 15 cont 9 9",
-  "∆", "line 5 5 15 30 cont 25 5 cont 5 5",
+  "∆": "line 5 5 15 30 cont 25 5 cont 5 5",
   "⠀": "",
   "⠁": "square 10 40 0 0",
   "⠂": "square 10 30 0 0",
