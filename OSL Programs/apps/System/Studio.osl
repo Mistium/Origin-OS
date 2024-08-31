@@ -50,6 +50,8 @@ def "draw_buttons"
   )
 endef
 
+sharing_with = null
+
 mainloop:
 
 if new_transmit (
