@@ -10,8 +10,11 @@ window_x = screensize_x / 2 + 128
 window_target_x = -102
 used = "used"
 error = ""
+
 window "dimensions" 190 380
 window "responsive" true
+window.no_desktop = true
+
 can = false
 syncing = true
 network "my_files_usage"
