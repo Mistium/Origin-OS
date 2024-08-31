@@ -4,7 +4,7 @@ y = 100
 target = -75
 window "responsive" true
 window.no_desktop = true
-total_desktops = 8
+total_desktops = 5
 systemvars "getvar" "Desktop // Current"
 current_desktop = data
 mainloop:
