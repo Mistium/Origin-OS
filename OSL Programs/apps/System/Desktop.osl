@@ -1,5 +1,6 @@
 save "desktop@system" "set_directory"
 
+window.no_desktop = true
 
 def "icons_big"
   app_size = 2.5
