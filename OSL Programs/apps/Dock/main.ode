@@ -2,15 +2,18 @@ width = 140
 square 140 height 20 1 0 1 : chx#70
 x = x_position
 if bg_redrawn or mouse_touching (
-set_y y
-square 140 height 20 1
-icon "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10" 1 : c#icon_colour
-if clicked (
-open = "Origin_Start"
-)
-icon "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7" 1 : chx#45
-icon "w 2.5 cutcircle -2 2 8 0 180 line 4 -4 12 -12" 1 : chx#-90
-if clicked (
-open = "originAssist"
-)
+  set_y y
+  square 140 height 20 1
+  icon "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10" 1 : c#icon_colour
+  if onclick (
+    open = "Origin_Start"
+  )
+  icon "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7" 1 : chx#45
+  if onclick (
+    open = "Desktop Manager"
+  )
+  icon "w 2.5 cutcircle -2 2 8 0 180 line 4 -4 12 -12" 1 : chx#-90
+  if onclick (
+    open = "originAssist"
+  )
 )
