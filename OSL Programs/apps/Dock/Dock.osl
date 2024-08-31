@@ -8,6 +8,8 @@ open = 0
 window "responsive" true
 window "hide"
 
+window.no_desktop = true
+
 window "y" screensize_y / -2 + 35
 
 segments = user.origin_dock
