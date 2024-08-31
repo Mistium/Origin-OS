@@ -1,4 +1,7 @@
+
 permission "request" "start run"
+permission "request" "file admin"
+
 save "Dock@System" "set_directory"
 open = 0
 
@@ -13,16 +16,18 @@ if segments.type != "array" (
   network "update" "origin_dock" segments
 )
 
-goto dock_x y
+goto 0 y
+dock_x = 0
 for "syscount" segments.len (
   import segments[syscount] "ode" : c#dock_colour chx#15
   goto width / 2 + x + 15 y
 )
-dock_width = x_position - dock_x
+dock_width = x_position
 
 // Parameter setup
 dock_x = dock_width.round / -2
 y = -100
+dock_y_target = 0
 height = 40
 // Theme
 
@@ -52,31 +57,8 @@ if dock_colour + icon_colour != tempcol (
 movefileloc file_loc
 if mouse_down.not "canclick = True"
 window "dimensions" screensize_x 70
-window "y" screensize_y / -2 + 35
-terminal "get windowpositions"
-data = data + dock_width.round
-if data != datasave (
-  datasave = data
-  data = "" + data.join(" ") + ""
-  dock_x_target = dock_width / -2
-  dock_y_target = 0
-  left = data.contains(" 1,0 ") or data.contains(" 1,-1 ")
-  right = data.contains(" -1,0 ") or data.contains(" -1,-1 ")
-  if left and right or data.contains(" 0,0 ") (
-    dock_x_target = dock_width / -2
-    dock_y_target = -100
-  ) else (
-    if left "dock_x_target = window_width / -2"
-    if right "dock_x_target = window_width / 2 - dock_width"
-  )
-  dock_x_target.round
-)
+window.y = screensize_y / -2 + 35
 if delta_time < 0.1 (
-  rou = dock_x.round
-  dock_x += dock_x_target.round - rou * delta_time * 7
-  if rou != dock_x_target (
-    window "refresh_bg"
-  )
   y += dock_y_target - y.round * delta_time * 3
   if y.round != dock_y_target.round (
     window "refresh_bg"
@@ -85,11 +67,12 @@ if delta_time < 0.1 (
 if y > -80 (
   width = 0
   goto dock_x y
-  each i segment segments (
+  each segment segments (
     import segment "ode" : c#dock_colour chx#15
     goto width / 2 + x + 15 y
   )
   dock_width = (x_position - dock_x).round
+  dock_x = dock_width / -2
 )
 if open != 0 and mouse_down.not (
   terminal "system windows close" + open
