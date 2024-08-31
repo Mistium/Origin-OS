@@ -22,6 +22,8 @@ endef
 status = ""
 signup_return = ""
 
+window.no_desktop = true
+
 mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 15
 
