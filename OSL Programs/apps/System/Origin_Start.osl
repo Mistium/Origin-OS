@@ -1,6 +1,7 @@
 permission "request" "account"
 window_y = screensize_y * -1.2
 window "dimensions" screensize_x screensize_y
+window.no_desktop = true
 
 network "my_files_usage"
 
