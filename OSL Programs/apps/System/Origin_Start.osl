@@ -129,7 +129,7 @@ goto -180 -10
 square 320 100 10 : c#333
 if mouse_touching (
   cursor "pointer"
-  if clicked (
+  if onclick (
     http "newtab" "https://github.com/Mistium/Origin-OS"
   )
 )
