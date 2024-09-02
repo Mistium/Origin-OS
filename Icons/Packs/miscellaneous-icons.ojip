@@ -35,13 +35,13 @@
     "controller-down": "w 4 c #fff dot 0 -5 c #000 dot -5 0 dot 5 0 dot 0 5",
     "controller-right": "w 4 c #fff dot 5 0 c #000 dot 0 -5 dot -5 0 dot 0 5",
     "controller-left": "w 4 c #fff dot -5 0 c #000 dot 0 -5 dot 5 0 dot 0 5",
-    "up":"w 4 line 10 -5 0 5 line 0 5 -10 -5",
-    "down":"w 4 line 10 5 0 -5 line 0 -5 -10 5",
-    "left":"w 4 line -5 10 5 0 line -5 -10 5 0",
-    "right":"w 4 line 5 10 -5 0 line 5 -10 -5 0",
-    "up-arrow":"w 4 line 8 0 0 8 line 0 8 -8 0 line 0 8 0 -8",
-    "down-arrow":"w 4 line 8 0 0 -8 line 0 -8 -8 line 0 -8 0 8",
-    "right-arrow":"w 4 line 0 8 8 0 line 0 -8 8 0 line -8 0 8",
-    "left-arrow":"w 4 line 0 8 -8 0 line 0 -8 -8 0 line -8 0 8"
+    "up":"w 4 line 10 -5 0 5 cont -10 -5",
+    "down":"w 4 line 10 5 0 -5 cont -10 5",
+    "left":"w 4 line 5 10 -5 0 cont -5 -10",
+    "right":"w 4 line -5 10 5 0 cont 5 -10",
+    "up-arrow":"w 4 line 8 0 0 8 cont -8 0 line 0 8 0 -8",
+    "down-arrow":"w 4 line 8 0 0 -8 cont -8 0 line 0 -8 0 8",
+    "right-arrow":"w 4 line 0 8 8 0 cont 0 -8 line -8 0 8 0",
+    "left-arrow":"w 4 line 0 8 -8 0 cont 0 -8 line -8 0 8 0"
   }
 }
