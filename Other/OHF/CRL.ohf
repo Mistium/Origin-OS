@@ -1,0 +1,91 @@
+{
+  "manifest": {
+    "name": "CRL",
+    "version": "1",
+    "extensions": [
+      ".crl"
+    ]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "/ +|\"(?:\\.|[^\"])*\"|[\\+\\-/*^%]|[(),\\[\\]{}:]|[\\d.]+|\\.?[^\\[\\],.; \\n()\\-+/*%^]+|./mg"
+  },
+  "overrides": {
+    "origin.comments": "#aaaaaa",
+    "origin.numbers": "#5c9bec",
+    "origin.strings": "#9cc6ff"
+  },
+  "categories": {
+    "ui": {
+      "color": "#b7fbff",
+      "tokens": [
+        "text",
+        "img"
+      ]
+    },
+    "positioning": {
+      "color": "#bbb7ff",
+      "tokens": [
+        "@",
+        "@x",
+        "@y"
+      ]
+    },
+    "programflow": {
+      "color": "#eb3c3c",
+      "tokens": [
+        "if"
+      ]
+    },
+    "functions": {
+      "color": "#eb7f3c",
+      "tokens": [
+        "cmd",
+        "def",
+        "run"
+      ]
+    },
+    "logging": {
+      "color": "#42f7b1",
+      "tokens": [
+        "log",
+        "warn",
+        "error"
+        ]
+    },
+    "operators": {
+      "color": "#ffec9c",
+      "tokens": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "md",
+        "=",
+        ">",
+        "<"
+      ]
+    },
+    "logic": {
+      "color": "#5ba5ec",
+      "tokens": [
+        "true",
+        "false",
+        "null",
+        "|",
+        "&"
+      ]
+    },
+    "brackets": {
+      "color": "#9cc6ff",
+      "tokens": [
+        "(",
+        ")",
+        "{",
+        "}",
+        "[",
+        "]"
+      ]
+    }
+  }
+}
