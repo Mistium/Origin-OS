@@ -455,7 +455,7 @@ def "Appearance"
       file "get" 2
       this.name = data
       file "get" 1
-      f = this.path ++ "/" ++ this.name ++ this.data
+      f = this.path ++ "/" ++ this.name ++ data
       segments.append(f)
       network "update" "origin_dock" segments
       new_transmit = false
@@ -476,7 +476,7 @@ def "Appearance"
       file "get" 2
       this.name = data
       file "get" 1
-      f = this.path ++ "/" ++ this.name ++ this.data
+      f = this.path ++ "/" ++ this.name ++ data
       segments.append(f)
       network "update" "origin_dock" segments
       file_dropped = 0
