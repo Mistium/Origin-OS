@@ -4,7 +4,7 @@
     "roturTW"
   ],
   "installer":"https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/.Install_system.json",
-  "name":"sys-.origin",
+  "name":"sys-rotur",
   "binary_file_types": [
     "PDF",
     "JPEG",
