@@ -60,7 +60,7 @@ desktop_rightclick_temp = desktop_rightclick
 
 if "theme.json".saveExists() (
   theme = "theme.json".saveGet().JsonClean()
-  if theme.isType("object").not (
+  if theme.istype("object").not (
     theme = {"app_size":"1.8"}
     save "theme.json" "set" theme
   )
