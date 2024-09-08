@@ -1,47 +1,96 @@
-window "dimensions" 350 240
-window "resizable" False
+window "dimensions" 700 480
 window "show"
-file "open" passed_data
+if passed_data == "" (
+  window "stop"
+) else (
+  file "open" passed_data
+)
 input_main = null
 input_replace = null
+
+prim = user.theme.primary
+seco = user.theme.secondary
+txtc = user.theme.text
+window_colour = user.theme.background
+
+list = []
+search = []
+
 mainloop:
+frame window.left window.top window.left + 350 window.bottom
 loc 999 2 0 -63
-square 330 30 10 : c#222
+square 330 30 10 : c#prim
 input 330 23 "main" "Find Value"
 loc 999 2 0 -113
-square 330 30 10 : c#222
+square 330 30 10 : c#prim
 if onclick (
-  file "get" 4
-  data.str
   temp = input_main.destr
-  say "Found" + data.str.count(temp)
+  list = []
+  i = 0
+  file "get" 4
+  search = data.split(newline)
 )
+loops = min(100,search.len + 1)
+cur_search = search.trim(1,loops)
+for i2 loops (
+  i += 1
+  if cur_search[i2].contains(temp) (
+    arr = []
+    arr.append(cur_search[i2])
+    arr.append(i)
+    list.append(arr)
+  )
+)
+search.trim(loops,-1)
 change_x -35
-text "Find All" 8 : c#fff
+text "Find All" 8 : c#txtc
 loc 999 2 0 -163
-square 330 30 10 : c#222
+square 330 30 10 : c#prim
 input 330 23 "replace" "Replace With"
 loc 999 2 0 -213
-square 330 30 10 : c#222
-if onclick or "enter".onpress (
+square 330 30 10 : c#prim
+if onclick (
   file "get" 4
-  data.str
-  temp = input_main.destr
-  temp2 = input_replace.destr
-  say "Replaced" + data.str.count(temp)
-  data.replace(temp,temp2)
-  transmit data parent
+  file "set" 4 data.replaceFirst(input_main,input_replace)
+  if input_replace.contains(input_main) (
+    list[1] = list[1].replaceFirst(input_main,input_replace)
+  ) else (
+    list.unshift()
+  )
 )
 change_x -30
-text "Replace" 8 : c#fff
-if mouse_down.not "canclick = True"
+text "Replace" 8 : c#txtc
+
+frame "clear"
+
+loc 2 2 360 -50
+text "Results:" ++ list.len 10 : c#txtc
+c prim
+frame window.left + 350 window.top - 70 window.right window.bottom list.len * 40 "list"
+y = scroll_ylist - 20
+w = frame.width - 25
+each item list (
+  loc 9999 2 0 y
+  square w 20 15 : c#prim
+  change_x w / -2 + 10
+  text item[2].str ++ ":" + item[1] 10 : c#txtc
+  y -= 40
+)
+
+frame "clear"
 loc 999 2 0 -15
-square 350 20 15 : c#333
+square window.width 20 15 : c#seco
 loc -2 2 -15 -15
-icon "close" 0.6 : c#fff
+icon "close" 0.6 : c#txtc
+
 if clicked (
   window "stop"
 )
 loc 2 2 15 -15
 file "render" 1
-text "Find And Replace" 9 : chx#20 c#fff
+text "Find And Replace" 9 : chx#20 c#txtc
+if search.len > 0 (
+  direction timer * 100
+  icon "cutcircle 0 0 10 0 90" 0.6 : chx#20
+  direction 90
+)
