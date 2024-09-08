@@ -225,10 +225,10 @@ draw_buttons
 
 loc 2 2 25 -25
 loop sidebar_items (
-  c c_seco
-  square 30 30 10 1
+  square 30 30 15 : c#c_prim
   if mouse_touching (
-    if mouse_left "square 30 30 12 1" else "square 30 30 15 1"
+    square 30 30 15 : c#c_seco
+    square 30 30 mouse_left ? 7 10 : c#c_prim
   )
   change_y -50
 )
