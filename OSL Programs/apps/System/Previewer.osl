@@ -1,4 +1,4 @@
-if passed_data != null (
+if passed_data != "" (
   file "open" passed_data "onlyaccess"
   file "get" 2
   name = data
@@ -29,12 +29,14 @@ window "show"
 
 mainloop:
 goto 0 -25
-temp = window_width - 50 / w * 100
-temp2 = window_height - 50 / h * 100
+temp = window.width - 50 / w * 100
+temp2 = window.height - 50 / h * 100
 if temp2 > temp (
-  stretch [].append(temp).append(temp)
+  stretch "x" temp
+  stretch "y" temp
 ) else (
-  stretch [].append(temp2).append(temp2)
+  stretch "x" temp2
+  stretch "y" temp2
 )
 if type == "image" (
   image passed_data.str 
