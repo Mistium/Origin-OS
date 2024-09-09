@@ -27,7 +27,7 @@
     "eraser": "w 3 line -4.5 -8.5 -1 -8.5 cont 9 1.5 cont 3 8 cont -9 -3 cont -4.5 -8.5 line 3 -3 -2 3 w 10 dot 3.5 2",
     "key": "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7",
     "camera": "w 3 line 8 -6 8 6 cont -4 6 cont -4 -6 cont 8 -6 cont -4 -6 cont -4 0 cont -10 -5 cont -10 5 cont -4 0",
-    "quaver": "w 3 line 0 -7.7 0 7 cont 5 0 w 9 dot -3 -8"
+    "quaver": "w 3 line 0 -7.7 0 7 cont 5 0 w 9 dot -3 -8",
     "option": "w 3 line -10 10 -5 10 line -5 10 5 -10 cont 10 -10 line 10 10 0 10",
     "pen": "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 cont -11 -11 cont -4.5 -9",
     "controller-up": "w 4 c #fff dot 0 5 c #000 dot 0 -5 dot -5 0 dot 5 0",
