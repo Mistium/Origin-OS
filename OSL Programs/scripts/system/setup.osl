@@ -69,12 +69,12 @@ file "install_type" "odd" graphics_icn "WEBP Image" ["Origin/(A) System/User App
 file "install_type" "bmp" graphics_icn "BMP Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "ico" graphics_icn "ICO Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "tiff" graphics_icn "TIFF Image" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "mp4" graphics_icn "MP4 Video" ["Origin/(A) System/User Applications/Media Player.osl"]
-file "install_type" "webm" graphics_icn "WEB Media" ["Origin/(A) System/User Applications/Media Player.osl"]
+file "install_type" "mp4" graphics_icn "MP4 Video" ["Origin/(A) System/User Applications/Media_Player.osl"]
+file "install_type" "webm" graphics_icn "WEB Media" ["Origin/(A) System/User Applications/Media_Player.osl"]
 file "install_type" "gif" graphics_icn "Gif Video" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "mp3" graphics_icn "MP3 Audio" ["Origin/(A) System/User Applications/Media Player.osl"]
-file "install_type" "wav" graphics_icn "WAV Audio" ["Origin/(A) System/User Applications/Media Player.osl"]
-file "install_type" "flac" graphics_icn "FLAC Audio" ["Origin/(A) System/User Applications/Media Player.osl"]
+file "install_type" "mp3" graphics_icn "MP3 Audio" ["Origin/(A) System/User Applications/Media_Player.osl"]
+file "install_type" "wav" graphics_icn "WAV Audio" ["Origin/(A) System/User Applications/Media_Player.osl"]
+file "install_type" "flac" graphics_icn "FLAC Audio" ["Origin/(A) System/User Applications/Media_Player.osl"]
 
 // info
 file "install_type" "cfg" icon_cfg "Config" []
