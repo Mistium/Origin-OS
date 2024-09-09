@@ -1,5 +1,6 @@
 // icons
 graphics_icn = "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn camera 0.4 0 -2"
+music_icn = "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn quaver 0.4 0 -2"
 assembly_icn = "c #6f4aa5 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #2b1d40 icn atom 0.4 0 -2"
 archive_icn = "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0"
 
@@ -72,9 +73,9 @@ file "install_type" "tiff" graphics_icn "TIFF Image" ["Origin/(A) System/User Ap
 file "install_type" "mp4" graphics_icn "MP4 Video" ["Origin/(A) System/System Apps/Media_Player.osl"]
 file "install_type" "webm" graphics_icn "WEB Media" ["Origin/(A) System/System Apps/Media_Player.osl"]
 file "install_type" "gif" graphics_icn "Gif Video" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "mp3" graphics_icn "MP3 Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
-file "install_type" "wav" graphics_icn "WAV Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
-file "install_type" "flac" graphics_icn "FLAC Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
+file "install_type" "mp3" music_icn "MP3 Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
+file "install_type" "wav" music_icn "WAV Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
+file "install_type" "flac" music_icn "FLAC Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
 
 // info
 file "install_type" "cfg" icon_cfg "Config" []
