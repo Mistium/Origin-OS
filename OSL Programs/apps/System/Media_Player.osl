@@ -1,0 +1,60 @@
+
+window_colour = user.theme.background
+prim = user.theme.primary
+seco = user.theme.secondary
+txtc = user.theme.text
+
+file "use_type" "mp3"
+
+if passed_data == "" (
+  say "Open A File With Media Player"
+  window "stop"
+) else (
+  file "open" passed_data "onlyaccess"
+  open_file = passed_data
+  file "get" 4
+  sound data "load" "media"
+  file "get" 2
+  name = data
+)
+
+playing = false
+progress = 0
+
+mainloop:
+
+loc 9999 2 0 -20
+square window.width 30 10 : c#prim
+loc 2 2 10 -20
+text name 10 : c#txtc
+
+goto 0 0
+file "render" 5
+
+loc 9999 -2 0 20
+square window.width 30 10 : c#prim
+loc 2 -2 20 20
+c txtc
+if playing (
+  icon "pause" 0.7
+  sound "media" "unpause"
+) else (
+  icon "play" 0.7
+  sound "media" "pause"
+)
+if onclick (
+  playing.not
+)
+progress = ("media".soundinfo("current_time").int / "media".soundinfo("duration").int).int
+loc 9999 -2 20 20
+w = window.width - 60
+square w 20 10 : c#seco
+offset = window.left + 50
+if clicked (
+  progress = (mouse_x - (x_position + offset - 20) / w).clamp(0,w)
+  sound "media" "start" progress * "media".soundinfo("duration").int
+)
+set_x offset + (progress * w / 2)
+square w * progress 20 5 : c#prim
+
+import "win-buttons"
