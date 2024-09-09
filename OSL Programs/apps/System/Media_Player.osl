@@ -4,8 +4,6 @@ prim = user.theme.primary
 seco = user.theme.secondary
 txtc = user.theme.text
 
-file "use_type" "mp3"
-
 if passed_data == "" (
   say "Open A File With Media Player"
   window "stop"
