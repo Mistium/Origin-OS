@@ -1,6 +1,8 @@
 api = "https://api.github.com/"
 
-url = "https://api.github.com/users/Mistium"
+url = api ++ "users/Mistium"
+
+url = api ++ "repos/Mistium/Origin-OS"
 
 history = []
 
@@ -47,19 +49,19 @@ if page_data == "" (
   page_data = data
 )
 
-if url.left(28) == "https://api.github.com/users" (
+if url.startsWith("https://api.github.com/users") (
   loc 2 2 70 -90
-  image page_data."avatar_url" 100
+  image page_data.avatar_url 100
   loc 2 2 140 -80
-  text page_data."login" 10 : c#fff
+  text page_data.login 10 : c#fff
   if names == "" (
     loadpage "/repos"
   )
   c #222
-  frame window."left" + 300 window."top" - 45 window."right" window."bottom" names.len * 110 - 27.5
-  count = scroll_y.divide(110).round - 1
+  frame window.left + 300 window.top - 45 window.right window.bottom names.len * 110 - 27.5
+  count = (scroll_y / 110).round - 1
   len = names.len + 1
-  loop frame_height.divide(110).round.add(2).clamp(0,len) (
+  loop ((frame_height / 110).round + 2).clamp(0,len) (
     count ++
     y = count * -110 + scroll_y + 55
     loc 999 2 0 y
@@ -67,36 +69,36 @@ if url.left(28) == "https://api.github.com/users" (
     if mouse_touching (
       cursor "pointer"
       if clicked (
-        redirect urls.[count]
+        redirect urls[count]
       )
     )
     loc 2 2 30 y + 20
-    text names.[count] 10 : c#fff
+    text names[count] 10 : c#fff
     loc 2 2 30 y
-    text "Stars: <repo_stars.[count]> / Forks: <repo_forks.[count]> / Issues: <repo_issues.[count]>" 10
+    text `Stars: ${repo_stars[count]} / Forks: ${repo_forks[count]} / Issues: ${repo_issues[count]}` 10
     loc 2 2 30 y - 20
-    text "@" ++ repo_owners.[count] 10
+    text "@" ++ repo_owners[count] 10
   )
 )
 
-if url.left(28) == "https://api.github.com/repos" (
+if url.startsWith("https://api.github.com/repos") (
   if names == "" (
     loadpage "/contents"
   )
   c #222
-  frame window."left" / 1.5 window."top" - 40 window."right" / 1.5 - 200 window."bottom" names.len * 35
+  frame window.left / 1.5 window.top - 40 window.right / 1.5 - 200 window.bottom names.len * 35
   loc 2 2 20 -60
-  text page_data."name" 10 : c#fff hover_c#eee
+  text page_data.name 10 : c#fff hover_c#eee
   if touching_mouse (
     mouse "pointer"
     if clicked (
-      redirect page_data."owner"."url"
+      redirect page_data.owner.url
     )
   )
 
-  count = scroll_y.divide(35).floor
+  count = scroll_y // 35
   len = names.len
-  loop frame_height.divide(35).round.clamp(0,len) (
+  loop (frame_height / 35).round.clamp(0,len) (
     count ++
     y = count - 1 * -35 + scroll_y - 20
     loc 999 2 0 y
@@ -108,14 +110,13 @@ if url.left(28) == "https://api.github.com/repos" (
     )
     loc 2 2 30 y
     c #fff
-    if types.[count] == "dir" (
+    if types[count] == "dir" (
       icon "w 3 line 10 6 -2 6 cont -5 10 cont -10 10 cont -10 -8 cont 10 -8 cont 10 6" 0.7
     )
-    if types.[count] == "file" (
+    if types[count] == "file" (
       icon "file" 0.7
     )
-    change_x 30
-    text names.[count] 10
+    text names[count] 10 : chx#30
   )
 )
 frame "clear"
