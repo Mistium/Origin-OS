@@ -3,6 +3,7 @@ permission "request" "javascript"
 permission "request" "terminal"
 permission "request" "file admin"
 permission "request" "account"
+permission "request" "kernel"
 
 def "appopt" "optname,opticn,icnsize"
   loc 999 2 0 y
@@ -431,49 +432,75 @@ def "Appearance"
       option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
       break
     case "Background"
-      loc 2 2 15 -30 + scroll_y
-      text "Paste Image Url" 10 : c#txtc
-      change_x 20
-      square 25 25 10 : c#prim
-      if onclick (
-        can = false
-        square 25 25 12 : c#seco
-        current_wallpaper = clipboard.str
-      )
+      y = -30 + scroll_y
+      w = frame.width - 25
+      loc 9999 2 0 y
+      square w 30 15 : c#prim
+      if onclick (;current_wallpaper = clipboard.str;)
+      loc 2 2 50 y
+      text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
+      loc 2 2 25 y
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      current_wallpaper.str
       if wallpapers.contains(current_wallpaper).not (
         if current_wallpaper.imageinfo("loaded") (
-          wallpapers = wallpapers + current_wallpaper
+          wallpapers.insert(1,current_wallpaper.destr)
           save "wallpapers.json" "set" wallpapers
           current_wallpaper = ""
         )
         if current_wallpaper == clipboard.str (
           image current_wallpaper 0 0
           text "Trying" 10 : c#txtc chx#20
-          image current_wallpaper 10
         )
       )
-      wallpaper_data = "Wallpapers:" + wallpapers.len
-      loc -2 2 -15 - (wallpaper_data.len * 10) -30 + scroll_y
+      wallpaper_data = "Total:" + wallpapers.len
+      loc -2 2 -15 - (wallpaper_data.len * 10) y
       text wallpaper_data 10
+      y -= 152
+      loc 4 2 -2.5 y
+      w = frame.width / 2 - 30
+      square w 230 15 : c#prim
+      image background_url w 200 : chy#-10
+      y2 = y + 50
+      systemvars "getvar" "SYSTEM // Background Mode"
+      back_mode = data
+      log back_mode
+      modes = ["Fill","Center","Fit","Stretch"]
+      for i 4 (
+        loc -4 2 0 y2
+        cur = modes[i]
+        square w 30 15 : c#prim
+        if mouse_touching or cur == back_mode (
+          square w 30 15 : c#seco
+          square w 30 10 : c#prim
+          if onclick (
+            terminal "system wallpapermode" + cur
+            network "update" "wallpaper_mode" cur
+          )
+        )
+        change_x w / -2 + 10
+        text cur 10 : c#txtc
+        y2 -= 50
+      )
+      loc 2 2 20 y + 105
+      text "Current Wallpaper" 10 : c#txtc
+      loc 9999 2 20 y + 105
+      text "Wallpaper Mode" 10
+      y -= 8
       for count wallpapers.len (
-        yc = count / 2
-        y = yc.round * -230 + 50 + scroll_y
-        loc -4 2 0 y
-        if count % 2 == 1 "loc 4 2 0 y"
-        w = frame_width / 2 - 30
-        square w 200 10 : c#prim
+        if count % 2 == 1 (
+          y -= 230
+        )
+        if count % 2 == 1 "loc 4 2 0 y" else "loc -4 2 0 y"
+        square w 200 15 : c#prim
         cur = wallpapers[count]
         image cur w 200
         change_x -40
         square 20 20 20 : c#prim
         if mouse_touching (
           if clicked.not "square 20 20 23"
-          if clicked and can (
+          if onclick (
             terminal "system wallpaper" + cur
             network "update" "wallpaper" cur
-            can = false
           )
         )
         icon "tick" 0.7 : c#txtc
@@ -488,7 +515,7 @@ def "Appearance"
         )
         icon "bin" 0.7 : c#txtc
       )
-      page_len = yc.round * 230 + 50
+      page_len = (wallpapers.len / 2).ceiling * 230 + 310
       break
     case "Dock"
       if new_transmit (
@@ -983,18 +1010,16 @@ network_drive = "none"
 gotosubcategory = ""
 current_pfp = ""
 save "wallpapers.json" "get"
-wallpapers = save-data
-if wallpapers.len < 1 or wallpapers.istype("array").not (
+wallpapers = save_data
+if wallpapers.len < 1 or wallpapers.istype("Array").not (
   wallpapers = [
-    "\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png\"",
-    "\"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png\"",
-    "\"https://images.unsplash.com/photo-1696193846016-f0a30c035e70\"",
-    "\"https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg\"",
-    "\"https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg\"",
-    "\"https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg\"",
-    "\"https://images.pexels.com/photos/7919/pexels-photo.jpg\"",
-    "\"https://images.unsplash.com/photo-1697048851717-81d7cbee7ed2\"",
-    "\"https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg\""
+    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png",
+    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png",
+    "https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg",
+    "https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg",
+    "https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg",
+    "https://images.pexels.com/photos/7919/pexels-photo.jpg",
+    "https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg"
   ]
   save "wallpapers.json" "set" wallpapers
 )
