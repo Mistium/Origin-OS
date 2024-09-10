@@ -30,7 +30,7 @@ dock_width = x_position
 dock_x = dock_width.round / -2
 y = -100
 dock_y_target = 0
-height = 40
+height = 36
 // Theme
 
 if user.dock_colour == null (
