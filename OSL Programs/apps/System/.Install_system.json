@@ -326,7 +326,7 @@
     "path": "Origin/(A) System/Modules",
     "name": "Window_Tools.osl",
     "icon": "",
-    "version":"1"
+    "version":"1.1"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/scripts/system/global_var_setup.osl",
