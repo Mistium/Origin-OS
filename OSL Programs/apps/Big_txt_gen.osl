@@ -1,6 +1,6 @@
 txt = ""
 loop 9999 (
-  txt = txt ++ newline ++ [0,999999999].random.to("md5")
+  txt += newline ++ random(0,999999999).hashMD5()
 )
 
 clipboard "set" txt
