@@ -1,0 +1,13 @@
+import "console" from "packages"
+
+title = "triangle"
+
+amt = 30
+for i amt (
+  l = " " * (amt - i)
+  t = "*" * i
+  g = (l ++ t) ++ t
+  console "log" g
+)
+mainloop:
+console "run_ui"
