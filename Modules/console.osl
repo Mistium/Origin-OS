@@ -3,42 +3,46 @@ window "show"
 window "dimensions" 800 550
 
 def "console" "command,data1,data2"
-  if command == "log" (
-    console.append(data1)
-  )
-  if command == "replace_line" (
-    console.[data1] = data2
-  )
-  if command == "remove_line" (
-    console.delete(data1)
-  )
-  if command == "clear" (
-    console = []
-  )
-  if command == "run_ui" (
-    frame window."left" window."top" - 30 window."right" window."bottom" console.len * 20
-    c #fff
-    count = scroll_y / 20
-    count.round
-    count2 = 0
-    loop frame_height.divide(20).round (
-      count ++
-      count2 ++
-      loc 2 2 20 count2 * -20 + scroll_y
-      text console.[count] 10
-    )
-    frame "clear"
+  switch command (
+    case "log"
+      console.append(data1)
+      break
+    case "replace_line"
+      console[data1] = data2
+      break
+    case "remove_line"
+      console.delete(data1)
+      break
+    case "clear"
+      console = []
+      break
+    case "run_ui"
+      this.prim = user.theme.primary
+      c this.prim
+      frame window.left window.top - 40 window.right window.bottom console.len * 20
+      c #fff
+      count = (scroll_y / 20).round
+      loc 2 2 10 -20
+      x = frame.left + 10
+      loop frame.height // 20 (
+        count ++
+        set_x x
+        text console[count] 10
+        change_y -20
+      )
+      frame "clear"
 
-    loc 999 2 0 -15
-    square window_width 20 10 : c#333
+      loc 999 2 0 -20
+      square window_width 30 10 : c#333
 
-    loc 2 2 10 -15
-    text title 10 : c#fff
+      loc 2 2 10 -20
+      text title 10 : c#fff
 
-    loc -2 2 -15 -15
-    icon "close" 0.7
-    if clicked (
-      window "stop"
-    )
+      loc -2 2 -20 -20
+      icon "close" 0.7
+      if clicked (
+        window "stop"
+      )
+      break
   )
 endef
