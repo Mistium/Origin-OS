@@ -876,17 +876,19 @@ def "account"
     network "get" "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json"
     all_badges = data
   )
-  
-  badges = user["sys.badges"]
-  loc -2 2 -30 - (badges.len * 15) -170
-  square badges.len * 30 20 10 : c#prim
-  change_x badges.len - 1 * 15
-  each badge badges (
-    icon all_badges[badge].icon 1.2 : tooltip#badge
-    if onclick (
-      say all_badges[badge].description
+
+  if all_badges.istype("array") (
+    badges = user["sys.badges"]
+    loc -2 2 -30 - (badges.len * 15) -170
+    square badges.len * 30 20 10 : c#prim
+    change_x badges.len - 1 * 15
+    each badge badges (
+      icon all_badges[badge].icon 1.2 : tooltip#badge
+      if onclick (
+        say all_badges[badge].description
+      )
+      change_x -30
     )
-    change_x -30
   )
   
 endef
