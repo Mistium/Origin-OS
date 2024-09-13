@@ -28,7 +28,7 @@ next_update = 0.5
 pen "width" 10
 high = 0
 low = 250
-graph = 100.newArray()
+graph = 1000.newArray()
 
 prim = user.theme.primary
 seco = user.theme.secondary
@@ -84,7 +84,7 @@ if activity_info (
     graph.append(dt2)
     graph.delete(1)
   )
-  c #txtc
+  c txtc
   count = 0
   loop pr.len (
     count ++
@@ -101,7 +101,7 @@ wwm = window_width - 50 / 100
 whm = window_height / 300
 usage = (fps / fps_limit).clamp(0,1)
 graph.append(usage)
-if graph.len > 100 (
+if graph.len > 1000 (
   graph.delete(1)
 )
 import "side-bar"
