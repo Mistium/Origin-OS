@@ -76,7 +76,6 @@ window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
 include windowfileloc
 file "open" windowfileloc ++ ".folder" "onlyaccess"
-file "set" 4 data.delete("")
 file "get" 14
 desktop_uuid = data
 positions = {}
