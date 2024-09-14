@@ -6,7 +6,7 @@
   },
   "data": {
     "pride-flag":"w 1.5 c #E40300 square 0 6.5 10 .6 c #FF8C00 square 0 4 10 .6 c #FFED00 square 0 1.25 10 .6 c #008026 square 0 -1.25 10 .6 c #24408E square 0 -4 10 .6 c #732982 square 0 -6.5 10 .6",
-    "progress-flag":"w 1.5 c #E40300 square 0 6.5 10 .6 c #FF8C00 square 0 4 10 .6 c #FFED00 square 0 1.25 10 .6 c #008026 square 0 -1.25 10 .6 c #24408E square 0 -4 10 .6 c #732982 square 0 -6.5 10 .6 c #ffffff line -10 4 -10 -4 cont -5 0 cont -10 4 w 2.5 line -9 -2 -9 2 dot -7.5 0 c #ff92c3 w 1.75 line -10 5 -5.5 0 cont -10 -5 c #63c2ee line -10 7 -3 0 cont -10 -7 c #66370d line -8 7 -0.5 0 cont -7 -7 c #000000 line -6 7 1.5 0 cont -6 -7",
+    "progress-flag":"w 1.5 c #E40300 square 0 6.5 10 .6 c #FF8C00 square 0 4 10 .6 c #FFED00 square 0 1.25 10 .6 c #008026 square 0 -1.25 10 .6 c #24408E square 0 -4 10 .6 c #732982 square 0 -6.5 10 .6 c #ffffff line -10 4 -10 -4 cont -5 0 cont -10 4 w 2.5 line -9 -2 -9 2 dot -7.5 0 c #ff92c3 w 1.75 line -10 5 -5.5 0 cont -10 -5 c #63c2ee line -10 7 -3 0 cont -10 -7 c #66370d line -8 7 -0.5 0 cont -8 -7 c #000000 line -6 7 1.5 0 cont -6 -7",
     
     "straight-flag":"w 2.6 c #000 square 0 7 10 1.2 c #fff square 0 2.5 10 1.2 c #000 square 0 -2.5 10 1.2 c #fff square 0 -7 10 1.2",
     "asexual-flag":"w 2.6 c #000000 square 0 7 10 1.2 c #A3A3A3 square 0 2.5 10 1.2 c #ffffff square 0 -2.5 10 1.2 c #800080 square 0 -7 10 1.2",
