@@ -13,7 +13,7 @@
     "more": "w 5 dot -8 0 dot 0 0 dot 8 0",
     "menu-thin": "w 3 line -8 8 8 8 line -8 0 8 0 line -8 -8 8 -8",
     "menu": "w 5 line -8 8 8 8 line -8 0 8 0 line -8 -8 8 -8",
-    "more-vertical": "w 5§dot 0 8§dot§dot 0 -8",
+    "more-vertical": "w 5 dot 0 8 dot dot 0 -8",
     "clock": "w 2 cutcircle 0 0 12 0 180 w 3 line 0 5 0 0 cont 3 -3",
     "alarm-clock": "w 2 cutcircle 0 0 9 0 180 w 3 line 0 4 0 0 cont 3 -2 line -7 -7 -8 -9 line 7 -7 8 -9 w 2 cutcircle -7 7 4 -4.5 60 cutcircle 7 7 4 4.5 60",
     "stopwatch": "w 3 cutcircle 0 -1 9 0 180 w 3 line 0 0 0 11 line -2 12 2 12 line 6 7 7 8",
