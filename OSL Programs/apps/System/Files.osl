@@ -1,5 +1,3 @@
-
-
 permission "request" "file admin"
 
 window "dimensions" 1000 600
@@ -166,14 +164,23 @@ def "render_files"
   )
   c c_prim
   frame temp_x temp_y x_position y_position files.len * 45
-  file "open" input_path ++ ".folder" "onlyaccess"
-  file "get" 9
-  if data ++ input_path != current_folder_update (
-    current_folder_update = data ++ input_path
-    file "get" 14
-    current_folder_uuid = data
-    file "get" 4
-    files = data
+  if input_path == "origin" (
+    files = []
+  ) else (
+    file "exists" input_path ++ ".folder"
+    if exists (
+      file "open" input_path ++ ".folder" "onlyaccess"
+      file "get" 9
+      if data != current_folder_update (
+        current_folder_update = data
+        file "get" 14
+        current_folder_uuid = data
+        file "get" 4
+        files = data
+      )
+    ) else (
+      files = []
+    )
   )
   rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [].append(current_folder_uuid)
   len = files.len
