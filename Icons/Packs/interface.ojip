@@ -29,7 +29,7 @@
     "copy": "w 3 square -3 -3 7 7 line 10 -7 10 10 cont -7 10",
     "paste": "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10",
     "apps": "w 3 square 7 7 2.5 2.5 square 7 -7 2.5 2.5 square -7 7 2.5 2.5 square -7 -7 2.5 2.5",
-    "apps-full": "w 3 square 7 7 2.5 2.5 1 square 7 -7 2.5 2.5 1 square -7 7 2.5 2.5 1 square -7 -7 2.5 2.5 1",
+    "apps-full": "w 3 square 7 7 2.5 2.5 1 square 7 -7 2.5 2.5 1 square -7 7 2.5 2.5 1 square -7 -7 2.5 2.5 1 dot -7 7 dot 7 7 dot -7 -7 dot 7 -7",
     "store": "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5",
     "store-full": "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5 w 10 line -5 -4 5 -4",
     "settings": "w 3 line -8 8 -8 -8 line 0 8 0 -8 line 8 8 8 -8 line 6 6 10 6 line 2 -3 -2 -3 line -6 2 -10 2",
