@@ -171,8 +171,8 @@ def "render_files"
     if exists (
       file "open" input_path ++ ".folder" "onlyaccess"
       file "get" 9
-      if data != current_folder_update (
-        current_folder_update = data
+      if data.str + input_path != current_folder_update (
+        current_folder_update = data.str + input_path
         file "get" 14
         current_folder_uuid = data
         file "get" 4
