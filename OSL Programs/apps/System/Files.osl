@@ -290,7 +290,7 @@ def "render_files"
         text data == "" ? "Document" data 9
         loc -2 2 -100 draw_y
         file "get" 12
-        text data < 1000 ? (data + "b") ((data / 100).ceiling / 10) + "kb" 9
+        text data < 1000 ? (data + "b") ((data / 100).ceiling / 10 + "kb") 9
       )
     )
   ) else (
