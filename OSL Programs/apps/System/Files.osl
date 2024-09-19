@@ -5,7 +5,6 @@ window "show"
 
 files_path = "Origin/(C) Users/" ++ username
 user_path = files_path ++ "/"
-if passed_data != "" "files_path = passed_data"
 
 hidden = []
 tabs = []
@@ -47,7 +46,11 @@ def "setup_tabs"
 endef
 
 setup_tabs
-navigate user_folder
+if passed_data != "" (
+  navigate passed_data
+) else (
+  navigate user_folder
+)
 
 def "folder" "txt"
   con = hidden.contains(txt)
