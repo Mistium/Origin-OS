@@ -1,4 +1,5 @@
 import "window_tools"
+load_theme
 
 permission "request" "save admin"
 permission "request" "javascript"
@@ -1046,8 +1047,6 @@ ftvalues = file_types.getValues()
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
-load_theme
-
 loc 999 2 120 -20
 square window_width - 215 40 15 : c#prim
 
