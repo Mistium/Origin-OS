@@ -41,10 +41,10 @@ if menu == "transfer" (
   loc 999 2 -30 -70
   text "Send Credits To Another User" 10 : c#txtc
   loc 999 2 105 -110
-  square 360 25 10 : c#seco
+  square 360 25 10 : c#prim
   input 350 25 "recipient" "Recipient"
   loc 999 2 105 -150
-  square 360 25 10 : c#seco
+  square 360 25 10 : c#prim
   input 350 25 "amount" "Amount Of Credits"
   loc 999 2 105 -190
   if input_amount == "" or input_recipient == "" (
