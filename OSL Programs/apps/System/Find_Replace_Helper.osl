@@ -1,3 +1,5 @@
+import "window_tools"
+
 window "dimensions" 700 480
 window "show"
 if passed_data == "" (
@@ -8,15 +10,12 @@ if passed_data == "" (
 input_main = null
 input_replace = null
 
-prim = user.theme.primary
-seco = user.theme.secondary
-txtc = user.theme.text
-window_colour = user.theme.background
-
 list = []
 search = []
 
 mainloop:
+load_theme
+
 frame window.left window.top window.left + 350 window.bottom
 loc 999 2 0 -63
 square 330 30 10 : c#prim

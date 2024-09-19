@@ -1,3 +1,5 @@
+import "window_tools"
+
 permission "request" "file admin"
 
 file "use_type" "folder"
@@ -338,17 +340,14 @@ icons.Local = file[11]
 file "open" "Origin/(C) Users.folder"
 icons.Users = file[11]
 icons[username] = "image" + user_icon + "20"
-window_colour = user.theme.background
-c_icon = user.theme.text
-c_prim = user.theme.primary
-c_seco = user.theme.secondary
-c_tert = user.theme.tertiary
 
 desktop = user_path ++ "Desktop"
 downloads = user_path ++ "Downloads"
 documents = user_path ++ "Documents"
 bin = user_path ++ "Bin"
 mainloop:
+  load_theme
+  
   if tabs.len == 0 or tabs.istype("array").not (
     setup_tabs
   )

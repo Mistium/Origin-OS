@@ -1,3 +1,4 @@
+import "window_tools"
 
 window "dimensions" 809 500
 can = false
@@ -62,15 +63,16 @@ left = w / -2
 right = w / 2
 
 mainloop:
+load_theme
 
 goto 0 0
 square w h 30 : c#global_accent
 if "escape".onpress or (clicked.not and mouse_left) (
   window "stop"
 )
-square w h 25 : c#050505
+square w h 25 : c#window_colour
 goto 0 h / 2 - 25
-square w 50 10 : c#222
+square w 50 10 : c#prim
 input_search.destr
 input w-20 30 "search" "Search For Apps And Commands..."
 input_search.str.toLower()
@@ -129,7 +131,7 @@ if input_search != temp (
 if "enter".onpress (
   outputs.main = "GPT Is Thinking"
   goto left 120
-  text "GPT Is Thinking" 10 : c#fff
+  text "GPT Is Thinking" 10 : c#txtc
   gpt "send" "assistant" input_search.str
   if data.startsWith("<FILEOPEN>") (
     path = data.right(data.len - 10).strip()
@@ -142,7 +144,7 @@ if "enter".onpress (
   while data.startsWith("<FILEREAD>") (
     square 200 40 10 : c#222
     change_x "Reading File".len * -5
-    text "Reading File" 10 : c#fff
+    text "Reading File" 10 : c#txtc
     path = data.right(data.len - 10).strip()
     goto -300 120
     text path 10
@@ -194,9 +196,9 @@ y = 40
 code_block = 0
 if outputs.main != "" (
   loc 999 2 0 segment_length / -2 + scroll_y
-  square frame_width - 20 segment_length 10 : c#222
+  square frame_width - 20 segment_length 10 : c#prim
   loc 2 2 20 -20 + scroll_y
-  text name 8 : c#ddd
+  text name 8 : c#txtc
   out = outputs.main
   loc 2 2 20 -75 + scroll_y
   x = x_position
@@ -205,7 +207,7 @@ if outputs.main != "" (
     switch line (
       case "---"
         set_x 0
-        square frame_width - 30 0 10 : c#444
+        square frame_width - 30 0 10 : c#seco
         c #ddd
         break
       case "```"
@@ -214,7 +216,7 @@ if outputs.main != "" (
       default
         if code_block == 1 (
           set_x 0
-          square frame_width - 30 20 5 : c#333
+          square frame_width - 30 20 5 : c#seco
           c #ddd
         )
         set_x x
@@ -228,7 +230,7 @@ if outputs.main != "" (
 )
 if page_len == 0 (
   loc 2 2 20 -20
-  text "No Results" 10 : c#fff
+  text "No Results" 10 : c#txtc
 )
 
 files = outputs.files.trim(1,10)
@@ -237,7 +239,7 @@ if files != "" (
   y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - (height / 2) + 10
-  square frame_width - 20 height + 20 10 : c#111
+  square frame_width - 20 height + 20 10 : c#prim
   loc 2 2 15 y2 + 10
   text "Files" 8 : c#fff
   count = 0
@@ -246,7 +248,7 @@ if files != "" (
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
     file "open" files[count]
-    square frame_width - 30 25 10 : c#222 hover_c#333
+    square frame_width - 30 25 10 : c#prim hover_c#seco
     if clicked (
       file "start"
       window "stop"
@@ -272,21 +274,21 @@ if settings != "" (
   y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - (height / 2) + 10
-  square frame_width - 20 height + 20 10 : c#111
+  square frame_width - 20 height + 20 10 : c#prim
   loc 2 2 15 y2 + 10
-  text "Settings" 8 : c#fff
+  text "Settings" 8 : c#txtc
   count = 0
   loop settings.len (
     count ++
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
-    square frame_width - 30 25 10 : c#222 hover_c#333
+    square frame_width - 30 25 10 : c#prim hover_c#seco
     if clicked (
       window "add" "settings" settings[count]
       window "stop"
     )
     loc 2 2 15 cur_y
-    text settings[count] 10 : c#fff
+    text settings[count] 10 : c#txtc
     y -= 40
   )
 )
@@ -297,17 +299,17 @@ if wins != "" (
   y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - ( height / 2 ) + 10
-  square frame_width - 20 height + 20 10 : c#111
+  square frame_width - 20 height + 20 10 : c#prim
   loc 2 2 15 y2 + 10
-  text "Windows" 8 : c#fff
+  text "Windows" 8 : c#txtc
   count = 0
   loop wins.len (
     count ++
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
-    square frame_width - 30 25 10 : c#222 hover_c#333
+    square frame_width - 30 25 10 : c#prim hover_c#seco
     loc 2 2 15 cur_y
-    text wins[count] 10 : c#fff
+    text wins[count] 10 : c#txtc
     y -= 40
   )
 )

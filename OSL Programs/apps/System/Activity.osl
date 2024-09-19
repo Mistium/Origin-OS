@@ -1,4 +1,6 @@
-permission "request" "terminal"
+import "window_tools"
+
+ermission "request" "terminal"
 permission "request" "Javascript"
 window "show"
 window "dimensions" 600 400
@@ -30,13 +32,9 @@ high = 0
 low = 250
 graph = 1000.newArray()
 
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
-window_colour = user.theme.background
-
 mainloop:
+load_theme
+
 loc -2 2 -20 -20
 square 25 25 10 : c#prim
 if clicked "window stop"

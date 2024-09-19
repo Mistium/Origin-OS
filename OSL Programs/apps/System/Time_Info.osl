@@ -1,29 +1,40 @@
+import "window_tools"
+
 window "show"
 window "dimensions" 270 140
 window "resizable" false
+
 mainloop:
+load_theme
+
 loc 999 2 0 -15
-square 270 20 15 : c#333
-c #fff
+square 270 20 15 : c#prim
+
 loc -2 2 -15 -15
-icon "close" 0.6 : hover_size#1.1 hover_cursor#pointer
+icon "close" 0.6 : c#txtc
 if clicked (
   window "stop"
 )
+
 loc 2 2 10 -15
 text "Time" 9
+
 loc 2 2 10 -120
 text `${day} ${day_number} ${month} ${year}` 10
+
 loc 2 2 30 -70
-icon "c #fff w 3 cutcircle 0 0 20 0 180" 1
+icon w 3 cutcircle 0 0 20 0 180" 1
 pen "down"
 temp = minute * 6
 change temp.sin * 10 temp.cos * 10
+
 loc 2 2 30 -70
 temp = hour * 12
 change temp.sin * 7 temp.cos * 7
 pen "up"
+
 loc 2 2 60 -60
-text `${hour}:${minute}:${second}` 10 : c#fff
+text `${hour}:${minute}:${second}` 10
+
 loc 2 2 60 -85
 text timezone.str 10

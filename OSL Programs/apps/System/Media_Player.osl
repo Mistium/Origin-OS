@@ -1,8 +1,4 @@
-
-window_colour = user.theme.background
-prim = user.theme.primary
-seco = user.theme.secondary
-txtc = user.theme.text
+import "window_tools"
 
 if passed_data == "" (
   say "Open A File With Media Player"
@@ -20,6 +16,7 @@ playing = false
 progress = 0
 
 mainloop:
+load_theme
 
 loc 9999 2 0 -20
 square window.width 30 10 : c#prim

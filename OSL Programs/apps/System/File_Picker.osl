@@ -1,7 +1,9 @@
+import "window_tools"
+
 window "dimensions" 600 500
 file "open" user_folder ++ ".folder"
-path = file.[3]
-current = file.[4]
+path = file[3]
+current = file[4]
 window "show"
 cur = user_folder
 selected = ""
@@ -12,12 +14,12 @@ if passed_data == null (
   display_message = `Select a File`
 ) else (
   if passed_data.istype("array") (
-    if passed_data.[1].istype("array") (
-      display_message = passed_data.[2].str
-      passed_data.[1]
+    if passed_data[1].istype("array") (
+      display_message = passed_data[2].str
+      passed_data[1]
     )
     each "i" "item" passed_data (
-      passed_data.[i] = "." ++ passed_data.[i]
+      passed_data[i] = "." ++ passed_data[i]
     )
     target_file = passed_data
     files_allowed_text = passed_data.join(" or ")
@@ -31,33 +33,35 @@ if passed_data == null (
 )
 
 mainloop:
+load_theme
 
-c #333
-frame window."left" window."top" - 40 window."right" window."bottom" + 35 current.len * 45
+c prim
+frame window.left window.top - 40 window.right window.bottom + 35 current.len * 45
 y = -40 + scroll_y
-count = scroll_y.divide(45).round
+count = (scroll_y / 45).round
 len = current.len
-loop frame_height.divide(45).round.clamp(0,len) (
+loop (frame_height / 45).round.clamp(0,len) (
   count ++
   y = count * -45 + scroll_y
+
   loc 999 2 0 y
-  file "open" current.[count] "onlyaccess"
+  file "open" current[count] "onlyaccess"
   file "get" 14
   uuid = data
   if uuid == selected (
-    square frame_width - 20 30 10 : c#333
+    square frame_width - 20 30 10 : c#prim
   )
   file "get" 1
-  square frame_width - 20 30 10 0 1 : c#333
+  square frame_width - 20 30 10 0 1 : c#prim
   target = target_file == null or target_file.contains(data)
-  if clicked and can (
+  if onclick (
     can = false
     if data == ".folder" (
-      file "open" current.[count]
-      cur = file.[3] ++ "/" ++ file.[2]
+      file "open" current[count]
+      cur = file[3] ++ "/" ++ file[2]
       file "open" cur ++ ".folder"
-      path = file.[3]
-      current = file.[4]
+      path = file[3]
+      current = file[4]
     ) else (
       if target (
         selected = uuid
@@ -67,16 +71,16 @@ loop frame_height.divide(45).round.clamp(0,len) (
   loc 2 2 25 y
   file "render" 1
   file "get" 1
-  if data == ".folder" or target "c #fff" else "c #888"
+  if data == ".folder" or target "c txtc" else "c seco"
   file "get" 2
   text data.str 10 : chx#30
 )
 frame "clear"
 
 loc 999 2 0 -20
-square window_width 40 10 : c#222
+square window_width 40 10 : c#prim
 loc -2 2 -20 -20
-icon "close" 0.8 : c#fff
+icon "close" 0.8 : c#txtc
 if clicked (
   window "stop"
   transmit "closed" parent
@@ -86,30 +90,30 @@ if path == "origin" (
 )
 loc 2 2 20 -20
 if path != null (
-  icon "left-arrow" 0.8 : c#fff
+  icon "left-arrow" 0.8 : c#txtc
   if clicked and can (
     can = false
     cur = path
     file "open" path ++ ".folder"
-    path = file.[3]
-    current = file.[4]
+    path = file[3]
+    current = file[4]
   )
 )
 text cur.str 10 : chx#20
 
 loc 999 -2 0 20
-square window_width 20 20 : c#222
+square window_width 20 20 : c#prim
 loc 2 -2 10 20
 if selected != "" (
   file "open" selected
   file "get" 2
   name = data
   file "get" 1
-  text name ++ data 10 : c#fff
+  text name ++ data 10 : c#txtc
   c global_accent
 ) else (
-  text display_message 10 : c#fff
-  c #444
+  text display_message 10 : c#txtc
+  c prim
 )
 loc -2 -2 -50 20
 square 80 20 10
@@ -117,5 +121,5 @@ if selected != "" and clicked (
   transmit selected parent
   window "stop"
 )
-text "Select" 10 : c#fff chx#-30
+text "Select" 10 : c#txtc chx#-30
 if mouse_down.not "can = true"

@@ -1,3 +1,5 @@
+import "window_tools"
+
 permission "request" "account"
 network "server" "omail_getinfo"
 
@@ -8,12 +10,6 @@ if passed_data == "" (
 ) else (
   page = passed_data
 )
-
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
-window_colour = user.theme.background
 
 def "icon_button" "icn, size"
   square 40 40 10 : c#seco hover_c#prim
@@ -176,6 +172,8 @@ def "new_omail"
 endef
 
 mainloop:
+load_theme
+
 if new_network_data (
   command = network_data_command
   if command == "omail_total" (

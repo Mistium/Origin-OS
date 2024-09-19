@@ -1,3 +1,5 @@
+import "window_tools"
+
 permission "request" "camera"
 camera_width = 0
 camera "start"
@@ -6,6 +8,8 @@ camera "use_front"
 camera "get" "hasbackcam"
 hasback = data
 mainloop:
+load_theme
+
 if camera_width == 0 (
   camera "get" "width"
   if data != "camera is not on" (
@@ -32,8 +36,8 @@ if clicked and can (
   file "download" "image at" + timestamp.timestamp("convert-full") ++ ".png" null data user_folder ++ "/Pictures"
   say "image saved to pictures folder"
 )
-square 0 0 50 : c#333
-icon "camera" 1 : c#fff
+square 0 0 50 : c#prim
+icon "camera" 1 : c#txtc
 
 if hasback (
   loc -2 999 -40 -60
@@ -48,8 +52,8 @@ if hasback (
       camera_back = 0
     )
   )
-  square 0 0 50 : c#333
-  icon "reload" 0.6 : c#fff
+  square 0 0 50 : c#prim
+  icon "reload" 0.6 : c#txtc
 )
 if mouse_down.not "can = true"
 import "win-buttons"
