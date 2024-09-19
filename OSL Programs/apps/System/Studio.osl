@@ -1,5 +1,3 @@
-import "window_tools"
-
 window "show"
 network "set_app_id" "Studio"
 
@@ -49,7 +47,11 @@ endef
 sharing_with = null
 
 mainloop:
-load_theme
+theme = user.theme
+c_prim = theme.primary
+c_seco = theme.secondary
+c_tert = theme.tertiary
+c_text = theme.text
 
 if new_transmit (
   if window.children.contains(transmit_source) (
