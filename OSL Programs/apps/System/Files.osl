@@ -1,5 +1,7 @@
 permission "request" "file admin"
 
+file "use_type" "folder"
+
 window "dimensions" 1000 600
 window "show"
 
@@ -47,7 +49,11 @@ endef
 
 setup_tabs
 if passed_data != "" (
-  navigate passed_data
+  file "open" passed_data "onlyaccess"
+  file "get" 3
+  path = data
+  file "get" 2
+  navigate path ++ "/" ++ data
 ) else (
   navigate user_folder
 )
