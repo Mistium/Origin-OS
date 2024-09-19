@@ -17,8 +17,7 @@ graph = []
 network_usage = []
 
 def "tab" "name"
-  selected = name == current_tab
-  if selected "c seco" else "c prim"
+  if name == current_tab "c seco" else "c prim"
   square tab_w 25 10 1
   if onclick "current_tab = name"
   change_x tab_w / -2 + 5
@@ -38,11 +37,14 @@ load_theme
 loc -2 2 -20 -20
 square 25 25 10 : c#prim
 if clicked "window stop"
+
 square 25 25 10 : chx#-40
 if clicked "window minimise.str"
 icon "down" 0.7 : c#txtc
+
 icon "close" 0.7 : chx#40
 if clicked "window stop"
+
 if current_tab == "no_perms" (
   if window.permissions.contains("terminal") (
     current_tab = "Render Info"
@@ -206,11 +208,15 @@ if current_tab == "Render Info" (
   frame x y x_position y_position windows_names.len * 40
   y = scroll_y - 20
   tot = 0
+  w = frame_width - 20
   for count windows_names.len (
     loc 999 2 0 y
-    square frame_width - 20 25 10 1 : c#prim hover_c#seco
-    if onclick (
-      window "add" "Activity" windows_names[count]
+    square w 25 10 : c#prim
+    if mouse_touching (
+      square w 25 10 : c#seco
+      if onclick (
+        window "add" "Activity" windows_names[count]
+      )
     )
     rightclick "window" windows_names[count]
     loc 2 2 15 y
