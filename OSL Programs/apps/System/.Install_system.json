@@ -158,7 +158,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "New_File.osl",
     "icon": "c #1a1a1a w 10 square 0 0 5 5 icn add 0.5",
-    "version":"1"
+    "version":"1.1"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/StandbyMode.osl",
