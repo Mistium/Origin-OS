@@ -1083,7 +1083,7 @@ if subcategory == "none" (
 c seco
 frame window.left + 215 window.top - 47 window.right window.bottom page_len
 page_len = 0
-y = -30 + scroll_y
+y = -29 + scroll_y
 startx = x_position
 location = category + subcategory
 switch category (
