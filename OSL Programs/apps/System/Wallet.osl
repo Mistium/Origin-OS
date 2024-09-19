@@ -1,12 +1,11 @@
-permission "request" "account"
+import "window_tools"
 
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
+permission "request" "account"
 
 menu = "list"
 mainloop:
+load_theme
+
 balance = user["sys.currency"]
 transactions = user["sys.transactions"]
 

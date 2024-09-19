@@ -1,9 +1,6 @@
-permission "request" "account"
+import "window_tools"
 
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
+permission "request" "account"
 
 page = "Friends"
 selected_user = ""
@@ -11,6 +8,8 @@ sending = false
 
 
 mainloop:
+load_theme
+
 list = page == "Friends" ? user["sys.friends"] user["sys.requests"]
 loc 2 999 150 0
 square 300 window_height 10 : c#prim

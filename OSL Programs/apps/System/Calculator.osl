@@ -42,21 +42,24 @@ def "draw" "x, y, x2, y2, character"
   text character.str 20 : c#ct
 endef
 
-
-cb = user.theme.primary
-cbh = user.theme.secondary
 co = #f79204
 coh = #f7ae43
-cca = user.theme.primary
-ctb = user.theme.primary
-ct = user.theme.text
-rh = user.theme.tertiary
-window_colour = user.theme.background
 
 window "show"
 window "dimensions" 280 380
 window "resizable" false
+
 mainloop:
+
+theme = user.theme
+cb = theme.primary
+cbh = theme.secondary
+cca = theme.primary
+ctb = theme.primary
+ct = theme.text
+rh = theme.tertiary
+window_colour = theme.background
+
 
 loc 999 2 0 -22.5
 square 265 30 10 1 : c#ctb

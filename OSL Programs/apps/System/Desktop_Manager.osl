@@ -17,6 +17,7 @@ window.height = screensize_y
 
 bg_colour = user.dock_colour
 icn_colour = user.icon_colour
+
 loc 999 2 0 y
 square window.width 150 10 : c#bg_colour
 if mouse_down and clicked.not (

@@ -1,3 +1,5 @@
+import "window_tools"
+
 window "show"
 page = "APPSTORE// Loading"
 permission "request" "file admin"
@@ -12,12 +14,6 @@ if "installed.json".saveExists().not (
   save "installed.json" "set" {}
 )
 
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
-window_colour = user.theme.background
-
 def "tab" "name"
   if name == page "c seco" else "c prim"
   square sidebar_width - 15 40 10 : hover_c#seco
@@ -28,6 +24,7 @@ endef
 icons = {}
 
 mainloop:
+load_theme
 
 ww = window_width
 wh = window_height

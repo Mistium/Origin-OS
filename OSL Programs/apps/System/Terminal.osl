@@ -1,6 +1,4 @@
-
-
-
+import "window_tools"
 
 file "use_type" "ots"
 
@@ -45,18 +43,13 @@ canenter = True
 input_1 = null
 permission "request" "terminal"
 
-
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
-window_colour = user.theme.background
-
 loops = 0
 taking_input = false
 ots_i = 1
 
 mainloop:
+load_theme
+
 if new_network_data (
   if packet.data.istype("array") (
     msg = packet.username + "> " + packet.data[0]

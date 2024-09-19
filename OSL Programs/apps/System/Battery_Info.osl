@@ -1,16 +1,20 @@
+import "window_tools"
+
 window "show"
 window "resizable" false
 window "dimensions" 270 130
 mainloop:
+load_theme
+
 loc 999 2 0 -15
-square 270 20 15 : c#333
+square 270 20 15 : c#prim
 loc -2 2 -15 -15
-icon "close" 0.6 : c#fff hover_size#1.1 hover_cursor#pointer
+icon "close" 0.6 : c#txtc
 if clicked (
-window "stop"
+  window "stop"
 )
 loc 2 2 10 -15
-text "Battery" 9 : c#fff
+text "Battery" 9 : c#txtc
 buf = battery_time_until_full / 60
 bue = battery_time_until_empty / 60
 buf.round

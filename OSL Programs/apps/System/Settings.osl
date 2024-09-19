@@ -1,3 +1,5 @@
+import "window_tools"
+
 permission "request" "save admin"
 permission "request" "javascript"
 permission "request" "terminal"
@@ -1036,12 +1038,6 @@ themes = {
   "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3"},
 }
 
-prim = user.theme.primary
-seco = user.theme.secondary
-tert = user.theme.tertiary
-txtc = user.theme.text
-window_colour = user.theme.background
-
 system
 // file type pages
 ftkeys = file_types.getKeys()
@@ -1050,8 +1046,11 @@ ftvalues = file_types.getValues()
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
+load_theme
+
 loc 999 2 120 -20
 square window_width - 215 40 15 : c#prim
+
 loc 2 2 25 -25
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
@@ -1061,8 +1060,10 @@ DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
 DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
 DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
 DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
+
 loc 2 2 25 -175
 image user_icon.str 35 35
+
 loc 2 2 232 -25
 if subcategory == "none" (
   text category 10 : c#txtc

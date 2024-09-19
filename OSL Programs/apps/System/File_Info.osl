@@ -1,21 +1,25 @@
+import "window_tools"
+
 window "show"
 permission "request" "File Admin"
 file "open" "id" 1
 tab = "Info"
-total = file.[12].destr
-if passed_data == null "passed_data = parent_file_id"
-file "open" "id" passed_data
+
+if passed_data == null (
+  passed_data = parent_file_id
+)
+file "open" passed_data
 window "dimensions" 600 500
 file_json = file.str
-type = file.[1]
-name = file.[2]
-loc = file.[3]
-file_data = file.[4]
-data_secondary = file.[5]
-created = file.[9].destr
-edited = file.[10].destr
-icon = file.[11].destr
-size = file.[12].destr
+type = file[1]
+name = file[2]
+loc = file[3]
+file_data = file[4]
+data_secondary = file[5]
+created = file[9].destr
+edited = file[10].destr
+icon = file[11].destr
+size = file[12].destr
 config_path = user_folder ++ "/application data/" ++ name ++ "/config.json"
 file "open" config_path
 file_config = data
@@ -37,57 +41,62 @@ if preview.contains(type) (
   tabs = ["Info","Preview","Edit"]
 )
 mainloop:
+load_theme
 
-count = 0
 loc 2 2 85 -25
 x = x_position
-loop tabs.len (
-  count += 1
+for count tabs.len (
   x += 160
-  if tab == tabs.[count] "colour #444"
-  square 140 25 10 1 : c#222
+  if tab == tabs[count] (
+    square 140 25 15 : c#seco
+    square 140 25 10 : c#prim
+  ) else (
+    square 140 25 15 : c#prim
+  )
   if clicked "tab = tabs.[count]"
-  icon tabs.[count] 0.7 : c#fff chx#-60
-  text tabs.[count] 8 : chx#20
+  icon tabs[count] 0.7 : c#txtc chx#-60
+  text tabs[count] 8 : chx#20
   goto x y_position
 )
 loc 999 999 0 -20
-square window_width - 30 window_height - 70 10 1 : c#222
+square window_width - 30 window_height - 70 10 1 : c#prim
 if tab == "info" (
   loc 2 2 50 -90
-  file "open" "id" passed_data
+  file "open" passed_data
   file "render" 3
   rightclick "file" passed_data
   n = newline
-  text `${name}${type}` 9 : c#fff chx#40
+  text `${name}${type}` 9 : c#txtc chx#40
+  
   loc 2 2 20 -160
   text `Size: ${size}b` 8
+
   loc 2 2 20 -180
   text "Created:" + created.timestamp("convert-relative") 8
+
   loc 2 2 20 -200
   text "Edited:" + edited.timestamp("convert-relative") 8
+
   loc 2 2 20 -220
   text `Location: ${loc}/${name}${type}` 8
+
   loc 2 2 20 -240
   text `Type: ${type}` 8
 )
 if tab == "settings" (
   ww = window_width
   wh = window_height
-  colour #111
+  c prim
   frame ww / -2 + 10 wh / 2 - 50 ww / 2 - 10 wh / -2 + 50 page_len
   y = scroll_y + 15
   y2 = 0
-  count = 0
-  loop total_keys - 1 (
-    count += 1
+  for count total_keys - 1 (
     y2 -= 50
     y3 = y2 + y
     loc 2 2 20 y3
-    loc 2 2 20 y3
-    current = config_keys.[count].destr
+    current = config_keys[count].destr
     text current 10 : c#fff
-    current_data = file_config.key(current)
+    current_data = file_config[current]
     loc -2 2 -40 y3
     isbool = current_data.istype("boolean")
     if isbool "toggle current 25"
@@ -98,25 +107,23 @@ if tab == "settings" (
   page_len = y2 * -1
   frame "clear"
   loc 999 -2 0 30
-  colour #444
+  c prim
   square ww - 30 30 10 1
-  colour accent_colour
+  c accent_colour
   loc -2 -2 -85 30
-  if save != output "square 130 20 12 1"
-  colour #222
-  square 130 20 8 1
+  if save != output "square 130 20 15"
+  c prim
+  square 130 20 10
   if save != output and clicked (
     file "open" config_path
     file "set" "data" output
     save = output
   )
-  colour #fff
-  change -25
-  text "Apply" 10 : c#fff
+  text "Apply" 10 : c#txtc chx#-25
 )
 if tab == "Preview" (
   loc 999 999 0 0
-  c #fff
+  c txtc
   if type == ".icn" (
     icon file_data 8
     rightclick "file" passed_data
@@ -124,26 +131,27 @@ if tab == "Preview" (
 )
 if tab == "edit" (
   loc 2 2 20 -70
-  text "Actions" 10 : c#fff
+  text "Actions" 10 : c#txtc
+
   loc 2 2 100 -120
   actions = ["copy","file","open"]
-  count = 0
-  loop 3 (
-    count += 1
-    square 160 30 10 1 : c#444
-    icon actions.[count] 0.8 : c#fff chx#-65
-    change 245
+  for count 3 (
+    square 160 30 10 1 : c#prim
+    icon actions[count] 0.8 : c#txtc chx#-65
+    change_x 245
   )
+
   loc 2 2 60 -120
   text "Copy As Json" 8
   if clicked "clipboard "set" file_json.str"
+
   loc 2 2 235 -120
   text "Show File" 8
-  if clicked ""
+
   loc 2 2 420 -120
   text "Open File" 8
   if clicked and can (
-    file "open" "id" passed_data
+    file "open" passed_data
     file "start"
     can = False
   )

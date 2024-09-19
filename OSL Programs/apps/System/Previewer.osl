@@ -1,3 +1,5 @@
+import "window_tools"
+
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
   file "get" 2
@@ -28,6 +30,8 @@ if passed_data != "" (
 window "show"
 
 mainloop:
+load_theme
+
 goto 0 -25
 temp = window.width - 50 / w * 100
 temp2 = window.height - 50 / h * 100
@@ -45,10 +49,10 @@ if type == "video" (
   video passed_data.str temp temp
 )
 loc 2 2 10 -20
-text `${name} ${w}x${h}` 10 : c#fff
+text `${name} ${w}x${h}` 10 : c#txtc
 loc -2 2 -20 -20
-square 20 20 10 : c#333
-icon "close" 0.7 : c#fff
+square 20 20 10 : c#prim
+icon "close" 0.7 : c#txtc
 if clicked (
   image "clear" uri
   window "stop"

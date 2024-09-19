@@ -4,9 +4,6 @@ permission "request" "terminal"
 
 window.no_desktop = true
 
-back = user.theme.background
-txtc = user.theme.text
-
 app_positions = {}
 
 
@@ -92,6 +89,9 @@ apps_temp = ""
 window "responsive" true
 
 mainloop:
+back = user.theme.background
+txtc = user.theme.text
+
 include windowfileloc
 nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn

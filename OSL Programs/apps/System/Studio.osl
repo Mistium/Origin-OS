@@ -1,3 +1,5 @@
+import "window_tools"
+
 window "show"
 network "set_app_id" "Studio"
 
@@ -19,12 +21,6 @@ if passed_data == null (
 sidebar_items = 0
 
 window "set_dragbox" [[2,2,40,0],[-2,2,-150,-40]]
-
-c_text = user.theme.text
-c_prim = user.theme.primary
-c_seco = user.theme.secondary
-c_tert = user.theme.tertiary
-window_colour = user.theme.background
 
 def "draw_buttons"
   loc -2 2 -20 -20
@@ -53,6 +49,7 @@ endef
 sharing_with = null
 
 mainloop:
+load_theme
 
 if new_transmit (
   if window.children.contains(transmit_source) (
