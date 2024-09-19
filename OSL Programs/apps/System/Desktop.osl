@@ -1,6 +1,14 @@
 save "desktop@system" "set_directory"
+permission "request" "file admin"
+permission "request" "terminal"
 
 window.no_desktop = true
+
+back = user.theme.background
+txtc = user.theme.text
+
+app_positions = {}
+
 
 def "icons_big"
   app_size = 2.5
@@ -95,10 +103,10 @@ window "dimensions" screensize_x screensize_y - 70
 desktop = data
 if nhvr.not (
   if file_dropped != 0 (
-    loc 2 2 0 0
+    loc 2 2 35 -35
     file "open" file_dropped
-    file "set" "6" (x_position - (mouse_x - 35) * -1 / 70).round * 70
-    file "set" "7" (y_position - (mouse_y + 35) * -1 / 70).round * 70
+    file "set" "6" (x_position - mouse_x / -70).round * 70
+    file "set" "7" (y_position - mouse_y / -70).round * 70
     file_dropped = 0
   )
   if mouse_down and can (
@@ -133,13 +141,12 @@ if nhvr.not (
   )
   goto 0 0
   square screensize_x screensize_y 1 0 1
-
   data_temp = data
   terminal "get extensions"
   if data != apps_temp (
     apps_temp = data
     each i extension data (
-      data[i] = extension
+      data[i] = extension.JsonParse()
     )
     len = desktop_rightclick.len
     desktop_rightclick[len] = ["Apps"].concat(data)
@@ -148,15 +155,37 @@ if nhvr.not (
 
   rightclick desktop_rightclick desktop_uuid
 )
-if data == [] "exit"
+if "space".pressed (
+  window "stop"
+)
+if data.len == 0 "exit"
 if app_size == 0 "exit"
-each i app_id desktop (
-  file "open" app_id "onlyaccess"
+if mouse_down or app_positions == {} or bg_redrawn (
+  desktop_apps = desktop
+) else (
   loc 2 2 35 -35
+  x = (mouse_x - x_position / 70).round * 70
+  y = (mouse_y - y_position / 70).round * 70
+  
+  cur = app_positions[y][x]
+  if desktop.contains(cur) (
+    desktop_apps = []
+    if cur != "" (
+      desktop_apps.append(cur)
+    )
+  ) else (
+    app_positions[y][x] = ""
+  )
+)
+if desktop_apps.len == 0 "exit"
+each i app_id desktop_apps (
+  file "open" app_id "onlyaccess"
   file "get" 6
-  change_x data
+  x = (data / 70).round * 70
   file "get" 7
-  change_y data
+  y = (data / 70).round * 70
+  loc 2 2 35 + x -35 + y
+  app_positions[y][x] = app_id
   square 30 30 0 0 1
   if mouse_touching or cnrn (
     file "render" app_size "interactable"
@@ -164,9 +193,9 @@ each i app_id desktop (
   )
   file "get" 2
   if mouse_touching (
-    square data.len * 8 10 10 : c#000 chy#-30
+    square data.len * 8 10 15 : c#back chy#-30
     change_x data.len * -4
-    text data 8 : c#fff
+    text data 8 : c#txtc
     name = data
   ) else (
     if name == data (
