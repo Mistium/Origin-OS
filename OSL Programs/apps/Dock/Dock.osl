@@ -1,6 +1,6 @@
-
 permission "request" "start run"
 permission "request" "file admin"
+permission "request" "terminal"
 
 save "Dock@System" "set_directory"
 open = 0
@@ -77,7 +77,7 @@ if y > -80 (
   dock_x = dock_width / -2
 )
 if open != 0 and mouse_down.not (
-  terminal "system windows close" + open
-  terminal "system windows add" + open
+  terminal "kill" + open
+  window "add" open
   open = 0
 )
