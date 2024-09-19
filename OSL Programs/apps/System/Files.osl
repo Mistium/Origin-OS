@@ -164,6 +164,7 @@ def "render_files"
   )
   c c_prim
   frame temp_x temp_y x_position y_position files.len * 45
+  window.drop_location = null
   if input_path == "origin" (
     files = []
   ) else (
@@ -171,6 +172,7 @@ def "render_files"
     if exists (
       file "open" input_path ++ ".folder" "onlyaccess"
       file "get" 9
+      window.drop_location = input_path
       if data.str + input_path != current_folder_update (
         current_folder_update = data.str + input_path
         file "get" 14
