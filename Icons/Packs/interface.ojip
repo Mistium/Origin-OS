@@ -29,7 +29,7 @@
     "copy": "w 3 square -3 -3 7 7 line 10 -7 10 10 cont -7 10",
     "paste": "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10",
     "apps": "w 3 square 7 7 2.5 2.5 square 7 -7 2.5 2.5 square -7 7 2.5 2.5 square -7 -7 2.5 2.5",
-    "apps-full": "w 3 square 7 7 2.5 2.5 1 square 7 -7 2.5 2.5 1 square -7 7 2.5 2.5 1 square -7 -7 2.5 2.5 1",
+    "apps-full": "w 3 square 7 7 2.5 2.5 1 square 7 -7 2.5 2.5 1 square -7 7 2.5 2.5 1 square -7 -7 2.5 2.5 1 dot -7 7 dot 7 7 dot -7 -7 dot 7 -7",
     "store": "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5",
     "store-full": "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5 w 10 line -5 -4 5 -4",
     "settings": "w 3 line -8 8 -8 -8 line 0 8 0 -8 line 8 8 8 -8 line 6 6 10 6 line 2 -3 -2 -3 line -6 2 -10 2",
@@ -74,8 +74,8 @@
     "controller": "w 5 line 6 6 8 6 line -6 6 -8 6 w 7 line 7 5 10 -7 line -7 5 -10 -7 line -6 3 6 3 line -7 -1 7 -1",
     "microphone": "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8",
     "network": "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
-    "book": "w 3 line 0 5 10 10 cont 10 -5 cont 0 -10 cont 0 5 cont -10 10 cont -10 -5 cont 0 -10 line -6 3 -4 2 line -6 -2 -4 -3 line 6 3 4 2 line 6 -2 4 -3",
+    "book": "w 2.75 line 0 5 10 10 cont 10 -5 cont 0 -10 cont 0 5 cont -10 10 cont -10 -5 cont 0 -10 line -6 3 -4 2 line -6 -2 -4 -3 line 6 3 4 2 line 6 -2 4 -3",
     "send": "w 3 line 10 10 -10 4 cont 0 0 cont 4 -10 cont 10 10 cont 0 0",
-    "cog": "w 1.4 cutcircle 0 0 3.5 0 180 line -2.8 7 -1.75 9.8 cont 1.75 9.8 cont 2.8 7 line -2.8 -7 -1.75 -9.8 cont 1.75 -9.8 cont 2.8 -7 line 7 -2.8 9.8 -1.75 cont 9.8 1.75 cont 7 2.8 line -7 -2.8 -9.8 -1.75 cont -9.8 1.75 cont -7 2.8 line 7 2.8 8.05 5.6 cont 5.6 8.05 cont 2.8 7 line -7 2.8 -8.05 5.6 cont -5.6 8.05 cont -2.8 7 line 7 -2.8 8.05 -5.6 cont 5.6 -8.05 cont 2.8 -7 line -7 -2.8 -8.05 -5.6 cont -5.6 -8.05 cont -2.8 -7"
+    "cog": "w 2 cutcircle 0 0 3.5 0 180 line -2.8 7 -1.75 9.8 cont 1.75 9.8 cont 2.8 7 line -2.8 -7 -1.75 -9.8 cont 1.75 -9.8 cont 2.8 -7 line 7 -2.8 9.8 -1.75 cont 9.8 1.75 cont 7 2.8 line -7 -2.8 -9.8 -1.75 cont -9.8 1.75 cont -7 2.8 line 7 2.8 8.05 5.6 cont 5.6 8.05 cont 2.8 7 line -7 2.8 -8.05 5.6 cont -5.6 8.05 cont -2.8 7 line 7 -2.8 8.05 -5.6 cont 5.6 -8.05 cont 2.8 -7 line -7 -2.8 -8.05 -5.6 cont -5.6 -8.05 cont -2.8 -7"
   }
 }
