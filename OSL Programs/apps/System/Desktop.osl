@@ -35,6 +35,67 @@ def "upload_file"
   terminal "upload /desktop"
 endef
 
+def "reload_extensions"
+  this.data = data
+  terminal "get extensions"
+  if data != apps_temp (
+    apps_temp = data
+    each i extension data (
+      data[i] = extension.JsonParse()
+    )
+    len = desktop_rightclick.len
+    desktop_rightclick[len] = ["Apps"].concat(data)
+  )
+  data = this.data
+endef
+
+def "handle_dropped_file"
+  loc 2 2 35 -35
+  file "open" file_dropped
+  file "set" "6" (x_position - mouse_x / -70).round * 70
+  file "set" "7" (y_position - mouse_y / -70).round * 70
+endef
+
+def "handle_app_culling"
+  if mouse_down or app_positions == {} or bg_redrawn (
+    desktop_apps = desktop
+  ) else (
+    loc 2 2 35 -35
+    x = (mouse_x - x_position / 70).round * 70
+    y = (mouse_y - y_position / 70).round * 70
+  
+    cur = app_positions[y][x]
+    if desktop.contains(cur) (
+      desktop_apps = []
+      if cur != "" (
+        desktop_apps.append(cur)
+      )
+    ) else (
+      app_positions[y][x] = ""
+    )
+  )
+endef
+
+def "render_selection"
+  sqw = mouse_start_x - mouse_x
+  sqh = mouse_start_y - mouse_y
+  frame mouse_start_x mouse_start_y mouse_x mouse_y
+  goto 0 0
+  c #000
+  pen "opacity" 70
+  pen "size" frame_width + frame_height
+  pen "down"
+  pen "up"
+  pen "opacity" 100
+  fx = frame_x
+  fy = frame_y
+  fw = frame_width
+  fh = frame_height
+  frame "clear"
+  window "dimensions" screensize_x screensize_y - 70
+  window "refresh_bg"
+endef
+
 
 desktop_rightclick = [
   "Change Wallpaper",
@@ -97,16 +158,17 @@ nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn
 
 if cnrn.not and nhvr "exit"
-movefileloc windowfileloc
-window "y" 35
-window "dimensions" screensize_x screensize_y - 70
 desktop = data
+
+// set window parameters
+window.drop_location = windowfileloc
+window.width = screensize_x
+window.height = screensize_y - 70
+window.y = 35
+
 if nhvr.not (
   if file_dropped != 0 (
-    loc 2 2 35 -35
-    file "open" file_dropped
-    file "set" "6" (x_position - mouse_x / -70).round * 70
-    file "set" "7" (y_position - mouse_y / -70).round * 70
+    handle_dropped_file
     file_dropped = 0
   )
   if mouse_down and can (
@@ -116,67 +178,24 @@ if nhvr.not (
     window "refresh_bg"
   )
   if mouse_down (
-    sqw = mouse_start_x - mouse_x
-    sqh = mouse_start_y - mouse_y
-    frame mouse_start_x mouse_start_y mouse_x mouse_y
-    goto 0 0
-    c #000
-    pen "opacity" 70
-    pen "size" frame_width + frame_height
-    pen "down"
-    pen "up"
-    pen "opacity" 100
-    fx = frame_x
-    fy = frame_y
-    fw = frame_width
-    fh = frame_height
-    frame "clear"
-    window "dimensions" screensize_x screensize_y - 70
-    window "refresh_bg"
+    render_selection
   ) else (
     if can.not (
       window "refresh_bg"
     )
     can = true
   )
+  reload_extensions
+
   goto 0 0
   square screensize_x screensize_y 1 0 1
-  data_temp = data
-  terminal "get extensions"
-  if data != apps_temp (
-    apps_temp = data
-    each i extension data (
-      data[i] = extension.JsonParse()
-    )
-    len = desktop_rightclick.len
-    desktop_rightclick[len] = ["Apps"].concat(data)
-  )
-  data = data_temp
 
   rightclick desktop_rightclick desktop_uuid
 )
-if "space".pressed (
-  window "stop"
-)
-if data.len == 0 "exit"
-if app_size == 0 "exit"
-if mouse_down or app_positions == {} or bg_redrawn (
-  desktop_apps = desktop
-) else (
-  loc 2 2 35 -35
-  x = (mouse_x - x_position / 70).round * 70
-  y = (mouse_y - y_position / 70).round * 70
-  
-  cur = app_positions[y][x]
-  if desktop.contains(cur) (
-    desktop_apps = []
-    if cur != "" (
-      desktop_apps.append(cur)
-    )
-  ) else (
-    app_positions[y][x] = ""
-  )
-)
+if data.len == 0 or app_size == 0 "exit"
+
+handle_app_culling
+
 if desktop_apps.len == 0 "exit"
 each i app_id desktop_apps (
   file "open" app_id "onlyaccess"
