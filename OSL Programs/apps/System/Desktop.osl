@@ -57,16 +57,16 @@ def "handle_dropped_file"
 endef
 
 def "handle_app_culling"
-  if mouse_down or app_positions == {} or bg_redrawn (
+  if mouse_down or (app_positions == "{}") or bg_redrawn (
     desktop_apps = desktop
   ) else (
     loc 2 2 35 -35
     x = (mouse_x - x_position / 70).round * 70
     y = (mouse_y - y_position / 70).round * 70
-  
+
+    desktop_apps = []
     cur = app_positions[y][x]
     if desktop.contains(cur) (
-      desktop_apps = []
       if cur != "" (
         desktop_apps.append(cur)
       )
