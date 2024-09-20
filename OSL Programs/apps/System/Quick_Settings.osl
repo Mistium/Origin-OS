@@ -190,27 +190,24 @@ if bg_redrawn or mouse_touching (
     icon "sun" 0.7 : c#icn_colour
 
     date = day + day_number + month.trim(1,3)
-    loc 999 2 quick_settings_x + ( date.len + 0.5 * -4 ) -277
+    loc 999 2 quick_settings_x + (date.len + 0.5 * -4) -277
     text date 8
   )
-  if notifications != [] (
+  if notifications.len > 0 (
     y = quick_settings_x - 400 / 1.63 - 75
     loc 999 2 0 y
     square 170 25 20 : c#bg_colour
-    cur = notifications.[1]
-    change_x -70
-    icon cur.icon.str 1 : c#icn_colour
+    cur = notifications[1]
+    icon cur.icon 1 : chx#-70 c#icn_colour
     change 25 6
     start_x = x_position
-    text cur.title.str.trim(1,17) 8 : c#icn_colour
+    text cur.title.trim(1,17) 8 : c#icn_colour
     set_x start_x
-    change_y -17
-    text cur.text.str.trim(1,18) 7
+    text cur.text.trim(1,18) 7 : chy#-17
     if notifications.len > 1 (
       loc 999 2 0 y - 40
       square 65 15 10 : c#bg_colour
-      change_x -32
-      text "View All" 8 : c#icn_colour
+      text "View All" 8 : chx#-32 c#icn_colour
     )
   )
 )
