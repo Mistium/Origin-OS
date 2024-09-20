@@ -43,7 +43,7 @@
     "notifications": "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5",
     "sun": "w 2 cutcircle 0 0 5 0 180 w 3 line 10 0 13 0 line -10 0 -13 0 line 0 10 0 13 line 0 -10 0 -13 line 7 -7 10 -10 line 7 7 10 10 line -7 7 -10 10 line -7 -7 -10 -10",
     "moon": "w 2 cutcircle 2 2 10 -13 100 cutcircle 12 10 15 -13 40",
-    "eye": "w 3 cutcircle 0 -4 10 0 60 cutcircle 0 4 10 18 60 w 5 dot",
+    "eye": "w 3 cutcircle 0 -4 10 0 60 cutcircle 0 4 10 18 60 w 5 dot 0 0",
     "mail": "w 3 line -10 9 -10 -9 cont 10 -9 cont 10 9 cont -10 9 cont 0 0 cont 10 9",
     "edit": "w 4 line -5 10 -10 10 cont -10 -10 cont 10 -10 cont 10 -5 line -2 -2 -2 2 cont 6 10 line -2 -2 2 -2 cont 10 6 cont 6 10",
     "origin-logo": "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10",
