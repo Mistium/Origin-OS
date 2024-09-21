@@ -1,0 +1,62 @@
+windows = Windows()
+
+window_data_change = windows != windows_temp
+
+if window_data_change or redraw_bg (
+  if window_data_change (
+    right_click_menu = [
+      [ "Desktop",
+        "Move To Desktop 1",
+        "Move To Desktop 2",
+        "Move To Desktop 3",
+        "Move To Desktop 4",
+        "Move To Desktop 5"],
+      [ "Tile",
+        "Tile Window To Left",
+        "Tile Window To Right"],
+      "Show File",
+      "-",
+      "Application Info",
+      "View App Errors",
+      "-",
+      "Fullscreen Window",
+      "Minimise Window",
+      "Close Window"
+    ]
+    windows_temp = windows
+    uuids = windows.getKeys("uuid")
+    ids = windows.getKeys("id")
+    shown = windows.getKeys("shown")
+    out_uuids = []
+    out_ids = []
+    for i shown.len (
+      if shown[i] (
+        out_ids.append(ids[i])
+        out_uuids.append(uuids[i])
+      )
+    )
+    out_uuids.trim(1,3)
+    uuids = []
+    ids = []
+    shown = []
+  )
+)
+if out_uuids.len > 0 (
+  width = out_uuids.len * 50 - 10
+  change_x width / 2
+  x = x_position
+  
+  set_y y
+  square width height 20 1
+  goto x - (width / 2) + 20 y
+  each i app out_uuids (
+    file "open" app "onlyaccess"
+    file "render" 1.7
+    rightclick right_click_menu out_ids[i]
+    change_x 50
+  )
+) else (
+  width = 0
+  change_x -30
+  x = x_position
+)
