@@ -23,7 +23,7 @@ loc 2 2 10 -120
 text `${day} ${day_number} ${month} ${year}` 10
 
 loc 2 2 30 -70
-icon w 3 cutcircle 0 0 20 0 180" 1
+icon "w 3 cutcircle 0 0 20 0 180" 1
 pen "down"
 temp = minute * 6
 change temp.sin * 10 temp.cos * 10
