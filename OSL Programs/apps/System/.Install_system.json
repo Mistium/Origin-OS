@@ -30,6 +30,13 @@
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/applications.ode",
     "path": "Origin/(A) System/Docks/Modules",
+    "name": "running.ode",
+    "icon": "",
+    "version":"1"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/Dock/running.ode",
+    "path": "Origin/(A) System/Docks/Modules",
     "name": "applications.ode",
     "icon": "",
     "version":"4.3"
