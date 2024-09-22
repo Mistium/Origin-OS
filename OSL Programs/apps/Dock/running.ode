@@ -1,11 +1,11 @@
 windows = Windows()
 
-if out_uuids.len == 0 (
+if running_uuids.len == 0 (
   width = 0
   change_x -30
   x = x_position
 ) else (
-  width = out_uuids.len * 50 - 10
+  width = running_uuids.len * 50 - 10
   change_x width / 2
   x = x_position
 )
