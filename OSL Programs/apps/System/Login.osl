@@ -24,6 +24,8 @@ signup_return = ""
 
 window.no_desktop = true
 
+round_pfp = "w 2 line 10 10 10 -10 cont -10 -10 cont -10 10 cont 10 10 cutcircle 8 8 2 4. 45 cutcircle 8 -8 2 13.5 40 cutcircle -8 8 2 -4.5 45 cutcircle -8 -8 2 -13.5 45"
+
 mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 15
 
@@ -62,26 +64,23 @@ if accounts == "" (
   goto 0 0
   square 210 40 10 : c#111
   text "Loading Accounts" 10 : c#fff chx#-95
-  goto 90
+  goto 90 0
   icon "w 3 cutcircle 0 0 10" + (timer * 20) + "70" 1 : c#fff
   exit
 )
 
-count = 0
-loop accounts.len (
-  count ++
-  current = accounts.[count]
+each count current accounts (
   loc 2 -2 50 50
   change_x count - 1 * 70
   c current.accent
   square 50 50 15
-  c #000
-  square 50 50 10
+  square 50 50 10 : c#000
   if clicked (
     current_login = count
     login_return = 0
   )
   image current.pfp 50
+  icon round_pfp 2.5
 )
 
 loc 2 -2 count * 70 + 50 50
@@ -103,7 +102,7 @@ if clicked and can (
 
 if current_login.istype("number") (
   if accounts.len > 0 (
-    current = accounts.[current_login]
+    current = accounts[current_login]
     user = current.username
     c current.accent
     goto 0 -40
@@ -133,14 +132,13 @@ if current_login.istype("number") (
       icon "w 3 c #fff line 10 10 -10 -10" 0.7
     )
     goto 0 -210
-    c #000
-    if login_return == "Invalid Details" "c #491515"
-    square 320 30 20 1
+    square 320 30 20 : c#000
     if clicked or "enter".pressed (
       login user pass_name.contents()
     )
     goto 0 70
     image current."pfp" 140
+    icon round_pfp 7 : c#000
     goto -150 -70
     text user 8 : c#fff
     goto -150 -80
