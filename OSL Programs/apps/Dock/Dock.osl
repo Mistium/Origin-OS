@@ -78,7 +78,7 @@ if y > -80 (
   )
   dock_width = (x_position - dock_x).round
   if dock_width != dock_width_temp (
-    dock_width_temp = true
+    dock_width_temp = dock_width
     dock_changed_w = true
   ) else (
     dock_changed_w = false
