@@ -80,7 +80,6 @@ each count current accounts (
     login_return = 0
   )
   image current.pfp 50
-  icon round_pfp 2.5
 )
 
 loc 2 -2 count * 70 + 50 50
@@ -108,8 +107,6 @@ if current_login.istype("number") (
     goto 0 -40
     square 350 400 25 1
     square 350 400 20 1 : c#151515
-    goto 0 70
-    square 150 150 20 1 : c#000
     goto 0 -70
     square 320 30 20 1
     change_y -70
@@ -138,7 +135,7 @@ if current_login.istype("number") (
     )
     goto 0 70
     image current."pfp" 140
-    icon round_pfp 7 : c#000
+    icon round_pfp 7 : c#151515
     goto -150 -70
     text user 8 : c#fff
     goto -150 -80
