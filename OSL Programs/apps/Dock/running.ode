@@ -1,8 +1,14 @@
 windows = Windows()
 
-width = 0
-change_x -30
-x = x_position
+if out_uuids.len == 0 (
+  width = 0
+  change_x -30
+  x = x_position
+) else (
+  width = out_uuids.len * 50 - 10
+  change_x width / 2
+  x = x_position
+)
 
 window_data_change = windows != windows_temp
 
@@ -31,32 +37,30 @@ if window_data_change or redraw_bg or dock_changed_w (
     uuids = windows.getKeys("uuid")
     ids = windows.getKeys("id")
     shown = windows.getKeys("shown")
-    out_uuids = []
+    running_uuids = []
     out_ids = []
     for i shown.len (
       if shown[i] (
         out_ids.append(ids[i])
-        out_uuids.append(uuids[i])
+        running_uuids.append(uuids[i])
       )
     )
-    out_uuids.trim(1,3)
+    running_uuids.trim(1,3)
     uuids = []
     ids = []
     shown = []
   )
-  if out_uuids.len > 0 (
-    width = out_uuids.len * 50 - 10
-    change_x width / 2
-    x = x_position
-  
+  if running_uuids.len > 0 (
     set_y y
     square width height 20 1
     goto x - (width / 2) + 20 y
-    each i app out_uuids (
+    each i app running_uuids (
       file "open" app "onlyaccess"
       file "render" 1.7
       rightclick right_click_menu out_ids[i]
       change_x 50
     )
+    right_click_menu = []
+    out_ids = []
   )
 )
