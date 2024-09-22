@@ -45,6 +45,9 @@ if user.theme.len < 5 or user.theme.istype("object").not (
 
 file_loc = user_folder ++ "/Dock"
 
+
+dock_changed_w = false
+
 mainloop:
 dock_colour = user.dock_colour
 icon_colour = user.icon_colour
@@ -74,6 +77,12 @@ if y > -80 (
     goto width / 2 + x + 15 y
   )
   dock_width = (x_position - dock_x).round
+  if dock_width != dock_width_temp (
+    dock_width_temp = true
+    dock_changed_w = true
+  ) else (
+    dock_changed_w = false
+  )
   dock_x = dock_width / -2
 )
 if open != 0 and mouse_down.not (
