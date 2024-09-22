@@ -60,7 +60,5 @@ if window_data_change or redraw_bg or dock_changed_w (
       rightclick right_click_menu out_ids[i]
       change_x 50
     )
-    right_click_menu = []
-    out_ids = []
   )
 )
