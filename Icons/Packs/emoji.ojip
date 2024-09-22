@@ -26,7 +26,6 @@
     "multiply":"w 3 line 10 10 -10 -10 line -10 10 10 -10",
     "plus":"w 3 line 10 0 -10 0 line 0 10 0 -10",
     "divide":"w 3 line 10 0 -10 0 line 0 7 0 7 line 0 -7 0 -7",
-    "minus":"w 3 line 10 0 -10 0",
     "equals":"w 3 line 10 7 -10 7 line 10 -7 -10 -7",
     "female-sign":"w 3 cutcircle 0 5 5 0 180 line 0 0 0 -10 line -4 -6 4 -6",
     "male-sign":"w 3 cutcircle -3 -3 7 0 180 line 3 3 10 10 cont 10 0 line 10 10 0 10",
