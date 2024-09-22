@@ -1,5 +1,9 @@
 windows = Windows()
 
+width = 0
+change_x -30
+x = x_position
+
 window_data_change = windows != windows_temp
 
 if window_data_change or redraw_bg or dock_changed_w (
@@ -54,9 +58,5 @@ if window_data_change or redraw_bg or dock_changed_w (
       rightclick right_click_menu out_ids[i]
       change_x 50
     )
-  ) else (
-    width = 0
-    change_x -30
-    x = x_position
   )
 )
