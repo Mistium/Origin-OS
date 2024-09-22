@@ -1,7 +1,7 @@
 width = 140
 square 140 height 20 1 0 1 : chx#70
 x = x_position
-if bg_redrawn or mouse_touching (
+if bg_redrawn or mouse_touching or dock_changed_w (
   set_y y
   square 140 height 20 1
   icon "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10" 1 : c#icon_colour
