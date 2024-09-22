@@ -2,7 +2,7 @@ windows = Windows()
 
 window_data_change = windows != windows_temp
 
-if window_data_change or redraw_bg (
+if window_data_change or redraw_bg or dock_changed_w (
   if window_data_change (
     right_click_menu = [
       [ "Desktop",
@@ -40,23 +40,23 @@ if window_data_change or redraw_bg (
     ids = []
     shown = []
   )
-)
-if out_uuids.len > 0 (
-  width = out_uuids.len * 50 - 10
-  change_x width / 2
-  x = x_position
+  if out_uuids.len > 0 (
+    width = out_uuids.len * 50 - 10
+    change_x width / 2
+    x = x_position
   
-  set_y y
-  square width height 20 1
-  goto x - (width / 2) + 20 y
-  each i app out_uuids (
-    file "open" app "onlyaccess"
-    file "render" 1.7
-    rightclick right_click_menu out_ids[i]
-    change_x 50
+    set_y y
+    square width height 20 1
+    goto x - (width / 2) + 20 y
+    each i app out_uuids (
+      file "open" app "onlyaccess"
+      file "render" 1.7
+      rightclick right_click_menu out_ids[i]
+      change_x 50
+    )
+  ) else (
+    width = 0
+    change_x -30
+    x = x_position
   )
-) else (
-  width = 0
-  change_x -30
-  x = x_position
 )
