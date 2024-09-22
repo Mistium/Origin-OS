@@ -12,7 +12,7 @@ if running_uuids.len == 0 (
 
 window_data_change = windows != windows_temp
 
-if window_data_change or redraw_bg or dock_changed_w (
+if window_data_change or bg_redrawn or dock_changed_w (
   if window_data_change (
     right_click_menu = [
       [ "Desktop",
