@@ -25,7 +25,7 @@ mainloop:
 
 direction 90
 
-if timer - last_check_2 > 0.5 (
+if timer - last_check_2 > 1 (
   terminal "get filechanges"
   changes = data.len
   data = ""
