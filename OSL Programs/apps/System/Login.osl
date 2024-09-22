@@ -24,7 +24,7 @@ signup_return = ""
 
 window.no_desktop = true
 
-round_pfp = "w 2 line 10 10 10 -10 cont -10 -10 cont -10 10 cont 10 10 cutcircle 8 8 2 4. 45 cutcircle 8 -8 2 13.5 40 cutcircle -8 8 2 -4.5 45 cutcircle -8 -8 2 -13.5 45"
+round_pfp = "w 2 line 12 12 12 -12 cont -12 -12 cont -12 12 cont 12 12 cutcircle 10 10 2 4. 45 cutcircle 10 -10 2 13.5 40 cutcircle -10 10 2 -4.5 45 cutcircle -10 -10 2 -13.5 45"
 
 mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 15
