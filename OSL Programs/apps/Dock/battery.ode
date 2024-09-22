@@ -1,13 +1,13 @@
 if battery_percent < 100 (
-width = 60
-set_y y
-square 60 height 20 1 0 1 : chx#30
-x = x_position
-if clicked "open = Battery_Info"
-if battery_temp != battery_percent or bg_redrawn (
-battery_temp = battery_percent
-square 60 height 20 1
-if battery_charging "c global_accent" else "c icon_colour"
-text `${battery_percent}%` 10 : chx#-25
-)
+  width = 60
+  set_y y
+  square 60 height 20 1 0 1 : chx#30
+  x = x_position
+  if clicked "open = Battery_Info"
+  if battery_temp != battery_percent or bg_redrawn or dock_changed_w (
+    battery_temp = battery_percent
+    square 60 height 20 1
+    if battery_charging "c global_accent" else "c icon_colour"
+    text `${battery_percent}%` 10 : chx#-25
+  )
 )
