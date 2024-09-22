@@ -108,7 +108,7 @@ if current_login.istype("number") (
     square 350 400 25 1
     square 350 400 20 1 : c#151515
     goto 0 -70
-    square 320 30 20 1
+    square 320 30 20 1 : c#000
     change_y -70
     square 320 30 20 1
     pass_name = "input_password_" ++ current_login
@@ -134,7 +134,7 @@ if current_login.istype("number") (
       login user pass_name.contents()
     )
     goto 0 70
-    image current."pfp" 140
+    image current.pfp 140
     icon round_pfp 7 : c#151515
     goto -150 -70
     text user 8 : c#fff
