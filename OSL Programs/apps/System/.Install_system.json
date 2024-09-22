@@ -67,7 +67,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Login.osl",
     "icon": "c #111 w 12 square 0 0 5 5 w 4 c #fff line -2.5 2.5 2.5 0 line -2.5 -2.5 2.5 0",
-    "version":"2.6"
+    "version":"2.7"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Desktop.osl",
