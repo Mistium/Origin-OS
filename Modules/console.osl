@@ -2,47 +2,48 @@ console = []
 window "show"
 window "dimensions" 800 550
 
-def "console" "command,data1,data2"
-  switch command (
-    case "log"
-      console.append(data1)
-      break
-    case "replace_line"
-      console[data1] = data2
-      break
-    case "remove_line"
-      console.delete(data1)
-      break
-    case "clear"
-      console = []
-      break
-    case "run_ui"
-      this.prim = user.theme.primary
-      c this.prim
-      frame window.left window.top - 40 window.right window.bottom console.len * 20
-      c #fff
-      count = (scroll_y / 20).round
-      loc 2 2 10 -20
-      x = frame.left + 10
-      loop frame.height // 20 (
-        count ++
-        set_x x
-        text console[count] 10
-        change_y -20
-      )
-      frame "clear"
+def "log"
+  console.append(data1)
+endef
 
-      loc 999 2 0 -20
-      square window_width 30 10 : c#333
+def "replace_line"
+  console[data1] = data2
+endef
 
-      loc 2 2 10 -20
-      text title 10 : c#fff
+def "remove_line"
+  console.delete(data1)
+endef
 
-      loc -2 2 -20 -20
-      icon "close" 0.7
-      if clicked (
-        window "stop"
-      )
-      break
+def "clear"
+  console = []
+endef
+
+def "run_ui"
+  this.prim = user.theme.primary
+  this.txt = user.theme.text
+  c this.prim
+  frame window.left window.top - 40 window.right window.bottom console.len * 20
+  c this.txt
+  count = (scroll_y / 20).round
+  loc 2 2 10 -20
+  x = frame.left + 10
+  loop frame.height // 20 (
+    count ++
+    set_x x
+    text console[count] 10
+    change_y -20
+  )
+  frame "clear"
+
+  loc 999 2 0 -20
+  square window_width 30 10 : c#this.prim
+
+  loc 2 2 10 -20
+  text title 10 : c#this.txt
+
+  loc -2 2 -20 -20
+  icon "close" 0.7
+  if clicked (
+    window "stop"
   )
 endef
