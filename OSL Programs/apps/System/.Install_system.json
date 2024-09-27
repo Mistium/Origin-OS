@@ -60,7 +60,7 @@
     "path": "Origin/(A) System/Docks/Modules",
     "name": "battery.ode",
     "icon": "",
-    "version":"2.1"
+    "version":"2.2"
   },
   {
     "url": "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/apps/System/Login.osl",
