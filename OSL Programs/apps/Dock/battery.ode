@@ -1,4 +1,4 @@
-if battery_percent < 100 (
+if battery_percent < 100 and battery_percent > 0 (
   width = 60
   set_y y
   square 60 height 20 1 0 1 : chx#30
