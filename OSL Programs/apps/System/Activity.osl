@@ -1,6 +1,6 @@
 import "window_tools"
 
-ermission "request" "terminal"
+permission "request" "terminal"
 permission "request" "Javascript"
 window "show"
 window "dimensions" 600 400
