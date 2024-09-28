@@ -104,7 +104,6 @@ graph.append(usage)
 if graph.len > 1000 (
   graph.delete(1)
 )
-import "side-bar"
 frames = fps.round
 if high < frames "high = frames"
 if low > frames "low = frames"
