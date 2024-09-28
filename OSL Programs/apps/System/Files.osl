@@ -1,4 +1,5 @@
-import "window_tools"
+import as "window_tools"
+import as "glass" from "packages"
 
 permission "request" "file admin"
 
@@ -61,29 +62,32 @@ if passed_data != "" (
 )
 
 def "folder" "txt"
-  con = hidden.contains(txt)
+  this.con = hidden.contains(txt)
   loc 2 2 125 y
   square 225 20 15 0 1
   if mouse_touching (
     if onclick (
-      if con "hidden.delete(txt)" else "hidden.append(txt)"
+      if this.con (
+        hidden.delete(txt)
+      ) else (
+        hidden.append(txt)
+      )
     )
     square 225 20 15 : c#seco
     square 225 20 10 : c#prim
   )
   change_x 100
   c txtc
-  if con (
-    icon "down" 0.6
-  ) else (
-    icon "up" 0.6
-  )
+  icon this.con ? "right" "down" 0.6
   change_x -210
-  text txt.str 8
+  text txt.str 9
   y -= 35
 endef
 
-def "file_folder" "path_input,txt,folder"
+def "file_folder" "txt,folder"
+  this.cur = icons[txt]
+  path_input = this.cur.path
+  this.icn = this.cur.icn
   if hidden.contains(folder).not (
     loc 2 2 125 y
     square 225 20 10 0 1
@@ -95,7 +99,8 @@ def "file_folder" "path_input,txt,folder"
       square 225 20 10 : c#prim
     )
     change_x -95
-    icon icons[txt] 0.9
+    stretch [100,100]
+    icon this.icn 0.9
     c txtc : chx#30
     text txt 8
     y -= 35
@@ -116,8 +121,8 @@ def "render_tabs"
     temp = 10 - offset
     loc 2 2 count - 0.5 * width2 - temp -22
     if count == current_tab (
-      square width 25 15 : c#seco
-      square width 25 10 : c#prim
+      square width - 20 0 5 : c#seco chy#-20
+      square width 25 15 : c#prim chy#20
     ) else (
       square width 25 15 : c#prim
       if onclick (
@@ -279,7 +284,7 @@ def "render_files"
           files_selected_id = 0
         )
       )
-      loc 2 2 30 draw_y
+      loc 2 2 25 draw_y
       file "render" 1 : c#txtc
       c txtc
       change_x 30
@@ -288,19 +293,19 @@ def "render_files"
       max_chars = frame.width - 370 / 9
       file "get" 1
       if data == ".folder" (
-        text data2.trimText(max_chars) 9
+        text data2.trimText(max_chars) 8
         loc -2 2 -300 draw_y
         text "Folder" 9
         
         loc -2 2 -100 draw_y
         file "get" 4
-        text data.len + "Items" 9
+        text data.len + "Items" 8
       ) else (
         data2 += data
-        text data2.trimText(max_chars) 9
+        text data2.trimText(max_chars) 8
         loc -2 2 -300 draw_y
         data = file_types[data][2]
-        text data == "" ? "Document" data 9
+        text data == "" ? "Document" data 8
         loc -2 2 -100 draw_y
         file "get" 12
         text data < 1000 ? (data + "b") ((data / 100).ceiling / 10 + "kb") 9
@@ -308,7 +313,7 @@ def "render_files"
     )
   ) else (
     loc 999 2 -100 -20
-    text "This folder is empty" 10 : c#txtc
+    text "This folder is empty" 9 : c#txtc
   )
   frame "clear"
   if input_path == (user_folder ++ "/bin") (
@@ -324,29 +329,36 @@ def "render_files"
   )
 endef
 
-icons = {}
-file "open" user_path ++ "Desktop.folder"
-icons.Desktop = file[11]
-file "open" user_path ++ "Downloads.folder"
-icons.Downloads = file[11]
-file "open" user_path ++ "Documents.folder"
-icons.Documents = file[11]
-file "open" user_path ++ "Bin.folder"
-icons.Bin = file[11]
-file "open" "Origin/(A) System.folder"
-icons.System = file[11]
-file "open" "Origin/(B) Local.folder"
-icons.Local = file[11]
-file "open" "Origin/(C) Users.folder"
-icons.Users = file[11]
-icons[username] = "image" + user_icon + "20"
+def "load_favorite" "this.name"
+  file "open" user_path ++ this.name ++ ".folder" "onlyaccess"
+  file "get" 11
+  data = {}.insert("icn",data)
+  data.path = user_path ++ this.name
+  icons[this.name] = data
+endef
 
-desktop = user_path ++ "Desktop"
-downloads = user_path ++ "Downloads"
-documents = user_path ++ "Documents"
-bin = user_path ++ "Bin"
+def "load_drive" "this.name, this.outname"
+  file "open" "origin/" ++ this.name ++ ".folder" "onlyaccess"
+  file "get" 11
+  data = {}.insert("icn",data)
+  data.path = "origin/" ++ this.name
+  icons[this.outname] = data
+endef
+
+icons = {}
+load_favorite "Desktop"
+load_favorite "Documents"
+load_favorite "Applications"
+load_favorite "Downloads"
+load_favorite "Bin"
+
+load_drive "(A) System" "System"
+load_drive "(B) Local" "Local"
+load_drive "(C) Users/" ++ username username
+icons[username].icn = "image" + user_icon + "20"
+
 mainloop:
-  load_theme
+  window_tools:load_theme
   
   if tabs.len == 0 or tabs.istype("array").not (
     setup_tabs
@@ -354,12 +366,14 @@ mainloop:
   if mouse_down.not "can = true"
   w = window_width
   sideshow = w > 700
-  loc 999 -2 0 12
-  square w 30 15 : c#prim
   if sideshow (
-    loc 2 999 125 -29
-    square 250 window_height - 58 15
-    loc 999 2 105 -70
+    pen ""
+    glass:frame window.left window.top - 50 window.left + 250 window.bottom
+    c window_colour
+    pen "opacity" 30
+    icon "w 999 dot 0 0" 80
+    frame "clear"
+    loc 999 2 100 -70
   ) else (
     loc 999 2 20 -70
     w += 170
@@ -377,25 +391,35 @@ mainloop:
   loc -2 2 -30 -70
   square 25 25 15 : c#prim
   icon "search" 0.8 : c#txtc
+  
+  loc 999 -2 0 12
+  if sideshow (
+    change_x 126
+  ) else (
+    w += 100
+  )
+  square w - 250 40 0 : c#prim
   if sideshow (
     y = -110
     folder "Favorites"
-    file_folder desktop "Desktop" "Favorites"
-    file_folder downloads "Downloads" "Favorites"
-    file_folder documents "Documents" "Favorites"
-    file_folder Bin "Bin" "Favorites"
+    file_folder "Desktop" "Favorites"
+    file_folder "Downloads" "Favorites"
+    file_folder "Documents" "Favorites"
+    file_folder "Applications" "Favorites"
+    file_folder "Bin" "Favorites"
     folder "Drives"
-    file_folder "Origin/(A) System" "System" "Drives"
-    file_folder "Origin/(B) Local" "Local" "Drives"
-    file_folder user_folder username "Drives"
+    file_folder "System" "Drives"
+    file_folder "Local" "Drives"
+    file_folder username "Drives"
   )
-  loc 2 2 30 -120
-  if sideshow "change 240"
-  text "New |" 11 : c#txtc
+  loc 2 2 20 -118
+  if sideshow "change 250"
+  icon "add" 0.7 : c#txtc
   if onclick (
-    window "add" "New_File" files_app_path
+    window "add" "New_File" input_path
   )
-  change -15 2
+  icon "w 3 line 0 -8 0 8" 0.7 : chx#20
+  change -10
   if selected_files.len != 1 (
     files_buttons = []
   ) else (
@@ -411,7 +435,7 @@ mainloop:
       c txtc
       cur = ""
       for count files_buttons.len (
-        icon files_buttons[count] 0.8 : chx#30
+        icon files_buttons[count] 0.7 : chx#30
         if onclick (
           switch files_buttons[count] (
             case "open"

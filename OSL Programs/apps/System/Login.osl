@@ -27,11 +27,18 @@ window.no_desktop = true
 round_pfp = "w 2 line 11 11 11 -11 cont -11 -11 cont -11 11 cont 11 11 cutcircle 9 9 2 4. 45 cutcircle 9 -9 2 13.5 40 cutcircle -9 9 2 -4.5 45 cutcircle -9 -9 2 -13.5 45"
 
 mainloop:
-window "dimensions" screensize_x + 20 screensize_y + 15
+window "dimensions" screensize_x + 20 screensize_y + 20
+stretch [100,100]
 
 if new_network_data (
   if network_data_command == "get_my_accounts" (
     accounts = network_data
+    each count current accounts (
+      network "getsync_asurl" current.pfp
+      js = "`data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='circleClip'><circle cx='50' cy='50' r='50' /></clipPath></defs><image href='" ++ data ++ "' x='0' y='0' height='100' width='100' clip-path='url(#circleClip)' /></svg>`)}`"
+      current.pfp = js.eval
+      accounts[count] = current
+    )
     window "refresh_bg"
   )
   if network_data_command == "login" (
@@ -69,57 +76,85 @@ if accounts == "" (
   exit
 )
 
-each count current accounts (
-  loc 2 -2 50 50
-  change_x count - 1 * 70
-  c current.accent
-  square 50 50 15
-  square 50 50 10 : c#000
-  if clicked (
-    current_login = count
-    login_return = 0
-  )
-  image current.pfp 50
-)
+goto 0 -40
+square w h 25 1 : c#current.accent
+square w h 20 1 : c#111
+goto x * -1 70
+goto 0 0
+frame w / -2 - 5 h / 2 - 35 -10 h / -2 - 45
+image "wallpaper_blur" background_width background_height
+frame "clear"
+stretch [100,100]
 
-loc 2 -2 count * 70 + 50 50
-if current_login == "add" "square 50 50 15 : c#57cdac"
-square 50 50 10 : c#000
+frame w / -2 - 5 h / 2 - 35 -10 h / -2 - 45 accounts.len * 70 - 20
+loc 999999 2 0 -40 + scroll_y
+x = x_position
+if accounts.len == 0 (
+  loc 2 2 20 -30
+  text "No Accounts" 10 : c#fff
+) else (
+  each count current accounts (
+    square frame.width 70 20 0 1
+    if clicked (
+      window "refresh_bg"
+      current_login = count
+      login_return = 0
+    )
+    pen "size" 60
+    c #000
+    pen "opacity" 60
+    set_x frame.left + 40
+    pen "down"
+    set_x frame.right - 40
+    pen "up"
+    set_x frame.left + 40
+    image current.pfp 50
+    // icon round_pfp 2.5 : c#050505
+    text current.username 8 : c#fff chx#40
+    set_x x
+    change_y -70
+  )
+)
+frame "clear"
+
+loc 2 -2 50 50
+square 45 45 17 : c#000
 icon "w 4 line 10 0 -10 0 line 0 10 0 -10" 1 : c#fff
 if clicked and can (
+  window "refresh_bg"
   current_login = "Add"
   can = false
 )
 change_x 70
-if current_login == "login" "square 50 50 15 : c#57cdac"
-square 50 50 10 : c#000
+square 45 45 17 : c#000
 icon "w 3 line -10 5 -10 10 cont 10 10 cont 10 -10 cont -10 -10 cont -10 -5 line -2 5 3 0 line -2 -5 3 0 line -10 0 3" 1 : c#fff
 if clicked and can (
+  window "refresh_bg"
   current_login = "Login"
   can = false
 )
+
+x = 200
+w = 800
+h = 500
 
 if current_login.istype("number") (
   if accounts.len > 0 (
     current = accounts[current_login]
     user = current.username
-    c current.accent
-    goto 0 -40
-    square 350 400 25 1
-    square 350 400 20 1 : c#151515
-    goto 0 -70
+    goto x -70
     square 320 30 20 1 : c#000
     change_y -70
     square 320 30 20 1
     pass_name = "input_password_" ++ current_login
     if input_shown (
-      goto -25 -140
+      goto x-25 -140
       input 250 25 "password_" ++ current_login "Password..."
     ) else (
-      goto -25 -140
+      goto x-25 -140
       input 250 25 "hidden.password_" ++ current_login "Password..."
     )
-    goto 140 -140
+    goto x+140 -140
     icon "eye" 0.7
     if clicked and can (
       can = false
@@ -128,83 +163,88 @@ if current_login.istype("number") (
     if input_shown.not (
       icon "w 3 c #fff line 10 10 -10 -10" 0.7
     )
-    goto 0 -210
+    goto x -210
     square 320 30 20 : c#000
     if clicked or "enter".pressed (
       login user pass_name.contents()
     )
-    goto 0 70
+    goto x 70
     image current.pfp 140
-    icon round_pfp 7 : c#151515
-    goto -150 -70
+    icon round_pfp 7 : c#111
+    goto x-150 -70
     text user 8 : c#fff
-    goto -150 -80
-    goto -150 -210
+    goto x-150 -80
+    goto x-150 -210
     text "Login" 8
     if status == "Login" (
-      goto 0 -50
+      goto x -50
       icon "w 5 cutcircle 0 0 20" + (timer * 20) + "70" 1 : c#fff
     )
   )
 )
 
 if current_login == "add" (
-  goto 0 -40
-  square 350 400 25 1 : c#000
-  square 350 400 20 1 : c#151515
-  goto 0 70
-  square 150 150 20 1 : c#000
+  goto x 70
   image no_account 140
 
-  goto 0 -70
-  square 320 30 20 : c#000
-  input 300 25 "signup_name" "Username..."
+  goto x -70
+  square 320 30 20 1 : c#000
+  goto x-25 -70
+  input 250 25 "signup_name" "Username..."
 
-  goto 0 -140
-  square 320 30 20 : c#000
-  input 300 25 "signup_pass" "Password..."
+  goto x -140
+  square 320 30 20 1 : c#000
+  goto x-25 -140
+  input 250 25 "signup_pass" "Password..."
 
-  goto 0 -210 : c#000
-  if signin_return != "" "c #491515"
+  goto x -210 : c#000
+  if signup_return != "" "c #491515"
   square 320 30 20
   if clicked or "enter".pressed and (status == "") (
     network "new_account" input_signup_name input_signup_pass
     status = "Waiting"
   )
   text "Create Account" 8 : c#fff chx#-150
-  goto -150 -20
+  goto x -20
   text signup_return 9
 )
 
 if current_login == "login" (
-  goto x -40
-  square 350 400 25 1 : c#000
-  square 350 400 20 1 : c#151515
-  goto 0 70
-  square 150 150 20 1 : c#000
+  goto x 70
   image no_account 140
 
-  goto 0 -70
-  square 320 30 20 : c#000
-  input 300 25 "signup_name" "Username..."
+  goto x -70
+  square 320 30 20 1 : c#000
+  goto x-25 -70
+  input 250 25 "login_name" "Username..."
 
-  goto 0 -140
-  square 320 30 20 : c#000
+  goto x -140
+  square 320 30 20 1 : c#000
   if input_shown (
-    input 300 25 "signup_pass" "Password..."
+    goto x-25 -140
+    input 250 25 "login_pass" "Password..."
   ) else (
-    input 300 25 "hidden.signup_pass" "Password..."
+    goto x-25 -140
+    input 250 25 "hidden.login_pass" "Password..."
+  )
+  goto x+140 -140
+  icon "eye" 0.7
+  if clicked and can (
+    can = false
+    input_shown = input_shown.not
+  )
+  if input_shown.not (
+    icon "w 3 c #fff line 10 10 -10 -10" 0.7
   )
 
-  goto 0 -210 : c#000
-  if login_return != "" "c #491515"
-  square 320 30 20
-  if clicked or "enter".pressed and (status == "") (
-    network "login" input_signup_name input_signup_pass
+  goto x -210
+  square 320 30 20 : c#000
+  if clicked or "enter".pressed (
+    network "login" input_login_name input_login_pass
     status = "Waiting"
   )
   text "Login" 8 : c#fff chx#-150
-  goto -150 -20
+  goto x -20
   text login_return 9
 )
 

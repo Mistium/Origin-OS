@@ -1,4 +1,5 @@
 import "window_tools"
+import as "glass" from "packages"
 load_theme
 
 permission "request" "save admin"
@@ -170,8 +171,8 @@ def "system"
         if "granted" in (data + data2) (
           terminal "get mediadevices"
           media = data
-          keys = media.getall("keys")
-          types = media.getall("values").getall("type")
+          keys = media.getKeys()
+          types = media.getValues().getKeys("type")
         ) else (
           media = "Please Grant Origin Microphone And Camera Permissions"
         )
@@ -835,11 +836,12 @@ def "Appearance"
 endef
 
 def "account"
-  loc 999 2 0 -90
-  square frame_width - 60 100 10 : c#prim
+  loc 999 2 0 -85
+  square frame_width - 25 130 15 : c#prim
   
-  loc 2 2 80 -90
-  image user_icon.str 90 90
+  loc 2 2 78 -85
+  image user_icon.str 120 120
+  icon round_pfp 5.8 : c#prim
   square 90 90 12 0 1
   if timer - upload_time < 5 and current_pfp != "" (
     direction timer * 300
@@ -879,12 +881,9 @@ def "account"
     network "get" "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json"
     all_badges = data
   )
-
-  if all_badges.istype("array") (
+  if all_badges.istype("object") (
     badges = user["sys.badges"]
-    loc -2 2 -30 - (badges.len * 15) -170
-    square badges.len * 30 20 10 : c#prim
-    change_x badges.len - 1 * 15
+    loc -2 2 -30 -130
     each badge badges (
       icon all_badges[badge].icon 1.2 : tooltip#badge
       if onclick (
@@ -897,12 +896,13 @@ def "account"
 endef
 
 def "time"
+  w = frame_width - 25
   loc 999 2 0 -40
-  square frame_width - 20 40 10 1 : c#prim
+  square w 40 15 1 : c#prim
   loc 999 2 0 -100
-  square frame_width - 20 40 10 1
+  square w 40 15 1
   loc 999 2 0 -160
-  square frame_width - 20 40 10 1
+  square w 40 15 1
   loc 2 2 20 -40
   text `Timezone: ${timezone}` 8 : c#txtc
   loc 2 2 20 -100
@@ -971,10 +971,15 @@ def "credits"
     )
   )
   if subcategory == "Extensions" (
+    w = frame_width - 25
     for count extensions.len (
       y = count - 0.5 * -60 + scroll_y
       loc 999 2 0 y
-      square frame_width - 20 40 10 : c#prim
+      square w 40 15 1 : c#prim
+      if mouse_touching (
+        square w 40 15 : c#seco
+        square w 40 10 1 : c#prim
+      )
       loc 2 2 15 y
       text extensions[count] 9 : c#txtc
     )
@@ -1018,6 +1023,7 @@ save "wallpapers.json" "get"
 wallpapers = save_data
 if wallpapers.len < 1 or wallpapers.istype("Array").not (
   wallpapers = [
+    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png",
     "https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg",
@@ -1039,6 +1045,10 @@ themes = {
   "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3"},
 }
 
+
+round_pfp = "w 2 line 11 11 11 -11 cont -11 -11 cont -11 11 cont 11 11 cutcircle 9 9 2 4. 45 cutcircle 9 -9 2 13.5 40 cutcircle -9 9 2 -4.5 45 cutcircle -9 -9 2 -13.5 45"
+
+
 system
 // file type pages
 ftkeys = file_types.getKeys()
@@ -1047,6 +1057,13 @@ ftvalues = file_types.getValues()
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
+glass:frame window.left window.top window.right window.bottom
+c window_colour
+pen "opacity" 80
+icon "w 99999 dot 0 0" 10
+pen "opacity" 0
+frame "clear"
+
 loc 999 2 120 -20
 square window_width - 215 40 15 : c#prim
 

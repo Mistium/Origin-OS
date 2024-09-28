@@ -25,15 +25,15 @@ loc 999 2 0 -113
 square 250 30 10 : c#prim
 if clicked or "enter".onpress (
   dta = input_main.split(".")
-  file "set" 2 dta.item(1).destr
-  file "set" 1 "." ++ dta.item(2).destr
+  file "set" 2 dta[1].destr
+  file "set" 1 "." ++ dta[2].destr
   window "stop"
 )
 change_x -30
 text "Rename" 8 : c#txtc
 
 loc 999 2 0 -15
-square 270 20 15 : c#seco
+square 270 20 15 : c#prim
 
 loc -2 2 -15 -15
 icon "close" 0.6 : c#txtc
