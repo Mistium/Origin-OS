@@ -1,3 +1,5 @@
+import as "glass" from "packages"
+
 window "show"
 network "set_app_id" "Studio"
 
@@ -21,23 +23,23 @@ sidebar_items = 0
 window "set_dragbox" [[2,2,40,0],[-2,2,-150,-40]]
 
 def "draw_buttons"
+  loc -2 2 -50 -20
+  square 80 20 10 : c#window_colour
   loc -2 2 -20 -20
-
-  square 20 20 10 : c#c_seco hover_size#1.1
+  
+  
   icon "close" 0.6 : c#c_text
   if onclick (
     window "stop"
   )
-
-  square 20 20 10 : c#c_seco chx#-40 hover_size#1.1
-  if mouse_touching "square 20 20 12"
+  
+  change_x -30
   icon "down" 0.6 : c#c_text
   if onclick (
     window "minimise"
   )
 
-  square 20 20 10 : c#c_seco chx#-40 hover_size#1.1
-  if mouse_touching "square 20 20 12"
+  change_x -30
   icon "maximise" 0.6 : c#c_text
   if onclick (
     window "maximise"
@@ -52,6 +54,7 @@ c_prim = theme.primary
 c_seco = theme.secondary
 c_tert = theme.tertiary
 c_text = theme.text
+window_colour = theme.background
 
 if new_transmit (
   if window.children.contains(transmit_source) (
@@ -61,6 +64,9 @@ if new_transmit (
 )
 
 if mouse_down.not "can = true"
+
+goto 0 window.top - 20
+glass:frame window.left window.top window.right window.bottom;frame "clear"
 
 if current_studio_page == "Recent Files" (
   loc 2 2 60 -22
@@ -117,16 +123,19 @@ if current_studio_page == "Recent Files" (
 )
 
 if current_studio_page == "Home" (
-  loc 2 2 30 -30
+  goto 0 -20
+  square window.width - 20 window.height - 65 10 : c#window_colour
+  loc 2 2 20 -20
+  stretch [100,100]
   image user_icon.tostr() 30
   text `Heya ${username}!` 10 : c#c_text chx#30
 
   w = window_width / 2
   w2 = w - 40
-  loc 2 2 20 -85
+  loc 2 2 20 -75
   text "New File" 8
 
-  loc 999 2 0 -80
+  loc 999 2 0 -75
   text "Recent Files" 8
   
   loc 2 2 w / 2 - 5 -290
@@ -137,7 +146,7 @@ if current_studio_page == "Home" (
   change_x w2 / -2 + 10
   text "Open File" 9 : c#c_text
 
-  loc 2 2 w / 2 - 5 -125
+  loc 2 2 w / 2 - 2.5 -125
   square w2 30 10 : c#c_prim
   input w2 - 10 25 "name" "hello world.txt" 10 c_text
   change_y -55
@@ -190,7 +199,7 @@ if current_studio_page == "Home" (
     )
   )
   frame "clear"
-  loc -2 2 -30 -80
+  loc -2 2 -32 -75
   square 30 15 10 : c#c_prim hover_size#1.1
   if mouse_touching (
     cursor "pointer"
@@ -213,22 +222,13 @@ if new_network_data (
   new_network_data = false
 )
 
-loc 2 999 75 -25
-square 40 window_height - 50 10 1 : c#c_seco
-loc 999 2 0 -22
-square window_width 30 20 : c#c_prim
-loc 2 999 25 0
-square 35 window_height 20
 if preview_open "right = window.right - 400" else "right = window.right"
-draw_buttons
 
+goto 25 -25
+square window.width - 60 window.height - 40 10 : c#window_colour
+goto -25 window.top - 20
+square window.width - 160 20 10 : c#window_colour
+
+draw_buttons
 loc 2 2 25 -25
-loop sidebar_items (
-  square 30 30 15 : c#c_prim
-  if mouse_touching (
-    square 30 30 15 : c#c_seco
-    square 30 30 mouse_left ? 7 10 : c#c_prim
-  )
-  change_y -50
-)
 sidebar_items = 0

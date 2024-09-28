@@ -1,3 +1,4 @@
+import as "glass" from "packages"
 import "window_tools"
 
 permission "request" "account"
@@ -10,9 +11,7 @@ balance = user["sys.currency"]
 transactions = user["sys.transactions"]
 
 loc 2 999 100 0
-square 200 window.height 10 : c#prim
-loc 999 2 0 -20
-square window.width 40 10
+glass:frame window.left window.top window.right window.bottom; frame "clear"
 loc 2 2 10 -20
 text "My Wallet" 10 : c#txtc
 loc 2 2 100 -100
@@ -84,9 +83,12 @@ if menu == "transfer" (
       loc 999 2 30 -70
       text "No Transactions" 10 : c#txtc
     ) else (
-      frame window.left + 210 window.top - 35 window.right window.bottom transactions.len * 35
+      frame window.left + 200 window.top - 35 window.right window.bottom transactions.len * 35
+      c window_colour
+      pen "opacity" 80
+      icon "w 999 dot 0 0" 100
       each i txt transactions (
-        y = i * -35 + scroll_y
+        y = i - 0.5 * -35 + scroll_y - 5
         loc 999 2 0 y
         square frame_width - 20 20 10 : c#prim
         loc 2 2 10 y

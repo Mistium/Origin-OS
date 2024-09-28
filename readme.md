@@ -1,4 +1,4 @@
-# originOS Rift
+# originOS Dawn
 
 <p align="center">
 The Most Advanced Gui Based ScratchOS<br>
@@ -15,8 +15,8 @@ The Most Advanced Gui Based ScratchOS<br>
 
 Current Kernel Info:
 ```
-Name     -   Rift
-Version  -   0.9.5
+Name     -   Dawn
+Version  -   1.0.0
 ```
 
 # [Try origin here](https://launcher.mistium.com)
@@ -52,36 +52,6 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 ## Repo Tracker
 
 [originOS stats](https://repo-tracker.com/r/gh/Mistium/Origin-OS)
-
-## Features
-```
-Fully featured programming language for coding applications within the OS (called osl),
-using Studio (origin's own text editor and development environment)
-
-Windowed Applications
-Resizble Windows
-Window Control Flags
-In System IDE
-Application Permissions
-Files
-Version Loader
-Drag And Drop
-Network Access
-Clipboard Systems
-Url Based Image Rendering
-Battery Info
-Terminal
-Custom Websites System (Accessable from owtp:// on summit)
-Custom Vector Icon Programaming Language (ICN)
-```
-
-Plus a suite of system applications for:
-```
-managing files
-debugging
-interacting with accounts
-+ way more
-```
 
 <p align="center">
 Join My Patreon To Help Support Me And originOS and get increased storage space on your origin account<br>

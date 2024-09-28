@@ -22,6 +22,7 @@ if onclick (
   selected_user = ""
 )
 length = list.len * 40
+c #seco
 frame window.left window.top - 50 window.left + 300 window.bottom + 50 length
   if length == 0 (
     loc 2 2 10 -20
