@@ -3,5 +3,6 @@
   "character_controller":"A 3d character controller",
   "console":"Easily create console based applications for text based interactions",
   "discord":"A powerful package for making discord bots",
-  "brainfuck":"Run brainfuck files and code inside your osl applications"
+  "brainfuck":"Run brainfuck files and code inside your osl applications",
+  "glass":"Origin UI system"
 }
