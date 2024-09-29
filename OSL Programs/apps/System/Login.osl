@@ -61,8 +61,6 @@ if new_network_data (
 
 if status == "Waiting" or (status == "login") (
   goto 0 -40
-  square 350 400 25 1 : c#000
-  square 350 400 20 1 : c#151515
   icon "w 3 cutcircle 0 0 20" + (timer * 20) + "70" 2 : c#fff
   exit
 )
