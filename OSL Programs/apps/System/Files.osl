@@ -19,6 +19,7 @@ files = []
 selected_files = []
 drag_id = 0
 
+sorting_mode = "Modified^"
 
 dta = ""
 can = true
@@ -33,6 +34,36 @@ def "navigate" "path"
   tabs[current_tab].position = pos
   tabs[current_tab].history = tabs[current_tab].history.trim(1,pos - 1).append(tab_data)
   input_path = path
+endef
+
+def "sort_files(this.files)"
+  new_files = []
+  each i file this.files (
+    obj = {}
+    
+    file "open" file "onlyaccess"
+    obj.uuid = file
+    
+    file "get" 1
+    this.type = data
+    file "get" 2
+    obj.name = data ++ this.type
+    
+    file "get" 10
+    obj.modified = data
+    
+    this.type = file_types[this.type][2]
+    obj.type = this.type == "" ? "Document" this.type
+    if this.type == "Folder" (
+      file "get" 4
+      obj.size = data.len
+    ) else (
+      file "get" 12
+      obj.size = data
+    )
+    new_files.append(obj)
+  )
+  return new_files.sortBy(sorting_mode).getKeys("uuid")
 endef
 
 def "refresh"
@@ -165,21 +196,29 @@ def "render_tabs"
   )
 endef
 
+def "sorting_option" "this.sort_name"
+  text this.sort_name 8
+  if sorting_mode.startsWith(this.sort_name) (
+    icon "down" 0.4 : chx#20
+  )
+endef
+
 def "render_files"
   if window.width > 700 (
-    loc 2 2 260 -140
+    loc 2 2 260 -160
   ) else (
-    loc 2 2 5 -140
+    loc 2 2 5 -160
   )
-  temp_x = x_position
-  temp_y = y_position
+  this.temp_x = x_position
+  this.temp_y = y_position
+  loc -2 -2 0 32
   if window.width > 1000 and selected_files.len != 0 (
-    loc -2 -2 -292 32
-  ) else (
-    loc -2 -2 -4 32
+    change_x -292
   )
-  c prim
-  frame temp_x temp_y x_position y_position files.len * 45
+  this.temp_x2 = x_position
+  this.temp_y2 = y_position
+  
+  frame this.temp_x this.temp_y this.temp_x2 this.temp_y2 files.len * 45 : c#prim
   window.drop_location = null
   if input_path == "origin" (
     files = []
@@ -189,11 +228,14 @@ def "render_files"
       file "open" input_path ++ ".folder" "onlyaccess"
       file "get" 4
       window.drop_location = input_path
-      if data != current_folder_update (
-        files = data
+      if data != current_folder_update or sorting_mode != temp_sorting_mode (
         current_folder_update = data
+        files = file_sort(data)
+
         file "get" 14
         current_folder_uuid = data
+        
+        temp_sorting_mode = sorting_mode
       )
     ) else (
       files = []
@@ -291,11 +333,16 @@ def "render_files"
       file "get" 2
       data2 = data
       max_chars = frame.width - 370 / 9
+      file "get" 10
+      this.edited_time = timestamp - data < 172800000 ? data.timestamp("convert-relative") data.timestamp("convert-date")
       file "get" 1
       if data == ".folder" (
         text data2.trimText(max_chars) 8
-        loc -2 2 -300 draw_y
-        text "Folder" 9
+        loc -2 2 -400 draw_y
+        text this.edited_time 8
+        
+        loc -2 2 -250 draw_y
+        text "Folder" 8
         
         loc -2 2 -100 draw_y
         file "get" 4
@@ -303,12 +350,16 @@ def "render_files"
       ) else (
         data2 += data
         text data2.trimText(max_chars) 8
-        loc -2 2 -300 draw_y
+        
+        loc -2 2 -400 draw_y
+        text this.edited_time 8
+        
+        loc -2 2 -250 draw_y
         data = file_types[data][2]
         text data == "" ? "Document" data 8
         loc -2 2 -100 draw_y
         file "get" 12
-        text data < 1000 ? (data + "b") ((data / 100).ceiling / 10 + "kb") 9
+        text data < 1000 ? (data + "b") ((data / 100).ceiling / 10 + "kb") 8
       )
     )
   ) else (
@@ -327,6 +378,14 @@ def "render_files"
     )
     text "Empty Bin" 9 : c#txtc chx#-40
   )
+  goto this.temp_x + 55 this.temp_y + 15
+  sorting_option "Name"
+  set_x this.temp_x2 - 115
+  sorting_option "Size"
+  set_x this.temp_x2 - 260
+  sorting_option "Type"
+  set_x this.temp_x2 - 410
+  sorting_option "Modified"
 endef
 
 def "load_favorite" "this.name"
@@ -367,7 +426,7 @@ mainloop:
   w = window_width
   sideshow = w > 700
   if sideshow (
-    pen ""
+    c prim
     glass:frame window.left window.top - 50 window.left + 250 window.bottom
     c window_colour
     pen "opacity" 30
@@ -522,5 +581,6 @@ mainloop:
   icon "right-arrow" 0.8
   
   render_files
+  
   if mouse_down.not "can = true"
   import "win-buttons"
