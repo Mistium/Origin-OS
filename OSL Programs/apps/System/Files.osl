@@ -19,7 +19,8 @@ files = []
 selected_files = []
 drag_id = 0
 
-sorting_mode = "Modified^"
+sorting_mode = "name"
+sorting_dir = "descending"
 
 dta = ""
 can = true
@@ -45,25 +46,25 @@ def "sort_files(this.files)"
     obj.uuid = file
     
     file "get" 1
-    this.type = data
+    this.filetype = data
     file "get" 2
-    obj.name = data ++ this.type
+    obj.name = data ++ this.filetype
     
     file "get" 10
-    obj.modified = data
+    obj.modified = timestamp - data
     
-    this.type = file_types[this.type][2]
-    obj.type = this.type == "" ? "Document" this.type
-    if this.type == "Folder" (
+    this.filetype = file_types[this.filetype][2]
+    obj.filetype = this.filetype == "" ? "Document" this.filetype
+    if this.filetype == "Folder" (
       file "get" 4
-      obj.size = data.len
+      obj.size = data.len.padStart(20,"0")
     ) else (
       file "get" 12
-      obj.size = data
+      obj.size = data.padStart(20,"0")
     )
     new_files.append(obj)
   )
-  return new_files.sortBy(sorting_mode).getKeys("uuid")
+  return new_files.sortBy(sorting_mode.toLower(),sorting_direction).getKeys("uuid")
 endef
 
 def "refresh"
@@ -198,8 +199,20 @@ endef
 
 def "sorting_option" "this.sort_name"
   text this.sort_name 8
-  if sorting_mode.startsWith(this.sort_name) (
-    icon "down" 0.4 : chx#20
+  if sorting_mode == this.sort_name (
+    if onclick (
+      if sorting_direction == "ascending" (
+        sorting_direction = "descending"
+      ) else (
+        sorting_direction = "ascending"
+      )
+    )
+    icon sorting_direction == "ascending" ? "up" "down" 0.4 : chx#20
+  ) else (
+    if onclick (
+      sorting_mode = this.sort_name
+      sorting_direction = "ascending"
+    )
   )
 endef
 
@@ -228,14 +241,14 @@ def "render_files"
       file "open" input_path ++ ".folder" "onlyaccess"
       file "get" 4
       window.drop_location = input_path
-      if data != current_folder_update or sorting_mode != temp_sorting_mode (
+      if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
         current_folder_update = data
-        files = file_sort(data)
+        files = sort_files(data)
 
         file "get" 14
         current_folder_uuid = data
         
-        temp_sorting_mode = sorting_mode
+        temp_sorting_mode = sorting_mode + sorting_direction
       )
     ) else (
       files = []
@@ -269,7 +282,7 @@ def "render_files"
         file "open" file_dropped "onlyaccess"
         file "get" 3
         file "open" data ++ ".folder"
-        new = file[4].delete(file_dropped).insert(count,file_dropped)
+        new = file[4].delete(file_dropped).append(file_dropped)
         file "set" 4 new
         current_folder_update = new
         refresh
@@ -383,7 +396,7 @@ def "render_files"
   set_x this.temp_x2 - 115
   sorting_option "Size"
   set_x this.temp_x2 - 260
-  sorting_option "Type"
+  sorting_option "Filetype"
   set_x this.temp_x2 - 410
   sorting_option "Modified"
 endef
