@@ -1,9 +1,11 @@
+import as "glass" from "packages"
 import "window_tools"
 
 window "show"
 permission "request" "File Admin"
 file "open" "id" 1
 tab = "Info"
+passed_data = "c76cf6ea56550003851c62573b1cb9d9"
 
 if passed_data == null (
   passed_data = parent_file_id
@@ -20,22 +22,16 @@ created = file[9].destr
 edited = file[10].destr
 icon = file[11].destr
 size = file[12].destr
-config_path = user_folder ++ "/application data/" ++ name ++ "/config.json"
-file "open" config_path
+uuid = file[14]
+
+file "open" user_folder ++ "/Application Data/permissions.json"
+file_permissions = file[4][uuid]
+
 file_config = data
 tabs = ["Info","Edit"]
 preview = [".3dicn",".icn",".txt"]
-if type == ".app" (
-  tabs = ["Info","Settings","Edit"]
-  output = file_config
-  config_keys = output.getall("keys")
-  total_keys = config_keys.len
-  count = 0
-  loop total_keys (
-    count ++
-    current = config_keys.[count].destr
-    if true "toggle_" ++ current + "=" + file_config.key(current)
-  )
+if type == ".osl" (
+  tabs = ["Info","Permissions","Edit"]
 )
 if preview.contains(type) (
   tabs = ["Info","Preview","Edit"]
@@ -53,7 +49,9 @@ for count tabs.len (
   ) else (
     square 140 25 15 : c#prim
   )
-  if clicked "tab = tabs.[count]"
+  if clicked (
+    tab = tabs[count]
+  )
   icon tabs[count] 0.7 : c#txtc chx#-60
   text tabs[count] 8 : chx#20
   goto x y_position
@@ -83,43 +81,19 @@ if tab == "info" (
   loc 2 2 20 -240
   text `Type: ${type}` 8
 )
-if tab == "settings" (
+if tab == "permissions" (
   ww = window_width
   wh = window_height
   c prim
   frame ww / -2 + 10 wh / 2 - 50 ww / 2 - 10 wh / -2 + 50 page_len
-  y = scroll_y + 15
-  y2 = 0
-  for count total_keys - 1 (
-    y2 -= 50
-    y3 = y2 + y
-    loc 2 2 20 y3
-    current = config_keys[count].destr
-    text current 10 : c#fff
-    current_data = file_config[current]
-    loc -2 2 -40 y3
-    isbool = current_data.istype("boolean")
-    if isbool "toggle current 25"
-    loc -2 2 -120 y3
-    if current_data.istype("string") and isbool.not "input 160 30 current : c#555"
-    output.key(current) = output
+  loc 2 2 10 -20
+  c txtc
+  each perm file_permission (
+    text perm 8
+    set_x frame.left + 10
+    change_y -50
   )
-  page_len = y2 * -1
   frame "clear"
-  loc 999 -2 0 30
-  c prim
-  square ww - 30 30 10 1
-  c accent_colour
-  loc -2 -2 -85 30
-  if save != output "square 130 20 15"
-  c prim
-  square 130 20 10
-  if save != output and clicked (
-    file "open" config_path
-    file "set" "data" output
-    save = output
-  )
-  text "Apply" 10 : c#txtc chx#-25
 )
 if tab == "Preview" (
   loc 999 999 0 0
@@ -143,7 +117,9 @@ if tab == "edit" (
 
   loc 2 2 60 -120
   text "Copy As Json" 8
-  if clicked "clipboard "set" file_json.str"
+  if clicked (
+    clipboard "set" file_json.str
+  )
 
   loc 2 2 235 -120
   text "Show File" 8
