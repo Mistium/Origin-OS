@@ -88,7 +88,7 @@ if tab == "permissions" (
   frame ww / -2 + 10 wh / 2 - 50 ww / 2 - 10 wh / -2 + 50 page_len
   loc 2 2 10 -20
   c txtc
-  each perm file_permission (
+  each perm file_permissions (
     text perm 8
     set_x frame.left + 10
     change_y -50
