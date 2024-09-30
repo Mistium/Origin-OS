@@ -232,6 +232,7 @@ def "render_files"
   this.temp_y2 = y_position
   
   frame this.temp_x this.temp_y this.temp_x2 this.temp_y2 files.len * 45 : c#prim
+  current_folder_uuid = ""
   window.drop_location = null
   if input_path == "origin" (
     files = []
@@ -239,22 +240,22 @@ def "render_files"
     file "exists" input_path ++ ".folder"
     if exists (
       file "open" input_path ++ ".folder" "onlyaccess"
+      file "get" 14
+      current_folder_uuid = data
       file "get" 4
       window.drop_location = input_path
       if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
         current_folder_update = data
         files = sort_files(data)
 
-        file "get" 14
-        current_folder_uuid = data
         
         temp_sorting_mode = sorting_mode + sorting_direction
       )
+      rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [].append(current_folder_uuid)
     ) else (
       files = []
     )
   )
-  rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [].append(current_folder_uuid)
   len = files.len
   if len > 0 (
     count = scroll_y // 45
