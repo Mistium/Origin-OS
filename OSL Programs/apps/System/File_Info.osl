@@ -5,7 +5,6 @@ window "show"
 permission "request" "File Admin"
 file "open" "id" 1
 tab = "Info"
-passed_data = "c76cf6ea56550003851c62573b1cb9d9"
 
 if passed_data == null (
   passed_data = parent_file_id
