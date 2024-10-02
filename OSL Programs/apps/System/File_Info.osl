@@ -38,15 +38,17 @@ if preview.contains(type) (
 mainloop:
 load_theme
 
+glass:frame window.left window.top window.right window.bottom; frame "clear"
+
 loc 2 2 85 -25
 x = x_position
 for count tabs.len (
   x += 160
   if tab == tabs[count] (
     square 140 25 15 : c#seco
-    square 140 25 10 : c#prim
+    square 140 25 10 : c#window_colour
   ) else (
-    square 140 25 15 : c#prim
+    square 140 25 15 : c#window_colour
   )
   if clicked (
     tab = tabs[count]
@@ -56,35 +58,32 @@ for count tabs.len (
   goto x y_position
 )
 loc 999 999 0 -20
-square window_width - 30 window_height - 70 10 1 : c#prim
+square window_width - 30 window_height - 70 10 1 : c#window_colour
 if tab == "info" (
-  loc 2 2 50 -90
+  loc 2 2 40 -80
   file "open" passed_data
-  file "render" 3
+  file "render" 1.5
   rightclick "file" passed_data
   n = newline
-  text `${name}${type}` 9 : c#txtc chx#40
+  text `${name}${type}` 9 : c#txtc chx#30
   
-  loc 2 2 20 -160
+  loc 2 2 20 -130
   text `Size: ${size}b` 8
 
-  loc 2 2 20 -180
+  loc 2 2 20 -160
   text "Created:" + created.timestamp("convert-relative") 8
 
-  loc 2 2 20 -200
+  loc 2 2 20 -190
   text "Edited:" + edited.timestamp("convert-relative") 8
 
   loc 2 2 20 -220
-  text `Location: ${loc}/${name}${type}` 8
-
-  loc 2 2 20 -240
-  text `Type: ${type}` 8
+  text "Location: " ++ loc 8
 )
 if tab == "permissions" (
   ww = window_width
   wh = window_height
   c prim
-  frame ww / -2 + 10 wh / 2 - 50 ww / 2 - 10 wh / -2 + 50 page_len
+  frame window.left + 20 window.top - 50 window.right - 20 window.bottom + 20
   loc 2 2 10 -20
   c txtc
   each perm file_permissions (
