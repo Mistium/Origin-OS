@@ -20,7 +20,7 @@ if segments.type != "array" (
 
 goto 0 y
 dock_x = 0
-for "syscount" segments.len (
+for syscount segments.len (
   import segments[syscount] "ode" : c#dock_colour chx#15
   goto width / 2 + x + 15 y
 )
@@ -80,6 +80,7 @@ if y > -80 (
   if dock_width != dock_width_temp (
     dock_width_temp = dock_width
     dock_changed_w = true
+    window "refresh_bg"
   ) else (
     dock_changed_w = false
   )
