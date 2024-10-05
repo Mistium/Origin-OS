@@ -352,7 +352,7 @@ def "system"
       )
       loc 2 2 10 -70
       text "Patreon Supporters:" 10 : c#txtc
-      supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","Milodev123","","--- Free ---","Viofile"]
+      supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Milodev123","RattusDoong","","--- Free ---","Pablo Estevez","Viofile","Dark Dot","Luis Htetshine","Just Noone"]
       
       loc 2 2 10 -100
       count = scroll_y.divide(20).round
