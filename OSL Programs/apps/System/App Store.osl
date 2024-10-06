@@ -1,10 +1,13 @@
+
 import "window_tools"
+import as "glass" from "packages"
 
 window "show"
 page = "APPSTORE// Loading"
 permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "save admin"
+permission "request" "account"
 
 stats = "https://apps.mistium.com/stats".get()
 
@@ -15,8 +18,11 @@ if "installed.json".saveExists().not (
 )
 
 def "tab" "name"
-  if name == page "c seco" else "c prim"
-  square sidebar_width - 15 40 10 : hover_c#seco
+  square w 40 15 : c#window_colour
+  if mouse_touching or name == page (
+    square w 40 15 : c#seco
+    square w 40 10 : c#window_colour
+  )
   if clicked "page = name"
   change_y -60
 endef
@@ -32,6 +38,62 @@ sidebar_width = ww / 5
 if sidebar_width < 300 "sidebar_width = 300"
 loc 999 2 0 -20
 square ww 40 10 1 : c#prim
+
+loc 2 999 sidebar_width / 2 0
+square sidebar_width wh 20 1
+glass:frame window.left window.top window.right window.bottom; frame "clear"
+
+loc 2 2 sidebar_width / 2 + 3 -35
+
+w = sidebar_width - 25
+tab "APPSTORE// Profile"
+change_y -15
+tab "APPSTORE// Store"
+tab "APPSTORE// Search"
+tab "APPSTORE// Marketplace"
+tab "APPSTORE// Library"
+
+x = 35
+y = -35
+loc 2 2 x y
+image user_icon 30
+change 30
+text username 10 : c#txtc
+
+y -= 75
+loc 2 2 x y
+icon "w 1.5 square -4 4 2 2 square -4 -4 2 2 square 4 4 2 2 line 4 -2 4 -6 line 2 -4 6 -4 w 4 dot -4 -4 dot 4 4 dot -4 4" 1.7
+text "Store" 9 : chx#22
+
+y -= 60
+loc 2 2 x y
+icon "search" 1
+text "Search" 9 : chx#20
+
+y -= 60
+loc 2 2 x y
+icon "w 3 line -7 -10 -10 2 cont 10 2 cont 7 -10 cont -7 -10 line -6 2 -4 10 cont 4 10 cont 6 2" 1
+text "Marketplace" 9 : chx#20
+
+y -= 60
+loc 2 2 x y
+icon "w 3 line 0 6 10 10 cont 10 -6 cont 0 -10 cont 0 6 cont -10 10 cont -10 -6 cont 0 -10" 1
+text "Library" 9 : chx#20
+
+loc 2 -2 sidebar_width / 2 + 5 35
+square w 40 15 : c#window_colour
+if mouse_touching (
+  square w 40 15 : c#seco
+  square w 40 10 : c#window_colour
+)
+if onclick (
+  http "newtab" "https://github.com/RoturTW/apps/tree/main"
+)
+loc 2 -2 x 35
+c txtc
+icon "upload" 0.7
+text "Upload Your Apps" 9 : chx#20
+
 loc 2 2 sidebar_width + 20 -20
 text page_name 9 : c#txtc
 
@@ -53,20 +115,25 @@ if page == "APPSTORE// Loading" (
 if page == "APPSTORE// store" (
   page_name = "Store"
   app_h = frame_width / 2
-  count = (scroll_y / 70).round - 1
+  count = (scroll_y / 70).round() - 1
+  w = frame.width - 25
   len = apps.len
-  loop (frame_height / 70).ceiling.clamp(0,len) + 1 (
+  loop (frame_height / 70 + 2).ceiling().clamp(0,len) (
     count ++
     y = count - 0.5 * -70 + scroll_y
     loc 999 2 0 y
     cur = apps[count]
-    square frame_width - 20 50 10 : c#prim hover_c#seco
-    if clicked (
-      page = cur
-      app_tab = "Description"
-      installed = 0
+    square w 50 15 : c#window_colour
+    if mouse_touching (
+      square w 50 15 : c#seco
+      square w 50 10 : c#window_colour
+      if clicked (
+        page = cur
+        app_tab = "Description"
+        installed = 0
+      )
     )
-    loc 2 2 30 y
+    loc 2 2 35 y
     if icons.contains(cur).not (
        network "get" "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ cur.to("url") ++ "/icon.icn"
        if data.str != "loading" (
@@ -74,7 +141,7 @@ if page == "APPSTORE// store" (
        )
     )
     icon icons[cur] 1.5
-    loc 2 2 60 y
+    loc 2 2 65 y
     text cur.toTitle() 10 : c#txtc
   )
   len = apps.len - 0.5 * 70
@@ -82,22 +149,35 @@ if page == "APPSTORE// store" (
 
 if page == "APPSTORE// profile" (
   page_name = "Profile"
+  
+  goto 0 0
+  square 200 300 15 : c#window_colour
+  goto 0 60
+  image user.pfp 100
+  txt = user.username
+  goto txt.len * -5 -5
+  text txt 10 : c#txtc
 )
 
 if page == "APPSTORE// library" (
   page_name = "Library"
-  library_apps = ( user_folder ++ "/Applications" ).getFolder()
+  library_apps = (user_folder ++ "/Applications").getFolder()
   app_h = frame_width / 2
-  count = ( scroll_y / 70 ).round - 1
+  w = frame.width - 25
+  count = (scroll_y / 70).round() - 1
   len = library_apps.len
-  loop (frame_height / 70).ceiling.clamp(0,len) + 1 (
+  loop (frame_height / 70 + 2).ceiling().clamp(0,len) (
     count ++
     y = count - 0.5 * -70 + scroll_y
     loc 999 2 0 y
     file "open" library_apps[count] "onlyaccess"
-    square frame_width - 20 50 10 : c#prim hover_c#seco
+    square w 50 15 : c#window_colour
+    if mouse_touching (
+      square w 50 15 : c#seco
+      square w 50 10 : c#window_colour
+    )
     loc -2 2 -35 y
-    square 30 30 10 : c#seco
+    square 30 30 10 : c#prim
     icon "play" 0.8 : c#txtc
     if onclick (
       file "start"
@@ -116,9 +196,72 @@ if page == "APPSTORE// search" (
 )
 if page == "APPSTORE// marketplace" (
   page_name = "Marketplace"
+  items = itemAll()
+  app_h = frame_width / 2
+  w = frame.width - 25
+  count = max(0,(scroll_y / 70).round - 1)
+  len = items.len
+  loop (frame_height / 70 + 2).ceiling().clamp(0,len) (
+    count ++
+    y = count - 0.5 * -70 + scroll_y
+    loc 999 2 0 y
+    cur = items[count]
+    square w 50 15 : c#window_colour
+    if mouse_touching (
+      square w 50 15 : c#seco
+      square w 50 10 : c#window_colour
+      if clicked (
+        page = "MARKETPLACE// " ++ cur.name
+        current_item = cur
+      )
+    )
+    price_text = cur.price + " Credits"
+    loc -2 2 -35 - (price_text.len * 9) y
+    text price_text 9 : c#txtc
+    
+    loc 2 2 30 y
+    text cur.name.toTitle() 9
+  )
+  len = items.len - 0.5 * 70
 )
 
-app_page = page.contains("APPSTORE// ").not
+if page.startsWith("MARKETPLACE// ") (
+  cur = current_item.name.toLower()
+  y = -50 + scroll_y
+  desc = current_item.description
+  w = frame_width
+  loc 999 2 0 y
+  square w - 20 130 10 1 : c#window_colour
+  loc 2 2 30 y
+  text cur.toTitle() 10 : c#txtc
+  loc 2 2 30 y - 30
+  text "By" + current_item.author 9
+  loc 2 2 20 y - 110
+  text_width = window_width - sidebar_width - 30
+  desc.wrapText(text_width / 9)
+  len = desc.count(newline) * 21 + 150
+  text desc 9
+  loc -2 2 -140 y - 10
+  if itemOwns(current_item.id) (
+    square 190 30 15 : c#prim
+    text "Owned" 10 : c#txtc chx#-25
+  ) else (
+    square 190 30 15 : c#prim
+    if mouse_touching (
+      square 190 30 15 : c#seco
+      square 190 30 10 : c#prim
+      if onlick (
+        items "purchase" current_item.id
+      )
+    )
+    txt = "Buy (" ++ current_item.price + "Credits)"
+    change_x txt.len * -4.5
+    text txt 9 : c#txtc
+  )
+  c txtc
+)
+
+app_page = page.contains("// ").not
 
 if app_page (
   network "get" "https://apps.mistium.com/info?appname=" ++ page.to("url")
@@ -140,7 +283,7 @@ if app_page (
     desc = current_app.description.str
     w = frame_width
     loc 999 2 0 y
-    square w - 20 130 10 1 : c#prim
+    square w - 20 130 10 1 : c#window_colour
     loc 2 2 60 y - 10
     icon icons[cur].str 3
     loc 2 2 140 y
@@ -224,50 +367,6 @@ if app_page (
   )
 )
 frame "clear"
-
-loc 2 999 sidebar_width / 2 0
-square sidebar_width wh 20 1 : c#prim
-
-loc 2 2 sidebar_width / 2 + 3 -30
-tab "APPSTORE// Profile"
-change_y -15
-tab "APPSTORE// Store"
-tab "APPSTORE// Search"
-tab "APPSTORE// Marketplace"
-tab "APPSTORE// Library"
-
-loc 2 2 30 -30
-image user_icon 30
-change 30
-text username 10 : c#txtc
-
-loc 2 2 30 -105
-icon "w 1.5 square -4 4 2 2 square -4 -4 2 2 square 4 4 2 2 line 4 -2 4 -6 line 2 -4 6 -4 w 4 dot -4 -4 dot 4 4 dot -4 4" 1.7
-text "Store" 9 : chx#22
-
-loc 2 2 30 -165
-icon "search" 1
-text "Search" 9 : chx#20
-
-loc 2 2 30 -225
-icon "w 3 line -7 -10 -10 2 cont 10 2 cont 7 -10 cont -7 -10 line -6 2 -4 10 cont 4 10 cont 6 2" 1
-text "Marketplace" 9 : chx#20
-
-loc 2 2 30 -285
-icon "w 3 line 0 6 10 10 cont 10 -6 cont 0 -10 cont 0 6 cont -10 10 cont -10 -6 cont 0 -10" 1
-text "Library" 9 : chx#20
-
-loc 2 -2 sidebar_width / 2 + 5 30
-c prim
-square sidebar_width - 15 30 10 : hover_c#seco
-loc 2 -2 30 30
-c txtc
-icon "upload" 0.7
-change_x 20
-text "Upload Your Apps" 9
-if onclick (
-  http "newtab" "https://github.com/RoturTW/apps/tree/main"
-)
 
 if mouse_down.not "can = true"
 import "win-buttons"
