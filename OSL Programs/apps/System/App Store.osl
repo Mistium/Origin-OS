@@ -250,7 +250,7 @@ if page.startsWith("MARKETPLACE// ") (
     if mouse_touching (
       square 190 30 15 : c#seco
       square 190 30 10 : c#prim
-      if onlick (
+      if onclick (
         items "purchase" current_item.id
       )
     )
