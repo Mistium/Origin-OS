@@ -254,7 +254,7 @@ if page.startsWith("MARKETPLACE// ") (
         items "purchase" current_item.id
       )
     )
-    txt = "Buy (" ++ current_item.price + "Credits)"
+    txt = current_item.price + "Credits"
     change_x txt.len * -4.5
     text txt 9 : c#txtc
   )
