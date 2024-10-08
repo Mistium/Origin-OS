@@ -31,10 +31,8 @@ window "dimensions" screensize_x + 20 screensize_y + 20
 stretch [100,100]
 
 if new_network_data (
-  log network_data_command
   if network_data_command == "get_my_accounts" (
     accounts = network_data
-    log accounts
     each count current accounts (
       network "getsync_asurl" current.pfp
       js = "`data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='circleClip'><circle cx='50' cy='50' r='50' /></clipPath></defs><image href='" ++ data ++ "' x='0' y='0' height='100' width='100' clip-path='url(#circleClip)' /></svg>`)}`"
@@ -67,9 +65,6 @@ if status == "Waiting" or (status == "login") (
   exit
 )
 
-log accounts.getType()
-log accounts
-log accounts.isType("array")
 if accounts.isType("array").not (
   goto 0 0
   square 210 40 10 : c#111
