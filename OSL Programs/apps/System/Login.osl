@@ -31,6 +31,7 @@ window "dimensions" screensize_x + 20 screensize_y + 20
 stretch [100,100]
 
 if new_network_data (
+  log network_data_command
   if network_data_command == "get_my_accounts" (
     accounts = network_data
     log accounts
