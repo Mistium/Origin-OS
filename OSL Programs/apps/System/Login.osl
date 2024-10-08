@@ -67,6 +67,9 @@ if status == "Waiting" or (status == "login") (
   exit
 )
 
+log accounts.getType()
+log accounts
+log accounts.isType("array")
 if accounts.isType("array").not (
   goto 0 0
   square 210 40 10 : c#111
