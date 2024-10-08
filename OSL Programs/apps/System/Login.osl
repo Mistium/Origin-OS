@@ -33,6 +33,7 @@ stretch [100,100]
 if new_network_data (
   if network_data_command == "get_my_accounts" (
     accounts = network_data
+    log accounts
     each count current accounts (
       network "getsync_asurl" current.pfp
       js = "`data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='circleClip'><circle cx='50' cy='50' r='50' /></clipPath></defs><image href='" ++ data ++ "' x='0' y='0' height='100' width='100' clip-path='url(#circleClip)' /></svg>`)}`"
