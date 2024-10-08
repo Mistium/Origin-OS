@@ -53,6 +53,10 @@ body {
   -ms-user-drag: none; /* Disable image dragging in Internet Explorer */
 }
 
+.terminal span {
+  font-family: 'Courier New', Courier, monospace;
+}
+
 .terminal_window {
   position: absolute;
   top: 50%;
