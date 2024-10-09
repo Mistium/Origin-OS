@@ -1,4 +1,4 @@
-base = {"op":2,"d":"","s":null,"t":null}
+base = {"op":2,"d":{},"s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
@@ -23,7 +23,7 @@ endef
 def "login" "this.token"
   temp = base
   status = "online"
-  temp.d = this.token
+  temp.d.token = this.token
   discord.wsSend(temp)
   temp = ""
   heartbeat_msg = {"op":1,"d":null}
