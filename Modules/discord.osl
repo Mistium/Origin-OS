@@ -1,4 +1,4 @@
-base = {"op":2,"d":{},"s":null,"t":null}
+base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
@@ -20,12 +20,15 @@ def "connect"
   wait 0.6
 endef
 
-def "login" "this.token"
+def "login" "token"
   temp = base
   status = "online"
-  temp.d.token = this.token
+  dat = d
+  dat."token" = token.destr
+  temp."d" = dat
   discord.wsSend(temp)
   temp = ""
+  dat = ""
   heartbeat_msg = {"op":1,"d":null}
   last_heartbeat = timer + 41.25
 endef
@@ -47,9 +50,9 @@ def "get_content"
 endef
 
 def "sent_by"
-  data = msg.d.author
-  sent_from = data.username
-  sent_id = data.id
+  data = msg."d"."author"
+  sent_from = data."username"
+  sent_id = data."id"
 endef
 
 def "send_message" "content, channel"
