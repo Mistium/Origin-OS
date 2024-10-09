@@ -20,15 +20,12 @@ def "connect"
   wait 0.6
 endef
 
-def "login" "token"
+def "login" "this.token"
   temp = base
   status = "online"
-  dat = d
-  dat."token" = token.destr
-  temp."d" = dat
+  temp.d = this.token
   discord.wsSend(temp)
   temp = ""
-  dat = ""
   heartbeat_msg = {"op":1,"d":null}
   last_heartbeat = timer + 41.25
 endef
@@ -50,9 +47,9 @@ def "get_content"
 endef
 
 def "sent_by"
-  data = msg."d"."author"
-  sent_from = data."username"
-  sent_id = data."id"
+  data = msg.d.author
+  sent_from = data.username
+  sent_id = data.id
 endef
 
 def "send_message" "content, channel"
