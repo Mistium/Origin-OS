@@ -11,7 +11,7 @@ permission "request" "kernel"
 
 def "appopt" "optname,opticn,icnsize"
   loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#window_colour
+  square frame_width - 25 30 10 1 : c#prim
   loc 2 2 30 y
   icon opticn icnsize.destr : c#txtc
   change_x 25
@@ -23,9 +23,9 @@ def "DrawCategory" "setting,icn_code"
   change_x 80
   if category == setting (
     square 190 30 15 : c#seco
-    square 190 30 10 : c#window_colour
+    square 190 30 10 : c#prim
   ) else (
-    square 190 30 15 : c#window_colour
+    square 190 30 15 : c#prim
   )
   if onclick (
     category = setting
@@ -43,10 +43,10 @@ def "option" "name,icn_code"
   square this.w 30 10 0 1
   if mouse_touching (
     square this.w 30 15 : c#seco
-    square this.w 30 10 : c#window_colour
+    square this.w 30 10 : c#prim
     if onclick "gotosubcategory = name"
   ) else (
-    square this.w 30 15 1 : c#window_colour
+    square this.w 30 15 1 : c#prim
   )
   change_x this.w / -2 + 20
   if icn_code == "" "icn_code = name"
@@ -117,7 +117,7 @@ def "system"
       w = frame.width - 25
       h = 280
       square w h 15 : c#seco
-      square w h 10 : c#window_colour
+      square w h 10 : c#prim
       loc 2 2 40 -70
       x = x_position
       c txtc
@@ -153,14 +153,14 @@ def "system"
       loc 2 2 10 -70
       c txtc
       text "Invert Colours" 10
-      toggle "invert" 20 : c#window_colour chx#30
+      toggle "invert" 20 : c#prim chx#30
       inp = toggle_invert.int * 100
       terminal "system display set invert" + inp.str
       loc 2 2 10 -110
       text "Night Mode" 10 : c#txtc
       terminal "flags nightmode get"
       toggle_nightmode = data
-      toggle "nightmode" 20 : c#window_colour chx#70
+      toggle "nightmode" 20 : c#prim chx#70
       terminal "flags nightmode set" + toggle_nightmode.str
       break
     case "Media"
@@ -182,7 +182,7 @@ def "system"
       loc 999 2 0 -90 + scroll_y
       terminal "system sound get volume"
       slider_volume = data / 100
-      slider frame_width - 25 40 "volume" 15 : c#window_colour
+      slider frame_width - 25 40 "volume" 15 : c#prim
       terminal "system sound set volume" + ( slider_volume * 100 )
       c txtc
       loc 2 2 10 -160 + scroll_y
@@ -192,10 +192,10 @@ def "system"
           y = i + 2.5 * -60 + scroll_y
           loc 999 2 0 y
           w = frame.width - 25
-          square w 40 15 : c#window_colour
+          square w 40 15 : c#prim
           if mouse_touching (
             square w 40 15 : c#seco
-            square w 40 10 : c#window_colour
+            square w 40 10 : c#prim
           )
           cur = keys[i]
           loc 2 2 30 y
@@ -260,13 +260,13 @@ def "system"
         count ++
         y = count + 2 * -60 + scroll_y
         loc 999 2 0 y
-        square frame_width - 25 40 15 : c#window_colour
+        square frame_width - 25 40 15 : c#prim
         loc 2 2 15 y
         text boot_apps[count] 9 : c#txtc
         loc -2 2 -33 y
         square 30 30 10 0 1
         if mouse_touching (
-          square 30 30 10 : c#window_colour
+          square 30 30 10 : c#prim
           if onclick (
             boot_apps.delete(count)
             network "update" "onboot" boot_apps
@@ -280,7 +280,7 @@ def "system"
       file "open" "Origin/(C) Users.folder"
       y = -160 + 75 + scroll_y
       loc 999 2 0 y
-      square frame_width - 30 140 10 1 : c#window_colour
+      square frame_width - 30 140 10 1 : c#prim
       loc 2 2 80 y
       icon file[11] 3.3
       text "(Network)" + username 15 : chx#80 chy#20 c#txtc
@@ -288,7 +288,7 @@ def "system"
       if network_drive[2] == 5000000 (
         text "Free User" 10
         text "Upgrade: " 10 : c#txtc chx#20
-        square 120 20 10 : c#window_colour chx#100
+        square 120 20 10 : c#prim chx#100
         if onclick (
           network "new_tab" "https://www.patreon.com/user?u=51594743"
         )
@@ -349,7 +349,7 @@ def "system"
       break
     case "Community"
       loc 2 2 110 -30
-      button "My Patreon" 200 25 10 : c#window_colour
+      button "My Patreon" 200 25 10 : c#prim
       if onclick (
         http "newtab" "https://www.patreon.com/user?u=51594743"
       )
@@ -374,10 +374,10 @@ def "network_page"
   loc 999 2 0 -70
   w = frame.width - 25
   square w 100 15 : c#seco
-  square w 100 10 : c#window_colour
+  square w 100 10 : c#prim
   if network.connected.not (
     loc 2 2 100 -90
-    square 140 30 10 : c#window_colour
+    square 140 30 10 : c#prim
     if clicked (
       terminal "reconnect"
     )
@@ -396,10 +396,10 @@ endef
 def "colour_selector" "this.name,this.id"
   loc 9999 2 0 y
   w = frame.width - 25
-  square w 30 15 : c#window_colour
+  square w 30 15 : c#prim
   if mouse_touching (
     square w 30 15 : c#seco
-    square w 30 10 : c#window_colour
+    square w 30 10 : c#prim
   )
   loc 2 2 15 y
   text this.name ++ ":" 10 : c#txtc
@@ -418,7 +418,7 @@ def "colour_selector" "this.name,this.id"
     square 20 20 10 0 1 : tooltip#"Reset Colour"
     if mouse_touching (
       square 20 20 15 : c#seco
-      square 20 20 10 : c#window_colour
+      square 20 20 10 : c#prim
     )
     icon "reload" 0.5 : c#txtc
     if onclick (
@@ -442,7 +442,7 @@ def "Appearance"
       y = -30 + scroll_y
       w = frame.width - 25
       loc 9999 2 0 y
-      square w 30 15 : c#window_colour
+      square w 30 15 : c#prim
       if onclick (;current_wallpaper = clipboard.str;)
       loc 2 2 50 y
       text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
@@ -465,7 +465,7 @@ def "Appearance"
       y -= 152
       loc 4 2 -2.5 y
       w = frame.width / 2 - 30
-      square w 230 15 : c#window_colour
+      square w 230 15 : c#prim
       image background_url w 200 : chy#-10
       y2 = y + 50
       systemvars "getvar" "SYSTEM // Background Mode"
@@ -475,10 +475,10 @@ def "Appearance"
       for i 4 (
         loc -4 2 0 y2
         cur = modes[i]
-        square w 30 15 : c#window_colour
+        square w 30 15 : c#prim
         if mouse_touching or cur == back_mode (
           square w 30 15 : c#seco
-          square w 30 10 : c#window_colour
+          square w 30 10 : c#prim
           if onclick (
             terminal "system wallpapermode" + cur
             network "update" "wallpaper_mode" cur
@@ -498,11 +498,11 @@ def "Appearance"
           y -= 230
         )
         if count % 2 == 1 "loc 4 2 0 y" else "loc -4 2 0 y"
-        square w 200 15 : c#window_colour
+        square w 200 15 : c#prim
         cur = wallpapers[count]
         image cur w 200
         change_x -40
-        square 20 20 20 : c#window_colour
+        square 20 20 20 : c#prim
         if mouse_touching (
           if clicked.not "square 20 20 23"
           if onclick (
@@ -512,7 +512,7 @@ def "Appearance"
         )
         icon "tick" 0.7 : c#txtc
         change_x 80
-        square 20 20 20 : c#window_colour
+        square 20 20 20 : c#prim
         if mouse_touching (
           if clicked.not "square 20 20 23"
           if onclick (
@@ -540,7 +540,7 @@ def "Appearance"
       w = frame.width - 25
       y = -30 + scroll_y
       loc 9999 2 0 y
-      square w 30 15 : c#window_colour
+      square w 30 15 : c#prim
       loc 2 2 30 y
       icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
       text "Reset Dock To Default" 9 : chx#20
@@ -563,7 +563,7 @@ def "Appearance"
         file_dropped = 0
       )
       loc 9999 2 0 y - 50
-      square w 30 15 : c#window_colour
+      square w 30 15 : c#prim
       if onclick (
         file "pick" "ode"
         can = false
@@ -575,10 +575,10 @@ def "Appearance"
         y = count + 2 * -50 + scroll_y
         loc 999 2 0 y
         w = frame_width - 25
-        square w 30 15 : c#window_colour
+        square w 30 15 : c#prim
         if mouse_touching (
           square w 30 15 : c#seco
-          square w 30 10 : c#window_colour
+          square w 30 10 : c#prim
         )
         loc 2 2 15 y
         text segments[count] 9 : c#txtc
@@ -586,7 +586,7 @@ def "Appearance"
         square 30 30 10 0 1
         if mouse_touching (
           square 30 30 15 : c#seco
-          square 30 30 10 : c#window_colour
+          square 30 30 10 : c#prim
           if onclick (
             segments.delete(count)
             network "update" "origin_dock" segments
@@ -598,7 +598,7 @@ def "Appearance"
           square 30 30 15 0 1
           if mouse_touching (
             square 30 30 15 : c#seco
-            square 30 30 10 : c#window_colour
+            square 30 30 10 : c#prim
             if onclick (
               segments.swap(count - 1,count)
               network "update" "origin_dock" segments
@@ -611,7 +611,7 @@ def "Appearance"
           square 30 30 15 0 1
           if mouse_touching (
             square 30 30 15 : c#seco
-            square 30 30 10 : c#window_colour
+            square 30 30 10 : c#prim
             if onclick (
               segments.swap(count,count + 1)
               network "update" "origin_dock" segments
@@ -647,14 +647,14 @@ def "Appearance"
         selected_col = "accent"
       )
       if global_accent != accent_select (
-        icon "w 40 dot" 0.6 : c#window_colour chx#30
+        icon "w 40 dot" 0.6 : c#prim chx#30
         icon "reload" 0.5 : c#txtc
         if onclick (
           colourpicker "setcol" global_accent
           accent_select = global_accent
         )
         loc -2 2 -120 y
-        square 200 20 15 0 1 : c#window_colour
+        square 200 20 15 0 1 : c#prim
         if onclick (
           network "update" "accent" accent_select
         )
@@ -673,7 +673,7 @@ def "Appearance"
         selected_col = "dock"
       )
       if user.dock_colour != dock_select (
-        icon "w 40 dot" 0.6 : c#window_colour chx#30
+        icon "w 40 dot" 0.6 : c#prim chx#30
         icon "reload" 0.5 : c#txtc
         if onclick (
           colourpicker "setcol" user.dock_colour
@@ -681,7 +681,7 @@ def "Appearance"
           selected_col = null
         )
         loc -2 2 -120 y
-        square 200 20 15 0 1 : c#window_colour
+        square 200 20 15 0 1 : c#prim
         if onclick (
           network "update" "dock_colour" dock_select
         )
@@ -700,7 +700,7 @@ def "Appearance"
         selected_col = "icon"
       )
       if user.icon_colour != icon_select (
-        icon "w 40 dot" 0.6 : c#window_colour chx#30
+        icon "w 40 dot" 0.6 : c#prim chx#30
         icon "reload" 0.5 : c#txtc
         if onclick (
           colourpicker "setcol" user.icon_colour
@@ -708,7 +708,7 @@ def "Appearance"
           selected_col = null
         )
         loc -2 2 -120 y
-        square 200 20 15 0 1 : c#window_colour
+        square 200 20 15 0 1 : c#prim
         if onclick (
           network "update" "icon_colour" icon_select
         )
@@ -738,7 +738,7 @@ def "Appearance"
           icon_select = picker_colour
           break
         case "background"
-          window_colour = picker_colour
+          prim = picker_colour
           theme_select[selected_col] = picker_colour
           break
         case "primary"
@@ -761,13 +761,13 @@ def "Appearance"
       y -= 50
       loc 9999 2 0 y
       w = frame.width - 25
-      square w 30 15 : c#window_colour
+      square w 30 15 : c#prim
       if mouse_touching (
         if onclick (
           network "update" "theme" theme_select
         )
         square w 30 15 : c#seco
-        square w 30 10 : c#window_colour
+        square w 30 10 : c#prim
       )
       loc 2 2 30 y
       icon "save" 0.7 : c#txtc
@@ -780,7 +780,7 @@ def "Appearance"
         count ++
         y = count * -60 + scroll_y + 20
         loc 999 2 0 y
-        square frame_width - 20 40 10 : c#window_colour hover_c#seco
+        square frame_width - 20 40 10 : c#prim hover_c#seco
         loc 2 2 30 y
         c seco
         square 30 30 10
@@ -808,11 +808,11 @@ def "Appearance"
       text "Scrolling " ++ ((slider_scrollsp * 10).round / 10) ++ "x speed" 9 : c#txtc
       slider_scrollsp = slider_scrollsp - 1 / 9
       loc 999 2 0 -60
-      slider frame_width - 30 20 "scrollsp" 10 : c#window_colour
+      slider frame_width - 30 20 "scrollsp" 10 : c#prim
       slider_scrollsp = slider_scrollsp * 9 + 1
       loc 2 2 10 -140
       text "Invert Scroll Direction" 9 : c#txtc
-      toggle "invert" 20 : c#window_colour chx#30
+      toggle "invert" 20 : c#prim chx#30
       if toggle_invert (
         temp = slider_scrollsp
       ) else (
@@ -840,11 +840,11 @@ endef
 
 def "account"
   loc 999 2 0 -85
-  square frame_width - 25 130 15 : c#window_colour
+  square frame_width - 25 130 15 : c#prim
   
   loc 2 2 78 -85
   image user_icon.str 120 120
-  icon round_pfp 5.8 : c#window_colour
+  icon round_pfp 5.8 : c#prim
   square 90 90 12 0 1
   if timer - upload_time < 5 and current_pfp != "" (
     direction timer * 300
@@ -901,7 +901,7 @@ endef
 def "time"
   w = frame_width - 25
   loc 999 2 0 -40
-  square w 40 15 1 : c#window_colour
+  square w 40 15 1 : c#prim
   loc 999 2 0 -100
   square w 40 15 1
   loc 999 2 0 -160
@@ -928,9 +928,9 @@ def "credits"
     page_len = 290
     w = frame_width / 2 - 40
     loc 4 2 2.5 -120 + scroll_y
-    square w 200 20 : c#window_colour
+    square w 200 20 : c#prim
     square w 150 15 : chy#25 c#global_accent
-    square w 150 8 : c#window_colour
+    square w 150 8 : c#prim
     c txtc
     x = x_position
     change_x -65
@@ -943,7 +943,7 @@ def "credits"
     text "Powering originNetworking" 9
     set_x x
     change_y -70
-    square w 40 20 : c#window_colour
+    square w 40 20 : c#prim
     if clicked (
       subcategory = "Extensions"
       extensions = "JSON.stringify(Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions)))".eval
@@ -952,7 +952,7 @@ def "credits"
     change_x w / -2 + 10
     text "Full Extensions List >" 9 -100 : c#txtc
     loc -4 2 -2.5 -95 + scroll_y
-    square w 150 20 : c#window_colour
+    square w 150 20 : c#prim
     x = x_position
     change w / -2 + 30 40
     image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
@@ -962,7 +962,7 @@ def "credits"
     text "      Thanks to GarboMuffin and the scratch team for making turbowarp possible".wrapText(w / 9 - 1) 9
     set_x x
     change_y -175
-    square w 100 20 : c#window_colour
+    square w 100 20 : c#prim
     set_x 20
     change_y 40
     text "Github Contributors >" 9 : c#txtc
@@ -978,10 +978,10 @@ def "credits"
     for count extensions.len (
       y = count - 0.5 * -60 + scroll_y
       loc 999 2 0 y
-      square w 40 15 1 : c#window_colour
+      square w 40 15 1 : c#prim
       if mouse_touching (
         square w 40 15 : c#seco
-        square w 40 10 1 : c#window_colour
+        square w 40 10 1 : c#prim
       )
       loc 2 2 15 y
       text extensions[count] 9 : c#txtc
@@ -1062,13 +1062,13 @@ window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
 glass:frame window.left window.top window.right window.bottom
 c window_colour
-pen "opacity" 50
+pen "opacity" 90
 icon "w 99999 dot 0 0" 10
 pen "opacity" 0
 frame "clear"
 
 loc 999 2 120 -20
-square window_width - 215 40 15 : c#window_colour
+square window_width - 215 40 15 : c#prim
 
 loc 2 2 25 -25
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
@@ -1091,7 +1091,7 @@ if subcategory == "none" (
   square 20 20 15 0 1
   if mouse_touching (
     square 20 20 15 : c#seco
-    square 20 20 10 : c#window_colour
+    square 20 20 10 : c#prim
   )
   icon "left-arrow" 0.6 : c#txtc
   if clicked (
