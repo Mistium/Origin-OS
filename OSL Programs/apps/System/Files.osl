@@ -243,6 +243,8 @@ def "render_files"
       file "get" 14
       current_folder_uuid = data
       file "get" 4
+      data.JsonParse()
+
       window.drop_location = input_path
       if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
         current_folder_update = data
