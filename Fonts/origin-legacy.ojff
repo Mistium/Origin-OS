@@ -13,7 +13,8 @@
     "version": "6",
     "monowidth": "True",
     "character_width": "30",
-    "size": "1"
+    "size": "1",
+    "author": "Mist"
   },
   " ": "",
   "!": "line 15 40 15 15 square 15 5 1 1",
