@@ -123,6 +123,10 @@ if current_studio_page == "Recent Files" (
 )
 
 if current_studio_page == "Home" (
+  if file_dropped != 0 (
+    current_studio_page = file_dropped
+    file_dropped = 0
+  )
   goto 0 -20
   square window.width - 20 window.height - 65 10 : c#window_colour
   loc 2 2 20 -20
