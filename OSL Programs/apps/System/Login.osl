@@ -33,11 +33,10 @@ stretch [100,100]
 if new_network_data (
   if network_data_command == "get_my_accounts" (
     accounts = network_data
-    each count current accounts (
-      network "getsync_asurl" current.pfp
+    for count accounts.len (
+      network "getsync_asurl" accounts[count].pfp
       js = "`data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='circleClip'><circle cx='50' cy='50' r='50' /></clipPath></defs><image href='" ++ data ++ "' x='0' y='0' height='100' width='100' clip-path='url(#circleClip)' /></svg>`)}`"
-      current.pfp = js.eval
-      accounts[count] = current
+      accounts[count].pfp = js.eval
     )
     window "refresh_bg"
   )
@@ -65,7 +64,7 @@ if status == "Waiting" or (status == "login") (
   exit
 )
 
-if accounts == "" (
+if accounts.isType("array").not (
   goto 0 0
   square 210 40 10 : c#111
   text "Loading Accounts" 10 : c#fff chx#-95
@@ -91,7 +90,8 @@ if accounts.len == 0 (
   loc 2 2 20 -30
   text "No Accounts" 10 : c#fff
 ) else (
-  each count current accounts (
+  for count accounts.len (
+    current @= accounts[count]
     square frame.width 70 20 0 1
     if clicked (
       window "refresh_bg"
@@ -121,7 +121,7 @@ h = 500
 
 if current_login.istype("number") (
   if accounts.len > 0 (
-    current = accounts[current_login]
+    current @= accounts[current_login]
     user = current.username
     goto x -70
     square 320 30 20 1 : c#000
@@ -135,7 +135,7 @@ if current_login.istype("number") (
       goto x-25 -110
       input 250 25 "hidden.password_" ++ current_login "Password..."
     )
-    goto x+140 -110
+    goto x + 140 -110
     icon "eye" 0.7
     if clicked and can (
       can = false

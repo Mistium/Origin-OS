@@ -306,7 +306,8 @@ def "system"
       text network_drive[1] / 1000 ++ "kb /" + used_big ++ unit 10
       loc 999 2 125 / 2 y - 35
       percent = network_drive[1] / network_drive[2]
-      bar frame_width - 200 20 10 percent : c#seco
+      c prim
+      bar frame_width - 200 20 10 percent seco
       page_len = 460
   
       if total_files == 0 (
@@ -315,7 +316,7 @@ def "system"
         dat = data.str
         file = dat.len + "bytes"
         file "get" 2
-        file = " " * ( 15 - file.len ) + file + "-" + data
+        file = " " * (15 - file.len) + file + "-" + data
         file "get" 1
         file.append(data)
         files.append(file)
@@ -326,13 +327,15 @@ def "system"
           current = current ++ data
         )
   
-        goto 0 scroll_y
+        goto frame.left + 30 scroll_y + 40
         direction (timer * 100).sin * 360
-        icon "w 2 cutcircle 0 0 10 0 90" 3 : c#txtc
-  
+        icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
+        direction 90
+        text files.len + "Files Processed" 10 : chx#30
+        
         if current.len == 0 (
           total_files = files.len
-          file_data = files.sort("ascending").reverse.trim(1,10)
+          file_data = files.sort().reverse().trim(1,10)
         )
       ) else (
         loc 2 2 20 -200 + scroll_y
@@ -352,7 +355,7 @@ def "system"
       )
       loc 2 2 10 -70
       text "Patreon Supporters:" 10 : c#txtc
-      supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Milodev123","RattusDoong","","--- Free ---","Pablo Estevez","Viofile","Dark Dot","Luis Htetshine","Just Noone"]
+      supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","Milodev123","","--- Free ---","Viofile"]
       
       loc 2 2 10 -100
       count = scroll_y.divide(20).round
@@ -735,7 +738,7 @@ def "Appearance"
           icon_select = picker_colour
           break
         case "background"
-          window_colour = picker_colour
+          prim = picker_colour
           theme_select[selected_col] = picker_colour
           break
         case "primary"
@@ -1059,7 +1062,7 @@ window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
 glass:frame window.left window.top window.right window.bottom
 c window_colour
-pen "opacity" 80
+pen "opacity" 90
 icon "w 99999 dot 0 0" 10
 pen "opacity" 0
 frame "clear"

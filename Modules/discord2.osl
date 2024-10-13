@@ -1,0 +1,91 @@
+base = {"op":2,"d":{"token":"","intents":4194303},"s":null,"t":null}
+// base packet
+
+self.token = ""
+self.heartbeat_msg = {"op":1,"d":null}
+self.last_heartbeat = timer + 41.25
+self.discord = ""
+self.bot = {}
+
+properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
+properties."$browser" = system_browser.destr
+properties."$device" = system_os.destr
+// get system properties
+
+base.d.properties = properties
+messages = []
+self.guilds = []
+
+window "responsive" true
+// make the window run even when unfocused
+
+def "connect"
+  discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
+  wait 0.6
+endef
+
+def "login" "this.token"
+  status = "online"
+  
+  self.token = this.token
+  
+  base.d.token = this.token.destr
+  discord.wsSend(base)
+  base.d.token = ""
+  
+  self.last_heartbeat = timer + 41.25
+endef
+
+def "heartbeat"
+  if self.last_heartbeat < timer (
+    self.last_heartbeat = timer + 41.25
+    this.discord = self.discord.wsSend(self.heartbeat_msg)
+  )
+endef
+
+def senderOf(this.msg)
+  return this.msg.d.author.username
+endef
+
+def connection()
+  return self.discord
+endef
+
+def "send_message" "this.content, this.channel"
+  network "getasync" "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ self.token ++ "&channelid=" ++ this.channel ++ "&content=" ++ this.content.str.to("url")
+endef
+
+def pfpOf(this.msg)
+  this.author = this.msg.d.author
+  return "https://cdn.discordapp.com/avatars/" ++ this.author.id ++ "/" ++ this.author.avatar ++ ".png"
+endef
+
+def myself()
+  return self.user
+endef
+
+def guilds()
+  return self.guilds
+endef
+
+def "run"
+  if self.discord.wsHasnew() (
+    this.msg = discord.wsGetnext()
+    cmd = this.msg.t
+    msgd = this.msg.d
+    if cmd == "READY" (
+      self.user =  msgd.user
+      self.user.avatar_url = "https://cdn.discordapp.com/avatars/" ++ self.user.id ++ "/" ++ self.user.avatar ++ ".png"
+    )
+    if cmd == "GUILD_CREATE" (
+      guild = msgd
+      guild.channels = guild.channels.sortBy("position")
+      guild.icon = "https://cdn.discordapp.com/icons/" ++ guild.id ++ "/" ++ guild.icon ++ ".png?size=96"
+      self.guilds = self.guilds.append(guild)
+    )
+    if cmd == "MESSAGE_CREATE" (
+      channel = msgd.channel
+      messages[channel] = messages[channel].append(msg)
+    )
+  )
+endef
