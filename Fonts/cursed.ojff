@@ -9,9 +9,12 @@
   "7": "line 20 80 60 80 cont 20 10",
   "8": "line 20 10 60 10 cont 60 80 cont 20 80 cont 20 10 line 20 40 60 40",
   "9": "line 60 40 20 40 cont 20 80 line 60 10 60 80 cont 20 80",
-  ".manifest": {
+  "origin": {
     "version": "1",
-    "language": "English"
+    "monowidth": "True",
+    "character_width": "30",
+    "size": "1",
+    "author": "Mist"
   },
   " ": "",
   "a": "line 60 10 70 10 line 45 50 60 50 cont 60 10 cont 20 10 cont 20 40",
