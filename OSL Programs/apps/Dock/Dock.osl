@@ -31,8 +31,8 @@ dock_x = dock_width.round / -2
 y = -100
 dock_y_target = 0
 height = 36
-// Theme
 
+// Theme
 if user.dock_colour == null (
   network "update" "dock_colour" #060606
 )
@@ -45,8 +45,10 @@ if user.theme.len < 5 or user.theme.istype("object").not (
 
 file_loc = user_folder ++ "/Dock"
 
-
 dock_changed_w = false
+
+network "update" "hostOS" system_os
+network "update" "timezone" timezone
 
 mainloop:
 dock_colour = user.dock_colour
