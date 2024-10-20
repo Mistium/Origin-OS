@@ -1,13 +1,16 @@
 import "window_tools"
 
 permission "request" "terminal"
-permission "request" "Javascript"
+permission "request" "javascript"
+permission "request" "windows"
+
 window "show"
 window "dimensions" 600 400
 current_tab = "no_perms"
-terminal "-get.windows"
+windows = Windows()
+
 activity_info = false
-if windows_names.contains(passed_data) (
+if windows.getKeys("name").contains(passed_data) (
   activity_info = true
   page = passed_data
 )
@@ -23,6 +26,14 @@ def "tab" "name"
   change_x tab_w / -2 + 5
   text name 8 : c#txtc
 endef
+
+def arrSum(this.arr) (
+  this.out = 0
+  each this.item this.arr (
+    this.out += this.item
+  )
+  return this.out
+)
 
 created_time = timer
 next_update = 0.5
@@ -46,12 +57,12 @@ icon "close" 0.7 : chx#40
 if clicked "window stop"
 
 if current_tab == "no_perms" (
-  if window.permissions.contains("terminal") (
+  if window.permissions.contains("windows") (
     current_tab = "Render Info"
   ) else (
     if current_tab == "no_perms" (
       loc 2 2 20 -20
-      text "This Application requires terminal permissions to function properly" 10 : c#fff
+      text "This Application requires window permissions to function properly" 10 : c#fff
       exit
     )
   )
@@ -76,8 +87,8 @@ if activity_info (
   if timer - last_timer > 0.05 (
     last_timer = timer
     dt = delta_time
-    terminal "-get.windows"
-    current = windows_names.index(page)
+    windows = Windows()
+    current = windows.getKeys("name").index(page)
     dt = windows_drawtimes[current][1]
     pr = windows_drawtimes[current][2]
     dt2 = dt / 10
@@ -97,6 +108,8 @@ if activity_info (
   text "Lower is faster" 8
   exit
 )
+
+windows = Windows()
 wwm = window_width - 50 / 100
 whm = window_height / 300
 usage = (fps / fps_limit).clamp(0,1)
@@ -119,11 +132,10 @@ loc 2 2 23 - (low.len * 5) -120
 text low 10
 loc 2 2 13.5 -140
 text "low" 7
-delta = (delta_time * 1000).round
 loc 2 2 23 - (delta.len * 5) -170
 text delta 10
-loc 2 2 16 -190
-text "ms" 7
+loc 2 2 13.5 -190
+text "cpu" 7
 if memory (
   ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
   loc 2 2 23 - (ram_use.len * 5) -220
@@ -147,6 +159,20 @@ if onclick (
   paused.not
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
+
+if timer - last_timer > next_update and paused.not (
+  last_timer = timer
+  dt = delta_time
+  windows = Windows()
+  windows_names = windows.getKeys("name")
+  windows_drawtimes = windows.getKeys("render")
+  windows_draw_main = []
+  each item windows_drawtimes (
+    windows_draw_main.append(item[1])
+  )
+  delta = (arrSum(windows_draw_main) / (1000 / fps_limit) * 100).round().clamp(1,100) ++ "%"
+)
+
 if current_tab == "Performance" (
   minimised_text = "Fps"
   window "responsive" True
@@ -185,7 +211,7 @@ if current_tab == "Network" (
     ) else (
       recipient = "Send -" + recipient
     )
-    recipient = cur."timestamp".destr.timestamp("convert-relative") + "   " + recipient
+    recipient = cur.timestamp.destr.timestamp("convert-relative") + "   " + recipient
     loc -2 2 recipient.len * -7 - 15 y
     text recipient.str 7
     y -= 40
@@ -198,11 +224,6 @@ if current_tab == "Render Info" (
   x = x_position
   y = y_position
   loc -2 -2 0 0
-  if timer - last_timer > next_update and paused.not (
-    last_timer = timer
-    dt = delta_time
-    terminal "-get.windows"
-  )
   c prim
   frame x y x_position y_position windows_names.len * 40
   y = scroll_y - 20
@@ -226,10 +247,6 @@ if current_tab == "Render Info" (
     text d.str 7
     y -= 40
   )
-  loc 2 2 10 y
-  text "System" 7
-  loc -2 2 -50 y
-  text (dt * 1000).round - tot.round 7
 )
 if current_tab == "Disk" (
   minimised_text = "Disk"
