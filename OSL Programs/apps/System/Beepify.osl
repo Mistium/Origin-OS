@@ -13,7 +13,7 @@ def "loadTrack" "id"
     response = data
     if response.type == "object" (
       response.JsonClean()
-      song_data.[id] = response.delete("mp3_url")
+      song_data[id] = response.delete("mp3_url")
       save "songs.json" "set" song_data
       if song_keys.contains(id).not (
         song_keys.append(id)
@@ -62,14 +62,13 @@ def "render_tracks" "tracks"
     count ++
     y = count * -50 + 20 + scroll_y
     loc 999 2 0 y
-    key = tracks.[count]
-    song = song_data.[key]
+    key = tracks[count]
+    song = song_data[key]
     if song != null (
       if current_song == key "c #333" else "c #222"
       if loading.contains(key) "c #111"
       square frame_width - 20 30 10
-      if clicked and can (
-        can = false
+      if onclick (
         current_song = key
         loadSong song
       )
@@ -88,13 +87,12 @@ def "render_playlists" "playlist_data"
     count ++
     y = count * -50 + 20 + scroll_y
     loc 999 2 0 y
-    cur = playlist_data.[count]
+    cur = playlist_data[count]
     if cur != null (
       if current_playlist == count "c #333" else "c #222"
       square frame_width - 20 30 10
       rightclick playlist_rightclick count
-      if clicked and can (
-        can = false
+      if onclick (
         current_playlist = count
       )
       change_x frame_width / -2 + 25
@@ -112,18 +110,6 @@ playing = false
 song_data = {}
 loading = []
 
-loading_music = false
-if "songs.json".saveExists() (
-  save "songs.json" "get"
-  song_data = save_data
-  save "playlists.json" "get"
-  playlists = save_data
-) else (
-  save "songs.json" "set" {}
-  song_data = {} 
-  playlists = [{"name":"main","songs":["6o0IytQVis0KjQCkcFtqGD"]}]
-  save "playlists.json" "set" playlists
-)
 playlists = [
   {
     "name":"All Songs",
@@ -141,6 +127,16 @@ playlists = [
     "songs":["1ClLVL8w0vngTIq7Afrne6","5lZtXVDsSQaa43CfCuTx1F"]
   }
 ]
+
+loading_music = false
+if "songs.json".saveExists() (
+  song_data = "songs.json".saveGet()
+  playlists = "playlists.json".saveGet()
+) else (
+  save "songs.json" "set" {}
+  song_data = {} 
+  save "playlists.json" "set" playlists
+)
 
 playlist_rightclick = [
   {"delete playlist":"remove_playlist"}
@@ -167,7 +163,7 @@ if loading.len > 0 (
   c #fff
   loc 2 2 10 -20
   text `Loading your music ${loading.len} Remaining` 10
-  loadTrack loading.[1]
+  loadTrack loading[1]
 )
 
 
@@ -187,7 +183,7 @@ frame "clear"
 c #333
 frame window.left + 250 window.top - 40 window.right - 250 window.bottom + 60 song_keys.len * 50
 if current_playlist != null (
-  render_tracks playlists.[current_playlist].songs
+  render_tracks playlists[current_playlist].songs
 )
 frame "clear"
 
@@ -228,12 +224,8 @@ square window_width / 1.5 60 : c#222
 if loaded_song (
   loc 6 -2 30 30
   icon "c #444 w 50 dot 0 0" 0.7
-  c #fff
-  if playing (
-    icon "pause" 0.7
-  ) else (
-    icon "play" 0.7
-  )
+  icon playing ? "pause" "play" 0.7 : c#fff
+  
   current.time = current.url.soundinfo("current_time").round
   if clicked and can (
     can = false
