@@ -21,7 +21,7 @@
 <body>
   <div id="topbar"></div>
   <script>
-    fetch('https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/main/topbar.html')
+    fetch('./topbar.html')
       .then(response => response.text())
       .then(html => {
         document.getElementById('topbar').innerHTML = html;
@@ -30,7 +30,7 @@
   </script>
   <div class="topbar"></div>
 
-  <img src="https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png" alt="Wallpaper"
+  <img src="./Wallpapers/originOS%20Dawn.png" alt="Wallpaper"
     class="wallpaper">
   <div class="terminal_window">
     <div class="terminal_titlebar">
