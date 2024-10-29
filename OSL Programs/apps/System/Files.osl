@@ -24,7 +24,7 @@ sorting_dir = "descending"
 
 dta = ""
 can = true
-def "navigate" "path"
+def "navigate" "path" (
   tab_data = {}
   tab_data.title = path.split("/").last()
   tab_data.url = path
@@ -35,9 +35,9 @@ def "navigate" "path"
   tabs[current_tab].position = pos
   tabs[current_tab].history = tabs[current_tab].history.trim(1,pos - 1).append(tab_data)
   input_path = path
-endef
+)
 
-def "sort_files(this.files)"
+def sort_files(this.files) (
   new_files = []
   each i file this.files (
     obj = {}
@@ -65,7 +65,7 @@ def "sort_files(this.files)"
     new_files.append(obj)
   )
   return new_files.sortBy(sorting_mode.toLower(),sorting_direction).getKeys("uuid")
-endef
+)
 
 def "refresh"
   cur = tabs[current_tab]
@@ -93,7 +93,7 @@ if passed_data != "" (
   navigate user_folder
 )
 
-def "folder" "txt"
+def "draw_folder" "txt"
   this.con = hidden.contains(txt)
   loc 2 2 125 y
   square 225 20 15 0 1
@@ -476,13 +476,13 @@ mainloop:
   square w - 250 40 0 : c#prim
   if sideshow (
     y = -110
-    folder "Favorites"
+    draw_folder "Favorites"
     file_folder "Desktop" "Favorites"
     file_folder "Downloads" "Favorites"
     file_folder "Documents" "Favorites"
     file_folder "Applications" "Favorites"
     file_folder "Bin" "Favorites"
-    folder "Drives"
+    draw_folder "Drives"
     file_folder "System" "Drives"
     file_folder "Local" "Drives"
     file_folder username "Drives"
