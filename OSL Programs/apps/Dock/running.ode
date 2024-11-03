@@ -47,7 +47,6 @@ if window_data_change or bg_redrawn or dock_changed_w (
     square width height 20 1
     goto x - (width / 2) + 20 y
     each win running_windows (
-      log win
       file "open" win.uuid "onlyaccess"
       file "render" 1.7
       rightclick right_click_menu win.id
