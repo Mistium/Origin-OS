@@ -24,7 +24,7 @@ sorting_dir = "descending"
 
 dta = ""
 can = true
-def "navigate" "path" (
+def "navigate" "path"
   tab_data = {}
   tab_data.title = path.split("/").last()
   tab_data.url = path
@@ -35,9 +35,9 @@ def "navigate" "path" (
   tabs[current_tab].position = pos
   tabs[current_tab].history = tabs[current_tab].history.trim(1,pos - 1).append(tab_data)
   input_path = path
-)
+endef
 
-def sort_files(this.files) (
+def "sort_files(this.files)"
   new_files = []
   each i file this.files (
     obj = {}
@@ -65,7 +65,7 @@ def sort_files(this.files) (
     new_files.append(obj)
   )
   return new_files.sortBy(sorting_mode.toLower(),sorting_direction).getKeys("uuid")
-)
+endef
 
 def "refresh"
   cur = tabs[current_tab]
@@ -83,17 +83,16 @@ def "setup_tabs"
 endef
 
 setup_tabs
+
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
-  file "get" 3
-  path = data
-  file "get" 2
-  navigate path ++ "/" ++ data
+  path = fileGet(3)
+  navigate path ++ "/" ++ fileGet(2)
 ) else (
   navigate user_folder
 )
 
-def "draw_folder" "txt"
+def "folder" "txt"
   this.con = hidden.contains(txt)
   loc 2 2 125 y
   square 225 20 15 0 1
@@ -274,10 +273,8 @@ def "render_files"
       loc 999 2 0 draw_y
       current_file = files[count]
       if selected_files.contains(current_file) (
-        c global_accent
-        square w 20 15
-        c prim
-        square w 30 10
+        square w 20 15 : c#global_accent
+        square w 30 10 : c#prim
       ) else (
         square w 30 15 0 1
       )
@@ -330,12 +327,8 @@ def "render_files"
           )
         ) else if clicked and can (
           drag_id = 0
-          file "get" 1
-          if data == ".folder" (
-            file "get" 3
-            data2 = data
-            file "get" 2
-            navigate data2 ++ "/" ++ data
+          if fileGet(1) == ".folder" (
+            navigate fileGet(3) ++ "/" ++ fileGet(2)
           ) else (
             file "start"
           )
@@ -346,12 +339,11 @@ def "render_files"
       file "render" 1 : c#txtc
       c txtc
       change_x 30
-      file "get" 2
-      data2 = data
+      data2 = fileGet(2)
       max_chars = frame.width - 370 / 9
-      file "get" 10
+      data = fileGet(10).toNum()
       this.edited_time = timestamp - data < 172800000 ? data.timestamp("convert-relative") data.timestamp("convert-date")
-      file "get" 1
+      data = fileGet(1)
       if data == ".folder" (
         text data2.trimText(max_chars) 8
         loc -2 2 -400 draw_y
@@ -361,8 +353,7 @@ def "render_files"
         text "Folder" 8
         
         loc -2 2 -100 draw_y
-        file "get" 4
-        text data.len + "Items" 8
+        text fileGet(4).len + "Items" 8
       ) else (
         data2 += data
         text data2.trimText(max_chars) 8
@@ -374,8 +365,8 @@ def "render_files"
         data = file_types[data][2]
         text data == "" ? "Document" data 8
         loc -2 2 -100 draw_y
-        file "get" 12
-        text data < 1000 ? (data + "b") ((data / 100).ceiling / 10 + "kb") 8
+        data = fileGet(12)
+        text data < 1000 ? (data + "b") ((data / 100).ceiling() / 10 + "kb") 8
       )
     )
   ) else (
@@ -391,6 +382,8 @@ def "render_files"
         file "open" uuid "onlyaccess"
         file "delete"
       )
+      file "open" input_path ++ ".folder" "onlyaccess"
+      file "set" 4 []
     )
     text "Empty Bin" 9 : c#txtc chx#-40
   )
@@ -476,13 +469,13 @@ mainloop:
   square w - 250 40 0 : c#prim
   if sideshow (
     y = -110
-    draw_folder "Favorites"
+    folder "Favorites"
     file_folder "Desktop" "Favorites"
     file_folder "Downloads" "Favorites"
     file_folder "Documents" "Favorites"
     file_folder "Applications" "Favorites"
     file_folder "Bin" "Favorites"
-    draw_folder "Drives"
+    folder "Drives"
     file_folder "System" "Drives"
     file_folder "Local" "Drives"
     file_folder username "Drives"
