@@ -1,11 +1,11 @@
 windows = Windows()
 
-if running_uuids.len == 0 (
+if running_windows.len == 0 (
   width = 0
   change_x -30
   x = x_position
 ) else (
-  width = running_uuids.len * 50 - 10
+  width = running_windows.len * 50 - 10
   change_x width / 2
   x = x_position
 )
@@ -34,27 +34,25 @@ if window_data_change or bg_redrawn or dock_changed_w (
       "Close Window"
     ]
     windows_temp = windows.getKeys("id")
-    uuids = windows.getKeys("uuid")
-    running_uuids = []
-    out_ids = []
-    each is_shown windows.getKeys("shown") (
-      if is_shown (
-        out_ids.append(windows_temp[i])
-        running_uuids.append(uuids[i])
+    running_windows = []
+    for i windows.len (
+      if windows[i].shown (
+        running_windows.append(windows[i])
       )
     )
-    running_uuids.trim(1,3)
-    uuids = []
+    running_windows.trim(1,3)
   )
-  if running_uuids.len > 0 (
+  if running_windows.len > 0 (
     set_y y
     square width height 20 1
     goto x - (width / 2) + 20 y
-    each i app running_uuids (
-      file "open" app "onlyaccess"
+    each win running_windows (
+      log win
+      file "open" win.uuid "onlyaccess"
       file "render" 1.7
-      rightclick right_click_menu out_ids[i]
+      rightclick right_click_menu win.id
       change_x 50
+      file "close"
     )
   )
 )
