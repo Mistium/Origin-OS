@@ -10,7 +10,7 @@ if running_uuids.len == 0 (
   x = x_position
 )
 
-window_data_change = windows != windows_temp
+window_data_change = windows.getKeys("id") != windows_temp
 
 if window_data_change or bg_redrawn or dock_changed_w (
   if window_data_change (
@@ -33,22 +33,18 @@ if window_data_change or bg_redrawn or dock_changed_w (
       "Minimise Window",
       "Close Window"
     ]
-    windows_temp = windows
+    windows_temp = windows.getKeys("id")
     uuids = windows.getKeys("uuid")
-    ids = windows.getKeys("id")
-    shown = windows.getKeys("shown")
     running_uuids = []
     out_ids = []
-    for i shown.len (
-      if shown[i] (
-        out_ids.append(ids[i])
+    each is_shown windows.getKeys("shown") (
+      if is_shown (
+        out_ids.append(windows_temp[i])
         running_uuids.append(uuids[i])
       )
     )
     running_uuids.trim(1,3)
     uuids = []
-    ids = []
-    shown = []
   )
   if running_uuids.len > 0 (
     set_y y
