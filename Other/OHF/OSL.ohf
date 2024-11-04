@@ -1,7 +1,7 @@
 {
   "manifest": {
     "name": "OSL",
-    "version": "4",
+    "version": "5",
     "extensions": [
       ".osl",
       ".ode"
@@ -9,7 +9,7 @@
   },
   "parser": {
     "type": "regex",
-    "data": "/ +|\"(?:[^\\\"]*|\\.)*(?:\"|$)|'(?:[^\\']*|\\.)*(?:'|$)|[\\+\\-/*^%]|[(),\\[\\]{}:]|[\\d.]+|\\.?[^\\[\\],. \n()\\-+/*%^]+|./mg"
+    "data": " +|\"(?:[^\\\"]*|\\.)*(?:\"|$)|'(?:[^\\']*|\\.)*(?:'|$)|[\\+\\-/*^%]|[(),\\[\\]{}:]|[\\d.]+|\\.?[^\\[\\],. \\n()\\-+\/*%^]+|."
   },
   "overrides": {
     "origin.comments": "#aaaaaa",
@@ -33,7 +33,8 @@
         "input",
         "bar",
         "iframe",
-        "graph"
+        "graph",
+        "icongrid"
       ]
     },
     "positioning": {
@@ -55,7 +56,8 @@
       "tokens": [
         "window",
         "mainloop:",
-        "import"
+        "import",
+        "permission"
       ]
     },
     "programflow": {
@@ -77,10 +79,9 @@
     "functions": {
       "color": "#eb7f3c",
       "tokens": [
-        "function",
-        "return",
         "def",
-        "endef"
+        "endef",
+        "return"
       ]
     },
     "logging": {
@@ -127,7 +128,9 @@
         "<=",
         ">=",
         "===",
-        "!=="
+        "!==",
+        "??",
+        "->"
       ]
     },
     "logic": {
