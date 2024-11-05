@@ -93,11 +93,14 @@
             case 'rotur':
               fadeOut('https://rotur.dev');
               break;
+            case 'options':
+                fadeOut('/originLauncher.html')
+            break;
             case 'goofy':
               output('Goofy your goober until you goober your goofy');
               break;
             case 'help':
-              output('Commands: boot, patreon, rotur, goofy, help');
+              output('Commands: boot, patreon, rotur, goofy, help, options');
               break;
             default:
               output('Command not found: ' + this.value);
