@@ -899,8 +899,8 @@ def "account"
   loc -2 2 -30 -30
   icon "log-out" 0.8 : c#txtc tooltip#"Logout"
   if onclick (
-    terminal "shutdown"
     network "logout"
+    terminal "shutdown"
   )
   
 endef
