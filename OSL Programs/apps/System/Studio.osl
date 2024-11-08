@@ -1,17 +1,23 @@
 import as "glass" from "packages"
 
+permission "request" "file admin"
 window "show"
 network "set_app_id" "Studio"
 
+
+change_focus = false
+current_tab_target = 0
+
 save "Studio" "set_directory"
-save "recent_files.json" "get"
-if save_data.istype("array") (
-  recent = save_data
+
+if "recent_files.json".saveExists() (
+  recent = "recent_files.json".saveGet()
 ) else (
   save "recent_files.json" "set" []
   recent = []
 )
 recent_2 = recent.trim(1,10)
+save "recent_files.json" "set" recent_2
 
 if passed_data == null (
   current_studio_page = "Home"
@@ -20,13 +26,15 @@ if passed_data == null (
 )
 sidebar_items = 0
 
-window "set_dragbox" [[2,2,40,0],[-2,2,-150,-40]]
+tabs = ["> Welcome"]
+current_tab = tabs[1]
 
-def "draw_buttons"
+dragbox = [[2,2,40,0],[-2,2,-100,-40]]
+
+def "draw_buttons" (
   loc -2 2 -50 -20
   square 80 20 10 : c#window_colour
   loc -2 2 -20 -20
-  
   
   icon "close" 0.6 : c#c_text
   if onclick (
@@ -44,7 +52,112 @@ def "draw_buttons"
   if onclick (
     window "maximise"
   )
-endef
+)
+
+def "add_tab" "data" (
+  tabs.append(data)
+  change_focus = true
+  current_tab = data
+)
+
+def "insert_tab" "index, data" (
+  tabs.insert(index,data)
+  change_focus = true
+  current_tab = data
+)
+
+def "draw_tabs" (
+  loc 2 9999 10 0
+  
+  c c_text
+  x = frame.left - 2.5
+  if tabs_out != tabs (
+    window "refresh_bg"
+    tabs_out = tabs
+  )
+  
+  each i tab tabs (
+    tw = 0
+    if tab.startsWith("> ") (
+      tab_name = tab.trim(3,-1)
+      file = false
+    ) else (
+      file "open" tab "onlyaccess"
+      tab_name = fileGet(2) ++ fileGet(1)
+      file = true
+    )
+    
+    l = tab_name.len * 9 + 25
+    if file "l += 20"
+    tw += l + 25
+    goto x + (tw / 2) 0
+    
+    square l + 10 20 10 : c#window_colour
+    if file (
+      change_x -10
+      square l - 10 20 10 0 1
+      change_x 10
+      file "interact"
+      if data == "open" (
+        current_tab = tab
+        change_focus = true
+      )
+      if data == "dragging" (
+        removed = true
+        change_focus = true
+      )
+    ) else (
+      if onclick (
+        current_tab = tab
+        change_focus = true
+      )
+    )
+    change_x l / -2
+    if file (
+      change_x 5
+      file "render" 0.7
+      change_x 15
+    )
+    c tab == current_tab ? c_text c_seco
+    text tab_name 9
+    icon "close" 0.5 : chx#20
+    if onclick (
+      removed = true
+    )
+    if file_dragging (
+      change_x 17
+      if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
+        square 0 30 2 : c#c_text
+        current_tab_target = i + 1
+      )
+      change_x -17
+    )
+    if removed (
+      window "refresh_bg"
+      change_focus = true
+      if i > 1 (
+        prev = tabs[i - 1]
+      ) else (
+        prev = tabs[i + 1]
+      )
+      tabs_out.delete(i)
+      current_tab = prev
+      if tabs_out.len == 0 (
+        tabs = tabs_out
+        add_tab "> Welcome"
+        tabs_out = tabs
+      )
+      removed = false
+    )
+    x += tw
+  )
+  tabs = tabs_out
+  icon "add" 0.6 : chx#30 c#c_text
+  if onclick (
+    add_tab "> Welcome"
+  )
+  dragbox[1][3] = x + frame.right + 80
+)
 
 sharing_with = null
 
@@ -65,84 +178,40 @@ if new_transmit (
 
 if mouse_down.not "can = true"
 
+w = window
+
 goto 0 window.top - 20
-glass:frame window.left window.top window.right window.bottom;frame "clear"
+glass:frame w.left w.top w.right w.bottom;frame "clear"
 
-if current_studio_page == "Recent Files" (
-  loc 2 2 60 -22
-  text "Recent Files" 10 : c#c_text
+frame w.left + 50 w.top w.right - 60 w.top - 40
+draw_tabs
+window "set_dragbox" dragbox
+frame "clear"
 
-  loc 2 2 25 -25
-  square 30 30 15 1 : c#c_prim
-  square 30 30 10 1 : hover_c#c_seco
-  if onclick (
-    current_studio_page = "Home"
+right = w.right - (preview_open ? 400 0)
+
+goto 22.5 -17.5
+square w.width - 65 w.height - 55 10 : c#window_colour
+
+if file_dropped != 0 (
+  if current_tab_target == 0 (
+    current_tab_target = tabs.len + 1
   )
-  icon "left-arrow" 0.7 : c#c_text hover_size#1.2
-
-  c c_prim
-  frame window.left window.top - 50 window.right window.bottom recent.len - 0.5 * 60
-  w = frame_width - 20
-  len = recent.len
-  count = ((scroll_y / 60).round - 1).clamp(0,len)
-  loop (frame_height / 60 + 2).round.clamp(0,len) (
-    count ++
-    y = count * -60 + 30 + scroll_y
-    loc 999 2 0 y
-    square w 40 10 1 : c#c_prim cursor#pointer
-    cur = recent[count]
-    if mouse_touching (
-      square w 40 15 1 : c#global_accent
-      square w 40 10 1 : c#c_seco
-      if onclick (
-        current_studio_page = cur.tostr()
-      )
-    )
-    change_x window_width - 90 / -2
-    file "open" cur "onlyaccess"
-    if loaded_file != 0 (
-      file "render" 1.5
-      loc 2 2 80 y
-      file "get" 2
-      name = data
-      file "get" 1
-      text name ++ data 9 : c#c_text
-      loc -2 2 -160 y
-      file "get" 10
-      text data.timestamp("convert-relative") 8
-    ) else (
-      recent.delete(count)
-      save "recent_files.json" "set" recent
-      count --
-    )
-    file "close"
-  )
-  frame "clear"
-  draw_buttons
-  exit
+  insert_tab current_tab_target file_dropped
+  current_tab_target = 0
+  file_dropped = 0
 )
 
 if current_studio_page == "Home" (
-  if file_dropped != 0 (
-    current_studio_page = file_dropped
-    file_dropped = 0
-  )
-  goto 0 -20
-  square window.width - 20 window.height - 65 10 : c#window_colour
-  loc 2 2 20 -20
-  stretch [100,100]
-  image user_icon.tostr() 30
-  text `Heya ${username}!` 10 : c#c_text chx#30
-
-  w = window_width / 2
+  w = window_width / 2 - 40
   w2 = w - 40
-  loc 2 2 20 -75
-  text "New File" 8
+  loc 2 2 70 -75
+  text "New File" 8 : c#c_text
 
-  loc 999 2 0 -75
+  loc 999 2 20 -75
   text "Recent Files" 8
   
-  loc 2 2 w / 2 - 5 -290
+  loc 2 2 w / 2 + 50 -290
   square w2 30 10 : c#c_seco
   if onclick (
     file "pick"
@@ -150,7 +219,7 @@ if current_studio_page == "Home" (
   change_x w2 / -2 + 10
   text "Open File" 9 : c#c_text
 
-  loc 2 2 w / 2 - 2.5 -125
+  loc 2 2 w / 2 + 50 -125
   square w2 30 10 : c#c_prim
   input w2 - 10 25 "name" "hello world.txt" 10 c_text
   change_y -55
@@ -161,11 +230,11 @@ if current_studio_page == "Home" (
       square w2 30 10 : c#c_seco
     )
     if selected_input == "name" and "enter".onpress or onclick (
-      current_studio_page = input_name.tostr()
+      add_tab input_name.toStr()
     )
     change_x w2 / -2 + 15 : c#c_text
   ) else (
-    square w2 30 10 1 : c#c_seco
+    square w2 30 10 : c#c_seco
     change_x w2 / -2 + 15 : c#c_prim
   )
   c c_text
@@ -173,17 +242,18 @@ if current_studio_page == "Home" (
   text "Create New File" 8 : chx#20
 
   c c_prim
-  frame -10 window_height / 2 - 95 window_width / 2 window_height / -2 recent_2.len * 55
+  frame 10 window.top - 93 window.right - 10 window.bottom recent_2.len * 55
   w = frame_width - 20
   for count recent_2.len (
     y = count * -55 + 25 + scroll_y
     loc 999 2 0 y
-    square w 30 10 1 : c#c_prim cursor#pointer
+    square w 30 10 : c#c_prim cursor#pointer
     cur = recent_2[count]
     if mouse_touching (
-      square frame_width - 20 30 15 1 : c#c_seco
+      square w 30 15 : c#c_seco
+      square w 30 10 : c#c_prim
       if onclick (
-        current_studio_page = cur.str
+        add_tab cur.toStr()
       )
     )
     change w / -2 + 15
@@ -203,18 +273,8 @@ if current_studio_page == "Home" (
     )
   )
   frame "clear"
-  loc -2 2 -32 -75
-  square 30 15 10 : c#c_prim hover_size#1.1
-  if mouse_touching (
-    cursor "pointer"
-    if onclick (
-      current_studio_page = "Recent Files"
-    )
-  )
-  change -12 -1
-  text "All" 8 : c#c_text
+  
   draw_buttons
-  exit
 )
 
 sharing_with.destr
@@ -226,12 +286,14 @@ if new_network_data (
   new_network_data = false
 )
 
-if preview_open "right = window.right - 400" else "right = window.right"
-
-goto 25 -25
-square window.width - 60 window.height - 40 10 : c#window_colour
-goto -25 window.top - 20
-square window.width - 160 20 10 : c#window_colour
+if change_focus (
+  if current_tab == "> Welcome" (
+    current_studio_page = "Home"
+  ) else (
+    current_studio_page = current_tab
+  )
+  change_focus = false
+)
 
 draw_buttons
 loc 2 2 25 -25
