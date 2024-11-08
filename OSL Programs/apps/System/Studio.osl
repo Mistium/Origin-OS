@@ -176,6 +176,10 @@ if new_transmit (
   new_transmit = false
 )
 
+if change_focus (
+  change_focus = false
+)
+
 if mouse_down.not "can = true"
 
 w = window
@@ -292,7 +296,6 @@ if change_focus (
   ) else (
     current_studio_page = current_tab
   )
-  change_focus = false
 )
 
 draw_buttons
