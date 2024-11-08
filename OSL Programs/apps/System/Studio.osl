@@ -1,12 +1,14 @@
 import as "glass" from "packages"
 
+file "use_type" "txt"
+
 permission "request" "file admin"
 window "show"
 network "set_app_id" "Studio"
 
-
 change_focus = false
 current_tab_target = 0
+removed = false
 
 save "Studio" "set_directory"
 
@@ -19,14 +21,16 @@ if "recent_files.json".saveExists() (
 recent_2 = recent.trim(1,10)
 save "recent_files.json" "set" recent_2
 
-if passed_data == null (
-  current_studio_page = "Home"
+tabs = []
+if passed_data == "" (
+  tabs.append("> Welcome")
 ) else (
-  current_studio_page = passed_data
+  change_focus = true
+  tabs.append(passed_data)
 )
+tabs_out = tabs
 sidebar_items = 0
 
-tabs = ["> Welcome"]
 current_tab = tabs[1]
 
 dragbox = [[2,2,40,0],[-2,2,-100,-40]]
@@ -161,6 +165,7 @@ def "draw_tabs" (
 
 sharing_with = null
 
+start = true
 mainloop:
 theme = user.theme
 c_prim = theme.primary
@@ -176,9 +181,10 @@ if new_transmit (
   new_transmit = false
 )
 
-if change_focus (
+if change_focus and !start (
   change_focus = false
 )
+start = false
 
 if mouse_down.not "can = true"
 
