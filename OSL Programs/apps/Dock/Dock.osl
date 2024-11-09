@@ -32,13 +32,7 @@ y = -100
 dock_y_target = 0
 height = 36
 
-// Theme
-if user.dock_colour == null (
-  network "update" "dock_colour" #060606
-)
-if user.icon_colour == null (
-  network "update" "icon_colour" #f3f3f3
-)
+// theme
 if user.theme.len < 5 or user.theme.istype("object").not (
   network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505"}
 )
@@ -51,8 +45,9 @@ network "update" "hostOS" system_os
 network "update" "timezone" timezone
 
 mainloop:
-dock_colour = user.dock_colour
-icon_colour = user.icon_colour
+dock_colour = user.theme.background
+icon_colour = user.theme.text
+
 if segments != user.origin_dock (
   segments = user.origin_dock
   window "refresh_bg"
