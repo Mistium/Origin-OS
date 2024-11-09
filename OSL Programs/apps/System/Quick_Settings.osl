@@ -31,8 +31,9 @@ if timer - last_check_2 > 1 (
   data = ""
   last_check_2 = timer
   notifications = allNotify()
-  bg_colour = user.dock_colour
-  icn_colour = user.icon_colour
+  bg_colour = user.theme.background
+  icn_colour = user.theme.text
+
   if new_network_data (
     if network_data_command == "my_files_usage" (
       used = network_data
