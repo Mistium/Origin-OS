@@ -4,7 +4,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Dock.osl",
     "icon": "c #111 w 10 square 0 0 5 5",
-    "version":"3.8"
+    "version":"3.9"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Time_Info.osl",
@@ -144,7 +144,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Quick_Settings.osl",
     "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn settings 0.5",
-    "version":"4.9"
+    "version":"5.0"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Brainfuck.osl",
