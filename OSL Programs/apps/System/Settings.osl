@@ -980,7 +980,7 @@ themes = {
   "ocean":{"primary":"#1a1d28","secondary":"#313f4e","tertiary":"#4f617d","text":"#bae3ee","background":"#090a0b"},
   "forest":{"primary":"#1a2823","secondary":"#33523e","tertiary":"#417656","text":"#e5ffed","background":"#090b0a"},
   "mint":{"primary":"#8fbcac","secondary":"#1d442b","tertiary":"#07170e","text":"#000000","background":"#d6d6d6"},
-  "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3",
+  "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3"},
 }
 
 
