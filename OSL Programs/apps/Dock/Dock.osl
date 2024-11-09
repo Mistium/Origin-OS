@@ -34,7 +34,7 @@ height = 36
 
 // theme
 if user.theme.len < 5 or user.theme.istype("object").not (
-  network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505"}
+  network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505","accent":"#57cdac"}
 )
 
 file_loc = user_folder ++ "/Dock"
