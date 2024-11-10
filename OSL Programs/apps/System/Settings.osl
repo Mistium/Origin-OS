@@ -470,7 +470,7 @@ def "Appearance"
       y2 = y + 50
       systemvars "getvar" "SYSTEM // Background Mode"
       back_mode = data
-      log back_mode
+      
       modes = ["Fill","Center","Fit","Stretch"]
       for i 4 (
         loc -4 2 0 y2
@@ -623,98 +623,13 @@ def "Appearance"
       page_len = segments.len + 2 * 60
       break
     case "Colours"
-      if user.dock_colour[1] != "#" (
-        network "update" "dock_colour" #060606
-      )
-      if user.icon_colour[1] != "#" (
-        network "update" "icon_colour" #f3f3f3
-      )
-      if accent_select[1] != "#" (
-        accent_select = global_accent
-        dock_select = user.dock_colour
-        icon_select = user.icon_colour
+      if theme_select.isType("object").not (
+        window_accent = global_accent
         theme_select = user.theme
       )
   
       y = -30 + scroll_y
-      loc 2 2 15 y
-      text `Accent Colour: ${accent_select}` 10 : c#txtc
-      square 0 0 25 0 : chx#30
-      square 0 0 20 0 : c#accent_select
-      if onclick (
-        colourpicker "setcol" accent_select
-        colourpicker "show"
-        selected_col = "accent"
-      )
-      if global_accent != accent_select (
-        icon "w 40 dot" 0.6 : c#prim chx#30
-        icon "reload" 0.5 : c#txtc
-        if onclick (
-          colourpicker "setcol" global_accent
-          accent_select = global_accent
-        )
-        loc -2 2 -120 y
-        square 200 20 15 0 1 : c#prim
-        if onclick (
-          network "update" "accent" accent_select
-        )
-        square 200 25 10
-        text "Sync With Network" 9 : c#fff chx#-95
-      )
-  
-      y -= 50
-      loc 2 2 15 y
-      text `Dock Colour: ${dock_select}` 10 : c#txtc
-      square 0 0 25 0 : chx#30
-      square 0 0 20 0 : c#dock_select
-      if onclick (
-        colourpicker "setcol" dock_select
-        colourpicker "show"
-        selected_col = "dock"
-      )
-      if user.dock_colour != dock_select (
-        icon "w 40 dot" 0.6 : c#prim chx#30
-        icon "reload" 0.5 : c#txtc
-        if onclick (
-          colourpicker "setcol" user.dock_colour
-          dock_select = user.dock_colour
-          selected_col = null
-        )
-        loc -2 2 -120 y
-        square 200 20 15 0 1 : c#prim
-        if onclick (
-          network "update" "dock_colour" dock_select
-        )
-        square 200 25 10
-        text "Sync With Network" 9 : c#txtc chx#-95
-      )
-  
-      y -= 50
-      loc 2 2 15 y
-      text `Dock Secondary: ${icon_select}` 10 : c#txtc
-      square 0 0 25 0 : chx#30
-      square 0 0 20 0 : c#icon_select
-      if onclick (
-        colourpicker "setcol" icon_select
-        colourpicker "show"
-        selected_col = "icon"
-      )
-      if user.icon_colour != icon_select (
-        icon "w 40 dot" 0.6 : c#prim chx#30
-        icon "reload" 0.5 : c#txtc
-        if onclick (
-          colourpicker "setcol" user.icon_colour
-          icon_select = user.icon_colour
-          selected_col = null
-        )
-        loc -2 2 -120 y
-        square 200 20 15 0 1 : c#prim
-        if onclick (
-          network "update" "icon_colour" icon_select
-        )
-        square 200 25 10
-        text "Sync With Network" 9 : c#txtc chx#-95
-      )
+      colour_selector "Accent Colour" "accent"
 
       y -= 70
       colour_selector "Window Background" "background"
@@ -729,35 +644,28 @@ def "Appearance"
   
       switch selected_col (
         case "accent"
-          accent_select = picker_colour
-          break
-        case "dock"
-          dock_select = picker_colour
-          break
-        case "icon"
-          icon_select = picker_colour
+          window_accent = picker_colour
           break
         case "background"
-          prim = picker_colour
-          theme_select[selected_col] = picker_colour
+          window_colour = picker_colour
           break
         case "primary"
           prim = picker_colour
-          theme_select[selected_col] = picker_colour
           break
         case "secondary"
           seco = picker_colour
-          theme_select[selected_col] = picker_colour
           break
         case "tertiary"
           tert = picker_colour
-          theme_select[selected_col] = picker_colour
           break
         case "text"
           txtc = picker_colour
-          theme_select[selected_col] = picker_colour
           break
       )
+      if selected_col != "" (
+        theme_select[selected_col] = picker_colour
+      )
+      
       y -= 50
       loc 9999 2 0 y
       w = frame.width - 25
@@ -772,7 +680,31 @@ def "Appearance"
       loc 2 2 30 y
       icon "save" 0.7 : c#txtc
       text "Save And Apply Theme" 9 : chx#30
-      page_len = 450
+      
+      y -= 80
+      each theme themes.getKeys() (
+        loc 9999 2 0 y
+        square w 30 15 : c#prim
+        if mouse_touching (
+          if onclick (
+            theme_select = themes[theme]
+            selected_col = ""
+            
+            prim = theme_select.primary
+            seco = theme_select.secondary
+            tert = theme_select.tertiary
+            txtc = theme_select.text
+            window_colour = theme_select.background
+            window_accent = global_accent
+          )
+        )
+        loc 2 2 30 y
+        text theme 10 : c#txtc
+        y -= 50
+      )
+      
+      page_len = 380 + (themes.len * 50)
+      
       break
     case "File Types"
       count = 0
@@ -896,6 +828,13 @@ def "account"
     )
   )
   
+  loc -2 2 -30 -30
+  icon "log-out" 0.8 : c#txtc tooltip#"Logout"
+  if onclick (
+    network "logout"
+    terminal "shutdown"
+  )
+  
 endef
 
 def "time"
@@ -1000,10 +939,6 @@ if passed_data == "" (
 )
 
 save "settings" "set_directory"
-if save_data != "Success" (
-  say "Failed To Access Save Directory"
-  window "stop"
-)
 file "open" user_folder ++ ".folder"
 current = file[4]
 files = []
@@ -1044,7 +979,7 @@ themes = {
   "light":{"primary":"#c2c2c2","secondary":"#6b6b6b","tertiary":"#555555","text":"#292929","background":"#ebebeb"},
   "ocean":{"primary":"#1a1d28","secondary":"#313f4e","tertiary":"#4f617d","text":"#bae3ee","background":"#090a0b"},
   "forest":{"primary":"#1a2823","secondary":"#33523e","tertiary":"#417656","text":"#e5ffed","background":"#090b0a"},
-  "mint":{"primary":"#8fbcac","secondary":"#1d442b","tertiary":"#07170e","text":"#000000","background":"#d6d6d6"},
+  "mint":{"primary":"#8fbcac","secondary":"#639274","tertiary":"#07170e","text":"#000000","background":"#cde5dd"},
   "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3"},
 }
 
