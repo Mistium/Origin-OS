@@ -2,6 +2,7 @@ import "window_tools"
 
 window "dimensions" 700 480
 window "show"
+
 if passed_data == "" (
   window "stop"
 ) else (
@@ -13,6 +14,8 @@ input_replace = null
 list = []
 search = []
 
+i = 0
+
 mainloop:
 load_theme
 
@@ -23,24 +26,26 @@ input 330 23 "main" "Find Value"
 loc 999 2 0 -113
 square 330 30 10 : c#prim
 if onclick (
-  temp = input_main.destr
+  temp = input_main
   list = []
   i = 0
   file "get" 4
-  search = data.split(newline)
+  search = fileGet(4).split("\n")
 )
-loops = min(100,search.len + 1)
-cur_search = search.trim(1,loops)
-for i2 loops (
-  i += 1
-  if cur_search[i2].contains(temp) (
-    arr = []
-    arr.append(cur_search[i2])
-    arr.append(i)
-    list.append(arr)
+if search.len > 0 (
+  loops = min(500,search.len)
+  cur_search = search.trim(1,loops)
+  for i2 cur_search.len (
+    i ++
+    if cur_search[i2].contains(temp) (
+      arr = []
+      arr.append(cur_search[i2])
+      arr.append(i)
+      list.append(arr)
+    )
   )
+  search.trim(loops + 1,-1)
 )
-search.trim(loops,-1)
 change_x -35
 text "Find All" 8 : c#txtc
 loc 999 2 0 -163
@@ -63,7 +68,7 @@ text "Replace" 8 : c#txtc
 frame "clear"
 
 loc 2 2 360 -50
-text "Results:" ++ list.len 10 : c#txtc
+text "Results:" ++ list.len ++ " - Checked:" ++ i 10 : c#txtc
 c prim
 frame window.left + 350 window.top - 70 window.right window.bottom list.len * 40 "list"
 y = scroll_ylist - 20
@@ -72,7 +77,7 @@ each item list (
   loc 9999 2 0 y
   square w 20 15 : c#prim
   change_x w / -2 + 10
-  text item[2].str ++ ":" + item[1] 10 : c#txtc
+  text item[2] ++ ":" + item[1] 10 : c#txtc
   y -= 40
 )
 
