@@ -1,91 +1,116 @@
-base = {"op":2,"d":{"token":"","intents":4194303},"s":null,"t":null}
-// base packet
-
 self.token = ""
 self.heartbeat_msg = {"op":1,"d":null}
 self.last_heartbeat = timer + 41.25
 self.discord = ""
 self.bot = {}
 
-properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
-properties."$browser" = system_browser.destr
-properties."$device" = system_os.destr
-// get system properties
+proxy = "https://apps.mistium.com/cors?url="
 
-base.d.properties = properties
-messages = []
 self.guilds = []
+self.commands = {}
 
 window "responsive" true
 // make the window run even when unfocused
 
-def "connect"
-  discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
-  wait 0.6
-endef
+def "login" "this.token" (
+  self.discord = "gateway.discord.gg/?v=9&encoding=json:443".newWebsocket()
 
-def "login" "this.token"
   status = "online"
   
-  self.token = this.token
-  
-  base.d.token = this.token.destr
-  discord.wsSend(base)
-  base.d.token = ""
-  
+  self.token = this.token.destr
   self.last_heartbeat = timer + 41.25
-endef
+)
 
-def "heartbeat"
+def senderOf(this.msg) (
+  return this.msg.d.author.username
+)
+
+def connection() (
+  return self.discord
+)
+
+def sendmessage(this.content,this.channel) (
+  this.url = ("https://apps.mistium.com/send-discord-message?token=" ++ self.token ++ "&channelid=" ++ this.channel ++ "&content=" ++ encodeURIComponent(this.content)).getAsync()
+)
+
+def "send_message" "this.content, this.channel" (
+  return self.sendmessage(this.content,this.channel)
+)
+
+def pfpOf(this.msg) (
+  this.au = this.msg.d.author
+  return proxy ++ "https://cdn.discordapp.com/avatars/" ++ this.au.id ++ "/" ++ this.au.avatar ++ ".png"
+)
+
+def myself() (
+  return self.user
+)
+
+def guilds() (
+  return self.guilds
+)
+
+def "register" "command,func" (
+  self.commands[command] = func
+)
+
+def "run" (
   if self.last_heartbeat < timer (
     self.last_heartbeat = timer + 41.25
     this.discord = self.discord.wsSend(self.heartbeat_msg)
   )
-endef
 
-def senderOf(this.msg)
-  return this.msg.d.author.username
-endef
-
-def connection()
-  return self.discord
-endef
-
-def "send_message" "this.content, this.channel"
-  network "getasync" "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ self.token ++ "&channelid=" ++ this.channel ++ "&content=" ++ this.content.str.to("url")
-endef
-
-def pfpOf(this.msg)
-  this.author = this.msg.d.author
-  return "https://cdn.discordapp.com/avatars/" ++ this.author.id ++ "/" ++ this.author.avatar ++ ".png"
-endef
-
-def myself()
-  return self.user
-endef
-
-def guilds()
-  return self.guilds
-endef
-
-def "run"
   if self.discord.wsHasnew() (
-    this.msg = discord.wsGetnext()
-    cmd = this.msg.t
-    msgd = this.msg.d
-    if cmd == "READY" (
-      self.user =  msgd.user
-      self.user.avatar_url = "https://cdn.discordapp.com/avatars/" ++ self.user.id ++ "/" ++ self.user.avatar ++ ".png"
+    this.msg = self.discord.wsGetnext()
+    if this.msg.isType("object").not (
+      return
     )
-    if cmd == "GUILD_CREATE" (
-      guild = msgd
-      guild.channels = guild.channels.sortBy("position")
-      guild.icon = "https://cdn.discordapp.com/icons/" ++ guild.id ++ "/" ++ guild.icon ++ ".png?size=96"
-      self.guilds = self.guilds.append(guild)
-    )
-    if cmd == "MESSAGE_CREATE" (
-      channel = msgd.channel
-      messages[channel] = messages[channel].append(msg)
+    this.cmd = this.msg.t
+    switch this.cmd (
+      case ""
+        if this.msg.op != 10 (
+          return
+        )
+
+        base = {
+          "op":2,
+          "d":{
+            "token":"",
+            "intents":4194303,
+            "properties":{
+              "$os":"originOS",
+              "$browser":"Chrome",
+              "$device":"MacIntel"
+            }
+          },
+          "s":null,
+          "t":null
+        }
+
+        base.d.token = self.token
+        this.out = self.discord.wsSend(base)
+        base.d.token = ""
+  
+        break
+      case "ready"
+        self.bot = this.msg.d.user
+        self.bot.avatar_url = "https://cdn.discordapp.com/avatars/" ++ self.bot.id ++ "/" ++ self.bot.avatar ++ ".png"
+        break
+      case "MESSAGE_CREATE"
+        this.d = this.msg.d
+        this.content = this.d.content
+        
+        each this.command self.commands.getKeys() (
+          if this.content.startsWith(this.command) (
+            this.content = this.content.trim(this.command.len + 1,-1).strip()
+            this.command = self.commands[this.command]
+            
+            this.content = this.command(this.content,this.d)
+            this.out = self.sendmessage(this.content,this.d.channel_id)
+            return
+          )
+        )
+        break
     )
   )
-endef
+)
