@@ -1,28 +1,28 @@
-console = []
+self.console = []
 window "show"
 window "dimensions" 800 550
 
-def "log"
-  console.append(data1)
-endef
+def "log" "this.data" (
+  self.console = self.console.append(this.data)
+)
 
-def "replace_line"
-  console[data1] = data2
-endef
+def "replace_line" "this.line, this.data" (
+  self.console[this.line] = this.data
+)
 
-def "remove_line"
-  console.delete(data1)
-endef
+def "remove_line" (
+  self.console = self.console.delete(data1)
+)
 
-def "clear"
-  console = []
-endef
+def "clear" (
+  self.console = []
+)
 
-def "run_ui"
+def "run_ui" (
   this.prim = user.theme.primary
   this.txt = user.theme.text
   c this.prim
-  frame window.left window.top - 40 window.right window.bottom console.len * 20
+  frame window.left window.top - 40 window.right window.bottom self.console.len * 20
   c this.txt
   count = (scroll_y / 20).round
   loc 2 2 10 -20
@@ -30,7 +30,7 @@ def "run_ui"
   loop frame.height // 20 (
     count ++
     set_x x
-    text console[count] 10
+    text self.console[count] 10
     change_y -20
   )
   frame "clear"
@@ -39,11 +39,11 @@ def "run_ui"
   square window_width 30 10 : c#this.prim
 
   loc 2 2 10 -20
-  text title 10 : c#this.txt
+  text self.title 10 : c#this.txt
 
   loc -2 2 -20 -20
   icon "close" 0.7
   if clicked (
     window "stop"
   )
-endef
+)
