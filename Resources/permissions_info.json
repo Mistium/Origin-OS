@@ -18,5 +18,6 @@
   "save admin":          "(Careful) This lets the app edit all save data",
   "javascript":          "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
   "python":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-  "kernel":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS"
+  "kernel":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
+  "rotur token":         "(CAREFUL) GIVES COMPLETE ACCESS TO YOUR ACCOUNT"
 }
