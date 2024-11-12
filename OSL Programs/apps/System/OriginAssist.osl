@@ -1,4 +1,3 @@
-import "window_tools"
 
 window "dimensions" 809 500
 can = false
@@ -6,17 +5,17 @@ permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "kernel"
 
-def "inform" "data"
-  gpt "inform_bot" "assistant" data
-endef
+def "inform" "data" (
+  _.gptInform(data)
+)
 
-gpt "new_bot" "assistant"
-inform "You are the originOS assistant"
-inform "The user's name is" + username
-inform "Origin's current version is" + origin.version
-inform "originOS is a web based operating system built on scratch"
-inform "Studio is a simple text editor that can be used to edit files"
-inform "studio can run icn, osl, js, python, oasm and otas, but it only able to edit other files like text"
+_ = gptNew()
+_.gptInform("You are the originOS assistant")
+_.gptInform("The user's name is" + username)
+_.gptInform("Origin's current version is" + origin.version)
+_.gptInform("originOS is a web based operating system built on scratch")
+_.gptInform("Studio is a simple text editor that can be used to edit files")
+_.gptInform("studio can run icn, osl, js, python, oasm and otas, but it only able to edit other files like text")
 
 selected_input = "search"
 
@@ -51,28 +50,27 @@ files_paths = data.join(newline)
 terminal "-get.windows"
 windows = windows_names.join(newline)
 
-inform "The users files are listed from oldest at the top to youngest at the bottom as: " ++ files_paths
-inform "The user has these apps open: " ++ windows
-inform "Don't use any formatting other than # or ## or ###"
-inform "To access a file, YOU need to type the following and without any other text and starting the message with: '<FILEREAD>path' like <FILEREAD>origin/(c) users/username/downloads/test.osl, you will get an automated response from the user of the file array"
-inform "To open or run a file you must type the the following and without any other text and starting the message with: '<FILEOPEN>path' like <FILEOPEN>origin/(c) users/username/downloads/test.osl and you will get an automated response from the user of 'File Opened'"
-inform "You care able to open multiple files sequentially by responding to the file data with another open file request"
+// _.gptInform("The users files are listed from oldest at the top to youngest at the bottom as: " ++ files_paths)
+_.gptInform("The user has these apps open: " ++ windows)
+_.gptInform("Don't use any formatting other than # or ## or ###")
+_.gptInform("To access a file, YOU need to type the following and without any other text and starting the message with: '<FILEREAD>path' like <FILEREAD>origin/(c) users/username/downloads/test.osl, you will get an automated response from the user of the file array")
+_.gptInform("To open or run a file you must type the the following and without any other text and starting the message with: '<FILEOPEN>path' like <FILEOPEN>origin/(c) users/username/downloads/test.osl and you will get an automated response from the user of 'File Opened'")
+_.gptInform("You care able to open multiple files sequentially by responding to the file data with another open file request")
 w = 647.2
 h = 400
 left = w / -2
 right = w / 2
 
 mainloop:
-load_theme
 
 goto 0 0
 square w h 30 : c#global_accent
 if "escape".onpress or (clicked.not and mouse_left) (
   window "stop"
 )
-square w h 25 : c#window_colour
+square w h 25 : c#050505
 goto 0 h / 2 - 25
-square w 50 10 : c#prim
+square w 50 10 : c#222
 input_search.destr
 input w-20 30 "search" "Search For Apps And Commands..."
 input_search.str.toLower()
@@ -131,8 +129,8 @@ if input_search != temp (
 if "enter".onpress (
   outputs.main = "GPT Is Thinking"
   goto left 120
-  text "GPT Is Thinking" 10 : c#txtc
-  gpt "send" "assistant" input_search.str
+  text "GPT Is Thinking" 10 : c#fff
+  data = _.gptSend(input_search.toStr())
   if data.startsWith("<FILEOPEN>") (
     path = data.right(data.len - 10).strip()
     file "open" path "onlyaccess"
@@ -144,12 +142,12 @@ if "enter".onpress (
   while data.startsWith("<FILEREAD>") (
     square 200 40 10 : c#222
     change_x "Reading File".len * -5
-    text "Reading File" 10 : c#txtc
+    text "Reading File" 10 : c#fff
     path = data.right(data.len - 10).strip()
     goto -300 120
     text path 10
     file "open" path
-    gpt "send" "assistant" file
+    data = _.gptSend(file)
     file "close"
   )
   input_search = ""
@@ -196,9 +194,9 @@ y = 40
 code_block = 0
 if outputs.main != "" (
   loc 999 2 0 segment_length / -2 + scroll_y
-  square frame_width - 20 segment_length 10 : c#prim
+  square frame_width - 20 segment_length 10 : c#222
   loc 2 2 20 -20 + scroll_y
-  text name 8 : c#txtc
+  text name 8 : c#ddd
   out = outputs.main
   loc 2 2 20 -75 + scroll_y
   x = x_position
@@ -207,7 +205,7 @@ if outputs.main != "" (
     switch line (
       case "---"
         set_x 0
-        square frame_width - 30 0 10 : c#seco
+        square frame_width - 30 0 10 : c#444
         c #ddd
         break
       case "```"
@@ -216,7 +214,7 @@ if outputs.main != "" (
       default
         if code_block == 1 (
           set_x 0
-          square frame_width - 30 20 5 : c#seco
+          square frame_width - 30 20 5 : c#333
           c #ddd
         )
         set_x x
@@ -230,7 +228,7 @@ if outputs.main != "" (
 )
 if page_len == 0 (
   loc 2 2 20 -20
-  text "No Results" 10 : c#txtc
+  text "No Results" 10 : c#fff
 )
 
 files = outputs.files.trim(1,10)
@@ -239,7 +237,7 @@ if files != "" (
   y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - (height / 2) + 10
-  square frame_width - 20 height + 20 10 : c#prim
+  square frame_width - 20 height + 20 10 : c#111
   loc 2 2 15 y2 + 10
   text "Files" 8 : c#fff
   count = 0
@@ -248,7 +246,7 @@ if files != "" (
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
     file "open" files[count]
-    square frame_width - 30 25 10 : c#prim hover_c#seco
+    square frame_width - 30 25 10 : c#222 hover_c#333
     if clicked (
       file "start"
       window "stop"
@@ -274,21 +272,21 @@ if settings != "" (
   y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - (height / 2) + 10
-  square frame_width - 20 height + 20 10 : c#prim
+  square frame_width - 20 height + 20 10 : c#111
   loc 2 2 15 y2 + 10
-  text "Settings" 8 : c#txtc
+  text "Settings" 8 : c#fff
   count = 0
   loop settings.len (
     count ++
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
-    square frame_width - 30 25 10 : c#prim hover_c#seco
+    square frame_width - 30 25 10 : c#222 hover_c#333
     if clicked (
       window "add" "settings" settings[count]
       window "stop"
     )
     loc 2 2 15 cur_y
-    text settings[count] 10 : c#txtc
+    text settings[count] 10 : c#fff
     y -= 40
   )
 )
@@ -299,17 +297,17 @@ if wins != "" (
   y -= 40
   y2 = y + scroll_y
   loc 999 2 0 y2 - ( height / 2 ) + 10
-  square frame_width - 20 height + 20 10 : c#prim
+  square frame_width - 20 height + 20 10 : c#111
   loc 2 2 15 y2 + 10
-  text "Windows" 8 : c#txtc
+  text "Windows" 8 : c#fff
   count = 0
   loop wins.len (
     count ++
     cur_y = -20 + y + scroll_y
     loc 999 2 0 cur_y
-    square frame_width - 30 25 10 : c#prim hover_c#seco
+    square frame_width - 30 25 10 : c#222 hover_c#333
     loc 2 2 15 cur_y
-    text wins[count] 10 : c#txtc
+    text wins[count] 10 : c#fff
     y -= 40
   )
 )
