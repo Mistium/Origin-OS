@@ -9,16 +9,43 @@ permission "request" "file admin"
 permission "request" "account"
 permission "request" "kernel"
 
-def "appopt" "optname,opticn,icnsize"
+
+def "setting_toggle" "this.txt, this.w, this.state, this.callback" (
+  this.x = x_position
+  square this.w 30 10 : c#prim
+  change_x this.w / -2 + 10
+  text this.txt 10 : c#txtc
+  set_x this.x + (this.w / 2 - 15)
+  square 30 30 5 : c#seco
+  if onclick (
+    return this.callback()
+  )
+  if this.state (
+    icon "tick" 0.8 : c#txtc
+  )
+)
+
+def "setting_do" "this.txt, this.w, this.callback" (
+  square this.w 30 10 : c#prim
+  if onclick (
+    return this.callback()
+  )
+
+  change_x this.w / -2 + 10
+  text this.txt 10 : c#txtc
+)
+
+
+def "appopt" "optname,opticn,icnsize" (
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#prim
   loc 2 2 30 y
   icon opticn icnsize.destr : c#txtc
   change_x 25
   text optname 8
-endef
+)
 
-def "DrawCategory" "setting,icn_code"
+def "DrawCategory" "setting,icn_code" (
   temp = x_position
   change_x 80
   if category == setting (
@@ -35,9 +62,9 @@ def "DrawCategory" "setting,icn_code"
   change_x 30
   text setting 10
   goto temp y_position - 50
-endef
+)
 
-def "option" "name,icn_code"
+def "option" "name,icn_code" (
   loc 999 2 0 y
   this.w = frame_width - 25
   square this.w 30 10 0 1
@@ -54,9 +81,9 @@ def "option" "name,icn_code"
   text name 10 : chx#30
   y -= 50
   page_len += 50
-endef
+)
 
-def "system"
+def "system" (
   if network_drive.istype("array").not (
     mem = "navigator.deviceMemory".eval
     cores = "navigator.hardwareConcurrency".eval
@@ -137,6 +164,7 @@ def "system"
       set_x x : chy#-20
       text "Screen   |  " ++ screensize_x ++ "x" ++ screensize_y 9
       set_x x : chy#-20
+
       if system_url.startsWith("https://origin.mistium.com") (
         text "Host     |  Official" 9
       ) else (
@@ -368,9 +396,9 @@ def "system"
       break
   )
   clicked = false
-endef
+)
 
-def "network_page"
+def "network_page" (
   loc 999 2 0 -70
   w = frame.width - 25
   square w 100 15 : c#seco
@@ -391,9 +419,9 @@ def "network_page"
     square 0 0 10 : c#24ad2c
   )
   text temp 10 : c#txtc chx#15
-endef
+)
 
-def "colour_selector" "this.name,this.id"
+def "colour_selector" "this.name,this.id" (
   loc 9999 2 0 y
   w = frame.width - 25
   square w 30 15 : c#prim
@@ -427,9 +455,9 @@ def "colour_selector" "this.name,this.id"
       selected_col = this.id
     )
   )
-endef
+)
 
-def "Appearance"
+def "Appearance" (
   switch subcategory (
     case "none"
       option "Background" "w 3 square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
@@ -527,12 +555,7 @@ def "Appearance"
     case "Dock"
       if new_transmit (
         file "open" transmit_data "onlyaccess"
-        file "get" 3
-        this.path = data
-        file "get" 2
-        this.name = data
-        file "get" 1
-        f = this.path ++ "/" ++ this.name ++ data
+        f = fileGet(3) ++ "/" ++ fileGet(2) ++ fileGet(1)
         segments.append(f)
         network "update" "origin_dock" segments
         new_transmit = false
@@ -550,13 +573,9 @@ def "Appearance"
       )
       if file_dropped != 0 (
         file "open" file_dropped "onlyaccess"
-        file "get" 3
-        this.path = data
-        file "get" 2
-        this.name = data
-        file "get" 1
+        data = fileGet(1)
         if data == ".ode" (
-          f = this.path ++ "/" ++ this.name ++ data
+          f = fileGet(3) ++ "/" ++ fileGet(2) ++ data
           segments.append(f)
           network "update" "origin_dock" segments
         )
@@ -751,7 +770,7 @@ def "Appearance"
         temp = slider_scrollsp * -1
       )
       terminal "system scrollspeed" + temp
-      if temp != user."scrollspeed" (
+      if temp != user.scrollspeed (
         loc -2 2 -120 -140
         square 200 20 15 0 1
         if onclick (
@@ -768,11 +787,14 @@ def "Appearance"
       break
   )
   frame "clear"
-endef
+)
 
-def "account"
+def "account" (
+  this.w = frame_width - 25
+  
   loc 999 2 0 -85
-  square frame_width - 25 130 15 : c#prim
+  square this.w 130 15 : c#prim
+  
   
   loc 2 2 78 -85
   image user_icon.str 120 120
@@ -835,9 +857,14 @@ def "account"
     terminal "shutdown"
   )
   
-endef
+  
+  goto 0 frame.top - 200
+  setting_do "Change Password" this.w def() -> (
+    network "update" "password" "Enter Your New Password".ask().hashMD5()
+  )
+)
 
-def "time"
+def "time" (
   w = frame_width - 25
   loc 999 2 0 -40
   square w 40 15 1 : c#prim
@@ -854,15 +881,23 @@ def "time"
   dt = delta_time * 1000
   dt = dt.round
   text `Since Last Frame: ${dt}ms` 8
-endef
+)
 
-def "updates"
+def "privacy" (
+  this.w = frame_width - 25
+  set_y frame.top - 35
+  setting_toggle "Private Account?" this.w user.private def() -> (
+    network "update" "private" user.private.not
+  )
+)
+
+def "updates" (
   version = origin.version
   loc 2 2 20 -20 + scroll_y
   text "Current Version:" + version 10 : c#txtc
-endef
+)
 
-def "credits"
+def "credits" (
   if subcategory == "none" (
     page_len = 290
     w = frame_width / 2 - 40
@@ -927,7 +962,7 @@ def "credits"
     )
     page_len = extensions.len - 0.5 * 60
   )
-endef
+)
 
 if passed_data == "" (
   category = "System"
@@ -1049,7 +1084,7 @@ switch category (
     network_page
     break
   case "Appearance"
-    Appearance
+    appearance
     break
   case "Account"
     account
@@ -1059,6 +1094,9 @@ switch category (
     break
   case "Time"
     time
+    break
+  case "Privacy"
+    privacy
     break
   case "updates"
     updates
