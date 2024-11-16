@@ -457,7 +457,7 @@ def "colour_selector" "this.name,this.id" (
   )
 )
 
-def "Appearance" (
+def "appearance" (
   switch subcategory (
     case "none"
       option "Background" "w 3 square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
