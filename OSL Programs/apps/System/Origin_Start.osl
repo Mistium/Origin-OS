@@ -43,12 +43,12 @@ mainloop:
 if new_network_data (
   if network_data_command == "my_files_usage" (
     usage = network_data
-    log usage
     new_network_data = false
   )
 )
 
 window_y += target_y - window_y / 5
+window "refresh_bg"
 window "y" window_y.round
 
 square 700 700 15 : c#global_accent
