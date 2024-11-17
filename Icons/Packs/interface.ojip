@@ -35,7 +35,7 @@
     "store-full": "w 3 line -5 2 -5 5 line 5 2 5 5 cutcircle 0 5 5 0 90 square 0 -4 10 5 w 10 line -5 -4 5 -4",
     "settings": "w 3 line -8 8 -8 -8 line 0 8 0 -8 line 8 8 8 -8 line 6 6 10 6 line 2 -3 -2 -3 line -6 2 -10 2",
     "settings-full": "w 4 line -8 8 -8 -8 line 0 8 0 -8 line 8 8 8 -8 line 6 6 10 6 line 2 -3 -2 -3 line -6 2 -10 2",
-    "reload": "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3",
+    "reload": "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 9 0 3",
     "share": "w 2 cutcircle -7 0 4.5 0 180 cutcircle 7 7 4.5 0 180 cutcircle 7 -7 4.5 0 180 w 3 line -3 3 2 6 line -3 -3 2 -6",
     "dot-grid": "w 5 dot -10 10 dot 0 10 dot 10 10 dot -10 0 dot 0 0n dot 10 0 dot -10 -10 dot 0 -10 dot 10 -10",
     "multitasking": "w 2.5 line -10 5 0 10 cont 10 5 line -10 5 0 0 cont 10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7",
