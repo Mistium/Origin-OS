@@ -54,6 +54,8 @@ network "server" "connect_rotur_discord"
 
 discord_messages = []
 
+repo_data = "https://api.github.com/repos/Mistium/Origin-OS".get()
+
 mainloop:
 
 wt:load_theme
@@ -68,13 +70,11 @@ if new_network_data (
   new_network_data = false
 )
 
-if repo_data.isType("string") (
-  repo_data = "https://api.github.com/repos/Mistium/Origin-OS".getAsync().JsonParse()
-)
-
 window_y += target_y - window_y / 5
-window "refresh_bg"
-window "y" window_y.round
+if window_y.round() != target_y.round() (
+  window "refresh_bg"
+)
+window "y" window_y.round()
 
 square 700 700 15 : c#global_accent
 square 700 700 10 1 : c#window_colour
