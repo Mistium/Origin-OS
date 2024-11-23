@@ -433,6 +433,9 @@
   "⣿": "square 10 40 0 0 square 10 30 0 0 square 10 20 0 0 square 10 10 0 0 square 20 40 0 0 square 20 30 0 0 square 20 20 0 0 square 20 10 0 0",
   "⣑": "square 10 40 0 0 square 10 10 0 0 square 20 30 0 0 square 20 10 0 0",
   "§": "line 5 10 10 5 cont 20 5 cont 25 10 cont 7 20 cont 7 25 cont 13 28 line 25 35 20 40 cont 10 40 cont 5 35 cont 23 25 cont 23 20 cont 16 16",
-  "“": "w 5.53 line 15 36.5 10 31.25 line 25 36.5 20 31.25 ",
-  "”": "w 5.53 line 10 31.25 5 36.5 line 20 31.25 15 36.5 "
+  "“": "w 5.53 line 15 36.5 10 31.25 line 25 36.5 20 31.25",
+  "”": "w 5.53 line 10 31.25 5 36.5 line 20 31.25 15 36.5",
+  "ᓚ": "w 6 line 10 5 25 5 w 3 cutcircle 10 10 5 -9 90",
+  "ᘏ": "w 4 cutcircle 10.7 10 5 15 90 cutcircle 30 18 26 -9 21 cutcircle 14.5 25 9 0 70 cutcircle -20.3 16 45 9 14",
+  "ᗢ": "w 6 line 5 35 15 30 cont 25 35 w 4 cutcircle -4 30 30 11 30 cutcircle 34 30 30 -11 30"
 }
