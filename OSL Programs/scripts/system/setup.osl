@@ -13,8 +13,12 @@ osl_icn = "w 3 c #ebda6e square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 con
 owf_icn = "w 3 c #644ea7 square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 cont 0 10 w 17 dot 0 0 c #302552 w 3 line 10 0 0 -10 cont -10 0 cont 10 0 w 15.8 c #5e547d dot 0 0 c #d3cce8 icn origin-logo 0.5"
 ots_icn = "c #1c452a w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #1b8f44 w 1.5 line 0 -4 4 -4 line -4 3 -1 0 cont -4 -3"
 
-icon_cfg = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9 cont 2 7 line -2 -7 -1.5 -9 cont 1.5 -9 cont 2 -7 line 7 -2 9 -1.5 cont 9 1.5 cont 7 2 line -7 -2 -9 -1.5 cont -9 1.5 cont -7 2 line -5.5 3 -7.5 6 cont -6 7.5 cont -3 5.5 line 5.5 3 7.5 6 cont 6 7.5 cont 3 5.5 line -5.5 -3 -7.5 -6 cont -6 -7.5 cont -3 -5.5 line 5.5 -3 7.5 -6 cont 6 -7.5 cont 3 -5.5 w 3 dot 0 8 dot 8 0 dot 0 -8 dot -8 0 dot -6 -6 dot 6 -6 dot -6 6 dot 6 6 "
-icon_log = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0  dot 0 -5"
+missing_icn = "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #325775 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5"
+exe_icn = "w 3 c #797774 square 0 -.4 9 7.25 w 2 c #fff square 0 -1 9 6.5 w 2.7 line -8.65 5.5 8.65 5.5 w 5 square 0 -1 6 4 line -2 -1 2 -1 w .3 c #c4c4c4 square 8.5 7.6 .2 .2 dot 8.5 7.6 square 7 7.6 .2 .2 dot 7 7.6 square 5.5 7.6 .2 .2 dot 5.5 7.6 w 1 c #0b7acb square 0 -.75 3.5 5.5 w 2 square 0 -.75 2.75 4.4 w 5 line 0 -2.5 0 1
+w .3 c #979697 line -9 5 -5 5 line -9 3.7 -5 3.7 line -9 2.4 -5 2.4 line -9 1.1 -5 1.1 line -9 -.2 -5 -.2 line -9 -1.5 -5 -1.5 line -9 -2.8 -5 -2.8 line -9 -4.1 -5 -4.1 line 9 5 5 5 line 9 3.7 5 3.7 line 9 2.4 5 2.4 line 9 1.1 5 1.1 line 9 -.2 5 -.2"
+
+cfg_icn = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9 cont 2 7 line -2 -7 -1.5 -9 cont 1.5 -9 cont 2 -7 line 7 -2 9 -1.5 cont 9 1.5 cont 7 2 line -7 -2 -9 -1.5 cont -9 1.5 cont -7 2 line -5.5 3 -7.5 6 cont -6 7.5 cont -3 5.5 line 5.5 3 7.5 6 cont 6 7.5 cont 3 5.5 line -5.5 -3 -7.5 -6 cont -6 -7.5 cont -3 -5.5 line 5.5 -3 7.5 -6 cont 6 -7.5 cont 3 -5.5 w 3 dot 0 8 dot 8 0 dot 0 -8 dot -8 0 dot -6 -6 dot 6 -6 dot -6 6 dot 6 6 "
+log_icn = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0  dot 0 -5"
 
 // main
 file "install_type" "folder" "c #772d1c square 0 2 10 4 c #ff724f square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0" "Folder" ["Origin/(A) System/User Applications/Files.osl"]
@@ -40,13 +44,13 @@ file "install_type" "7z" archive_icn "7z Archive" []
 file "install_type" "xml" "c #7c3b73 w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #5e2856 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 1.5 c #fff line -3.25 -1 -5.75 -4 cont -3.25 -7 line 3.25 -1 5.75 -4 cont 3.25 -7 line -1 -6.25 1 -1.75" "Markup" ["Origin/(A) System/User Applications/Studio.osl"]
 
 // binary data
-file "install_type" "so" "" "Shared Object Library" []
-file "install_type" "exe" "" "Windows Executable" []
-file "install_type" "dll" "" "Dynamic Link Library" []
-file "install_type" "msi" "" "Windows Installer Package" []
-file "install_type" "scr" "" "Windows Screensaver" []
-file "install_type" "iso" "" "ISO Disk Image" []
-file "install_type" "img" "" "Disk Image" []
+file "install_type" "so" missing_icn "Shared Object Lib" []
+file "install_type" "exe" exe_icn "Windows App" []
+file "install_type" "dll" missing_icn "Dynamic Link Lib" []
+file "install_type" "msi" missing_icn "Windows Installer" []
+file "install_type" "scr" missing_icn "Windows Screensaver" []
+file "install_type" "iso" missing_icn "ISO Disk Image" []
+file "install_type" "img" missing_icn "Disk Image" []
 
 // languages
 file "install_type" "oasm" assembly_icn "Origin Assembly" ["Origin/(A) System/System Apps/OASM Runner.osl","Origin/(A) System/User Applications/Studio.osl"]
@@ -78,5 +82,5 @@ file "install_type" "wav" music_icn "WAV Audio" ["Origin/(A) System/System Apps/
 file "install_type" "flac" music_icn "FLAC Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
 
 // info
-file "install_type" "cfg" icon_cfg "Config" []
-file "install_type" "log" icon_log "Debug logs" []
+file "install_type" "cfg" cfg_icn "Config" []
+file "install_type" "log" log_icn "Debug logs" []
