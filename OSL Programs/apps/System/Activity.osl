@@ -10,11 +10,11 @@ current_tab = "no_perms"
 windows = Windows()
 
 activity_info = false
-if windows.getKeys("name").contains(passed_data) (
+if windows.getKeys("id").contains(passed_data) (
   activity_info = true
   page = passed_data
 )
-memory = "typeof performance.memory !== 'undefined'".eval
+memory = "performance.memory !== undefined".eval()
 paused = false
 graph = []
 network_usage = []
@@ -36,6 +36,7 @@ def arrSum(this.arr) (
 )
 
 created_time = timer
+last_timer = timer
 next_update = 0.5
 pen "width" 10
 high = 0
@@ -69,9 +70,9 @@ if current_tab == "no_perms" (
 )
 if activity_info (
   loc 2 2 20 -20
-  text page 10 : c#txtc
+  text name 10 : c#txtc
   loc 2 2 20 -50
-  text `${dt}ms` 15
+  text dt.round() + "fps" 15
   if timer - created_time > 1 (
     loc 2 2 90 -100
     square 140 25 10 : c#prim hover_c#seco
@@ -80,32 +81,33 @@ if activity_info (
       window "stop"
     )
     icon "close" 0.7 : c#txtc chx#-50
-    text "Force Quit" 7 : chx#20
+    
+    text "Force Quit" 9 : chx#20
   )
+  
   wwm = window_width / 30
   whm = window_height / 100
   if timer - last_timer > 0.05 (
     last_timer = timer
     dt = delta_time
     windows = Windows()
-    current = windows.getKeys("name").index(page)
-    dt = windows_drawtimes[current][1]
-    pr = windows_drawtimes[current][2]
-    dt2 = dt / 10
-    graph.append(dt2)
+    current = windows.getKeys("id").index(page)
+    drawtimes = windows[current].render.JsonParse()
+    name = windows[current].name
+    dt = (1000 / (drawtimes[1] + 0.01)).clamp(1,1000)
+    pr = drawtimes[2]
+    graph.append(dt / 1000)
     graph.delete(1)
   )
   c txtc
-  count = 0
-  loop pr.len (
-    count ++
-    loc 2 2 10 count * -20 - 120
-    text pr[count] 10
+  loc 2 2 20 -150
+  each i pr (
+    set_x window.left + 20
+    text i 10
+    change_y -20
   )
-  goto 0 0
-  graph window_width - 50 window_height - 50 graph
-  loc -2 -2 -125 10
-  text "Lower is faster" 8
+  goto 150 -50
+  graph window_width - 300 window_height - 100 graph
   exit
 )
 
@@ -119,6 +121,7 @@ if graph.len > 1000 (
 )
 frames = fps.round
 if high < frames "high = frames"
+low *= 1.002
 if low > frames "low = frames"
 loc 2 2 23 - (frames.len * 5) -20
 text frames 10 : c#txtc
@@ -128,8 +131,8 @@ loc 2 2 23 - (high.len * 5) -70
 text high 10
 loc 2 2 12 -90
 text "high" 7
-loc 2 2 23 - (low.len * 5) -120
-text low 10
+loc 2 2 23 - (low.round().len * 5) -120
+text low.round() 10
 loc 2 2 13.5 -140
 text "low" 7
 loc 2 2 23 - (delta.len * 5) -170
@@ -166,6 +169,7 @@ if timer - last_timer > next_update and paused.not (
   windows = Windows()
   windows_names = windows.getKeys("name")
   windows_drawtimes = windows.getKeys("render")
+  windows_ids = windows.getKeys("id")
   windows_draw_main = []
   each item windows_drawtimes (
     windows_draw_main.append(item[1])
@@ -235,7 +239,7 @@ if current_tab == "Render Info" (
     if mouse_touching (
       square w 25 10 : c#seco
       if onclick (
-        window "add" "Activity" windows_names[count]
+        window "add" window.file.uuid windows_ids[count]
       )
     )
     rightclick "window" windows_names[count]
