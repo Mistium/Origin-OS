@@ -1,0 +1,50 @@
+{
+  "manifest": {
+    "name": "OTS",
+    "version": "1",
+    "extensions": [".ots"]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "(?:\"(?:[^\\\"]*|\\.)*(?:\"|$))|[^ :$]+|[ :$]"
+  },
+  "overrides": {
+    "origin.numbers": "#5c9bec",
+    "origin.strings": "#9cc6ff"
+  },
+  "categories": {
+    "jumps": {
+      "color": "#f1756f",
+      "tokens": [
+        "if",
+        "jump",
+        ":"
+      ]
+    },
+    "operators": {
+      "color": "#e28a58",
+      "tokens": [
+        "+",
+        "-",
+        "/",
+        "*",
+        "%",
+        "^",
+        "==",
+        "!=",
+        "<",
+        ">",
+        "=",
+        ">>",
+        "and",
+        "or",
+        "nor",
+        "xor",
+        "nand",
+        "item",
+        "join",
+        "$"
+      ]
+    }
+  }
+}
