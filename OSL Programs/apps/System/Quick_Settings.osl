@@ -4,9 +4,9 @@
 import "window_tools" as "wt"
 
 permission "request" "terminal"
-window "responsive" true
-window.no_desktop = true
 
+window.no_desktop = true
+window "responsive" true
 uname = user.username
 
 winw = uname.len * 9 + 150
@@ -35,28 +35,31 @@ window.width = winw
 window.x = screensize_x - window.width / 2 - 5
 window.y = screensize_y / 2 - 35
 
-square window.width - 25 window.height - 25 20 : c#window_colour
+square window.width window.height 0 0 1
+if winw != winw_target or mouse_touching or bg_redrawn (
+  square window.width - 25 window.height - 25 20 : c#window_colour
 
-goto window.left + 30 0
-image user.pfp 40 40
-icon "w 3.5 cutcircle -13 13 10 -4.5 45 cutcircle -13 -13 10 -13 45 cutcircle 13 -13 10 13 45 cutcircle 13 13 10 4.5 45" 1 : c#window_colour
-text uname 9 : chx#30 c#txtc
+  goto window.left + 30 0
+  image user.pfp 40 40
+  icon "w 3.5 cutcircle -13 13 10 -4.5 45 cutcircle -13 -13 10 -13 45 cutcircle 13 -13 10 13 45 cutcircle 13 13 10 4.5 45" 1 : c#window_colour
+  text uname 9 : chx#30 c#txtc
 
-goto window.right - 30 0
-icon "settings" 0.9
-if onclick (
-  window "add" "settings"
-)
+  goto window.right - 30 0
+  icon "settings" 0.9
+  if onclick (
+    window "add" "settings"
+  )
 
-if network.connected.not (
-  winw_target += 30
-  icon "network" 0.9 : chx#-30
-  icon "w 2 line -10 -10 10 10" 0.9
-)
+  if network.connected.not (
+    winw_target += 30
+    icon "network" 0.9 : chx#-30
+    icon "w 2 line -10 -10 10 10" 0.9
+  )
 
-terminal "get filechanges"
-if data.len > 0 (
-  winw_target += 30
-  direction timer * 160
-  icon "w 3 cutcircle 0 0 10 0 90" 0.9 : chx#-30
+  terminal "get filechanges"
+  if data.len > 0 (
+    winw_target += 30
+    direction timer * 160
+    icon "w 3 cutcircle 0 0 10 0 90" 0.9 : chx#-30
+  )
 )
