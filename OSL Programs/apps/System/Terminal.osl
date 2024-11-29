@@ -13,6 +13,8 @@ def "clearall"
   loops = 0
 endef
 
+save "system@terminal" "set_directory"
+
 
 mode = "norm"
 
@@ -42,6 +44,9 @@ user_start = username ++ "/: "
 terminal = []
 canenter = True
 input_1 = null
+last = []
+last_index = 0
+
 permission "request" "terminal"
 
 loops = 0
@@ -70,7 +75,7 @@ square window.width 40 10 : c#prim
 loc 999 2 0 -20
 square window_width 30 10 : c#prim
 
-glass:frame window.left window.top window.right window.bottom;
+glass:frame window.left window.top window.right window.bottom
 c window_colour
 pen "opacity" 60
 icon "w 999 dot 0 0" 100
@@ -150,11 +155,11 @@ if ots_script != "" (
   )
   if mode == "norm" (
   if "enter".onpress (
-    last = input_1
+    last.append(input_1)
+    last_index = last.len + 1
     try (
       if input_1.startsWith("SRE ") (
         mode = "SRE"
-        network ""
         sre_target = input_1.split(" ")[2]
       ) else (
         terminal input_1.str
@@ -174,7 +179,17 @@ if ots_script != "" (
   )
   )
 )
-if "up arrow".pressed "input_1 = last"
+
+if "up arrow".onpress (
+  last_index --
+  last_index.clamp(1,last.len)
+  input_1 = last[last_index]
+)
+if "down arrow".onpress (
+  last_index ++
+  last_index.clamp(1,last.len + 1)
+  input_1 = last[last_index]
+)
 
 loc 2 2 10 -20
 text "Terminal" 10 : c#txtc
