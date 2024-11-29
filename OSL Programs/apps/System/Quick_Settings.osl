@@ -5,6 +5,8 @@ import "window_tools" as "wt"
 
 permission "request" "terminal"
 window "responsive" true
+window.no_desktop = true
+
 uname = user.username
 
 winw = uname.len * 9 + 150
