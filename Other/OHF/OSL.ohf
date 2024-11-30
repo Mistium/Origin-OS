@@ -12,13 +12,15 @@
     "data": " +|\"(?:[^\\\"]*|\\.)*(?:\"|$)|'(?:[^\\']*|\\.)*(?:'|$)|[\\+\\-/*^%!]|[(),\\[\\]{}:]|[\\d.]+|\\.?[^\\[\\],. \\n()\\-+\/*%^]+|."
   },
   "overrides": {
-    "origin.comments": "#aaaaaa",
-    "origin.numbers": "#5c9bec",
-    "origin.strings": "#9cc6ff"
+    "origin.numbers": "#6eace5",
+    "origin.strings": "#a6d6ff",
+    "origin.comments": "#555c67",
+    "origin.functions": "#af8ed6",
+    "origin.objects": "#78bdfb"
   },
   "categories": {
     "ui": {
-      "color": "#b7fbff",
+      "color": "#cca2b4",
       "tokens": [
         "text",
         "icon",
@@ -34,7 +36,22 @@
         "bar",
         "iframe",
         "graph",
-        "icongrid"
+        "icongrid",
+        "pen",
+        "effect",
+        "c",
+        "color",
+        "colour",
+        "configtext",
+        "triangle",
+        "line",
+        "dots",
+        "stripe",
+        "stretch",
+        "dropdown",
+        "3dr",
+        "uri",
+        "canv"
       ]
     },
     "positioning": {
@@ -48,20 +65,44 @@
         "set_x",
         "set_y",
         "direction",
-        "pointat"
+        "pointat",
+        "turnleft",
+        "turnright"
       ]
     },
     "window": {
       "color": "#b63ceb",
       "tokens": [
-        "window",
         "mainloop:",
-        "import",
-        "permission"
+        "permission",
+        "save",
+        "localdb",
+        "indexedDB",
+        "file",
+        "include",
+        "notify",
+        "rightclick",
+        "clipboard",
+        "camera",
+        "display",
+        "systemvars",
+        "transmit",
+        "zip",
+        "rotur",
+        "simulate",
+        "cursor",
+        "colourpicker",
+        "global",
+        "py",
+        "eval",
+        "oasm",
+        "otas",
+        "terminal",
+        "network"
       ]
     },
     "programflow": {
-      "color": "#eb3c3c",
+      "color": "#fb7971",
       "tokens": [
         "if",
         "else",
@@ -73,7 +114,19 @@
         "break",
         "switch",
         "case",
-        "default"
+        "default",
+        "try",
+        "catch",
+        "import",
+        "as",
+        "from",
+        "export",
+        "self",
+        "wait",
+        "event",
+        "run",
+        "frame",
+        "throw"
       ]
     },
     "functions": {
@@ -81,7 +134,8 @@
       "tokens": [
         "def",
         "endef",
-        "return"
+        "return",
+        "this"
       ]
     },
     "logging": {
@@ -90,11 +144,12 @@
         "log",
         "warn",
         "error",
-        "say"
+        "say",
+        "clear"
       ]
     },
     "operators": {
-      "color": "#ffec9c",
+      "color": "#fb7971",
       "tokens": [
         "+",
         "-",
@@ -150,7 +205,7 @@
       ]
     },
     "brackets": {
-      "color": "#9cc6ff",
+      "color": "#dab908",
       "tokens": [
         "(",
         ")",
