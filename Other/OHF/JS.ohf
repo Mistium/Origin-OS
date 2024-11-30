@@ -41,6 +41,7 @@
         "return",
         "for",
         "if",
+        "else",
         "switch",
         "case",
         "break",
