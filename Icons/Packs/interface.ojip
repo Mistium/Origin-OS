@@ -83,6 +83,7 @@
     "cog": "w 2 cutcircle 0 0 3.5 0 180 line -2.8 7 -1.75 9.8 cont 1.75 9.8 cont 2.8 7 line -2.8 -7 -1.75 -9.8 cont 1.75 -9.8 cont 2.8 -7 line 7 -2.8 9.8 -1.75 cont 9.8 1.75 cont 7 2.8 line -7 -2.8 -9.8 -1.75 cont -9.8 1.75 cont -7 2.8 line 7 2.8 8.05 5.6 cont 5.6 8.05 cont 2.8 7 line -7 2.8 -8.05 5.6 cont -5.6 8.05 cont -2.8 7 line 7 -2.8 8.05 -5.6 cont 5.6 -8.05 cont 2.8 -7 line -7 -2.8 -8.05 -5.6 cont -5.6 -8.05 cont -2.8 -7",
     "locked":"w 3 square 0 -2.5 6 6 cutcircle 0 6 3 0 90 line -3 6 -3 4 line 3 6 3 4 line 0 -4 0 -1",
     "locked-full":"w 3 square 0 -2.5 6 6 cutcircle 0 6 3 0 90 line -3 6 -3 4 line 3 6 3 4 cutcircle 0 -1 3 0 90 cutcircle 0 -4.01 3 18 90 w 4 line -3.5 1 -3.5 -6 line 3.5 1 3.5 -6",
-    "permissions":"w 3 square 0 -4.5 6 4 cutcircle 0 5 4 1 80 cont 4 1"
+    "permissions":"w 3 square 0 -4.5 6 4 cutcircle 0 5 4 1 80 cont 4 1",
+    "rotur": "w 2 ellipse 0 0 7 0.45 100 ellipse 0 0 7 0.45 160 ellipse 0 0 7 0.45 220"
   }
 }
