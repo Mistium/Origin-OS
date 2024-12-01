@@ -14,7 +14,7 @@ def "draw" "x, y, x2, y2, character"
   )
 
   character.destr
-  if can and character.istype("number") or character.str == "." (
+  if can and (character.istype("number") or character == ".") (
     if clicked or character.onpress (
       can = false
       if operation == "" (
