@@ -105,9 +105,9 @@ if page == "APPSTORE// Loading" (
   direction timer * 360
   icon "cutcircle 0 0 10 0 90" 5 : c#txtc
   direction 90
-  network "get" "https://raw.githubusercontent.com/RoturTW/apps/main/apps.json"
+  data = "https://raw.githubusercontent.com/RoturTW/apps/main/apps.json".getAsync()
   if data != "loading" (
-    apps = data.replace(newline,"").destr
+    apps = data
     page = "APPSTORE// Store"
   )
 )
@@ -135,9 +135,9 @@ if page == "APPSTORE// store" (
     )
     loc 2 2 35 y
     if icons.contains(cur).not (
-       network "get" "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ cur.to("url") ++ "/icon.icn"
-       if data.str != "loading" (
-         icons[cur] = data.replace(newline,"")
+       data = ("https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ encodeURIComponent(cur) ++ "/icon.icn").getAsync()
+       if data != "loading" (
+         icons[cur] = data
        )
     )
     icon icons[cur] 1.5
@@ -264,13 +264,16 @@ if page.startsWith("MARKETPLACE// ") (
 app_page = page.contains("// ").not
 
 if app_page (
-  network "get" "https://apps.mistium.com/info?appname=" ++ page.to("url")
-  if data == "Loading" (
-    direction timer * 360
-    icon "cutcircle 0 0 10 0 90" 5 : c#txtc
-    direction 90
+  if current_app == "" (
+    data = ("https://apps.mistium.com/info?appname=" ++ encodeURIComponent(page)).getAsync()
+    if data == "Loading" (
+      direction timer * 360
+      icon "cutcircle 0 0 10 0 90" 5 : c#txtc
+      direction 90
+    ) else (
+      current_app = data
+    )
   ) else (
-    current_app = data
     cur = current_app.title.toLower()
     if installed == 0 and cur != "" (
       save "installed.json" "get"
@@ -304,7 +307,7 @@ if app_page (
       loc -2 2 -196 y - 110
       screenshots.trim(1,5)
       each screenshot screenshots (
-        url = "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ page.to("url") ++ "/screenshots/" ++ screenshot
+        url = "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ encodeURIComponent(page) ++ "/screenshots/" ++ screenshot
         change_y -108
         image url 384 216
         change_y -118
@@ -365,6 +368,8 @@ if app_page (
       text "Install" 9 : chx#20
     )
   )
+) else (
+  current_app = ""
 )
 frame "clear"
 
