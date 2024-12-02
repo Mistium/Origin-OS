@@ -178,10 +178,11 @@ function tokenise(CODE) {
         return { type: "log", data: cur }
       } else if (["|", "&", "<<", ">>", "^^"].indexOf(cur) !== -1) {
         return { type: "bit", data: cur }
-      } else if ((cur.split("(",1)[0] ?? cur).indexOf(".") !== -1) {
+      } else if (cur.indexOf(".") !== -1) {
         let method = cur.match(this.regex)
         for (let i = 0; i < method.length; i++) {
-          method[i] = this.evalToken(method[i])
+          method[i] = this.evalToken(method[i].replaceAll(".","󰀁"))
+          method[i].data = method[i].data.replaceAll("󰀁",".")
         }
         return { type: "mtd", data: method }
       } else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
