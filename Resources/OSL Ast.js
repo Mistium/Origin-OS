@@ -16,10 +16,12 @@ function tokenise(CODE) {
         } else {
           out.push(depth);
         }
-        if (depth === "[" || depth === "{") b_depth ++
-        if (depth === "]" || depth === "}") b_depth --
+        if (brackets === 0) {
+          if (depth === "[" || depth === "{") b_depth ++
+          if (depth === "]" || depth === "}") b_depth --
+        }
         letter++;
-  
+        
         if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
           split.push(out.join(""));
           out = [];
@@ -55,9 +57,10 @@ function tokenise(CODE) {
           out.push(depth);
           escaped = false;
         }
-        if (depth === "[" || depth === "{") b_depth ++
-        if (depth === "]" || depth === "}") b_depth --
-
+        if (brackets === 0) {
+          if (depth === "[" || depth === "{") b_depth ++
+          if (depth === "]" || depth === "}") b_depth --
+        }
         letter++;
   
         if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
@@ -76,7 +79,7 @@ function tokenise(CODE) {
   function autoTokenise(CODE) {
     if (CODE.indexOf("\\") !== -1) {
       return tokeniseEscaped(CODE);
-    } else if (CODE.indexOf('"') !== -1) {
+    } else if (CODE.indexOf('"') !== -1 || CODE.indexOf("[") !== -1 || CODE.indexOf("{") !== -1) {
       return tokenise(CODE);
     } else {
       return CODE.split(" ");
@@ -191,6 +194,7 @@ function tokenise(CODE) {
   
       let ast = []
       let tokens = autoTokenise(CODE)
+      console.log(tokens)
       for (let i = 0; i < tokens.length; i++) {
         const cur = tokens[i]
         ast.push(this.evalToken(cur))
@@ -228,5 +232,5 @@ function tokenise(CODE) {
   let comp = new OSLComp()
   
   console.log(JSON.stringify(comp.generateAST({
-    CODE: "wow = {\"key\":value,obj:{obj2:var * 2}}"
+    CODE: "wow = [var * 10]"
   }), null, 4))
