@@ -181,8 +181,8 @@ function tokenise(CODE) {
       } else if (cur.indexOf(".") !== -1) {
         let method = cur.match(this.regex)
         for (let i = 0; i < method.length; i++) {
-          method[i] = this.evalToken(method[i].replaceAll(".","󰀁"))
-          method[i].data = method[i].data.replaceAll("󰀁",".")
+          method[i] = this.evalToken((""+method[i]).replaceAll(".","󰀁"))
+          method[i].data = (""+method[i].data).replaceAll("󰀁",".")
         }
         return { type: "mtd", data: method }
       } else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
