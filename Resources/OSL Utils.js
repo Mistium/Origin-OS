@@ -1,81 +1,87 @@
 function tokenise(CODE) {
-  try {
-    let letter = 0;
-    let depth = "";
-    let brackets = 0;
-    let out = [];
-    let split = [];
-    const len = CODE.length;
-
-    while (letter < len) {
-      depth = CODE[letter];
-      if (depth === '"') {
-        brackets = 1 - brackets;
-        out.push('"');
-      } else {
-        out.push(depth);
-      }
-      letter++;
-
-      if (brackets === 0 && CODE[letter] === " ") {
-        split.push(out.join(""));
-        out = [];
+    try {
+      let letter = 0;
+      let depth = "";
+      let brackets = 0;
+      let b_depth = 0
+      let out = [];
+      let split = [];
+      const len = CODE.length;
+  
+      while (letter < len) {
+        depth = CODE[letter];
+        if (depth === '"') {
+          brackets = 1 - brackets;
+          out.push('"');
+        } else {
+          out.push(depth);
+        }
+        if (depth === "[" || depth === "{") b_depth ++
+        if (depth === "]" || depth === "}") b_depth --
         letter++;
+  
+        if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
+          split.push(out.join(""));
+          out = [];
+          letter++;
+        }
       }
+      split.push(out.join(""));
+      return split;
+    } catch (e) {
+      return [];
     }
-    split.push(out.join(""));
-    return split;
-  } catch (e) {
-    return [];
   }
-}
+  
+  function tokeniseEscaped(CODE) {
+    try {
+      let letter = 0;
+      let depth = "";
+      let brackets = 0;
+      let out = [];
+      let split = [];
+      let escaped = false;
+      const len = CODE.length;
+  
+      while (letter < len) {
+        depth = CODE[letter];
+        if (depth === '"' && !escaped) {
+          brackets = 1 - brackets;
+          out.push('"');
+        } else if (depth === '\\') {
+          escaped = !escaped;
+          out.push("\\");
+        } else {
+          out.push(depth);
+          escaped = false;
+        }
+        if (depth === "[" || depth === "{") b_depth ++
+        if (depth === "]" || depth === "}") b_depth --
 
-function tokeniseEscaped(CODE) {
-  try {
-    let letter = 0;
-    let depth = "";
-    let brackets = 0;
-    let out = [];
-    let split = [];
-    let escaped = false;
-    const len = CODE.length;
-
-    while (letter < len) {
-      depth = CODE[letter];
-      if (depth === '"' && !escaped) {
-        brackets = 1 - brackets;
-        out.push('"');
-      } else if (depth === '\\') {
-        escaped = !escaped;
-        out.push("\\");
-      } else {
-        out.push(depth);
-        escaped = false;
-      }
-      letter++;
-
-      if (brackets === 0 && CODE[letter] === " ") {
-        split.push(out.join(""));
-        out = [];
         letter++;
+  
+        if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
+          split.push(out.join(""));
+          out = [];
+          letter++;
+        }
       }
+      split.push(out.join(""));
+      return split;
+    } catch (e) {
+      return [];
     }
-    split.push(out.join(""));
-    return split;
-  } catch (e) {
-    return [];
   }
-}
-
-function autoTokenise(CODE) {
-  if (CODE.indexOf("\\") !== -1) {
-    return tokeniseEscaped(CODE);
-  } else if (CODE.indexOf('"') !== -1) {
-    return tokenise(CODE);
-  } else {
-    return CODE.split(" ");
+  
+  function autoTokenise(CODE) {
+    if (CODE.indexOf("\\") !== -1) {
+      return tokeniseEscaped(CODE);
+    } else if (CODE.indexOf('"') !== -1) {
+      return tokenise(CODE);
+    } else {
+      return CODE.split(" ");
+    }
   }
-}
 
 function randomString(length) {
   let result = "";
