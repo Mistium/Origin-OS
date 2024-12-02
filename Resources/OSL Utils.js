@@ -40,6 +40,7 @@ function tokenise(CODE) {
       let letter = 0;
       let depth = "";
       let brackets = 0;
+      let b_depth = 0;
       let out = [];
       let split = [];
       let escaped = false;
@@ -47,22 +48,22 @@ function tokenise(CODE) {
   
       while (letter < len) {
         depth = CODE[letter];
+        if (brackets === 0 && !escaped) {
+          if (depth === "[" || depth === "{") b_depth ++
+          if (depth === "]" || depth === "}") b_depth --
+        }
         if (depth === '"' && !escaped) {
           brackets = 1 - brackets;
           out.push('"');
-        } else if (depth === '\\') {
+        } else if (depth === '\\' && !escaped) {
           escaped = !escaped;
           out.push("\\");
         } else {
           out.push(depth);
           escaped = false;
         }
-        if (brackets === 0) {
-          if (depth === "[" || depth === "{") b_depth ++
-          if (depth === "]" || depth === "}") b_depth --
-        }
         letter++;
-  
+        
         if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
           split.push(out.join(""));
           out = [];
@@ -382,7 +383,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
       };
     }
 
-     evalToken(cur) {
+      evalToken(cur) {
       if ((cur[0] === "{" && cur[cur.length - 1] === "}") || (cur[0] === "[" && cur[cur.length - 1] === "]")) {
         try {
           if (cur[0] === "[") {
@@ -466,7 +467,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
         return { type: "log", data: cur }
       } else if (["|", "&", "<<", ">>", "^^"].indexOf(cur) !== -1) {
         return { type: "bit", data: cur }
-      } else if (cur.indexOf(".") !== -1) {
+      } else if ((cur.split("(",1)[0] ?? cur).indexOf(".") !== -1) {
         let method = cur.match(this.regex)
         for (let i = 0; i < method.length; i++) {
           method[i] = this.evalToken(method[i])
