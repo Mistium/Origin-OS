@@ -6,25 +6,29 @@ window "show"
 file "open" passed_data "onlyaccess"
 // handle big files
 
-file "get" 2
-name = data
-file "get" 1
-type = data
-
-input_main = name ++ type
+input_main = fileGet(2) ++ fileGet(1)
 input_main.destr
+
+folder = fileGet(1) === ".folder"
+if folder (
+  input_main = fileGet(2).destr
+)
 
 mainloop:
 load_theme
 
 loc 999 2 0 -63
 square 250 30 10 : c#prim
-input 250 23 "main"
+input 250 23 "main" "Rename file" txtc
 
 loc 999 2 0 -113
 square 250 30 10 : c#prim
 if clicked or "enter".onpress (
   dta = input_main.split(".")
+  if dta.len == 1 and folder (
+    file "set" 2 dta[1].destr
+    window "stop"
+  )
   file "set" 2 dta[1].destr
   file "set" 1 "." ++ dta[2].destr
   window "stop"
