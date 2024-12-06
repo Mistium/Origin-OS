@@ -1,0 +1,15 @@
+self.modulus = 2 ^ 31 - 1
+self.multiplier = 1664525
+self.increment = 1013904223
+
+def random() (
+  self.seed = (self.multiplier * self.seed + self.increment) % self.modulus
+  return self.seed / self.modulus
+)
+
+def randint(this.a, this.b) (
+  return this.a + (self.random() * (this.b - this.a + 1)).toNum()
+)
+
+self.seed = 42
+
