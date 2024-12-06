@@ -5,5 +5,6 @@
   "discord":"A powerful package for making discord bots",
   "discord2":"The second version of the discord package, simple and powerful",
   "brainfuck":"Run brainfuck files and code inside your osl applications",
-  "glass":"Origin UI system"
+  "glass":"Origin UI system",
+  "seeded_random":"A simple package for seeded random numbers"
 }
