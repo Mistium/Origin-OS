@@ -231,6 +231,11 @@ function compileCloseBrackets(OSL) {
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
+    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "", "^", "b+", "b-", "b/", "b*", "b^"]
+    this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"]
+    this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
+    this.bitwise = ["|", "&", "<<", ">>", "^^"]
+    this.unary = ["typeof", "new"]
     this.listVariable = "";
   }
 
@@ -363,6 +368,11 @@ class OSLUtils {
             },
           },
         },
+        "---",
+        {
+          blockType: Scratch.BlockType.LABEL,
+          text: "AST",
+        },
         {
           opcode: "generateAST",
           blockType: Scratch.BlockType.REPORTER,
@@ -373,7 +383,61 @@ class OSLUtils {
               defaultValue: 'wow = 10 + 5 / 5.toNum().toStr().join(newline)',
             },
           },
-        }
+        },
+        {
+          opcode: "setOperators",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "Set Operators [OPERATORS]",
+          arguments: {
+            OPERATORS: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '["+", "++", "-", "*", "/", "//", "%", "??", "", "^", "b+", "b-", "b/", "b*", "b^"]',
+            },
+          },
+        }, 
+        {
+          opcode: "setComparisons",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "Set Comparisons [COMPARISONS]",
+          arguments: {
+            COMPARISONS: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"]',
+            },
+          },
+        }, {
+          opcode: "setLogic",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "Set Logic [LOGIC]",
+          arguments: {
+            LOGIC: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '["and", "or", "nor", "xor", "xnor", "nand"]',
+            },
+          },
+        },
+        {
+          opcode: "setBitwise",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "Set Bitwise [BITWISE]",
+          arguments: {
+            BITWISE: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '["|", "&", "<<", ">>", "^^"]',
+            },
+          },
+        },
+        {
+          opcode: "setUnary",
+          blockType: Scratch.BlockType.COMMAND,
+          text: "Set Unary [UNARY]",
+          arguments: {
+            UNARY: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '["typeof", "new"]',
+            },
+          },
+        },
       ],
     };
   }
@@ -452,16 +516,18 @@ class OSLUtils {
       return { type: "str", data: cur }
     } else if (!isNaN(+cur)) {
       return { type: "num", data: cur }
-    } else if (["+", "++", "-", "*", "/", "//", "%", "??", "", "^", "b+", "b-", "b/", "b*", "b^"].indexOf(cur) !== -1) {
+    } else if (this.operators.indexOf(cur) !== -1) {
       return { type: "opr", data: cur }
-    } else if (["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"].indexOf(cur) !== -1) {
+    } else if (this.comparisons.indexOf(cur) !== -1) {
       return { type: "cmp", data: cur }
     } else if (cur === "?") {
       return { type: "qst", data: cur }
-    } else if (["and", "or", "nor", "xor", "xnor", "nand"].indexOf(cur) !== -1) {
+    } else if (this.logic.indexOf(cur) !== -1) {
       return { type: "log", data: cur }
-    } else if (["|", "&", "<<", ">>", "^^"].indexOf(cur) !== -1) {
+    } else if (this.bitwise.indexOf(cur) !== -1) {
       return { type: "bit", data: cur }
+    } else if (this.unary.indexOf(cur) !== -1) {
+      return { type: "ury", data: cur }
     } else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
 
@@ -664,6 +730,31 @@ class OSLUtils {
       }
     }
     return CODE;
+  }
+
+  setOperators({ OPERATORS }) {
+    OPERATORS = Scratch.Cast.toString(OPERATORS);
+    this.operators = JSON.parse(OPERATORS);
+  }
+
+  setComparisons({ COMPARISONS }) {
+    COMPARISONS = Scratch.Cast.toString(COMPARISONS);
+    this.comparisons = JSON.parse(COMPARISONS);
+  }
+
+  setLogic({ LOGIC }) {
+    LOGIC = Scratch.Cast.toString(LOGIC);
+    this.logic = JSON.parse(LOGIC);
+  }
+
+  setBitwise({ BITWISE }) {
+    BITWISE = Scratch.Cast.toString(BITWISE);
+    this.bitwise = JSON.parse(BITWISE);
+  }
+
+  setUnary({ UNARY }) {
+    UNARY = Scratch.Cast.toString(UNARY);
+    this.unary = JSON.parse(UNARY);
   }
 }
 
