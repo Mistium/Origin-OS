@@ -1,4 +1,4 @@
-function tokenise(CODE) {
+function tokenise(CODE, DELIMITER) {
   try {
     let letter = 0;
     let depth = "";
@@ -17,12 +17,12 @@ function tokenise(CODE) {
         out.push(depth);
       }
       if (brackets === 0) {
-        if (depth === "[" || depth === "{") b_depth ++
-        if (depth === "]" || depth === "}") b_depth --
+        if (depth === "[" || depth === "{" || depth === "(") b_depth ++
+        if (depth === "]" || depth === "}" || depth === ")") b_depth --
       }
       letter++;
       
-      if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
+      if (brackets === 0 && CODE[letter] === DELIMITER && b_depth === 0) {
         split.push(out.join(""));
         out = [];
         letter++;
@@ -35,7 +35,7 @@ function tokenise(CODE) {
   }
 }
 
-function tokeniseEscaped(CODE) {
+function tokeniseEscaped(CODE, DELIMITER) {
   try {
     let letter = 0;
     let depth = "";
@@ -49,8 +49,8 @@ function tokeniseEscaped(CODE) {
     while (letter < len) {
       depth = CODE[letter];
       if (brackets === 0 && !escaped) {
-        if (depth === "[" || depth === "{") b_depth ++
-        if (depth === "]" || depth === "}") b_depth --
+        if (depth === "[" || depth === "{" || depth === "(") b_depth ++
+        if (depth === "]" || depth === "}" || depth === ")") b_depth --
       }
       if (depth === '"' && !escaped) {
         brackets = 1 - brackets;
@@ -64,7 +64,7 @@ function tokeniseEscaped(CODE) {
       }
       letter++;
       
-      if (brackets === 0 && CODE[letter] === " " && b_depth === 0) {
+      if (brackets === 0 && CODE[letter] === DELIMITER && b_depth === 0) {
         split.push(out.join(""));
         out = [];
         letter++;
@@ -77,13 +77,13 @@ function tokeniseEscaped(CODE) {
   }
 }
 
-function autoTokenise(CODE) {
+function autoTokenise(CODE, DELIMITER) {
   if (CODE.indexOf("\\") !== -1) {
-    return tokeniseEscaped(CODE);
+    return tokeniseEscaped(CODE, DELIMITER ?? " ");
   } else if (CODE.indexOf('"') !== -1 || CODE.indexOf("[") !== -1 || CODE.indexOf("{") !== -1) {
-    return tokenise(CODE);
+    return tokenise(CODE, DELIMITER ?? " ");
   } else {
-    return CODE.split(" ");
+    return CODE.split(DELIMITER ?? " ");
   }
 }
 
@@ -467,17 +467,24 @@ class OSLUtils {
       return { type: "log", data: cur }
     } else if (["|", "&", "<<", ">>", "^^"].indexOf(cur) !== -1) {
       return { type: "bit", data: cur }
-    } else if (cur.indexOf(".") !== -1) {
-      let method = cur.match(this.regex)
-      for (let i = 0; i < method.length; i++) {
-        method[i] = this.evalToken((""+method[i]).replaceAll(".","󰀁"))
-        method[i].data = (""+method[i].data).replaceAll("󰀁",".")
-      }
+    } else if (autoTokenise(cur, ".").length > 1) {
+      let method = autoTokenise(cur, ".")
+
+      method = method.map((input) => {
+        return this.evalToken(input)
+      })
+
       return { type: "mtd", data: method }
     } else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
       return { type: "var", data: cur }
     } else if (cur.endsWith(")")) {
-      return { type: "fnc", data: cur }
+      let func_name = cur.substring(0,cur.indexOf("("))
+      let func_inputs = autoTokenise(cur.substring(func_name.length + 1, cur.length - 1), ",")
+      func_inputs = func_inputs.map((input) => {
+        return this.evalToken(input)
+      })
+
+      return { type: "fnc", data: { name: func_name, inputs: func_inputs } }
     } else if (cur.indexOf(" ") !== -1) {
       return this.generateAST({ CODE: cur, START: 0 })[0]
     } else {
@@ -489,7 +496,7 @@ class OSLUtils {
     CODE = CODE + "";
 
     let ast = []
-    let tokens = autoTokenise(CODE)
+    let tokens = autoTokenise(CODE, " ")
     for (let i = 0; i < tokens.length; i++) {
       const cur = tokens[i]
       ast.push(this.evalToken(cur))
