@@ -557,7 +557,7 @@ class OSLUtils {
       ast.push(this.evalToken(cur))
     }
 
-    const types = ["opr", "cmp", "qst", "bit", "log"];
+    const types = ["opr", "cmp", "qst", "bit", "log", "ury"];
     for (let type of types) {
       for (let i = START ?? 2; i < ast.length; i++) {
         const cur = ast[i];
@@ -568,6 +568,11 @@ class OSLUtils {
             cur.right2 = ast[i + 2];
             ast.splice(i - 1, 1);
             ast.splice(i, 2);
+            i -= 1;
+            continue;
+          } else if (type === "ury") {
+            cur.right = ast[i + 1];
+            ast.splice(i, 1);
             i -= 1;
             continue;
           }
