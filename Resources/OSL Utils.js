@@ -589,7 +589,7 @@ class OSLUtils {
   tokeniseValues({ CODE, DELIMITER }) {
     CODE = Scratch.Cast.toString(CODE);
     DELIMITER = Scratch.Cast.toString(DELIMITER);
-    return JSON.stringify(autoTokenise(CODE, DELIMITER));
+    return autoTokenise(CODE, DELIMITER);
   }
 
   compileStringConcat({ CODE }) {
