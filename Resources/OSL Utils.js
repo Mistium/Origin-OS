@@ -262,35 +262,17 @@ class OSLUtils {
           },
         },
         {
-          opcode: "tokenisemethods",
+          opcode: "tokeniseValues",
           blockType: Scratch.BlockType.REPORTER,
-          text: "Tokenise OSL Methods [CODE]",
+          text: "Tokenise OSL Values [CODE] [DELIMITER]",
           arguments: {
             CODE: {
               type: Scratch.ArgumentType.STRING,
               defaultValue: '"hello".index("l").bool',
             },
-          },
-        },
-        {
-          opcode: "splitmethods",
-          blockType: Scratch.BlockType.REPORTER,
-          text: "Tokenise Methods [CODE]",
-          arguments: {
-            CODE: {
+            DELIMITER: {
               type: Scratch.ArgumentType.STRING,
-              defaultValue: '"hello".index("l").bool',
-            },
-          },
-        },
-        {
-          opcode: "getMethodInputs",
-          blockType: Scratch.BlockType.REPORTER,
-          text: "Get Method Inputs [CODE]",
-          arguments: {
-            CODE: {
-              type: Scratch.ArgumentType.STRING,
-              defaultValue: 'hi("wow","test")',
+              defaultValue: ".",
             },
           },
         },
@@ -604,11 +586,11 @@ class OSLUtils {
     return autoTokenise(Scratch.Cast.toString(CODE));
   }
 
-  tokeniseMethods({ CODE }) {
+  tokeniseValues({ CODE, DELIMITER }) {
     CODE = Scratch.Cast.toString(CODE);
-    return JSON.stringify(autoTokenise(CODE, "."));
+    DELIMITER = Scratch.Cast.toString(DELIMITER);
+    return JSON.stringify(autoTokenise(CODE, DELIMITER));
   }
-
 
   compileStringConcat({ CODE }) {
     CODE = Scratch.Cast.toString(CODE);
