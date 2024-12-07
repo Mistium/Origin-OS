@@ -594,7 +594,7 @@ class OSLUtils {
 
   tokenise({ CODE }) {
     CODE = Scratch.Cast.toString(CODE);
-    return JSON.stringify(tokenise(CODE));
+    return JSON.stringify(tokenise(CODE, " "));
   }
 
   tokeniseraw({ CODE }) {
