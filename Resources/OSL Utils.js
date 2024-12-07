@@ -260,6 +260,17 @@ class OSLUtils {
           },
         },
         {
+          opcode: "tokenisemethods",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "Tokenise OSL Methods [CODE]",
+          arguments: {
+            CODE: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '"hello".index("l").bool',
+            },
+          },
+        },
+        {
           opcode: "splitmethods",
           blockType: Scratch.BlockType.REPORTER,
           text: "Tokenise Methods [CODE]",
@@ -478,13 +489,7 @@ class OSLUtils {
     } else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
       return { type: "var", data: cur }
     } else if (cur.endsWith(")")) {
-      let func_name = cur.substring(0,cur.indexOf("("))
-      let func_inputs = autoTokenise(cur.substring(func_name.length + 1, cur.length - 1), ",")
-      func_inputs = func_inputs.map((input) => {
-        return this.evalToken(input)
-      })
-
-      return { type: "fnc", data: { name: func_name, inputs: func_inputs } }
+      return { type: "fnc", data: cur }
     } else if (cur.indexOf(" ") !== -1) {
       return this.generateAST({ CODE: cur, START: 0 })[0]
     } else {
@@ -595,6 +600,11 @@ class OSLUtils {
   tokeniseraw({ CODE }) {
     CODE = Scratch.Cast.toString(CODE);
     return autoTokenise(Scratch.Cast.toString(CODE));
+  }
+
+  tokeniseMethods({ CODE }) {
+    CODE = Scratch.Cast.toString(CODE);
+    return JSON.stringify(autoTokenise(CODE, "."));
   }
 
 
