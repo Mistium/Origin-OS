@@ -19,6 +19,7 @@ function tokenise(CODE, DELIMITER) {
       if (brackets === 0) {
         if (depth === "[" || depth === "{" || depth === "(") b_depth ++
         if (depth === "]" || depth === "}" || depth === ")") b_depth --
+        b_depth = b_depth < 0 ? 0 : b_depth;
       }
       letter++;
       
@@ -51,6 +52,7 @@ function tokeniseEscaped(CODE, DELIMITER) {
       if (brackets === 0 && !escaped) {
         if (depth === "[" || depth === "{" || depth === "(") b_depth ++
         if (depth === "]" || depth === "}" || depth === ")") b_depth --
+        b_depth = b_depth < 0 ? 0 : b_depth;
       }
       if (depth === '"' && !escaped) {
         brackets = 1 - brackets;
