@@ -572,8 +572,7 @@ class OSLUtils {
             continue;
           } else if (type === "ury") {
             cur.right = ast[i + 1];
-            ast.splice(i, 1);
-            i -= 1;
+            ast.splice(i+1, 1);
             continue;
           }
           cur.left = ast[i - 1];
