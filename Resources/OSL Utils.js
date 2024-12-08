@@ -559,7 +559,7 @@ class OSLUtils {
 
     const types = ["opr", "cmp", "qst", "bit", "log", "ury"];
     for (let type of types) {
-      for (let i = START ?? 1; i < ast.length; i++) {
+      for (let i = START ?? (type === "ury" ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
         if (cur?.type === type) {
           if (type === "qst") {
