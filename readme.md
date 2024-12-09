@@ -53,6 +53,18 @@ OSL (Origin Scripting Language) is a programming language primarily focused on r
 
 [originOS stats](https://repo-tracker.com/r/gh/Mistium/Origin-OS)
 
+## Star History
+
+<p align="center">
+<a href="https://star-history.com/#Mistium/Origin-OS&Timeline">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Mistium/Origin-OS&type=Timeline&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Mistium/Origin-OS&type=Timeline" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Mistium/Origin-OS&type=Timeline" />
+ </picture>
+</a>
+</p>
+
 <p align="center">
 Join My Patreon To Help Support Me And originOS and get increased storage space on your origin account<br>
 <a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="25"></a>
