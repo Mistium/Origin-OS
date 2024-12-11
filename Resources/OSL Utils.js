@@ -185,7 +185,7 @@ function compileCloseBrackets(OSL) {
 
           methods[temp] = name;
           if (trimmed.indexOf(",") !== -1) {
-            let inputs = trimmed.split(",");
+            let inputs = autoTokenise(trimmed, ",");
             name = randomString(12);
             const cur = inputs[0].trim();
             if (/^\w+$/.test(cur)) {
