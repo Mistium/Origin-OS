@@ -71,7 +71,7 @@ square w2 window.height - 35 25
 change_y window.height / 2 - 37
 square w - 35 40 25 : c#window_colour
 change_x 20
-input w - 90 25 "main" "Ask rotur anything, and search your files"
+input w - 90 25 "main" "Ask rotur anything, and search your files" 0 txtc
 change_x w / -2 + 15
 
 direction ai_url != "none" ? timer * 150 90
