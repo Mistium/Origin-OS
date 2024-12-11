@@ -1011,7 +1011,7 @@ if wallpapers.len < 1 or wallpapers.istype("Array").not (
 themes = {
   "dark":{"primary":"#222222","secondary":"#555555","tertiary":"#777777","text":"#ffffff","background":"#050505"},
   "midnight":{"primary":"#111111","secondary":"#333333","tertiary":"#555555","text":"#ffffff","background":"#000000"},
-  "light":{"primary":"#c2c2c2","secondary":"#6b6b6b","tertiary":"#555555","text":"#292929","background":"#ebebeb"},
+  "light":{"primary":"#cccccc","secondary":"#e6e6e6","tertiary":"#ffffff","text":"#292929","background":"#b0b0b0"},
   "ocean":{"primary":"#1a1d28","secondary":"#313f4e","tertiary":"#4f617d","text":"#bae3ee","background":"#090a0b"},
   "forest":{"primary":"#1a2823","secondary":"#33523e","tertiary":"#417656","text":"#e5ffed","background":"#090b0a"},
   "mint":{"primary":"#8fbcac","secondary":"#639274","tertiary":"#07170e","text":"#000000","background":"#cde5dd"},
