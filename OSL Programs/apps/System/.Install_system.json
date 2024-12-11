@@ -172,7 +172,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "originAssist.osl",
     "icon": "c #6eeb99 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 square 0 0 5 5 c #6eeb99 icn search 0.5",
-    "version":"3.0"
+    "version":"3.1"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Http_Client.osl",
