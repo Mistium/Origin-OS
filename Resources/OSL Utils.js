@@ -157,7 +157,7 @@ function compileCloseBrackets(OSL) {
   let methods = {};
   let regExp = /.\(([^()]*)\)/; // Regular expression to match innermost parentheses containing spaces or non-alphanumeric characters
 
-  let values = {};
+  let const_values = {};
   for (let line of OSL) {
     while (regExp.test(line)) {
       line = line.replace(regExp, (match, p1) => {
@@ -191,8 +191,13 @@ function compileCloseBrackets(OSL) {
             if (/^[\w\-]+$/.test(cur)) {
               methods[temp] = cur;
             } else {
-              out.push(`${name} = ${cur}`);
-              methods[temp] = `${name}`;
+              if (const_values[cur]) {
+                methods[temp] = const_values[cur];
+              } else {
+                if (!isNaN(+cur)) const_values[cur] = name;
+                out.push(`${name} = ${cur}`);
+                methods[temp] = `${name}`;
+              }
             }
             for (let i = 1; i < inputs.length; i++) {
               name = randomString(12);
@@ -200,8 +205,13 @@ function compileCloseBrackets(OSL) {
               if (/^[\w\-]+$/.test(cur)) {
                 methods[temp] += `,${cur}`;
               } else {
-                methods[temp] += `,${name}`;
-                out.push(`${name} = ${cur}`);
+                if (const_values[cur]) {
+                  methods[temp] += `,${const_values[cur]}`;
+                } else {
+                  if (!isNaN(+cur)) const_values[cur] = name;
+                  out.push(`${name} = ${cur}`);
+                  methods[temp] += `,${name}`;
+                }
               }
             }
           } else {
@@ -219,6 +229,7 @@ function compileCloseBrackets(OSL) {
     }
     out.push(line);
   }
+
   out = out.join("\n");
   let key_reg;
   for (let key of Object.keys(methods).reverse()) {
