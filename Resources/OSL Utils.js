@@ -188,7 +188,7 @@ function compileCloseBrackets(OSL) {
             let inputs = autoTokenise(trimmed, ",");
             name = randomString(12);
             const cur = inputs[0].trim();
-            if (/^\w+$/.test(cur)) {
+            if (/^[\w\-]+$/.test(cur)) {
               methods[temp] = cur;
             } else {
               out.push(`${name} = ${cur}`);
@@ -197,7 +197,7 @@ function compileCloseBrackets(OSL) {
             for (let i = 1; i < inputs.length; i++) {
               name = randomString(12);
               const cur = inputs[i].trim();
-              if (/^\w+$/.test(cur)) {
+              if (/^[\w\-]+$/.test(cur)) {
                 methods[temp] += `,${cur}`;
               } else {
                 methods[temp] += `,${name}`;
