@@ -1,0 +1,76 @@
+{
+  "manifest": {
+    "name": "FSL",
+    "version": "1",
+    "extensions": [
+      ".fsl"
+    ]
+  },
+  "parser": {
+    "type": "regex",
+    "data": " +|\"(?:[^\\\"]*|\\.)*(?:\"|$)|'(?:[^\\']*|\\.)*(?:'|$)|[\\+\\-/*^%!]|[(),\\[\\]{}:]|[\\d.]+|\\.?[^\\[\\],. \\n()\\-+\/*%^]+|."
+  },
+  "overrides": {
+    "origin.numbers": "#f78054",
+    "origin.strings": "#c3e88d",
+    "origin.comments": "#555c67",
+    "origin.functions": "#82aaff"
+  },
+  "categories": {
+    "flow": {
+      "color": "#c792ea",
+      "tokens": [
+        "fn",
+        "if",
+        "while",
+        "until",
+        "for",
+        "return"
+      ]
+    },
+    "comparisons": {
+      "color": "#c792ea",
+      "tokens": [
+        "=",
+        "==",
+        "!=",
+        ">=",
+        "<=",
+        ">",
+        "<",
+        "."
+      ]
+    },
+    "constants": {
+      "color": "#ff5874",
+      "tokens": [
+        "true","false"
+      ]
+    },
+    "logging": {
+      "color": "#2cd2ca",
+      "tokens": [
+        "print",
+        "log"
+      ]
+    },
+    "operations": {
+      "color": "#89ddff",
+      "tokens": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "++"
+      ]
+    },
+    "brackets": {
+      "color": "#ffca28",
+      "tokens": [
+        "(",")",
+        "[","]",
+        "{","}"
+      ]
+    }
+  }
+}
