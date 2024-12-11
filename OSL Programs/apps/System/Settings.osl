@@ -920,7 +920,7 @@ def "credits" (
     square w 40 20 : c#prim
     if clicked (
       subcategory = "Extensions"
-      extensions = "JSON.stringify(Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions)))".eval
+      extensions = "Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions))".eval
       extensions.prepend("Total:" + extensions.len)
     )
     change_x w / -2 + 10
