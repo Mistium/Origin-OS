@@ -1,0 +1,16 @@
+import "window_tools" as "wt"
+
+mainloop:
+wt:load_theme
+
+goto 0 window.top - 20
+square window.width 30 10 : c#prim
+loc 2 2 20 -20
+log window.parent
+text "Popup From" + window.parent.name 10 : c#txtc
+
+
+loc 2 2 20 -60
+text passed_data.wrapText(window.width / 10 - 5) 10 : c#txtc
+
+import "win-buttons"
