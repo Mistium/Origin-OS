@@ -1,5 +1,8 @@
 import "window_tools" as "wt"
 
+window.width = 500
+window.height = 500
+
 mainloop:
 wt:load_theme
 
