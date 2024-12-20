@@ -234,7 +234,7 @@ if current_studio_page == "Home" (
   input w2 - 10 25 "name" "hello world.txt" 10 c_text
   change_y -55
   if input_name.matchregex("/[^.]+\.[^.]+/gm") (
-    square w2 30 10 : c#c_prim cursor#pointer
+    square w2 30 10 : c#c_seco cursor#pointer
     if mouse_touching (
       square w2 30 15 : c#global_accent
       square w2 30 10 : c#c_seco
@@ -243,10 +243,10 @@ if current_studio_page == "Home" (
       file "download" input_name
       add_tab data
     )
-    change_x w2 / -2 + 15 : c#c_text
+    change_x w2 / -2 + 15
   ) else (
-    square w2 30 10 : c#c_seco
-    change_x w2 / -2 + 15 : c#c_prim
+    square w2 30 10 : c#c_prim
+    change_x w2 / -2 + 15
   )
   c c_text
   icon "Add" 0.5
