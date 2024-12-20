@@ -367,7 +367,7 @@ def "system" (
         )
       ) else (
         loc 2 2 20 -200 + scroll_y
-        text "Biggest Files" 9 : c#fff
+        text "Biggest Files" 9 : c#txtc
         for i file_data.len (
           loc 2 2 20 i * -30 - 200 + scroll_y
           text file_data[i] 9
