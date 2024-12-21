@@ -82,7 +82,7 @@ function tokeniseEscaped(CODE, DELIMITER) {
 function autoTokenise(CODE, DELIMITER) {
   if (CODE.indexOf("\\") !== -1) {
     return tokeniseEscaped(CODE, DELIMITER ?? " ");
-  } else if (CODE.indexOf('"') !== -1 || CODE.indexOf("[") !== -1 || CODE.indexOf("{") !== -1) {
+  } else if (CODE.indexOf('"') !== -1 || CODE.indexOf("[") !== -1 || CODE.indexOf("{") !== -1 || CODE.indexOf("(") !== -1) {
     return tokenise(CODE, DELIMITER ?? " ");
   } else {
     return CODE.split(DELIMITER ?? " ");
@@ -136,7 +136,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
     let quotes = {};
     let regExp = /"(?:[^\\"]*|\\.)*("|$)/gm;
     OSL = OSL.replace(regExp, (match) => {
-      let name = "§" + randomString(32);
+      let name = "Â§" + randomString(32);
       quotes[name] = match;
       return name;
     });
@@ -170,7 +170,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
               return ` ${name}`;
             }
           } else {
-            let temp = "§" + randomString(32);
+            let temp = "Â§" + randomString(32);
             const trimmed = p1.trim();
             if (match[0] === "!") {
               out.push(`${name} = ${trimmed}`);
@@ -455,13 +455,17 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
       if ((cur[0] === "{" && cur[cur.length - 1] === "}") || (cur[0] === "[" && cur[cur.length - 1] === "]")) {
         try {
           if (cur[0] === "[") {
+            if (cur == "[]") return { type: "arr", data: [] }
+            
             let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
             for (let i = 0; i < tokens.length; i++) {
-              tokens[i] = this.generateAST({ CODE: tokens[i].trim(), START: 0 })[0];
+              tokens[i] = this.generateAST({ CODE: (""+tokens[i]).trim(), START: 0 })[0];
             }
 
             return { type: "arr", data: tokens }
           } else if (cur[0] === "{") {
+            if (cur == "{}") return { type: "obj", data: {} }
+
             let output = {};
             let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
             for (let token of tokens) {
@@ -470,7 +474,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
               if (key[0] === "\"" && key[key.length - 1] === "\"") {
                 key = key.substring(1, key.length - 1);
               }
-              output[key] = this.generateAST({ CODE: value.trim(), START: 0 })[0];
+              output[key] = this.generateAST({ CODE: (""+value).trim(), START: 0 })[0];
             }
             return { type: "obj", data: output };
           }
