@@ -1,0 +1,127 @@
+self.addons = {}
+self.config = {}
+
+def init() (
+  icon_addon = "c #881bbf w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #6d1499 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 1.5 c #fff line -3.25 -1 -5.75 -4 cont -3.25 -7 line 3.25 -1 5.75 -4 cont 3.25 -7 line -2.5 -4 2.5 -4 line 0 -6.5 0 -1.5"
+  icon_adncfg = "c #881bbf w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #6d1499 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 1.5 c #fff icn cog .55 0 -3.75"
+  
+  file "install_type" "addon" icon_addon "Addon File" ["studio"]
+  file "install_type" "adncfg" icon_adncfg "Addon Config" ["studio"]
+)
+
+def load(this.code, this.addonName) (
+  this.adn = {}
+  this.data = {}
+  this.depth = 0
+  this.category = ""
+  this.script = ""
+  // script data
+  temp = []
+  each this.line this.code.split(newline) (
+    this.line = self.utils_trim(this.line)
+    if this.line[this.line.len] == "{" (
+      this.depth ++
+    )
+    if this.line == "}" (
+      this.depth --
+    )
+    if this.depth == 1 (
+      if this.line[this.line.len] == "{" (
+        this.category = this.line.trim(this.line.len - 1)
+        this.data = {}
+        if ["info","scripts"].contains(this.category).not (
+          error "unknown category" + this.category
+          return {}
+        )
+      )
+    ) else (
+      if this.depth == 0 (
+        if this.line == "}" (
+          this.adn[this.category] = this.data
+        )
+      )
+    )
+    if this.category == "info" and this.line != "info {" (
+      this.tokens = this.line.split(" ")
+      this.key = this.tokens.shift()
+      this.data[this.key] = this.tokens.join(" ")
+    )
+    if this.category == "scripts" (
+      if this.line[this.line.len] == "<" (
+        this.script = this.line.trim(this.line.len - 1)
+        temp = []
+      )
+      if this.script != "" and this.line[this.line.len] != "<" and this.line != ">" (
+        temp.append(this.line)
+      )
+      if this.line == ">" (
+        this.data[this.script] = temp
+        this.script = ""
+      )
+    )
+  )
+  self.addons[this.addonName] = this.adn
+  self.run("load",this.addonName)
+)
+
+def load_file(this.path) (
+  save this.path "get"
+  this.key = this.path.split(".")[1]
+  addon.load(save_data, this.key)
+)
+
+def load_all() (
+  save "contents"
+  this.contents = save_data
+  this.disabled = []
+  each this.file this.contents (
+    if this.file.split(".")[2] == "adncfg" (
+      if this.file.split(".")[1] == "disabled" (
+        save this.file "get"
+        this.disabled = save_data.JsonParse()
+      ) else (
+        save this.file "get"
+        self.config[this.file.split(".")[1]] = save_data.JsonParse()
+        addon_config = self.config
+      )
+    )
+  )
+  each this.file this.contents (
+    if this.file.split(".")[2] == "addon" (
+      if this.disabled.contains(this.file.split(".")[1]).not (
+        self.load_file(this.file)
+      )
+    )
+  )
+)
+
+def run(this.key,this.name) (
+  if self.addons[this.name] (
+    if self.addons[this.name]["scripts"][this.key] (
+      addon_config = self.config
+      run self.addons[this.name]["scripts"][this.key]
+    )
+  )
+)
+
+def event(this.key) (
+  each this.addon self.addons.getKeys() (
+    self.run(this.key, this.addon)
+  )
+)
+
+def utils_trim(this.strData) (
+  this.out = ""
+  this.otherChar = false
+  each this.char this.strData.split("") (
+    if this.char != " " (
+      this.otherChar = true
+      this.out += this.char
+    ) else (
+      if this.otherChar (
+        this.out += this.char
+      )
+    )
+  )
+  return this.out
+)
