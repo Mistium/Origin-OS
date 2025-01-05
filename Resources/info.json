@@ -1,5 +1,5 @@
 {
-  "server": "wss://ws.rotur.dev",
+  "server": "wss://cl4.tnix.dev",
   "rooms": [
     "roturTW"
   ],
