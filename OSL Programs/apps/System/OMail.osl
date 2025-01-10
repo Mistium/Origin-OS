@@ -32,7 +32,7 @@ def "run_ui"
   len = all_mail.len
   if len == 0 (
     loc 2 2 10 -20
-    text "You have no omails" 10 : c#txtc
+    text "You have no rmails" 10 : c#txtc
   )
   loop (frame_height / 50).clamp(0,len) (
     count ++
@@ -166,7 +166,7 @@ def "new_omail"
   )
   loc 2 2 10 -230
   text input_body.wrapText(frame_width - 30 / 10) 10 : c#txtc
-  if (timer % 1).round == 0 and  (
+  if (timer % 1).round() == 0 (
     text "_" 10
   )
 endef
