@@ -21,8 +21,8 @@ mode = "norm"
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
   file "get" 4
-  data.replace("/^[ \n\t]*/gm","")
-  ots_script = data.split(newline)
+  data.replace("/^[ \\n\\t]*/gm","")
+  ots_script = data.split("\n")
   each i line ots_script (
     if line.startsWith("if ") or line.startsWith("jump ") (
       line.split(" ")
@@ -87,7 +87,7 @@ set_x user_start.len * 5
 pen "opacity" 0
 input window_width - (user_start.len + 2 * 10) 30 1 null null txtc
 
-if ots_script != "" (
+if ots_script.isType("array") (
   loop taking_input ? 1 100 (
     cur = ots_script[ots_i]
     cur_spl = cur.oslTokenise()
