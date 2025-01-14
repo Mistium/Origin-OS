@@ -10,7 +10,7 @@ change_focus = true
 current_tab_target = 0
 removed = false
 
-save "Studio" "set_directory"
+"Studio".roturConnect()
 
 if "recent_files.json".saveExists() (
   recent = "recent_files.json".saveGet()
