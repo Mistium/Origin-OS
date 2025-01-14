@@ -4,13 +4,13 @@ file "use_type" "txt"
 
 permission "request" "file admin"
 window "show"
-network "set_app_id" "Studio"
+"Studio".roturConnect()
 
 change_focus = true
 current_tab_target = 0
 removed = false
 
-"Studio".roturConnect()
+save "Studio" "set_directory"
 
 if "recent_files.json".saveExists() (
   recent = "recent_files.json".saveGet()
