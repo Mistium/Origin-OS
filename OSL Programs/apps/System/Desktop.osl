@@ -36,17 +36,23 @@ def "upload_file"
 endef
 
 def "reload_extensions"
-  this.data = data
+  local temp = data
+  // save the data in a local var so we can restore it after done refreshing the extensions
+
   terminal "get extensions"
   if data != apps_temp (
     apps_temp = data
-    each i extension data (
+    // only run when the extensions change
+
+    each this.i this.extension data (
       data[i] = extension.JsonParse()
     )
     len = desktop_rightclick.len
     desktop_rightclick[len] = ["Apps"].concat(data)
   )
-  data = this.data
+
+  data = temp
+  // restore the data variable from the local temp var
 endef
 
 def "handle_dropped_file"
