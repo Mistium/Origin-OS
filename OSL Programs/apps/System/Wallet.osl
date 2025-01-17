@@ -3,7 +3,8 @@ import "window_tools"
 
 permission "request" "account"
 
-menu = "list"
+menu = "transfers"
+
 mainloop:
 load_theme
 
@@ -13,7 +14,7 @@ transactions = user["sys.transactions"]
 loc 2 999 100 0
 glass:frame window.left window.top window.right window.bottom; frame "clear"
 loc 2 2 10 -20
-text "My Wallet" 10 : c#txtc
+text "My Wallet (" ++ menu ++ ")" 10 : c#txtc
 loc 2 2 100 -100
 icon "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220" 4
 
@@ -24,78 +25,106 @@ text "Credits" 10
 
 loc 2 -2 30 30
 square 0 0 40 : c#seco hover_c#tert
-if onclick (
-  menu = menu == "transfer" ? "list" "transfer"
-)
-c txtc
-if menu == "transfer" (
-  icon "list" 0.8
-) else (
-  change -2 -2
-  icon "send" 0.8
-)
+if onclick (;menu = "transfers";)
+icon "list" 0.8 : c#txtc
+
+change_x 50
+square 0 0 40 : c#seco hover_c#tert
+if onclick (;menu = "send";)
+change -2 -2
+icon "send" 0.8 : c#txtc
+
+change 52 2
+square 0 0 40 : c#seco hover_c#tert
+if onclick (;menu = "items";)
+icon "grid-apps-full" 0.8 : c#txtc
 
 c prim
-if menu == "transfer" (
-  loc 999 2 -30 -70
-  text "Send Credits To Another User" 10 : c#txtc
-  loc 999 2 105 -110
-  square 360 25 10 : c#prim
-  input 350 25 "recipient" "Recipient"
-  loc 999 2 105 -150
-  square 360 25 10 : c#prim
-  input 350 25 "amount" "Amount Of Credits"
-  loc 999 2 105 -190
-  if input_amount == "" or input_recipient == "" (
-    c prim
-    can = false
-  ) else (
-    c seco
-    can = true
-  )
-  square 360 25 10
-  if onclick and can (
-    if balance < (input_amount.int + 1) (
-      say "Too Few Credits For This Transaction"
+switch menu (
+  case "send"
+    loc 999 2 -30 -70
+    text "Send Credits To Another User" 10 : c#txtc
+    
+    loc 999 2 105 -110
+    square 360 25 10 : c#prim
+    input 350 25 "recipient" "Recipient"
+    
+    loc 999 2 105 -150
+    square 360 25 10 : c#prim
+    input 350 25 "amount" "Amount Of Credits"
+    loc 999 2 105 -190
+    if input_amount == "" or input_recipient == "" (
+      c prim
+      can = false
     ) else (
-      if input_amount.int < 0.01 (
-        say "Send amount must be greater than 0.01"
+      c seco
+      can = true
+    )
+    square 360 25 10
+    if onclick and can (
+      if balance < (input_amount.int + 1) (
+        say "Too Few Credits For This Transaction"
       ) else (
-        if input_recipient == username (
-          say "You Cannot Send To Yourself"
+        if input_amount.int < 0.01 (
+          say "Send amount must be greater than 0.01"
         ) else (
-          rotur "transfer" input_amount.int input_recipient
-          input_amount = null
-          input_recipient = null
+          if input_recipient == username (
+            say "You Cannot Send To Yourself"
+          ) else (
+            rotur "transfer" input_amount.int input_recipient
+            input_amount = null
+            input_recipient = null
+          )
         )
       )
     )
-  )
-  message = "Transfer" + input_amount.int + "Credits, +1 tax" + "Total Cost: " ++ (input_amount.int + 1)
-  change_x message.len * -4
-  text message 8 : c#txtc
-) else (
-  if menu == "Sent" (
+    message = "Transfer" + input_amount.int + "Credits, +1 tax" + "Total Cost: " ++ (input_amount.int + 1)
+    change_x message.len * -4
+    text message 8 : c#txtc
+    break
+
+  case "sent"
     loc 999 2 50 -70
     text "Sent" 10 : c#txtc
-  ) else (
+    break
+    
+  case "items"
+    items = user["sys.purchases"]
+    if items == [] (
+      loc 999 2 30 -70
+      text "No Transactions" 10 : c#txtc
+    ) else (
+      frame window.left + 200 window.top - 35 window.right window.bottom transactions.len * 35 (
+        each i txt items (
+          y = i - 0.5 * -35 + scroll_y - 5
+          
+          loc 999 2 0 y
+          square frame_width - 20 20 10 : c#prim
+          
+          loc 2 2 10 y
+          text txt 10 : c#txtc
+        )
+      )
+    )
+    break
+    
+  case "transfers"
     if transactions == [] (
       loc 999 2 30 -70
       text "No Transactions" 10 : c#txtc
     ) else (
-      frame window.left + 200 window.top - 35 window.right window.bottom transactions.len * 35
-      c window_colour
-      pen "opacity" 80
-      icon "w 999 dot 0 0" 100
-      each i txt transactions (
-        y = i - 0.5 * -35 + scroll_y - 5
-        loc 999 2 0 y
-        square frame_width - 20 20 10 : c#prim
-        loc 2 2 10 y
-        text txt 10 : c#txtc
+      frame window.left + 200 window.top - 35 window.right window.bottom transactions.len * 35 (
+        each i txt transactions (
+          y = i - 0.5 * -35 + scroll_y - 5
+        
+          loc 999 2 0 y
+          square frame_width - 20 20 10 : c#prim
+          
+          loc 2 2 10 y
+          text txt 10 : c#txtc
+        )
       )
-      frame "clear"
     )
-  )
+    break
 )
 import "win-buttons"
