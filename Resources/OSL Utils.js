@@ -484,9 +484,7 @@ function compileCloseBrackets(OSL) {
       }
       else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
       else if (cur.endsWith(")")) {
-        let func = autoTokenise(cur, "(")
-        if (cur.endsWith("()")) return { type: "fnc", data: cur, name: func[0], params: [] }
-        return { type: "fnc", data: cur, name: func[0], params: autoTokenise(func[1].slice(0, -1), ",").map((val) => this.evalToken(val)) }
+        return { type: "fnc", data: cur }
       }
       else if (cur.indexOf(" ") !== -1) return this.generateAST({ CODE: cur, START: 0 })[0]
       else return { type: "unk", data: cur }
