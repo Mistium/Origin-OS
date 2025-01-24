@@ -7,35 +7,35 @@ window.no_desktop = true
 app_positions = {}
 
 
-def "icons_big"
+def "icons_big" (
   app_size = 2.5
   theme.app_size = app_size
   save "theme.json" "set" theme
-endef
+)
 
-def "icons_norm"
+def "icons_norm" (
   app_size = 2
   theme.app_size = app_size
   save "theme.json" "set" theme
-endef
+)
 
-def "icons_small"
+def "icons_small" (
   app_size = 1.7
   theme.app_size = app_size
   save "theme.json" "set" theme
-endef
+)
 
-def "icons_hide"
+def "icons_hide" (
   app_size = 0
   theme.app_size = app_size
   save "theme.json" "set" theme
-endef
+)
 
-def "upload_file"
+def "upload_file" (
   terminal "upload /desktop"
-endef
+)
 
-def "reload_extensions"
+def "reload_extensions" (
   local temp = data
   // save the data in a local var so we can restore it after done refreshing the extensions
 
@@ -53,16 +53,16 @@ def "reload_extensions"
 
   data = temp
   // restore the data variable from the local temp var
-endef
+)
 
-def "handle_dropped_file"
+def "handle_dropped_file" (
   loc 2 2 35 -35
   file "open" file_dropped "onlyaccess"
   file "set" "6" (x_position - mouse_x / -70).round * 70
   file "set" "7" (y_position - mouse_y / -70).round * 70
-endef
+)
 
-def "handle_app_culling"
+def "handle_app_culling" (
   if mouse_down or (app_positions == "{}") or bg_redrawn (
     desktop_apps = desktop
   ) else (
@@ -80,9 +80,9 @@ def "handle_app_culling"
       app_positions[y][x] = ""
     )
   )
-endef
+)
 
-def "render_selection"
+def "render_selection" (
   sqw = mouse_start_x - mouse_x
   sqh = mouse_start_y - mouse_y
   frame mouse_start_x mouse_start_y mouse_x mouse_y
@@ -93,14 +93,14 @@ def "render_selection"
   pen "down"
   pen "up"
   pen "opacity" 100
-  fx = frame_x
-  fy = frame_y
-  fw = frame_width
-  fh = frame_height
+  fx = frame.x
+  fy = frame.y
+  fw = frame.width
+  fh = frame.height
   frame "clear"
   window "dimensions" screensize_x screensize_y - 70
   window "refresh_bg"
-endef
+)
 
 
 desktop_rightclick = [
