@@ -358,7 +358,7 @@ def "render_files"
         loc -2 2 -100 draw_y
         text fileGet(4).len + "Items" 8
       ) else (
-        data2 += data
+        data2 ++= data
         text data2.trimText(max_chars) 8
         
         if frame.width > 600 (
