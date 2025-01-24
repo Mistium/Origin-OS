@@ -15,9 +15,7 @@ if page == "perms" (
     permission "request" "account"
     permission "request" "file editor"
   )
-  permission "get"
-  permissions.to("lower")
-  if permissions.contains("terminal") and permissions.contains("account") and permissions.contains("file editor") (
+  if window.permissions.contains("terminal") and window.permissions.contains("account") and window.permissions.contains("file editor") (
     page = "installer"
   )
 )
