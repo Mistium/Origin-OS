@@ -10,6 +10,13 @@ permission "request" "account"
 permission "request" "kernel"
 
 
+def "centext" "this.txt, this.size" (
+  local x = x_position
+  change_x txt.len * size * -0.5
+  text txt size
+  set_x x
+) 
+
 def "setting_toggle" "this.txt, this.w, this.state, this.callback" (
   this.x = x_position
   square this.w 30 10 : c#prim
@@ -49,24 +56,24 @@ def "DrawCategory" "setting,icn_code" (
   temp = x_position
   change_x 80
   if category == setting (
-    square 190 30 15 : c#seco
+    square 190 30 15 : c#window_accent
     square 190 30 10 : c#prim
   ) else (
-    square 190 30 15 : c#prim
+    square 190 30 15 0 1
   )
   if onclick (
     category = setting
     subcategory = "none"
   )
   icon icn_code 0.8 : c#txtc chx#-80
-  change_x 30
+  change_x 25
   text setting 10
   goto temp y_position - 50
 )
 
 def "option" "name,icn_code" (
   loc 999 2 0 y
-  this.w = frame_width - 25
+  this.w = frame.width - 100
   square this.w 30 10 0 1
   if mouse_touching (
     square this.w 30 15 : c#seco
@@ -85,9 +92,6 @@ def "option" "name,icn_code" (
 
 def "system" (
   if network_drive.istype("array").not (
-    mem = "navigator.deviceMemory".eval
-    cores = "navigator.hardwareConcurrency".eval
-
     if network_drive == "none" and tier == null (
       network "my_files_usage"
       tier = "Loading..."
@@ -117,11 +121,11 @@ def "system" (
           tier = "Admin"
         )
         if network_drive[2] > 999999 (
-          used_big = (network_drive[2] / 1000000).round
+          used_big = (network_drive[2] / 1000000).round()
           unit = "mb"
         )
         if network_drive[2] > 999999999 (
-          used_big = (network_drive[2] / 1000000000).round
+          used_big = (network_drive[2] / 1000000000).round()
           unit = "gb"
         )
       )
@@ -130,48 +134,10 @@ def "system" (
   )
   switch subcategory (
     case "none"
-      option "Info" "w 2 cutcircle 0 0 10 0 180 w 3 line 0 0 0 -5 dot 0 5"
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
-      option "Notifications" "w 2 cutcircle 0 -6 4 18 80 cutcircle 0 2 8 0 80 w 2.5 line -10 -5 10 -5 line -10 -5 -8 4 line 10 -5 8 5"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
-      option "Multitasking" "w 2 line -10 5 0 10 line 10 5 0 10 line 0 0 -10 5 line 0 0 10 5 line -10 -1 0 -6 line 10 -1 0 -6 line -10 -7 0 -12 line 10 -7 0 -12"
-      option "Community" "w 2 cutcircle 0 4 5 0 180 line -6 -5 6 -5 line 6 -5 8 -10 line -6 -5 -8 -10 line -8 -10 8 -10"
-      break
-    case "Info"
-      loc 9999 2 0 -160
-      w = frame.width - 25
-      h = 280
-      square w h 15 : c#seco
-      square w h 10 : c#prim
-      loc 2 2 40 -70
-      x = x_position
-      c txtc
-      kernel = origin.kernel
-      loc 0 2 0 -50
-      set_x x
-      text "originOS " 15
-      text kernel.name 12
-      set_x x : chy#-20
-      text "Version" + origin.version 9
-      set_x x : chy#-30
-      text "Kernel   |  " ++ kernel.name + kernel.version + kernel["type"] 9
-      set_x x : chy#-20
-      text "Storage  |  " ++ used_big ++ unit 9
-      set_x x : chy#-20
-      text "Used     |  " ++ ((network_drive[1] / 10).round / 100) ++ "kb" 9
-      set_x x : chy#-20
-      text "Screen   |  " ++ screensize_x ++ "x" ++ screensize_y 9
-      set_x x : chy#-20
-
-      if system_url.startsWith("https://origin.mistium.com") (
-        text "Host     |  Official" 9
-      ) else (
-        text "Host     |  Editor" 9
-      )
-      set_x x : chy#-20
-      text "Shell    |  OTS" 9
       break
     case "Display"
       loc 2 2 10 -20
@@ -375,25 +341,6 @@ def "system" (
         page_len = file_data.len * 30 + 200
       )
       break
-    case "Community"
-      loc 2 2 110 -30
-      button "My Patreon" 200 25 10 : c#prim
-      if onclick (
-        http "newtab" "https://www.patreon.com/user?u=51594743"
-      )
-      loc 2 2 10 -70
-      text "Patreon Supporters:" 10 : c#txtc
-      supporters = ["--- OriginDrive ---","Vernacular","Pnada","","--- Supporter ---","Pablo Estevez","Milodev123","","--- Free ---","Viofile"]
-      
-      loc 2 2 10 -100
-      count = scroll_y.divide(20).round
-      loop frame_height.divide(20).round (
-        count ++
-        loc 2 2 10 count * -20 + scroll_y - 100
-        text supporters.[count] 10
-      )
-      page_len = supporters.len * 20 + 100
-      break
   )
   clicked = false
 )
@@ -401,24 +348,16 @@ def "system" (
 def "network_page" (
   loc 999 2 0 -70
   w = frame.width - 25
-  square w 100 15 : c#seco
-  square w 100 10 : c#prim
-  if network.connected.not (
-    loc 2 2 100 -90
-    square 140 30 10 : c#prim
-    if clicked (
-      terminal "reconnect"
-    )
-    text "Reconnect" 10 : c#txtc chx#-60
-    loc 2 2 30 -40
-    temp = "Not Connected"
-    square 0 0 10 : c#ae2525
+  icon "network" 4 : c#txtc
+  if network.connected (
+    local message = "Connected"
   ) else (
-    loc 2 2 30 -40
-    temp = "Connected"
-    square 0 0 10 : c#24ad2c
+    icon "line -10 -10 10 10" 4
+    local message = "No Connection"
   )
-  text temp 10 : c#txtc chx#15
+  
+  change_y -60
+  centext message 10
 )
 
 def "colour_selector" "this.name,this.id" (
@@ -471,7 +410,9 @@ def "appearance" (
       w = frame.width - 25
       loc 9999 2 0 y
       square w 30 15 : c#prim
-      if onclick (;current_wallpaper = clipboard.str;)
+      if onclick (
+        current_wallpaper = clipboard.toStr()
+      )
       loc 2 2 50 y
       text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
       loc 2 2 25 y
@@ -482,7 +423,7 @@ def "appearance" (
           save "wallpapers.json" "set" wallpapers
           current_wallpaper = ""
         )
-        if current_wallpaper == clipboard.str (
+        if current_wallpaper == clipboard.toStr() (
           image current_wallpaper 0 0
           text "Trying" 10 : c#txtc chx#20
         )
@@ -542,7 +483,7 @@ def "appearance" (
         change_x 80
         square 20 20 20 : c#prim
         if mouse_touching (
-          if clicked.not "square 20 20 23"
+          if !clicked "square 20 20 23"
           if onclick (
             wallpapers.delete(count)
             save "wallpapers.json" "set" wallpapers
@@ -790,16 +731,11 @@ def "appearance" (
 )
 
 def "account" (
-  this.w = frame_width - 25
+  local w = frame.width - 100
   
-  loc 999 2 0 -85
-  square this.w 130 15 : c#prim
-  
-  
-  loc 2 2 78 -85
-  image user_icon.str 120 120
-  icon round_pfp 5.8 : c#prim
-  square 90 90 12 0 1
+  goto 0 window.top - 100
+  image user_icon.toStr() 120 120
+  icon round_pfp 5.8 : c#window_colour
   if timer - upload_time < 5 and current_pfp != "" (
     direction timer * 300
     icon "cutcircle 0 0 10 0 90" 1 : c#txtc
@@ -807,22 +743,22 @@ def "account" (
   ) else (
     if mouse_touching (
       if clicked (
-        current_pfp = clipboard.str
+        current_pfp = clipboard.toStr()
         upload_time = timer
       )
       square 25 25 12 : c#seco
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      loc 2 2 80 -50
+      
       square 81 10 20 : c#seco
       text "Paste Url" 9 : chx#-40.5 c#txtc
     )
   )
-  loc 2 2 150 -70
-  text username 15 : c#txtc
-  loc 2 2 150 -95
-  text user.system + "Account" 10
-  loc 2 2 150 -120
-  text tier 10
+  
+  set_x 0 : chy#-100
+  centext username 15 : c#txtc
+  
+  centext user.system + "Account" 10 : chy#-30
+  
   if current_pfp != "" (
     image current_pfp 0 0
     if timer - upload_time > 5 (
@@ -834,9 +770,8 @@ def "account" (
       current_pfp = ""
     )
   )
-  if network.connected (
-    network "get" "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json"
-    all_badges = data
+  if network.connected and all_badges == "" (
+    all_badges = "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json".getAsync()
   )
   if all_badges.istype("object") (
     badges = user["sys.badges"]
@@ -850,60 +785,132 @@ def "account" (
     )
   )
   
-  loc -2 2 -30 -30
-  icon "log-out" 0.8 : c#txtc tooltip#"Logout"
-  if onclick (
-    network "logout"
-    terminal "shutdown"
-  )
-  
-  
-  goto 0 frame.top - 200
-  setting_do "Change Password" this.w def() -> (
+  goto 0 frame.top - 300
+  setting_do "Change Password" w def() -> (
     network "update" "password" "Enter Your New Password".ask().hashMD5()
   )
-)
-
-def "time" (
-  w = frame_width - 25
-  loc 999 2 0 -40
-  square w 40 15 1 : c#prim
-  loc 999 2 0 -100
-  square w 40 15 1
-  loc 999 2 0 -160
-  square w 40 15 1
-  loc 2 2 20 -40
-  text `Timezone: ${timezone}` 8 : c#txtc
-  loc 2 2 20 -100
-  milisecond = timestamp.right(3)
-  text `Time: ${day_number}:${month_number}:${year} ${hour}:${minute}:${second}:${milisecond}` 8
-  loc 2 2 20 -160
-  dt = delta_time * 1000
-  dt = dt.round
-  text `Since Last Frame: ${dt}ms` 8
-)
-
-def "privacy" (
-  this.w = frame_width - 25
-  set_y frame.top - 35
-  setting_toggle "Private Account?" this.w user.private def() -> (
+  
+  set_x 0 : chy#-50
+  setting_toggle "Private Account?" w user.private def() -> (
     network "update" "private" user.private.not
+  )
+  
+  set_x 0 : chy#-50
+  setting_do "Logout" w def() -> (
+    terminal "shutdown"
   )
 )
 
-def "updates" (
-  version = origin.version
-  loc 2 2 20 -20 + scroll_y
-  text "Current Version:" + version 10 : c#txtc
+def "apps" (
+  local perms = open("user/Application Data/permissions.json")
+  local w = frame.width - 100
+  
+  if subcategory != "none" (
+    local my_perms = perms[subcategory]
+    
+    goto 0 window.top - 100 + scroll_y
+    file "open" subcategory "onlyaccess"
+    file "render" 2
+    change_y -50
+    centext fileGet(2) 10 : c#txtc
+    change_y -40
+    centext fileGet(3) 9 : c#seco
+    
+    change_y -100
+    each perm my_perms (
+      square w 45 10 : c#prim
+      change_x w / -2 + 20
+      text perm 10 : c#txtc
+      set_x 0 : chy#-60
+    )
+    
+    return
+  )
+  local perm_keys = perms.getKeys()
+  
+  local ih = 60
+  
+  local count = (scroll_y / ih).round() - 1
+  
+  loop (frame.height / ih).ceiling() + 1 (
+    local count ++
+    if count > perm_keys.len (
+      continue
+    )
+    local uuid = perm_keys[count]
+    goto 0 frame.top - (count - 0.5 * ih) + scroll_y
+    square w 45 10 : c#prim
+    if clicked (
+      subcategory = uuid
+    )
+    change_x w / -2 + 20
+    file "uuid_exists" uuid
+    if !exists or perms[uuid].len == 0 (
+      file "open" "user/application data/permissions.json" "onlyaccess"
+      file "set" 4 perms.delete(uuid)
+      continue
+    )
+    file "open" uuid "onlyaccess"
+    file "render" 1.5
+    change 25 -10
+    local x = x_position
+    text fileGet(3) 8 : c#seco
+    set_x x : chy#20
+    text fileGet(2) 10 : c#txtc
+    set_x w / 2 - 20 : chy#-10
+    icon "right" 0.8
+  )
+  
+  page_len = perm_keys.len * ih
 )
+
+def "info" (
+  loc 9999 2 0 -160
+  w = frame.width - 100
+  h = 280
+  square w h 15 : c#seco
+  square w h 10 : c#prim
+  
+  set_x frame.right - 200
+  c seco
+  icon "origin-logo" 8
+  c txtc
+  loc 2 2 70 -70
+  x = x_position
+  kernel = origin.kernel
+  loc 2 2 0 -50
+  set_x x
+  text "originOS " 15
+  text kernel.name 12
+  set_x x : chy#-20
+  text "Version" + origin.version 9
+  set_x x : chy#-30
+  text "Kernel   |  " ++ kernel.name + kernel.version + kernel["type"] 9
+  set_x x : chy#-20
+  text "Storage  |  " ++ used_big ++ unit 9
+  set_x x : chy#-20
+  text "Used     |  " ++ ((network_drive[1] / 10).round / 100) ++ "kb" 9
+  set_x x : chy#-20
+  text "Screen   |  " ++ screensize_x ++ "x" ++ screensize_y 9
+  set_x x : chy#-20
+
+  if system_url.startsWith("https://origin.mistium.com") (
+    text "Host     |  Official" 9
+  ) else (
+    text "Host     |  Editor" 9
+  )
+  set_x x : chy#-20
+  text "Shell    |  OTS" 9
+)
+
 
 def "credits" (
   if subcategory == "none" (
     page_len = 290
-    w = frame_width / 2 - 40
-    loc 4 2 2.5 -120 + scroll_y
-    square w 200 20 : c#prim
-    square w 150 15 : chy#25 c#global_accent
+    w = frame_width / 2 - 50
+    loc 4 2 2.5 -95 + scroll_y
+    square w 150 20 : c#prim
+    square w 150 15 : c#global_accent
     square w 150 8 : c#prim
     c txtc
     x = x_position
@@ -912,11 +919,7 @@ def "credits" (
     text "roturTw" 15 : chx#30
     change -25 -18
     text "v5" 8
-    set_x x - ( w / 2 - 10 )
-    change_y -90
-    text "Powering originNetworking" 9
-    set_x x
-    change_y -70
+    set_x x : chy#-105
     square w 40 20 : c#prim
     if clicked (
       subcategory = "Extensions"
@@ -925,17 +928,27 @@ def "credits" (
     )
     change_x w / -2 + 10
     text "Full Extensions List >" 9 -100 : c#txtc
+    
+    set_x x : chy#-70
+    square w 40 20 : c#prim
+    if clicked (
+      subcategory = "Community"
+    )
+    change_x w / -2 + 10
+    text "Community >" 9 -100 : c#txtc
+
+    
     loc -4 2 -2.5 -95 + scroll_y
     square w 150 20 : c#prim
     x = x_position
     change w / -2 + 30 40
     image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
-    change 30 12
-    text "Turbowarp" 12 : c#txtc
-    change -162 -32
-    text "      Thanks to GarboMuffin and the scratch team for making turbowarp possible".wrapText(w / 9 - 1) 9
-    set_x x
-    change_y -175
+    change_x 30
+    text "TurboWarp" 16 : c#txtc
+    change -200 -45
+    local y = y_position
+    text "Thanks to GarboMuffin and the scratch team for making TurboWarp possible".wrapText(w / 9 - 1) 9
+    goto x y - 177
     square w 100 20 : c#prim
     set_x 20
     change_y 40
@@ -962,10 +975,40 @@ def "credits" (
     )
     page_len = extensions.len - 0.5 * 60
   )
+  if subcategory == "Community" (
+    loc 2 2 110 -30
+    button "My Patreon" 200 25 10 : c#prim
+    if onclick (
+      http "newtab" "https://www.patreon.com/user?u=51594743"
+    )
+    loc 2 2 10 -70
+    text "Patreon Supporters:" 10 : c#txtc
+    supporters = [
+      "--- OriginDrive ---",
+      "Vernacular",
+      "Pnada",
+      "",
+      "--- Supporter ---",
+      "Pablo Estevez",
+      "Milodev123",
+      "",
+      "--- Free ---",
+      "Viofile"
+    ]
+      
+    loc 2 2 10 -100
+    count = scroll_y // 20
+    loop frame.height // 20 (
+      count ++
+      loc 2 2 10 count * -20 + scroll_y - 100
+      text supporters[count] 10
+    )
+    page_len = supporters.len * 20 + 100
+  )
 )
 
 if passed_data == "" (
-  category = "System"
+  category = "Account"
   subcategory = "none"
 ) else (
   passed_data.split("/")
@@ -979,11 +1022,22 @@ current = file[4]
 files = []
 file_data = ""
 total_files = 0
-contributors = [{"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},{"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},{"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},{"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},{"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},{"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},{"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},{"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},{"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}]
+contributors = [
+  {"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},
+  {"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},
+  {"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},
+  {"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},
+  {"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},
+  {"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},
+  {"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},
+  {"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},
+  {"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}
+]
 c_names = contributors.destr.getall("login")
 c_imgs = contributors.destr.getall("avatar_url")
 
 window "dimensions" 880 500
+window_accent = global_accent
 dock_location = dock_location
 media = ""
 segments = user.origin_dock
@@ -1009,13 +1063,13 @@ if wallpapers.len < 1 or wallpapers.istype("Array").not (
 )
 
 themes = {
-  "dark":{"primary":"#222222","secondary":"#555555","tertiary":"#777777","text":"#ffffff","background":"#050505"},
-  "midnight":{"primary":"#111111","secondary":"#333333","tertiary":"#555555","text":"#ffffff","background":"#000000"},
-  "light":{"primary":"#cccccc","secondary":"#e6e6e6","tertiary":"#ffffff","text":"#292929","background":"#b0b0b0"},
-  "ocean":{"primary":"#1a1d28","secondary":"#313f4e","tertiary":"#4f617d","text":"#bae3ee","background":"#090a0b"},
-  "forest":{"primary":"#1a2823","secondary":"#33523e","tertiary":"#417656","text":"#e5ffed","background":"#090b0a"},
-  "mint":{"primary":"#8fbcac","secondary":"#639274","tertiary":"#07170e","text":"#000000","background":"#cde5dd"},
-  "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3"},
+  "dark":{"primary":"#222222","secondary":"#555555","tertiary":"#777777","text":"#ffffff","background":"#050505","accent":"#57cdac"},
+  "midnight":{"primary":"#111111","secondary":"#333333","tertiary":"#555555","text":"#ffffff","background":"#000000","accent":"#57cdac"},
+  "light":{"primary":"#cccccc","secondary":"#e6e6e6","tertiary":"#ffffff","text":"#292929","background":"#b0b0b0","accent":"#57cdac"},
+  "ocean":{"primary":"#1a1d28","secondary":"#313f4e","tertiary":"#4f617d","text":"#bae3ee","background":"#090a0b","accent":"#7cc2f8"},
+  "forest":{"primary":"#1a2823","secondary":"#33523e","tertiary":"#417656","text":"#e5ffed","background":"#090b0a","accent":"#7ea59a"},
+  "mint":{"primary":"#8fbcac","secondary":"#639274","tertiary":"#07170e","text":"#000000","background":"#cde5dd","accent":"#97f7dc"},
+  "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3","accent":"#f8e0ff"},
 }
 
 
@@ -1030,27 +1084,44 @@ ftvalues = file_types.getValues()
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
-glass:frame window.left window.top window.right window.bottom
+glass:frame window.left window.top window.left + 215 window.bottom
 c window_colour
-pen "opacity" 90
+pen "opacity" 40
 icon "w 99999 dot 0 0" 10
 pen "opacity" 0
 frame "clear"
 
-loc 999 2 120 -20
-square window_width - 215 40 15 : c#prim
 
-loc 2 2 25 -25
+loc 2 2 105 -25
+if category == "Account" (
+  square 190 30 15 : c#window_accent
+  square 190 30 10 : c#prim
+) else (
+  square 190 30 15 0 1
+)
+
+if onclick (
+  category = "Account"
+  subcategory = "none"
+)
+icon icn_code 0.8 : c#txtc chx#-80
+text user.username 10 : chx#30
+
+set_x window.left + 25
+change_y -70
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
-DrawCategory "Appearance" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-DrawCategory "Account"
-DrawCategory "Time" "w 2 cutcircle 0 0 12 0 180 w 3 line 0 0 0 5 line 0 0 3 -3"
-DrawCategory "Privacy" "w 12 dot 2.5 2.5 w 5 line 2.5 2.5 -7 -7 w 3 line -6.5 -6.5 -3.5 -9.5 line -4 -4 -1 -7"
-DrawCategory "Updates" "w 3 cutcircle 0 -2 9 13.5 150 line -6 8 0 14 line -6 8 0 0"
-DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
+DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 
-loc 2 2 25 -175
+change_y -25
+DrawCategory "Apps" "grid-apps"
+
+change_y -25
+DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
+DrawCategory "Info" "info"
+
+
+loc 2 2 25 -25
 image user_icon.str 35 35
 
 loc 2 2 232 -25
@@ -1083,7 +1154,7 @@ switch category (
   case "Network"
     network_page
     break
-  case "Appearance"
+  case "Style"
     appearance
     break
   case "Account"
@@ -1092,17 +1163,11 @@ switch category (
   case "Apps"
     apps
     break
-  case "Time"
-    time
-    break
-  case "Privacy"
-    privacy
-    break
-  case "updates"
-    updates
-    break
   case "credits"
     credits
+    break
+  case "info"
+    info
     break
 )
 
