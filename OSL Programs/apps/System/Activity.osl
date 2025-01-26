@@ -7,10 +7,9 @@ permission "request" "windows"
 window "show"
 window "dimensions" 600 400
 current_tab = "no_perms"
-windows = Windows()
 
 activity_info = false
-if windows.getKeys("id").contains(passed_data) (
+if Windows().getKeys("id").contains(passed_data) (
   activity_info = true
   page = passed_data
 )
@@ -35,6 +34,20 @@ def arrSum(this.arr) (
   return this.out
 )
 
+
+def getWindowsData() (
+  log "crazy"
+  windows_list = Windows()
+  log windows_list
+  windows_names = windows_list.getKeys("name")
+  windows_drawtimes = windows_list.getKeys("render")
+  windows_ids = windows_list.getKeys("id")
+  windows_draw_main = []
+  each this.item windows_drawtimes (
+    windows_draw_main.append(item[1])
+  )
+)
+
 created_time = timer
 last_timer = timer
 next_update = 0.5
@@ -42,6 +55,8 @@ pen "width" 10
 high = 0
 low = 250
 graph = 1000.newArray()
+
+getWindowsData()
 
 mainloop:
 load_theme
@@ -90,10 +105,10 @@ if activity_info (
   if timer - last_timer > 0.05 (
     last_timer = timer
     dt = delta_time
-    windows = Windows()
-    current = windows.getKeys("id").index(page)
-    drawtimes = windows[current].render.JsonParse()
-    name = windows[current].name
+    windows_list = Windows()
+    current = windows_list.getKeys("id").index(page)
+    drawtimes = windows_list[current].render.JsonParse()
+    name = windows_list[current].name
     dt = (1000 / (drawtimes[1] + 0.01)).clamp(1,1000)
     pr = drawtimes[2]
     graph.append(dt / 1000)
@@ -111,7 +126,6 @@ if activity_info (
   exit
 )
 
-windows = Windows()
 wwm = window_width - 50 / 100
 whm = window_height / 300
 usage = (fps / fps_limit).clamp(0,1)
@@ -140,7 +154,7 @@ text delta 10
 loc 2 2 13.5 -190
 text "cpu" 7
 if memory (
-  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval
+  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval()
   loc 2 2 23 - (ram_use.len * 5) -220
   text ram_use 10
   loc 2 2 13.5 -240
@@ -166,14 +180,7 @@ icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 
 if timer - last_timer > next_update and paused.not (
   last_timer = timer
   dt = delta_time
-  windows = Windows()
-  windows_names = windows.getKeys("name")
-  windows_drawtimes = windows.getKeys("render")
-  windows_ids = windows.getKeys("id")
-  windows_draw_main = []
-  each item windows_drawtimes (
-    windows_draw_main.append(item[1])
-  )
+  getWindowsData()
   delta = (arrSum(windows_draw_main) / (1000 / fps_limit) * 100).round().clamp(1,100) ++ "%"
 )
 
@@ -204,7 +211,7 @@ if current_tab == "Network" (
     cur = data[count].destr
     loc 2 2 30 y
     payload = cur.payload.str
-    width = window_width - 400 // 7
+    width = window.width - 400 // 7
     text payload.trim(1,width).str 7 : c#txtc
     if payload.len > width (
       text "..." 7
