@@ -36,9 +36,7 @@ def arrSum(this.arr) (
 
 
 def getWindowsData() (
-  log "crazy"
   windows_list = Windows()
-  log windows_list
   windows_names = windows_list.getKeys("name")
   windows_drawtimes = windows_list.getKeys("render")
   windows_ids = windows_list.getKeys("id")
