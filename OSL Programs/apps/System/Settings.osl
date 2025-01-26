@@ -9,7 +9,6 @@ permission "request" "file admin"
 permission "request" "account"
 permission "request" "kernel"
 
-
 def "centext" "this.txt, this.size" (
   local x = x_position
   change_x txt.len * size * -0.5
@@ -97,40 +96,43 @@ def "system" (
       tier = "Loading..."
       unit = null
     )
-    if new_network_data (
-      if network_data_command == "my_files_usage" (
-        network_drive = network_data.destr
-        switch network_drive[2] (
-          case 5000000
-            tier = "Free Tier"
-            break
-          case 10000000
-            tier = "Supporter"
-            break
-          case 50000000
-            tier = "originDrive"
-            break
-          case 100000000
-            tier = "originPro"
-            break
-          default
-            tier = "Unknown"
-            break
-        )
-        if username == "Mist" (
-          tier = "Admin"
-        )
-        if network_drive[2] > 999999 (
-          used_big = (network_drive[2] / 1000000).round()
-          unit = "mb"
-        )
-        if network_drive[2] > 999999999 (
-          used_big = (network_drive[2] / 1000000000).round()
-          unit = "gb"
-        )
+  )
+  if new_network_data (
+    if network_data_command == "my_files_usage" (
+      network_drive = network_data.destr
+      switch network_drive[2] (
+        case 5000000
+          tier = "Free Tier"
+          break
+        case 10000000
+          tier = "Supporter"
+          break
+        case 50000000
+          tier = "originDrive"
+          break
+        case 100000000
+          tier = "originPro"
+          break
+        default
+          tier = "Unknown"
+          break
       )
-      new_network_data = false
+      if username == "Mist" (
+        tier = "Admin"
+      )
+      if network_drive[2] > 999999 (
+        used_big = (network_drive[2] / 1000000).round()
+        unit = "mb"
+      )
+      if network_drive[2] > 999999999 (
+        used_big = (network_drive[2] / 1000000000).round()
+        unit = "gb"
+      )
     )
+    if network_data_command == "ping" (
+      ping.time = timestamp - ping.sent
+    )
+    new_network_data = false
   )
   switch subcategory (
     case "none"
@@ -138,6 +140,7 @@ def "system" (
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
+      option "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
       break
     case "Display"
       loc 2 2 10 -20
@@ -341,6 +344,9 @@ def "system" (
         page_len = file_data.len * 30 + 200
       )
       break
+    case "Network"
+      network_page
+      break
   )
   clicked = false
 )
@@ -358,6 +364,14 @@ def "network_page" (
   
   change_y -60
   centext message 10
+  
+  change_y -60
+  centext "Ping:" + ping.time ++ "ms" 9
+  
+  if timestamp - ping.sent > 5000 (
+    ping.sent = timestamp
+    network "server" "ping"
+  )
 )
 
 def "colour_selector" "this.name,this.id" (
@@ -663,8 +677,7 @@ def "appearance" (
         y -= 50
       )
       
-      page_len = 380 + (themes.len * 50)
-      
+      page_len = 380 + (themes.len * 50)      
       break
     case "File Types"
       count = 0
@@ -746,11 +759,13 @@ def "account" (
         current_pfp = clipboard.toStr()
         upload_time = timer
       )
+      change_y 20
       square 25 25 12 : c#seco
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
       
-      square 81 10 20 : c#seco
-      text "Paste Url" 9 : chx#-40.5 c#txtc
+      square 81 10 20 : chy#-40 c#seco
+      centext "Paste Url" 9 : c#txtc
+      change_y 20
     )
   )
   
@@ -1018,6 +1033,11 @@ if passed_data == "" (
 
 save "settings" "set_directory"
 file "open" user_folder ++ ".folder"
+ping = {
+  "sent": timestamp,
+  "time": 0
+}
+
 current = file[4]
 files = []
 file_data = ""
@@ -1110,7 +1130,6 @@ text user.username 10 : chx#30
 set_x window.left + 25
 change_y -70
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
-DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
 DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 
 change_y -25
