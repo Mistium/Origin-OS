@@ -100,143 +100,130 @@ function randomString(length) {
   return result;
 }
 
-function parseJsonLikeString(jsonLikeStr, replacements) {
-  // Create a string that defines the variables
-  let variableDefinitions = Object.entries(replacements)
-    .map(([key, value]) => jsonLikeStr.indexOf("" + key) !== -1 ? `var ${key} = ${JSON.stringify(value)};` : "")
-    .join('');
 
-  // Append the JSON-like string
-  let evalString = variableDefinitions + 'return ' + jsonLikeStr + ';';
-
-  // Use a function constructor to safely create a function to evaluate the string
-  return new Function(evalString)();
+function compileStringConcat(OSL) {
+  let out = [];
+  for (let line of OSL) {
+    if (line && line.indexOf("`") !== -1) {
+      line = line
+        .replace(/\$\{([^\}]*)\}/gm, '" ++ $1 ++ "')
+        .replace(' ++ "" ++ ', '" ++ "')
+        .replace(/\`([^\`]+)\`/gm, '( "$1" )')
+        .replace(' ++ "" ', " ")
+        .replace(' "" ++ ', " ");
+    }
+    out.push(line);
+  }
+  return out;
 }
 
-(function (Scratch) {
-  "use strict";
+function extractQuotes(OSL) {
+  let quotes = {};
+  let regExp = /"(?:[^\\"]*|\\.)*("|$)/gm;
+  OSL = OSL.replace(regExp, (match) => {
+    let name = "Â§" + randomString(32);
+    quotes[name] = match;
+    return name;
+  });
+  return [OSL, quotes];
+}
 
-  function compileStringConcat(OSL) {
-    let out = [];
-    for (let line of OSL) {
-      if (line && line.indexOf("`") !== -1) {
-        line = line
-          .replace(/\$\{([^\}]*)\}/gm, '" ++ $1 ++ "')
-          .replace(' ++ "" ++ ', '" ++ "')
-          .replace(/\`([^\`]+)\`/gm, '( "$1" )')
-          .replace(' ++ "" ', " ")
-          .replace(' "" ++ ', " ");
-      }
-      out.push(line);
-    }
-    return out;
+function insertQuotes(OSL, quotes) {
+  for (let key in quotes) {
+    OSL = OSL.replaceAll(key, quotes[key]);
   }
+  return OSL;
+}
 
-  function extractQuotes(OSL) {
-    let quotes = {};
-    let regExp = /"(?:[^\\"]*|\\.)*("|$)/gm;
-    OSL = OSL.replace(regExp, (match) => {
-      let name = "Â§" + randomString(32);
-      quotes[name] = match;
-      return name;
-    });
-    return [OSL, quotes];
-  }
+function compileCloseBrackets(OSL) {
+  let out = [];
+  let methods = {};
+  let regExp = /.\(([^()]*)\)/; // Regular expression to match innermost parentheses containing spaces or non-alphanumeric characters
 
-  function insertQuotes(OSL, quotes) {
-    for (let key in quotes) {
-      OSL = OSL.replaceAll(key, quotes[key]);
-    }
-    return OSL;
-  }
+  let const_values = {};
+  for (let line of OSL) {
+    while (regExp.test(line)) {
+      line = line.replace(regExp, (match, p1) => {
+        let name = randomString(12); // Generate a random identifier
 
-  function compileCloseBrackets(OSL) {
-    let out = [];
-    let methods = {};
-    let regExp = /.\(([^()]*)\)/; // Regular expression to match innermost parentheses containing spaces or non-alphanumeric characters
+        if (match.startsWith(" ") || match.startsWith("(")) {
+          out.push(`this.${name} = ${p1.trim()}`);
 
-    let const_values = {};
-    for (let line of OSL) {
-      while (regExp.test(line)) {
-        line = line.replace(regExp, (match, p1) => {
-          let name = randomString(12); // Generate a random identifier
-
-          if (match.startsWith(" ") || match.startsWith("(")) {
-            out.push(`this.${name} = ${p1.trim()}`);
-
-            if (match.startsWith("((")) {
-              return `(${name}`;
-            } else {
-              return ` ${name}`;
-            }
+          if (match.startsWith("((")) {
+            return `(${name}`;
           } else {
-            let temp = "Â§" + randomString(32);
-            const trimmed = p1.trim();
-            if (match[0] === "!") {
-              out.push(`this.${name} = ${trimmed}`);
-              return "!" + name;
-            }
-            if (trimmed.match(/^"([^"]|\\")+"$/) || trimmed === "" || trimmed.match(/^\W+$/) || !isNaN(+trimmed)) {
-              methods[temp] = trimmed;
-              return match[0] + temp;
-            }
+            return ` ${name}`;
+          }
+        } else {
+          let temp = "Â§" + randomString(32);
+          const trimmed = p1.trim();
+          if (match[0] === "!") {
+            out.push(`this.${name} = ${trimmed}`);
+            return "!" + name;
+          }
+          if (trimmed.match(/^"([^"]|\\")+"$/) || trimmed === "" || trimmed.match(/^\W+$/) || !isNaN(+trimmed)) {
+            methods[temp] = trimmed;
+            return match[0] + temp;
+          }
 
-            methods[temp] = name;
-            if (trimmed.indexOf(",") !== -1) {
-              let inputs = autoTokenise(trimmed, ",");
+          methods[temp] = name;
+          if (trimmed.indexOf(",") !== -1) {
+            let inputs = autoTokenise(trimmed, ",");
+            name = randomString(12);
+            const cur = inputs[0].trim();
+            if (/^[\w\-]+$/.test(cur)) {
+              methods[temp] = cur;
+            } else {
+              if (const_values[cur]) {
+                methods[temp] = const_values[cur];
+              } else {
+                if (!isNaN(+cur)) const_values[cur] = name;
+                out.push(`this.${name} = ${cur}`);
+                methods[temp] = `${name}`;
+              }
+            }
+            for (let i = 1; i < inputs.length; i++) {
               name = randomString(12);
-              const cur = inputs[0].trim();
+              const cur = inputs[i].trim();
               if (/^[\w\-]+$/.test(cur)) {
-                methods[temp] = cur;
+                methods[temp] += `,${cur}`;
               } else {
                 if (const_values[cur]) {
-                  methods[temp] = const_values[cur];
+                  methods[temp] += `,${const_values[cur]}`;
                 } else {
                   if (!isNaN(+cur)) const_values[cur] = name;
                   out.push(`this.${name} = ${cur}`);
-                  methods[temp] = `${name}`;
+                  methods[temp] += `,${name}`;
                 }
-              }
-              for (let i = 1; i < inputs.length; i++) {
-                name = randomString(12);
-                const cur = inputs[i].trim();
-                if (/^[\w\-]+$/.test(cur)) {
-                  methods[temp] += `,${cur}`;
-                } else {
-                  if (const_values[cur]) {
-                    methods[temp] += `,${const_values[cur]}`;
-                  } else {
-                    if (!isNaN(+cur)) const_values[cur] = name;
-                    out.push(`this.${name} = ${cur}`);
-                    methods[temp] += `,${name}`;
-                  }
-                }
-              }
-            } else {
-              const cur = trimmed;
-              if (/^\w+$/.test(cur)) {
-                methods[temp] = cur;
-              } else {
-                out.push(`this.${name} = ${cur}`);
-                methods[temp] = name;
               }
             }
-            return `${match[0] + temp}`;
+          } else {
+            const cur = trimmed;
+            if (/^\w+$/.test(cur)) {
+              methods[temp] = cur;
+            } else {
+              out.push(`this.${name} = ${cur}`);
+              methods[temp] = name;
+            }
           }
-        });
-      }
-      out.push(line);
+          return `${match[0] + temp}`;
+        }
+      });
     }
-
-    out = out.join("\n");
-    let key_reg;
-    for (let key of Object.keys(methods).reverse()) {
-      key_reg = new RegExp(key, "gm");
-      out = out.replace(key_reg, `(${methods[key]})`);
-    }
-    return out.split("\n");
+    out.push(line);
   }
 
+  out = out.join("\n");
+  let key_reg;
+  for (let key of Object.keys(methods).reverse()) {
+    key_reg = new RegExp(key, "gm");
+    out = out.replace(key_reg, `(${methods[key]})`);
+  }
+  return out.split("\n");
+}
+
+
+(function (Scratch) {
   class OSLUtils {
     constructor() {
       this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
@@ -482,40 +469,27 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
           console.error(e)
           return { type: "unk", data: cur }
         }
-      } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") {
-        return { type: "str", data: cur }
-      } else if (!isNaN(+cur)) {
-        return { type: "num", data: cur }
-      } else if (this.operators.indexOf(cur) !== -1) {
-        return { type: "opr", data: cur }
-      } else if (this.comparisons.indexOf(cur) !== -1) {
-        return { type: "cmp", data: cur }
-      } else if (cur === "?") {
-        return { type: "qst", data: cur }
-      } else if (this.logic.indexOf(cur) !== -1) {
-        return { type: "log", data: cur }
-      } else if (this.bitwise.indexOf(cur) !== -1) {
-        return { type: "bit", data: cur }
-      } else if (this.unary.indexOf(cur) !== -1) {
-        return { type: "ury", data: cur }
-      } else if (autoTokenise(cur, ".").length > 1) {
+      } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: cur }
+      else if (!isNaN(+cur)) return { type: "num", data: +cur }
+      else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
+      else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
+      else if (cur === "?") return { type: "qst", data: cur }
+      else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
+      else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
+      else if (this.unary.indexOf(cur) !== -1) return { type: "ury", data: cur }
+      else if (autoTokenise(cur, ".").length > 1) {
         let method = autoTokenise(cur, ".")
-
-        method = method.map((input) => {
-          return this.evalToken(input)
-        })
-
+        method = method.map((input) => this.evalToken(input))
         return { type: "mtd", data: method }
-      } else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) {
-        return { type: "var", data: cur }
-      } else if (cur.endsWith(")")) {
-        return { type: "fnc", data: cur }
-      } else if (cur.indexOf(" ") !== -1) {
-        return this.generateAST({ CODE: cur, START: 0 })[0]
-      } else {
-        return { type: "unk", data: cur }
       }
+      else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
+      else if (cur.endsWith(")")) {
+        return { type: "fnc", data: cur }
+      }
+      else if (cur.indexOf(" ") !== -1) return this.generateAST({ CODE: cur, START: 0 })[0]
+      else return { type: "unk", data: cur }
     }
+
 
     generateAST({ CODE, START }) {
       CODE = CODE + "";
@@ -531,22 +505,25 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
       for (let type of types) {
         for (let i = START ?? (type === "ury" ? 1 : 2); i < ast.length; i++) {
           const cur = ast[i];
+          const prev = ast[i - 1];
+          const next = ast[i + 1];
+
           if (cur?.type === type) {
             if (type === "qst") {
-              cur.left = ast[i - 1];
-              cur.right = ast[i + 1];
+              cur.left = prev;
+              cur.right = next;
               cur.right2 = ast[i + 2];
               ast.splice(i - 1, 1);
               ast.splice(i, 2);
               i -= 1;
               continue;
             } else if (type === "ury") {
-              cur.right = ast[i + 1];
+              cur.right = next;
               ast.splice(i + 1, 1);
               continue;
             }
-            cur.left = ast[i - 1];
-            cur.right = ast[i + 1];
+            cur.left = prev;
+            cur.right = next;
             ast.splice(i - 1, 1);
             ast.splice(i, 1);
             i -= 1;
@@ -554,46 +531,36 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
         }
       }
 
+      function evalASTNode(node) {
+        if (!node) return node;
+        if (node.type === "opr" && node.left && node.right) {
+          // Recursively evaluate left and right nodes first
+          node.left = evalASTNode(node.left);
+          node.right = evalASTNode(node.right);
+
+          // If both operands are numbers, evaluate the operation
+          if (node.left.type === "num" && node.right.type === "num" && ["+", "-", "/", "*", "%", "^"].includes(node.data)) {
+            let result;
+            switch (node.data) {
+              case "^":
+                result = Math.pow(Number(node.left.data), Number(node.right.data));
+                break;
+              default:
+                result = eval(node.left.data + node.data + node.right.data);
+                break;
+            }
+            return {
+              type: "num",
+              data: String(result)
+            };
+          }
+        }
+        return node;
+      }
+
+      // Evaluate each node in the AST
       for (let i = 0; i < ast.length; i++) {
-        const prev = ast[i - 1];
-        const cur = ast[i];
-        const next = ast[i + 1];
-
-        if (cur.type === "opr" && prev.type === "num" && next.type === "num") {
-
-          let out = cur.data
-          switch (cur.data) {
-            case "^":
-              out = Math.pow(prev.data, next.data);
-              break;
-            default:
-              out = eval(prev.data + cur.data + next.data)
-              break;
-          }
-          ast[i - 1] = {
-            type: "num",
-            data: out,
-          };
-          ast.splice(i, 2);
-          i -= 1;
-        }
-
-        if (cur.type === "log") {
-          switch (cur.data) {
-            case "and":
-              if (prev.data === "false" || next.data === "false") {
-                ast[i - 1] = { type: "unk", data: "false" };
-              }
-              break;
-            case "or":
-              if (prev.data === "true" || next.data === "true") {
-                ast[i - 1] = { type: "unk", data: "true" };
-              }
-              break;
-          }
-          ast.splice(i, 2);
-          i -= 1;
-        }
+        ast[i] = evalASTNode(ast[i]);
       }
 
       return ast
@@ -610,15 +577,11 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
       let depth = 1;
       let out = "";
       for (letter of CODE) {
-        if (letter === "(") {
-          depth += 1;
-        } else if (letter === ")") {
-          depth -= 1;
-        }
+        if (letter === "(") depth += 1;
+        else if (letter === ")") depth -= 1;
+
         out += letter;
-        if (depth === 0) {
-          break;
-        }
+        if (depth === 0) break;
       }
       const argsString = out;
       const args = [];
@@ -641,21 +604,13 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
 
       let mapargs = args.map((arg) => {
         arg = arg.trim();
-        if (arg.startsWith('"') && arg.endsWith('"')) {
-          return arg;
-        } else if (!isNaN(arg)) {
-          return Number(arg);
-        } else if (arg.startsWith("[") && arg.endsWith("]")) {
-          return JSON.parse(arg);
-        } else {
-          return arg;
-        }
+        if (arg.startsWith('"') && arg.endsWith('"')) return arg;
+        else if (!isNaN(arg)) return Number(arg);
+        else if (arg.startsWith("[") && arg.endsWith("]")) return JSON.parse(arg);
+        else return arg;
       });
-      if (typeof mapargs == "object") {
-        return JSON.stringify(mapargs);
-      } else {
-        return mapargs;
-      }
+      if (typeof mapargs == "object") return JSON.stringify(mapargs);
+      return mapargs;
     }
 
     tokenise({ CODE }) {
@@ -665,7 +620,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
 
     tokeniseraw({ CODE }) {
       CODE = Scratch.Cast.toString(CODE);
-      return autoTokenise(Scratch.Cast.toString(CODE));
+      return autoTokenise(CODE);
     }
 
     tokeniseValues({ CODE, DELIMITER }) {
@@ -706,16 +661,6 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
       return insertQuotes(CODE, JSON.parse(QUOTES));
     }
 
-    handleJSONvars({ CODE, VARS }) {
-      try {
-        return JSON.stringify(
-          parseJsonLikeString(CODE ?? "[]", VARS ?? {})
-        );
-      } catch (e) {
-        return "[]";
-      }
-    }
-
     inlineCompile({ CODE }) {
       CODE = Scratch.Cast.toString(CODE);
       const regex = /def\(([^)]*)\) -> \(\n?/gm
@@ -741,9 +686,7 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
           CODE = `def "${name}(${cur[0]})"\n${cur[1]}\nendef\n` + CODE.replace(cur[2], name)
         }
 
-        if (regex.exec(CODE) === null) {
-          done = true
-        }
+        if (regex.exec(CODE) === null) break;
       }
       return CODE;
     }
@@ -773,6 +716,5 @@ function parseJsonLikeString(jsonLikeStr, replacements) {
       this.unary = JSON.parse(UNARY);
     }
   }
-
   Scratch.extensions.register(new OSLUtils());
-})(Scratch);
+})(Scratch)
