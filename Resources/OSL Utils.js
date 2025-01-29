@@ -147,7 +147,7 @@ function compileCloseBrackets(OSL) {
         let name = randomString(12); // Generate a random identifier
 
         if (match.startsWith(" ") || match.startsWith("(")) {
-          out.push(`${name} = ${p1.trim()}`);
+          out.push(`this.${name} = ${p1.trim()}`);
 
           if (match.startsWith("((")) {
             return `(${name}`;
@@ -158,7 +158,7 @@ function compileCloseBrackets(OSL) {
           let temp = "Â§" + randomString(32);
           const trimmed = p1.trim();
           if (match[0] === "!") {
-            out.push(`${name} = ${trimmed}`);
+            out.push(`this.${name} = ${trimmed}`);
             return "!" + name;
           }
           if (trimmed.match(/^"([^"]|\\")+"$/) || trimmed === "" || trimmed.match(/^\W+$/) || !isNaN(+trimmed)) {
@@ -178,7 +178,7 @@ function compileCloseBrackets(OSL) {
                 methods[temp] = const_values[cur];
               } else {
                 if (!isNaN(+cur)) const_values[cur] = name;
-                out.push(`${name} = ${cur}`);
+                out.push(`this.${name} = ${cur}`);
                 methods[temp] = `${name}`;
               }
             }
@@ -192,7 +192,7 @@ function compileCloseBrackets(OSL) {
                   methods[temp] += `,${const_values[cur]}`;
                 } else {
                   if (!isNaN(+cur)) const_values[cur] = name;
-                  out.push(`${name} = ${cur}`);
+                  out.push(`this.${name} = ${cur}`);
                   methods[temp] += `,${name}`;
                 }
               }
@@ -202,7 +202,7 @@ function compileCloseBrackets(OSL) {
             if (/^\w+$/.test(cur)) {
               methods[temp] = cur;
             } else {
-              out.push(`${name} = ${cur}`);
+              out.push(`this.${name} = ${cur}`);
               methods[temp] = name;
             }
           }
