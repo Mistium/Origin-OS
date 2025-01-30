@@ -75,17 +75,7 @@
           }
           switch (this.value.trim().toLowerCase()) {
             case 'boot':
-              fetch('https://api.github.com/repos/Mistium/Origin-OS/contents/Versions')
-                .then(response => response.json())
-                .then(data => {
-                  const versions = data.map(file => file.name);
-                  const latestVersion = versions.sort().reverse()[0];
-                  fadeOut(`https://origin.mistium.com/Versions/${latestVersion}`);
-                })
-                .catch(error => {
-                  console.error('Error fetching versions:', error);
-                  fadeOut(`https://launcher.mistium.com`)
-                });
+              fadeOut(`https://origin.mistium.com/launch`)
               break;
             case 'patreon':
               fadeOut('https://www.patreon.com/user?u=51594743');
