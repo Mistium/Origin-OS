@@ -140,14 +140,13 @@ function compileCloseBrackets(OSL) {
   let methods = {};
   let regExp = /.\(([^()]*)\)/; // Regular expression to match innermost parentheses containing spaces or non-alphanumeric characters
 
-  let const_values = {};
   for (let line of OSL) {
     while (regExp.test(line)) {
       line = line.replace(regExp, (match, p1) => {
         let name = randomString(12); // Generate a random identifier
 
         if (match.startsWith(" ") || match.startsWith("(")) {
-          out.push(`this.${name} = ${p1.trim()}`);
+          out.push(`${name} = ${p1.trim()}`);
 
           if (match.startsWith("((")) {
             return `(${name}`;
@@ -158,7 +157,7 @@ function compileCloseBrackets(OSL) {
           let temp = "Â§" + randomString(32);
           const trimmed = p1.trim();
           if (match[0] === "!") {
-            out.push(`this.${name} = ${trimmed}`);
+            out.push(`${name} = ${trimmed}`);
             return "!" + name;
           }
           if (trimmed.match(/^"([^"]|\\")+"$/) || trimmed === "" || trimmed.match(/^\W+$/) || !isNaN(+trimmed)) {
@@ -174,13 +173,8 @@ function compileCloseBrackets(OSL) {
             if (/^[\w\-]+$/.test(cur)) {
               methods[temp] = cur;
             } else {
-              if (const_values[cur]) {
-                methods[temp] = const_values[cur];
-              } else {
-                if (!isNaN(+cur)) const_values[cur] = name;
-                out.push(`this.${name} = ${cur}`);
-                methods[temp] = `${name}`;
-              }
+              out.push(`${name} = ${cur}`);
+              methods[temp] = `${name}`;
             }
             for (let i = 1; i < inputs.length; i++) {
               name = randomString(12);
@@ -188,13 +182,8 @@ function compileCloseBrackets(OSL) {
               if (/^[\w\-]+$/.test(cur)) {
                 methods[temp] += `,${cur}`;
               } else {
-                if (const_values[cur]) {
-                  methods[temp] += `,${const_values[cur]}`;
-                } else {
-                  if (!isNaN(+cur)) const_values[cur] = name;
-                  out.push(`this.${name} = ${cur}`);
-                  methods[temp] += `,${name}`;
-                }
+                out.push(`${name} = ${cur}`);
+                methods[temp] += `,${name}`;
               }
             }
           } else {
@@ -202,7 +191,7 @@ function compileCloseBrackets(OSL) {
             if (/^\w+$/.test(cur)) {
               methods[temp] = cur;
             } else {
-              out.push(`this.${name} = ${cur}`);
+              out.push(`${name} = ${cur}`);
               methods[temp] = name;
             }
           }
@@ -716,5 +705,6 @@ function compileCloseBrackets(OSL) {
       this.unary = JSON.parse(UNARY);
     }
   }
+
   Scratch.extensions.register(new OSLUtils());
 })(Scratch)
