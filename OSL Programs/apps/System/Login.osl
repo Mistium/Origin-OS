@@ -1,5 +1,9 @@
 no_account = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/no-pfp.jpeg"
 
+if window.parent.id != -1 (
+  window.close()
+)
+
 accounts = ""
 wrong = 1234567890.hashMD5()
 paged = null
