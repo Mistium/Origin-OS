@@ -458,7 +458,7 @@ function compileCloseBrackets(OSL) {
           console.error(e)
           return { type: "unk", data: cur }
         }
-      } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: cur }
+      } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: new TextDecoder().decode(new Uint8Array(cur.split('').map(c => c.charCodeAt(0)))) }
       else if (!isNaN(+cur)) return { type: "num", data: +cur }
       else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
       else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
@@ -472,6 +472,7 @@ function compileCloseBrackets(OSL) {
         return { type: "mtd", data: method }
       }
       else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
+      else if (cur === "->") return { type: "def", data: cur }
       else if (cur.endsWith(")")) {
         return { type: "fnc", data: cur }
       }
@@ -490,7 +491,7 @@ function compileCloseBrackets(OSL) {
         ast.push(this.evalToken(cur))
       }
 
-      const types = ["opr", "cmp", "qst", "bit", "log", "ury"];
+      const types = ["opr", "cmp", "qst", "bit", "log", "ury", "def"];
       for (let type of types) {
         for (let i = START ?? (type === "ury" ? 1 : 2); i < ast.length; i++) {
           const cur = ast[i];
@@ -705,6 +706,5 @@ function compileCloseBrackets(OSL) {
       this.unary = JSON.parse(UNARY);
     }
   }
-
   Scratch.extensions.register(new OSLUtils());
 })(Scratch)
