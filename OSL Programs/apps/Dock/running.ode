@@ -37,7 +37,7 @@ if window_data_change or bg_redrawn or dock_changed_w (
     running_windows = []
     for i window_list.len (
       if window_list[i].shown (
-        running_windows.append(windows[i])
+        running_windows.append(window_list[i])
       )
     )
     running_windows.trim(1,3)
