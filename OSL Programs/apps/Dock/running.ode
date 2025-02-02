@@ -1,4 +1,4 @@
-windows = Windows()
+window_list = Windows()
 
 if running_windows.len == 0 (
   width = 0
@@ -10,7 +10,7 @@ if running_windows.len == 0 (
   x = x_position
 )
 
-window_data_change = windows.getKeys("id") != windows_temp
+window_data_change = window_list.getKeys("id") != windows_temp
 
 if window_data_change or bg_redrawn or dock_changed_w (
   if window_data_change (
@@ -33,10 +33,10 @@ if window_data_change or bg_redrawn or dock_changed_w (
       "Minimise Window",
       "Close Window"
     ]
-    windows_temp = windows.getKeys("id")
+    windows_temp = window_list.getKeys("id")
     running_windows = []
-    for i windows.len (
-      if windows[i].shown (
+    for i window_list.len (
+      if window_list[i].shown (
         running_windows.append(windows[i])
       )
     )
