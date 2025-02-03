@@ -314,7 +314,7 @@ if app_page (
         change_y -118
       )
       loc 2 2 20 y - 130
-      desc = current_app.description.str
+      desc = current_app.description.toStr()
       desc.wrapText(text_width - 400 / 9)
       len = desc.count(newline) * 21 + 170
       sc_len = screenshots.len * 226 + 170
@@ -333,7 +333,7 @@ if app_page (
         file "close"
       ) else (
         terminal "app install" + cur.str
-        save "installed.json" "get"
+        save_data = "installed.json".saveGet() ?? {}
         install_version = current_app.version
         save_data[cur] = install_version
         save "installed.json" "set" save_data
