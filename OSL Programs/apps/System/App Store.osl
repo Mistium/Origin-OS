@@ -8,7 +8,7 @@ permission "request" "terminal"
 permission "request" "save admin"
 permission "request" "account"
 
-stats = "https://apps.mistium.com/stats".get()
+stats = "https://apps.mistium.com/stats".get().JsonParse()
 
 window "dimensions" 1000 600
 save "appstore@system" "set_directory"
