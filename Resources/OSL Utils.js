@@ -471,8 +471,7 @@ function compileCloseBrackets(OSL) {
         method = method.map((input) => this.evalToken(input))
         return { type: "mtd", data: method }
       }
-      else if (cur.match(/^[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
-      else if (cur === "->") return { type: "def", data: cur }
+      else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
       else if (cur.endsWith(")")) {
         return { type: "fnc", data: cur }
       }
@@ -491,7 +490,7 @@ function compileCloseBrackets(OSL) {
         ast.push(this.evalToken(cur))
       }
 
-      const types = ["opr", "cmp", "qst", "bit", "log", "ury", "def"];
+      const types = ["opr", "cmp", "qst", "bit", "log", "ury"];
       for (let type of types) {
         for (let i = START ?? (type === "ury" ? 1 : 2); i < ast.length; i++) {
           const cur = ast[i];
@@ -678,6 +677,7 @@ function compileCloseBrackets(OSL) {
 
         if (regex.exec(CODE) === null) break;
       }
+      
       return CODE;
     }
 
