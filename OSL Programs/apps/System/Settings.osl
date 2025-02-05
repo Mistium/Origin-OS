@@ -141,6 +141,7 @@ def "system" (
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
       option "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
+      option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
       break
     case "Display"
       loc 2 2 10 -20
