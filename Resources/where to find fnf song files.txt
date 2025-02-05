@@ -1,4 +1,0 @@
-
-you can find the note positions of friday night funkin songs here in mods:
-
-main/assets/data/songs/{songname}/{songname}.json
