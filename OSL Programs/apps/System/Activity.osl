@@ -18,13 +18,13 @@ paused = false
 graph = []
 network_usage = []
 
-def "tab" "name"
+def "tab" "name" (
   if name == current_tab "c seco" else "c prim"
   square tab_w 25 10 1
   if onclick "current_tab = name"
   change_x tab_w / -2 + 5
   text name 8 : c#txtc
-endef
+)
 
 def arrSum(this.arr) (
   this.out = 0
@@ -126,15 +126,19 @@ if activity_info (
 
 wwm = window_width - 50 / 100
 whm = window_height / 300
-usage = (fps / fps_limit).clamp(0,1)
-graph.append(usage)
-if graph.len > 1000 (
-  graph.delete(1)
+if paused.not() (
+  // only add to the fps usage graph when not paused
+  // fixes: https://discord.com/channels/1147362734300725298/1336340461555552319
+  usage = (fps / fps_limit).clamp(0,1)
+  graph.append(usage)
+  if graph.len > 1000 (
+    graph.delete(1)
+  )
+  frames = fps.round
+  if high < frames "high = frames"
+  low *= 1.002
+  if low > frames "low = frames"
 )
-frames = fps.round
-if high < frames "high = frames"
-low *= 1.002
-if low > frames "low = frames"
 loc 2 2 23 - (frames.len * 5) -20
 text frames 10 : c#txtc
 loc 2 2 13.5 -40
@@ -171,7 +175,7 @@ loc 2 -2 25 25
 if paused "c global_accent" else "c prim"
 square 25 25 10 : tooltip#Pause
 if onclick (
-  paused.not
+  paused.not()
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
 

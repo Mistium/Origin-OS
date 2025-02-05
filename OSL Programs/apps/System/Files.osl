@@ -24,7 +24,7 @@ sorting_dir = "descending"
 
 dta = ""
 can = true
-def "navigate" "path"
+def "navigate" "path" (
   tab_data = {}
   tab_data.title = path.split("/").last()
   tab_data.url = path
@@ -35,27 +35,24 @@ def "navigate" "path"
   tabs[current_tab].position = pos
   tabs[current_tab].history = tabs[current_tab].history.trim(1,pos - 1).append(tab_data)
   input_path = path
-endef
+)
 
-def "sort_files(this.files)"
+def "sort_files(files)" (
   new_files = []
-  each i file this.files (
+  each i file files (
     obj = {}
     
     file "open" file "onlyaccess"
     obj.uuid = file
     
-    file "get" 1
-    this.filetype = data
-    file "get" 2
-    obj.name = data ++ this.filetype
+    local filetype = fileGet(1)
+    obj.name = fileGet(2) ++ filetype
+  
+    obj.modified = timestamp - fileGet(10)
     
-    file "get" 10
-    obj.modified = timestamp - data
-    
-    this.filetype = file_types[this.filetype][2]
-    obj.filetype = this.filetype == "" ? "Document" this.filetype
-    if this.filetype == "Folder" (
+    local filetype = file_types[filetype][2]
+    obj.filetype = filetype == "" ? "Document" filetype
+    if filetype == "Folder" (
       file "get" 4
       obj.size = data.len.padStart(20,"0")
     ) else (
@@ -64,15 +61,15 @@ def "sort_files(this.files)"
     )
     new_files.append(obj)
   )
-  return new_files.sortBy(sorting_mode.toLower(),sorting_direction).getKeys("uuid")
-endef
+  return new_files.sortBy(sorting_mode.toLower(), sorting_direction).getKeys("uuid")
+)
 
-def "refresh"
+def "refresh" (
   cur = tabs[current_tab]
   input_path = cur.history[cur.position].url
-endef
+)
 
-def "setup_tabs"
+def "setup_tabs" (
   cur_tab = {}
   cur_tab.history = []
   cur_tab.position = 0
@@ -80,7 +77,7 @@ def "setup_tabs"
   
   tabs = [].append(cur_tab)
   current_tab = 1
-endef
+)
 
 setup_tabs
 
@@ -92,7 +89,7 @@ if passed_data != "" (
   navigate user_folder
 )
 
-def "folder" "txt"
+def "folder" "txt" (
   this.con = hidden.contains(txt)
   loc 2 2 125 y
   square 225 20 15 0 1
@@ -113,9 +110,9 @@ def "folder" "txt"
   change_x -210
   text txt.str 9
   y -= 35
-endef
+)
 
-def "file_folder" "txt,folder"
+def "file_folder" "txt,folder" (
   this.cur = icons[txt]
   path_input = this.cur.path
   this.icn = this.cur.icn
@@ -136,9 +133,9 @@ def "file_folder" "txt,folder"
     text txt 8
     y -= 35
   )
-endef
+)
 
-def "render_tabs"
+def "render_tabs" (
   offset = 55
   total_width = window.width - 190
   positions = tabs.getKeys("position")
@@ -194,11 +191,11 @@ def "render_tabs"
     current_tab = tabs.len
     refresh
   )
-endef
+)
 
-def "sorting_option" "this.sort_name"
+def "sorting_option" "this.sort_name" (
   text this.sort_name 8
-  if sorting_mode == this.sort_name (
+  if sorting_mode == sort_name (
     if onclick (
       if sorting_direction == "ascending" (
         sorting_direction = "descending"
@@ -209,28 +206,28 @@ def "sorting_option" "this.sort_name"
     icon sorting_direction == "ascending" ? "up" "down" 0.4 : chx#20
   ) else (
     if onclick (
-      sorting_mode = this.sort_name
+      sorting_mode = sort_name
       sorting_direction = "ascending"
     )
   )
-endef
+)
 
-def "render_files"
+def "render_files" (
   if window.width > 700 (
     loc 2 2 260 -160
   ) else (
     loc 2 2 5 -160
   )
-  this.temp_x = x_position
-  this.temp_y = y_position
+  local temp_x = x_position
+  local temp_y = y_position
   loc -2 -2 0 32
   if window.width > 1000 and selected_files.len != 0 (
     change_x -292
   )
-  this.temp_x2 = x_position
-  this.temp_y2 = y_position
+  local temp_x2 = x_position
+  local temp_y2 = y_position
   
-  frame this.temp_x this.temp_y this.temp_x2 this.temp_y2 files.len * 45 : c#prim
+  frame temp_x temp_y temp_x2 temp_y2 files.len * 45 : c#prim
   current_folder_uuid = ""
   window.drop_location = null
   if input_path == "origin" (
@@ -306,10 +303,10 @@ def "render_files"
           temp = files.index(selected_files.last())
           if temp < count (
             temp ++
-            selected_files = selected_files + files.trim(temp,count)
+            selected_files += files.trim(temp,count)
           ) else (
             temp --
-            selected_files = selected_files ++ files.trim(count,temp)
+            selected_files ++= files.trim(count,temp)
           )
         // select a single file
           drag_id = 0
@@ -320,7 +317,7 @@ def "render_files"
           can = false
         )
       ) else if drag_id == current_file and selected_files.len == 1 (
-        if mouse_touching.not (
+        if mouse_touching.not() (
           drag_id = 0
           if mouse_down (
             file "move" current_file
@@ -404,23 +401,23 @@ def "render_files"
     set_x this.temp_x2 - 410
     sorting_option "Modified"
   )
-endef
+)
 
-def "load_favorite" "this.name"
+def "load_favorite" "this.name" (
   file "open" user_path ++ this.name ++ ".folder" "onlyaccess"
   file "get" 11
   data = {}.insert("icn",data)
   data.path = user_path ++ this.name
   icons[this.name] = data
-endef
+)
 
-def "load_drive" "this.name, this.outname"
+def "load_drive" "this.name, this.outname" (
   file "open" "origin/" ++ this.name ++ ".folder" "onlyaccess"
   file "get" 11
   data = {}.insert("icn",data)
   data.path = "origin/" ++ this.name
   icons[this.outname] = data
-endef
+)
 
 icons = {}
 load_favorite "Desktop"
@@ -437,10 +434,10 @@ icons[username].icn = "image" + user_icon + "20"
 mainloop:
   window_tools:load_theme
   
-  if tabs.len == 0 or tabs.istype("array").not (
+  if tabs.len == 0 or tabs.istype("array").not() (
     setup_tabs
   )
-  if mouse_down.not "can = true"
+  if mouse_down.not() "can = true"
   w = window_width
   sideshow = w > 700
   if sideshow (
@@ -461,7 +458,7 @@ mainloop:
     navigate input_path
   )
   
-  if sideshow.not (
+  if sideshow.not() (
     loc 2 2 45 -70
     square 70 25 15 1 : c#prim
   )
@@ -603,5 +600,5 @@ mainloop:
   
   render_files
   
-  if mouse_down.not "can = true"
+  if mouse_down.not() "can = true"
   import "win-buttons"
