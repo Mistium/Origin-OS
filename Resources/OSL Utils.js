@@ -212,7 +212,6 @@ function compileCloseBrackets(OSL) {
 }
 
 
-(function (Scratch) {
   class OSLUtils {
     constructor() {
       this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
@@ -427,7 +426,8 @@ function compileCloseBrackets(OSL) {
       };
     }
 
-    evalToken(cur) {
+    evalToken(cur, param) {
+      console.log(cur)
       if ((cur[0] === "{" && cur[cur.length - 1] === "}") || (cur[0] === "[" && cur[cur.length - 1] === "]")) {
         try {
           if (cur[0] === "[") {
@@ -466,14 +466,25 @@ function compileCloseBrackets(OSL) {
       else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
       else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
       else if (this.unary.indexOf(cur) !== -1) return { type: "ury", data: cur }
+      else if (autoTokenise(cur, " ").length > 1) {
+        let method = autoTokenise(cur, " ")
+        method = method.map((input, index) => this.evalToken(input, index > 0))
+        return method
+      }
       else if (autoTokenise(cur, ".").length > 1) {
         let method = autoTokenise(cur, ".")
-        method = method.map((input) => this.evalToken(input))
+        method = method.map((input, index) => this.evalToken(input, index > 0))
         return { type: "mtd", data: method }
       }
       else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
+      else if (cur.startsWith("(") && cur.endsWith(")")) return this.generateAST({ CODE: cur.substring(1, cur.length - 1).trim(), START: 0 })[0]
       else if (cur.endsWith(")")) {
-        return { type: "fnc", data: cur }
+        let out = { type: param? "mtv" : "fnc", data: cur.substring(0, cur.indexOf("(")), parameters: [] }
+        if (cur.endsWith("()")) return out
+        let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
+        method = method.map((input) => this.generateAST({ CODE: input, START: 0 })[0])
+        out.parameters = method
+        return out
       }
       else if (cur.indexOf(" ") !== -1) return this.generateAST({ CODE: cur, START: 0 })[0]
       else return { type: "unk", data: cur }
@@ -511,11 +522,13 @@ function compileCloseBrackets(OSL) {
               ast.splice(i + 1, 1);
               continue;
             }
-            cur.left = prev;
-            cur.right = next;
-            ast.splice(i - 1, 1);
-            ast.splice(i, 1);
-            i -= 1;
+            if (!cur.left) {
+              cur.left = prev;
+              cur.right = next;
+              ast.splice(i - 1, 1);
+              ast.splice(i, 1);
+              i -= 1;
+            }
           }
         }
       }
@@ -706,5 +719,15 @@ function compileCloseBrackets(OSL) {
       this.unary = JSON.parse(UNARY);
     }
   }
-  Scratch.extensions.register(new OSLUtils());
-})(Scratch)
+
+  if (typeof Scratch !== "undefined") {
+    Scratch.extensions.register(new OSLUtils());
+  } else {
+    let utils = new OSLUtils();
+    // console.log(JSON.stringify(utils.generateAST({ CODE: "val = max(0,(scroll_y / 70).round - 1) - 1" }), null, 2))
+    // console.log(JSON.stringify(utils.generateAST({ CODE: "jn ots_script.isType(\"array\") 150" }), null, 2))
+    // console.log(JSON.stringify(utils.generateAST({ CODE: "(100 / 100).round()" }), null, 2))
+    // console.log(JSON.stringify(utils.generateAST({ CODE: "jn status == \"Waiting\" or (status == \"login\") 61" }), null, 2))
+    // console.log(JSON.stringify(utils.generateAST({ CODE: "loop (frame_height / 20 + 3).round.clamp(0,loops) 208 (" }), null, 2))
+    console.log(JSON.stringify(utils.generateAST({ CODE: "icons.item(this.outname) = data" }), null, 2))
+  }
