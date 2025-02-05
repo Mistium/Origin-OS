@@ -7,6 +7,7 @@ loc 2 2 20 -20
 c #fff
 if count.len < 2 (
   count = "0" ++ count.str
+  // ha ha .padStart my ass
 )
 text count 8
 goto 0 0
