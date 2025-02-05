@@ -1,3 +1,5 @@
+// this app wont work anymore because i removed the src images
+
 window "show"
 count = 00
 mainloop:
@@ -11,5 +13,5 @@ if count.len < 2 (
 )
 text count 8
 goto 0 0
-image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/gifs/Planet_gif/frm" ++ count ++ ".png" window_width
+image "gif image folder url" ++ count ++ ".png" window_width
 if count > 42 "count = 00"
