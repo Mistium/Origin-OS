@@ -9,38 +9,49 @@ permission "request" "file admin"
 permission "request" "account"
 permission "request" "kernel"
 
-def "centext" "this.txt, this.size" (
+def "centext" "txt, size" (
   local x = x_position
   change_x txt.len * size * -0.5
   text txt size
   set_x x
 ) 
 
-def "setting_toggle" "this.txt, this.w, this.state, this.callback" (
-  this.x = x_position
-  square this.w 30 10 : c#prim
-  change_x this.w / -2 + 10
-  text this.txt 10 : c#txtc
-  set_x this.x + (this.w / 2 - 15)
+def "setting_toggle" "txt, w, state, callback" (
+  local x = x_position
+  square w 30 10 : c#prim
+  change_x w / -2 + 10
+  text txt 10 : c#txtc
+  set_x x + (w / 2 - 15)
   square 30 30 5 : c#seco
   if onclick (
-    return this.callback()
+    return callback()
   )
-  if this.state (
+  if state (
     icon "tick" 0.8 : c#txtc
   )
 )
 
-def "setting_do" "this.txt, this.w, this.callback" (
-  square this.w 30 10 : c#prim
+def "setting_do" "txt, w, callback" (
+  square w 30 10 : c#prim
   if onclick (
-    return this.callback()
+    return callback()
   )
 
-  change_x this.w / -2 + 10
-  text this.txt 10 : c#txtc
+  change_x w / -2 + 10
+  text txt 10 : c#txtc
 )
 
+def "setting_input" "id, default_txt, w, callback" (
+  square w 30 10 : c#prim
+  if inputs[id] == null (
+    inputs[id] = default_txt
+  )
+  if "enter".onKeyDown() (
+    log inputs[id]
+    return callback(inputs[id])
+  )
+  input w - 10 25 id null 10
+)
 
 def "appopt" "optname,opticn,icnsize" (
   loc 999 2 0 y
@@ -140,7 +151,6 @@ def "system" (
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
-      option "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
       option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
       break
     case "Display"
@@ -345,21 +355,35 @@ def "system" (
         page_len = file_data.len * 30 + 200
       )
       break
-    case "Network"
-      network_page
+    case "Keybinds"
+      
       break
   )
   clicked = false
 )
 
 def "network_page" (
-  loc 999 2 0 -70
-  w = frame.width - 25
+  local w = frame.width - 25
+  if subcategory == "Cors Proxy" (
+    loc 2 2 20 -20
+    text "Current Cors Proxy: " ++ user.proxy ?? "https://apps.mistium.com/cors?url=" 10 : c#txtc
+    
+    set_x 0 : chy#-50
+    
+    setting_input "proxy" user.proxy ?? "https://apps.mistium.com/cors?url=" w def(value) -> (
+      if value.startsWith("https://") (
+        network "update" "proxy" value
+      )
+    )
+    return
+  )
+  goto 0 window.top - 70
+
   icon "network" 4 : c#txtc
   if network.connected (
     local message = "Connected"
   ) else (
-    icon "line -10 -10 10 10" 4
+    icon "w 2 line -10 -10 10 10" 4
     local message = "No Connection"
   )
   
@@ -373,6 +397,9 @@ def "network_page" (
     ping.sent = timestamp
     network "server" "ping"
   )
+  
+  y = -300
+  option "Cors Proxy" "network"
 )
 
 def "colour_selector" "this.name,this.id" (
@@ -1155,6 +1182,7 @@ set_x window.left + 25
 change_y -70
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
+DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
 
 change_y -25
 DrawCategory "Apps" "grid-apps"
