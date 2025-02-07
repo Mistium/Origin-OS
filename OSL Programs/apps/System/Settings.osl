@@ -832,7 +832,7 @@ def "account" (
   
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
-    terminal "logout"
+    network "logout"
     terminal "shutdown"
   )
 )
