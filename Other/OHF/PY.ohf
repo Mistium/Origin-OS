@@ -76,12 +76,40 @@
         "+=",
         "-=",
         "/=",
-        "*="
+        "*=",
+        "@",
+        "//",
+        "//=",
+        "%=",
+        "&=",
+        "|=",
+        "^=",
+        "@=",
+        "with",
+        "async",
+        "await",
+        "yield",
+        "yield from",
+        "global",
+        "nonlocal",
+        "pass",
+        "raise",
+        "del"
       ]
     },
     "data": {
       "color": "#52aeb9",
-      "tokens": ["def", "lambda", "None"]
+      "tokens": [
+        "def",
+        "lambda",
+        "None",
+        "self",
+        "cls",
+        "super",
+        "property",
+        "staticmethod",
+        "classmethod"
+      ]
     },
     "booleans": {
       "color": "#408088",
