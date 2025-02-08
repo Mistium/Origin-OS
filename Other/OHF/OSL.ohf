@@ -13,7 +13,7 @@
   },
   "overrides": {
     "origin.numbers": "#6eace5",
-    "origin.strings": "#a6d6ff",
+    "origin.strings": "#6eeba6",
     "origin.comments": "#555c67",
     "origin.functions": "#af8ed6",
     "origin.objects": "#78bdfb"
@@ -127,8 +127,7 @@
         "run",
         "frame",
         "throw",
-        "local",
-        "class"
+        "local"
       ]
     },
     "functions": {
@@ -176,7 +175,6 @@
         "/=",
         "%=",
         "^=",
-        "@=",
         "??=",
         "==",
         "!=",
@@ -217,6 +215,17 @@
         "}",
         "[",
         "]"
+      ]
+    },
+    "types": {
+      "color": "#eb6e94",
+      "tokens": [
+        "string",
+        "boolean",
+        "object",
+        "array",
+        "number",
+        "symbol"
       ]
     }
   }
