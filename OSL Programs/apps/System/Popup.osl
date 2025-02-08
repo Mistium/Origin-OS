@@ -1,8 +1,5 @@
 import "window_tools" as "wt"
 
-window.width = 500
-window.height = 500
-
 mainloop:
 wt:load_theme
 
@@ -10,7 +7,6 @@ goto 0 window.top - 20
 square window.width 30 10 : c#prim
 loc 2 2 20 -20
 text "Popup" 10 : c#txtc
-
 
 loc 2 2 20 -60
 text passed_data.wrapText(window.width / 10 - 5) 10 : c#txtc
