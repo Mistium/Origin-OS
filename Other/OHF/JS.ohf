@@ -28,7 +28,8 @@
         "[",
         ")",
         "(",
-        "."
+        ".",
+        ";"
       ]
     },
     "main": {
@@ -47,6 +48,18 @@
         "break",
         "default",
         "while",
+        "do",
+        "try",
+        "catch",
+        "finally",
+        "throw",
+        "continue",
+        "class",
+        "extends",
+        "implements",
+        "new",
+        "this",
+        "super",
         "++",
         "--",
         "=",
@@ -58,6 +71,7 @@
         "-=",
         "/=",
         "*=",
+        "%=",
         "<=",
         ">=",
         "<",
@@ -67,6 +81,7 @@
         "-",
         "/",
         "*",
+        "%",
         "&&",
         "||",
         "^",
@@ -74,7 +89,11 @@
         "&",
         "=>",
         ">>",
-        "<<"
+        "<<",
+        "??",
+        "??=",
+        "?.",
+        "..."
       ]
     },
     "data": {
@@ -82,7 +101,14 @@
       "tokens": [
         "const",
         "let",
-        "function"
+        "function",
+        "async",
+        "await",
+        "yield",
+        "static",
+        "get",
+        "set",
+        "constructor"
       ]
     },
     "booleans": {
@@ -90,7 +116,10 @@
       "tokens": [
         "true",
         "false",
-        "null"
+        "null",
+        "undefined",
+        "NaN",
+        "Infinity"
       ]
     }
   }
