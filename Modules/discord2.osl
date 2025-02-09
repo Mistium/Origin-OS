@@ -106,7 +106,9 @@ def "run" (
             this.command = self.commands[this.command]
             
             this.content = this.command(this.content,this.d)
-            this.out = self.sendmessage(this.content,this.d.channel_id)
+            if this.content.len > 0 (
+              this.out = self.sendmessage(this.content,this.d.channel_id)
+            )
             return
           )
         )
