@@ -99,7 +99,7 @@ class md (
 my_md = md.compile([
   "## Try CommonMark",
   "",
-  "You can try CommonMark here.  This dingus is powered by [commonmark.osl](https://github.com/), the JavaScript reference implementation.",
+  "You can try CommonMark here.  This dingus is powered by [commonmark.osl](https://github.com/Mistium/Origin-OS/blob/main/Modules/Commonmark_Alpha.osl), the OSL reference implementation.",
   "",
   "1. item one",
   "2. item two",
