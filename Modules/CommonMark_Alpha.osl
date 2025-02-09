@@ -1,0 +1,117 @@
+
+class md (
+  
+  self.sizes = [
+    40,
+    30,
+    18.72,
+    16,
+    13.28,
+    10.72
+  ]
+  
+  self.regexes = {
+    headers: "/^#+ ?$/",
+    links: "/^\[[^\]]+\]\([^)]+\)$/",
+    line_parser: "/\[[^\]]+\]\([^)]+\)|[^ \\n]+ ?/gm"
+  }
+  
+  def splitLine(line) (
+    return line.match(self.regexes.line_parser) ?? []
+  )
+  
+  def parseLine(line) (
+    local line_size = 4
+    local line_spl = self.splitLine(line)
+    local line_type = "paragraph"
+    
+    if line_spl[1].match(self.regexes.headers) != null (
+      local line_size = 10 - (line_spl[1].len * 1.5)
+      local line_spl = line_spl.delete(1)
+      local line_type = "heading"
+    )
+    
+    each this.i this.token line_spl (
+      if token.match(self.regexes.links) != null (
+        local token_parts = token.trim(2,-2).split("](")
+        local line_spl[i] = {
+          type: "link",
+          text: token_parts[1],
+          data: token_parts[2],
+          leng: token_parts[1].len
+        }
+      ) else (
+        local line_spl[i] = {
+          type: "text",
+          text: token,
+          leng: token.length
+        }
+      )
+    )
+    
+    return {
+      line_spl,
+      line_size,
+      line_type
+    }
+  )
+  
+  def compile(code) (
+    local spl = code.split("\n")
+    
+    each i line spl (
+      spl[i] = self.parseLine(line)
+    )
+    
+    return spl
+  )
+  
+  def render(md_obj, size) (
+    
+    
+    local x = x_position
+    local y = y_position
+    
+    each line md_obj (
+      local s = line.line_size * size
+      local chars = 0
+      set_x x
+      each token line.line_spl (
+        c #fff
+        if token["type"] == "link" (
+          c user.theme.accent
+          local chars ++
+        )
+        
+        local str = token.text
+        
+        if x_position + (str.len * s) > frame.right (
+          set_x x
+          change_y s * -2
+        )
+        text str s
+      )
+      change_y s * -2
+    )
+  )
+)
+
+my_md = md.compile([
+  "## Try CommonMark",
+  "",
+  "You can try CommonMark here.  This dingus is powered by [commonmark.osl](https://github.com/), the JavaScript reference implementation.",
+  "",
+  "1. item one",
+  "2. item two",
+  "   - sublist",
+  "   - sublist",
+].join("\n"))
+
+mainloop:
+
+frame window.left window.top window.right window.bottom (
+  loc 2 2 10 -20
+  md.render(my_md, 3)
+)
+
+import "win-buttons"
