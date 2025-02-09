@@ -127,7 +127,8 @@
         "run",
         "frame",
         "throw",
-        "local"
+        "local",
+        "class"
       ]
     },
     "functions": {
