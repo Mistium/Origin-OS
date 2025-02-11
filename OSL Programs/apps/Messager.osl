@@ -1,4 +1,4 @@
-permission "request" "network"
+[.toStr()permission "request" "network"
 window "dimensions" 800 450
 window "show"
 save "contacts.json" "get"
@@ -53,10 +53,10 @@ loop contact-data.len (
     if clicked "current = count"
     colour #ffffff
     change_x frame_width / -2 + 20
-    text contact-data.[count].key("name") 7
+    text contact-data[count].key("name") 7
 )
 frame "clear"
 loc 2 2 240 -50
-text contact-data.[current].key("messages").join(newline) 9
+text contact-data[current].key("messages").join(newline) 9
 save "contacts.json" "set" contacts
 import "win-buttons"

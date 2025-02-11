@@ -1,4 +1,4 @@
-permission "request" "File Admin"
+.toStr()permission "request" "File Admin"
 
 notifications = [
   {"app":"xxzDnSRYbDD4dFxbQsHwts3CrbTtPfJP","text":"Low Storage :("},

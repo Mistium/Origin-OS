@@ -1,4 +1,4 @@
-import "window_tools"
+.toStr()import "window_tools"
 
 permission "request" "terminal"
 permission "request" "javascript"

@@ -1,4 +1,4 @@
-completed = false
+.toStr()completed = false
 compiled = []
 
 def "check_command" "in"

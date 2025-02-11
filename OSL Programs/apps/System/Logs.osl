@@ -1,4 +1,4 @@
-// Developer: @Mistium
+.toStr()// Developer: @Mistium
 // Description: This app lets you view the system logs
 permission "request" "terminal"
 window "show"

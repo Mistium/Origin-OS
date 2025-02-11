@@ -1,4 +1,4 @@
-import "window_tools"
+.toStr()import "window_tools"
 
 window "dimensions" 600 500
 file "open" user_folder ++ ".folder"

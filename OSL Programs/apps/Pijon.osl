@@ -1,4 +1,4 @@
-network "set_app_id" "pijon_messaging_app_v1"
+[.toStr()network "set_app_id" "pijon_messaging_app_v1"
 
 def "reload"
   // gets currently online
@@ -12,7 +12,7 @@ def "reload"
   count = 0
   loop online.len (
     count ++
-    c = online.[count]
+    c = online[count]
     messages.key(c) = []
   )
 endef
@@ -48,7 +48,7 @@ count = 0
 loop online.len (
   count ++
   loc 2 2 10 count * -20 + scroll_yusers
-  current = online.[count]
+  current = online[count]
   if current_target == current "change_x 10"
   text current 8
   if current_target != current and clicked (
@@ -92,9 +92,9 @@ loop frame_height.divide(40).round (
     exit
   )
   loc 2 2 30 10 - ( count * 40 ) + scroll_y
-  current = c_msgs.[count]
+  current = c_msgs[count]
   image current_pfp 30
-  text current.[1].str + ": " + current.[2] 9 : c#fff chx#30
+  text current[1].str + ": " + current[2] 9 : c#fff chx#30
   if window."bottom" + 40 > y_position (
     frame "clear"
     exit

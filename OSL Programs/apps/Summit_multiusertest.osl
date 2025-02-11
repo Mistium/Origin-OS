@@ -1,4 +1,4 @@
-c_sidebarbutton = #333
+[.toStr()c_sidebarbutton = #333
 c_sidebarselected = accent_colour
 c_sidebaricons = #fff
 c_sidebarback = #111
@@ -29,9 +29,9 @@ onload = false
 loaded = false
 
 def "set_tab_name"
-  name = taburls.[tab].split("/")
+  name = taburls[tab].split("/")
   len = name.len
-  name = name.[len]
+  name = name[len]
   current_tab_name = {}
   current_tab_name.key("title") = name
 endef
@@ -67,10 +67,10 @@ def "render_tabs"
     square tab_width - 15 28 5 1
     if clicked (
       tab = i
-      input_search = taburls.[i].destr
+      input_search = taburls[i].destr
     )
     change_x tab_width * -0.5 + 20
-    current = tabs.[i]
+    current = tabs[i]
     icon current."icon".str 0.8 : c#c_text
     text current."title".str 8 : chx#20
     if tabs.len > 1 (
@@ -94,19 +94,19 @@ def "redirect" "url"
   input_search = url.destr
   cur_tab = {}
   cur_tab.key("title") = url
-  tabs.[tab] = cur_tab
-  taburls.[tab] = url
+  tabs[tab] = cur_tab
+  taburls[tab] = url
   onload = true
   loaded = false
 endef
 
 def "resolve_protocols" "url"
   spl = url.split("://")
-  protocol = spl.[1]
+  protocol = spl[1]
   current_get = url
   if protocol == "owtp" (
     if url.contains("@") (
-      owtpurl2 = "https://raw.githubusercontent.com/" ++ spl.[2].split("@").[1] ++ "/owtp/main/"
+      owtpurl2 = "https://raw.githubusercontent.com/" ++ spl[2].split("@")[1] ++ "/owtp/main/"
     ) else (
       owtpurl2 = owtpurl
     )
@@ -118,14 +118,14 @@ def "resolve_protocols" "url"
   )
   urlspl = current_get.split(".")
   len = urlspl.len
-  page_type = urlspl.[len]
+  page_type = urlspl[len]
 endef
 
 opentab "owtp://search.web"
 resolve_protocols "owtp://search.web"
 network "clear" current_get
 current_get = ""
-pages.[tab] = []
+pages[tab] = []
 page_type = ""
 page_data = ""
 
@@ -147,11 +147,11 @@ if selected_input == "search" and "enter".pressed (
   redirect input_search.str
 )
 
-resolve_protocols taburls.[tab]
+resolve_protocols taburls[tab]
 network "get" current_get
 if data.str != "Loading" and loaded.not (
   page_data = data.str
-  pages.[tab] = data.split(newline)
+  pages[tab] = data.split(newline)
   loaded = true
   onload = true
 )
@@ -174,10 +174,10 @@ icon "Right-Arrow" 0.8 : chy#-50
 icon "Reload" 0.7 : chy#-50
 if clicked and can (
   can = false
-  resolve_protocols taburls.[tab]
+  resolve_protocols taburls[tab]
   network "clear" current_get
   current_get = ""
-  pages.[tab] = []
+  pages[tab] = []
   page_type = ""
   loaded = false
 )
@@ -195,23 +195,23 @@ page_len = null
 current_tab_name = {}
 current_tab_name.key("title") = input_search.str
 if page_type == "osl" (
-  run pages.[tab]
+  run pages[tab]
   onload = false
 )
 if ["png","jpg"].contains(page_type) (
   goto 0 0
-  image taburls.[tab].destr.replace("owtp://",owtpurl) frame_width
+  image taburls[tab].destr.replace("owtp://",owtpurl) frame_width
   page_data = ""
-  current_tab_name.["title"] = page_type + "image"
-  current_tab_name.["icon"] = "file"
+  current_tab_name["title"] = page_type + "image"
+  current_tab_name["icon"] = "file"
 )
 if page_type == "txt" (
   loc 2 2 20 -20 + scroll_y
   c c_text
   text page_data.str 10
   set_tab_name
-  current_tab_name.["icon"] = "txt"
-  page_len = pages.[tab].len * 25
+  current_tab_name["icon"] = "txt"
+  page_len = pages[tab].len * 25
 )
 if page_type == "" (
   loading += 50 * delta_time
@@ -220,7 +220,7 @@ if page_type == "" (
   icon "w 3 cutcircle 0 0 10 -4 65 cutcircle 0 0 10 14 65" 2
   direction 90
 )
-tabs.[tab] = current_tab_name
+tabs[tab] = current_tab_name
 if mouse_down.not "can = true"
 frame "clear"
 import "win-buttons"

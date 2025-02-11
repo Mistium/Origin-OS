@@ -1,4 +1,4 @@
-// This script requires OASM v6 to be supported by osl (any version of originOS v4.9.0 and above)
+[// This script requires OASM v6 to be supported by osl (any version of originOS v4.9.0 and above)
 
 lines = 10000
 steps = 4

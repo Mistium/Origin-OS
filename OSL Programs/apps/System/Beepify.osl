@@ -1,7 +1,7 @@
 save "beepify@mistium" "set_directory"
 
 def "remove_playlist" "info"
-  playlists.delete(info.[1])
+  playlists.delete(info[1])
 endef
 
 def "loadTrack" "id"
@@ -11,7 +11,7 @@ def "loadTrack" "id"
   ) else (
     network "get" "https://originfy.milosantos.com?song=" ++ id
     response = data
-    if response.type == "object" (
+    if response.isType("object") (
       response.JsonClean()
       song_data[id] = response.delete("mp3_url")
       save "songs.json" "set" song_data
@@ -36,9 +36,9 @@ endef
 def "loadSong" "song"
   sound current.url "pause"
   current = {}
-  current.url = song.mp3_url.str
-  current.image = song.cover_url.str
-  current.name = song.song_name.str
+  current.url = song.mp3_url.toStr()
+  current.image = song.cover_url.toStr()
+  current.name = song.song_name.toStr()
   current.duration = song.duration
   sound current.url "load"
   sound current.url "start" 0
@@ -73,8 +73,8 @@ def "render_tracks" "tracks"
         loadSong song
       )
       change_x frame_width / -2 + 25
-      image song.cover_url.str 30 30
-      text song.song_name.str 8 : c#fff chx#20
+      image song.cover_url.toStr() 30 30
+      text song.song_name.toStr() 8 : c#fff chx#20
     )
   )
 endef
@@ -97,10 +97,10 @@ def "render_playlists" "playlist_data"
       )
       change_x frame_width / -2 + 25
       if cur.image != null (
-        image cur.image.str 30 30
+        image cur.image.toStr() 30 30
         change_x 20
       )
-      text cur.name.str 8 : c#fff
+      text cur.name.toStr() 8 : c#fff
     )
   )
 endef
@@ -199,7 +199,7 @@ if clicked and can (
   
   if track_id != "" (
     if track_id.contains("https://open.spotify.com/track/") (
-      track_id.regex("/track\/(.*?)(?=\?|$)/g").[1]
+      track_id.regex("/track\/(.*?)(?=\?|$)/g")[1]
       track_id.right(track_id.len - 6)
     )
     loading.append(track_id)

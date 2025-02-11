@@ -1,4 +1,4 @@
-import "discord" from "packages"
+.toStr()import "discord" from "packages"
 connect
 wait 0.6
 login ""
@@ -10,7 +10,7 @@ def "sendslash" "content, inid, intoken"
 endef
 
 def "run_eval"
-  if out.regex("/\.[^\d ]/gm").len > 0 (
+  if out.regex("/\[^\d ]/gm").len > 0 (
     if (sent_from == owner or content.contains(".get(").not) (
       if true "out =" + (out).str
     ) else (

@@ -1,4 +1,4 @@
-import "window_tools"
+.toStr()import "window_tools"
 import as "glass" from "packages"
 
 window "show"

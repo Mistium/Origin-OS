@@ -62,7 +62,7 @@ scale = 1
 def "object" "id" (
   y = id * -30 + -90
   loc 2 2 sidebar_width / 2 y
-  current = ATOM_objects.[id]
+  current = ATOM_objects[id]
   square sidebar_width - 30 20 10 1 1
   if current_object != current and clicked (
     current_object = current
@@ -101,7 +101,7 @@ def "get_attribute_data" (
   count = 0
   loop current_attributes.len (
     count2 ++
-    log current_attributes.[count2]
+    log current_attributes[count2]
   )
 )
 
@@ -261,7 +261,7 @@ square frame_width frame_height 5 : c#accent_colour
 count = 0
 loop objects.len (
   count ++
-  renderobject ATOM_objects.[count].contents()
+  renderobject ATOM_objects[count].contents()
 )
 
 frame "clear"
@@ -287,7 +287,7 @@ if confirm_delete != 0 (
   square 400 200 20 : c#accent_colour
   square 400 200 15 1 : c#222
   goto -190 70
-  text `Are you sure you want to remove the attribute:${\n}'${current_attributes.[confirm_delete].[1]}'${\n}${\n}on ${\n}${\n}'${current_object}'` 8 : c#fff
+  text `Are you sure you want to remove the attribute:${\n}'${current_attributes[confirm_delete][1]}'${\n}${\n}on ${\n}${\n}'${current_object}'` 8 : c#fff
   goto -102 -72
   square 185 40 10 1 : c#444
   if clicked "confirm_delete = 0"
