@@ -13,7 +13,7 @@ window.no_desktop = true
 window "y" screensize_y / -2 + 35
 
 segments = user.origin_dock
-if segments.type != "array" (
+if segments.isType("array").not() (
   segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/running.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
   network "update" "origin_dock" segments
 )
@@ -27,13 +27,13 @@ for syscount segments.len (
 dock_width = x_position
 
 // Parameter setup
-dock_x = dock_width.round / -2
+dock_x = dock_width.round() / -2
 y = -100
 dock_y_target = 0
 height = 36
 
 // theme
-if user.theme.len < 5 or user.theme.istype("object").not (
+if user.theme.len < 5 or user.theme.istype("object").not() (
   network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505","accent":"#57cdac"}
 )
 
@@ -57,12 +57,12 @@ if dock_colour + icon_colour != tempcol (
   window "refresh_bg"
 )
 movefileloc file_loc
-if mouse_down.not "canclick = True"
+if mouse_down.not() "canclick = True"
 window "dimensions" screensize_x 70
 window.y = screensize_y / -2 + 35
 if delta_time < 0.1 (
-  y += dock_y_target - y.round * delta_time * 3
-  if y.round != dock_y_target.round (
+  y += dock_y_target - y.round() * delta_time * 3
+  if y.round() != dock_y_target.round() (
     window "refresh_bg"
   )
 )
@@ -73,7 +73,7 @@ if y > -80 (
     import segment "ode" : c#dock_colour chx#15
     goto width / 2 + x + 15 y
   )
-  dock_width = (x_position - dock_x).round
+  dock_width = (x_position - dock_x).round()
   if dock_width != dock_width_temp (
     dock_width_temp = dock_width
     dock_changed_w = true
@@ -83,7 +83,7 @@ if y > -80 (
   )
   dock_x = dock_width / -2
 )
-if open != 0 and mouse_down.not (
+if open != 0 and mouse_down.not() (
   terminal "kill" + open
   window "add" open
   open = 0
