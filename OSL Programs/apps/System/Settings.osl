@@ -1,4 +1,4 @@
-.toStr()import "window_tools"
+import "window_tools"
 import as "glass" from "packages"
 load_theme
 
