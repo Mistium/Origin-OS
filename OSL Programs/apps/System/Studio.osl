@@ -1,4 +1,4 @@
-[import as "glass" from "packages"
+import as "glass" from "packages"
 
 file "use_type" "txt"
 
