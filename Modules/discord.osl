@@ -1,4 +1,4 @@
-base = {"op":2,"d":"","s":null,"t":null}
+[.toStr()base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
@@ -90,7 +90,7 @@ def "discord_getmessages"
       )
       each "i" "channel" channels (
         position = channel."position"
-        out_channels.[position] = channel.JsonClean()
+        out_channels[position] = channel.JsonClean()
       )
       channels = out_channels
       name = guild."name"
@@ -103,7 +103,7 @@ def "discord_getmessages"
     )
     if cmd == "MESSAGE_CREATE" (
       channel = msg."channel"
-      messages.[channel] =  messages.[channel].append(msg)
+      messages[channel] =  messages[channel].append(msg)
     )
   )
 endef

@@ -1,4 +1,4 @@
-base = {"op":2,"d":"","s":null,"t":null}
+[.toStr()base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
@@ -85,16 +85,16 @@ def "draw_channels"
   loop window_height // 40 (
     count ++
     y = count - 0.5 * -40 + scroll_y
-    channel = channels.[count]
+    channel = channels[count]
     loc 999 2 0 y
     if channel == current_channel "c #333" else "c #222"
     square 270 25 10
     if clicked (
       current_channel = channel
-      ping_channels.[count] = 0
+      ping_channels[count] = 0
     )
     loc 2 2 20 y
-    if ping_channels.[count] > 0 (
+    if ping_channels[count] > 0 (
       change_x 10
       icon "c #de0a26 w 10 dot 0 0 c #fff w 2 line 0 3 0 0 dot 0 -3" 2
       change_x 10
@@ -113,10 +113,10 @@ def "draw_chat" "cur_msgs"
   y = 0
   loop ( window_height // 40 ).clamp(0,len) (
     count ++
-    msg = cur_msgs.[count]
+    msg = cur_msgs[count]
     y = count * -40 + scroll_ychat
     loc 999 2 0 y
-    if msg.[4] (
+    if msg[4] (
       square frame_width 20 10 : c#625228
     ) else (
       square frame_width 20 10 0 1
@@ -124,13 +124,13 @@ def "draw_chat" "cur_msgs"
     hover = mouse_touching
     loc 2 2 20 y
     author = msg."author"
-    image msg.[3] 30 30
+    image msg[3] 30 30
     change_x 20
-    text msg.[1].str + ">" + msg.[2].str 10 : c#fff
-    if msg.[5] != [] (
+    text msg[1].str + ">" + msg[2].str 10 : c#fff
+    if msg[5] != [] (
       text "(hover to view attachment)" 7 : c#aaa
       if hover (
-        img_display = msg.[5].[1]."url"
+        img_display = msg[5][1]."url"
       )
     )
   )
@@ -161,15 +161,15 @@ if discord.wsHasnew() (
     each "i" "channel" channels (
       type = channel."type"
       position = channel."position"
-      out_channels.[position] = channel.JsonClean()
+      out_channels[position] = channel.JsonClean()
     )
     channels = out_channels
   )
   if cmd == "MESSAGE_CREATE" (
     channel = msg."d"."channel_id"
-    msg_cha = messages.[channel]
+    msg_cha = messages[channel]
     if msg_cha.istype("Array").not (
-      messages.[channel] = []
+      messages[channel] = []
       msg_cha = []
     )
     temp = msg."d"
@@ -194,10 +194,10 @@ if discord.wsHasnew() (
       each "i" "ping" pings (
         if ping == my_ping (
           ping_loc = channels.getall("id").index(channel)
-          notify originCord_icn "You got pinged by" + author."username" "in" + channels.[ping_loc]."name"
+          notify originCord_icn "You got pinged by" + author."username" "in" + channels[ping_loc]."name"
           ping_repl = "@" ++ discord_username
           content.replace(my_ping,ping_repl)
-          ping_channels.[ping_loc] += 1
+          ping_channels[ping_loc] += 1
           ping = true
         )
       )
@@ -208,7 +208,7 @@ if discord.wsHasnew() (
     message.append(pfp)
     message.append(ping)
     message.append(attachments)
-    messages.[channel] = msg_cha.append(message)
+    messages[channel] = msg_cha.append(message)
   )
 )
 loc 999 2 0 -20
@@ -219,7 +219,7 @@ change_x 20
 text "originCord" 10 : c#fff
 draw_channels
 channel_id = current_channel."id"
-draw_chat messages.[channel_id]
+draw_chat messages[channel_id]
 loc 2 -2 150 25
 square 280 30 10 : c#222
 change_x -120

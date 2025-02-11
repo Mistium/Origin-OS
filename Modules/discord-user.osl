@@ -1,4 +1,4 @@
-base = {"op":2,"d":"","s":null,"t":null}
+.toStr()base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}

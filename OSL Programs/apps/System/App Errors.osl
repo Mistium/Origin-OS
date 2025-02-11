@@ -1,4 +1,4 @@
-permission "request" "terminal"
+[permission "request" "terminal"
 terminal "-get.windows"
 id = passed_data + 1
 errors = windows-errors.[id]

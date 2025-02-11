@@ -1,4 +1,4 @@
-def "end"
+[def "end"
   say "ended on line" + pc + "on command" + lmc_p.[pc]
   window "stop"
 endef

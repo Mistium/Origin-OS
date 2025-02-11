@@ -1,4 +1,4 @@
-import "window_tools"
+.toStr()import "window_tools"
 
 if passed_data != "" (
   file "open" passed_data "onlyaccess"

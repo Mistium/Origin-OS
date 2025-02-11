@@ -24,22 +24,22 @@ code = code.regex(splitter)
 loop code.len (
   pass = ""
   count += 1
-  cur = code.[count]
+  cur = code[count]
   last = cur.len
 
   count2 = count + 1
-  next = code.[count2]
+  next = code[count2]
   count2 += 1
-  next2 = code.[count2]
+  next2 = code[count2]
 
-  if cur.[1] == "%" and ( cur.[last] == "%" ) (
+  if cur[1] == "%" and ( cur[last] == "%" ) (
     cur = ""
   )
   if cur === "console".destr and ( next == "(" ) (
     if next2.contains("'") (
-       next2 = next2.replace("'","").str
+       next2 = next2.replace("'","").toStr()
     )
-    pass = "say " + next2.str
+    pass = "say " + next2.toStr()
     pass = pass.destr
     count += 1
   )

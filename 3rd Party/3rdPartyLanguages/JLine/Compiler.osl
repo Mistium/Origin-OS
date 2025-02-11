@@ -1,4 +1,4 @@
-lines = [
+.toStr()lines = [
   "object create(\"title\")",
   "{",
   "type \"text\"",

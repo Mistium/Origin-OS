@@ -1,4 +1,4 @@
-buttons = [
+[buttons = [
   "GET","POST","PUT","PATCH",
   "DELETE","HEAD","OPTIONS"
 ]

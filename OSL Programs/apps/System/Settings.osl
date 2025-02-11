@@ -1,4 +1,4 @@
-import "window_tools"
+.toStr()import "window_tools"
 import as "glass" from "packages"
 load_theme
 
@@ -162,7 +162,7 @@ def "system" (
       c txtc
       text "Invert Colours" 10
       toggle "invert" 20 : c#prim chx#30
-      inp = toggle_invert.int * 100
+      inp = toggle_invert.toNum()* 100
       terminal "system display set invert" + inp.str
       loc 2 2 10 -110
       text "Night Mode" 10 : c#txtc

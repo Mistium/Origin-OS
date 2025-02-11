@@ -1,4 +1,4 @@
-window "dimensions" screensize_x 60
+[window "dimensions" screensize_x 60
 permission "request" "start run"
 wicn = "w 3 square -5 5 3 3 square 5 5 3 3 square 5 -5 3 3 square -5 -5 3 3 w 5 dot 5 5 dot 5 -5 dot -5 -5 dot -5 5"
 sicn = "w 3 cutcircle -2 2 8 0 180 w 3 line 4 -4 12 -12"

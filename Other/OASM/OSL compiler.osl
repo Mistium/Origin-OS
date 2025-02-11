@@ -1,4 +1,4 @@
-file "open" "9456a6b8eb8725fc236e001cc43d894a"
+[file "open" "9456a6b8eb8725fc236e001cc43d894a"
 data.split(newline)
 
 variables = []

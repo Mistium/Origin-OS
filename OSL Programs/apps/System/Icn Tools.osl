@@ -2,40 +2,40 @@ all_icon_states = []
 child_windows = []
 
 
-def "loadicn" "icn_code"
+def "loadicn" "icn_code" (
   icn_code.replace(newline," ")
   icon_code = icn_code
   preview_code = icn_code
   all_icon_states.append(icn_code)
   mode = ""
   icnformat icon_code
-endef
+)
 
-def "editicn" "icn,mul,mde"
+def "editicn" "icn,mul,mde" (
   code = icn.split(" ")
   i = 0
   loop code.len (
     i ++
-    if code.[i].type == "number" and last != "c" (
+    if code[i].isType("number") and last != "c" (
       if mde == "weight" and last == "w" (
-        code.[i] *= mul
-        code.[i] = ( code.[i] * 100 ).round / 100
+        code[i] *= mul
+        code[i] = (code[i] * 100).round() / 100
       )
       if mde == "resize" (
         i5 = i - 5
         i4 = i - 4
-        if code.[i5] != "cutcircle" and code.[i4] != "cutcircle" (
-          code.[i] *= mul
-          code.[i] = ( code.[i] * 100 ).round / 100
+        if code[i5] != "cutcircle" and code[i4] != "cutcircle" (
+          code[i] *= mul
+          code[i] = (code[i] * 100).round() / 100
         )
       )
     )
-    last = code.[i]
+    last = code[i]
   )
   data = code.join(" ")
-endef
+)
 
-def "togglemode" "mde"
+def "togglemode" "mde" (
   if clicked and can (
     can = false
     if mode == mde (
@@ -44,15 +44,15 @@ def "togglemode" "mde"
       mode = mde
     )
   )
-endef
+)
 
-def "icnformat" "icn"
+def "icnformat" "icn" (
   code = icn.split(" ")
   out = ""
   i = 0
   loop code.len (
     i ++
-    cur = code.[i]
+    cur = code[i]
     if cur.istype("number").not (
       out.append(newline)
     )
@@ -60,7 +60,7 @@ def "icnformat" "icn"
     out.append(" ")
   )
   display_code = out.split(newline)
-endef
+)
 
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
@@ -82,7 +82,7 @@ if new_transmit (
   if child_windows.contains(transmit_source) (
     file "open" transmit_data "onlyaccess"
     file "get" 4
-    loadicn data.str
+    loadicn data.toStr()
     file "close"
     child_windows.delete(transmit_source)
   )
@@ -93,7 +93,7 @@ frame window.left top window.left + sidebar_width window.bottom + 45
 square frame_width frame_height 130 : c#333
 each "i" "item" display_code (
   loc 2 2 10 i * -20
-  text item.str 8 : c#fff
+  text item.toStr() 8 : c#fff
 )
 frame "clear"
 loc 2 -2 sidebar_width / 2 20
@@ -113,7 +113,7 @@ icon preview_code zoom
 goto mouse_x mouse_y
 icon "w 1 c#333 line -9999 0 9999 0 line 0 9999 -0 -9999" 1
 change 5 10
-text ( mouse_x / zoom ).round.str ++ "," ++ ( mouse_y / zoom ).round 9
+text (mouse_x / zoom).round().toStr() ++ "," ++ (mouse_y / zoom).round() 9
 mx = mouse_x
 my = mouse_y
 frame "clear"
@@ -180,7 +180,7 @@ if mode == "" (
   if mouse_down and can (
     multiplier += mx - last_mx
   )
-  multiplier = ( multiplier * 1000 ).round / 1000
+  multiplier = (multiplier * 1000).round() / 1000
   last_mx = mx
   text multiplier 10 : c#fff
   editicn icon_code multiplier mode
