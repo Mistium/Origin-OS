@@ -1,4 +1,4 @@
-[.toStr()base = {"op":2,"d":"","s":null,"t":null}
+base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
@@ -56,7 +56,7 @@ def "sent_by"
 endef
 
 def "send_message" "content, channel"
-  network "getasync" "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content.str.to("url")
+  network "getasync" "https://origin.milosantos.com/discord/sendmessage.php?token=" ++ token ++ "&channelid=" ++ channel ++ "&content=" ++ content.toStr().to("url")
 endef
 
 def "dm_user" "content, user_id"

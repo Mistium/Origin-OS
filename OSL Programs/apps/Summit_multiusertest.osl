@@ -1,4 +1,4 @@
-[.toStr()c_sidebarbutton = #333
+c_sidebarbutton = #333
 c_sidebarselected = accent_colour
 c_sidebaricons = #fff
 c_sidebarback = #111
@@ -71,8 +71,8 @@ def "render_tabs"
     )
     change_x tab_width * -0.5 + 20
     current = tabs[i]
-    icon current."icon".str 0.8 : c#c_text
-    text current."title".str 8 : chx#20
+    icon current."icon".toStr() 0.8 : c#c_text
+    text current."title".toStr() 8 : chx#20
     if tabs.len > 1 (
       loc 2 2 tab_width * 0.5 - 20 + x -20
       icon "close" 0.5
@@ -138,7 +138,7 @@ render_tabs
 loc -2 2 items * -15 - 10 -60
 square items * 30 28 5 1 : c#c_searchbar
 loc -2 2 -25 -60
-image user_icon.str 25
+image user_icon.toStr() 25
 offset = items * 30
 loc 2 2 ww - ( offset - 30 ) / 2 + 4 -60
 square ww - ( offset + 80 ) 28 5 1
@@ -149,7 +149,7 @@ if selected_input == "search" and "enter".pressed (
 
 resolve_protocols taburls[tab]
 network "get" current_get
-if data.str != "Loading" and loaded.not (
+if data.toStr() != "Loading" and loaded.not (
   page_data = data.str
   pages[tab] = data.split(newline)
   loaded = true
@@ -208,7 +208,7 @@ if ["png","jpg"].contains(page_type) (
 if page_type == "txt" (
   loc 2 2 20 -20 + scroll_y
   c c_text
-  text page_data.str 10
+  text page_data.toStr() 10
   set_tab_name
   current_tab_name["icon"] = "txt"
   page_len = pages[tab].len * 25

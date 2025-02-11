@@ -1,4 +1,4 @@
-.toStr()permission "request" "File Admin"
+permission "request" "File Admin"
 
 notifications = [
   {"app":"xxzDnSRYbDD4dFxbQsHwts3CrbTtPfJP","text":"Low Storage :("},
@@ -42,7 +42,7 @@ loop notifications.len (
   x = x_position
   text file.[2] 8 : c#fff
   goto x y_position - 20
-  text cur."text".str 7
+  text cur."text".toStr() 7
 )
 if mouse_down "can = true"
 frame "clear"

@@ -1,4 +1,4 @@
-.toStr()import "window_tools"
+import "window_tools"
 
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
@@ -43,10 +43,10 @@ if temp2 > temp (
   stretch "y" temp2
 )
 if type == "image" (
-  image passed_data.str 
+  image passed_data.toStr() 
 )
 if type == "video" (
-  video passed_data.str temp temp
+  video passed_data.toStr() temp temp
 )
 loc 2 2 10 -20
 text `${name} ${w}x${h}` 10 : c#txtc

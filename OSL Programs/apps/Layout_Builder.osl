@@ -1,4 +1,4 @@
-.toStr()file "install_type" "ojlf" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Origin Layout" ["Layout_Builder"]
+file "install_type" "ojlf" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Origin Layout" ["Layout_Builder"]
 
 current_layout = []
 current = 1
@@ -21,11 +21,11 @@ def "compile_as_osl"
     pass "goto" + render.[2] + "* size" + render.[3] + "* size"
     if render.[1] == "text" (
       pass "c" + render.[6].destr
-      pass "text" + render.[4].str.str + render.[5] + "* size"
+      pass "text" + render.[4].toStr().toStr() + render.[5] + "* size"
     )
     if render.[1] == "icon" (
       pass "c" + render.[6].destr
-      pass "icon" + render.[4].str.str + render.[5] + "* size"
+      pass "icon" + render.[4].toStr().toStr() + render.[5] + "* size"
     )
     if render.[1] == "box" (
       pass "c" + render.[7].destr
@@ -128,7 +128,7 @@ loop current_layout.len (
   goto render.[2] * multiplier render.[3] * multiplier
   if render.[1] == "text" (
     c render.[6].destr
-    text render.[4].str render.[5] * multiplier
+    text render.[4].toStr() render.[5] * multiplier
     if clicked (
       label1 = "Text"
       label2 = "Size"
@@ -138,7 +138,7 @@ loop current_layout.len (
   )
   if render.[1] == "icon" (
     c render.[6].destr
-    icon render.[4].str render.[5] * multiplier
+    icon render.[4].toStr() render.[5] * multiplier
     if clicked (
       label1 = "Icon Code"
       label2 = "Size"

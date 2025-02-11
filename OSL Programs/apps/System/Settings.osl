@@ -1019,7 +1019,7 @@ def "credits" (
     set_x 30
     change_y -30
     for i c_imgs.len (
-      image c_imgs[i].str 25 25
+      image c_imgs[i].toStr() 25 25
       change_x 30
     )
   )
@@ -1193,7 +1193,7 @@ DrawCategory "Info" "info"
 
 
 loc 2 2 25 -25
-image user_icon.str 35 35
+image user_icon.toStr() 35 35
 
 loc 2 2 232 -25
 if subcategory == "none" (

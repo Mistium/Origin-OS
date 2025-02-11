@@ -1,4 +1,4 @@
-[.toStr()permission "request" "network"
+permission "request" "network"
 window "dimensions" 800 450
 window "show"
 save "contacts.json" "get"
@@ -15,7 +15,7 @@ colour #303030
 change_x 20
 input window_width - 290 25 "message"
 terminal "server.get_app_message"
-if app_message.str == "app_message" "app_message = null"
+if app_message.toStr() == "app_message" "app_message = null"
 sender = app_message.key("sender")
 if app_message != null and contacts.contains(sender) (
 message = sender + "-" + app_message.key("text")

@@ -1,4 +1,4 @@
-.toStr()// this app wont work anymore because i removed the src images
+// this app wont work anymore because i removed the src images
 
 window "show"
 count = 00

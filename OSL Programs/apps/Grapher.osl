@@ -1,4 +1,4 @@
-.toStr()window "show"
+window "show"
 input_equation = 0
 mainloop:
 loc 999 -2 0 20

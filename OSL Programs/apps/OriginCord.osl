@@ -1,4 +1,4 @@
-[.toStr()base = {"op":2,"d":"","s":null,"t":null}
+base = {"op":2,"d":"","s":null,"t":null}
 // base packet
 
 properties = {"$os":"originOS","$browser":"originOS","$device":"originOS"}
@@ -126,7 +126,7 @@ def "draw_chat" "cur_msgs"
     author = msg."author"
     image msg[3] 30 30
     change_x 20
-    text msg[1].str + ">" + msg[2].str 10 : c#fff
+    text msg[1].toStr() + ">" + msg[2].toStr() 10 : c#fff
     if msg[5] != [] (
       text "(hover to view attachment)" 7 : c#aaa
       if hover (

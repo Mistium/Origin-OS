@@ -1,4 +1,4 @@
-.toStr()import "window_tools"
+import "window_tools"
 
 window "dimensions" 600 500
 file "open" user_folder ++ ".folder"
@@ -73,7 +73,7 @@ loop (frame_height / 45).round.clamp(0,len) (
   file "get" 1
   if data == ".folder" or target "c txtc" else "c seco"
   file "get" 2
-  text data.str 10 : chx#30
+  text data.toStr() 10 : chx#30
 )
 frame "clear"
 
@@ -99,7 +99,7 @@ if path != null (
     current = file[4]
   )
 )
-text cur.str 10 : chx#20
+text cur.toStr() 10 : chx#20
 
 loc 999 -2 0 20
 square window_width 20 20 : c#prim
