@@ -1,4 +1,4 @@
-.toStr()import as "glass" from "packages"
+import as "glass" from "packages"
 import "window_tools"
 
 file "use_type" "ots"

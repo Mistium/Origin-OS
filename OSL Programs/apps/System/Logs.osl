@@ -1,4 +1,4 @@
-.toStr()// Developer: @Mistium
+// Developer: @Mistium
 // Description: This app lets you view the system logs
 permission "request" "terminal"
 window "show"
@@ -19,6 +19,6 @@ count = scroll_y.divide(20).round - 1
 loop frame_height.divide(20).round + 2 (
   count ++
   loc 2 2 10 count * -20 + scroll_y
-  text data.[count].str 10
+  text data.[count].toStr() 10
 )
 frame "clear"

@@ -1,4 +1,4 @@
-.toStr()import "window_tools"
+import "window_tools"
 
 permission "request" "terminal"
 permission "request" "javascript"
@@ -214,7 +214,7 @@ if current_tab == "Network" (
     loc 2 2 30 y
     payload = cur.payload.str
     width = window.width - 400 // 7
-    text payload.trim(1,width).str 7 : c#txtc
+    text payload.trim(1,width).toStr() 7 : c#txtc
     if payload.len > width (
       text "..." 7
     )
@@ -226,7 +226,7 @@ if current_tab == "Network" (
     )
     recipient = cur.timestamp.destr.timestamp("convert-relative") + "   " + recipient
     loc -2 2 recipient.len * -7 - 15 y
-    text recipient.str 7
+    text recipient.toStr() 7
     y -= 40
   )
 )
@@ -257,7 +257,7 @@ if current_tab == "Render Info" (
     loc -2 2 -50 y
     d = windows_drawtimes[count][1]
     tot += d
-    text d.str 7
+    text d.toStr() 7
     y -= 40
   )
 )

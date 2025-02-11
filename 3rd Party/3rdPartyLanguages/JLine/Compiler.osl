@@ -1,4 +1,4 @@
-.toStr()lines = [
+lines = [
   "object create(\"title\")",
   "{",
   "type \"text\"",
@@ -59,7 +59,7 @@ loop lines.len (
       )
     )
     if cur_repl_spl.[1] == "print" (
-      temp_sys = "log" + "sys".str.str
+      temp_sys = "log" + "sys".toStr().str
       out = cur_repl.replace("print",temp_sys)
       len = out.len - 1
       out = out.left(len)

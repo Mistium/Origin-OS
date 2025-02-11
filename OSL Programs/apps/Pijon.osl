@@ -1,4 +1,4 @@
-[.toStr()network "set_app_id" "pijon_messaging_app_v1"
+network "set_app_id" "pijon_messaging_app_v1"
 
 def "reload"
   // gets currently online
@@ -94,7 +94,7 @@ loop frame_height.divide(40).round (
   loc 2 2 30 10 - ( count * 40 ) + scroll_y
   current = c_msgs[count]
   image current_pfp 30
-  text current[1].str + ": " + current[2] 9 : c#fff chx#30
+  text current[1].toStr() + ": " + current[2] 9 : c#fff chx#30
   if window."bottom" + 40 > y_position (
     frame "clear"
     exit

@@ -1,4 +1,4 @@
-.toStr()import "discord" from "packages"
+import "discord" from "packages"
 connect
 wait 0.6
 login ""
@@ -51,7 +51,7 @@ if discord.wsHasnew() (
       ) else (
         send = ["Only Mistium can use the terminal command"]
       )
-      sendslash send msg.d.id.str msg.d.token.str
+      sendslash send msg.d.id.toStr() msg.d.token.str
     )
   )
   if cmd == "MESSAGE_CREATE" and sent_from != bot_name (

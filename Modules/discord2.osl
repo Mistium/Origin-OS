@@ -1,4 +1,4 @@
-.toStr()self.token = ""
+self.token = ""
 self.heartbeat_msg = {"op":1,"d":null}
 self.last_heartbeat = timer + 41.25
 self.discord = ""

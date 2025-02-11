@@ -268,7 +268,7 @@ if current_studio_page == "Home" (
       )
     )
     change w / -2 + 15
-    file "open" cur.str "onlyaccess"
+    file "open" cur.toStr() "onlyaccess"
     if loaded_file !== 0 (
       file "render" 1
       loc 2 2 60 y

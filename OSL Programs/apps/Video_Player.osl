@@ -1,4 +1,4 @@
-.toStr()window "show"
+window "show"
 window "dimensions" 800 600
 
 video_url = ""

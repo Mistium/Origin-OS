@@ -1,4 +1,4 @@
-.toStr()import "window_tools"
+import "window_tools"
 
 window "show"
 window "dimensions" 270 140
@@ -37,4 +37,4 @@ loc 2 2 60 -60
 text `${hour}:${minute}:${second}` 10
 
 loc 2 2 60 -85
-text timezone.str 10
+text timezone.toStr() 10

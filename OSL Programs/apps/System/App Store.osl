@@ -1,4 +1,4 @@
-.toStr()import "window_tools"
+import "window_tools"
 import as "glass" from "packages"
 
 window "show"
@@ -289,7 +289,7 @@ if app_page (
     loc 999 2 0 y
     square w - 20 130 10 1 : c#window_colour
     loc 2 2 60 y - 10
-    icon icons[cur].str 3
+    icon icons[cur].toStr() 3
     loc 2 2 140 y
     text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#txtc
     loc 2 2 140 y - 30
