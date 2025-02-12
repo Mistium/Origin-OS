@@ -238,13 +238,6 @@ def "render_files" (
       file "open" input_path ++ ".folder" "onlyaccess"
       current_folder_uuid = fileGet(14)
       data = fileGet(4).JsonParse()
-      each this.i this.file data (
-        file "exists" file
-        if exists.not() (
-          data.delete(i)
-          file "set" 4 data
-        )
-      )
 
       window.drop_location = input_path
       if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
