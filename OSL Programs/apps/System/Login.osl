@@ -38,7 +38,7 @@ if new_network_data (
   if network_data_command == "get_my_accounts" (
     accounts = network_data
     for count accounts.len (
-      network "getsync_asurl" accounts[count].pfp
+      network "getsync_asurl" "https://avatars.rotur.dev/" ++ accounts[count].username
       js = "`data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='circleClip'><circle cx='50' cy='50' r='50' /></clipPath></defs><image href='" ++ data ++ "' x='0' y='0' height='100' width='100' clip-path='url(#circleClip)' /></svg>`)}`"
       accounts[count].pfp = js.eval
     )
@@ -111,7 +111,6 @@ if accounts.len == 0 (
     pen "up"
     set_x frame.left + 40
     image current.pfp 50
-    // icon round_pfp 2.5 : c#050505
     text current.username 8 : c#fff chx#40
     set_x x
     change_y -70
@@ -156,9 +155,9 @@ if current_login.istype("number") (
     goto x 70
     image current.pfp 140
     icon round_pfp 7 : c#111
-    goto x-150 -70
+    goto x - 150 -70
     text user 8 : c#fff
-    goto x-150 -180
+    goto x - 150 -180
     text "Login" 8
     if status == "Login" (
       goto x -50
@@ -242,15 +241,15 @@ if current_login == "login" (
     status = "Waiting"
   )
   text "Login" 8 : c#fff chx#-150
-  goto x - (login_return.len * 4.5) -20
-  text login_return 9
+  goto x -20
+  centext login_return 9
 )
 
 if mouse_down.not "can = true"
 
 txt = "Make A Rotur Account"
-goto x - (txt.len * 4.5) -240
-text txt 9 : c#fff
+goto x -240
+centext txt 9 : c#fff
 if clicked and can (
   window "refresh_bg"
   current_login = "Add"
@@ -258,8 +257,8 @@ if clicked and can (
 )
 
 txt = "Add A Rotur Account"
-goto x - (txt.len * 4.5) -275
-text txt 9 : c#fff
+goto x -275
+centext txt 9 : c#fff
 if clicked and can (
   window "refresh_bg"
   current_login = "Login"
