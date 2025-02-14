@@ -469,7 +469,7 @@ if "favorites.json".saveExists() (
   favorites = default_favorites
 )
 
-favorites.map(val -> (val.replace(".folder","")))
+favorites.map(val -> (val.replace(".folder","").destr))
 
 mainloop:
   window_tools:load_theme
