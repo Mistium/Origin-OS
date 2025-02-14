@@ -5,6 +5,8 @@ permission "request" "file admin"
 
 file "use_type" "folder"
 
+save "files@system" "set_directory"
+
 window "dimensions" 1000 600
 window "show"
 
@@ -90,12 +92,12 @@ if passed_data != "" (
 )
 
 def "folder" "txt" (
-  this.con = hidden.contains(txt)
+  local con = hidden.contains(txt)
   loc 2 2 125 y
   square 225 20 15 0 1
   if mouse_touching (
     if onclick (
-      if this.con (
+      if con (
         hidden.delete(txt)
       ) else (
         hidden.append(txt)
@@ -106,31 +108,78 @@ def "folder" "txt" (
   )
   change_x 100
   c txtc
-  icon this.con ? "right" "down" 0.6
+  icon con ? "right" "down" 0.6
   change_x -210
   text txt.str 9
   y -= 35
 )
 
-def "file_folder" "txt,folder" (
-  this.cur = icons[txt]
-  path_input = this.cur.path
-  this.icn = this.cur.icn
-  if hidden.contains(folder).not (
+def "file_folder" "txt, folder" (
+  file "open" txt ++ ".folder" "onlyaccess"
+  
+  if hidden.contains(folder).not() (
     loc 2 2 125 y
     square 225 20 10 0 1
     if mouse_touching (
       if onclick (
-        navigate path_input
+        navigate fileGet(3) ++ "/" ++ fileGet(2)
       )
       square 225 20 15 : c#seco
       square 225 20 10 : c#prim
+      local idx = favorites.index(txt)
+      
+      local down = {"Down": def(path) -> (
+        local idx = favorites.index(path)
+        favorites.swap(idx, idx + 1)
+        saveFavorites()
+      )}
+      local up = {"Up": def(path) -> (
+        local idx = favorites.index(path)
+        favorites.swap(idx, idx - 1)
+        saveFavorites()
+      )}
+      
+      local move = ["Move Pin"]
+      if idx > 1 (
+        local move = move.append(up)
+      )
+      if idx < favorites.len (
+        local move = move.append(down)
+      )
+      
+      rightclick [
+        "> " ++ fileGet(14),
+        "-",
+        {"Open In New Window": def(val) -> (
+          if val.startsWith("user/") (
+            local val = user_folder ++ val.trim(5, -1) ++ ".folder"
+          )
+          window.create(window.file.uuid, {passed_data: val})
+        )},
+        "-",
+        move,
+        {"Unpin": def(path) -> (
+          favorites.delete(path)
+          saveFavorites()
+        )}
+      ] txt
+      
+      if file_dropped != 0 (
+        file "open" file_dropped "onlyaccess"
+        if fileGet(1) == ".folder" (
+          favorites.insert(idx, fileGet(3) ++ "/" ++ fileGet(2))
+          saveFavorites()
+        )
+        
+        file_dropped = 0
+      )
     )
+    
     change_x -95
     stretch [100,100]
-    icon this.icn 0.9
+    file "render" 1
     c txtc : chx#30
-    text txt 8
+    text fileGet(2) 8
     y -= 35
   )
 )
@@ -399,34 +448,28 @@ def "render_files" (
     sorting_option "Modified"
   )
 )
-
-def "load_favorite" "this.name" (
-  file "open" user_path ++ this.name ++ ".folder" "onlyaccess"
-  file "get" 11
-  data = {}.insert("icn",data)
-  data.path = user_path ++ this.name
-  icons[this.name] = data
+def saveFavorites() (
+  save "favorites.json" "set" favorites
 )
 
-def "load_drive" "this.name, this.outname" (
-  file "open" "origin/" ++ this.name ++ ".folder" "onlyaccess"
-  file "get" 11
-  data = {}.insert("icn",data)
-  data.path = "origin/" ++ this.name
-  icons[this.outname] = data
+array default_favorites = [
+  "user/desktop",
+  "user/documents",
+  "user/applications",
+  "user/downloads",
+  "user/bin"
+]
+
+array favorites = []
+
+if "favorites.json".saveExists() (
+  favorites = "favorites.json".saveGet()
+) else (
+  save "favorites.json" "set" default_favorites
+  favorites = default_favorites
 )
 
-icons = {}
-load_favorite "Desktop"
-load_favorite "Documents"
-load_favorite "Applications"
-load_favorite "Downloads"
-load_favorite "Bin"
-
-load_drive "(A) System" "System"
-load_drive "(B) Local" "Local"
-load_drive "(C) Users/" ++ username username
-icons[username].icn = "image" + user_icon + "20"
+favorites.map(val -> (val.replace(".folder","")))
 
 mainloop:
   window_tools:load_theme
@@ -473,15 +516,14 @@ mainloop:
   if sideshow (
     y = -110
     folder "Favorites"
-    file_folder "Desktop" "Favorites"
-    file_folder "Downloads" "Favorites"
-    file_folder "Documents" "Favorites"
-    file_folder "Applications" "Favorites"
-    file_folder "Bin" "Favorites"
+    each fav favorites (
+      file_folder fav "Favorites"
+    )
+    
     folder "Drives"
-    file_folder "System" "Drives"
-    file_folder "Local" "Drives"
-    file_folder username "Drives"
+    file_folder "/(a) system" "Drives"
+    file_folder "/(b) local" "Drives"
+    file_folder "/(c) users/" ++ username "Drives"
   )
   loc 2 2 20 -118
   if sideshow "change 250"
