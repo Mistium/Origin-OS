@@ -1,105 +1,136 @@
 import "window_tools" as "wt"
 import as "glass" from "packages"
 
-url = "https://raw.githubusercontent.com/Mistium/owtp/main/"
+system_url = "https://raw.githubusercontent.com/Mistium/owtp/main/"
 
 loaded_pages = {}
 current_pages = []
 summit = {}
 
-def "redirect" "this.url" (
-  summit.redirect_url = this.url
+permission "request" "file admin"
+
+window "dimensions" 1000 600
+
+def "redirect" "url" (
+  summit.redirect_url = url
 )
 
-def "draw_page" "this.url, this.page_type, this.tab_id" (
-  current_pages.append(this.url)
+def "draw_page" "url, page_type, tab_id" (
+  current_pages.append(url)
   
-  if loaded_pages.contains(this.url) (
-    onload = loaded_pages[this.url].onload
-    run loaded_pages[this.url].data "sandboxed"
+  if loaded_pages.contains(url) (
+    onload = loaded_pages[url].onload
+    local data = loaded_pages[url].data
+    if page_type == "osl" (
+      run data "sandboxed"
+    ) else if page_type == "text" (
+      goto 0 0
+      inputs[url] = data
+      textbox frame.width frame.height url
+    )
     if summit.redirect_url != "" (
-    
       if summit.redirect_url.split("/").last().contains(".").not or summit.redirect_url.endsWith(".web") (
         summit.redirect_url = summit.redirect_url.append("/index.osl")
       )
-      tabs[this.tab_id].url = summit.redirect_url
-      tabs[this.tab_id].position ++
-      tabs[this.tab_id].history = tabs[this.tab_id].history.append(summit.redirect_url)
+      tabs[tab_id].url = summit.redirect_url
+      tabs[tab_id].position ++
+      tabs[tab_id].history = tabs[tab_id].history.append(summit.redirect_url)
       summit.redirect_url = ""
     )
-    tabs[this.tab_id].page_len = page_len
-    tabs[this.tab_id].icon = current_tab_name.icon
-    tabs[this.tab_id].title = current_tab_name.title
+    tabs[tab_id].page_len = page_len
+    tabs[tab_id].icon = current_tab_name.icon
+    tabs[tab_id].title = current_tab_name.title
     current_tab_name = {}
     page_len = 0
-    loaded_pages[this.url].onload = false
+    loaded_pages[url].onload = false
   ) else (
-    this.data = (url ++ this.url).getAsync()
-    if this.data != "Loading" (
-      loaded_pages[this.url] = {
-        "data": this.data.split("\n"),
+    if page_protocol == "owtp" (
+      local data = (system_url ++ url).getAsync()
+    ) else if page_protocol == "local" (
+      local data = open(url)
+    )
+    if data != "Loading" (
+      loaded_pages[url] = {
+        "data": data.split("\n"),
         "onload": true
       }
     )
   )
 )
 
-def "page_frame" "this.left, this.top, this.right, this.bottom, this.url" (
+def "page_frame" "left, top, right, bottom, url" (
 
-  this.tab_id = this.url
+  local tab_id = url
   
-  this.idx = tabs.getKeys("id").index(this.url)
+  local idx = tabs.getKeys("id").index(url)
   
-  this.tab = tabs[this.idx]
+  local tab = tabs[idx]
   
-  this.url = this.tab.history[this.tab.position]
+  local url = tab.history[tab.position]
   
-  this.w = (this.right - this.left).abs()
-  this.h = (this.top - this.bottom).abs()
+  page_protocol = url.split(":")[1]
+
   
-  x = this.left + (this.w / 2)
-  y = this.bottom + (this.h / 2)
+  local w = (right - left).abs()
+  local h = (top - bottom).abs()
+  
+  local x = left + (w / 2)
+  local y = bottom + (h / 2)
   goto x y
   c window_colour
-  square this.w this.h 10
-
-  frame this.left this.top this.right this.bottom tabs[this.idx].page_len tabs[this.idx].id
-    this.page_type = "text"
-    if this.url.startsWith("owtp://") (
-      if this.url.endsWith("/") (
-        this.url = this.url.trim(1,-2)
+  square w h 10
+  
+  frame left top right bottom tabs[idx].page_len tabs[idx].id (
+    local page_type = "text"
+ 
+    if url.startsWith("local://") (
+      local url = url.trim(9,-1)
+      file "open" url "onlyaccess"
+      if [".owf", ".osl"].contains(fileGet(1)) (
+        local page_type = "osl"
       )
-      this.url = this.url.trim(8,-1)
-      if this.url.endsWith(".osl") (
-        this.page_type = "osl"
+    )
+    if url.startsWith("owtp://") (
+      if url.endsWith("/") (
+        local url = url.trim(1,-2)
       )
-      if this.url.endsWith(".web") (
-        this.url = this.url ++ "/index.osl"
+      local url = url.trim(8,-1)
+      if url.endsWith(".osl") (
+        local page_type = "osl"
+      )
+      if url.endsWith(".web") (
+        local page_type = "osl"
+        local url ++= "/index.osl"
       )
     )
     scroll_y = frame.scroll
-    draw_page this.url this.page_type this.idx
+    draw_page url page_type idx
     scroll_y = 0
-  frame "clear"
+  )
 )
 
-def "add_tab" "this.url" (
-  this.obj = {
+def "add_tab" "url" (
+  local obj = {
     "title": "Loading",
     "position": 1,
     "icon": "refresh",
     "id": ouidNew(),
-    "history": [this.url]
+    "history": [url]
   }
   
-  tabs.append(this.obj)
+  tabs.append(obj)
   
-  current_tabs = [this.obj.id]
+  current_tabs = [obj.id]
 )
 
 tabs = []
 
-add_tab "owtp://search.web"
+
+if passed_data != "" (
+  add_tab "local://" ++ passed_data
+) else (
+  add_tab "owtp://search.web"
+)
 
 current_tabs = [tabs[1].id]
 
@@ -173,7 +204,7 @@ sidebar.main = def() -> (
         each this.i this.tab tabs (
           set_x 0
           square frame.width 40 0 0 1
-          if current_tabs.contains(this.tab.id) (
+          if current_tabs.contains(tab.id) (
             square frame.width - 20 30 15 : c#seco
             square frame.width - 20 30 10 : c#window_colour
           )
@@ -181,20 +212,20 @@ sidebar.main = def() -> (
             square frame.width - 20 30 15 : c#global_accent
             square frame.width - 20 30 10 : c#window_colour
             if onclick (
-              if current_tabs.contains(this.tab.id) (
-                current_tabs.delete(this.tab.id)
+              if current_tabs.contains(tab.id) (
+                current_tabs.delete(tab.id)
               ) else (
-                current_tabs.append(this.tab.id)
+                current_tabs.append(tab.id)
               )
             )
           )
           set_x frame.left + 20
-          icon this.tab.icon 0.7 : c#txtc
-          text this.tab.title.trimText(frame.width - 70 / 9) 9 : chx#20
+          icon tab.icon 0.7 : c#txtc
+          text tab.title.trimText(frame.width - 70 / 9) 9 : chx#20
           set_x frame.right - 25
           icon "close" 0.6
           if onclick (
-            tabs.delete(this.i)
+            tabs.delete(i)
           )
           change_y -45
         )
@@ -210,27 +241,32 @@ mainloop:
 wt:load_theme
 
 each this.page loaded_pages.getKeys() (
-  if current_pages.contains(this.page).not (
-    loaded_pages.delete(this.page)
+  if current_pages.contains(page).not() (
+    loaded_pages.delete(page)
   )
+)
+
+if file_dropped != 0 (
+  add_tab "local://" ++ file_dropped
+  file_dropped = 0
 )
 
 current_pages = []
 
 glass:frame window.left window.top window.right window.bottom; frame "clear"
 
-sidebar = sidebar.main()
+sidebar.main()
 
-this.left = sidebar.edge + 10
-this.right = window.right - 10
-this.w = this.right - this.left
-this.tab_w = this.w / current_tabs.len
-this.right = this.left + this.tab_w
+local left = sidebar.edge + 10
+local right = window.right - 10
+local w = right - left
+local tab_w = w / current_tabs.len
+local right = left + tab_w
 
 each this.tab current_tabs (
-  page_frame this.left window.top - 10 this.right window.bottom + 10 this.tab
-  this.left += this.tab_w
-  this.right += this.tab_w
+  page_frame left window.top - 10 right window.bottom + 10 tab
+  local left += tab_w
+  local right += tab_w
 )
 
 import "win-buttons"
