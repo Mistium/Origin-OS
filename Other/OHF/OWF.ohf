@@ -1,0 +1,230 @@
+{
+  "manifest": {
+    "name": "OWF",
+    "version": "5"
+  },
+  "parser": {
+    "type": "regex",
+    "data": " +|\"(?:[^\\\"]*|\\.)*(?:\"|$)|'(?:[^\\']*|\\.)*(?:'|$)|[\\+\\-/*^%!]|[(),\\[\\]{}:]|[\\d.]+|\\.?[^\\[\\],. \\n()\\-+\/*%^]+|."
+  },
+  "overrides": {
+    "origin.numbers": "#6eace5",
+    "origin.strings": "#6eeba6",
+    "origin.comments": "#555c67",
+    "origin.functions": "#af8ed6",
+    "origin.objects": "#78bdfb"
+  },
+  "categories": {
+    "ui": {
+      "color": "#cca2b4",
+      "tokens": [
+        "text",
+        "icon",
+        "image",
+        "sound",
+        "video",
+        "square",
+        "dropdown",
+        "button",
+        "toggle",
+        "slider",
+        "input",
+        "bar",
+        "iframe",
+        "graph",
+        "icongrid",
+        "pen",
+        "effect",
+        "c",
+        "color",
+        "colour",
+        "configtext",
+        "triangle",
+        "line",
+        "dots",
+        "stripe",
+        "stretch",
+        "dropdown",
+        "3dr",
+        "uri",
+        "canv"
+      ]
+    },
+    "positioning": {
+      "color": "#bbb7ff",
+      "tokens": [
+        "loc",
+        "goto",
+        "change_x",
+        "change_y",
+        "change",
+        "set_x",
+        "set_y",
+        "direction",
+        "pointat",
+        "turnleft",
+        "turnright"
+      ]
+    },
+    "window": {
+      "color": "#b63ceb",
+      "tokens": [
+        "mainloop:",
+        "permission",
+        "save",
+        "localdb",
+        "indexedDB",
+        "file",
+        "include",
+        "notify",
+        "rightclick",
+        "clipboard",
+        "camera",
+        "display",
+        "systemvars",
+        "transmit",
+        "zip",
+        "rotur",
+        "simulate",
+        "cursor",
+        "colourpicker",
+        "global",
+        "py",
+        "eval",
+        "oasm",
+        "otas",
+        "terminal",
+        "network"
+      ]
+    },
+    "programflow": {
+      "color": "#fb7971",
+      "tokens": [
+        "if",
+        "else",
+        "while",
+        "until",
+        "for",
+        "loop",
+        "each",
+        "break",
+        "switch",
+        "case",
+        "default",
+        "try",
+        "catch",
+        "import",
+        "as",
+        "from",
+        "export",
+        "self",
+        "wait",
+        "event",
+        "run",
+        "frame",
+        "throw",
+        "local",
+        "class"
+      ]
+    },
+    "functions": {
+      "color": "#eb7f3c",
+      "tokens": [
+        "def",
+        "endef",
+        "return",
+        "this"
+      ]
+    },
+    "logging": {
+      "color": "#42f7b1",
+      "tokens": [
+        "log",
+        "warn",
+        "error",
+        "say",
+        "clear"
+      ]
+    },
+    "operators": {
+      "color": "#fb7971",
+      "tokens": [
+        "+",
+        "-",
+        "*",
+        "/",
+        "%",
+        "^",
+        "?",
+        "in",
+        "notIn",
+        "b+",
+        "b-",
+        "b*",
+        "b/",
+        "b^",
+        "++",
+        "--",
+        "=",
+        "+=",
+        "-=",
+        "*=",
+        "/=",
+        "%=",
+        "^=",
+        "??=",
+        "@=",
+        "==",
+        "!=",
+        "<",
+        ">",
+        "!>",
+        "!<",
+        "<=",
+        ">=",
+        "===",
+        "!==",
+        "??",
+        "->",
+        "!"
+      ]
+    },
+    "logic": {
+      "color": "#5ba5ec",
+      "tokens": [
+        "true",
+        "false",
+        "null",
+        "not",
+        "and",
+        "or",
+        "nor",
+        "nand",
+        "xor",
+        "xnor"
+      ]
+    },
+    "brackets": {
+      "color": "#dab908",
+      "tokens": [
+        "(",
+        ")",
+        "{",
+        "}",
+        "[",
+        "]"
+      ]
+    },
+    "types": {
+      "color": "#eb6e94",
+      "tokens": [
+        "string",
+        "boolean",
+        "object",
+        "array",
+        "number",
+        "symbol"
+      ]
+    }
+  }
+}
