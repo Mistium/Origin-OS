@@ -11,20 +11,20 @@ if passed_data == "" (
   page = passed_data
 )
 
-def "icon_button" "icn, size"
+def "icon_button" "icn, size" (
   square 40 40 10 : c#seco hover_c#prim
   icon icn size : c#txtc
   change_x 60
-endef
+)
 
-def "topbar"
+def "topbar" (
   loc 999 2 0 -20
   square window_width 40 10 : c#prim
   loc 2 2 10 -22
   text "OMail" 9 : c#txtc
-endef
+)
 
-def "run_ui"
+def "run_ui" (
   topbar
   c #333
   frame window.left window.top - 45 window.left + 300 window.bottom + 60 all_mail.len * 50 - 20
@@ -108,68 +108,67 @@ def "run_ui"
     window "add" window.file.uuid "new"
   )
   if current_email != 0 (
-    frame window.left + 305 window.top - 45 window.right window.bottom
-    square 0 0 100000 : c#prim
-    loc 999 2 0 -20
-    square frame_width 20 10 : c#seco
-    c txtc
-    loc 2 2 10 -20
-    if email_data.from == username (
-      text "You sent this to >" + email_data.recipient 10
-    ) else (
-      text "You got this from >" + email_data.from 10
+    frame window.left + 305 window.top - 45 window.right window.bottom (
+      square 0 0 100000 : c#prim
+      loc 999 2 0 -20
+      square frame_width 20 10 : c#seco
+    
+      c txtc
+      loc 2 2 10 -20
+      if email_data.from == username (
+        text "You sent this to >" + email_data.recipient 10
+      ) else (
+        text "You got this from >" + email_data.from 10
+      )
+      loc 2 2 10 -60
+      text email_data.title 12
+      
+      goto 0 -50
+      inputs.body = email_data.body.split("\n")
+      
+      c seco
+      textbox frame_width frame_height - 100 "body" 20 {
+        line_numbers: false
+      }
     )
-    loc 2 2 10 -60
-    text email_data.title 12
-    loc 2 2 10 -100
-    text email_data.body.wrapText(frame_width - 30 / 10) 10
-    frame "clear"
   )
-endef
+)
 
-def "new_omail"
+def "new_omail" (
   topbar
-  window "dimensions" 600 700
-  loc 999 2 0 -80
-  square frame_width - 30 25 20 : c#prim
+  
+  loc 999 2 0 -75
+  square frame_width - 30 22 20 : c#prim
   change_x -20
-  input frame_width - 80 25 "recipient" "Type the username of the person to send this too"
+  input frame_width - 80 22 "recipient" "Type the username of the person to send this too"
   input_recipient.strip().trim(0,20)
-  loc -2 2 -30 -80
+  
+  loc -2 2 -30 -75
   icon "send" 0.8 : c#txtc
   if mouse_touching (
     cursor "pointer"
   )
   if clicked and can (
     can = false
-    omail_data = {}
-    omail_data.recipient = input_recipient.toLower()
-    omail_data.title = input_title.destr
-    omail_data.body = input_body.destr
-    log omail_data
+    omail_data = {
+      recipient: input_recipient.toLower(),
+      title: input_title.destr,
+      body: inputs.body.join("\n").destr
+    }
     network "server" "omail_send" omail_data
-    window "stop"
+    window.close()
   )
   
-  loc 999 2 0 -150
-  square frame_width - 30 25 20 : c#prim
-  input frame_width - 30 25 "title" "Type the title of the omail here"
+  loc 999 2 0 -128
+  square frame_width - 30 22 20 : c#prim
+  input frame_width - 30 22 "title" "Type the title of the omail here"
   input_title.trim(0,50)
   
-  loc 999 -2 0 frame_height - 200 / 2
-  input frame_width - 50 frame_height - 200 "body"
-  
-  square frame_width - 30 frame_height - 200 20 : c#prim
-  if "enter".onpress (
-    len = input_body.len
-    input_body.insert(len,newline)
-  )
-  loc 2 2 10 -230
-  text input_body.wrapText(frame_width - 30 / 10) 10 : c#txtc
-  if (timer % 1).round() == 0 (
-    text "_" 10
-  )
-endef
+  loc 999 -2 0 frame_height - 160 / 2
+  textbox frame_width frame_height - 160 "body" 20 {
+    "bg_colour": prim
+  }
+)
 
 mainloop:
 load_theme
@@ -197,7 +196,8 @@ if new_network_data (
   new_network_data = false
 )
 
-if mouse_down.not "can = true"
+if mouse_down.not() "can = true"
+
 if page == "main" "run_ui"
 if page == "new" "new_omail"
 import "win-buttons"
