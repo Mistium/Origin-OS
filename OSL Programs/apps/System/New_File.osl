@@ -22,10 +22,10 @@ input 250 23 "name" "Example: 'file.txt'"
 
 loc 999 2 0 -113
 square 250 30 10 : c#prim
-if input_name.matchregex("/[^.]+\[^.]+/gm") (
-  if clicked or "enter".onpress (
+if input_name.match("/[^.]+\.[^.]+/gm") != null (
+  if clicked or "enter".onKeyDown() (
     file "download" input_name.toStr() null null location
-    window "stop"
+    window.close()
   )
 )
 change_x -55
