@@ -59,7 +59,7 @@ frame window.left window.top - 50 window.left + 305 window.bottom + 60 length * 
     )
   )
 )
-loc 2 -2 150 30
+loc 2 -2 150 25
 square 300 50 10 : c#window_colour
 loc 2 -2 80 30
 square 130 30 10 : c#prim hover_c#seco
