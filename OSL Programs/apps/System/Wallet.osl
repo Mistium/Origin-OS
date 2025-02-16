@@ -5,6 +5,47 @@ permission "request" "account"
 
 menu = "transfers"
 
+if passed_data.isType("object") (
+  if passed_data.mode == "transfer" (
+    menu = "transfer"
+    recipient = passed_data.user
+    window.resize(400,500)
+    window "resizable" false
+  )
+)
+
+rotur_icn = "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220"
+
+def transfer(input_recipient) (
+  if balance < (input_amount.toNum() + 1) (
+    say "Too Few Credits For This Transaction"
+  ) else if input_amount.toNum() < 0.01 (
+    say "Send amount must be greater than 0.01"
+  ) else if input_recipient == username (
+    say "You Cannot Send To Yourself"
+  ) else (
+    rotur "transfer" input_amount.toNum() input_recipient
+    input_amount = null
+    input_recipient = null
+  )
+)
+
+def "transfer_button" "w, name" (
+  if input_amount == "" or name == "" (
+    c prim
+    can = false
+  ) else (
+    c seco
+    can = true
+  )
+  square w 25 10
+  if onclick and can (
+    transfer(name)
+  )
+  message = "Transfer" + input_amount.toNum() ++ " (+ 1 tax)" + "Total Cost: " ++ (input_amount.toNum() + 1)
+  centext message 8 : c#txtc
+)
+
 mainloop:
 load_theme
 
@@ -13,10 +54,42 @@ transactions = user["sys.transactions"]
 
 loc 2 999 100 0
 glass:frame window.left window.top window.right window.bottom; frame "clear"
+
+if menu == "transfer" (
+  loc 2 2 20 -20
+  icon rotur_icn 1
+  
+  text "Transfer Rotur Credits" 10 : chx#20
+  
+  goto 0 -15
+  square 350 420 20 : c#window_colour
+
+  goto 0 50
+  image "https://avatars.rotur.dev/" ++ recipient 200 200
+  icon "w 5 cutcircle 0 0 103 0 180 w 40 cutcircle 0 0 125 0 180" 1
+  
+  
+  change_y -137
+  centext recipient 15 : c#txtc
+  
+  input_recipient = recipient
+  
+  change_y -77
+  c prim
+  square 345 25 10
+  input 340 23 "amount" "Amount Of Credits"
+
+  change_y -45
+  transfer_button 345 recipient
+
+  import "win-buttons"
+  exit
+)
+
 loc 2 2 10 -20
 text "My Wallet (" ++ menu ++ ")" 10 : c#txtc
 loc 2 2 100 -100
-icon "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220" 4
+icon rotur_icn 4
 
 loc 2 2 100 - (balance.len * 10) -180
 text balance 20
@@ -53,34 +126,7 @@ switch menu (
     square 360 25 10 : c#prim
     input 350 25 "amount" "Amount Of Credits"
     loc 999 2 105 -190
-    if input_amount == "" or input_recipient == "" (
-      c prim
-      can = false
-    ) else (
-      c seco
-      can = true
-    )
-    square 360 25 10
-    if onclick and can (
-      if balance < (input_amount.int + 1) (
-        say "Too Few Credits For This Transaction"
-      ) else (
-        if input_amount.int < 0.01 (
-          say "Send amount must be greater than 0.01"
-        ) else (
-          if input_recipient == username (
-            say "You Cannot Send To Yourself"
-          ) else (
-            rotur "transfer" input_amount.int input_recipient
-            input_amount = null
-            input_recipient = null
-          )
-        )
-      )
-    )
-    message = "Transfer" + input_amount.int + "Credits, +1 tax" + "Total Cost: " ++ (input_amount.int + 1)
-    change_x message.len * -4
-    text message 8 : c#txtc
+    transfer_button 360 input_recipient
     break
 
   case "sent"
