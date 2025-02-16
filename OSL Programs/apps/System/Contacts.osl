@@ -141,7 +141,12 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
 
       goto 0 frame.bottom + 90
       con_button w 30 "Transfer Credits" def() -> (
-        window.create("Wallet", {"passed_data": selected_data})
+        window.create("Wallet", {
+          passed_data: {
+            mode: "transfer",
+            user: selected_user
+          }
+        })
       )
 
       change_y -50
