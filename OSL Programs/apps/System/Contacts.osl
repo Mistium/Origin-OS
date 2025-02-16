@@ -1,4 +1,5 @@
 import "window_tools"
+import as "glass" from "packages"
 
 permission "request" "account"
 
@@ -6,13 +7,23 @@ page = "Friends"
 selected_user = ""
 sending = false
 
+window.resize(1000,600)
+
+def "con_button" "w, h, t, callback" (
+  square w h 12 : c#prim hover_c#seco
+  if onclick (
+    local callback()
+  )
+  centext t 10 : c#txtc
+)
 
 mainloop:
 load_theme
 
 list = page == "Friends" ? user["sys.friends"] user["sys.requests"]
-loc 2 999 150 0
-square 300 window_height 10 : c#prim
+
+glass:frame window.left window.top window.left + 305 window.bottom; frame "clear"
+
 loc 2 2 10 -20
 text page 10 : c#txtc
 loc 2 2 280 -20
@@ -21,98 +32,124 @@ if onclick (
   sending = true
   selected_user = ""
 )
-length = list.len * 40
-c #seco
-frame window.left window.top - 50 window.left + 300 window.bottom + 50 length
+length = list.len
+c seco
+frame window.left window.top - 50 window.left + 305 window.bottom + 60 length * 40 (
   if length == 0 (
     loc 2 2 10 -20
     text `No ${page}` 10 : c#txtc
   ) else (
-    count = (scroll_y / 40).round
-    y = scroll_y - 20 + (count * -40)
-    loop (frame_height / 40).ceiling.clamp(1,length) (
+    local w = frame.width - 20
+    count = (scroll_y / 40).round()
+    y = scroll_y + (count + 0.5 * -40)
+    loop (frame.height / 40).ceiling.clamp(1,length) (
       count ++
       loc 999 2 0 y
-      square frame_width - 20 25 13 : c#seco
-      square frame_width - 20 25 10 : c#prim hover_c#seco
-      if onclick (
-        selected_user = list[count]
+      square w 25 10 0 1
+      if mouse_touching (
+        square w 25 15 : c#window_colour
+        if onclick (
+          selected_user = list[count]
+        )
       )
-      text list[count] 10 : c#txtc chx#-135
+      change_x w / -2 + 12.5
+      image "https://avatars.rotur.dev/" ++ list[count] 30 30
+      text list[count] 10 : c#txtc chx#20
       y -= 40
     )
   )
-frame "clear"
+)
 loc 2 -2 150 30
-square 300 50 10 : c#tert
+square 300 50 10 : c#window_colour
 loc 2 -2 80 30
 square 130 30 10 : c#prim hover_c#seco
 if onclick (
   page = "Friends"
   selected_user = ""
 )
-text "Friends" 9 : c#txtc chx#-32
+centext "Friends" 9 : c#txtc
+
 loc 2 -2 225 30
 square 130 30 10 : c#prim hover_c#seco
 if onclick (
   page = "Requests"
   selected_user = ""
 )
-text "Requests" 9 : c#txtc chx#-35
-frame window.left + 300 window.top - 50 window.right window.bottom
-if selected_user == "" (
-  if sending (
-    loc 2 2 15 -25
-    text selected_user 10 : c#txtc
-    w = frame_width - 35
-    loc 9999 2 0 -65
-    square w 30 12 : c#prim
-    input w - 10 30 "username" "Enter The Username To Request" txtc
-    loc 9999 2 0 -120
-    square w 30 12 : c#prim hover_c#seco
-    if onclick (
-      network "server" "friend_request" input_username
-      selected_user = ""
-      sending = false
+centext "Requests" 9 : c#txtc
+
+frame window.left + 305 window.top - 50 window.right window.bottom (
+  local w = frame_width - 35
+  if selected_user == "" (
+    if sending (
+      loc 9999 2 0 -65
+      square w 30 12 : c#prim
+      input w - 10 30 "username" "Enter The Username To Request" txtc
+      
+      loc 9999 2 0 -120
+      square w 30 12 : c#prim hover_c#seco
+      if onclick (
+        network "server" "friend_request" input_username
+        selected_user = ""
+        sending = false
+      )
+      text "Send Request" 10 : c#txtc chx#-60
+    ) else (
+      goto 0 20
+      centext "Select a user" 10 : c#txtc
     )
-    text "Send Request" 10 : c#txtc chx#-60
   ) else (
-    loc 2 2 15 -25
-    text "Select a user" 10 : c#txtc
-  )
-) else (
-  w = frame_width - 35
-  loc 2 2 15 -25
-  text selected_user 10 : c#txtc
-  if page == "Requests" (
+    local w = frame_width - 35
+    if page == "Requests" (
 
-    loc 9999 2 0 -65
-    square w 30 12 : c#global_accent
-    if onclick (
-      network "server" "friend_accept" selected_user
-      selected_user = ""
-    )
-    square w 30 9 : c#prim hover_c#seco
-    text "Accept Request" 10 : c#txtc chx#-65
+      loc 9999 2 0 -65
+      square w 30 12 : c#global_accent
+      if onclick (
+        network "server" "friend_accept" selected_user
+        selected_user = ""
+      )
+      square w 30 9 : c#prim hover_c#seco
+      text "Accept Request" 10 : c#txtc chx#-65
 
 
-    loc 9999 2 0 -120
-    square w 30 12 : c#prim hover_c#seco
-    if onclick (
-      network "server" "friend_decline" selected_user
-      selected_user = ""
+      loc 9999 2 0 -120
+      square w 30 12 : c#prim hover_c#seco
+      if onclick (
+        network "server" "friend_decline" selected_user
+        selected_user = ""
+      )
+      text "Decline Request" 10 : c#txtc chx#-70
     )
-    text "Decline Request" 10 : c#txtc chx#-70
-  )
-  if page == "Friends" (
-    loc 9999 2 0 -65
-    square w 30 12 : c#prim hover_c#seco
-    if onclick (
-      network "server" "friend_remove" selected_user
-      selected_user = ""
+    if page == "Friends" (
+      goto 0 70
+      image "https://avatars.rotur.dev/" ++ selected_user 100
+    
+      goto -20 0
+      centext selected_user 10 : c#txtc
+
+      goto selected_user.len * 5 + 10
+      if dist(mouse_x, mouse_y, 0, -30) < 100 (
+        square 20 20 10 : c#prim
+        if mouse_touching (
+          cursor "pointer"
+          if onclick (
+            clipboard "set" username
+          )
+        )
+      )
+      icon "copy" 0.7 : c#txtc tooltip#"Copy Username"
+
+
+      goto 0 frame.bottom + 90
+      con_button w 30 "Transfer Credits" def() -> (
+        window.create("Wallet", {"passed_data": selected_data})
+      )
+
+      change_y -50
+      con_button w 30 "Remove Friend" def() -> (
+        network "server" "friend_remove" selected_user
+        selected_user = ""
+      )
     )
-    text "Remove Friend" 10 : c#txtc chx#-60
   )
 )
-frame "clear"
 import "win-buttons"
