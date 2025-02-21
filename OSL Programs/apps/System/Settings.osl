@@ -155,7 +155,7 @@ def "system" (
       break
     case "Display"
       loc 2 2 10 -20
-      text `Origin Resolution: ${screensize_x}x${screensize_y}` 10 : c#txtc
+      text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
       terminal "system display get invert"
       toggle_invert = (data / 100).round.bool
       loc 2 2 10 -70
@@ -720,7 +720,7 @@ def "appearance" (
         c txtc
         ftv = ftvalues[count]
         icon ftv[1] 0.8
-        text `${ftv[2]} (${ftkeys[count]})` 10 : chx#30 c#txtc
+        text ftv[2] + "(" ++ ftkeys[count] ++ ")" 10 : chx#30 c#txtc
       )
       page_len = count * 60 - 20
       break
