@@ -123,14 +123,14 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Files_Info.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff w 2 line 0 0 0 -5 dot 0 5",
-    "version":"2.5"
+    "version":"2.6"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/File_Picker.osl",
     "path": "Origin/(A) System/System Apps",
     "name": "File_Picker.osl",
     "icon": "c #111 w 10 square 0 0 5 5",
-    "version":"1.2"
+    "version":"1.3"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Terminal.osl",
@@ -228,7 +228,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Settings.osl",
     "icon": "c #6fa6eb w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #777 w 4 line 0 6 0 -6 line -5 3 5 -3 line 5 3 -5 -3 w 11.5 dot 0 0 w 7 c #111 dot 0 0 w 5 c #6fa6eb dot 0 0",
-    "version":"9.6"
+    "version":"9.7"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Calculator.osl",
@@ -263,7 +263,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Contacts.osl",
     "icon": "c #b37740 w 10 square 0 0 5 5 w 8 c #111 square 0 0 5 5 w 5.5 c #b37740 square 0 0 5 5 w 6 c #111 square -2 0 3 5 line -2 -5 -2 5 w 2.5 dot 6 4.5 dot 6 0 dot 6 -4.5 c #b37740 icn accounts 0.5 -2.6 0",
-    "version":"1.8"
+    "version":"1.9"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/OMail.osl",

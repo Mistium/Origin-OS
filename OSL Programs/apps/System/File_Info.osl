@@ -65,10 +65,10 @@ if tab == "info" (
   file "render" 1.5
   rightclick "file" passed_data
   n = newline
-  text `${name}${type}` 9 : c#txtc chx#30
+  text name ++ type 9 : c#txtc chx#30
   
   loc 2 2 20 -130
-  text `Size: ${size}b` 8
+  text "Size: " ++ size ++ "b" 8
 
   loc 2 2 20 -160
   text "Created:" + created.timestamp("convert-relative") 8
