@@ -16,17 +16,28 @@ if "installed.json".saveExists().not (
   save "installed.json" "set" {}
 )
 
-def "tab" "name"
-  square w 40 15 : c#window_colour
+def "tab" "name" (
+  square w 40 15 0 0 : c#window_colour
   if mouse_touching or name == page (
-    square w 40 15 : c#seco
-    square w 40 10 : c#window_colour
+    square w 40 15
   )
   if clicked "page = name"
   change_y -60
-endef
+)
 
 icons = {}
+apps = []
+
+def "loadicn" "cur" (
+  if icons.contains(cur).not (
+    if cur != "" (
+      local data = ("https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ encodeURIComponent(cur) ++ "/icon.icn").getAsync()
+      if data != "loading" (
+        icons[cur] = data
+      )
+    )
+  )
+)
 
 mainloop:
 load_theme
@@ -40,7 +51,12 @@ square ww 40 10 1 : c#prim
 
 loc 2 999 sidebar_width / 2 0
 square sidebar_width wh 20 1
-glass:frame window.left window.top window.right window.bottom; frame "clear"
+glass:frame window.left window.top window.right window.bottom
+frame "clear"
+frame window.left window.top window.left + sidebar_width + 10 window.bottom (
+  pen "opacity" 50
+  icon "dot 0 0" frame.width
+)
 
 loc 2 2 sidebar_width / 2 + 3 -35
 
@@ -96,7 +112,7 @@ text "Upload Your Apps" 9 : chx#20
 loc 2 2 sidebar_width + 20 -20
 text page_name 9 : c#txtc
 
-c prim
+c seco
 frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
 
 if page == "APPSTORE// Loading" (
@@ -104,15 +120,76 @@ if page == "APPSTORE// Loading" (
   direction timer * 360
   icon "cutcircle 0 0 10 0 90" 5 : c#txtc
   direction 90
-  data = "https://raw.githubusercontent.com/RoturTW/apps/main/apps.json".getAsync()
-  if data != "loading" (
-    apps = data
+  if apps.len == 0 (
+    data = "https://raw.githubusercontent.com/RoturTW/apps/main/apps.json".getAsync()
+    if data != "loading" (
+      apps = data
+    )
+  )
+  data = "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/home.json".getAsync()
+  if data != "loading" and apps.len > 0 (
+    home_json = data.replace("\n","").JsonParse()
     page = "APPSTORE// Store"
   )
 )
 
 if page == "APPSTORE// store" (
-  page_name = "Store"
+  c window_colour
+  page_name = "Home"
+  w = frame.width - 25
+  
+  h = w * 0.56
+  goto 0 frame.top - (h/2) - 55 + scroll_y
+  local name = home_json.featured.name
+  square w h + 80 15
+  if onclick (
+    page = home_json.featured.name
+    app_tab = "Description"
+    installed = 0
+  )
+  change_y 40
+  image home_json.featured.image w h
+  local pos = [x_position, y_position]
+  local views = stats.views[name] + "Views"
+  v_w = views.len * 10 + 15
+  change w / -2 + (v_w / 2) + 5 h / 2 - 23
+  square v_w - 15 20 15
+  change_x v_w / -2 + 7.5
+  text views 10 : c#txtc
+  goto pos[1] pos[2]
+  
+  change w / -2 + 35 h / -2 - 45
+  loadicn name
+  icon icons[name] 2.5
+  change 40 15
+  text name ++ "\n" 15 : c#txtc
+  text home_json.featured.desc 10
+  author = "Made By " ++ home_json.featured.auth
+  set_x frame.right - (author.len * 10) - 20 : chy#35
+  text author 10
+  
+  stretch [100,100]
+  change_y -87
+  each app home_json.tiles (
+    set_x 0
+    square w 30 15 : c#window_colour
+    if onclick (
+      page = app.title
+      app_tab = "Description"
+      installed = 0
+    )
+    set_x frame.left + 27
+    loadicn app.title
+    icon icons[app.title] 1.5
+    text app.title 10 : c#txtc chx#25
+    change_y -50
+  )
+  
+  len = h + 150 + (home_json.tiles.len * 30)
+)
+
+if page == "APPSTORE// Search" (
+  page_name = "Search"
   app_h = frame_width / 2
   count = (scroll_y / 70).round() - 1
   w = frame.width - 25
@@ -132,20 +209,13 @@ if page == "APPSTORE// store" (
         installed = 0
       )
     )
+    loadicn cur
     loc 2 2 35 y
-    if icons.contains(cur).not (
-       if cur != "" (
-         data = ("https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ encodeURIComponent(cur) ++ "/icon.icn").getAsync()
-         if data != "loading" (
-           icons[cur] = data
-         )
-       )
-    )
     icon icons[cur].replace(newline," ") 1.5
     loc 2 2 65 y
     text cur.toTitle() 10 : c#txtc
   )
-  len = apps.len - 0.5 * 70
+  len = apps.len - 0.25 * 70
 )
 
 if page == "APPSTORE// profile" (
@@ -192,9 +262,6 @@ if page == "APPSTORE// library" (
   len = library_apps.len - 0.5 * 70
 )
 
-if page == "APPSTORE// search" (
-  page_name = "Search"
-)
 if page == "APPSTORE// marketplace" (
   page_name = "Marketplace"
   items = itemAll()
@@ -277,14 +344,14 @@ if app_page (
   ) else (
     cur = current_app.title.toLower()
     if installed == 0 and cur != "" (
-      save "installed.json" "get"
       app_path = user_folder ++ "/applications/" ++ cur ++ ".osl"
       file "exists" app_path
+      save_data = "installed.json".saveGet()
       installed = save_data.contains(cur) and exists
-      install_version = save_data[cur].int
+      install_version = save_data[cur] ?? 0
     )
     y = -50 + scroll_y
-    desc = current_app.description.str
+    desc = current_app.description.toStr()
     w = frame_width
     loc 999 2 0 y
     square w - 20 130 10 1 : c#window_colour
@@ -332,7 +399,7 @@ if app_page (
         file "start"
         file "close"
       ) else (
-        terminal "app install" + cur.str
+        terminal "app install" + cur.toStr()
         save_data = "installed.json".saveGet() ?? {}
         install_version = current_app.version
         save_data[cur] = install_version
@@ -344,6 +411,8 @@ if app_page (
     c txtc
     change_x -60
     if installed (
+      log current_app.version
+      log install_version
       if current_app.version == install_version (
         icon "play" 0.7
         text "Open" 9 : chx#20
