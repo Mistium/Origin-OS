@@ -1,5 +1,4 @@
 import "window_tools"
-import as "glass" from "packages"
 load_theme
 
 permission "request" "save admin"
@@ -31,10 +30,10 @@ def "setting_toggle" "txt, w, state, callback" (
   )
 )
 
-def "setting_do" "txt, w, callback" (
+def "setting_do" "txt, w, callback, inp" (
   square w 30 10 : c#prim
   if onclick (
-    return callback()
+    return callback(inp ?? "")
   )
 
   change_x w / -2 + 10
@@ -773,7 +772,25 @@ def "appearance" (
 
 def "account" (
   local w = frame.width - 100
-  page_len = 460
+  page_len = 520
+  
+  goto 0 frame.top - 50 + scroll_y
+  
+  if subcategory == "backups" (
+    page_len = 0
+    each this.backup user["sys.backups"] (
+      if backup.isType("object") (
+        page_len += 50
+        setting_do backup.name + "(" ++ (backup.size / 1000).round() ++ "kb)" w def(id) -> (
+          if "Restore this backup?".confirm() (
+            network "server" "restore_backup" id
+          )
+        ) backup.id
+        set_x 0 : chy#-50
+      )
+    )
+    return
+  )
   
   goto 0 frame.top - 100 + scroll_y
   image user_icon.toStr() 120 120
@@ -844,19 +861,11 @@ def "account" (
     network "update" "email" "Enter Your Email".ask()
   )
   
-  gravatar = "https://www.gravatar.com/avatar/" ++ user.email.hashSHA256()
-  
-  image gravatar 0 0
-  
-  if gravatar.imageinfo("loaded") and gravatar != user.pfp (
-    page_len += 50
-    set_x 0 : chy#-50
-    setting_do "Use My Gravatar:" w def() -> (
-      network "update" "pfp" gravatar
-    )
-    image gravatar 25 25 : chx#30
+  set_x 0 : chy#-50
+  setting_do "File System Backups" w def() -> (
+    subcategory = "Backups"
   )
-  
+
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
     network "logout"
