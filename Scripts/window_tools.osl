@@ -1,17 +1,13 @@
-def "seticon" "icon"
+def "seticon" "icon" (
   file "open" my_uuid
   file "set" 11 icon
-endef
+)
 
-def "load_theme"
-  window_colour = user.theme.background
-  prim = user.theme.primary
-  seco = user.theme.secondary
-  tert = user.theme.tertiary
-  txtc = user.theme.text
-endef
-
-def "window_restart"
-  window "add" window.file.uuid
-  window "stop"
-endef
+def "load_theme" (
+  local global @= Variables()
+  global.window_colour = user.theme.background
+  global.prim = user.theme.primary
+  global.seco = user.theme.secondary
+  global.tert = user.theme.tertiary
+  global.txtc = user.theme.text
+)
