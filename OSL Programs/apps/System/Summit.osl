@@ -125,7 +125,6 @@ def "add_tab" "url" (
 
 tabs = []
 
-
 if passed_data != "" (
   add_tab "local://" ++ passed_data
 ) else (
