@@ -1,4 +1,3 @@
-import as "glass" from "packages"
 import "window_tools"
 load_theme
 
@@ -8,13 +7,6 @@ permission "request" "terminal"
 permission "request" "file admin"
 permission "request" "account"
 permission "request" "kernel"
-
-def "centext" "txt, size" (
-  local x = x_position
-  change_x txt.len * size * -0.5
-  text txt size
-  set_x x
-) 
 
 def "setting_toggle" "txt, w, state, callback" (
   local x = x_position
@@ -319,32 +311,27 @@ def "system" (
       page_len = 460
   
       if total_files == 0 (
-        file "open" current[1] "onlyaccess"
-        file "get" 4
-        dat = data.str
-        file = dat.len + "bytes"
-        file "get" 2
-        file = " " * (15 - file.len) + file + "-" + data
-        file "get" 1
-        file.append(data)
-        files.append(file)
-        current.delete(1)
-        file "get" 1
-        if data == ".folder" (
-          file "get" 4
-          current = current ++ data
+        loop 100 (
+          file "open" current[1] "onlyaccess"
+          dat = fileGet(4).toStr()
+          file = dat.len + "bytes"
+          file = " " * (15 - file.len) + file + "-" + fileGet(2)
+          file "get" 1
+          file.append(data)
+          files.append(file)
+          current.delete(1)
+          if fileGet(1) == ".folder" (
+            current ++= fileGet(4)
+          )
+          total_files = files.len
+          file_data = files.sort().reverse().trim(1,10)
         )
-  
-        goto frame.left + 30 scroll_y + 40
+
+        goto frame.left + 30 frame.top + scroll_y - 200
         direction (timer * 100).sin * 360
         icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
         direction 90
         text files.len + "Files Processed" 10 : chx#30
-        
-        if current.len == 0 (
-          total_files = files.len
-          file_data = files.sort().reverse().trim(1,10)
-        )
       ) else (
         loc 2 2 20 -200 + scroll_y
         text "Biggest Files" 9 : c#txtc
