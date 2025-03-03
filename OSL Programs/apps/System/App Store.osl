@@ -64,7 +64,7 @@ w = sidebar_width - 25
 tab "APPSTORE// Profile"
 change_y -15
 tab "APPSTORE// Store"
-tab "APPSTORE// Search"
+tab "APPSTORE// List"
 tab "APPSTORE// Marketplace"
 tab "APPSTORE// Library"
 
@@ -82,8 +82,8 @@ text "Store" 9 : chx#22
 
 y -= 60
 loc 2 2 x y
-icon "search" 1
-text "Search" 9 : chx#20
+icon "list" 1
+text "List" 9 : chx#20
 
 y -= 60
 loc 2 2 x y
@@ -188,8 +188,8 @@ if page == "APPSTORE// store" (
   len = h + 150 + (home_json.tiles.len * 30)
 )
 
-if page == "APPSTORE// Search" (
-  page_name = "Search"
+if page == "APPSTORE// List" (
+  page_name = "List"
   app_h = frame_width / 2
   count = (scroll_y / 70).round() - 1
   w = frame.width - 25
@@ -360,7 +360,15 @@ if app_page (
     loc 2 2 140 y
     text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#txtc
     loc 2 2 140 y - 30
-    text "By" + current_app.author 9
+    text "By" + current_app.author 9 : tooltip#"Donate Rotur Credits"
+    if onclick (
+      window.create("wallet", {
+        passed_data: {
+          mode: "transfer",
+          user: current_app.author.split(" ").first().replace(",","")
+        }
+      })
+    )
     loc 2 2 30 y - 95
     icon "eye" 0.7
     text stats.views[cur] 10 : chx#20
@@ -383,7 +391,7 @@ if app_page (
       loc 2 2 20 y - 130
       desc = current_app.description.toStr()
       desc.wrapText(text_width - 400 / 9)
-      len = desc.count(newline) * 21 + 170
+      len = desc.count("\n") * 21 + 170
       sc_len = screenshots.len * 226 + 170
       if len < sc_len (
         len = sc_len
@@ -411,8 +419,6 @@ if app_page (
     c txtc
     change_x -60
     if installed (
-      log current_app.version
-      log install_version
       if current_app.version == install_version (
         icon "play" 0.7
         text "Open" 9 : chx#20
