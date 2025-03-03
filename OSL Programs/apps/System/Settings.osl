@@ -1,4 +1,3 @@
-import as "glass" from "packages"
 import "window_tools"
 load_theme
 
@@ -863,7 +862,13 @@ def "account" (
 )
 
 def "apps" (
-  local perms = open("user/Application Data/permissions.json")
+  file "open" "user/Application Data/permissions.json" "onlyaccess"
+  local perms = fileGet(4)
+  if perms.isType("object").not() (
+    file "set" 4 {}
+    perms = {}
+  )
+  
   local w = frame.width - 100
   
   if subcategory != "none" (
@@ -906,9 +911,10 @@ def "apps" (
     )
     change_x w / -2 + 20
     file "uuid_exists" uuid
-    if !exists or perms[uuid].len == 0 (
+    if exists.not() or perms[uuid].len == 0 (
       file "open" "user/application data/permissions.json" "onlyaccess"
       file "set" 4 perms.delete(uuid)
+      file "close"
       continue
     )
     file "open" uuid "onlyaccess"
