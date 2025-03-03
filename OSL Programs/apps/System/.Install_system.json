@@ -235,7 +235,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Calculator.osl",
     "icon": "c #777 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #888 w 2.5 square 0 3.7 3.7 1 dot -3.5 -1 dot 0 -1 dot -3.5 -4.6 dot 0 -4.5 c #f79204 dot 3.5 -4.5 dot 3.5 -1",
-    "version":"4.4"
+    "version":"4.5"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Activity.osl",
