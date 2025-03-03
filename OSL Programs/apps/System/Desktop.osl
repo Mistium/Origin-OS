@@ -1,3 +1,4 @@
+save "desktop@system" "set_directory"
 permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "windows"
