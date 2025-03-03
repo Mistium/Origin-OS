@@ -1,37 +1,36 @@
-save "desktop@system" "set_directory"
 permission "request" "file admin"
 permission "request" "terminal"
+permission "request" "windows"
 
 window.no_desktop = true
 
 app_positions = {}
 
-
-def "icons_big" (
+def icons_big() (
   app_size = 2.5
   theme.app_size = app_size
   save "theme.json" "set" theme
 )
 
-def "icons_norm" (
+def icons_norm() (
   app_size = 2
   theme.app_size = app_size
   save "theme.json" "set" theme
 )
 
-def "icons_small" (
+def icons_small() (
   app_size = 1.7
   theme.app_size = app_size
   save "theme.json" "set" theme
 )
 
-def "icons_hide" (
+def icons_hide() (
   app_size = 0
   theme.app_size = app_size
   save "theme.json" "set" theme
 )
 
-def "upload_file" (
+def upload_file() (
   terminal "upload /desktop"
 )
 
@@ -85,28 +84,27 @@ def "handle_app_culling" (
 def "render_selection" (
   sqw = mouse_start_x - mouse_x
   sqh = mouse_start_y - mouse_y
-  frame mouse_start_x mouse_start_y mouse_x mouse_y
-  goto 0 0
-  c #000
-  pen "opacity" 70
-  pen "size" frame_width + frame_height
-  pen "down"
-  pen "up"
-  pen "opacity" 100
-  fx = frame.x
-  fy = frame.y
-  fw = frame.width
-  fh = frame.height
-  frame "clear"
+  frame mouse_start_x mouse_start_y mouse_x mouse_y (
+    goto 0 0
+    c #000
+    pen "opacity" 70
+    pen "size" frame_width + frame_height
+    pen "down"
+    pen "up"
+    pen "opacity" 100
+    fx = frame_x
+    fy = frame_y
+    fw = frame_width
+    fh = frame_height
+  )
   window "dimensions" screensize_x screensize_y - 70
   window "refresh_bg"
 )
 
-
 desktop_rightclick = [
   "Change Wallpaper",
   "-",
-  {"Upload File":"upload_file"},
+  {"Upload File":   upload_file },
   "New Folder Inside",
   "New File",
   "-",
@@ -114,13 +112,26 @@ desktop_rightclick = [
   "Paste",
   "Copy Path",
   "-",
+  {"Minimise All": def() -> (
+    local shown = Windows().filter(v -> (v.shown == true))
+    each this.app shown (
+      terminal "mini" + app.id
+    )
+  )},
+  {"Close All": def() -> (
+    local shown = Windows().filter(v -> (v.shown == true))
+    each this.app shown (
+      terminal "kill" + app.id
+    )
+  )},
+  "-",
   [
     "View",
-    {"Big Icons":"icons_big"},
-    {"Normal Icons":"icons_norm"},
-    {"Small Icons":"icons_small"},
+    {"Big Icons":    icons_big   },
+    {"Normal Icons": icons_norm  },
+    {"Small Icons":  icons_small },
     "-",
-    {"Hide Icons":"icons_hide"}
+    {"Hide Icons":   icons_hide  }
   ],
   [
     "Apps",
