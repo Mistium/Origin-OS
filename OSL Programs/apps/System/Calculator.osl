@@ -1,46 +1,43 @@
-window "resizable" False
-window "show"
 canclick = False
 operation = ""
 current = null
 secondary = null
 
-def "draw" "x, y, x2, y2, character"
+def "draw" "x, y, x2, y2, character" (
   loc x y x2 + 5 y2 + 65
-  if operation.str == character (
+  if operation == character (
     square 55 55 10 : c#co hover_c#coh
   ) else (
     square 55 55 10 : c#cb hover_c#cbh
   )
 
-  character.destr
-  if can and (character.istype("number") or character == ".") (
-    if clicked or character.onpress (
-      can = false
+  if onclick or character.onKeyDown() and character != "=" (
+    if "1234567890.".contains(character) (
       if operation == "" (
         c = current
-        current = current ++ character
+        current ++= character
       ) else (
         s = secondary
-        secondary = secondary ++ character
+        secondary ++= character
       )
+    ) else (
+      operation = character
     )
   )
-  if clicked or character.onpress and "+-x÷".contains(character) "operation = character.str"
-  if clicked or "enter".pressed and ( character.str == "=" ) (
-    current.int
-    secondary.int
+  if clicked or "enter".onKeyDown() and character == "=" (
+    current.toNum()
+    secondary.toNum()
     if operation == "+" "current += secondary"
     if operation == "-" "current -= secondary"
     if operation == "x" "current *= secondary"
     if operation == "÷" "current /= secondary"
-    current.str
+    current.toStr()
     secondary = 0
     operation = ""
   )
   change -10 -5
-  text character.str 20 : c#ct
-endef
+  text character 20 : c#ct
+)
 
 co = #f79204
 coh = #f7ae43
@@ -91,7 +88,8 @@ draw 2 2 170 -410 "="
 draw 2 2 240 -410 "÷"
 
 loc 2 2 25 -72.5
-if operation == "" "output = current" else "output = secondary"
+output = operation == "" ? current secondary
+
 if output == null "output = 0"
 text output 15
 
@@ -102,7 +100,7 @@ if clicked or "backspace".pressed and can (
   can = false
   temp = current.len - 1
   temp2 = secondary.len - 1
-  if operation == "" "current.left(temp)" else "secondary.left(temp2)"
+  current.left(operation == "" ? temp temp2)
 )
 
 loc -2 2 -22.5 -22.5
