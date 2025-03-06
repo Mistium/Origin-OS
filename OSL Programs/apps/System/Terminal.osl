@@ -3,18 +3,38 @@ import "window_tools"
 
 file "use_type" "ots"
 
-def "print" "data"
-  terminal = terminal.destr ++ data.destr
+def "print" "data" (
+  terminal ++= data.destr
   loops += data.destr.len
-endef
+)
 
-def "clearall"
+def "clearall" (
   terminal = []
   loops = 0
-endef
+)
+
+ansi = {
+  "\\e[30m": "#000",
+  "\\e[31m": "#f00",
+  "\\e[32m": "#0f0",
+  "\\e[33m": "#ff0",
+  "\\e[34m": "#00f",
+  "\\e[35m": "#f0f",
+  "\\e[36m": "#0ff",
+  "\\e[37m": "#fff",
+  "\\e[90m": "#555",
+  "\\e[91m": "#f55",
+  "\\e[92m": "#5f5",
+  "\\e[93m": "#ff5",
+  "\\e[94m": "#55f",
+  "\\e[95m": "#f5f",
+  "\\e[96m": "#5ff",
+  "\\e[97m": "#fff"
+}
+
+ansi_re = "/\\e\[[0-9;]+m/g"
 
 save "system@terminal" "set_directory"
-
 
 mode = "norm"
 
@@ -40,7 +60,7 @@ if passed_data != "" (
 network "set_app_id" "terminal@system"
 window "set_dragbox" [[2,2,0,0],[-2,2,-100,-30]]
 
-user_start = username ++ "/: "
+user_start = username ++ "@originos ~ % "
 terminal = []
 canenter = True
 input_1 = null
@@ -70,22 +90,14 @@ if new_network_data (
   new_network_data = false
 )
 
-loc 999 -2 0 20
-square window.width 40 10 : c#prim
 loc 999 2 0 -20
-square window_width 30 10 : c#prim
+square window.width 30 10 : c#prim
 
 glass:frame window.left window.top window.right window.bottom
 c window_colour
 pen "opacity" 60
 icon "w 999 dot 0 0" 100
 frame "clear"
-
-loc 2 -2 10 20
-text user_start 10 : c#txtc
-set_x user_start.len * 5
-pen "opacity" 0
-input window_width - (user_start.len + 2 * 10) 30 1 null null txtc
 
 if ots_script.isType("array") (
   loop taking_input ? 1 100 (
@@ -99,7 +111,7 @@ if ots_script.isType("array") (
           taking_var = cur_spl[cur_spl.len-1] == ">>"
           taking_input = false
         )
-        if "enter".onpress (
+        if "enter".onKeyDown() (
           if taking_var (
             cmd = cur_spl.last() ++ " = " ++ input_1.str
             terminal cmd
@@ -155,27 +167,26 @@ if ots_script.isType("array") (
   )
   if mode == "norm" (
   if "enter".onpress (
-    last.append(input_1)
+    last.append(input["main"])
     last_index = last.len + 1
     try (
       if input_1.startsWith("SRE ") (
         mode = "SRE"
-        sre_target = input_1.split(" ")[2]
+        sre_target = inputs.main.split(" ")[2]
       ) else (
-        terminal input_1.str
+        terminal inputs.main
+        log terminal_output[1].match(ansi_re)
       )
-      input_1 = username ++ "/: " ++ input_1.str
-      terminal = terminal.destr.append(input_1)
+      terminal = terminal.destr.append(user_start ++ inputs.main)
     
-      terminal = terminal ++ terminal_output
+      terminal ++= terminal_output
     ) catch this.e (
-      input_1 = username ++ "/: " ++ input_1.str
-      terminal = terminal.destr.append(input_1)
+      terminal = terminal.destr.append(user_start ++ inputs.main)
       terminal.append(this.e.error)
     )
     loops = terminal.len
     terminal_output = []
-    input_1 = null
+    inputs.main = null
   )
   )
 )
@@ -195,17 +206,23 @@ loc 2 2 10 -20
 text "Terminal" 10 : c#txtc
 
 c prim
-frame window.left window.top - 40 window.right window.bottom + 40 loops * 20
+frame window.left window.top - 40 window.right window.bottom loops + 1 * 20
 
 c txtc
 loc 2 2 10 0
-count = ((scroll_y / 20 - 1).round).clamp(0,loops)
-loop (frame_height / 20 + 3).round.clamp(0,loops) (
+count = ((scroll_y / 20 - 1).round()).clamp(0,loops)
+loop (frame_height / 20 + 3).round().clamp(0,loops) (
   count ++
   y = count * -20 + 10 + scroll_y
   loc 2 2 10 y
   text terminal[count] 10
 )
+
+loc 2 2 10 -10 - (loops * 20) + scroll_y
+text user_start 10 : c#txtc
+set_x user_start.len * 5
+pen "opacity" 0
+input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
 frame "clear"
 
 import "win-buttons"
