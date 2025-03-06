@@ -1,220 +1,188 @@
+import as "glass" from "packages"
 import "window_tools" as "wt"
 
-permission "request" "account"
-window_y = screensize_y * -1.2
-window "dimensions" screensize_x screensize_y
+permission "request" "file admin"
+permission "request" "terminal"
+
+icons = {
+  terminal: "w 1.5 line 0 -4 5 -4 line -2 0 -6 4 line -2 0 -6 -4",
+  settings: "settings",
+  logout: "log-out"
+}
+
+images = {
+  discord: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAAV1BMVEVHcExYZfJYZfJYZfJYZfJYZfJYZfJYZfJYZfJYZfJYZfL///9YZfJWY/K6wPNlcPBaZ/GlrfLw8fpueu/KzvT4+PyvtvLr7vp5hO/W2fadpPLi5fiDjPDIsOONAAAAC3RSTlMAjvbiFlksrAfPwLOHjIYAAAGQSURBVDjLlZVbgoMgDEUFta0KAargc//rHCSR0ql2mPtF6SEkIYlFkaqqWVtyIXjZsroqrnRjjYcO8YbdLrBS/FJ5gj7qDyyg9eOdqxgXp+LszdXqLi51r/K4lHww8VXs8LPm30FeU15ivFJKrXGptf8RY8cssYipzQxGih32i01FlKUGpTKz7boRYBgAxq6zs1EyMRkjcd2HjHiZrBoyOD0/wedEJpsqhqyhOxHoGDj7YjAxyYr22sNdjv5ui5JCXs/BlQIvC3RRbjbsDwsEF56wDGHDbgjyglw0yPnzBvMiFZKGnCRQ4+4ihex9rsfeLxY8S3Hj1VLNV+CMTnIM5ojF72q8Wh9nKZoS0xPMdOF5IURlwSAXjIf0sBQ8EYEMnzBaTBGbgP4JQ1FQLqyDlVi7grNHxkJR0N3KjSHP/bY4ALdsfcj86FSsXCxcKaa9WGHvgKC9mkaYhIyFe/Sg1JOBPvaJ7MFMWiat8GoubyZtPh1bhporu13zB0D2SMkfUvljL3+Q5o/mfwz7Pz4fP4PIPgIHRSAHAAAAAElFTkSuQmCC",
+  github: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAASFBMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABJhibTAAAAF3RSTlMA/CbnCVr20zYbyOCDQnRN7am1Eo9onMfsFAwAAAGmSURBVDjLhZVZoqQgDEWZZ0Sc2P9Om0kUC17npwo5huQmRAA6I8id5jjM6RABc0PLphkM0SDT24ImmLhw6AxfYoBJ88EyauSXsyoMTdmeo3jMBYhpx61hauuLdH9wkXRNFZ7WfPs5Xm9lp+pEfFoxF2XkWcJoSUwehXQs7fkiPs0Sa5k18oZaISyNf/IDnTPKYe5FGLWPirDzZ7M4DPwvMLkkW81NDMta9dgIEDVXJUegrAXDAizlZObGnVLSDnABvvke2h2ZByXasMx6dCn7HKzhUWpkVZQVlF/oZqCtwH9B14PhnIFn7csaYzhm4FHrcWc9LnWUR91ZVx2ZneTCbh1rZSaK33rHyty1hmZAEgNbrfM7aQmvn8mArsrl85L0F/UxFn1Y2dwSaQ/dLi2tHc4tWVLUTPvabdJr9hoDWRMan2ALrl5P87qNjD63UO1yg+8+ty+H9Rbmex2j2KlZbIsRPbectyxtfKg+OT8gtv3s4adACP16XPsplZRgGD+n3KD+NKAoxcdfUInxxP2Ag4mbnMZK6AbGqaMPMf0qnE8Jz/6r8A81VTjr43PLzQAAAABJRU5ErkJggg=="
+}
+
+
+window.goto(0, -100000)
+window.resize(0,0)
+window "to_dimensions" 500 600
+window.show()
+window "set_dragbox" []
 window.no_desktop = true
 
-network "my_files_usage"
+apps = open("user/Applications.folder")
 
-def "openapp" "name"
-  window "add" name
-  window "stop"
-endef
+total_apps = apps.len
 
-def "find_sizes"
-  use1 = usage[1].int / 1000
-  unit = "kb"
-  if use1 > 1000 (
-    unit = "mb"
-    use1 = use1.int / 1000
-    if use1 > 1000 (
-      unit = "gb"
-      use1 = use1.int / 1000
-    )
-  )
-  use2 = usage[2].int / 1000000
-  unit2 = "mb"
-  if use2 > 1000 (
-    unit2 = "gb"
-    use2 = use2.int / 1000
-  )
-  use1 = (use1 * 10).round / 10
-  use2 = (use2 * 10).round / 10
-endef
-
-target_y = 0
-usage = []
-use1 = "none"
-
-v = origin.version
-version = v.trim(1,v.len - 2) ++ "." ++ v[v.len - 1] ++ "." ++ v[v.len]
-
-repo_data = ""
-
-chat_y = 0
-target_chat_y = 0
-
-def "close" (
-  network "server" "disconnect_rotur_discord"
-  window "stop"
+each i app apps (
+  file "open" app "onlyaccess"
+  apps[i] = {
+    type: "app",
+    name: fileGet(2),
+    uuid: app
+  }
+  file "close"
 )
 
-network "server" "connect_rotur_discord"
+apps = apps.sortBy("name")
 
-discord_messages = []
+last = ""
+i = 0
+loop apps.len (
+  i ++
+  app = apps[i]
+  if last != app.name[1] (
+    last = app.name[1]
+    apps.insert(i, {
+      type: "label",
+      name: last
+    })
+    i ++
+  )
+)
 
-repo_data = "https://api.github.com/repos/Mistium/Origin-OS".get()
+before = [
+  {
+    type: "label",
+    name: "Info"
+  },
+  {
+    type: "inf",
+    name: "Join The originOS Discord Server",
+    icon: "image " ++ images.discord ++ " 25",
+    link: "https://discord.gg/j6AKtEkQ"
+  },
+  {
+    type: "inf",
+    name: "Checkout The Github Repo",
+    icon: "c #fff w 25 dot 0 0 image " ++ images.github ++ " 20",
+    link: "https://github.com/Mistium/Origin-OS"
+  },
+  {
+    type: "inf",
+    name: "Used " ++ formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size),
+    icon: "icn file 0.9"
+  },
+  {
+    type: "inf",
+    name: "Total Applications: " ++ total_apps,
+    icon: "icn Grid-Apps 0.8"
+  },
+  {},
+  {
+    type: "label",
+    name: "Apps"
+  }
+]
+
+apps = before ++ apps
+
+total = apps.len
 
 mainloop:
-
 wt:load_theme
 
-if new_network_data (
-  if network_data_command == "my_files_usage" (
-    usage = network_data
-  )
-  if network_data_command == "new_rotur_discord" (
-    discord_messages.append(network_data)
-  )
-  new_network_data = false
-)
-
-window_y += target_y - window_y / 5
-if window_y.round() != target_y.round() (
-  window "refresh_bg"
-)
-window "y" window_y.round()
-
-square 700 700 15 : c#global_accent
-square 700 700 10 1 : c#window_colour
-if mouse_down and clicked.not (
-  close
-)
+width = window.width - 30
+height = window.height - 30
 
 goto 0 0
-square 0 700 10 : c#prim
-goto 0 325
-square 700 50 10 : c#seco
-goto 0 -325
-square 700 50 10
-goto -325 325
-image user_icon.str 40
+c window_colour
+square width height 30
 
-goto 325 -325
-icon "power" 1 : hover_size#1.05 c#txtc
-if clicked (
-  network "logout"
-  terminal "shutdown"
-)
+c prim
+goto 0 0
+square width height 10
 
-icon "settings" 1 : chx#-50 hover_size#1.05
-if clicked (
-  openapp "settings"
-)
+goto 0 window.top - 30
+c seco
+square width 30 10
 
-icon "w 1.5 line 0 -4 5 -4 line -2 0 -6 4 line -2 0 -6 -4" 2 : chx#-50 hover_size#1.05
-if clicked (
-  openapp "terminal"
-)
+goto 0 window.bottom + 30
+square width 30 10
 
-if hour < 12 (
-  msg = "Good Morning" + username
-) else (
-  msg = "Good Afternoon" + username
-)
-goto -290 325
-text msg 13 : c#txtc
-
-goto 325 325
-icon "close" 1
-if clicked (
-  close
-)
-
-goto -180 230
-square 320 100 10 : c#prim
-
-if usage.len == 0 (
-  change_x -100
-  text "Loading Storage Info" 10 : c#txtc
-) else (
-  if use1 == "none" "find_sizes"
-  goto -245 260
-  text "Storage" 10 : c#txtc
-  goto -245 230
-  text `Used ${use1}${unit} / ${use2}${unit2}` 9
-  goto -140 200
-  bar 200 20 10 usage[3] : c#seco
-  usepercent = (usage[3] * 100).round ++ "%"
-  goto -295 - (usepercent.len * 8) 230
-  text usepercent 16 : c#txtc
-)
-
-goto -180 110
-square 320 100 10 : c#738bd7
-if mouse_touching (
-  cursor "pointer"
-  if clicked (
-    http "newtab" "https://discord.gg/aujmXHtgXA"
-  )
-)
-image "https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=banner2" 320
-
-goto -180 -10
-square 320 100 10 : c#prim
-if mouse_touching (
-  cursor "pointer"
-  if onclick (
-    http "newtab" "https://github.com/Mistium/Origin-OS"
-  )
-)
-goto -290 -10
-image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/github_icon.png" 60
-goto -230 2
-text "Github" 13 : c#txtc
-goto -222 -27
-icon "w 3 line 0 9.5 5 3 cont 10 3 cont 5 -2 cont 7 -10 cont 0 -5 cont -7 -10 cont -5 -2 cont -10 3 cont -5 3 cont 0 9.5" 0.7
-text repo_data.stargazers_count 10 : chx#15
-icon "eye" 0.7 : chx#30
-text repo_data.subscribers_count 10 : chx#15
-
-goto -180 -130
-square 320 100 10 : c#prim
-change_x -110
-icon "origin-logo" 2.5 : c#txtc
-change 50 10
-c #fff
-text "originOS" 13
-change -50 -20
-text "v" ++ version 10
-
-
-frame -5 295 350 -295
-  goto 0 0
-  square frame.width frame.height 10 : c#prim
-  loc 2 2 50 -540 + chat_y
-  x = x_position
-  c txtc
-  start_y = y_position
-  if discord_messages.len > 15 (
-    discord_messages.delete(1)
-  )
-  each i message discord_messages (
-    set_x x
-    if message.onlycontent.not (
-      change -30 -30
-      image message.avatar_url 30
-      change 30 10
-      text message.username 10
-      set_x x
-      change_y -20
-      text message.content 9
-      change_y -20
-    ) else (
-      text message.content 9
-      change_y -20
-    )
-  )
-  target_chat_y = start_y - y_position
-  chat_y += target_chat_y - chat_y / 10
-  
-  goto 0 frame.bottom + 25
-  c window_colour
-  square frame.width - 25 30 10
-  input frame.width - 35 25 "message" "Type to originOS & roturTW #general"
-  if "enter".onpress and selected_input == "message" and input_message != "" (
-    network "server" "send_rotur_discord" input_message
-    input_message = ""
-  )
+glass:frame window.left window.top window.right window.bottom
 frame "clear"
+
+frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 total - 0.5 * 40 (
+  total = apps.len
+  goto 0 frame.top - 20 + frame.scroll
+  each item apps (
+    if item.name.toStr().contains(input_search).not() and input_search != "" (
+      total --
+      continue
+    )
+    set_x 0
+    square width 25 10 0 1
+    if mouse_touching (
+      
+    )
+    set_x frame.left + 20
+    if item["type"] == "app" (
+      change_x 10
+      file "open" item.uuid "onlyaccess"
+      if onclick (
+        file "start"
+        window.close()
+      )
+      file "render" 1
+      change_x 20
+    ) else if input_search.len > 0 (
+      total --
+      continue
+    ) else if item["type"] == "inf" (
+      if item.link != "" and onclick (
+        http "newtab" item.link
+      )
+      change_x 10
+      icon item.icon 1
+      change_x 20
+    )
+    text item.name 10 : c#txtc
+    set_x 0
+    change_y -40
+  )
+)
+
+goto 15 window.top - 30
+pen "opacity" 0
+input width - 30 28 "search" null null txtc
+set_x window.left + 28
+icon "search" 0.8 : c#txtc
+
+loc 2 -2 30 30
+image user.pfp 30 30
+text username 10 : chx#25
+
+loc -2 -2 -30 30
+icon icons.terminal 1.5
+if onclick (
+  window.create("terminal")
+  window.close()
+)
+
+icon icons.settings 0.9 : chx#-40
+if onclick (
+  window.create("settings")
+  window.close()
+)
+
+icon icons.logout 0.8 : chx#-40
+if onclick (
+  terminal "shutdown"
+  window.close()
+)
+
+window.goto(0, screensize_y - window.height / -2 + 90)
