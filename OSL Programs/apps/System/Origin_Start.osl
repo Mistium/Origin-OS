@@ -178,19 +178,19 @@ image user.pfp 30 30
 text username 10 : chx#25
 
 loc -2 -2 -30 30
-icon icons.terminal 1.5
+icon icons.terminal 1.5 : tooltip#"Terminal"
 if onclick (
   window.create("terminal")
   window.close()
 )
 
-icon icons.settings 0.9 : chx#-40
+icon icons.settings 0.9 : chx#-40 tooltip#"Settings"
 if onclick (
   window.create("settings")
   window.close()
 )
 
-icon icons.logout 0.8 : chx#-40
+icon icons.logout 0.8 : chx#-40 tooltip#"Logout"
 if onclick (
   terminal "shutdown"
   window.close()
