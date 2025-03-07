@@ -109,6 +109,9 @@ height = window.height - 30
 goto 0 0
 c window_colour
 square width height 30
+if mouse_down and clicked.not() (
+  window.close()
+)
 
 c prim
 goto 0 0
