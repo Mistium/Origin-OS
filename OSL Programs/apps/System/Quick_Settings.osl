@@ -17,6 +17,8 @@ window.height = 60
 
 winw_target += 10
 
+last = timer
+
 mainloop:
 wt:load_theme
 
@@ -36,7 +38,8 @@ window.x = screensize_x - window.width / 2 - 5
 window.y = screensize_y / 2 - 35
 
 square window.width window.height 0 0 1
-if winw != winw_target or mouse_touching or bg_redrawn (
+if winw != winw_target or mouse_touching or bg_redrawn or (timer - last > 0.5) (
+  last = timer
   square window.width - 25 window.height - 25 20 : c#window_colour
 
   goto window.left + 30 0
