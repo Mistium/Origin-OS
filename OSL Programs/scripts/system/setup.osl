@@ -9,9 +9,7 @@ javascript_icn = "w 3 c #ffca28 square 0 0 8.5 8.5 w 10 square 0 0 4 4 w 2 c #11
 // old c logo "w 20 c #649ad2 dot 0 0 w 4 c #004482 line 0 0 -8 -4.6 cont 0 -9.4 cont 8 -4.6 cont 0 0 w 10 dot 0 -4.7 w 4 c #00589c line 0 0 8 4.6 cont 8 -4.6 cont 0 0 w 8 dot 5 0 c #649ad2 w 4 line 8 4.6 -8 -4.6 cont -8 4.6 cont 0 9.4 cont 8 4.6 w 3.3 c #fff cutcircle 0 0 5 -9 140"
 basecicn = "w 4 c cola line 0 8 -7 4 cont -7 -4 cont 0 -8 cont 7 -4 cont 7 4 cont 0 8 w 10 dot 0 0 c colb w .2 cutcircle 7.4 4.15 1.5 7.4 15 cutcircle 7.4 -4.15 1.5 10.4 15 line .2 0 8.7 4.95 line .2 0 8.7 -4.95 line 8.91 -4.1 8.91 4.1 w .35 dot .55 0 w .75 line 1 0 8.5 4.45 cont 8.5 -4.45 cont 1 0 w 2 line 2.5 0 8 -3 cont 8 3 cont 2.5 0 w 3.5 dot 6.2 0 w .2 dot 0.1 -.04 c colc w .2 cutcircle 7.31 -4.35 1.5 13 10 cutcircle -7.31 -4.35 1.5 -13 10 cutcircle 0 -8.45 1.5 18 25 line -8.2 -5.55 -.75 -9.77 line 8.2 -5.55 .75 -9.77 line -8.6 -5.1 0 -.1 cont 8.53 -5.05 w .75 line -8.1 -5.2 -.5 -9.4 cont 0 -9.5 cont .5 -9.4 cont 8.1 -5.2 cont 0 -.6 cont -8.1 -5.2 w 1.5 line -6.75 -5 0 -1.5 cont 6.75 -5 cont 0 -8.5 cont -6.75 -5 w 3 line -4 -5 0 -3 cont 4 -5 cont 0 -7 cont -4 -5 dot 0 -5 w 0 w 0 w 1 c #fff cutcircle 0 0 6.5 -9.12 144. cutcircle 0 0 4 -9 141.8 w 1 line 3.2 2.47 5.35 3.69 line 3.2 -2.47 5.35 -3.69 w 2 cutcircle 0 0 5.26 -9 136 w .2 line 2.75 2.3 3.05 1.92 cont 3.4 2.13 line 2.75 -2.3 3.05 -1.92 cont 3.4 -2.13 line 5.76 3.8 5.9 3.55 cont 5.6 3.37 line 5.76 -3.8 5.9 -3.55 cont 5.6 -3.37"
 
-makeicn = def(cola,colb,colc,extra) -> (
-  return basecicn.replace("cola",cola).replace("colb",colb).replace("colc",colc) + extra
-)
+makeicn = {"type":"function","params":"cola,colb,colc,extra","code":"return basecicn.replace(\"cola\",cola).replace(\"colb\",colb).replace(\"colc\",colc) + extra"}
 
 c_icn = makecicn(#659ad2,#005ba1,#004588,"")
 cs_icn = makecicn(#a179dc,#390091,#280068,"w .3 square 5.75 0 .1 2 square 7.25 0 .1 2 square 6.5 .7 2 .1 square 6.5 -.75 2 .1 w .08 square 5.75 0 .24 2.15 square 7.25 0 .24 2.15 square 6.5 .7 2.15 .24 square 6.5 -.75 2.15 .24")
