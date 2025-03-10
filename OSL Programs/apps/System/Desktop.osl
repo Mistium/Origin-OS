@@ -102,16 +102,40 @@ def "render_selection" (
   window "refresh_bg"
 )
 
+def getUuid(path) (
+  if path.startsWith("sys/") (
+    local path = "origin/(a) system/user applications/" ++ path.trim(5,-1)
+  )
+  file "open" path "onlyaccess"
+  return fileGet(14)
+)
+
 desktop_rightclick = [
+  "> " ++ getUuid("user/desktop.folder"),
+  "-",
   "Change Wallpaper",
+  ["Quick Apps",
+    "> " ++ getUuid("sys/Files.osl"),
+    "> " ++ getUuid("sys/Settings.osl"),
+    "> " ++ getUuid("sys/Activity.osl"),
+    "> " ++ getUuid("/(a) system/system apps/Terminal.osl"),
+  ],
   "-",
-  {"Upload File":   upload_file },
-  "New Folder Inside",
-  "New File",
-  "-",
+  ["New",
+    {"Upload": def() -> (
+      terminal "upload user/desktop"
+    )},
+    {"Folder": def() -> (
+      terminal "cd user/desktop"
+      terminal 'mkdir "New Folder"'
+    )},
+    {"File": def() -> (
+      window.create("new_file", {
+        passed_data: user_folder ++ "/desktop"
+      })
+    )},
+  ],
   "Info",
-  "Paste",
-  "Copy Path",
   "-",
   {"Minimise All": def() -> (
     local shown = Windows().filter(v -> (v.shown == true))
@@ -126,8 +150,7 @@ desktop_rightclick = [
     )
   )},
   "-",
-  [
-    "View",
+  ["View",
     {"Big Icons":    icons_big   },
     {"Normal Icons": icons_norm  },
     {"Small Icons":  icons_small },
