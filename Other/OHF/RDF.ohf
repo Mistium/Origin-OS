@@ -1,0 +1,61 @@
+{
+  "manifest": {
+    "name": "rdf",
+    "version": "1",
+    "description": "Syntax highlighting for RDF files",
+    "extensions": [".rdf"]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "\"(?:[^\\\\\"]*|\\\\.)*(?:\\\"|$)|[()\\[\\]{}]|[^()\\[\\]{}\\W ]+|[ ;]|[^\\w; ]+"
+  },
+  "overrides": {
+    "origin.comment_mark": "#",
+    "origin.numbers": "#aa68bc",
+    "origin.strings": "#6dedab",
+    "origin.comments": "#555c67"
+  },
+  "categories": {
+    "brackets": {
+      "color": "#986ded",
+      "tokens": ["}", "{", "]", "[", ")", "(", "."]
+    },
+    "main": {
+      "color": "#c76169",
+      "tokens": [
+        "=",
+        "==",
+        "!=",
+        "<=",
+        ">=",
+        "<",
+        ">",
+        "!",
+        "+",
+        "-",
+        "/",
+        "*",
+        "%",
+        "and",
+        "or",
+        "xor",
+        "not",
+        "in"
+      ]
+    },
+    "data": {
+      "color": "#52aeb9",
+      "tokens": [
+        "self",
+        "number",
+        "string",
+        "object",
+        "array"
+      ]
+    },
+    "booleans": {
+      "color": "#408088",
+      "tokens": ["true", "false"]
+    }
+  }
+}
