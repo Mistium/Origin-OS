@@ -1,4 +1,4 @@
-[def "rope" "id,x_start,y_start,elasticity,ghor,gver,colour"
+def "rope" "id,x_start,y_start,elasticity,ghor,gver,colour"
 if true "x = rope_x_" ++ id
 if true "y = rope_y_" ++ id
 x.[1] = x_start.round
