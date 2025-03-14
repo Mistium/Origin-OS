@@ -1,4 +1,4 @@
-[permission "request" "File Admin"
+permission "request" "File Admin"
 mainloop:
 count = 0
 loop 999 (
