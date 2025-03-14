@@ -1,4 +1,4 @@
-[window "show"
+window "show"
 def "load"
   userdata = data.replace(newline,"")
   log userdata
