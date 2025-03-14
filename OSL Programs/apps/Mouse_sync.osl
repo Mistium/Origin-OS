@@ -1,4 +1,4 @@
-[network "set_app_id" "mouse_sync"
+network "set_app_id" "mouse_sync"
 network "get_online"
 online = network_data
 pos = "array".new(99)
