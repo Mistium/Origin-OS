@@ -1,4 +1,4 @@
-[def "load_video" "vid_id"
+def "load_video" "vid_id"
   network "getsync" "https://yt2html5.com/?id=" ++ vid_id
   data = data."data"
   video_url = data."formats".[1]."url"
