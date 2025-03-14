@@ -19,14 +19,12 @@ square window_width 60 10 : c#dock_colour
 goto width / -2 0
 c icon_colour
 icon wicn 1.2
-if clicked and can (
-  can = false
+if clicked (
   window "add" "origin_Start"
 )
 change_x 40
 icon sicn 1
-if clicked and can (
-  can = false
+if clicked (
   window "add" "originAssist"
 )
 change_x 50
