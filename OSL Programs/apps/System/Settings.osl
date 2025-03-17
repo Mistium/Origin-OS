@@ -1,3 +1,4 @@
+
 import as "glass" from "packages"
 import "window_tools"
 load_theme
@@ -40,7 +41,6 @@ def "setting_input" "id, default_txt, w, callback" (
     inputs[id] = default_txt
   )
   if "enter".onKeyDown() (
-    log inputs[id]
     return callback(inputs[id])
   )
   input w - 10 25 id null 10
@@ -94,50 +94,6 @@ def "option" "name,icn_code" (
 )
 
 def "system" (
-  if network_drive.istype("array").not (
-    if network_drive == "none" and tier == null (
-      network "my_files_usage"
-      tier = "Loading..."
-      unit = null
-    )
-  )
-  if new_network_data (
-    if network_data_command == "my_files_usage" (
-      network_drive = network_data.destr
-      switch network_drive[2] (
-        case 5000000
-          tier = "Free Tier"
-          break
-        case 10000000
-          tier = "Supporter"
-          break
-        case 50000000
-          tier = "originDrive"
-          break
-        case 100000000
-          tier = "originPro"
-          break
-        default
-          tier = "Unknown"
-          break
-      )
-      if username == "Mist" (
-        tier = "Admin"
-      )
-      if network_drive[2] > 999999 (
-        used_big = (network_drive[2] / 1000000).round()
-        unit = "mb"
-      )
-      if network_drive[2] > 999999999 (
-        used_big = (network_drive[2] / 1000000000).round()
-        unit = "gb"
-      )
-    )
-    if network_data_command == "ping" (
-      ping.time = timestamp - ping.sent
-    )
-    new_network_data = false
-  )
   switch subcategory (
     case "none"
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
@@ -278,37 +234,25 @@ def "system" (
       page_len = boot_apps.len + 2 * 60
       break
     case "Storage"
-      file "open" "Origin/(C) Users.folder"
       y = -160 + 75 + scroll_y
-      loc 999 2 0 y
-      square frame_width - 30 140 10 1 : c#prim
       loc 2 2 80 y
-      icon file[11] 3.3
+      image user.pfp 100 100
       text "(Network)" + username 15 : chx#80 chy#20 c#txtc
       change_x 20
-      if network_drive[2] == 5000000 (
-        text "Free User" 10
-        text "Upgrade: " 10 : c#txtc chx#20
-        square 120 20 10 : c#prim chx#100
+      square 120 20 10 : c#prim chx#100
+      if mouse_touching (
+        cursor "pointer"
         if onclick (
-          network "new_tab" "https://www.patreon.com/user?u=51594743"
+          network "new_tab" "https://patreon.com/mistium"
         )
-        image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 20
       )
-      if network_drive[2] > 999999 (
-        used_big = (network_drive[2] / 1000000).round
-        unit = "mb"
-      )
-      if network_drive[2] > 999999999 (
-        used_big = (network_drive[2] / 1000000000).round
-        unit = "gb"
-      )
+      image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
+      
       loc 2 2 160 y
-      text network_drive[1] / 1000 ++ "kb /" + used_big ++ unit 10
+      text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
       loc 999 2 125 / 2 y - 35
-      percent = network_drive[1] / network_drive[2]
       c prim
-      bar frame_width - 200 20 10 percent seco
+      bar frame_width - 200 20 10 user.used_size / user.max_size seco
       page_len = 460
   
       if total_files == 0 (
@@ -317,19 +261,18 @@ def "system" (
           dat = fileGet(4).toStr()
           file = dat.len + "bytes"
           file = " " * (15 - file.len) + file + "-" + fileGet(2)
-          file "get" 1
-          file.append(data)
+          file.append(fileGet(1))
           files.append(file)
           current.delete(1)
           if fileGet(1) == ".folder" (
             current ++= fileGet(4)
           )
           total_files = files.len
-          file_data = files.sort().reverse().trim(1,10)
+          file_data = files.sort().reverse().trim(1,20)
         )
 
         goto frame.left + 30 frame.top + scroll_y - 200
-        direction (timer * 100).sin * 360
+        direction (timer * 100).sin() * 360
         icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
         direction 90
         text files.len + "Files Processed" 10 : chx#30
@@ -761,7 +704,7 @@ def "appearance" (
 
 def "account" (
   local w = frame.width - 100
-  page_len = 520
+  page_len = 710
   
   goto 0 frame.top - 50 + scroll_y
   
@@ -777,6 +720,50 @@ def "account" (
         ) backup.id
         set_x 0 : chy#-50
       )
+    )
+    return
+  )
+  
+  if subcategory == "connections" (
+    local links = user["sys.links"]
+    if links.contains("github") and github_data == "Loading" (
+      github_data = ("https://api.github.com/user/" ++ links.github.id).getAsync()
+    )
+    /*
+    page_len = 50
+    setting_do "Github: " ++ (links.contains("github") ? github_data.login "Click To Link") w def() -> (
+      network "server" "link" {
+        service: "github",
+        username: "What is your github username?".ask()
+      }
+    )
+    */
+    set_x 0 : chy#-50
+    return
+  )
+  
+  if subcategory == "Privacy" (
+    page_len = 500
+    setting_toggle "Private Account?" w user.private def() -> (
+      network "update" "private" user.private.not
+    )
+    set_x 0 : chy#-50
+    centext "Public Data:" 10 : c#txtc
+    local items = [
+      "username",
+      "profile picture",
+      "bio",
+      "theming and colours",
+      "rotur credit total",
+      "your rotur operating system",
+      "account creation date"
+    ]
+    change_y -50
+    for i items.len (
+      square w 30 10 : c#prim
+      set_x w / -2 + 10
+      text items[i] 10 : c#txtc
+      set_x 0 : chy#-50
     )
     return
   )
@@ -835,24 +822,48 @@ def "account" (
     )
   )
   
-  goto 0 frame.top - 300 + scroll_y
+  local bio_data = inputs.bio.join("\n")
+  
+  goto w / -2 frame.top - 270 + scroll_y
+  text "Bio (" ++ bio_data.len ++ "/200)"  10
+  
+  if bio_data != user.bio (
+    set_x w / 2 - 10
+    icon "save" 0.7
+    if onclick (
+      network "update" "bio" inputs.bio.join("\n").strip()
+    )
+  )
+  
+  set_x 0 : chy#-70
+  textbox w 100 "bio" 10 {
+    bg_colour: prim,
+    line_numbers: false
+  }
+  
+  set_x 0 : chy#-100
   setting_do "Change Password" w def() -> (
     network "update" "password" "Enter Your New Password".ask().hashMD5()
   )
   
   set_x 0 : chy#-50
-  setting_toggle "Private Account?" w user.private def() -> (
-    network "update" "private" user.private.not
+  setting_do "Privacy" w def() -> (
+    subcategory = "Privacy"
   )
   
   set_x 0 : chy#-50
-  setting_do "Update Email: " ++ user.email w def() -> (
+  setting_do "Email: " ++ user.email w def() -> (
     network "update" "email" "Enter Your Email".ask()
   )
   
   set_x 0 : chy#-50
   setting_do "File System Backups" w def() -> (
     subcategory = "Backups"
+  )
+  
+  set_x 0 : chy#-50
+  setting_do "Connections" w def() -> (
+    subcategory = "Connections"
   )
 
   set_x 0 : chy#-50
@@ -1053,17 +1064,14 @@ def "credits" (
     text "Patreon Supporters:" 10 : c#txtc
     supporters = [
       "--- OriginDrive ---",
-      "Vernacular",
-      "Pnada",
+      "ThePandaDev",
       "",
       "--- Supporter ---",
-      "Pablo Estevez",
-      "Milodev123",
-      "",
-      "--- Free ---",
-      "Viofile"
+      "plopa 1",
+      "Random Content Generator",
+      "Milo"
     ]
-      
+
     loc 2 2 10 -100
     count = scroll_y // 20
     loop frame.height // 20 (
@@ -1072,6 +1080,27 @@ def "credits" (
       text supporters[count] 10
     )
     page_len = supporters.len * 20 + 100
+  )
+)
+
+
+def networking() (
+  if new_network_data (
+    if packet.username != "sys-rotur" (
+      new_network_data = false
+      return
+    )
+    switch network_data_command (
+      case "ping"
+        ping.time = timestamp - ping.sent
+        break
+      case "link"
+        if packet.data == "Failed" (
+          say "Unable to link to this account"
+        )
+        break
+    )
+    new_network_data = false
   )
 )
 
@@ -1096,13 +1125,13 @@ files = []
 file_data = ""
 total_files = 0
 contributors = [
-  {"login":"Mistium","avatar_url":"https://avatars.githubusercontent.com/u/92952823?v=4"},
+  {"login":"Mistium","avatar_url":"https://avatars.rotur.dev/mist"},
   {"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},
-  {"login":"RattusDong","avatar_url":"https://avatars.githubusercontent.com/u/147535283?v=4"},
+  {"login":"RattusDong","avatar_url":"https://avatars.rotur.dev/rattusdoong"},
   {"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},
   {"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},
   {"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},
-  {"login":"ThePandaDever","avatar_url":"https://avatars.githubusercontent.com/u/73702185?v=4"},
+  {"login":"ThePandaDever","avatar_url":"https://avatars.rotur.dev/pnada"},
   {"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},
   {"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}
 ]
@@ -1119,6 +1148,7 @@ tier = null
 network_drive = "none"
 gotosubcategory = ""
 current_pfp = ""
+github_data = "Loading"
 if "wallpapers.json".saveExists() (
   wallpapers = "wallpapers.json".saveGet()
 ) else (
@@ -1148,7 +1178,6 @@ themes = {
   "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3","accent":"#f8e0ff"},
 }
 
-
 round_pfp = "w 2 line 11 11 11 -11 cont -11 -11 cont -11 11 cont 11 11 cutcircle 9 9 2 4. 45 cutcircle 9 -9 2 13.5 40 cutcircle -9 9 2 -4.5 45 cutcircle -9 -9 2 -13.5 45"
 
 
@@ -1157,9 +1186,12 @@ system
 ftkeys = file_types.getKeys()
 ftvalues = file_types.getValues()
 
+inputs.bio = user.bio.split("\n")
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 mainloop:
+networking()
+
 glass:frame window.left window.top window.left + 215 window.bottom
 c window_colour
 pen "opacity" 40
