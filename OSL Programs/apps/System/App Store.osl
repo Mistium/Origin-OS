@@ -128,7 +128,7 @@ if page == "APPSTORE// Loading" (
   )
   data = "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/home.json".getAsync()
   if data != "loading" and apps.len > 0 (
-    home_json = data.replace("\n","").JsonParse()
+    home_json = data
     page = "APPSTORE// Store"
   )
 )
