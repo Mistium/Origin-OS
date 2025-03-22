@@ -365,7 +365,7 @@ class OSLUtils {
           let name = randomString(12); // Generate a random identifier
 
           if (match.startsWith(" ") || match.startsWith("(")) {
-            out.push(`this.${name} = ${p1.trim()}`);
+            out.push(`this.${name} @= ${p1.trim()}`);
 
             if (match.startsWith("((")) {
               return `(${name}`;
@@ -376,7 +376,7 @@ class OSLUtils {
             let temp = "Â§" + randomString(32);
             const trimmed = p1.trim();
             if (match[0] === "!") {
-              out.push(`${name} = ${trimmed}`);
+              out.push(`${name} @= ${trimmed}`);
               return "!" + name;
             }
             if (trimmed.match(/^"([^"]|\\")+"$/) || trimmed === "" || trimmed.match(/^\W+$/) || !isNaN(+trimmed)) {
@@ -392,7 +392,7 @@ class OSLUtils {
               if (isStatic(cur)) {
                 methods[temp] = cur;
               } else {
-                out.push(`this.${name} = ${cur}`);
+                out.push(`this.${name} @= ${cur}`);
                 methods[temp] = `${name}`;
               }
               for (let i = 1; i < inputs.length; i++) {
@@ -401,7 +401,7 @@ class OSLUtils {
                 if (isStatic(cur)) {
                   methods[temp] += `,${cur}`;
                 } else {
-                  out.push(`this.${name} = ${cur}`);
+                  out.push(`this.${name} @= ${cur}`);
                   methods[temp] += `,${name}`;
                 }
               }
@@ -410,7 +410,7 @@ class OSLUtils {
               if (isStatic(cur)) {
                 methods[temp] = cur;
               } else {
-                out.push(`this.${name} = ${cur}`);
+                out.push(`this.${name} @= ${cur}`);
                 methods[temp] = name;
               }
             }
