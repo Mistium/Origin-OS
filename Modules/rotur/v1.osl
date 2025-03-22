@@ -1,0 +1,126 @@
+self._subs = {}
+self.subscriptions = () -> (self._subs.getKeys())
+
+def subscribe(room, username) (
+  local current = "rotur.mistium.com".newWebsocket()
+  self._subs[room] = {
+    username,
+    room: room,
+    ws: current,
+    ulist: [],
+    linked: false,
+    onlink: ()->(),
+    onclose: ()->(),
+    onmessage: ()->(),
+    onjoin: ()->(),
+    onleave: ()->()
+  }
+  current.wsSend({
+    "cmd": "handshake",
+    "val": {
+      "language": "OSL",
+      "version": {
+        "editorType": "Origin",
+        "versionNumber": origin.version,
+      },
+    },
+    "listener": "handshake_cfg",
+  })
+  return self._subs[room]
+)
+
+def unSubscribe(room) (
+  local cur = self._subs[room]
+  cur.ws.wsClose()
+  self._subs = self._subs.delete(room)
+)
+
+def isLinked(room) (
+  return self._subs[room].linked
+)
+
+def _handleStatusCode(packet, current) (
+  if packet.listener != "" (
+    switch packet.listener (
+      case "handshake_cfg"
+        current.ws.wsSend({
+          "cmd": "setid",
+          "val": "ori-" ++ current.username,
+          "listener": "username_cfg"
+        })
+        break
+      case "username_cfg"
+        current.ws.wsSend({
+          "cmd": "link",
+          "val":[current.room],
+          "listener":"link"
+        })
+        break
+    )
+  )
+)
+
+def listConnected(room) (
+  return self._subs[room].ulist
+)
+
+def pMessage(room, name, value) (
+  self._subs[room].ws.wsSend({
+    "cmd": "pmsg",
+    "id": name,
+    "val": value
+  })
+)
+  
+def gMessage(room, value) (
+  self._subs[room].ws.wsSend({
+    "cmd": "gmsg",
+    "val": value
+  })
+)
+
+window.on("frame_end", def() -> (
+  local subs @= self._subs
+  local room = ""
+  each room subs.getKeys() (
+    local current @= subs[room]
+    if current.ws.wsOpen().not() (
+      current.onclose()
+      continue
+    )
+    if current.ws.wsHasnew() (
+      local packet = current.ws.wsGetnext()
+      if packet.listener == "link" (
+        current.onlink()
+        current.linked = true
+      )
+      switch packet.cmd (
+        case "statuscode"
+          self._handleStatusCode(packet, current)
+          break
+        case "client_ip"
+          self.ip = packet.val
+          break
+        case "ulist"
+          switch packet.mode (
+            case "set"
+              current.ulist = packet.val.getKeys("username")
+              break
+            case "add"
+              current.ulist = current.ulist.append(packet.val)
+              current.onjoin(packet.val)
+              break
+            case "remove"
+              current.ulist = current.ulist.delete(packet.val)
+              current.onleave(packet.val)
+              break
+          )
+          break
+        case "pmsg"
+        case "gmsg"
+          current.onmessage(packet)
+          break
+      )
+    )
+  )
+).bind(self))
