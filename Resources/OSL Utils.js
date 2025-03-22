@@ -462,7 +462,7 @@ class OSLUtils {
         console.error(e)
         return { type: "unk", data: cur }
       }
-    } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: new TextDecoder().decode(new Uint8Array(cur.split('').map(c => c.charCodeAt(0)))) }
+    } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: cur }
     else if (!isNaN(+cur)) return { type: "num", data: +cur }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
     else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
@@ -549,15 +549,15 @@ class OSLUtils {
           let result;
           switch (node.data) {
             case "^":
-              result = Math.pow(Number(node.left.data), Number(node.right.data));
+              result = +Math.pow(Number(node.left.data), Number(node.right.data));
               break;
             default:
-              result = eval(node.left.data + node.data + node.right.data);
+              result = +eval(node.left.data + node.data + node.right.data);
               break;
           }
           return {
             type: "num",
-            data: String(result)
+            data: +result
           };
         }
       }
