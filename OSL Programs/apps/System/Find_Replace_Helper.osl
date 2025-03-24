@@ -4,7 +4,7 @@ window.resize(700, 480)
 window.show()
 
 if passed_data == "" (
-  window "stop"
+  window.close()
 ) else (
   file "open" passed_data
 )
@@ -38,10 +38,7 @@ if search.len > 0 (
   for i2 cur_search.len (
     i ++
     if cur_search[i2].contains(temp) (
-      arr = []
-      arr.append(cur_search[i2])
-      arr.append(i)
-      list.append(arr)
+      list.append([ cur_search[i2], i ])
     )
   )
   search.trim(loops + 1,-1)
@@ -53,13 +50,13 @@ square 330 30 10 : c#prim
 input 330 23 "replace" "Replace With"
 loc 999 2 0 -213
 square 330 30 10 : c#prim
-if onclick (
+if onclick and list.len > 0 (
   file "get" 4
   file "set" 4 data.replaceFirst(inputs.main, inputs.replace)
   if input_replace.contains(input_main) (
     list[1] = list[1].replaceFirst(inputs.main, inputs.replace)
   ) else (
-    list.unshift()
+    list.shift()
   )
 )
 change_x -30
