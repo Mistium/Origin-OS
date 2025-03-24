@@ -1,7 +1,7 @@
 import "window_tools"
 
-window "dimensions" 700 480
-window "show"
+window.resize(700, 480)
+window.show()
 
 if passed_data == "" (
   window "stop"
@@ -26,15 +26,15 @@ input 330 23 "main" "Find Value"
 loc 999 2 0 -113
 square 330 30 10 : c#prim
 if onclick (
-  temp = input_main
+  temp = inputs.main
   list = []
   i = 0
   file "get" 4
   search = fileGet(4).split("\n")
 )
 if search.len > 0 (
-  loops = min(500,search.len)
-  cur_search = search.trim(1,loops)
+  loops = min(500, search.len)
+  cur_search = search.trim(1, loops)
   for i2 cur_search.len (
     i ++
     if cur_search[i2].contains(temp) (
@@ -55,9 +55,9 @@ loc 999 2 0 -213
 square 330 30 10 : c#prim
 if onclick (
   file "get" 4
-  file "set" 4 data.replaceFirst(input_main,input_replace)
+  file "set" 4 data.replaceFirst(inputs.main, inputs.replace)
   if input_replace.contains(input_main) (
-    list[1] = list[1].replaceFirst(input_main,input_replace)
+    list[1] = list[1].replaceFirst(inputs.main, inputs.replace)
   ) else (
     list.unshift()
   )
@@ -88,7 +88,7 @@ loc -2 2 -15 -15
 icon "close" 0.6 : c#txtc
 
 if clicked (
-  window "stop"
+  window.close()
 )
 loc 2 2 15 -15
 file "render" 1
