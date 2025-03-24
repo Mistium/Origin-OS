@@ -123,6 +123,10 @@ def "add_tab" "url" (
   current_tabs = [obj.id]
 )
 
+def "opentab" "url" (
+  add_tab url
+)
+
 tabs = []
 
 if passed_data != "" (
