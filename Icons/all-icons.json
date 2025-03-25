@@ -3,7 +3,7 @@
     "name": "all-icons",
     "format": ".icn",
     "description": "Combined icon packs",
-    "generated": "2025-03-25T00:35:19.621Z"
+    "generated": "2025-03-25T14:29:07.936Z"
   },
   "data": {
     "slightly-smiling-face": "c #fbba08 w 20 dot 0 0 c #000 w 3 dot -3 3 dot 3 3 cutcircle 0 0 5 18 30",
@@ -125,7 +125,7 @@
     "locked": "w 3 square 0 -2.5 6 6 cutcircle 0 6 3 0 90 line -3 6 -3 4 line 3 6 3 4 line 0 -4 0 -1",
     "locked-full": "w 3 square 0 -2.5 6 6 cutcircle 0 6 3 0 90 line -3 6 -3 4 line 3 6 3 4 cutcircle 0 -1 3 0 90 cutcircle 0 -4.01 3 18 90 w 4 line -3.5 1 -3.5 -6 line 3.5 1 3.5 -6",
     "permissions": "w 3 square 0 -4.5 6 4 cutcircle 0 5 4 1 80 cont 4 1",
-    "rotur": "w 2 ellipse 0 0 7 0.45 100 ellipse 0 0 7 0.45 160 ellipse 0 0 7 0.45 220",
+    "rotur": "w 2 ellipse 0 0 10 0.45 100 ellipse 0 0 10 0.45 160 ellipse 0 0 10 0.45 220",
     "square-full": "w 5 line 5 5 5 -5 line 5 -5 -5 -5 line -5 -5 -5 5 line -5 5 5 5 w 10 dot 0 0",
     "circle-full": "w 20 dot 0 0",
     "circle": "w 2 cutcircle 0 0 10 0 180",
