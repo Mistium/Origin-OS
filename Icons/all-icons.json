@@ -3,7 +3,7 @@
     "name": "all-icons",
     "format": ".icn",
     "description": "Combined icon packs",
-    "generated": "2025-03-25T14:29:07.936Z"
+    "generated": "2025-03-25T14:31:09.134Z"
   },
   "data": {
     "slightly-smiling-face": "c #fbba08 w 20 dot 0 0 c #000 w 3 dot -3 3 dot 3 3 cutcircle 0 0 5 18 30",
@@ -81,7 +81,7 @@
     "dot-grid": "w 5 dot -10 10 dot 0 10 dot 10 10 dot -10 0 dot 0 0n dot 10 0 dot -10 -10 dot 0 -10 dot 10 -10",
     "multitasking": "w 2.5 line -10 5 0 10 cont 10 5 line -10 5 0 0 cont 10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7",
     "power": "w 3 cutcircle 0 0 10 18 130 line 0 4 0 10",
-    "script": "w 4 line 5 10 15 0 line 5 -10 15 0 line -5 10 -15 0 line -5 -10 -15 0",
+    "script": "w 4 line 5 7 10 0 cont 5 -7 line -5 7 -10 0 cont -5 -7",
     "notifications": "w 2.5 cutcircle 0 -6 4 18 80 cutcircle 0 1 7 0 80 line 7 -1 7 2 line -7 -1 -7 2 line -8.5 -5 8.5 -5  line -8.5 -5 -7 -1 line 8.5 -5 7 -1 w 1 cutcircle 0 8.5 1 0 50",
     "sun": "w 2 cutcircle 0 0 5 0 180 w 3 line 10 0 13 0 line -10 0 -13 0 line 0 10 0 13 line 0 -10 0 -13 line 7 -7 10 -10 line 7 7 10 10 line -7 7 -10 10 line -7 -7 -10 -10",
     "moon": "w 2 cutcircle 2 2 10 -13 100 cutcircle 12 10 15 -13 40",
