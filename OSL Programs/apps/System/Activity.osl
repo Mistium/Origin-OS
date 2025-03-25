@@ -203,8 +203,8 @@ if current_tab == "Network" (
     "username    |   " ++ network.username,
     "",
     "- Websocket",
-    "upload      |   " ++ network.upload,
-    "download    |   " ++ network.download,
+    "upload      |   " ++ formatFileSize(network.upload),
+    "download    |   " ++ formatFileSize(network.download),
   ]
   if roturLink.enabled (
     net = roturLink.network
@@ -215,8 +215,8 @@ if current_tab == "Network" (
       "sent        |   " ++ net.packets_sent,
       "",
       "- Data",
-      "received    |   " ++ net.received,
-      "sent        |   " ++ net.sent
+      "received    |   " ++ formatFileSize(net.received),
+      "sent        |   " ++ formatFileSize(net.sent)
     ]
   )
   loc 2 2 60 -60
