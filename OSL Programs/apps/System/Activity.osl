@@ -262,9 +262,9 @@ if current_tab == "Disk" (
     local disk = roturLink.disk
     loc 2 2 60 -200
     text "- Hardware Disk\n" 10
-    text "Free Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
-    text "Disk Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
-    text "Disk Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
+    text "Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
+    text "Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
+    text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
   )
 )
 if mouse_down.not "can = true"
