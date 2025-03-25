@@ -6,5 +6,7 @@
   "discord2":"The second version of the discord package, simple and powerful",
   "brainfuck":"Run brainfuck files and code inside your osl applications",
   "glass":"Origin UI system",
-  "seeded_random":"A simple package for seeded random numbers"
+  "seeded_random":"A simple package for seeded random numbers",
+  "save/v1":"Version one of a simple save data wrapper for osl",
+  "rotur/v1": "A comprehensive package for using the rotur websocket"
 }
