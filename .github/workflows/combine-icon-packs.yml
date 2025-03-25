@@ -1,0 +1,84 @@
+name: Combine Icon Packs
+
+on:
+  push:
+    paths:
+      - 'Icons/Packs/**'
+  workflow_dispatch:
+
+jobs:
+  combine-icon-packs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Combine Icon Packs
+        run: |
+          # Create script to combine the icon packs
+          cat > combine-icons.js << 'EOF'
+          const fs = require('fs');
+          const path = require('path');
+
+          // Directory containing the icon packs
+          const packsDir = 'Icons/Packs';
+          // Output file path
+          const outputFile = 'Icons/all-icons.json';
+
+          // Combined object
+          const combinedIcons = {
+            manifest: {
+              name: "all-icons",
+              format: ".icn",
+              description: "Combined icon packs",
+              generated: new Date().toISOString()
+            },
+            data: {}
+          };
+
+          // Read all .ojip files
+          const packFiles = fs.readdirSync(packsDir)
+            .filter(file => file.endsWith('.ojip'));
+
+          // Process each file
+          packFiles.forEach(file => {
+            try {
+              const filePath = path.join(packsDir, file);
+              const content = fs.readFileSync(filePath, 'utf8');
+              const packData = JSON.parse(content);
+              
+              // Add all icons from this pack
+              if (packData.data) {
+                const packName = packData.manifest?.name || path.basename(file, '.ojip');
+                console.log(`Processing pack: ${packName} (${Object.keys(packData.data).length} icons)`);
+                
+                // Add all icons from this pack to the combined data
+                Object.entries(packData.data).forEach(([iconName, iconData]) => {
+                  combinedIcons.data[iconName] = iconData;
+                });
+              }
+            } catch (error) {
+              console.error(`Error processing file ${file}:`, error);
+            }
+          });
+
+          // Write the combined file
+          fs.writeFileSync(outputFile, JSON.stringify(combinedIcons, null, 2));
+          console.log(`Combined ${Object.keys(combinedIcons.data).length} icons into ${outputFile}`);
+          EOF
+          
+          # Run the script
+          node combine-icons.js
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add Icons/all-icons.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update combined icon pack"
+          git push 
