@@ -3,7 +3,7 @@
     "name": "all-icons",
     "format": ".icn",
     "description": "Combined icon packs",
-    "generated": "2025-03-25T14:34:49.767Z"
+    "generated": "2025-03-25T14:43:39.734Z"
   },
   "data": {
     "pgm": "w 3 cutcircle 0 0 9 0 100 w 3 cutcircle 0 0 8 90 50 w 7 dot 0 0",
@@ -62,7 +62,6 @@
     "eye": "w 3 cutcircle 0 -4 10 0 60 cutcircle 0 4 10 18 60 w 5 dot 0 0",
     "mail": "w 3 line -10 9 -10 -9 cont 10 -9 cont 10 9 cont -10 9 cont 0 0 cont 10 9",
     "edit": "w 4 line -5 10 -10 10 cont -10 -10 cont 10 -10 cont 10 -5 line -2 -2 -2 2 cont 6 10 line -2 -2 2 -2 cont 10 6 cont 6 10",
-    "origin-logo": "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10",
     "thermometer": "w 6 line 0 9 0 -8 w 10 dot 0 -8 w 3 line 9 8 6 8 line 9 3 6 3 line 9 -2 6 -2",
     "tick": "w 4.5 line -10 -3 0 -10 cont 10 10",
     "accounts": "w 2 cutcircle 0 4 5 0 180 cutcircle 0 4 9 18 34 line 5.2 -3.4 8 -10 line -5.2 -3.4 -8 -10 line -8 -10 8 -10",
@@ -99,7 +98,6 @@
     "locked": "w 3 square 0 -2.5 6 6 cutcircle 0 6 3 0 90 line -3 6 -3 4 line 3 6 3 4 line 0 -4 0 -1",
     "locked-full": "w 3 square 0 -2.5 6 6 cutcircle 0 6 3 0 90 line -3 6 -3 4 line 3 6 3 4 cutcircle 0 -1 3 0 90 cutcircle 0 -4.01 3 18 90 w 4 line -3.5 1 -3.5 -6 line 3.5 1 3.5 -6",
     "permissions": "w 3 square 0 -4.5 6 4 cutcircle 0 5 4 1 80 cont 4 1",
-    "rotur": "w 2 ellipse 0 0 10 0.45 100 ellipse 0 0 10 0.45 160 ellipse 0 0 10 0.45 220",
     "square-full": "w 5 line 5 5 5 -5 line 5 -5 -5 -5 line -5 -5 -5 5 line -5 5 5 5 w 10 dot 0 0",
     "circle-full": "w 20 dot 0 0",
     "circle": "w 2 cutcircle 0 0 10 0 180",
@@ -161,9 +159,11 @@
     "flag-demigender": "w 2 c #7f7f7f square 0 9 11 .5 c #c3c3c3 square 0 6 11 .5 c #f9fd73 square 0 3 11 .5 c #ffffff square 0 0 11 .5 c #f9fd73 square 0 -3 11 .5 c #c3c3c3 square 0 -6 11 .5 c #7f7f7f square 0 -9 11 .5",
     "flag-femboy": "w 2 c #d460a7 square 0 9 11 .5 c #e4adcd square 0 6 11 .5 c #ffffff square 0 3 11 .5 c #57cef8 square 0 0 11 .5 c #ffffff square 0 -3 11 .5 c #e4adcd square 0 -6 11 .5 c #d460a7 square 0 -9 11 .5",
     "flag-tomboy": "w 2 c #2f3fb9 square 0 9 11 .5 c #603a02 square 0 6 11 .5 c #ffffff square 0 3 11 .5 c #f3aab5 square 0 0 11 .5 c #ffffff square 0 -3 11 .5 c #603a02 square 0 -6 11 .5 c #2f3fb9 square 0 -9 11 .5",
-    "originOS": "w 2.5 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5.5 150 line -2 -4 -8 -10",
+    "originOS": "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5.5 150 line -2 -4 -8 -10",
+    "origin-logo": "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5.5 150 line -2 -4 -8 -10",
     "oliveOS": "w 0.7 cutcircle 0 0 11 -13.5 173 cutcircle 4 4 5.5 -13.5 160 w 1 cutcircle 4 4 6.2 -13.5 132 w 2.7 cutcircle 0 0 10 -13.5 140 w 5.6 cutcircle 0 0 8.4 -13.5 110 cutcircle 4 4 8.5 -13.5 50",
-    "constellinux": "cutcircle 0 0 15 22.5 70 cutcircle 0 0 5 22.5 70 line 3 3 10 10 cutcircle 0 0 15 4.5 25",
-    "windows": "w 3 line -3 8 -10 6.7 cont -10 2 cont -3 2 cont -3 8 line 10 10 10 2 cont 1 2 cont 1 8.5 cont 10 10 line -3 -8 -10 -6.7 cont -10 -2 cont -3 -2 cont -3 -8 line 10 -10 10 -2 cont 1 -2 cont 1 -8.5 cont 10 -10 w 8 dot 5.5 6 dot 5.5 -6 w 7 dot -6 5 dot -6 -5"
+    "constellinux": "w 4 line 2 2 6 6 cutcircle 0 0 10.5 4.5 25 cutcircle 0 0 3.5 -13.5 70 cutcircle 0 0 10.5 -13.5 70",
+    "windows": "w 3 line -3 8 -10 6.7 cont -10 2 cont -3 2 cont -3 8 line 10 10 10 2 cont 1 2 cont 1 8.5 cont 10 10 line -3 -8 -10 -6.7 cont -10 -2 cont -3 -2 cont -3 -8 line 10 -10 10 -2 cont 1 -2 cont 1 -8.5 cont 10 -10 w 8 dot 5.5 6 dot 5.5 -6 w 7 dot -6 5 dot -6 -5",
+    "rotur": "w 2 ellipse 0 0 10 0.45 100 ellipse 0 0 10 0.45 160 ellipse 0 0 10 0.45 220"
   }
 }
