@@ -31,7 +31,7 @@ window.show()
 window "set_dragbox" []
 window.no_desktop = true
 
-apps = open("user/Applications.folder")
+apps = open("~/Applications") ++ open("/(A) System/User Applications")
 
 total_apps = apps.len
 
