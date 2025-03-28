@@ -365,7 +365,7 @@ class OSLUtils {
           let name = randomString(12); // Generate a random identifier
 
           if (match.startsWith(" ") || match.startsWith("(")) {
-            out.push(`this.${name} = ${p1.trim()}`);
+            out.push(`this.${name} @= ${p1.trim()}`);
 
             if (match.startsWith("((")) {
               return `(${name}`;
@@ -376,7 +376,7 @@ class OSLUtils {
             let temp = "Â§" + randomString(32);
             const trimmed = p1.trim();
             if (match[0] === "!") {
-              out.push(`${name} = ${trimmed}`);
+              out.push(`${name} @= ${trimmed}`);
               return "!" + name;
             }
             if (trimmed.match(/^"([^"]|\\")+"$/) || trimmed === "" || trimmed.match(/^\W+$/) || !isNaN(+trimmed)) {
@@ -392,7 +392,7 @@ class OSLUtils {
               if (isStatic(cur)) {
                 methods[temp] = cur;
               } else {
-                out.push(`this.${name} = ${cur}`);
+                out.push(`this.${name} @= ${cur}`);
                 methods[temp] = `${name}`;
               }
               for (let i = 1; i < inputs.length; i++) {
@@ -401,7 +401,7 @@ class OSLUtils {
                 if (isStatic(cur)) {
                   methods[temp] += `,${cur}`;
                 } else {
-                  out.push(`this.${name} = ${cur}`);
+                  out.push(`this.${name} @= ${cur}`);
                   methods[temp] += `,${name}`;
                 }
               }
@@ -410,7 +410,7 @@ class OSLUtils {
               if (isStatic(cur)) {
                 methods[temp] = cur;
               } else {
-                out.push(`this.${name} = ${cur}`);
+                out.push(`this.${name} @= ${cur}`);
                 methods[temp] = name;
               }
             }
@@ -462,7 +462,7 @@ class OSLUtils {
         console.error(e)
         return { type: "unk", data: cur }
       }
-    } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: new TextDecoder().decode(new Uint8Array(cur.split('').map(c => c.charCodeAt(0)))) }
+    } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: cur }
     else if (!isNaN(+cur)) return { type: "num", data: +cur }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
     else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
@@ -549,15 +549,15 @@ class OSLUtils {
           let result;
           switch (node.data) {
             case "^":
-              result = Math.pow(Number(node.left.data), Number(node.right.data));
+              result = +Math.pow(Number(node.left.data), Number(node.right.data));
               break;
             default:
-              result = eval(node.left.data + node.data + node.right.data);
+              result = +eval(node.left.data + node.data + node.right.data);
               break;
           }
           return {
             type: "num",
-            data: String(result)
+            data: +result
           };
         }
       }

@@ -67,7 +67,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Login.osl",
     "icon": "c #111 w 12 square 0 0 5 5 w 4 c #fff line -2.5 2.5 2.5 0 line -2.5 -2.5 2.5 0",
-    "version":"4.0"
+    "version":"4.1"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Popup.osl",
@@ -102,7 +102,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Find_Replace_Helper.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn edit 0.4",
-    "version":"1.3"
+    "version":"1.5"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Permission_Editor.osl",
@@ -116,7 +116,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Origin_Start.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff w 2 icn power 0.7",
-    "version":"4.3"
+    "version":"4.5"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/File_Info.osl",
@@ -179,7 +179,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "originAssist.osl",
     "icon": "c #6eeb99 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 square 0 0 5 5 c #6eeb99 icn search 0.5",
-    "version":"3.1"
+    "version":"3.2"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Http_Client.osl",
@@ -242,14 +242,14 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Activity.osl",
     "icon": "c #84d5f5 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 w 1.5 c #84d5f5 line -7 0 -6 0 cont -5 2 cont -3 -2 cont -1 5 cont 2 -4 cont 4 0 cont 7 0",
-    "version":"5.8"
+    "version":"6.2"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Summit.osl",
     "path": "Origin/(A) System/User Applications",
     "name": "Summit.osl",
     "icon": "c #6a54b3 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #6a54b3 w 1.5 line -5 -4 -2.5 1 cont -1 -1 line 0 -4 2.7 3 cont 5 -4",
-    "version":"2.2"
+    "version":"2.3"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Studio.osl",

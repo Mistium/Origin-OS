@@ -1,8 +1,7 @@
 import "window_tools"
 
-permission "request" "terminal"
-permission "request" "javascript"
 permission "request" "windows"
+permission "request" "terminal"
 
 window "show"
 window "dimensions" 600 400
@@ -13,7 +12,7 @@ if Windows().getKeys("id").contains(passed_data) (
   activity_info = true
   page = passed_data
 )
-memory = "performance.memory !== undefined".eval()
+memory = roturLink.enabled or "performance.memory !== undefined".eval()
 paused = false
 graph = []
 network_usage = []
@@ -55,6 +54,11 @@ low = 250
 graph = 1000.newArray()
 
 getWindowsData()
+
+
+terminal "disk"
+disk_info = terminal_output
+
 
 mainloop:
 load_theme
@@ -134,7 +138,7 @@ if paused.not() (
   if graph.len > 1000 (
     graph.delete(1)
   )
-  frames = fps.round
+  frames = fps.round()
   if high < frames "high = frames"
   low *= 1.002
   if low > frames "low = frames"
@@ -156,7 +160,7 @@ text delta 10
 loc 2 2 13.5 -190
 text "cpu" 7
 if memory (
-  ram_use = "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)+'%'".eval()
+  ram_use = (roturLink.memory.percent ?? "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)".eval()).round() ++ "%"
   loc 2 2 23 - (ram_use.len * 5) -220
   text ram_use 10
   loc 2 2 13.5 -240
@@ -179,13 +183,13 @@ if onclick (
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
 
-if timer - last_timer > next_update and paused.not (
+if timer - last_timer > next_update and paused.not() (
   last_timer = timer
   dt = delta_time
   getWindowsData()
-  delta = (arrSum(windows_draw_main) / (1000 / fps_limit) * 100).round().clamp(1,100) ++ "%"
+  cpu_percent = (roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)).round().clamp(1,100)
+  delta = cpu_percent ++ "%"
 )
-
 if current_tab == "Performance" (
   minimised_text = "Fps"
   window "responsive" True
@@ -193,42 +197,30 @@ if current_tab == "Performance" (
   graph window_width - 50 frame_height - 50 graph
 )
 if current_tab == "Network" (
-  minimised_text = "Net"
-  window "responsive" False
-  loc 2 2 50 -45
-  x = x_position
-  y = y_position
-  loc -2 -2 0 0
-  terminal "get packetlist"
-  data.trim(1,100)
-  c prim
-  frame x y x_position y_position data.len * 40 - 20
-  count = (scroll_y / 40).round
-  y = scroll_y - 20 + (count * -40)
-  length = data.len
-  loop (frame_height / 40).ceiling.clamp(1,length) (
-    count ++
-    loc 999 2 0 y
-    square frame_width - 20 25 10 1 : c#prim hover_c#seco
-    cur = data[count].destr
-    loc 2 2 30 y
-    payload = cur.payload.str
-    width = window.width - 400 // 7
-    text payload.trim(1,width).toStr() 7 : c#txtc
-    if payload.len > width (
-      text "..." 7
-    )
-    recipient = cur."recipient".str
-    if recipient == "" (
-      recipient = "From -" + cur.source.str
-    ) else (
-      recipient = "Send -" + recipient
-    )
-    recipient = cur.timestamp.destr.timestamp("convert-relative") + "   " + recipient
-    loc -2 2 recipient.len * -7 - 15 y
-    text recipient.toStr() 7
-    y -= 40
+  info = [
+    "connected   |   " ++ network.connected,
+    "server      |   " ++ network.server,
+    "username    |   " ++ network.username,
+    "",
+    "- Websocket",
+    "upload      |   " ++ formatFileSize(network.upload),
+    "download    |   " ++ formatFileSize(network.download),
+  ]
+  if roturLink.enabled (
+    net = roturLink.network
+    info ++= [
+      "",
+      "- Packets",
+      "received    |   " ++ net.packets_received,
+      "sent        |   " ++ net.packets_sent,
+      "",
+      "- Data",
+      "received    |   " ++ formatFileSize(net.received),
+      "sent        |   " ++ formatFileSize(net.sent)
+    ]
   )
+  loc 2 2 60 -60
+  text info.join("\n") 10 : c#txtc
 )
 if current_tab == "Render Info" (
   minimised_text = "Info"
@@ -262,7 +254,18 @@ if current_tab == "Render Info" (
   )
 )
 if current_tab == "Disk" (
-  minimised_text = "Disk"
+  loc 2 2 60 -60
+  text "- Rotur Cloud\n" 10 : c#txtc
+  text disk_info.join("\n") 10
+  
+  if roturLink.enabled (
+    local disk = roturLink.disk
+    loc 2 2 60 -200
+    text "- Hardware Disk\n" 10
+    text "Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
+    text "Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
+    text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
+  )
 )
 if mouse_down.not "can = true"
 frame "clear"
