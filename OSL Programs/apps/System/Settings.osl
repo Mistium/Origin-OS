@@ -1,4 +1,3 @@
-
 import as "glass" from "packages"
 import "window_tools"
 load_theme
@@ -943,6 +942,39 @@ def "apps" (
   page_len = perm_keys.len * ih
 )
 
+def "bluetooth_page" (
+  goto 0 frame.top - 40 + scroll_y
+  w = frame.width - 100
+  local connection = 0
+  local changePage = def() -> (
+    
+  )
+  local devices = roturlink.bluetooth.devices.filter(v -> (v.name != "unknown")).sortBy("rssi").reverse()
+  
+  inputs.bluetooth = roturlink.bluetooth.enabled
+  setting_do devices.len ++ " Devices" w def() -> ()
+  change_y -10
+  
+  each device devices (
+    set_x 0 : chy#-50
+    setting_do device.name w changePage
+    
+    set_x w / 2 - 20
+    connection = ((device.rssi + 100).clamp(0, 100) / 25).round()
+ 
+    icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
+    c txtc
+    icon [
+      "",
+      "w 4 dot 0 -6",
+      "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
+      "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6"
+    ][connection + 1] 0.8
+  )
+  
+  page_len = devices.len + 1 * 50
+)
+
 def "info" (
   loc 9999 2 0 -160
   w = frame.width - 100
@@ -1189,6 +1221,7 @@ ftvalues = file_types.getValues()
 inputs.bio = user.bio.split("\n")
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
+
 mainloop:
 networking()
 
@@ -1220,6 +1253,10 @@ change_y -70
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
+if roturlink.enabled (
+  DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
+)
+
 
 change_y -25
 DrawCategory "Apps" "grid-apps"
@@ -1261,6 +1298,9 @@ switch category (
     break
   case "Network"
     network_page
+    break
+  case "Bluetooth"
+    bluetooth_page
     break
   case "Style"
     appearance
