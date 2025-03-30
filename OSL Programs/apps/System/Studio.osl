@@ -152,6 +152,9 @@ if passed_data == "" (
 ) else (
   change_focus = true
   tabs.append(passed_data)
+  file = open(passed_data, ["name", "type"])
+  current_ohf = compileOHF(getOHF(file[2]))
+  inputs[passed_data] = open(passed_data).split("\n")
 )
 tabs_out = tabs
 sidebar_items = 0
