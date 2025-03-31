@@ -312,6 +312,8 @@ def sidebarButtons(file_uuid, input_name) (
   if onclick (
     path = path[1] ++ "/" ++ path[2] ++ path[3]
     file "set" 4 inputs[input_name].join("\n")
+    recents = "recent_files.json".saveGet()
+    save "recent_files.json" "set" recents.delete(file_uuid).prepend(file_uuid).trim(1,8)
   )
   
   change_y -50
