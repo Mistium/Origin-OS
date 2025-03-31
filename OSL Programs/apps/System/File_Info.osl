@@ -1,14 +1,16 @@
 import as "glass" from "packages"
 import "window_tools"
 
-window "show"
-permission "request" "File Admin"
-file "open" "id" 1
+permission "request" "file admin"
+
+window.show()
+file "open" 1
 tab = "Info"
 
 if passed_data == null (
-  passed_data = parent_file_id
+  passed_data = window.parent.file_uuid
 )
+
 file "open" passed_data
 window "dimensions" 600 500
 file_json = file.str
@@ -22,6 +24,8 @@ edited = file[10].destr
 icon = file[11].destr
 size = file[12].destr
 uuid = file[14]
+
+inputs.icon = icon.split("\n")
 
 file "open" user_folder ++ "/Application Data/permissions.json"
 file_permissions = file[4][uuid]
@@ -105,7 +109,7 @@ if tab == "edit" (
   loc 2 2 20 -70
   text "Actions" 10 : c#txtc
 
-  loc 2 2 100 -120
+  loc 2 2 100 -100
   actions = ["copy","file","open"]
   for count 3 (
     square 160 30 10 1 : c#prim
@@ -113,23 +117,42 @@ if tab == "edit" (
     change_x 245
   )
 
-  loc 2 2 60 -120
+  loc 2 2 60 -100
   text "Copy As Json" 8
   if clicked (
     clipboard "set" file_json.str
   )
 
-  loc 2 2 235 -120
+  loc 2 2 235 -100
   text "Show File" 8
 
-  loc 2 2 420 -120
+  loc 2 2 420 -100
   text "Open File" 8
   if clicked and can (
     file "open" passed_data
     file "start"
     can = False
   )
+  
+  loc 2 2 20 -180
+  text "Edit this file's icn" 10 : c#txtc
+  
+  loc -2 2 -30 -180
+  icon "save" 0.7
+  if onclick (
+    file "open" passed_data "onlyaccess"
+    file "set" 11 inputs.icon.join(" ")
+  )
+  
+  goto window.left / 2 + 40 -50
+  textbox window.width - 260 200 "icon" 10 {
+    bg_colour: prim
+  }
+  goto window.right - 120 -50
+  square 200 200 10 : c#prim
+  icon inputs.icon.join(" ") 10
+  
 )
-can = mouse_down.not
+can = mouse_down.not()
 frame "clear"
 import "win-buttons"
