@@ -723,6 +723,65 @@ def "account" (
     return
   )
   
+  if subcategory == "banners" (
+    page_len = 0
+    goto 0 frame.top - 110 + scroll_y
+    square w 200 10 : c#prim
+    c seco
+    square 50 50 20
+    if mouse_touching (
+      cursor "pointer"
+      if onclick (
+        if user["sys.currency"] >= 10 (
+          local url = "Paste the url of an image to use as your banner".ask()
+          if url.startsWith("https://") (
+            network "update" "banner" url
+          ) else if url == "" (
+            say "Banner purchase aborted"
+          ) else (
+            say "Url must start with https"
+          )
+        ) else (
+          say "You do not have enough credits for this"
+        )
+      )
+    )
+    c txtc
+    icon "add" 1.5
+    change_y 50
+    centext "Add New Banner" 10
+    change_y -100
+    centext "Cost: 10 credits" 10
+    change_y -20
+    centext "You have " ++ user["sys.currency"] ++ " credits" 10
+    
+    change_y -60
+    if user["sys.banners"].len == 0 (
+      centext "No previous banners" 10
+    ) else (
+      centext "Previous 5 banners, switch to these for free" 10
+    )
+    change_y 100
+
+    banners = user["sys.banners"]
+    y = y_position - (100 + (w / 6)) - 20
+    
+    each banner banners (
+      goto 0 y
+      square w w / 3 10 : c#prim
+      image banner w w / 3
+      change w / 2 - 30 w / 6 - 30
+      square 30 30 15 : c#prim
+      if onclick (
+        network "update" "banner" banner
+      )
+      icon "tick" 0.8 : c#txtc
+      y -= w / 3 + 20
+    )
+    page_len = (w / 3 + 20) * banners.len + 250
+    return
+  )
+  
   if subcategory == "connections" (
     local links = user["sys.links"]
     if links.contains("github") and github_data == "Loading" (
@@ -767,9 +826,15 @@ def "account" (
     return
   )
   
-  goto 0 frame.top - 100 + scroll_y
-  image user_icon.toStr() 120 120
-  icon round_pfp 5.8 : c#window_colour
+  goto 0 frame.top - (w / 6) - 10 + scroll_y
+  square w w / 3 10 : c#prim
+  effect "transparency" 70
+  image user.banner w w / 3
+  effect "clear"
+  
+  local pfp_s = w / 3 - 30
+  change_x w / -2 + (pfp_s / 2) + 15
+  image user.pfp pfp_s pfp_s
   if timer - upload_time < 5 and current_pfp != "" (
     direction timer * 300
     icon "cutcircle 0 0 10 0 90" 1 : c#txtc
@@ -790,10 +855,18 @@ def "account" (
     )
   )
   
-  set_x 0 : chy#-100
-  centext username 15 : c#txtc
+  local pos = [x_position + (pfp_s / 2) + 30, y_position + 15]
+  goto pos
   
-  centext user.system + "Account" 10 : chy#-30
+  text username ++ "\n" 15 : c#txtc
+  
+  text user.system + "Account" 10
+  
+  loc -2 2 -70 -30 + scroll_y
+  icon "edit" 0.8
+  if onclick (
+    subcategory = "Banners"
+  )
   
   if current_pfp != "" (
     image current_pfp 0 0
@@ -823,7 +896,7 @@ def "account" (
   
   local bio_data = inputs.bio.join("\n")
   
-  goto w / -2 frame.top - 270 + scroll_y
+  goto w / -2 frame.top - (w / 3) - 70 + scroll_y
   text "Bio (" ++ bio_data.len ++ "/200)"  10
   
   if bio_data != user.bio (
