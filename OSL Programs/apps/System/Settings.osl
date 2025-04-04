@@ -703,7 +703,7 @@ def "appearance" (
 
 def "account" (
   local w = frame.width - 100
-  page_len = 710
+  page_len = 675
   
   goto 0 frame.top - 50 + scroll_y
   
@@ -783,12 +783,11 @@ def "account" (
   )
   
   if subcategory == "connections" (
+    /*
     local links = user["sys.links"]
     if links.contains("github") and github_data == "Loading" (
       github_data = ("https://api.github.com/user/" ++ links.github.id).getAsync()
     )
-    /*
-    page_len = 50
     setting_do "Github: " ++ (links.contains("github") ? github_data.login "Click To Link") w def() -> (
       network "server" "link" {
         service: "github",
@@ -796,7 +795,14 @@ def "account" (
       }
     )
     */
+    page_len = 50
+    goto 0 frame.top + scroll_y + 25
+    
     set_x 0 : chy#-50
+    setting_do "Change Email (" ++ user.email ++ ")" w def() -> (
+      network "update" "email" "Enter Your New Email".ask()
+    )
+    
     return
   )
   
@@ -807,20 +813,22 @@ def "account" (
     )
     set_x 0 : chy#-50
     centext "Public Data:" 10 : c#txtc
-    local items = [
-      "username",
-      "profile picture",
-      "bio",
-      "theming and colours",
-      "rotur credit total",
-      "your rotur operating system",
-      "account creation date"
-    ]
+    local items = {
+      "username": "username",
+      "profile picture": "pfp",
+      "bio": "bio",
+      "theming and colours": "theme",
+      "rotur credit total": "sys.currency",
+      "your rotur operating system": "system",
+      "account creation date": "created"
+    }
     change_y -50
-    for i items.len (
+    local names = items.getKeys()
+    local keys = items.getValues()
+    for i names.len (
       square w 30 10 : c#prim
       set_x w / -2 + 10
-      text items[i] 10 : c#txtc
+      text names[i].toTitle() 10 : c#txtc tooltip#keys[i]
       set_x 0 : chy#-50
     )
     return
@@ -879,25 +887,28 @@ def "account" (
       current_pfp = ""
     )
   )
-  if network.connected and all_badges == "" (
+  if network.connected and ["all_badges","Loading"].contains(all_badges) (
     all_badges = "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json".getAsync()
   )
   if all_badges.istype("object") (
     badges = user["sys.badges"]
-    loc -2 2 -30 -130
+    local w2 = badges.len * 30
+    goto pos[1] + 85 + (w2 * .5) pos[2]
+    square w2 - 5 25 10 : c#prim
+    goto pos[1] + 100 pos[2]
     each badge badges (
       icon all_badges[badge].icon 1.2 : tooltip#badge
       if onclick (
         say all_badges[badge].description
       )
-      change_x -30
+      change_x 30
     )
   )
   
   local bio_data = inputs.bio.join("\n")
   
   goto w / -2 frame.top - (w / 3) - 70 + scroll_y
-  text "Bio (" ++ bio_data.len ++ "/200)"  10
+  text "Bio (" ++ bio_data.len ++ "/200)" 10 : c#txtc
   
   if bio_data != user.bio (
     set_x w / 2 - 10
@@ -918,14 +929,11 @@ def "account" (
     network "update" "password" "Enter Your New Password".ask().hashMD5()
   )
   
+  change_y -20
+  
   set_x 0 : chy#-50
   setting_do "Privacy" w def() -> (
     subcategory = "Privacy"
-  )
-  
-  set_x 0 : chy#-50
-  setting_do "Email: " ++ user.email w def() -> (
-    network "update" "email" "Enter Your Email".ask()
   )
   
   set_x 0 : chy#-50
@@ -937,6 +945,8 @@ def "account" (
   setting_do "Connections" w def() -> (
     subcategory = "Connections"
   )
+  
+  change_y -20
 
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
