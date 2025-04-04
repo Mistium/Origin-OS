@@ -42,12 +42,7 @@ def joinEditSession(id) (
     inputs.share = open(sharing_tab).split("\n")
     share_name = open(sharing_tab, ["name", "type"])
     share_type = share_name[2]
-    current_ohf = getOHF(share_type)
-    if typeof(current_ohf) == "object" (
-      current_ohf = compileOHF(current_ohf)
-    ) else (
-      current_ohf = null
-    )
+    current_ohf = compileOHF(getOHF(share_type))
     share_name = share_name.join("")
     add_tab "^ Live Share"
   )
@@ -461,9 +456,10 @@ if current_studio_page == "Home" (
       square w2 30 15 : c#global_accent
       square w2 30 10 : c#c_seco
     )
-    if onclick (
+    if onclick or "enter".onKeyDown() (
       file "download" input_name
       add_tab data
+      current_ohf = compileOHF(getOHF(input_name.split(".").last()))
     )
     change_x w2 / -2 + 15
   ) else (
