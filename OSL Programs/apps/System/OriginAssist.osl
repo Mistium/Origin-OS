@@ -35,6 +35,9 @@ def searchFiles(this.term) (
 apps = "user/Applications".listFolder()
 
 frames = 0
+
+input "focus" "main"
+
 mainloop:
 
 frames ++
