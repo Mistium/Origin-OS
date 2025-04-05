@@ -192,6 +192,7 @@ def compileOHF(ohf) (
     )
   
     output.parser = ohf.parser ?? {}
+    output.highlighter = ohf.highlighter ?? {}
   ) catch o (
     error o
     return ""
