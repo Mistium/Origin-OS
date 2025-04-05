@@ -95,11 +95,16 @@ def "option" "name,icn_code" (
 def "system" (
   switch subcategory (
     case "none"
+      option "About" "info"
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
       option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
+      option "Time" "alarm-clock"
+      break
+    case "About"
+      info
       break
     case "Display"
       loc 2 2 10 -20
@@ -287,6 +292,16 @@ def "system" (
       break
     case "Keybinds"
       
+      break
+    case "Time"
+      goto 0 frame.top - 40 + scroll_y
+      centext timestamp.timestamp("convert-time") ++ "." ++ timestamp.toStr().right(3) 20 : c#txtc
+      change_y -50
+      centext "Your originOS time is offset by" 10
+      change_y -40
+      centext time.offset ++ "ms" 20
+      change_y -40
+      centext "to make it more accurate" 10
       break
   )
   clicked = false
@@ -658,17 +673,15 @@ def "appearance" (
       loc 2 2 10 -20
       text "Scroll Wheel Speed" 9 : c#txtc
       terminal "get scrollspeed"
-      toggle_invert = data[1] != "-"
-      slider_scrollsp = data.abs.clamp(-10,10)
-      if slider_scrollsp.abs < 1 (
-        if slider_scrollsp > 0 (
-          slider_scrollsp = 1
-        ) else (
-          slider_scrollsp = -1
-        )
+      data = data.toNum()
+      log 1 data
+      if data < 0 (
+        data *= -1
+        toggle_invert = true
       )
+      slider_scrollsp = data.clamp(1,10)
       loc 2 2 10 -90
-      text "Scrolling " ++ ((slider_scrollsp * 10).round / 10) ++ "x speed" 9 : c#txtc
+      text "Scrolling " ++ ((slider_scrollsp * 10).round() / 10) ++ "x speed" 9 : c#txtc
       slider_scrollsp = slider_scrollsp - 1 / 9
       loc 999 2 0 -60
       slider frame_width - 30 20 "scrollsp" 10 : c#prim
@@ -677,9 +690,10 @@ def "appearance" (
       text "Invert Scroll Direction" 9 : c#txtc
       toggle "invert" 20 : c#prim chx#30
       if toggle_invert (
-        temp = slider_scrollsp
-      ) else (
         temp = slider_scrollsp * -1
+        log 2 temp
+      ) else (
+        temp = slider_scrollsp
       )
       terminal "system scrollspeed" + temp
       if temp != user.scrollspeed (
@@ -689,7 +703,7 @@ def "appearance" (
           network "update" "scrollspeed" temp
         )
         c prim
-        if mouse_touching and clicked.not (
+        if mouse_touching and clicked.not() (
           square 200 25 12
         ) else (
           square 200 25 10
@@ -956,6 +970,10 @@ def "account" (
 )
 
 def "apps" (
+
+)
+
+def "permissions" (
   file "open" "user/Application Data/permissions.json" "onlyaccess"
   local perms = fileGet(4)
   if perms.isType("object").not() (
@@ -1059,42 +1077,10 @@ def "bluetooth_page" (
 )
 
 def "info" (
-  loc 9999 2 0 -160
-  w = frame.width - 100
-  h = 280
-  square w h 15 : c#seco
-  square w h 10 : c#prim
-  
-  set_x frame.right - 200
-  c seco
-  icon "origin-logo" 8
-  c txtc
-  loc 2 2 70 -70
-  x = x_position
-  kernel = origin.kernel
-  loc 2 2 0 -50
-  set_x x
-  text "originOS " 15
-  text kernel.name 12
-  set_x x : chy#-20
-  text "Version" + origin.version 9
-  set_x x : chy#-30
-  text "Kernel   |  " ++ kernel.name + kernel.version + kernel["type"] 9
-  set_x x : chy#-20
-  text "Storage  |  " ++ used_big ++ unit 9
-  set_x x : chy#-20
-  text "Used     |  " ++ ((network_drive[1] / 10).round / 100) ++ "kb" 9
-  set_x x : chy#-20
-  text "Screen   |  " ++ screensize_x ++ "x" ++ screensize_y 9
-  set_x x : chy#-20
-
-  if system_url.startsWith("https://origin.mistium.com") (
-    text "Host     |  Official" 9
-  ) else (
-    text "Host     |  Editor" 9
-  )
-  set_x x : chy#-20
-  text "Shell    |  OTS" 9
+  loc 2 2 0 0
+  configtext "lineheight" 0.9
+  text info_string 10 : c#txtc
+  configtext "lineheight" 1
 )
 
 
@@ -1305,6 +1291,11 @@ inputs.bio = user.bio.split("\n")
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 
+
+terminal "info"
+info_string = terminal_output.join("\n")
+
+
 mainloop:
 networking()
 
@@ -1342,11 +1333,11 @@ if roturlink.enabled (
 
 
 change_y -25
-DrawCategory "Apps" "grid-apps"
+// DrawCategory "Apps" "grid-apps"
+DrawCategory "Permissions" "key"
 
 change_y -25
 DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
-DrawCategory "Info" "info"
 
 
 loc 2 2 25 -25
@@ -1391,14 +1382,14 @@ switch category (
   case "Account"
     account
     break
+  case "Permissions"
+    permissions
+    break
   case "Apps"
     apps
     break
   case "credits"
     credits
-    break
-  case "info"
-    info
     break
 )
 
