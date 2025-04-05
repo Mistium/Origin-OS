@@ -7,6 +7,105 @@ save "Studio" "set_directory"
 
 permission "request" "file admin"
 permission "request" "notifications"
+
+class sidebar (
+  mode = "none"
+  fn = () -> ()
+  resize = 0.5
+
+  _resizing = false
+  
+  def frameInnerRender(callback) (
+    if self._resizing and mouse_down.not() (
+      self._resizing = false
+    )
+    if self.mode == "none" (
+      callback()
+      return
+    )
+    local w = self.resize * frame.width
+    
+    local join_x = frame.right - w
+    
+    frame join_x frame.top frame.right frame.bottom (
+      goto 0 0
+      square frame.width frame.height 10 : c#c_prim
+      self.fn()
+    )
+    if abs(mouse_x - join_x) < 20 (
+      cursor "ew-resize"
+      if onclick (
+        self._resizing = true
+      )
+    )
+    frame frame.left frame.top join_x frame.bottom (
+      callback()
+    )
+    if self._resizing (
+      self.resize = frame.right - mouse_x / frame.width
+      self.resize = self.resize.clamp(0.2,0.8)
+    )
+  )
+)
+
+class editor (
+
+  def renderNorm() (
+    goto 0 0
+    c c_prim
+    textbox frame.width window.height - 45 current_tab 0 {
+      line_numbers: {
+        bg_colour: c_prim
+      },
+      text_colour: c_text,
+      ohf: current_ohf
+    }
+  )
+  
+  def renderShare() (
+    window "responsive" true
+    current_studio_page = "Sync"
+    goto 0 0
+    c c_prim
+    textbox frame.width window.height - 45 "share" 0 {
+      line_numbers: {
+        bg_colour: c_prim
+      },
+      text_colour: c_text,
+      ohf: current_ohf
+    }
+
+  
+    if inputs.selected.id == "share" (
+      if inputs.selected.cursor != last_cursor (
+        last_cursor = inputs.selected.cursor
+        rotur.gMessage(edit_connection.room, {
+          cmd: "cursor",
+          data: last_cursor
+        })
+      )
+      if inputs.share.len != last_input_share.len (
+        rotur.gMessage(edit_connection.room, {
+          cmd: "full",
+          data: inputs.share.join("\n")
+        })
+        last_input_share = inputs.share
+      ) else if inputs.share.join("\n") != last_input_share.join("\n") (
+        for i inputs.share.len (
+          if inputs.share[i] != last_input_share[i] (
+            rotur.gMessage(edit_connection.room, {
+              cmd: "line",
+              line: i,
+              data: inputs.share[i].toStr()
+            })
+          )
+        )
+        last_input_share = inputs.share
+      )
+    )
+  )
+)
+
 window.show()
 
 def joinEditSession(id) (
@@ -141,15 +240,20 @@ if "recent_files.json".saveExists() (
 recent_2 = recent.trim(1,10)
 save "recent_files.json" "set" recent_2
 
+def loadFileUUID(uuid) (
+  file = open(uuid, ["name", "type", "data"])
+  current_ohf = compileOHF(getOHF(file[2]))
+  inputs[uuid] = file[3].split("\n")
+  file.pop()
+)
+
 tabs = []
 if passed_data == "" (
   tabs.append("> Welcome")
 ) else (
   change_focus = true
   tabs.append(passed_data)
-  file = open(passed_data, ["name", "type"])
-  current_ohf = compileOHF(getOHF(file[2]))
-  inputs[passed_data] = open(passed_data).split("\n")
+  loadFileUUID(passed_data)
 )
 tabs_out = tabs
 sidebar_items = 0
@@ -300,6 +404,7 @@ def "draw_tabs" (
 )
 
 def sidebarButtons(file_uuid, input_name) (
+  c c_text
   icon "save" 0.8
   square 30 30 12 1 1
   local path = open(file_uuid, ["location", "name", "type"])
@@ -360,6 +465,36 @@ def sidebarButtons(file_uuid, input_name) (
     window.create("find_replace_helper", file_uuid)
   )
   
+  sidebar.mode = "none"
+  switch file_type (
+    case ".icn"
+      sidebar.icn ??= {
+        display: [0,0],
+        last_display: [0,0],
+        mouse: [0,0],
+        zoom: 1
+      }
+      sidebar.mode = ".icn"
+      sidebar.input_name = input_name
+      sidebar.fn = def() -> (
+        if self._resizing.not() (
+          if mouse_down (
+            icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
+          ) else (
+            icn.last_display = icn.display
+            icn.mouse @= [mouse_x, mouse_y]
+          )
+        )
+        if frame.interactable ?? (mouse_x > frame.left) (
+          icn.zoom += scroll_velocity / 10
+        )
+        goto self.icn.display
+        c c_text
+        icon inputs[self.input_name].join(" ") icn.zoom
+      )
+      break
+  )
+  
   change_y -50
   icon "network" 0.8
   if onclick (
@@ -382,13 +517,6 @@ c_tert = theme.tertiary
 c_text = theme.text
 window_colour = theme.background
 
-if new_transmit (
-  if window.children.contains(transmit_source) (
-    add_tab transmit_data
-  )
-  new_transmit = false
-)
-
 if change_focus and start.not() (
   change_focus = false
 )
@@ -399,7 +527,8 @@ if mouse_down.not() "can = true"
 w @= window
 
 goto 0 window.top - 20
-glass:frame w.left w.top w.right w.bottom;frame "clear"
+glass:frame w.left w.top w.right w.bottom
+frame "clear"
 
 frame w.left + 50 w.top w.right - 60 w.top - 40 (
   draw_tabs
@@ -411,12 +540,20 @@ right = w.right - (preview_open ? 400 0)
 goto 22.5 -17.5
 square w.width - 65 w.height - 55 10 : c#window_colour
 
+if new_transmit (
+  if window.children.contains(transmit_source) (
+    add_tab transmit_data
+    loadFileUUID(transmit_data)
+  )
+  new_transmit = false
+)
 
 if file_dropped != 0 (
   if current_tab_target == 0 (
     current_tab_target = tabs.len + 1
   )
   insert_tab current_tab_target file_dropped
+  loadFileUUID(file_dropped)
   current_tab_target = 0
   file_dropped = 0
 )
@@ -590,64 +727,21 @@ if change_focus (
 
 draw_buttons
 
+
+frame window.left + 50 window.top - 40 window.right - 5 window.bottom + 5
 if current_tab.startsWith("^") (
-  window "responsive" true
-  current_studio_page = "Sync"
-  goto 21 -20
-  c c_prim
-  textbox window.width - 60 window.height - 45 "share" 0 {
-    line_numbers: {
-      bg_colour: c_prim
-    },
-    text_colour: c_text,
-    ohf: current_ohf
-  }
-  
-  if inputs.selected.id == "share" (
-    if inputs.selected.cursor != last_cursor (
-      last_cursor = inputs.selected.cursor
-      rotur.gMessage(edit_connection.room, {
-        cmd: "cursor",
-        data: last_cursor
-      })
-    )
-    if inputs.share.len != last_input_share.len (
-      rotur.gMessage(edit_connection.room, {
-        cmd: "full",
-        data: inputs.share.join("\n")
-      })
-      last_input_share = inputs.share
-    ) else if inputs.share.join("\n") != last_input_share.join("\n") (
-      for i inputs.share.len (
-        if inputs.share[i] != last_input_share[i] (
-          rotur.gMessage(edit_connection.room, {
-            cmd: "line",
-            line: i,
-            data: inputs.share[i].toStr()
-          })
-        )
-      )
-      last_input_share = inputs.share
-    )
-  )
+  sidebar.frameInnerRender(editor.renderShare)
+  frame "clear"
   
   loc 2 2 23 -23
   c c_text
   if sharing_tab != "" (
     sidebarButtons(sharing_tab, "share")
   )
-  
 ) else if current_tab == current_studio_page (
-  goto 22 -20
-  c c_prim
-  textbox window.width - 60 window.height - 45 current_tab 0 {
-    line_numbers: {
-      bg_colour: c_prim
-    },
-    text_colour: c_text,
-    ohf: current_ohf
-  }
+  sidebar.frameInnerRender(editor.renderNorm)
   
+  frame "clear"
   loc 2 2 23 -23
   sidebarButtons(current_tab, current_tab)
 )
