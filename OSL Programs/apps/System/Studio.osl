@@ -485,7 +485,7 @@ def sidebarButtons(file_uuid, input_name) (
             icn.mouse @= [mouse_x, mouse_y]
           )
         )
-        if frame.interactable ?? (mouse_x > frame.left) (
+        if frame.interactable (
           icn.zoom += scroll_velocity / 10
         )
         goto self.icn.display
