@@ -477,7 +477,7 @@ def sidebarButtons(file_uuid, input_name) (
       sidebar.mode = ".icn"
       sidebar.input_name = input_name
       sidebar.fn = def() -> (
-        if self._resizing.not() (
+        if self._resizing.not() and frame.interactable (
           if mouse_down (
             icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
           ) else (
