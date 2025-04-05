@@ -256,7 +256,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Studio.osl",
     "icon": "c #8e2d2d w 10 square 0 0 5 5 c #0a0303 w 8 square 0 0 5 5 dot 0 0 c #8e2d2d w 1.5 line 2 3 5 0 cont 2 -3 line -2 3 -5 0 cont -2 -3",
-    "version":"4.6"
+    "version":"4.7"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Contacts.osl",
