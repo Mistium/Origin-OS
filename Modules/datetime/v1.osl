@@ -1,0 +1,58 @@
+class datetime (
+  months = ["January", "February", "March", "April", "May", "June", "July", "August", "October", "November", "December"]
+  suffixes = ["st", "nd", "rd"]
+
+  def addSuffix(num) (
+    return num ++ self.suffixes[num] ?? "th"
+  )
+
+  def format(timestamp, format) (
+    // Year formats
+    format.replace("YYYY", timestamp.timestamp("get-year"))
+    format.replace("YY", timestamp.timestamp("get-year").trim(-2,-1))
+    
+    // Month formats
+    local month = timestamp.timestamp("get-month")
+    format.replace("MMMM", self.months[month])
+    format.replace("MMM", self.months[month].trim(1, 3))
+    format.replace("MM", month.padStart(2, "0"))
+    format.replace("M", month)
+    
+    // Day formats
+    local day = timestamp.timestamp("get-day")
+    format.replace("DD", day.padStart(2, "0"))
+    format.replace("D", day)
+    format.replace("Do", self.addSuffix(day))
+    
+    // Hour formats (24-hour)
+    local hour = timestamp.timestamp("get-hour")
+    format.replace("HH", hour.padStart(2, "0"))
+    format.replace("H", hour)
+    
+    // Hour formats (12-hour)
+    format.replace("hh", timestamp.timestamp("get-hour-12").padStart(2, "0"))
+    format.replace("h", timestamp.timestamp("get-hour-12"))
+    
+    // Minute formats
+    format.replace("mm", timestamp.timestamp("get-minute").padStart(2, "0"))
+    format.replace("m", timestamp.timestamp("get-minute"))
+    
+    // Second formats
+    format.replace("ss", timestamp.timestamp("get-second").padStart(2, "0"))
+    format.replace("s", timestamp.timestamp("get-second"))
+    
+    // Millisecond formats
+    local ms = timestamp.trim(-3,-1)
+    format.replace("SSS", ms.padStart(3, "0"))
+    format.replace("SS", ms.trim(0, 2).padStart(2, "0"))
+    format.replace("S", ms[1])
+    
+    // Unix timestamp formats
+    format.replace("X", round(timestamp * 1000))
+    format.replace("x", timestamp)
+    
+    return format
+  ) 
+)
+
+self = datetime
