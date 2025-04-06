@@ -21,22 +21,21 @@ if data.len != 0 (
     goto x - (width / 2) + 20 y
     dock_len = dock.len
     each app dock (
-      file "open" app "onlyaccess"
+      file = open(app, [2])
       file "render" 1.7 "interactable"
       square 45 45 0 0 1
       if mouse_touching (
         curx = x_position
-        file "get" 2
-        cur = data
+        cur = file[1]
       )
       rightclick "file" app
       change_x 50
     )
   )
+  if cur != last_cur (
+    window "refresh_bg"
+  )
   if cur != "" (
-    if cur != last_cur (
-      window "refresh_bg"
-    )
     goto curx 20
     square cur.len * 8 10 12 : c#000
     change_x cur.len * -4
