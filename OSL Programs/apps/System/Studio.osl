@@ -148,7 +148,7 @@ def joinEditSession(id) (
 )
 
 def getOHF(string type) (
-  type.toUpper()
+  type = type.toUpper()
   if type.startsWith(".") (
     type.trim(2,-1)
   )
@@ -160,11 +160,12 @@ def getOHF(string type) (
     return (type ++ ".ohf").saveGet()
   ) else (
     local OHF = ("https://raw.githubusercontent.com/Mistium/Origin-OS/main/Other/OHF/" ++ type.toUpper() ++ ".ohf").httpGet()
-    if OHF == "404: Not Found" (
+    if OHF == "404: Not Found" and (type ++ ".ohf").saveExists() (
       return (type ++ ".ohf").saveGet()
+    ) else (
+      save type ++ ".ohf" "set" OHF
+      return OHF
     )
-    save type ++ ".ohf" "set" OHF
-    return OHF
   )
 )
 
