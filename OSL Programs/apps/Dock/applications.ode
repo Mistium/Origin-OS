@@ -33,6 +33,7 @@ if data.len != 0 (
     )
   )
   if cur != last_cur (
+    last_cur = cur
     window "refresh_bg"
   )
   if cur != "" (
@@ -40,6 +41,5 @@ if data.len != 0 (
     square cur.len * 8 10 12 : c#000
     change_x cur.len * -4
     text cur 8 : c#fff
-    last_cur = cur
   )
 )
