@@ -15,6 +15,8 @@ each key window.getKeys() (
   )
 )
 
+tabs_queue = []
+
 class sandbox (
   def run(data) (
     local cache = {
@@ -73,9 +75,7 @@ def "add_tab" "url" (
     "history": [url]
   }
   
-  tabs.append(obj)
-  
-  current_tabs = [obj.id]
+  tabs_queue.append(obj)
 )
 
 def "opentab" "url" (
@@ -84,6 +84,10 @@ def "opentab" "url" (
 
 def "draw_page" "url, page_type, tab_id" (
   current_pages.append(url)
+  
+  if url == null (
+    return
+  )
   
   if loaded_pages.contains(url) (
     local page = loaded_pages[url]
@@ -182,7 +186,7 @@ def "page_frame" "left, top, right, bottom, url" (
   goto x y
   c window_colour
   square w h 10
-  
+
   frame left top right bottom tabs[idx].page_len tabs[idx].id (
     local page_type = "text"
  
@@ -366,6 +370,11 @@ local right = window.right - 10
 local w = right - left
 local tab_w = w / current_tabs.len
 local right = left + tab_w
+
+for i tabs_queue.len (
+  tabs.append(tabs_queue.shift())
+)
+current_tabs = [tabs.last().id]
 
 each this.tab current_tabs (
   page_frame left window.top - 10 right window.bottom + 10 tab
