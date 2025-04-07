@@ -1,55 +1,116 @@
 class datetime (
-  months = ["January", "February", "March", "April", "May", "June", "July", "August", "October", "November", "December"]
-  suffixes = ["st", "nd", "rd"]
+  months = [
+    "January", "February", "March", "April", "May", "June",
+    "July", "August", "September", "October", "November", "December"
+  ]
+  
+  mul = { second: 1 }
+  
+  mul.minute = mul.second * 60
+  mul.hour = mul.minute * 60
+  mul.day = mul.hour * 24
+  mul.year = mul.day * 365.25
 
   def addSuffix(num) (
-    return num ++ (self.suffixes[num] ?? "th")
+    // Convert to number if it's a string
+    num = num.toNum()
+    
+    // Handle special cases: 11th, 12th, 13th
+    if num % 100 >= 11 and num % 100 <= 13 (
+      return num + "th"
+    )
+    
+    return num ++ (["st","nd","rd"][num % 10] ?? "th")
+  )
+  
+  def now() (
+    return timestamp
+  )
+  
+  def makeRelative(timestamp) (
+    return timestamp.timestamp("to-relative")
   )
 
   def format(timestamp, format) (
     // convert all to number then back to string to remove padding
+    local year = timestamp.timestamp("get-year")
     local day = timestamp.timestamp("get-day").toNum().toStr()
     local month = timestamp.timestamp("get-month").toNum().toStr()
     local hour = timestamp.timestamp("get-hour").toNum().toStr()
-    local ms = timestamp.trim(-3,-1)
+    local minute = timestamp.timestamp("get-minute").toNum().toStr()
+    local second = timestamp.timestamp("get-second").toNum().toStr()
+    local ms = timestamp.trim(-3, -1)
 
-    // Year formats
-    format.replace("YYYY", timestamp.timestamp("get-year"))
-    format.replace("YY", timestamp.timestamp("get-year").trim(-2,-1))
+    local matches = format.match("/\w+|[^\w]+/gm")
+
+    for i matches.len (
+      local cur = matches[i]
+      switch cur (
+        case === "YYYY"
+          cur = year
+          break
+        case === "YY"
+          cur = year.trim(-2,-1)
+          break
+        case === "MMMM"
+          cur = self.months[month]
+          break
+        case === "MMM"
+          cur = self.months[month].trim(1, 3)
+          break
+        case === "MM"
+          cur = month.padStart("0", 2)
+          break
+        case === "M"
+          cur = month,
+          break
+        case === "DD"
+          cur = day.padStart("0", 2)
+          break
+        case === "Do"
+          cur = self.addSuffix(day)
+          break
+        case === "D"
+          cur = day
+          break
+        case === "HH"
+          cur = hour.padStart("0", 2)
+          break
+        case === "H"
+          cur = hour
+          break
+        case === "mm"
+          cur = minute.padStart("0", 2)
+          break
+        case === "m"
+          cur = minute
+          break
+        case === "ss"
+          cur = second.padStart("0", 2)
+          break
+        case === "s"
+          cur = second
+          break
+        case === "SSS"
+          cur = ms
+          break
+        case === "SS"
+          cur = ms.trim(1, 2)
+          break
+        case === "S"
+          cur = ms[1]
+          break
+        case === "X"
+          cur = round(timestamp / 1000)
+          break
+        case === "x"
+          cur = timestamp
+          break
+      )
+      matches[i] = cur
+    )
     
-    // Month formats
-    format.replace("MMMM", self.months[month])
-    format.replace("MMM", self.months[month].trim(1, 3))
-    format.replace("MM", month.padStart("0", 2))
-    format.replace("M", month)
-    
-    // Day formats
-    format.replace("DD", day.padStart("0", 2))
-    format.replace("D", day)
-    format.replace("Do", self.addSuffix(day))
-    
-    // Hour formats (24-hour)
-    format.replace("HH", hour.padStart("0", 2))
-    format.replace("H", hour)
-    
-    // Minute formats
-    format.replace("mm", timestamp.timestamp("get-minute").padStart("0", 2))
-    format.replace("m", timestamp.timestamp("get-minute"))
-    
-    // Second formats
-    format.replace("ss", timestamp.timestamp("get-second").padStart("0", 2))
-    format.replace("s", timestamp.timestamp("get-second"))
-    
-    // Millisecond formats
-    format.replace("SSS", ms.padStart("0", 3))
-    format.replace("SS", ms.trim(1, 2).padStart("0", 2))
-    format.replace("S", ms[1])
-    
-    // Unix timestamp formats
-    format.replace("X", round(timestamp * 1000))
-    format.replace("x", timestamp)
-    
-    return format
+    return matches.join("")
   )
 )
 
