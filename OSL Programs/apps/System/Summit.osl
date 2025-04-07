@@ -1,11 +1,60 @@
 import "window_tools" as "wt"
 import as "glass" from "packages"
 
-system_url = "https://raw.githubusercontent.com/Mistium/owtp/main/"
+system_url = "https://web.rotur.dev/"
 
 loaded_pages = {}
 current_pages = []
-summit = {}
+summit = {
+  tlds: (system_url ++ "tlds.json").httpGet().JsonParse(),
+}
+
+each key window.getKeys() (
+  if window[key]["type"] == "function" (
+    window[key] = () -> ()
+  )
+)
+
+class sandbox (
+  def run(data) (
+    local cache = {
+      tabs,
+      loaded_pages,
+      my_uuid,
+      my_path,
+      my_location,
+      current_pages,
+      summit
+    }
+    tabs = null
+    loaded_pages = null
+    my_uuid = null
+    my_path = null
+    my_location = null
+    current_pages = null
+    summit = null
+    
+    run data "sandboxed"
+    
+    tabs @= cache.tabs
+    loaded_pages @= cache.loaded_pages
+    my_uuid = cache.my_uuid
+    my_path = cache.my_path
+    my_location = cache.my_location
+    current_pages @= cache.current_pages
+    summit @= cache.summit
+  )
+  
+  def sanitiseOSL(OSL) (
+    for i OSL.len (
+      local line = OSL[i].trim()
+      
+      if line.startsWith("save ") and line.contains("set_directory") (
+        line = ""
+      )
+    )
+  )
+)
 
 permission "request" "file admin"
 
@@ -15,18 +64,64 @@ def "redirect" "url" (
   summit.redirect_url = url
 )
 
+def "add_tab" "url" (
+  local obj = {
+    "title": "Loading",
+    "position": 1,
+    "icon": "refresh",
+    "id": ouidNew(),
+    "history": [url]
+  }
+  
+  tabs.append(obj)
+  
+  current_tabs = [obj.id]
+)
+
+def "opentab" "url" (
+  add_tab url
+)
+
 def "draw_page" "url, page_type, tab_id" (
   current_pages.append(url)
   
   if loaded_pages.contains(url) (
-    onload = loaded_pages[url].onload
-    local data = loaded_pages[url].data
-    if page_type == "osl" (
-      run data "sandboxed"
-    ) else if page_type == "text" (
-      goto 0 0
-      inputs[url] = data
-      textbox frame.width frame.height url
+    local page = loaded_pages[url]
+    local data = page.data
+    
+    onload = page.onload
+    tab_info = null
+    current_tab_name = {
+      title: url.split("/")[1],
+      icon: "network"
+    }
+    
+    switch page_type (
+      case "osl"
+        try (
+          sandbox.run(data)
+          
+          if tab_info != null (
+            current_tab_name = tab_info
+          )
+        ) catch e (
+          say "Page Error: " + url
+          tab.delete(tab_id)
+        )
+        break
+      case "png"
+      case "jpg"
+        image page.fetch_url 500
+        current_tab_name = {
+          "title": url.split("/").last(),
+          "icon": "image" + page.fetch_url + "20"
+        }
+        break
+      default
+        goto 0 0
+        inputs[url] = data
+        textbox frame.width frame.height url
+        break
     )
     if summit.redirect_url != "" (
       if summit.redirect_url.split("/").last().contains(".").not or summit.redirect_url.endsWith(".web") (
@@ -37,6 +132,7 @@ def "draw_page" "url, page_type, tab_id" (
       tabs[tab_id].history = tabs[tab_id].history.append(summit.redirect_url)
       summit.redirect_url = ""
     )
+    
     tabs[tab_id].page_len = page_len
     tabs[tab_id].icon = current_tab_name.icon
     tabs[tab_id].title = current_tab_name.title
@@ -44,15 +140,22 @@ def "draw_page" "url, page_type, tab_id" (
     page_len = 0
     loaded_pages[url].onload = false
   ) else (
-    if page_protocol == "owtp" (
-      local data = (system_url ++ url).getAsync()
+    local fetch_url = ""
+    if page_protocol == "web" (
+      local parts = url.split("/")
+      local current_tld = parts[1].split(".").last()
+      // get the tld of the page
+      fetch_url = "https://" ++ summit.tlds[current_tld] ++ url
+      local data = fetch_url.getAsync()
     ) else if page_protocol == "local" (
       local data = open(url)
     )
     if data != "Loading" (
       loaded_pages[url] = {
-        "data": data.split("\n"),
-        "onload": true
+        data: data.split("\n"),
+        onload: true,
+        vars: {},
+        fetch_url
       }
     )
   )
@@ -90,17 +193,18 @@ def "page_frame" "left, top, right, bottom, url" (
         local page_type = "osl"
       )
     )
-    if url.startsWith("owtp://") (
+    if url.startsWith("web://") (
       if url.endsWith("/") (
         local url = url.trim(1,-2)
       )
-      local url = url.trim(8,-1)
+      local url = url.trim(7,-1)
       if url.endsWith(".osl") (
         local page_type = "osl"
-      )
-      if url.endsWith(".web") (
+      ) else if url.contains("/").not() (
         local page_type = "osl"
         local url ++= "/index.osl"
+      ) else (
+        local page_type = url.split("/").last().split(".").last()
       )
     )
     scroll_y = frame.scroll
@@ -109,53 +213,41 @@ def "page_frame" "left, top, right, bottom, url" (
   )
 )
 
-def "add_tab" "url" (
-  local obj = {
-    "title": "Loading",
-    "position": 1,
-    "icon": "refresh",
-    "id": ouidNew(),
-    "history": [url]
-  }
-  
-  tabs.append(obj)
-  
-  current_tabs = [obj.id]
-)
-
-def "opentab" "url" (
-  add_tab url
-)
-
 tabs = []
 
 if passed_data != "" (
   add_tab "local://" ++ passed_data
 ) else (
-  add_tab "owtp://search.web"
+  add_tab "web://search.web"
 )
 
 current_tabs = [tabs[1].id]
 
 sidebar = {
-  "width":300,
-  "x":-300,
-  "target_x":0,
-  "icons":[
+  width: 300,
+  x: -300,
+  target_x: 0,
+  icons: [
     {
-      "icn":"w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12",
-      "func":"search"
+      icn:  "w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12",
+      func: def() -> (
+        input "focus" "main"
+      )
     },
     {
-      "icn":"left-arrow",
-      "func":"back"
+      icn:  "left-arrow",
+      func: def() -> (
+      
+      )
     },
     {
-      "icn":"right-arrow",
-      "func":"forward"
+      icn:  "right-arrow",
+      func: def() -> (
+      
+      )
     }
   ],
-  "handleSize": def() -> (
+  handleSize: def() -> (
     sidebar.x += sidebar.target_x - sidebar.x / 7
     return sidebar
   ),
@@ -168,6 +260,8 @@ sidebar.main = def() -> (
   if mouse_x < window.left + 30 and onclick (
     sidebar.target_x = 0
   )
+  
+  window "set_dragbox" [[2,2,100 + self.x,0],[2,2,sidebar.width + self.x - 40,-40]]
 
   sidebar.left = window.left + sidebar.x
   
@@ -188,7 +282,10 @@ sidebar.main = def() -> (
     c prim
     square frame.width - 40 30 10
     input frame.width - 50 25 "main" "Enter A URL"
-    if "enter".onpress and selected_input == "main" (
+    if "enter".onKeyDown() and selected_input == "main" (
+      if input_main.contains("://").not() (
+        input_main.prepend("web://")
+      )
       add_tab input_main
       input_main = ""
     )
@@ -198,6 +295,9 @@ sidebar.main = def() -> (
       loc 2 2 25 -25
       each i sidebar.icons (
         icon i.icn 0.7
+        if onclick (
+          i.func()
+        )
         change_x 30
       )
     
@@ -222,11 +322,12 @@ sidebar.main = def() -> (
               )
             )
           )
-          set_x frame.left + 20
+          set_x frame.left + 25
+          square 30 30 10 : c#prim
           icon tab.icon 0.7 : c#txtc
-          text tab.title.trimText(frame.width - 70 / 9) 9 : chx#20
+          text tab.title.trimText(frame.width - 70 / 9) 9 : c#txtc chx#30
           set_x frame.right - 25
-          icon "close" 0.6
+          icon "close" 0.5
           if onclick (
             tabs.delete(i)
           )
