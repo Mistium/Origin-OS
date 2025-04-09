@@ -139,9 +139,10 @@ if page == "APPSTORE// store" (
   w = frame.width - 25
   
   h = w * 0.56
-  goto 0 frame.top - (h/2) - 55 + scroll_y
+  goto 0 frame.top - (h/2) - 51.5 + scroll_y
   local name = home_json.featured.name
-  square w h + 80 15
+  square w h + 80 15 : chy#2.5
+  change_y -2.5
   if onclick (
     page = home_json.featured.name
     app_tab = "Description"
@@ -169,7 +170,7 @@ if page == "APPSTORE// store" (
   text author 10
   
   stretch [100,100]
-  change_y -87
+  change_y -83
   each app home_json.tiles (
     set_x 0
     square w 30 15 : c#window_colour
@@ -185,7 +186,7 @@ if page == "APPSTORE// store" (
     change_y -50
   )
   
-  len = h + 150 + (home_json.tiles.len * 30)
+  len = h + 163 + (home_json.tiles.len * 30)
 )
 
 if page == "APPSTORE// List" (
