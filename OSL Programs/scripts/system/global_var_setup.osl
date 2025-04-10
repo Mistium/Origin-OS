@@ -1,5 +1,5 @@
 global "days" ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"]
-global "months" ["January","February","March","April","May","June","July","August","October","November","December"]
+global "months" ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
 global "user" 0
 global "username" "Not Logged In"
 global "mouse_down" false
