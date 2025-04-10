@@ -3,7 +3,7 @@
     "name": "all-icons",
     "format": ".icn",
     "description": "Combined icon packs",
-    "generated": "2025-03-25T23:16:27.821Z"
+    "generated": "2025-04-05T16:56:01.109Z"
   },
   "data": {
     "pgm": "w 3 cutcircle 0 0 9 0 100 w 3 cutcircle 0 0 8 90 50 w 7 dot 0 0",
@@ -89,6 +89,8 @@
     "sync": "w 4 cutcircle 0 0 10 -4 65 line 0 15 4.5 9 cont -1 5 cutcircle 0 0 10 14 65 line 0 -15 -4.5 -9 cont 1 -5",
     "controller": "w 5 line 6 6 8 6 line -6 6 -8 6 w 7 line 7 5 10 -7 line -7 5 -10 -7 line -6 3 6 3 line -7 -1 7 -1",
     "microphone": "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8",
+    "headphones": "w 2.5 cutcircle 0 0 10 0 90 line -10 0 -10 -10 cont -5 -10 cont -5 -3 cont -10 -3 line 10 0 10 -10 cont 5 -10 cont 5 -3 cont 10 -3",
+    "headphones-full": "w 2.5 cutcircle 0 0 10 0 90 line -10 0 -10 -10 cont -5 -10 cont -5 -3 cont -10 -3 line 10 0 10 -10 cont 5 -10 cont 5 -3 cont 10 -3 w 4 line 7.5 -5 7.5 -8 line -7.5 -5 -7.5 -8",
     "sound": "w 2.5 line -9 3 -5 3 cont -1 7 cont -1 -7 cont -5 -3 cont -9 -3 cont -9 3 cutcircle 1 0 4 9 60 cutcircle 1 0 8 9 60 line -3 4 -3 -4 w 8 dot -5 0",
     "network": "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
     "book": "w 2.75 line 0 5 10 10 cont 10 -5 cont 0 -10 cont 0 5 cont -10 10 cont -10 -5 cont 0 -10 line -6 3 -4 2 line -6 -2 -4 -3 line 6 3 4 2 line 6 -2 4 -3",

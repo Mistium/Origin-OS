@@ -1,0 +1,43 @@
+{
+  "manifest": {
+    "name": "json",
+    "version": "1",
+    "extensions": [
+      ".json"
+    ]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "\"(?:[^\\\\\"]*|\\\\.)*(?:\\\"|$)|[\\[\\]{}]|[:,]|\\b(?:true|false|null)\\b|-?(?:0|[1-9]\\d*)(?:\\.\\d+)?(?:[eE][+-]?\\d+)?|\\s+"
+  },
+  "overrides": {
+    "origin.numbers": "#aa68bc",
+    "origin.strings": "#b89b64"
+  },
+  "categories": {
+    "brackets": {
+      "color": "#ffd800",
+      "tokens": [
+        "}",
+        "{",
+        "]",
+        "["
+      ]
+    },
+    "separators": {
+      "color": "#ffd800",
+      "tokens": [
+        ":",
+        ","
+      ]
+    },
+    "booleans": {
+      "color": "#408088",
+      "tokens": [
+        "true",
+        "false",
+        "null"
+      ]
+    }
+  }
+}

@@ -8,5 +8,6 @@
   "glass":"Origin UI system",
   "seeded_random":"A simple package for seeded random numbers",
   "save/v1":"Version one of a simple save data wrapper for osl",
-  "rotur/v1": "A comprehensive package for using the rotur websocket"
+  "rotur/v1": "A comprehensive package for using the rotur websocket",
+  "datetime/v1": "Simple date formatting"
 }
