@@ -28,65 +28,76 @@ jobs:
           const { execSync } = require('child_process');
 
           const versionsDir = 'Versions';
-          const keepMonths = 5;
-          const minVersions = 5;
 
           if (!fs.existsSync(versionsDir)) {
             console.log(`Directory ${versionsDir} does not exist. Exiting.`);
             process.exit(0);
           }
 
-          const versions = [];
           const files = fs.readdirSync(versionsDir);
-
-          files.forEach(file => {
-            const filePath = path.join(versionsDir, file);
-            
-            if (fs.statSync(filePath).isDirectory()) {
-              const stats = fs.statSync(filePath);
-              const modTime = stats.mtime;
-              
-              versions.push({
-                path: filePath,
-                name: file,
-                time: modTime
-              });
-            }
-          });
-
-          if (versions.length <= minVersions) {
-            console.log(`Only ${versions.length} versions found. Keeping all versions.`);
+          
+          // Filter only version files (originv*.*.*.html)
+          const versionFiles = files.filter(file => 
+            file.match(/^originv\d+\.\d+\.\d+\.html$/)
+          );
+          
+          if (versionFiles.length <= 5) {
+            console.log(`Only ${versionFiles.length} version files found. Keeping all versions.`);
             process.exit(0);
           }
-
-          versions.sort((a, b) => b.time - a.time);
-
-          const keepVersions = versions.slice(0, minVersions);
-          const candidateVersions = versions.slice(minVersions);
-
-          const cutoffDate = new Date();
-          cutoffDate.setMonth(cutoffDate.getMonth() - keepMonths);
-
-          candidateVersions.forEach(version => {
-            if (version.time >= cutoffDate) {
-              keepVersions.push(version);
+          
+          // Parse version numbers for proper sorting
+          const parsedVersions = versionFiles.map(file => {
+            const versionMatch = file.match(/^originv(\d+)\.(\d+)\.(\d+)\.html$/);
+            if (versionMatch) {
+              const [fullMatch, major, minor, patch] = versionMatch;
+              return {
+                filename: file,
+                path: path.join(versionsDir, file),
+                version: [parseInt(major), parseInt(minor), parseInt(patch)]
+              };
             }
-          });
-
-          const removeVersions = versions.filter(v => 
-            !keepVersions.some(kv => kv.path === v.path)
-          );
-
-          removeVersions.forEach(version => {
-            console.log(`Removing old version: ${version.name} (from ${version.time.toISOString().split('T')[0]})`);
-            try {
-              execSync(`rm -rf \"${version.path}\"`);
-            } catch (error) {
-              console.error(`Error removing ${version.path}: ${error.message}`);
+            return null;
+          }).filter(v => v !== null);
+          
+          // Sort versions in descending order (newest first)
+          parsedVersions.sort((a, b) => {
+            // Compare major version
+            if (a.version[0] !== b.version[0]) {
+              return b.version[0] - a.version[0];
             }
+            // Compare minor version
+            if (a.version[1] !== b.version[1]) {
+              return b.version[1] - a.version[1];
+            }
+            // Compare patch version
+            return b.version[2] - a.version[2];
           });
-
-          console.log(`Cleanup complete. Removed ${removeVersions.length} old versions, kept ${keepVersions.length} versions.`);
+          
+          // Keep only the 5 most recent versions
+          const keepVersions = parsedVersions.slice(0, 5);
+          const removeVersions = parsedVersions.slice(5);
+          
+          // Display the versions we're keeping
+          console.log('Keeping the following versions:');
+          keepVersions.forEach(v => {
+            console.log(`- ${v.filename}`);
+          });
+          
+          // Remove old versions
+          if (removeVersions.length > 0) {
+            console.log('\\nRemoving the following versions:');
+            removeVersions.forEach(version => {
+              console.log(`- ${version.filename}`);
+              try {
+                fs.unlinkSync(version.path);
+              } catch (error) {
+                console.error(`Error removing ${version.path}: ${error.message}`);
+              }
+            });
+          }
+          
+          console.log(`\\nCleanup complete. Removed ${removeVersions.length} old versions, kept ${keepVersions.length} versions.`);
           "
       
       - name: Commit changes if any files were removed
@@ -96,7 +107,7 @@ jobs:
           
           if [[ -n $(git status -s) ]]; then
             git add -A
-            git commit -m "Automated cleanup of old versions"
+            git commit -m "Automated cleanup of old versions - keeping 5 most recent"
             git push
           else
             echo "No changes to commit"
