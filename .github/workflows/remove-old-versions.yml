@@ -1,0 +1,103 @@
+name: Cleanup Old Versions
+
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Run version cleanup script
+        run: |
+          node -e "
+          const fs = require('fs');
+          const path = require('path');
+          const { execSync } = require('child_process');
+
+          const versionsDir = 'Versions';
+          const keepMonths = 5;
+          const minVersions = 5;
+
+          if (!fs.existsSync(versionsDir)) {
+            console.log(`Directory ${versionsDir} does not exist. Exiting.`);
+            process.exit(0);
+          }
+
+          const versions = [];
+          const files = fs.readdirSync(versionsDir);
+
+          files.forEach(file => {
+            const filePath = path.join(versionsDir, file);
+            
+            if (fs.statSync(filePath).isDirectory()) {
+              const stats = fs.statSync(filePath);
+              const modTime = stats.mtime;
+              
+              versions.push({
+                path: filePath,
+                name: file,
+                time: modTime
+              });
+            }
+          });
+
+          if (versions.length <= minVersions) {
+            console.log(`Only ${versions.length} versions found. Keeping all versions.`);
+            process.exit(0);
+          }
+
+          versions.sort((a, b) => b.time - a.time);
+
+          const keepVersions = versions.slice(0, minVersions);
+          const candidateVersions = versions.slice(minVersions);
+
+          const cutoffDate = new Date();
+          cutoffDate.setMonth(cutoffDate.getMonth() - keepMonths);
+
+          candidateVersions.forEach(version => {
+            if (version.time >= cutoffDate) {
+              keepVersions.push(version);
+            }
+          });
+
+          const removeVersions = versions.filter(v => 
+            !keepVersions.some(kv => kv.path === v.path)
+          );
+
+          removeVersions.forEach(version => {
+            console.log(`Removing old version: ${version.name} (from ${version.time.toISOString().split('T')[0]})`);
+            try {
+              execSync(`rm -rf \"${version.path}\"`);
+            } catch (error) {
+              console.error(`Error removing ${version.path}: ${error.message}`);
+            }
+          });
+
+          console.log(`Cleanup complete. Removed ${removeVersions.length} old versions, kept ${keepVersions.length} versions.`);
+          "
+      
+      - name: Commit changes if any files were removed
+        run: |
+          git config --global user.name "GitHub Action"
+          git config --global user.email "action@github.com"
+          
+          if [[ -n $(git status -s) ]]; then
+            git add -A
+            git commit -m "Automated cleanup of old versions"
+            git push
+          else
+            echo "No changes to commit"
+          fi
