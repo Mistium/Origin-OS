@@ -1,16 +1,240 @@
+import "rotur/v1" from "packages" as "rotur"
 import as "glass" from "packages"
 
 file "use_type" "txt"
 
+save "Studio" "set_directory"
+
 permission "request" "file admin"
-window "show"
-"Studio".roturConnect()
+permission "request" "notifications"
+
+class sidebar (
+  mode = "none"
+  fn = () -> ()
+  resize = 0.5
+
+  _resizing = false
+  
+  def frameInnerRender(callback) (
+    if self._resizing and mouse_down.not() (
+      self._resizing = false
+    )
+    if self.mode == "none" (
+      callback()
+      return
+    )
+    local w = self.resize * frame.width
+    
+    local join_x = frame.right - w
+    
+    frame join_x frame.top frame.right frame.bottom (
+      goto 0 0
+      square frame.width frame.height 10 : c#c_prim
+      self.fn()
+    )
+    if abs(mouse_x - join_x) < 20 (
+      cursor "ew-resize"
+      if onclick (
+        self._resizing = true
+      )
+    )
+    frame frame.left frame.top join_x frame.bottom (
+      callback()
+    )
+    if self._resizing (
+      self.resize = frame.right - mouse_x / frame.width
+      self.resize = self.resize.clamp(0.2,0.8)
+    )
+  )
+)
+
+class editor (
+
+  def renderNorm() (
+    goto 0 0
+    c c_prim
+    textbox frame.width window.height - 45 current_tab 0 {
+      line_numbers: {
+        bg_colour: c_prim
+      },
+      text_colour: c_text,
+      ohf: current_ohf
+    }
+  )
+  
+  def renderShare() (
+    window "responsive" true
+    current_studio_page = "Sync"
+    goto 0 0
+    c c_prim
+    textbox frame.width window.height - 45 "share" 0 {
+      line_numbers: {
+        bg_colour: c_prim
+      },
+      text_colour: c_text,
+      ohf: current_ohf
+    }
+
+  
+    if inputs.selected.id == "share" (
+      if inputs.selected.cursor != last_cursor (
+        last_cursor = inputs.selected.cursor
+        rotur.gMessage(edit_connection.room, {
+          cmd: "cursor",
+          data: last_cursor
+        })
+      )
+      if inputs.share.len != last_input_share.len (
+        rotur.gMessage(edit_connection.room, {
+          cmd: "full",
+          data: inputs.share.join("\n")
+        })
+        last_input_share = inputs.share
+      ) else if inputs.share.join("\n") != last_input_share.join("\n") (
+        for i inputs.share.len (
+          if inputs.share[i] != last_input_share[i] (
+            rotur.gMessage(edit_connection.room, {
+              cmd: "line",
+              line: i,
+              data: inputs.share[i].toStr()
+            })
+          )
+        )
+        last_input_share = inputs.share
+      )
+    )
+  )
+)
+
+window.show()
+
+def joinEditSession(id) (
+  if edit_connection != null (
+    rotur.unSubscribe(edit_connection.room)
+  )
+  edit_connection @= rotur.subscribe(id, my_id)
+  edit_connection.onmessage = def(packet) -> (
+    switch packet.val.cmd (
+      case "full"
+        inputs.share = packet.val.data.split("\n")
+        last_input_share = inputs.share
+        break
+      case "reqfull"
+        rotur.gMessage(edit_connection.room, {cmd:"full", data: inputs.share.join("\n")})
+        break
+      case "rename"
+        share_name = packet.val.name
+        break
+      case "line"
+        inputs.share[packet.val.line] = packet.val.data
+        last_input_share[packet.val.line] = packet.val.data
+        break
+      case "cursor"
+        cursors[packet.origin] = packet.val
+        break
+    )
+  )
+  edit_connection.onclose = def() -> (
+    joinEditSession(edit_connection.room) 
+  )
+  edit_connection.onjoin = def() -> (
+    inputs.share = open(sharing_tab).split("\n")
+    share_name = open(sharing_tab, ["name", "type"])
+    share_type = share_name[2]
+    current_ohf = compileOHF(getOHF(share_type))
+    share_name = share_name.join("")
+    add_tab "^ Live Share"
+  )
+)
+
+def getOHF(string type) (
+  type = type.toUpper()
+  if type.startsWith(".") (
+    type.trim(2,-1)
+  )
+  local load_save = false
+  if (type ++ ".ohf").saveExists() (
+    load_save = timestamp - (type ++ ".ohf").saveGet(10) < 86400000
+  )
+  if load_save (
+    return (type ++ ".ohf").saveGet()
+  ) else (
+    local OHF = ("https://raw.githubusercontent.com/Mistium/Origin-OS/main/Other/OHF/" ++ type.toUpper() ++ ".ohf").httpGet()
+    if OHF == "404: Not Found" and (type ++ ".ohf").saveExists() (
+      return (type ++ ".ohf").saveGet()
+    ) else (
+      save type ++ ".ohf" "set" OHF
+      return OHF
+    )
+  )
+)
+
+def compileOHF(ohf) (
+  if typeof(ohf) != "object" (
+    return ""
+  )
+  
+  local output = {
+    tokens: {},
+    overrides: {},
+    parser: {}
+  }
+
+  try (
+    if ohf.categories != null (
+      each o ohf.categories.getValues() (
+        each r o.tokens (
+          output.tokens["tkn:" ++ r] = o.color
+        )
+      )
+    )
+  
+    if ohf.overrides != null (
+      each o ohf.overrides.getKeys() (
+        output.overrides[o] = ohf.overrides[o]
+      )
+    )
+  
+    output.parser = ohf.parser ?? {}
+    output.highlighter = ohf.highlighter ?? {}
+  ) catch o (
+    error o
+    return ""
+  )
+
+  return output
+)
+
+host = false
+my_id = ouidNew().trim(1,3)
+
+edit_session = null
+edit_connection = null
+sharing_tab = null
+share_name = null
+
+last_cursor = ""
+last_share_input = ""
+
+invites = {}
+connection = {}
+def setupRotur() (
+  connection @= rotur.subscribe("Studio", my_id)
+  connection.onmessage = def(packet) -> (
+    if packet.val.cmd == "join" (
+      invites[packet.origin.username] = packet
+    )
+  )
+  connection.onclose = def() -> (
+    setupRotur()
+  )
+)
+
+setupRotur()
 
 change_focus = true
 current_tab_target = 0
 removed = false
-
-save "Studio" "set_directory"
 
 if "recent_files.json".saveExists() (
   recent = "recent_files.json".saveGet()
@@ -21,12 +245,20 @@ if "recent_files.json".saveExists() (
 recent_2 = recent.trim(1,10)
 save "recent_files.json" "set" recent_2
 
+def loadFileUUID(uuid) (
+  file = open(uuid, ["name", "type", "data"])
+  current_ohf = compileOHF(getOHF(file[2]))
+  inputs[uuid] = file[3].split("\n")
+  file.pop()
+)
+
 tabs = []
 if passed_data == "" (
   tabs.append("> Welcome")
 ) else (
   change_focus = true
   tabs.append(passed_data)
+  loadFileUUID(passed_data)
 )
 tabs_out = tabs
 sidebar_items = 0
@@ -80,10 +312,17 @@ def "draw_tabs" (
     tabs_out = tabs
   )
   
+  if edit_connection != null (
+    tabs_out = tabs
+  )
+  
   each i tab tabs (
     tw = 0
     if tab.startsWith("> ") (
       tab_name = tab.trim(3,-1)
+      file = false
+    ) else if tab.startsWith("^") (
+      tab_name = "Live Share (" ++ share_name ++ ")"
       file = false
     ) else (
       file "open" tab "onlyaccess"
@@ -139,6 +378,9 @@ def "draw_tabs" (
     if removed (
       window "refresh_bg"
       change_focus = true
+      if edit_connection != null (
+        rotur.unSubscribe(edit_connection.room)
+      )
       if i > 1 (
         prev = tabs[i - 1]
       ) else (
@@ -156,17 +398,126 @@ def "draw_tabs" (
     x += tw
   )
   tabs = tabs_out
-  icon "add" 0.6 : chx#30 c#c_text
-  if onclick (
-    add_tab "> Welcome"
+  if edit_connection == null (
+    icon "add" 0.6 : chx#30 c#c_text
+    if onclick (
+      add_tab "> Welcome"
+    )
   )
+  tabs = tabs_out 
   dragbox[1][3] = x + frame.right + 80
+)
+
+def sidebarButtons(file_uuid, input_name) (
+  c c_text
+  icon "save" 0.8
+  square 30 30 12 1 1
+  local path = open(file_uuid, ["location", "name", "type"])
+  local file_type = path[3]
+  if onclick (
+    path = path[1] ++ "/" ++ path[2] ++ path[3]
+    file "set" 4 inputs[input_name].join("\n")
+    recents = "recent_files.json".saveGet()
+    save "recent_files.json" "set" recents.delete(file_uuid).prepend(file_uuid).trim(1,8)
+  )
+  
+  change_y -50
+  if [".osl",".oasm",".py",".js",".bf",".owf",".ots"].contains(file_type) (
+    icon "play" 0.8
+    square 30 30 12 1 1
+    if onclick (
+      local code = inputs[input_name].join("\n")
+      switch share_type (
+        case ".py"
+          py code
+          script_output = data
+          break
+        case ".js"
+          script_output = code.eval()
+          break
+        default
+          file "open" file_uuid "onlyaccess"
+          file "start"
+          file "close"
+      )
+    )
+    change_y -50
+  )
+  if [".json", ".ohf", ".ojff"].contains(file_type) (
+    if inputs[input_name].len == 1 (
+      icon "line -10 10 5 10 line 0 2.5 10 2.5 line 0 -5 10 -5" 0.6
+      if onclick (
+        inputs[input_name] = inputs[input_name][1].JsonParse().JsonFormat().split("\n")
+      )
+    ) else (
+      icon "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" 0.6
+      if onclick (
+        inputs[input_name] = [inputs[input_name].join("\n").JsonParse().toStr()]
+      )
+    )
+    change_y -50
+  )
+  
+  icon "rename" 0.8
+  square 30 30 12 1 1
+  if onclick (
+    window.create("rename-helper", file_uuid)
+  )
+  
+  change_y -50
+  icon "search" 0.8
+  if onclick (
+    window.create("find_replace_helper", file_uuid)
+  )
+  
+  sidebar.mode = "none"
+  switch file_type (
+    case ".icn"
+      sidebar.icn ??= {
+        display: [0,0],
+        last_display: [0,0],
+        mouse: [0,0],
+        zoom: 1
+      }
+      sidebar.mode = ".icn"
+      sidebar.input_name = input_name
+      sidebar.fn = def() -> (
+        if frame.interactable == "" (
+          frame.interactable = mouse_x > frame.left
+        )
+        if self._resizing.not() and frame.interactable (
+          if mouse_down (
+            icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
+          ) else (
+            icn.last_display = icn.display
+            icn.mouse @= [mouse_x, mouse_y]
+          )
+        )
+        if frame.interactable (
+          icn.zoom += scroll_velocity / 10
+        )
+        goto self.icn.display
+        c c_text
+        icon inputs[self.input_name].join(" ") icn.zoom
+      )
+      break
+  )
+  
+  change_y -50
+  icon "network" 0.8
+  if onclick (
+    add_tab "> invite"
+    start = true
+  )
 )
 
 sharing_with = null
 
 start = true
+
 mainloop:
+
+window "responsive" false
 theme = user.theme
 c_prim = theme.primary
 c_seco = theme.secondary
@@ -174,40 +525,43 @@ c_tert = theme.tertiary
 c_text = theme.text
 window_colour = theme.background
 
-if new_transmit (
-  if window.children.contains(transmit_source) (
-    add_tab transmit_data
-  )
-  new_transmit = false
-)
-
-if change_focus and start.not (
+if change_focus and start.not() (
   change_focus = false
 )
 start = false
 
-if mouse_down.not "can = true"
+if mouse_down.not() "can = true"
 
-w = window
+w @= window
 
 goto 0 window.top - 20
-glass:frame w.left w.top w.right w.bottom;frame "clear"
-
-frame w.left + 50 w.top w.right - 60 w.top - 40
-draw_tabs
-window "set_dragbox" dragbox
+glass:frame w.left w.top w.right w.bottom
 frame "clear"
+
+frame w.left + 50 w.top w.right - 60 w.top - 40 (
+  draw_tabs
+  window "set_dragbox" dragbox
+)
 
 right = w.right - (preview_open ? 400 0)
 
 goto 22.5 -17.5
 square w.width - 65 w.height - 55 10 : c#window_colour
 
+if new_transmit (
+  if window.children.contains(transmit_source) (
+    add_tab transmit_data
+    loadFileUUID(transmit_data)
+  )
+  new_transmit = false
+)
+
 if file_dropped != 0 (
   if current_tab_target == 0 (
     current_tab_target = tabs.len + 1
   )
   insert_tab current_tab_target file_dropped
+  loadFileUUID(file_dropped)
   current_tab_target = 0
   file_dropped = 0
 )
@@ -229,6 +583,14 @@ if current_studio_page == "Home" (
   change_x w2 / -2 + 10
   text "Open File" 9 : c#c_text
 
+  loc 2 2 w / 2 + 50 -340
+  square w2 30 10 : c#c_seco
+  if onclick (
+    add_tab "> Invite"
+  )
+  change_x w2 / -2 + 10
+  text "Live Share" 9 : c#c_text
+
   loc 2 2 w / 2 + 50 -125
   square w2 30 10 : c#c_prim
   input w2 - 10 25 "name" "hello world.txt" 10 c_text
@@ -239,9 +601,10 @@ if current_studio_page == "Home" (
       square w2 30 15 : c#global_accent
       square w2 30 10 : c#c_seco
     )
-    if selected_input == "name" and "enter".onpress or onclick (
+    if onclick or "enter".onKeyDown() (
       file "download" input_name
       add_tab data
+      current_ohf = compileOHF(getOHF(input_name.split(".").last()))
     )
     change_x w2 / -2 + 15
   ) else (
@@ -259,23 +622,22 @@ if current_studio_page == "Home" (
     y = count * -55 + 25 + scroll_y
     loc 999 2 0 y
     square w 30 10 : c#c_prim cursor#pointer
-    cur = recent_2[count]
+    cur = recent_2[count].toStr()
+    file = open(cur, [2, 1])
     if mouse_touching (
       square w 30 15 : c#c_seco
       square w 30 10 : c#c_prim
       if onclick (
-        add_tab cur.toStr()
+        add_tab cur
+        current_ohf = compileOHF(getOHF(file[2]))
+        inputs[cur] = open(cur).split("\n")
       )
     )
-    change w / -2 + 15
-    file "open" cur.toStr() "onlyaccess"
+    change w / -2 + 12
     if loaded_file !== 0 (
       file "render" 1
       loc 2 2 60 y
-      file "get" 2
-      name = data
-      file "get" 1
-      text name ++ data 9 : c#c_text
+      text file.join("") 9 : c#c_text
     ) else (
       recent.delete(count)
       save "recent_files.json" "set" recent
@@ -284,27 +646,110 @@ if current_studio_page == "Home" (
     )
   )
   frame "clear"
-  
-  draw_buttons
 )
-
-sharing_with.destr
-
-if new_network_data (
-  if packet.username == sharing_with (
-    systemvars "setlist" "App // Data" packet.data
+if current_studio_page == "Invite" (
+  window "responsive" true
+  frame window.left + 300 window.top - 40 window.right window.bottom (
+    goto 0 40
+    centext "Type a user's connection id to invite" 10 : c#c_text
+    goto 0 20
+    centext "Your id is: " ++ connection.username 9
+    goto 0 -20
+    square 300 25 10 : c#c_prim
+    input 260 25 "Invite" "Should look like: '06ec19ff33'" : chx#-20
+    c sharing_tab == null ? c_seco c_text
+    icon "send" 0.8 : chx#150 tooltip#"Send Invite to Edit"
+    if onclick and sharing_tab != null (
+      edit_session = ouidNew()
+      host = true
+      rotur.pMessage(connection.room, "ori-" ++ inputs.Invite, {
+        cmd: "join",
+        ohf: getOHF(open(sharing_tab, ["type"])[1]),
+        room: edit_session,
+        file_data: open(sharing_tab, "all")
+      })
+      
+      joinEditSession(edit_session)
+    )
+    c c_text
+    goto 0 -55
+    centext "Recieved:" 9
+    each invite invites.getKeys() (
+      change_y -45
+      square frame.width - 30 30 10 : c#c_prim
+      if onclick (
+        sharing_tab = ""
+        tabs = tabs.filter(v -> (v.startsWith("^ ").not()))
+        joinEditSession(invites[invite].val.room)
+        local file_data = invites[invite].val.file_data
+        save_name = "temp_" ++ file_data[14] ++ ".lvsh"
+        save save_name "set" file_data[4]
+        sharing_tab = save_name.saveGet(14)
+        
+        inputs.share = file_data[4].split("\n")
+        last_inputs_share = inputs.share
+        
+        share_name = file_data[2] ++ file_data[1]
+        share_type = file_data[1]
+        current_ohf = invites[invite].val.ohf
+        if typeof(current_ohf) == "object" (
+          current_ohf = compileOHF(current_ohf)
+        ) else (
+          current_ohf = null
+        )
+        add_tab "^ " ++ file_data[14]
+        invites = {}
+      )
+      centext "From " ++ invites[invite].origin.username 10 : c#c_text
+    )
   )
-  new_network_data = false
+  frame window.left + 45 window.top - 35 window.left + 300 window.bottom (
+    square frame.width - 25 frame.height - 25 15 : c#c_prim
+    square frame.width - 25 frame.height - 25 10 : c#window_colour
+    goto 0 frame.top + 15
+    each tab tabs (
+      if tab.len == 32 (
+        change_y -45
+        if sharing_tab == tab (
+          square frame.width - 30 30 15 : c#global_accent
+        )
+        square frame.width - 30 30 10 : c#c_prim
+        if clicked (
+          sharing_tab = tab
+        )
+        centext open(tab, ["name", "type"]).join("") 10 : c#c_text
+      )
+    )
+  )
 )
 
 if change_focus (
   if current_tab == "> Welcome" (
     current_studio_page = "Home"
+  ) else if current_tab == "> Invite" (
+    current_studio_page = "Invite"
   ) else (
     current_studio_page = current_tab
   )
 )
 
 draw_buttons
-loc 2 2 25 -25
-sidebar_items = 0
+
+
+frame window.left + 50 window.top - 40 window.right - 5 window.bottom + 5
+if current_tab.startsWith("^") (
+  sidebar.frameInnerRender(editor.renderShare)
+  frame "clear"
+  
+  loc 2 2 23 -23
+  c c_text
+  if sharing_tab != "" (
+    sidebarButtons(sharing_tab, "share")
+  )
+) else if current_tab == current_studio_page (
+  sidebar.frameInnerRender(editor.renderNorm)
+  
+  frame "clear"
+  loc 2 2 23 -23
+  sidebarButtons(current_tab, current_tab)
+)

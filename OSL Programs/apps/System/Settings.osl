@@ -1,4 +1,3 @@
-
 import as "glass" from "packages"
 import "window_tools"
 load_theme
@@ -96,11 +95,16 @@ def "option" "name,icn_code" (
 def "system" (
   switch subcategory (
     case "none"
+      option "About" "info"
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
       option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
+      option "Time" "alarm-clock"
+      break
+    case "About"
+      info
       break
     case "Display"
       loc 2 2 10 -20
@@ -288,6 +292,16 @@ def "system" (
       break
     case "Keybinds"
       
+      break
+    case "Time"
+      goto 0 frame.top - 40 + scroll_y
+      centext timestamp.timestamp("convert-time") ++ "." ++ timestamp.toStr().right(3) 20 : c#txtc
+      change_y -50
+      centext "Your originOS time is offset by" 10
+      change_y -40
+      centext time.offset ++ "ms" 20
+      change_y -40
+      centext "to make it more accurate" 10
       break
   )
   clicked = false
@@ -659,17 +673,15 @@ def "appearance" (
       loc 2 2 10 -20
       text "Scroll Wheel Speed" 9 : c#txtc
       terminal "get scrollspeed"
-      toggle_invert = data[1] != "-"
-      slider_scrollsp = data.abs.clamp(-10,10)
-      if slider_scrollsp.abs < 1 (
-        if slider_scrollsp > 0 (
-          slider_scrollsp = 1
-        ) else (
-          slider_scrollsp = -1
-        )
+      data = data.toNum()
+      log 1 data
+      if data < 0 (
+        data *= -1
+        toggle_invert = true
       )
+      slider_scrollsp = data.clamp(1,10)
       loc 2 2 10 -90
-      text "Scrolling " ++ ((slider_scrollsp * 10).round / 10) ++ "x speed" 9 : c#txtc
+      text "Scrolling " ++ ((slider_scrollsp * 10).round() / 10) ++ "x speed" 9 : c#txtc
       slider_scrollsp = slider_scrollsp - 1 / 9
       loc 999 2 0 -60
       slider frame_width - 30 20 "scrollsp" 10 : c#prim
@@ -678,9 +690,10 @@ def "appearance" (
       text "Invert Scroll Direction" 9 : c#txtc
       toggle "invert" 20 : c#prim chx#30
       if toggle_invert (
-        temp = slider_scrollsp
-      ) else (
         temp = slider_scrollsp * -1
+        log 2 temp
+      ) else (
+        temp = slider_scrollsp
       )
       terminal "system scrollspeed" + temp
       if temp != user.scrollspeed (
@@ -690,7 +703,7 @@ def "appearance" (
           network "update" "scrollspeed" temp
         )
         c prim
-        if mouse_touching and clicked.not (
+        if mouse_touching and clicked.not() (
           square 200 25 12
         ) else (
           square 200 25 10
@@ -704,7 +717,7 @@ def "appearance" (
 
 def "account" (
   local w = frame.width - 100
-  page_len = 710
+  page_len = 675
   
   goto 0 frame.top - 50 + scroll_y
   
@@ -724,13 +737,71 @@ def "account" (
     return
   )
   
+  if subcategory == "banners" (
+    page_len = 0
+    goto 0 frame.top - 110 + scroll_y
+    square w 200 10 : c#prim
+    c seco
+    square 50 50 20
+    if mouse_touching (
+      cursor "pointer"
+      if onclick (
+        if user["sys.currency"] >= 10 (
+          local url = "Paste the url of an image to use as your banner".ask()
+          if url.startsWith("https://") (
+            network "update" "banner" url
+          ) else if url == "" (
+            say "Banner purchase aborted"
+          ) else (
+            say "Url must start with https"
+          )
+        ) else (
+          say "You do not have enough credits for this"
+        )
+      )
+    )
+    c txtc
+    icon "add" 1.5
+    change_y 50
+    centext "Add New Banner" 10
+    change_y -100
+    centext "Cost: 10 credits" 10
+    change_y -20
+    centext "You have " ++ user["sys.currency"] ++ " credits" 10
+    
+    change_y -60
+    if user["sys.banners"].len == 0 (
+      centext "No previous banners" 10
+    ) else (
+      centext "Previous 5 banners, switch to these for free" 10
+    )
+    change_y 100
+
+    banners = user["sys.banners"]
+    y = y_position - (100 + (w / 6)) - 20
+    
+    each banner banners (
+      goto 0 y
+      square w w / 3 10 : c#prim
+      image banner w w / 3
+      change w / 2 - 30 w / 6 - 30
+      square 30 30 15 : c#prim
+      if onclick (
+        network "update" "banner" banner
+      )
+      icon "tick" 0.8 : c#txtc
+      y -= w / 3 + 20
+    )
+    page_len = (w / 3 + 20) * banners.len + 250
+    return
+  )
+  
   if subcategory == "connections" (
+    /*
     local links = user["sys.links"]
     if links.contains("github") and github_data == "Loading" (
       github_data = ("https://api.github.com/user/" ++ links.github.id).getAsync()
     )
-    /*
-    page_len = 50
     setting_do "Github: " ++ (links.contains("github") ? github_data.login "Click To Link") w def() -> (
       network "server" "link" {
         service: "github",
@@ -738,7 +809,14 @@ def "account" (
       }
     )
     */
+    page_len = 50
+    goto 0 frame.top + scroll_y + 25
+    
     set_x 0 : chy#-50
+    setting_do "Change Email (" ++ user.email ++ ")" w def() -> (
+      network "update" "email" "Enter Your New Email".ask()
+    )
+    
     return
   )
   
@@ -749,28 +827,36 @@ def "account" (
     )
     set_x 0 : chy#-50
     centext "Public Data:" 10 : c#txtc
-    local items = [
-      "username",
-      "profile picture",
-      "bio",
-      "theming and colours",
-      "rotur credit total",
-      "your rotur operating system",
-      "account creation date"
-    ]
+    local items = {
+      "username": "username",
+      "profile picture": "pfp",
+      "bio": "bio",
+      "theming and colours": "theme",
+      "rotur credit total": "sys.currency",
+      "your rotur operating system": "system",
+      "account creation date": "created"
+    }
     change_y -50
-    for i items.len (
+    local names = items.getKeys()
+    local keys = items.getValues()
+    for i names.len (
       square w 30 10 : c#prim
       set_x w / -2 + 10
-      text items[i] 10 : c#txtc
+      text names[i].toTitle() 10 : c#txtc tooltip#keys[i]
       set_x 0 : chy#-50
     )
     return
   )
   
-  goto 0 frame.top - 100 + scroll_y
-  image user_icon.toStr() 120 120
-  icon round_pfp 5.8 : c#window_colour
+  goto 0 frame.top - (w / 6) - 10 + scroll_y
+  square w w / 3 10 : c#prim
+  effect "transparency" 70
+  image user.banner w w / 3
+  effect "clear"
+  
+  local pfp_s = w / 3 - 30
+  change_x w / -2 + (pfp_s / 2) + 15
+  image user.pfp pfp_s pfp_s
   if timer - upload_time < 5 and current_pfp != "" (
     direction timer * 300
     icon "cutcircle 0 0 10 0 90" 1 : c#txtc
@@ -791,10 +877,18 @@ def "account" (
     )
   )
   
-  set_x 0 : chy#-100
-  centext username 15 : c#txtc
+  local pos = [x_position + (pfp_s / 2) + 30, y_position + 15]
+  goto pos
   
-  centext user.system + "Account" 10 : chy#-30
+  text username ++ "\n" 15 : c#txtc
+  
+  text user.system + "Account" 10
+  
+  loc -2 2 -70 -30 + scroll_y
+  icon "edit" 0.8
+  if onclick (
+    subcategory = "Banners"
+  )
   
   if current_pfp != "" (
     image current_pfp 0 0
@@ -807,25 +901,28 @@ def "account" (
       current_pfp = ""
     )
   )
-  if network.connected and all_badges == "" (
+  if network.connected and ["all_badges","Loading"].contains(all_badges) (
     all_badges = "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json".getAsync()
   )
   if all_badges.istype("object") (
     badges = user["sys.badges"]
-    loc -2 2 -30 -130
+    local w2 = badges.len * 30
+    goto pos[1] + 85 + (w2 * .5) pos[2]
+    square w2 - 5 25 10 : c#prim
+    goto pos[1] + 100 pos[2]
     each badge badges (
       icon all_badges[badge].icon 1.2 : tooltip#badge
       if onclick (
         say all_badges[badge].description
       )
-      change_x -30
+      change_x 30
     )
   )
   
   local bio_data = inputs.bio.join("\n")
   
-  goto w / -2 frame.top - 270 + scroll_y
-  text "Bio (" ++ bio_data.len ++ "/200)"  10
+  goto w / -2 frame.top - (w / 3) - 70 + scroll_y
+  text "Bio (" ++ bio_data.len ++ "/200)" 10 : c#txtc
   
   if bio_data != user.bio (
     set_x w / 2 - 10
@@ -846,14 +943,11 @@ def "account" (
     network "update" "password" "Enter Your New Password".ask().hashMD5()
   )
   
+  change_y -20
+  
   set_x 0 : chy#-50
   setting_do "Privacy" w def() -> (
     subcategory = "Privacy"
-  )
-  
-  set_x 0 : chy#-50
-  setting_do "Email: " ++ user.email w def() -> (
-    network "update" "email" "Enter Your Email".ask()
   )
   
   set_x 0 : chy#-50
@@ -865,6 +959,8 @@ def "account" (
   setting_do "Connections" w def() -> (
     subcategory = "Connections"
   )
+  
+  change_y -20
 
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
@@ -874,6 +970,10 @@ def "account" (
 )
 
 def "apps" (
+
+)
+
+def "permissions" (
   file "open" "user/Application Data/permissions.json" "onlyaccess"
   local perms = fileGet(4)
   if perms.isType("object").not() (
@@ -943,43 +1043,44 @@ def "apps" (
   page_len = perm_keys.len * ih
 )
 
-def "info" (
-  loc 9999 2 0 -160
+def "bluetooth_page" (
+  goto 0 frame.top - 40 + scroll_y
   w = frame.width - 100
-  h = 280
-  square w h 15 : c#seco
-  square w h 10 : c#prim
-  
-  set_x frame.right - 200
-  c seco
-  icon "origin-logo" 8
-  c txtc
-  loc 2 2 70 -70
-  x = x_position
-  kernel = origin.kernel
-  loc 2 2 0 -50
-  set_x x
-  text "originOS " 15
-  text kernel.name 12
-  set_x x : chy#-20
-  text "Version" + origin.version 9
-  set_x x : chy#-30
-  text "Kernel   |  " ++ kernel.name + kernel.version + kernel["type"] 9
-  set_x x : chy#-20
-  text "Storage  |  " ++ used_big ++ unit 9
-  set_x x : chy#-20
-  text "Used     |  " ++ ((network_drive[1] / 10).round / 100) ++ "kb" 9
-  set_x x : chy#-20
-  text "Screen   |  " ++ screensize_x ++ "x" ++ screensize_y 9
-  set_x x : chy#-20
-
-  if system_url.startsWith("https://origin.mistium.com") (
-    text "Host     |  Official" 9
-  ) else (
-    text "Host     |  Editor" 9
+  local connection = 0
+  local changePage = def() -> (
+    
   )
-  set_x x : chy#-20
-  text "Shell    |  OTS" 9
+  local devices = roturlink.bluetooth.devices.filter(v -> (v.name != "unknown")).sortBy("rssi").reverse()
+  
+  inputs.bluetooth = roturlink.bluetooth.enabled
+  setting_do devices.len ++ " Devices" w def() -> ()
+  change_y -10
+  
+  each device devices (
+    set_x 0 : chy#-50
+    setting_do device.name w changePage
+    
+    set_x w / 2 - 20
+    connection = ((device.rssi + 100).clamp(0, 100) / 25).round()
+ 
+    icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
+    c txtc
+    icon [
+      "",
+      "w 4 dot 0 -6",
+      "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
+      "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6"
+    ][connection + 1] 0.8
+  )
+  
+  page_len = devices.len + 1 * 50
+)
+
+def "info" (
+  loc 2 2 0 0
+  configtext "lineheight" 0.9
+  text info_string 10 : c#txtc
+  configtext "lineheight" 1
 )
 
 
@@ -1189,6 +1290,12 @@ ftvalues = file_types.getValues()
 inputs.bio = user.bio.split("\n")
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
+
+
+terminal "info"
+info_string = terminal_output.join("\n")
+
+
 mainloop:
 networking()
 
@@ -1220,13 +1327,17 @@ change_y -70
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
+if roturlink.enabled (
+  DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
+)
+
 
 change_y -25
-DrawCategory "Apps" "grid-apps"
+// DrawCategory "Apps" "grid-apps"
+DrawCategory "Permissions" "key"
 
 change_y -25
 DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
-DrawCategory "Info" "info"
 
 
 loc 2 2 25 -25
@@ -1262,20 +1373,23 @@ switch category (
   case "Network"
     network_page
     break
+  case "Bluetooth"
+    bluetooth_page
+    break
   case "Style"
     appearance
     break
   case "Account"
     account
     break
+  case "Permissions"
+    permissions
+    break
   case "Apps"
     apps
     break
   case "credits"
     credits
-    break
-  case "info"
-    info
     break
 )
 
