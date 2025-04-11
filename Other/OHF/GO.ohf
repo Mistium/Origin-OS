@@ -1,0 +1,146 @@
+{
+  "manifest": {
+    "name": "go",
+    "version": "1",
+    "extensions": [
+      ".go"
+    ]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "(?:(?<!\\\\)\"(?:[^\"\\\\]|\\\\.)*\")|(?:(?<!\\\\)'(?:[^'\\\\]|\\\\.)*')|(?:`[^`]*`)|[^\\s\\w(),\\[\\]{}:]{1,}|[^\\W]+|[^\\w ]|\\s+"
+  },
+  "overrides": {
+    "origin.numbers": "#aa68bc",
+    "origin.strings": "#b89b64",
+    "origin.comments": "#555c67",
+    "origin.functions": "#98c379",
+    "origin.objects": "#5a9fd9",
+    "origin.comment_mark": "//"
+  },
+  "categories": {
+    "brackets": {
+      "color": "#ffd800",
+      "tokens": [
+        "}",
+        "{",
+        "]",
+        "[",
+        ")",
+        "(",
+        ".",
+        ";",
+        ","
+      ]
+    },
+    "main": {
+      "color": "#c76169",
+      "tokens": [
+        "package",
+        "import",
+        "return",
+        "for",
+        "if",
+        "else",
+        "switch",
+        "case",
+        "break",
+        "default",
+        "continue",
+        "fallthrough",
+        "goto",
+        "range",
+        "select",
+        "chan",
+        "go",
+        "defer",
+        "++",
+        "--",
+        "=",
+        ":=",
+        "==",
+        "!=",
+        "+=",
+        "-=",
+        "*=",
+        "/=",
+        "%=",
+        "&=",
+        "|=",
+        "^=",
+        "<<=",
+        ">>=",
+        "<=",
+        ">=",
+        "<",
+        ">",
+        "!",
+        "+",
+        "-",
+        "/",
+        "*",
+        "%",
+        "&&",
+        "||",
+        "&",
+        "|",
+        "^",
+        "<<",
+        ">>",
+        "&^",
+        "<-"
+      ]
+    },
+    "data": {
+      "color": "#52aeb9",
+      "tokens": [
+        "func",
+        "interface",
+        "struct",
+        "map",
+        "type",
+        "const",
+        "var",
+        "int",
+        "int8",
+        "int16",
+        "int32",
+        "int64",
+        "uint",
+        "uint8",
+        "uint16",
+        "uint32",
+        "uint64",
+        "uintptr",
+        "float32",
+        "float64",
+        "complex64",
+        "complex128",
+        "byte",
+        "rune",
+        "string",
+        "bool",
+        "error",
+        "iota",
+        "make",
+        "new",
+        "append",
+        "len",
+        "cap",
+        "copy",
+        "delete",
+        "close",
+        "panic",
+        "recover"
+      ]
+    },
+    "booleans": {
+      "color": "#408088",
+      "tokens": [
+        "true",
+        "false",
+        "nil"
+      ]
+    }
+  }
+}
