@@ -1,0 +1,133 @@
+{
+  "manifest": {
+    "name": "java",
+    "version": "1",
+    "extensions": [
+      ".java"
+    ]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "(?:(?<!\\\\)\"(?:[^\"\\\\]|\\\\.)*\")|(?:(?<!\\\\)'(?:[^'\\\\]|\\\\.)*')|[^\\s\\w(),\\[\\]{}:]{1,}|[^\\W]+|[^\\w ]|\\s+"
+  },
+  "overrides": {
+    "origin.numbers": "#aa68bc",
+    "origin.strings": "#b89b64",
+    "origin.comments": "#555c67",
+    "origin.functions": "#98c379",
+    "origin.objects": "#5a9fd9",
+    "origin.comment_mark": "//"
+  },
+  "categories": {
+    "brackets": {
+      "color": "#ffd800",
+      "tokens": [
+        "}",
+        "{",
+        "]",
+        "[",
+        ")",
+        "(",
+        ".",
+        ";",
+        ","
+      ]
+    },
+    "main": {
+      "color": "#c76169",
+      "tokens": [
+        "import",
+        "package",
+        "return",
+        "for",
+        "if",
+        "else",
+        "switch",
+        "case",
+        "break",
+        "default",
+        "while",
+        "do",
+        "try",
+        "catch",
+        "finally",
+        "throw",
+        "throws",
+        "continue",
+        "new",
+        "this",
+        "super",
+        "extends",
+        "implements",
+        "instanceof",
+        "++",
+        "--",
+        "=",
+        "==",
+        "!=",
+        "+=",
+        "-=",
+        "/=",
+        "*=",
+        "%=",
+        "<=",
+        ">=",
+        "<",
+        ">",
+        "!",
+        "+",
+        "-",
+        "/",
+        "*",
+        "%",
+        "&&",
+        "||",
+        "^",
+        "|",
+        "&",
+        ">>",
+        "<<",
+        ">>>"
+      ]
+    },
+    "data": {
+      "color": "#52aeb9",
+      "tokens": [
+        "class",
+        "interface",
+        "enum",
+        "abstract",
+        "final",
+        "static",
+        "void",
+        "public",
+        "private",
+        "protected",
+        "volatile",
+        "synchronized",
+        "transient",
+        "native",
+        "strictfp",
+        "const",
+        "int",
+        "short",
+        "long",
+        "byte",
+        "float",
+        "double",
+        "char",
+        "boolean",
+        "String",
+        "var"
+      ]
+    },
+    "booleans": {
+      "color": "#408088",
+      "tokens": [
+        "true",
+        "false",
+        "null"
+      ]
+    }
+  }
+}
