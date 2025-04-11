@@ -13,7 +13,7 @@
   "overrides": {
     "origin.numbers": "#aa68bc",
     "origin.strings": "#b89b64",
-    "origin-comment_mark": "--",
+    "origin.comment_mark": "--",
     "origin.comments": "#555c67",
     "origin.functions": "#98c379",
     "origin.objects": "#5a9fd9"
