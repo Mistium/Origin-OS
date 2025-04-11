@@ -128,7 +128,8 @@
         "frame",
         "throw",
         "local",
-        "class"
+        "class",
+        "extends"
       ]
     },
     "functions": {
