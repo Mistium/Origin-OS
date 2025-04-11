@@ -1,4 +1,20 @@
 {
   "python": "PY",
-  "javascript": "JS"
+  "javascript": "JS",
+  "typescript": "TS",
+  "kotlin": "KT",
+  "rust": "RS",
+  "ruby": "RB",
+  "c": "C",
+  "cpp": "CPP",
+  "csharp": "CS",
+  "java": "JAVA",
+  "go": "GO",
+  "php": "PHP",
+  "swift": "SWIFT",
+  "lua": "LUA",
+  "scala": "SCALA",
+  "perl": "PL",
+  "haskell": "HS",
+  "r": "R"
 }
