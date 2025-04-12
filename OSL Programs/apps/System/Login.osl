@@ -19,7 +19,8 @@ network "get_my_accounts"
 input_shown = false
 
 def "login" "username, password" (
-  network "login" username password
+  eval "setCookie(\"origin_login\",\"" ++ username ++ "," ++ password.hashMD5() ++ "\",30)"
+  terminal "shutdown"
 )
 
 status = ""
@@ -147,7 +148,7 @@ if typeof(current_login) == "number" (
       if check.error != null (
         login_return = check.error
       ) else (
-        network "login" user pass
+        login check.username check.password
       )
     )
     goto x 70
@@ -240,7 +241,7 @@ if current_login == "login" (
     if check.error != null (
       login_return = check.error
     ) else (
-      network "login" inputs.login_name inputs.login_pass
+      login inputs.login_name inputs.login_pass
     )
   )
   centext "Login" 8 : c#fff
