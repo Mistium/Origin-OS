@@ -964,8 +964,7 @@ def "account" (
 
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
-    network "logout"
-    terminal "shutdown"
+    terminal "su"
   )
 )
 
