@@ -8,7 +8,7 @@
         .then(data => {
           const versions = data.map(file => file.name);
           const latestVersion = versions.sort().reverse()[0];
-          const url = `https://origin.mistium.com/Versions/${latestVersion}`;
+          const url = `https://origin.mistium.com/Versions/${latestVersion.replace(".html","")}`;
           const carryOverParams = params.toString() ? `?${params.toString()}` : '';
           window.location.href = `${url}${carryOverParams}`;
         })
