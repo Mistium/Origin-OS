@@ -140,7 +140,7 @@ if current_login.istype("number") (
     goto x -180
     square 320 30 20 : c#000
     if clicked or "enter".isKeyDown() (
-      check = ("https://social.rotur.dev/get_user?username=" ++ input_login_name ++ "&password=" ++ input_login_pass.hashMD5()).httpGet()
+      check = ("https://social.rotur.dev/get_user?username=" ++ user ++ "&password=" ++ input_login_pass.hashMD5()).httpGet()
       if check.error != null (
         login_return = check.error
       ) else (
