@@ -19,6 +19,7 @@ network "get_my_accounts"
 input_shown = false
 
 def "login" "username, password" (
+  log password
   eval "setCookie(\"origin_login\",\"" ++ username ++ "," ++ password.hashMD5() ++ "\",30)"
   terminal "shutdown"
 )
