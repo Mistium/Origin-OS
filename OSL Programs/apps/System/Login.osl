@@ -112,7 +112,7 @@ x = 200
 w = 800
 h = 500
 
-if current_login.istype("number") (
+if typeof(current_login) == "number" (
   if accounts.len > 0 (
     current @= accounts[current_login]
     user = current.username
@@ -137,16 +137,18 @@ if current_login.istype("number") (
     if inputs.shown.not() (
       icon "w 3 c #fff line 10 10 -10 -10" 0.7
     )
+
+    local pass = inputs["password_" ++ current_login]
+
     goto x -180
     square 320 30 20 : c#000
     if clicked or "enter".isKeyDown() (
-      check = ("https://social.rotur.dev/get_user?username=" ++ user ++ "&password=" ++ input_login_pass.hashMD5()).httpGet()
+      check = ("https://social.rotur.dev/get_user?username=" ++ user ++ "&password=" ++ pass.hashMD5()).httpGet()
       if check.error != null (
         login_return = check.error
       ) else (
-        network "login" input_login_name input_login_pass
+        network "login" inputs.login_name pass
       )
-      login user pass_name.contents()
     )
     goto x 70
     image current.pfp 140
@@ -195,7 +197,7 @@ if current_login == "add" (
   if signup_return != "" "c #491515"
   square 320 30 20
   if clicked or "enter".isKeyDown() and status == "" (
-    network "new_account" input_signup_name input_signup_pass
+    network "new_account" inputs.signup_name inputs.signup_pass
     status = "Waiting"
   )
   centext "Create Account" 8 : c#fff
@@ -234,11 +236,11 @@ if current_login == "login" (
   goto x -180
   square 320 30 20 : c#000
   if clicked or "enter".isKeyDown() (
-    check = ("https://social.rotur.dev/get_user?username=" ++ input_login_name ++ "&password=" ++ input_login_pass.hashMD5()).httpGet()
+    check = ("https://social.rotur.dev/get_user?username=" ++ inputs.login_name ++ "&password=" ++ inputs.login_pass.hashMD5()).httpGet()
     if check.error != null (
       login_return = check.error
     ) else (
-      network "login" input_login_name input_login_pass
+      network "login" inputs.login_name inputs.login_pass
     )
   )
   centext "Login" 8 : c#fff
