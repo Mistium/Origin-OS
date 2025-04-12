@@ -147,7 +147,7 @@ if typeof(current_login) == "number" (
       if check.error != null (
         login_return = check.error
       ) else (
-        network "login" inputs.login_name pass
+        network "login" user pass
       )
     )
     goto x 70
