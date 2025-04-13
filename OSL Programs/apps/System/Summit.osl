@@ -7,7 +7,12 @@ loaded_pages = {}
 current_pages = []
 summit = {
   tlds: (system_url ++ "tlds.json").httpGet().JsonParse(),
+  redirect_url: ""
 }
+
+page_len = 0
+tab_info = null
+current_tab_name = {}
 
 each key window.getKeys() (
   if window[key]["type"] == "function" (
@@ -148,7 +153,6 @@ def "draw_page" "url, page_type, tab_id" (
     if page_protocol == "web" (
       local parts = url.split("/")
       local current_tld = parts[1].split(".").last()
-      // get the tld of the page
       fetch_url = "https://" ++ summit.tlds[current_tld] ++ url
       local data = fetch_url.getAsync()
     ) else if page_protocol == "local" (
@@ -259,7 +263,6 @@ sidebar = {
 
 sidebar.main = def() -> (
   sidebar = sidebar.handleSize()
-  // sidebar.handleSize()
   
   if mouse_x < window.left + 30 and onclick (
     sidebar.target_x = 0
@@ -319,10 +322,16 @@ sidebar.main = def() -> (
             square frame.width - 20 30 15 : c#global_accent
             square frame.width - 20 30 10 : c#window_colour
             if onclick (
-              if current_tabs.contains(tab.id) (
-                current_tabs.delete(tab.id)
+              if "shift".isKeyDown() (
+                if current_tabs.contains(tab.id) (
+                  if current_tabs.len > 1 (
+                    current_tabs.delete(tab.id)
+                  )
+                ) else (
+                  current_tabs.append(tab.id)
+                )
               ) else (
-                current_tabs.append(tab.id)
+                current_tabs = [tab.id]
               )
             )
           )
@@ -368,18 +377,28 @@ sidebar.main()
 local left = sidebar.edge + 10
 local right = window.right - 10
 local w = right - left
-local tab_w = w / current_tabs.len
-local right = left + tab_w
 
 for i tabs_queue.len (
-  tabs.append(tabs_queue.shift())
+  local new_tab = tabs_queue.shift()
+  tabs.append(new_tab)
+  if tabs.len == 1 or current_tabs.len == 0 (
+    current_tabs = [new_tab.id]
+  )
 )
-current_tabs = [tabs.last().id]
 
-each this.tab current_tabs (
-  page_frame left window.top - 10 right window.bottom + 10 tab
-  local left += tab_w
-  local right += tab_w
+local tab_count = current_tabs.len
+if tab_count == 0 (
+  tab_count = 1
+)
+local tab_w = w / tab_count
+
+local current_left = left
+local current_right = left + tab_w
+
+each this.tab_id current_tabs (
+  page_frame current_left window.top - 10 current_right window.bottom + 10 tab_id
+  local current_left += tab_w
+  local current_right += tab_w
 )
 
 import "win-buttons"
