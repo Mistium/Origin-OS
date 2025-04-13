@@ -200,7 +200,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Shortcut_Opener.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn script 0.5",
-    "version":"1.3"
+    "version":"1.4"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Icn%20Tools.osl",
