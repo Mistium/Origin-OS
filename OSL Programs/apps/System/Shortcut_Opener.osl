@@ -1,9 +1,4 @@
 file "open" passed_data "onlyaccess"
 file "open" fileGet(4).toStr()
-
-wc = window_create_data
-wc.passed_data = wc.forward_passed_data
-void wc.delete("forward_passed_data")
-
-file "start" wc
+file "start"
 window "stop"
