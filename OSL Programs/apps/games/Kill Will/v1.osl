@@ -69,24 +69,24 @@ map = [[-1,7,2,7],[2,7,3,8],[3,8,12,8],[12,8,13,7],[13,7,13,6],[13,6,17,6],[17,6
 h = -100
 h2 = 150
 mainloop:
-if "left arrow".pressed "player_direction -= 10"
-if "right arrow".pressed "player_direction += 10"
+if "left arrow".isKeyDown() "player_direction -= 10"
+if "right arrow".isKeyDown() "player_direction += 10"
 as = player_direction.sin
 ac = player_direction.cos
 pda = player_direction.add(90)
-if "w".pressed (
+if "w".isKeyDown() (
 player_x += as * speed
 player_y += ac * speed
 )
-if "s".pressed (
+if "s".isKeyDown() (
 player_x -= as * speed
 player_y -= ac * speed
 )
-if "d".pressed (
+if "d".isKeyDown() (
 player_x += pda.sin * speed
 player_y += pda.cos * speed
 )
-if "a".pressed (
+if "a".isKeyDown() (
 player_x -= pda.sin * speed
 player_y -= pda.cos * speed
 )
@@ -117,6 +117,6 @@ image weapon1 ++ frame.floor ++ ".png" window_width / 2 window_width / 2
 loc 2 2 20 -20
 text "<fps>" 10 : c#fff
 cursor "lock"
-if "escape".pressed (
+if "escape".isKeyDown() (
 window "stop"
 )

@@ -338,14 +338,14 @@ def "render_files" (
       
       if onclick and drag_id == 0 (
         // add or remove a single file from selection
-        if "control".pressed (
+        if "control".isKeyDown() (
           if selected_files.contains(current_file) (
             selected_files.delete(current_file)
           ) else (
             selected_files.append(current_file)
           )
         // multiselect between points
-        ) else if "shift".pressed (
+        ) else if "shift".isKeyDown() (
           temp = files.index(selected_files.last())
           if temp < count (
             temp ++

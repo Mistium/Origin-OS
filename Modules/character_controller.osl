@@ -6,32 +6,32 @@ def "setup"
 endef
 
 def "main" "this.speed"
-  if "w".pressed (
+  if "w".isKeyDown() (
     cam_pos[1] += cam_rotation[1].sin * this.speed
     cam_pos[3] += cam_rotation[1].cos * this.speed
   )
-  if "s".pressed (
+  if "s".isKeyDown() (
     cam_pos[1] -= cam_rotation[1].sin * this.speed
     cam_pos[3] -= cam_rotation[1].cos * this.speed
   )
-  if "d".pressed (
+  if "d".isKeyDown() (
     cam_pos[1] += (cam_rotation[1] + 90).sin * this.speed
     cam_pos[3] += (cam_rotation[1] + 90).cos * this.speed
   )
-  if "a".pressed (
+  if "a".isKeyDown() (
     cam_pos[1] -= (cam_rotation[1] + 90).sin * this.speed
     cam_pos[3] -= (cam_rotation[1] + 90).cos * this.speed
   )
-  if "left arrow".pressed (
+  if "left arrow".isKeyDown() (
     cam_rotation[1] -= 100 * delta_time
   )
-  if "right arrow".pressed (
+  if "right arrow".isKeyDown() (
     cam_rotation[1] += 100 * delta_time
   )
-  if "up arrow".pressed (
+  if "up arrow".isKeyDown() (
     cam_rotation[2] += 100 * delta_time
   )
-  if "down arrow".pressed (
+  if "down arrow".isKeyDown() (
     cam_rotation[2] -= 100 * delta_time
   )
 

@@ -51,7 +51,7 @@ def run_ui() (
 )
 
 def mainloop(this.callback) (
-  if "shift".pressed and "control".pressed and "c".onpress (
+  if "shift".isKeyDown() and "control".isKeyDown() and "c".onKeyDown() (
     self.width = 300 - self.width
   )
   frame window.left window.top window.right - self.width window.bottom

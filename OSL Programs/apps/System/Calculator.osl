@@ -96,7 +96,7 @@ text output 15
 loc -2 2 -27.5 -72.5
 square 40 40 10 : c#cca hover_c#ch
 icon "left-arrow" 0.7 : c#ct
-if clicked or "backspace".pressed and can (
+if clicked or "backspace".isKeyDown() and can (
   can = false
   temp = current.len - 1
   temp2 = secondary.len - 1

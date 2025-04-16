@@ -3,12 +3,12 @@ camy = 3143
 window "show"
 zoom = 200
 mainloop:
-if "q".pressed "zoom -= 10"
-if "e".pressed "zoom += 10"
-if "w".pressed "camy -= 0.2"
-if "a".pressed "camx -= 0.2"
-if "s".pressed "camy += 0.2"
-if "d".pressed "camx += 0.2"
+if "q".isKeyDown() "zoom -= 10"
+if "e".isKeyDown() "zoom += 10"
+if "w".isKeyDown() "camy -= 0.2"
+if "a".isKeyDown() "camx -= 0.2"
+if "s".isKeyDown() "camy += 0.2"
+if "d".isKeyDown() "camx += 0.2"
 displx = camx.floor
 disply = camy.floor
 loc 2 2 20 -20
