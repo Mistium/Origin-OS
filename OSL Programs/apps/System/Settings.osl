@@ -93,6 +93,7 @@ def "option" "name,icn_code" (
 )
 
 def "system" (
+  local w = frame.width - 25
   switch subcategory (
     case "none"
       option "About" "info"
@@ -102,6 +103,7 @@ def "system" (
       option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
       option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
       option "Time" "alarm-clock"
+      option "Gamepads" "controller"
       break
     case "About"
       info
@@ -110,19 +112,19 @@ def "system" (
       loc 2 2 10 -20
       text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
       terminal "system display get invert"
-      toggle_invert = (data / 100).round.bool
+      toggle_invert = (data / 100).round().toBool()
       loc 2 2 10 -70
       c txtc
       text "Invert Colours" 10
       toggle "invert" 20 : c#prim chx#30
-      inp = toggle_invert.toNum()* 100
-      terminal "system display set invert" + inp.str
+      inp = toggle_invert.toNum() * 100
+      terminal "system display set invert" + inp.toStr()
       loc 2 2 10 -110
       text "Night Mode" 10 : c#txtc
       terminal "flags nightmode get"
       toggle_nightmode = data
       toggle "nightmode" 20 : c#prim chx#70
-      terminal "flags nightmode set" + toggle_nightmode.str
+      terminal "flags nightmode set" + toggle_nightmode.toStr()
       break
     case "Media"
       if media == "" (
@@ -143,7 +145,7 @@ def "system" (
       loc 999 2 0 -90 + scroll_y
       terminal "system sound get volume"
       slider_volume = data / 100
-      slider frame_width - 25 40 "volume" 15 : c#prim
+      slider w 40 "volume" 15 : c#prim
       terminal "system sound set volume" + ( slider_volume * 100 )
       c txtc
       loc 2 2 10 -160 + scroll_y
@@ -185,7 +187,7 @@ def "system" (
       if new_transmit (
         file "open" transmit_data
         f = file[3] ++ "/" ++ file[2] ++ file[1]
-        boot_apps.append(f)
+        void boot_apps.append(f)
         network "update" "onboot" boot_apps
         new_transmit = false
       )
@@ -199,14 +201,9 @@ def "system" (
       loc 2 2 20 -70 + scroll_y
       text "Drop File Here" 9 : c#txtc
       if file_dropped != 0 (
-        file "open" file_dropped "onlyaccess"
-        file "get" 3
-        d3 = data
-        file "get" 2
-        d2 = data
-        file "get" 1
-        f = d3 ++ "/" ++ d2 ++ data
-        boot_apps = boot_apps.append(f)
+        local dat = open(file_dropped, ["path","name","type"])
+        void boot_apps.append(dat[1] ++ "/" ++ dat[2] ++ dat[3])
+       
         network "update" "onboot" boot_apps
         file_dropped = 0
       )
@@ -221,7 +218,7 @@ def "system" (
         count ++
         y = count + 2 * -60 + scroll_y
         loc 999 2 0 y
-        square frame_width - 25 40 15 : c#prim
+        square w 40 15 : c#prim
         loc 2 2 15 y
         text boot_apps[count] 9 : c#txtc
         loc -2 2 -33 y
@@ -302,6 +299,43 @@ def "system" (
       centext time.offset ++ "ms" 20
       change_y -40
       centext "to make it more accurate" 10
+      break
+    case "Gamepads"
+      local gamepads = getGamepads()
+      
+      loc 2 2 10 -20 + scroll_y
+      text "Total: " ++ gamepads.len ++ "/4" 10 : c#txtc
+      
+      y = y_position + 70
+      for i gamepads.len (
+        y -= 170
+        local cur @= gamepads[i]
+        goto 0 y
+        square w 150 10 : c#prim
+        set_x frame.left + 20 : chy#60
+        text cur.id 10 : c#txtc
+        goto frame.left + 30 y + 20
+        for j cur.axes.len (
+          local x = x_position
+          square 0 0 30 : c#seco
+          change cur.axes[j].x * 10 cur.axes[j].y * 10
+          square 0 0 5 : c#txtc
+          goto x + 40 y + 20
+        )
+        goto frame.left + 30 y - 20
+        for j cur.buttons.len (
+          local x = x_position
+          if cur.buttons[j]["pressed"] (
+            square 0 0 34 : c#txtc
+          )
+          square 0 0 30 : c#seco
+          centext j 10 : c#txtc
+          change_x 40
+          if x_position > frame.right - 20 (
+            set_x frame.left + 30 : chy#-40
+          )
+        )
+      )
       break
   )
   clicked = false
