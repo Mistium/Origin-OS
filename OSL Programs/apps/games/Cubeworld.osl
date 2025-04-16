@@ -12,16 +12,16 @@ permission "request" "File Viewer"
 window "show"
 
 file "open" "origin/(c) users/system/documents/models/cube.sobj"
-cube = "v 1 -1 -1!v 1 -1 1!v -1 -1 1!v -1 -1 -1!v 1 1 -1!v 1 1 1!v -1 1 1!v -1 1 -1!f 2/1/1 3/2/1 4/3/1!f 8/1/2 7/4/2 6/5/2!f 5/6/3 6/7/3 2/8/3!f 6/8/4 7/5/4 3/4/4!f 3/9/5 7/10/5 8/11/5!f 1/12/6 4/13/6 8/11/6!f 1/4/1 2/1/1 4/3/1!f 5/14/2 8/1/2 6/5/2!f 1/12/3 5/6/3 2/8/3!f 2/12/4 6/8/4 3/4/4!f 4/13/5 3/9/5 8/11/5!f 5/6/6 1/12/6 8/11/6".replace("!",newline)
+cube = "v 1 -1 -1\nv 1 -1 1\nv -1 -1 1\nv -1 -1 -1\nv 1 1 -1\nv 1 1 1\nv -1 1 1\nv -1 1 -1\nf 2/1/1 3/2/1 4/3/1\nf 8/1/2 7/4/2 6/5/2\nf 5/6/3 6/7/3 2/8/3\nf 6/8/4 7/5/4 3/4/4\nf 3/9/5 7/10/5 8/11/5\nf 1/12/6 4/13/6 8/11/6\nf 1/4/1 2/1/1 4/3/1\nf 5/14/2 8/1/2 6/5/2\nf 1/12/3 5/6/3 2/8/3\nf 2/12/4 6/8/4 3/4/4\nf 4/13/5 3/9/5 8/11/5\nf 5/6/6 1/12/6 8/11/6"
 
-floor = "v 1 -1 0!v 1 1 0!v -1 1 0!v -1 -1 0!f 2 3 4!f 1 2 4".replace("!",newline)
+floor = "v 1 -1 0\nv 1 1 0\nv -1 1 0\nv -1 -1 0\nf 2 3 4\nf 1 2 4"
 
-def "render-cube" "x,y,z"
+def "render_cube" "x,y,z" (
   model cube x y z camx camy camz camdx camdy camdz
-  if count > 0 and ( x.int == target_x.int ) and ( y.int == target_y.int ) and ( z.int == target_z.int ) (
+  if count > 0 and x.toNum() == target_x.toNum() and y.toNum() == target_y.toNum() and z.toNum() == target_z.toNum() (
     selected = count
   )
-endef
+)
 
 mainloop:
 
@@ -30,7 +30,7 @@ selected = 0
 count = 0
 loop cubesx.len (
   count += 1
-  render-cube cubesx.[count].destr cubesy.[count].destr cubesz.[count].destr
+  render_cube cubesx[count].destr cubesy[count].destr cubesz[count].destr
 )
 
 if selected > 0 and mouse_down and can (
@@ -46,9 +46,9 @@ camzdispl /= -1
 camxdispl += camdz.sin * 3
 camydispl += camdz.cos * 3
 camzdispl += camdx.cos * 3
-camxdispl = camxdispl.round
-camydispl = camydispl.round
-camzdispl = camzdispl.round.clamp(-6,1)
+camxdispl = camxdispl.round()
+camydispl = camydispl.round()
+camzdispl = camzdispl.round().clamp(-6,1)
 c #444
 count = 0
 render-cube camxdispl camydispl camzdispl
@@ -62,31 +62,31 @@ if mouse_right and can (
   cubesz = cubesz.append(camzdispl)
 )
 
-if mouse_down.not and mouse_right.not "can = true"
+if mouse_down.not() and mouse_right.not() "can = true"
 loc 2 2 20 -20
-camxdispl = camx.round
-camydispl = camy.round
-camzdispl = camz.round
-text "<camxdispl>:<camydispl>:<camzdispl> (Press Escape To Exit) (<fps>)" 8 : c#fff
+camxdispl = camx.round()
+camydispl = camy.round()
+camzdispl = camz.round()
+text `${camxdispl}:${camydispl}:${camzdispl} (Press Escape To Exit) (${fps})` 8 : c#fff
 
-if "w".pressed (
-  camx -= camdz.sin
-  camy -= camdz.cos
+if "w".isKeyDown() (
+  camx -= camdz.sin()
+  camy -= camdz.cos()
 )
-if "s".pressed (
-  camx += camdz.sin
-  camy += camdz.cos
+if "s".isKeyDown() (
+  camx += camdz.sin()
+  camy += camdz.cos()
 )
-if "a".pressed (
-  camx += camdz.add(90).sin
-  camy += camdz.add(90).cos
+if "a".isKeyDown() (
+  camx += (camdz + 90).sin()
+  camy += (camdz + 90).cos()
 )
-if "d".pressed (
-  camx += camdz.add(-90).sin
-  camy += camdz.add(-90).cos
+if "d".isKeyDown() (
+  camx += (camdz - 90).sin()
+  camy += (camdz - 90).cos()
 )
 
 camdz = mouse_x
 camdx = mouse_y
 cursor "hide"
-if "escape".pressed "window stop"
+if "escape".isKeyDown() "window stop"

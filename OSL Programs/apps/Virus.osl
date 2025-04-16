@@ -3,9 +3,11 @@
 permission "request" "terminal"
 
 mainloop:
+
 terminal "system display set rotation" + ( timer * 1000 )
-if "space".pressed (
-terminal "system display set rotation 0"
-window "Stop"
+if "space".isKeyDown() (
+  terminal "system display set rotation 0"
+  window "Stop"
 )
+
 import "win-buttons"

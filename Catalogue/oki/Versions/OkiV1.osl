@@ -46,10 +46,10 @@ def "run_movement"
   prevx = playerx
   prevy = playery
 
-  if up.pressed "playeryvel += speed"
-  if down.pressed "playeryvel -= speed"
-  if left.pressed "playerxvel -= speed"
-  if right.pressed "playerxvel += speed"
+  if up.isKeyDown() "playeryvel += speed"
+  if down.isKeyDown() "playeryvel -= speed"
+  if left.isKeyDown() "playerxvel -= speed"
+  if right.isKeyDown() "playerxvel += speed"
   // changes the player velocity based on keys pressed
 
   playerxvel *= 0.6
@@ -71,7 +71,7 @@ def "run_movement"
 endef
 
 def "run_interactions"
-  if "e".pressed.not "can = true"
+  if "e".isKeyDown().not "can = true"
   // makes sure that you cannot interact again until you finish the current interaction
 
   current_interactables = interactables.key(map_location)
@@ -94,34 +94,34 @@ def "run_interactions"
 endef
 
 def "run_animator"
-  if anim_start != 1 and up.pressed.not and left.pressed.not and right.pressed.not and down.pressed.not (
+  if anim_start != 1 and up.isKeyDown().not and left.isKeyDown().not and right.isKeyDown().not and down.isKeyDown().not (
     anim_start = 1
     anim_frame = 1
     anim_length = 4
   )
   
-  if current_anim != "up" and up.pressed (
+  if current_anim != "up" and up.isKeyDown() (
     anim_start = 5
     anim_frame = 5
     anim_length = 10
     current_anim = "up"
   )
   
-  if current_anim != "left" and left.pressed (
+  if current_anim != "left" and left.isKeyDown() (
     anim_start = 5
     anim_frame = 5
     anim_length = 10
     current_anim = "left"
   )
   
-  if current_anim != "down" and down.pressed (
+  if current_anim != "down" and down.isKeyDown() (
     anim_start = 5
     anim_frame = 5
     anim_length = 10
     current_anim = "down"
   )
   
-  if current_anim != "right" and right.pressed (
+  if current_anim != "right" and right.isKeyDown() (
     anim_start = 5
     anim_frame = 5
     anim_length = 10
@@ -299,7 +299,7 @@ if anim_frame > anim_length "anim_frame = anim_start"
 // animator, loops through frames of current player animation
 
 speed = 4
-if "shift".pressed "speed += 3"
+if "shift".isKeyDown() "speed += 3"
 // sprint and speed system
 
 if load_animate.not (
@@ -307,12 +307,12 @@ if load_animate.not (
   // draws the room background
 )
 
-if anim_start != 1 or up.pressed or left.pressed or right.pressed or down.pressed (
+if anim_start != 1 or up.isKeyDown() or left.isKeyDown() or right.isKeyDown() or down.isKeyDown() (
   run_animator
   // controls the movement animations of the player
 )
 
-if "any".pressed and load_animate.not (
+if "any".isKeyDown() and load_animate.not (
   // This is a very good optimisation, these files are laggy
 
   run_movement

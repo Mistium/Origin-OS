@@ -16,7 +16,7 @@ dock = [
 
 def "open_app" "app_data"
   current_app = app_data
-  app_code = app_data."code".split(newline)
+  app_code = app_data.code.split(newline)
 endef
 
 def "home"
@@ -28,7 +28,7 @@ def "home"
   text hour ++ ":" ++ minute 8 : c#fff
   loc -2 2 -15 -15
   icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.7
-  if network."connected".not (
+  if network.connected.not() (
     icon "w 3 line 10 10 -10 -10" 0.7
   )
   btry = battery_percent
@@ -45,8 +45,8 @@ def "home"
   loc -2 -2 30 30
   pen "up"
   loc 2 -2 45 30
-  each "i" "app" dock.trim(1,4) (
-    icon app."icon" 2 : cursor#pointer
+  each i app dock.trim(1,4) (
+    icon app.icon 2 : cursor#pointer
     if onclick (
       open_app app
     )
@@ -55,6 +55,7 @@ def "home"
 endef
 
 mainloop:
+
 if current_app == "" (
   home
 ) else (
