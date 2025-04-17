@@ -27,27 +27,6 @@ originOS is a shell for running osl.
 OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
 
 [Find documentation for osl here](https://github.com/Mistium/Origin-OS/wiki/Origin-Scripting-Language)
-## Quotes
-
-- Mistium: When people assume your scratchOS is a linux distro is when you have reached the peak of human accomplishment
-
-### quotes are purely satire and may not align with my beliefs
-
-@ionslayer - "origin os is to clean to the point it makes me not like it, likes its not an os experience if your not complaining about them randomly simplifying the right click menu or some apps looking different than they should randomly"
-
-@vernacular7 - "One day, inside di galaxy far away, dey spot an extraterrestrial party animal named Alan. Dis alien, him dey green and full of groove, decide say e go learn di dance moves from Earth. Alan land for di dance floor wit him funky tentacles and start to bust some out-of-dis-world moves. People dey look amazed as him just dey levitate and boogie down, showing say even aliens fit to dance better pass some humans. Di whole crew join di intergalactic dance-off, and soon, Earth and space dey mix for one cosmic party wey nobody go fit forget."
-
-@clinically_insane._. - "I miss my family because mist used my ip to get my general location then raided every house and murdered them and killed my family, overall origin is great though"
-
-@mistium - "I made originOS and did not kill anyone's families"
-
-@felix9390 - "Origin? damn mist killed my pet and family, she destroyed my pc and said me to bring money, she robbed 50 banks with 69million dollars, overall, OriginOS is alright"
-
-@liahws_the_rat - "Cmon do the thug shaker, I know you can do it"
-
-@rattusdong - "I want death to *come* for me"
-
-@elitehampter - "It's not illegal if you dont get caught"
 
 ## Repo Tracker
 
