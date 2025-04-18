@@ -1,0 +1,52 @@
+{
+  "manifest": {
+    "name": "YAK",
+    "version": "1.0",
+    "extensions": [".yak"]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "(?:(?<!\\\\)\"(?:[^\"\\\\]|\\\\.)*\")|(?:(?<!\\\\)'(?:[^'\\\\]|\\\\.)*')|[^\\s\\w(),\\[\\]{}:]{1,}|[^\\W]+|[^\\w ]|\\s+"
+  },
+  "overrides": {
+    "origin.numbers": "#ff9e5e",
+    "origin.strings": "#5ee8bd",
+    "origin.comments": "#87939f",
+    "origin.functions": "#b289e8",
+    "origin.objects": "#5ebaff"
+  },
+  "categories": {
+    "keywords": {
+      "color": "#ff7b45",
+      "tokens": ["IF", "ELSE", "END", "SWITCH", "CASE", "DEFAULT", "EXIT", "RETURN", "WITH", "FUNC:DEF", "FUNC:CALL", "VAR:SET", "VAR:CONST", "VAR:ADD"]
+    },
+    "operators": {
+      "color": "#ff6d3d",
+      "tokens": ["OP:GREATER", "OP:ADD", "OP:MINUS", "OP:DIFF", "OP:OR", "OP:EQUL", "OP:TERNARY", "OP:NOT"]
+    },
+    "systemFunctions": {
+      "color": "#e8a33c",
+      "tokens": ["STD:OUT", "FS:CD", "FS:LS", "FS:ASDIR", "FS:ISDIR", "PARENT", "STRING", "ARR:SORT"]
+    },
+    "variables": {
+      "color": "#47c1ff",
+      "tokens": ["#directory", "#prefix", "#maxDepth", "#depth", "#contents", "#file", "#parts", "#dispFile", "#asDir", "#i", "$dir", "$OBJ", "$counts", "$directory", "$MSG"]
+    },
+    "objectAccess": {
+      "color": "#ff9e5e",
+      "tokens": ["OBJ:KEY"]
+    },
+    "literals": {
+      "color": "#ff7b87",
+      "tokens": ["TRUE", "FALSE"]
+    },
+    "brackets": {
+      "color": "#ffd23c",
+      "tokens": ["(", ")", "[", "]", "{", "}"]
+    },
+    "commandSymbols": {
+      "color": "#e86f3c",
+      "tokens": ["#!", "/usr/bin/yak", "//"]
+    }
+  }
+}
