@@ -3,7 +3,7 @@
     "name": "all-icons",
     "format": ".icn",
     "description": "Combined icon packs",
-    "generated": "2025-04-22T13:22:59.625Z"
+    "generated": "2025-04-22T14:18:27.746Z"
   },
   "data": {
     "pgm": "w 3 cutcircle 0 0 9 0 100 w 3 cutcircle 0 0 8 90 50 w 7 dot 0 0",
@@ -30,6 +30,7 @@
     "bookmark-full": "w 3 line -7 10 7 10 cont 7 -10 line -7 10 -7 -10 cont 0 -5 cont 7 -10 w 8 square 0 1 4 4 w 4 dot -5 -6 dot 5 -6",
     "close": "w 4 line 10 10 -10 -10 line -10 10 10 -10",
     "file": "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10",
+    "folder": "w 4 line -10 8 -5 8 cont 0 5 cont 10 5 cont 10 -8 cont -10 -8 cont -10 8",
     "save": "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2",
     "minimise": "w 4 line 10 5 0 -5 cont -10 5",
     "maximise": "w 4 line 0 10 -10 10 cont -10 0 line 0 -10 10 -10 cont 10 0",
