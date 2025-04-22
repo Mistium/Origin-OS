@@ -15,6 +15,7 @@
     "bookmark-full": "w 3 line -7 10 7 10 cont 7 -10 line -7 10 -7 -10 cont 0 -5 cont 7 -10 w 8 square 0 1 4 4 w 4 dot -5 -6 dot 5 -6",
     "close": "w 4 line 10 10 -10 -10 line -10 10 10 -10",
     "file": "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10",
+    "folder": "w 4 line -10 8 -5 8 cont 0 5 cont 10 5 cont 10 -8 cont -10 -8 cont -10 8",
     "save": "w 4 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2",
     "minimise": "w 4 line 10 5 0 -5 cont -10 5",
     "maximise": "w 4 line 0 10 -10 10 cont -10 0 line 0 -10 10 -10 cont 10 0",
