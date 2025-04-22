@@ -464,5 +464,6 @@
   "└": "w 5.53 line 15 40 15 20 cont 30 20",
   "─": "w 5.53 line 0 20 30 20",
   "├": "w 5.53 line 15 40 15 5 line 15 20 30 20",
-  "→": "w 5.54 line 5 22.5 25 22.5 line 15 15 25 22.5 cont 15 30"
+  "→": "line 5 22.5 25 22.5 line 15 15 25 22.5 cont 15 30",
+  "⅌": "line 5 40 8 35 cont 8 10 cont 12 5 cont 16 10 cont 16 35 cont 20 40 cont 25 35 cont 25 25 cont 20 20 cont 5 20"
 }
