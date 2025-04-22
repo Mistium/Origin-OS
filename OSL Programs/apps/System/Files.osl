@@ -39,7 +39,7 @@ def "navigate" "path" (
   input_path = path
 )
 
-def "sort_files(files)" (
+def sort_files(files) (
   new_files = []
   each i file files (
     obj = {}
@@ -436,15 +436,15 @@ def "render_files" (
     )
     text "Empty Bin" 9 : c#txtc chx#-40
   )
-  goto this.temp_x + 55 this.temp_y + 15
+  goto temp_x + 55 temp_y + 15
   sorting_option "Name"
-  set_x this.temp_x2 - 115
+  set_x temp_x2 - 115
   sorting_option "Size"
-  set_x this.temp_x2 - 260
+  set_x temp_x2 - 260
   sorting_option "Filetype"
   
   if frm_w > 600 (
-    set_x this.temp_x2 - 410
+    set_x temp_x2 - 410
     sorting_option "Modified"
   )
 )
@@ -527,9 +527,13 @@ mainloop:
   )
   loc 2 2 20 -118
   if sideshow "change 250"
-  icon "add" 0.7 : c#txtc
+  icon "file" 0.7 : c#txtc
   if onclick (
     window "add" "New_File" input_path
+  )
+  icon "folder" 0.7 : chx#30
+  if onclick (
+    file "download" "new folder.folder" null null input_path
   )
   icon "w 3 line 0 -8 0 8" 0.7 : chx#20
   change -10
