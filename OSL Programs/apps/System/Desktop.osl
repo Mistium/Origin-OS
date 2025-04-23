@@ -67,8 +67,8 @@ def "handle_app_culling" (
     desktop_apps = desktop
   ) else (
     loc 2 2 35 -35
-    x = (mouse_x - x_position / 70).round * 70
-    y = (mouse_y - y_position / 70).round * 70
+    x = round(mouse_x - x_position / 70) * 70
+    y = round(mouse_y - y_position / 70) * 70
 
     desktop_apps = []
     cur = app_positions[y][x]
@@ -239,19 +239,21 @@ if data.len == 0 or app_size == 0 "exit"
 handle_app_culling
 
 if desktop_apps.len == 0 "exit"
-each i app_id desktop_apps (
+for i desktop_apps.len (
+  app_id @= desktop_apps[i]
+
   file "open" app_id "onlyaccess"
-  file "get" 6
-  x = (data / 70).round * 70
-  file "get" 7
-  y = (data / 70).round * 70
-  loc 2 2 35 + x -35 + y
+  x = round(fileGet(6) / 70) * 70
+  y = round(fileGet(7) / 70) * 70
   app_positions[y][x] = app_id
+
+  loc 2 2 35 + x -35 + y
   square 30 30 0 0 1
   if mouse_touching or cnrn (
     file "render" app_size "interactable"
     rightclick "file" app_id
   )
+  
   file "get" 2
   if mouse_touching (
     square data.len * 8 10 15 : c#back chy#-30
