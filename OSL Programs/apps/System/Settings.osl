@@ -244,7 +244,7 @@ def "system" (
       if mouse_touching (
         cursor "pointer"
         if onclick (
-          network "new_tab" "https://patreon.com/mistium"
+          http "newtab" "https://patreon.com/mistium"
         )
       )
       image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
@@ -456,7 +456,7 @@ def "appearance" (
       loc 4 2 -2.5 y
       w = frame.width / 2 - 30
       square w 230 15 : c#prim
-      image background_url w 200 : chy#-10
+      image "wallpaper" w 200 : chy#-10
       y2 = y + 50
       systemvars "getvar" "SYSTEM // Background Mode"
       back_mode = data
@@ -494,7 +494,7 @@ def "appearance" (
         change_x -40
         square 20 20 20 : c#prim
         if mouse_touching (
-          if clicked.not "square 20 20 23"
+          if clicked.not() "square 20 20 23"
           if onclick (
             terminal "system wallpaper" + cur
             network "update" "wallpaper" cur
@@ -941,9 +941,10 @@ def "account" (
   if all_badges.istype("object") (
     badges = user["sys.badges"]
     local w2 = badges.len * 30
-    goto pos[1] + 85 + (w2 * .5) pos[2]
+    pos[1] += username.len * 10
+    goto pos[1] + 35 + (w2 * .5) pos[2]
     square w2 - 5 25 10 : c#prim
-    goto pos[1] + 100 pos[2]
+    goto pos[1] + 50 pos[2]
     each badge badges (
       icon all_badges[badge].icon 1.2 : tooltip#badge
       if onclick (
@@ -1161,17 +1162,13 @@ def "credits" (
     change -200 -45
     local y = y_position
     text "Thanks to GarboMuffin and the scratch team for making TurboWarp possible".wrapText(w / 9 - 1) 9
-    goto x y - 177
-    square w 100 20 : c#prim
-    set_x 20
-    change_y 40
-    text "Github Contributors >" 9 : c#txtc
-    set_x 30
-    change_y -30
-    for i c_imgs.len (
-      image c_imgs[i].toStr() 25 25
-      change_x 30
+    goto x y - 120
+    square w 40 20 : c#prim
+    if clicked (
+      subcategory = "Contributors"
     )
+    change_x w / -2 + 10
+    text "Github Contributors >" 9 -100 : c#txtc
   )
   if subcategory == "Extensions" (
     w = frame_width - 25
@@ -1187,6 +1184,25 @@ def "credits" (
       text extensions[count] 9 : c#txtc
     )
     page_len = extensions.len - 0.5 * 60
+  )
+  if subcategory == "Contributors" (
+    w = frame_width - 25
+    for count contributors.len (
+      local cur @= contributors[count]
+      y = count - 0.5 * -60 + scroll_y
+      loc 999 2 0 y
+      square w 40 15 1 : c#prim
+      if mouse_touching (
+        square w 40 15 : c#seco
+        square w 40 10 1 : c#prim
+      )
+      loc 2 2 30 y
+      image cur.avatar_url 40 40
+      text cur.login 9 : c#txtc chx#30
+      
+      text "(" ++ cur.contributions ++ " commits)" 8 : chx#10
+    )
+    page_len = contributors.len - 0.5 * 60
   )
   if subcategory == "Community" (
     loc 2 2 110 -30
@@ -1216,7 +1232,6 @@ def "credits" (
     page_len = supporters.len * 20 + 100
   )
 )
-
 
 def networking() (
   if new_network_data (
@@ -1258,18 +1273,12 @@ current = file[4]
 files = []
 file_data = ""
 total_files = 0
-contributors = [
-  {"login":"Mistium","avatar_url":"https://avatars.rotur.dev/mist"},
-  {"login":"koo1140","avatar_url":"https://avatars.githubusercontent.com/u/112756430?v=4"},
-  {"login":"RattusDong","avatar_url":"https://avatars.rotur.dev/rattusdoong"},
-  {"login":"vernacular7","avatar_url":"https://avatars.githubusercontent.com/u/132183833?v=4"},
-  {"login":"MILO123PRO","avatar_url":"https://avatars.githubusercontent.com/u/64213421?v=4"},
-  {"login":"Rainbow10000","avatar_url":"https://avatars.githubusercontent.com/u/144138634?v=4"},
-  {"login":"ThePandaDever","avatar_url":"https://avatars.rotur.dev/pnada"},
-  {"login":"Dighoster9797","avatar_url":"https://avatars.githubusercontent.com/u/141959187?v=4"},
-  {"login":"Kasairoe","avatar_url":"https://avatars.githubusercontent.com/u/146598325?v=4"}
-]
-c_names = contributors.destr.getall("login")
+contributors = "https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/main/contributors.json"
+  .httpGet()
+  .JsonClean()
+  .filter(v -> (v["type"] == "User"))
+
+c_names = contributors.destr.getall("username")
 c_imgs = contributors.destr.getall("avatar_url")
 
 window "dimensions" 880 500
