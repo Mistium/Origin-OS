@@ -305,7 +305,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "App Store.osl",
     "icon": "c #cfc45e w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 w 2 c #cfc45e square -3.5 3.5 2 2 square -3.5 -3.5 2 2 square 3.5 3.5 2 2 line 3.5 -2 3.5 -5 line 2 -3.5 5 -3.5 w 4 dot -3.5 -3.5 dot 3.5 3.5 dot -3.5 3.5",
-    "version":"5.0"
+    "version":"5.1"
   },
   {
     "url": "https://origin.mistium.com/Scripts/win_buttons.osl",
