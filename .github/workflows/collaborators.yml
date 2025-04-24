@@ -58,7 +58,7 @@ jobs:
               name = collaborator.name if collaborator.name else username
               
               # Get commit count
-              cmd = f"git log --author={username} --pretty=format:'' | wc -l"
+              cmd = f"git log --author={username} --pretty=format:\'\' | wc -l"
               commit_count = int(subprocess.check_output(cmd, shell=True).decode().strip())
               
               # Get first and last commit dates if they have commits
@@ -71,8 +71,8 @@ jobs:
                   cmd_last = f"git log --author={username} --format=%cd --date=short | head -1"
                   last_commit_date = subprocess.check_output(cmd_last, shell=True).decode().strip()
               
-              # Get lines added/removed
-              cmd_lines = f"git log --author={username} --pretty=tformat: --numstat | awk \\"{ added += $1; removed += $2 } END { print added,removed }\\""
+              # Get lines added/removed with properly escaped awk command
+              cmd_lines = f"""git log --author={username} --pretty=tformat: --numstat | awk \'{{ added += $1; removed += $2 }} END {{ print added,removed }}\'"""
               try:
                   lines_output = subprocess.check_output(cmd_lines, shell=True).decode().strip()
                   if lines_output:
@@ -109,7 +109,7 @@ jobs:
           
           # Add last updated timestamp
           output = {
-              "last_updated": subprocess.check_output("date -u +\\"%Y-%m-%dT%H:%M:%SZ\\"", shell=True).decode().strip(),
+              "last_updated": subprocess.check_output("date -u +\"%Y-%m-%dT%H:%M:%SZ\"", shell=True).decode().strip(),
               "collaborators": collab_stats
           }
           
