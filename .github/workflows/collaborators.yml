@@ -30,9 +30,9 @@ jobs:
           python -m pip install --upgrade pip
           pip install PyGithub
 
-      - name: Generate collaborators.json
+      - name: Create Python script
         run: |
-          python -c '
+          cat > update_collaborators.py << 'EOF'
           import json
           import os
           import subprocess
@@ -58,7 +58,7 @@ jobs:
               name = collaborator.name if collaborator.name else username
               
               # Get commit count
-              cmd = f"git log --author={username} --pretty=format:\'\' | wc -l"
+              cmd = f"git log --author={username} --pretty=format:'' | wc -l"
               commit_count = int(subprocess.check_output(cmd, shell=True).decode().strip())
               
               # Get first and last commit dates if they have commits
@@ -71,15 +71,16 @@ jobs:
                   cmd_last = f"git log --author={username} --format=%cd --date=short | head -1"
                   last_commit_date = subprocess.check_output(cmd_last, shell=True).decode().strip()
               
-              # Get lines added/removed with properly escaped awk command
-              cmd_lines = f"""git log --author={username} --pretty=tformat: --numstat | awk \'{{ added += $1; removed += $2 }} END {{ print added,removed }}\'"""
+              # Get lines added/removed
+              cmd_lines = f"git log --author={username} --pretty=tformat: --numstat | awk '{{ added += $1; removed += $2 }} END {{ print added,removed }}'"
               try:
                   lines_output = subprocess.check_output(cmd_lines, shell=True).decode().strip()
                   if lines_output:
                       lines_added, lines_removed = map(int, lines_output.split())
                   else:
                       lines_added, lines_removed = 0, 0
-              except:
+              except Exception as e:
+                  print(f"Error calculating lines for {username}: {e}")
                   lines_added, lines_removed = 0, 0
               
               # Get files modified
@@ -103,6 +104,7 @@ jobs:
               }
               
               collab_stats.append(collab_data)
+              print(f"Processed stats for {username}")
           
           # Sort by number of commits (descending)
           collab_stats.sort(key=lambda x: x["stats"]["commits"], reverse=True)
@@ -116,7 +118,12 @@ jobs:
           # Write to file
           with open("collaborators.json", "w") as f:
               json.dump(output, f, indent=2)
-          '
+          
+          print("Successfully updated collaborators.json")
+          EOF
+
+      - name: Generate collaborators.json
+        run: python update_collaborators.py
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
