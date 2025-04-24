@@ -1,0 +1,135 @@
+name: Update Collaborators JSON
+
+on:
+  # Run daily at midnight
+  schedule:
+    - cron: '0 0 * * *'
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  update-collaborators:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install PyGithub
+
+      - name: Generate collaborators.json
+        run: |
+          python -c '
+          import json
+          import os
+          import subprocess
+          from github import Github
+          
+          # Get repository info
+          repo_name = os.environ["GITHUB_REPOSITORY"]
+          token = os.environ["GITHUB_TOKEN"]
+          gh = Github(token)
+          repo = gh.get_repo(repo_name)
+          
+          # Get all collaborators
+          collaborators = repo.get_collaborators()
+          
+          # Dictionary to store collaborator stats
+          collab_stats = []
+          
+          for collaborator in collaborators:
+              # Get basic info
+              username = collaborator.login
+              avatar_url = collaborator.avatar_url
+              profile_url = collaborator.html_url
+              name = collaborator.name if collaborator.name else username
+              
+              # Get commit count
+              cmd = f"git log --author={username} --pretty=format:'' | wc -l"
+              commit_count = int(subprocess.check_output(cmd, shell=True).decode().strip())
+              
+              # Get first and last commit dates if they have commits
+              first_commit_date = None
+              last_commit_date = None
+              if commit_count > 0:
+                  cmd_first = f"git log --author={username} --reverse --format=%cd --date=short | head -1"
+                  first_commit_date = subprocess.check_output(cmd_first, shell=True).decode().strip()
+                  
+                  cmd_last = f"git log --author={username} --format=%cd --date=short | head -1"
+                  last_commit_date = subprocess.check_output(cmd_last, shell=True).decode().strip()
+              
+              # Get lines added/removed
+              cmd_lines = f"git log --author={username} --pretty=tformat: --numstat | awk \\"{ added += $1; removed += $2 } END { print added,removed }\\""
+              try:
+                  lines_output = subprocess.check_output(cmd_lines, shell=True).decode().strip()
+                  if lines_output:
+                      lines_added, lines_removed = map(int, lines_output.split())
+                  else:
+                      lines_added, lines_removed = 0, 0
+              except:
+                  lines_added, lines_removed = 0, 0
+              
+              # Get files modified
+              cmd_files = f"git log --author={username} --pretty=tformat: --name-only | sort | uniq | wc -l"
+              files_modified = int(subprocess.check_output(cmd_files, shell=True).decode().strip())
+              
+              # Store stats
+              collab_data = {
+                  "username": username,
+                  "name": name,
+                  "avatar_url": avatar_url,
+                  "profile_url": profile_url,
+                  "stats": {
+                      "commits": commit_count,
+                      "lines_added": lines_added,
+                      "lines_removed": lines_removed,
+                      "files_modified": files_modified,
+                      "first_commit": first_commit_date,
+                      "last_commit": last_commit_date
+                  }
+              }
+              
+              collab_stats.append(collab_data)
+          
+          # Sort by number of commits (descending)
+          collab_stats.sort(key=lambda x: x["stats"]["commits"], reverse=True)
+          
+          # Add last updated timestamp
+          output = {
+              "last_updated": subprocess.check_output("date -u +\\"%Y-%m-%dT%H:%M:%SZ\\"", shell=True).decode().strip(),
+              "collaborators": collab_stats
+          }
+          
+          # Write to file
+          with open("collaborators.json", "w") as f:
+              json.dump(output, f, indent=2)
+          '
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check if changes were made
+        id: check_changes
+        run: |
+          git diff --quiet collaborators.json || echo "changes=true" >> $GITHUB_OUTPUT
+
+      - name: Commit and push changes
+        if: steps.check_changes.outputs.changes == 'true'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add collaborators.json
+          git commit -m "Update collaborators.json"
+          git push
