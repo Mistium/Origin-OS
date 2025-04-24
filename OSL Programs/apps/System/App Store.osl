@@ -201,7 +201,10 @@ if page == "APPSTORE// List" (
     loc 999 2 0 y
     cur = apps[count]
     square w 50 15 : c#window_colour
-    if mouse_touching (
+    // note: the second part of this statement is a bandaid fix
+    // for an OSL issue where items outside of a frame can still
+    // be clicked. if that's fixed, the second condition can be removed
+    if mouse_touching and mouse_y < (wh/2 - 40) (
       square w 50 15 : c#seco
       square w 50 10 : c#window_colour
       if clicked (
