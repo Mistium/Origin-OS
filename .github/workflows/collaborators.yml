@@ -1,197 +1,26 @@
-name: Update Collaborators JSON
+name: Fetch Contributors
 
 on:
-  # Run daily at midnight
   schedule:
-    - cron: '0 0 * * *'
-  # Allow manual trigger
-  workflow_dispatch:
+    - cron: '0 0 * * *'  # Runs daily at midnight
+  workflow_dispatch:  # Allows manual triggering
 
 jobs:
-  update-collaborators:
+  fetch-contributors:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      pull-requests: write
-
+    
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0  # Needed to get all commit history
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
+        uses: actions/checkout@v3
+        
+      - name: Fetch contributors
         run: |
-          python -m pip install --upgrade pip
-          pip install PyGithub
-
-      - name: Create Python script
+          curl -s https://api.github.com/repos/Mistium/Origin-OS/contributors > contributors.json
+        
+      - name: Commit changes if any
         run: |
-          cat > update_collaborators.py << 'EOF'
-          import json
-          import os
-          import subprocess
-          import sys
-          from github import Github
-          
-          try:
-              # Print debugging info
-              print("Starting collaborator update process...")
-              
-              # Get repository info
-              repo_name = os.environ["GITHUB_REPOSITORY"]
-              token = os.environ["GITHUB_TOKEN"]
-              print(f"Repository: {repo_name}")
-              
-              gh = Github(token)
-              repo = gh.get_repo(repo_name)
-              
-              # Get all collaborators
-              print("Fetching collaborators...")
-              collaborators = list(repo.get_collaborators())
-              print(f"Found {len(collaborators)} collaborators")
-              
-              # Dictionary to store collaborator stats
-              collab_stats = []
-              
-              for collaborator in collaborators:
-                  # Get basic info
-                  username = collaborator.login
-                  print(f"\nProcessing collaborator: {username}")
-                  avatar_url = collaborator.avatar_url
-                  profile_url = collaborator.html_url
-                  name = collaborator.name if collaborator.name else username
-                  
-                  # Get commit count
-                  print(f"Getting commit count for {username}...")
-                  cmd = f"git log --author={username} --pretty=format:'' | wc -l"
-                  commit_count = int(subprocess.check_output(cmd, shell=True).decode().strip())
-                  print(f"Commit count: {commit_count}")
-                  
-                  # Get first and last commit dates if they have commits
-                  first_commit_date = None
-                  last_commit_date = None
-                  if commit_count > 0:
-                      print("Getting first commit date...")
-                      cmd_first = f"git log --author={username} --reverse --format=%cd --date=short | head -1"
-                      first_commit_date = subprocess.check_output(cmd_first, shell=True).decode().strip()
-                      
-                      print("Getting last commit date...")
-                      cmd_last = f"git log --author={username} --format=%cd --date=short | head -1"
-                      last_commit_date = subprocess.check_output(cmd_last, shell=True).decode().strip()
-                  
-                  # Get lines added/removed
-                  print("Calculating lines added/removed...")
-                  cmd_lines = f"git log --author={username} --pretty=tformat: --numstat | awk '{{ added += $1; removed += $2 }} END {{ print added,removed }}'"
-                  try:
-                      lines_output = subprocess.check_output(cmd_lines, shell=True).decode().strip()
-                      if lines_output:
-                          lines_added, lines_removed = map(int, lines_output.split())
-                      else:
-                          lines_added, lines_removed = 0, 0
-                      print(f"Lines: +{lines_added}/-{lines_removed}")
-                  except Exception as e:
-                      print(f"Error calculating lines for {username}: {e}")
-                      lines_added, lines_removed = 0, 0
-                  
-                  # Get files modified
-                  print("Calculating files modified...")
-                  cmd_files = f"git log --author={username} --pretty=tformat: --name-only | sort | uniq | wc -l"
-                  files_modified = int(subprocess.check_output(cmd_files, shell=True).decode().strip())
-                  print(f"Files modified: {files_modified}")
-                  
-                  # Store stats
-                  collab_data = {
-                      "username": username,
-                      "name": name,
-                      "avatar_url": avatar_url,
-                      "profile_url": profile_url,
-                      "stats": {
-                          "commits": commit_count,
-                          "lines_added": lines_added,
-                          "lines_removed": lines_removed,
-                          "files_modified": files_modified,
-                          "first_commit": first_commit_date,
-                          "last_commit": last_commit_date
-                      }
-                  }
-                  
-                  collab_stats.append(collab_data)
-                  print(f"Successfully processed stats for {username}")
-              
-              # Add collaborators without commits if none found
-              if not collab_stats:
-                  print("No collaborator stats found. Adding placeholder entry.")
-                  for collaborator in collaborators:
-                      username = collaborator.login
-                      collab_stats.append({
-                          "username": username,
-                          "name": collaborator.name if collaborator.name else username,
-                          "avatar_url": collaborator.avatar_url,
-                          "profile_url": collaborator.html_url,
-                          "stats": {
-                              "commits": 0,
-                              "lines_added": 0,
-                              "lines_removed": 0,
-                              "files_modified": 0,
-                              "first_commit": None,
-                              "last_commit": None
-                          }
-                      })
-              
-              # Sort by number of commits (descending)
-              collab_stats.sort(key=lambda x: x["stats"]["commits"], reverse=True)
-              
-              # Add last updated timestamp
-              output = {
-                  "last_updated": subprocess.check_output("date -u +\"%Y-%m-%dT%H:%M:%SZ\"", shell=True).decode().strip(),
-                  "collaborators": collab_stats
-              }
-              
-              # Write to file
-              print("Writing to collaborators.json...")
-              with open("collaborators.json", "w") as f:
-                  json.dump(output, f, indent=2)
-              
-              print("Successfully created/updated collaborators.json")
-              
-              # For debugging, show file contents
-              print("\nFile contents:")
-              with open("collaborators.json", "r") as f:
-                  print(f.read())
-                  
-          except Exception as e:
-              print(f"ERROR: {e}")
-              import traceback
-              traceback.print_exc()
-              sys.exit(1)
-          EOF
-
-      - name: Generate collaborators.json
-        run: python update_collaborators.py
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Check file exists
-        run: |
-          if [ -f "collaborators.json" ]; then
-            echo "File exists - showing contents:"
-            ls -la collaborators.json
-            cat collaborators.json
-          else
-            echo "ERROR: collaborators.json file was not created!"
-            exit 1
-          fi
-
-      - name: Commit and push changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add collaborators.json
-          git commit -m "Update collaborators.json" || echo "No changes to commit"
-          git push || echo "Nothing to push"
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add contributors.json
+          git diff --quiet && git diff --staged --quiet || git commit -m "Update contributors list"
+          git push
