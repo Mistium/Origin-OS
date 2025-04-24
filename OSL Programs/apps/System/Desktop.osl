@@ -113,7 +113,9 @@ def getUuid(path) (
 desktop_rightclick = [
   "> " ++ getUuid("user/desktop.folder"),
   "-",
-  "Change Wallpaper",
+  {"Change Wallpaper": def() -> (
+    window.create(getUuid("sys/Settings.osl"), "Style/Background")
+  )},
   ["Quick Apps",
     "> " ++ getUuid("sys/Files.osl"),
     "> " ++ getUuid("sys/Settings.osl"),
@@ -167,7 +169,7 @@ desktop_rightclick_temp = desktop_rightclick
 
 if "theme.json".saveExists() (
   theme = "theme.json".saveGet().JsonClean()
-  if theme.isType("object").not (
+  if typeof(theme) != "object" (
     theme = {"app_size":"1.8"}
     save "theme.json" "set" theme
   )
@@ -207,7 +209,7 @@ window.width = screensize_x
 window.height = screensize_y - 70
 window.y = 35
 
-if nhvr.not (
+if nhvr.not() (
   if file_dropped != 0 (
     handle_dropped_file
     window "refresh_bg"
@@ -222,7 +224,7 @@ if nhvr.not (
   if mouse_down (
     render_selection
   ) else (
-    if can.not (
+    if can.not() (
       window "refresh_bg"
     )
     can = true
@@ -253,7 +255,7 @@ for i desktop_apps.len (
     file "render" app_size "interactable"
     rightclick "file" app_id
   )
-  
+
   file "get" 2
   if mouse_touching (
     square data.len * 8 10 15 : c#back chy#-30
