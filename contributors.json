@@ -19,7 +19,7 @@
     "type": "User",
     "user_view_type": "public",
     "site_admin": false,
-    "contributions": 4096
+    "contributions": 4100
   },
   {
     "login": "RattusDong",
@@ -195,7 +195,7 @@
     "type": "User",
     "user_view_type": "public",
     "site_admin": false,
-    "contributions": 16
+    "contributions": 17
   },
   {
     "login": "Rainbow10000",
@@ -218,6 +218,28 @@
     "user_view_type": "public",
     "site_admin": false,
     "contributions": 6
+  },
+  {
+    "login": "NexusKitten",
+    "id": 127152751,
+    "node_id": "U_kgDOB5Qybw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/127152751?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/NexusKitten",
+    "html_url": "https://github.com/NexusKitten",
+    "followers_url": "https://api.github.com/users/NexusKitten/followers",
+    "following_url": "https://api.github.com/users/NexusKitten/following{/other_user}",
+    "gists_url": "https://api.github.com/users/NexusKitten/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/NexusKitten/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/NexusKitten/subscriptions",
+    "organizations_url": "https://api.github.com/users/NexusKitten/orgs",
+    "repos_url": "https://api.github.com/users/NexusKitten/repos",
+    "events_url": "https://api.github.com/users/NexusKitten/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/NexusKitten/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false,
+    "contributions": 2
   },
   {
     "login": "Dighoster9797",
