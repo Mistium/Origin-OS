@@ -24,6 +24,7 @@
     "download": "w 4 line 0 10 0 -5 cont 7 2 line 0 -5 -7 2 line -10 -10 10 -10",
     "upload": "w 4 line 0 10 0 -5 line 7 2 0 10 cont -7 2 line -10 -10 10 -10",
     "info": "w 3 cutcircle 0 0 10 0 180 line 0 0 0 -5 dot 0 5",
+    "phone": "w 3.5 curve res 20 curve 6.8 -7.3 -7.3 6.8 -6 -6 curve res 5 curve 6.8 -7.3 7 -6 8 -6 curve -7.3 6.8 -6 7 -6 8 line 7.3 -6 5 -5 cont 4 -6 line -6 7.3 -5 5 cont -6 4"
     "home": "w 3 line 9 -12 9 0 cont 9 0 cont 12 0 cont 0 12 cont -12 0 cont -9 0 cont -9 -12 cont -3 -12 cont -3 -4 cont 3 -4 cont 3 -12 cont 9 -12",
     "home-full": "w 3 line 9 -12 9 0 cont 12 0 cont 0 12 cont -12 0 cont -9 0 cont -9 -12 cont -4 -12 cont -4 -4 cont 4 -4 cont 4 -12 cont 9 -12 w 5 line -6 -9 -6 4 line 6 -9 6 4 w 10 dot 0 0 dot 0 5",
     "favorites": "w 3 cutcircle -4.5 4 5 -3 90 cutcircle 4.5 4 5 3 90 line -8.5 1 0 -9 line 8.5 1 0 -9",
