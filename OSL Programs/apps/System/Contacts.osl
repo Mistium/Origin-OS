@@ -17,8 +17,18 @@ def "con_button" "w, h, t, callback" (
   centext t 10 : c#txtc
 )
 
+def extractUsername(name) (
+  if name.contains("§") (
+    return name.trim(5,-12).toLower()
+  ) else (
+    return name
+  )
+)
+
 mainloop:
 load_theme
+
+online = network.online_users.map(extractUsername)
 
 list = page == "Friends" ? user["sys.friends"] user["sys.requests"]
 
@@ -54,6 +64,9 @@ frame window.left window.top - 50 window.left + 305 window.bottom + 60 length * 
       )
       change_x w / -2 + 12.5
       image "https://avatars.rotur.dev/" ++ list[count] 30 30
+      change 15 -15
+      icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #777 w 10 dot 0 0" 1
+      change -15 15
       text list[count] 10 : c#txtc chx#20
       y -= 40
     )
