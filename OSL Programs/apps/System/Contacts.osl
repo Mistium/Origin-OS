@@ -2,10 +2,12 @@ import "window_tools"
 import as "glass" from "packages"
 
 permission "request" "account"
+permission "request" "rvoice"
 
 page = "Friends"
 selected_user = ""
 sending = false
+calling = ""
 
 window.resize(1000,600)
 
@@ -44,6 +46,7 @@ if onclick (
 )
 length = list.len
 c seco
+
 frame window.left window.top - 50 window.left + 305 window.bottom + 60 length * 40 (
   if length == 0 (
     loc 2 2 10 -20
@@ -151,8 +154,27 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       )
       icon "copy" 0.7 : c#txtc tooltip#"Copy Username"
 
+      if calling == selected_user (
+        if timestamp - call_time > 10000 (
+          say "Call has timed out."
+          calling = ""
+        )
+        
+        goto frame.left + 10 frame.top - 20
+        text "Ringing this user..." 10
+        direction timestamp / -5
+        icon "sync" 0.6
+        direction 90
+      )
+      
+      goto 0 frame.bottom + 140
+      con_button w 30 "Call" def() -> (
+        rotur "call" selected_user "request"
+        calling = selected_user
+        call_time = timestamp
+      )
 
-      goto 0 frame.bottom + 90
+      change_y -50
       con_button w 30 "Transfer Credits" def() -> (
         window.create("Wallet", {
           passed_data: {

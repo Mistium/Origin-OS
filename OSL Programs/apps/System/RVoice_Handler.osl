@@ -1,0 +1,114 @@
+import "window_tools" as "wt"
+import as "glass" from "packages"
+
+permission "request" "terminal"
+permission "request" "rvoice"
+
+window.on("close",def() -> (
+  terminal "rvoice close"
+))
+
+my_role = {
+  confirm: "confirm",
+  request: "request"
+}[passed_data.payload] ?? "unknown"
+
+if my_role == "unknown" (
+  window.close()
+)
+
+name = passed_data.from_rotur
+
+window.resize(440,70)
+window.setResizable(false)
+window "responsive" true
+window.show()
+window.goto(0, screensize_y / 2 + 40)
+window "to_position" 0 screensize_y / 2 - 50
+
+mode = "incoming"
+
+def switchMode(m) (
+  if m == "connecting" (
+    window "to_position" 0 0
+    window "to_dimensions" 440 100
+    terminal "rvoice connect"
+    was_connected = true
+  )
+  mode = m
+)
+
+if my_role == "confirm" (
+  switchMode("connecting")
+  terminal "rvoice call" + passed_data.from
+)
+
+was_connected = false
+
+start = timestamp
+
+mainloop:
+wt:load_theme
+
+if was_connected (
+  terminal "rvoice my_status"
+) else (
+  terminal_output = ["none"]
+)
+status = terminal_output[1]
+if window.y > screensize_y / 2 + 40 (
+  window.close()
+)
+
+terminal "rvoice incoming"
+if terminal_output[1] == true (
+  terminal "rvoice accept"
+)
+
+incoming = mode == "incoming"
+
+window "set_dragbox" [[2,2,0,0],[-2,-2,incoming ? -150 0,0]]
+
+goto window.left + 35 window.top - 35
+image "https://avatars.rotur.dev/" ++ name 60 60
+c txtc
+change 40 10
+if incoming (
+  text "Incoming call from\n" 10
+)
+text name 10
+
+goto window.right - 35 window.top - 35
+square 60 60 10 : c#d55
+terminal "rvoice peer"
+if onclick or (status == "disconnected" and timestamp - start > 10000) or (was_connected and termina_output[1] == "") (
+  window "to_position" 0 screensize_y / 2 + 50
+)
+icon "close" 1.2 : c#911
+if incoming (
+  change_x -75
+  square 60 60 10 : c#5d5
+  if onclick (
+    switchMode("connecting")
+    rotur "call" passed_data.from "confirm"
+  )
+  icon "phone" 1.2 : c#191
+) else (
+  goto window.left + 10 window.top - 80
+  terminal "rvoice call_status"
+  text terminal_output[1] 10
+
+  // this stuff is disabled cos the mic 
+  // is required to be on while the call is in progress
+  /* terminal "rvoice mic_status"
+  mic_enabled = terminal_output[1]
+  change_x -75
+  square 60 60 10 : c#55d
+  if onclick (
+    terminal "rvoice mic_mode" + (mic_enabled ? "disable" "enable")
+  )
+  icon "microphone" 1.2 : c#119
+  if mic_enabled.toBool().not() (
+    icon "close" 1.2
+  ) */
+)
