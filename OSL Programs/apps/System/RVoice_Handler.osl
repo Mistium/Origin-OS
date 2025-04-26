@@ -75,10 +75,10 @@ change 40 10
 if incoming (
   text "Incoming call from\n" 10
 )
-text name 10
+text name ++ "\n" 10
 if incoming.not() (
   terminal "rvoice call_status"
-  text "\n" ++ terminal_output[1] 10
+  text terminal_output[1] 10
 )
 
 goto window.right - 35 window.top - 35
