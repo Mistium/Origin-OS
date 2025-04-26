@@ -31,7 +31,7 @@ mode = "incoming"
 def switchMode(m) (
   if m == "connecting" (
     window "to_position" 0 0
-    window "to_dimensions" 440 100
+    window "to_dimensions" 440 70
     terminal "rvoice connect"
     was_connected = true
   )
@@ -77,11 +77,15 @@ if incoming (
   text "Incoming call from\n" 10
 )
 text name 10
+if incoming.not() (
+  terminal "rvoice call_status"
+  text terminal_output[1] 10
+)
 
 goto window.right - 35 window.top - 35
 square 60 60 10 : c#d55
 terminal "rvoice peer"
-if onclick or (status == "disconnected" and timestamp - start > 10000) or (was_connected and termina_output[1] == "") (
+if onclick or (status == "disconnected" and timestamp - start > 10000) or (was_connected and terminal_output[1] == "") (
   window "to_position" 0 screensize_y / 2 + 50
 )
 icon "close" 1.2 : c#911
@@ -94,12 +98,15 @@ if incoming (
   )
   icon "phone" 1.2 : c#191
 ) else (
-  goto window.left + 10 window.top - 80
-  terminal "rvoice call_status"
-  text terminal_output[1] 10
-
+  change_x -75
+  square 60 60 10 : c#5d5
+  if onclick (
+    window.minimise()
+  )
+  icon "down" 1.2 : c#191
   // this stuff is disabled cos the mic 
-  // is required to be on while the call is in progress
+  // is currently required to be on while the call is in progress
+
   /* terminal "rvoice mic_status"
   mic_enabled = terminal_output[1]
   change_x -75
