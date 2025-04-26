@@ -3,6 +3,7 @@ import as "glass" from "packages"
 
 permission "request" "account"
 permission "request" "rvoice"
+permission "request" "terminal"
 
 page = "Friends"
 selected_user = ""
@@ -67,8 +68,8 @@ frame window.left window.top - 50 window.left + 305 window.bottom + 60 length * 
       )
       change_x w / -2 + 12.5
       image "https://avatars.rotur.dev/" ++ list[count] 30 30
-      change 15 -15
-      icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #777 w 10 dot 0 0" 1
+      change 12 -12
+      icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #777 w 10 dot 0 0 c #333 w 5 dot 0 0" 1.3
       change -15 15
       text list[count] 10 : c#txtc chx#20
       y -= 40
@@ -165,6 +166,11 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
         direction timestamp / -5
         icon "sync" 0.6
         direction 90
+
+        terminal "rvoice peer"
+        if terminal_output[1] != "" (
+          calling = ""
+        )
       )
       
       goto 0 frame.bottom + 140
