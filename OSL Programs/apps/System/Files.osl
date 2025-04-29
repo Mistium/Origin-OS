@@ -242,8 +242,8 @@ def "render_tabs" (
   )
 )
 
-def "sorting_option" "this.sort_name" (
-  text this.sort_name 8
+def "sorting_option" "sort_name" (
+  text sort_name 8
   if sorting_mode == sort_name (
     if onclick (
       if sorting_direction == "ascending" (
@@ -385,14 +385,14 @@ def "render_files" (
       data2 = fileGet(2)
       max_chars = frame.width - (frame.width > 600 ? 500 330) / 9
       data = fileGet(10).toNum()
-      this.edited_time = timestamp - data < 172800000 ? data.timestamp("convert-relative") data.timestamp("convert-date")
+      local edited_time = timestamp - data < 172800000 ? data.timestamp("convert-relative") data.timestamp("convert-date")
       data = fileGet(1)
       if data == ".folder" (
         text data2.trimText(max_chars) 8
         
         if frame.width > 600 (
           loc -2 2 -400 draw_y
-          text this.edited_time 8
+          text edited_time 8
         )
         
         loc -2 2 -250 draw_y
@@ -406,15 +406,14 @@ def "render_files" (
         
         if frame.width > 600 (
           loc -2 2 -400 draw_y
-          text this.edited_time 8
+          text edited_time 8
         )
         
         loc -2 2 -250 draw_y
         data = file_types[data][2]
         text data ?? "Document" 8
         loc -2 2 -100 draw_y
-        data = fileGet(12)
-        text data < 1000 ? (data + "b") ((data / 100).ceiling() / 10 + "kb") 8
+        text formatFileSize(fileGet(12)) 8
       )
     )
   ) else (
@@ -474,7 +473,7 @@ favorites.map(val -> (val.replace(".folder","").destr))
 mainloop:
   window_tools:load_theme
   
-  if tabs.len == 0 or tabs.istype("array").not() (
+  if tabs.len == 0 or typeof(tabs) != "array" (
     setup_tabs
   )
   if mouse_down.not() "can = true"
@@ -494,7 +493,7 @@ mainloop:
   )
   square w - 330 25 15 : c#prim
   input w - 350 25 "path" null 10 txtc
-  if "enter".onpress and selected_input == "path" (
+  if "enter".onKeyDown() and selected_input == "path" (
     navigate input_path
   )
   
@@ -514,16 +513,21 @@ mainloop:
   )
   square w - 250 40 0 : c#prim
   if sideshow (
-    y = -110
-    folder "Favorites"
-    each fav favorites (
-      file_folder fav "Favorites"
-    )
+    pen "opacity" 0
+    frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "sidebar" (
+      y = -30 + frame.scroll
+      folder "Favorites"
+      each fav favorites (
+        file_folder fav "Favorites"
+      )
     
-    folder "Drives"
-    file_folder "/(a) system" "Drives"
-    file_folder "/(b) local" "Drives"
-    file_folder "/(c) users/" ++ username "Drives"
+      folder "Drives"
+      file_folder "/(a) system" "Drives"
+      file_folder "/(b) local" "Drives"
+      file_folder "/(c) users/" ++ username "Drives"
+    )
+    goto window.left + 255 window.bottom + 15
+    square 8 36 0 : c#prim
   )
   loc 2 2 20 -118
   if sideshow "change 250"
