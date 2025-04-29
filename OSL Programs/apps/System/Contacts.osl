@@ -167,9 +167,7 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       )
       icon "copy" 0.7 : c#txtc tooltip#"Copy Username"
       change_x 30
-      if network.connected and ["all_badges","Loading"].contains(all_badges) (
-        all_badges = "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json".getAsync()
-      )
+      all_badges = System().badges ?? {}
       if all_badges.istype("object") (
         badges = cur.badges
         local w2 = badges.len * 30
