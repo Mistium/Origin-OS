@@ -854,6 +854,34 @@ def "account" (
     return
   )
   
+  if subcategory == "Subscriptions" (
+    page_len = -40
+    if typeof(subscriptions) != "array" (
+      data = ("https://social.rotur.dev/keys/mine?auth=" ++ roturToken()).getAsync()
+      if data != "Loading" (
+        subscriptions = data.filter(v -> (v["type"] == "subscription"))
+      )
+    ) else (
+      goto 0 frame.top - 60 + scroll_y
+      if subscriptions.len == 0 (
+        centext "You have no subscriptions" 10 : c#txtc
+      )
+     
+      for i subscriptions.len (
+        cur @= subscriptions[i]
+        x = x_position
+        y = y_position
+        square w 100 10 : c#prim
+        change w / -2 30
+        // text lol
+        goto x y
+        change_y -120
+        page_len += 120
+      )
+    )
+    return
+  )
+  
   if subcategory == "Privacy" (
     page_len = 500
     setting_toggle "Private Account?" w user.private def() -> (
@@ -864,6 +892,7 @@ def "account" (
     local items = {
       "username": "username",
       "profile picture": "pfp",
+      "banner": "sys.banner",
       "bio": "bio",
       "theming and colours": "theme",
       "rotur credit total": "sys.currency",
@@ -935,17 +964,15 @@ def "account" (
       current_pfp = ""
     )
   )
-  if network.connected and ["all_badges","Loading"].contains(all_badges) (
-    all_badges = "https://raw.githubusercontent.com/RoturTW/Badges/main/badges.json".getAsync()
-  )
+  local all_badges System().badges ?? {}
   if all_badges.istype("object") (
-    badges = user["sys.badges"]
-    local w2 = badges.len * 30
+    user_badges = user["sys.badges"]
+    local w2 = user_badges.len * 30
     pos[1] += username.len * 10
     goto pos[1] + 35 + (w2 * .5) pos[2]
     square w2 - 5 25 10 : c#prim
     goto pos[1] + 50 pos[2]
-    each badge badges (
+    each badge user_badges (
       icon all_badges[badge].icon 1.2 : tooltip#badge
       if onclick (
         say all_badges[badge].description
@@ -995,12 +1022,19 @@ def "account" (
     subcategory = "Connections"
   )
   
+  set_x 0 : chy#-70
+  setting_do "Subscriptions" w def() -> (
+    subcategory = "Subscriptions"
+  )
+  
   change_y -20
 
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
     terminal "su"
   )
+  
+  page_len += 70
 )
 
 def "apps" (
@@ -1041,7 +1075,7 @@ def "permissions" (
   local perm_keys = perms.getKeys()
   
   local ih = 60
-  
+  //rattusdong was here
   local count = (scroll_y / ih).round() - 1
   
   loop (frame.height / ih).ceiling() + 1 (
