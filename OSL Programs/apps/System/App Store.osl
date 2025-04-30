@@ -1,457 +1,351 @@
 import "window_tools"
 import as "glass" from "packages"
 
-window "show"
-page = "APPSTORE// Loading"
 permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "save admin"
 permission "request" "account"
 
-stats = "https://apps.mistium.com/stats".get().JsonParse()
+stats = "https://apps.mistium.com/stats".httpGet().JsonParse()
 
-window "dimensions" 1000 600
+window "dimensions" 750 800
 save "appstore@system" "set_directory"
-if "installed.json".saveExists().not (
+if "installed.json".saveExists().not() (
+  save "installed.json" "set" {}
+) else if "installed.json".saveGet().isType("object").not() (
   save "installed.json" "set" {}
 )
 
-def "tab" "name" (
-  square w 40 15 0 0 : c#window_colour
-  if mouse_touching or name == page (
-    square w 40 15
-  )
-  if clicked "page = name"
-  change_y -60
+def "rigtext" "txt, sze" (
+  change_x txt.len * -sze
+  text txt sze
 )
 
-icons = {}
-apps = []
+home_json = null
+all_json = null
 
-def "loadicn" "cur" (
-  if icons.contains(cur).not (
-    if cur != "" (
-      local data = ("https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ encodeURIComponent(cur) ++ "/icon.icn").getAsync()
-      if data != "loading" (
-        icons[cur] = data
-      )
-    )
+page = "loading"
+page_data = ""
+page_history = [{
+  page: "home"
+}]
+
+def appCard(name) (
+  name = name.toLower()
+  local x = x_position
+  local y = y_position
+  square w - 30 h - 30 20 : c#prim
+  if onclick (
+    void ("https://apps.mistium.com/info?appname=" ++ name).getAsync()
+    navigate("app",name)
   )
+  
+  local img_w = h / 40
+  change_x w / -2 + (img_w * 20)
+  icon all_json[name].icon.replace("\n"," ") img_w img_w
+  change_x img_w * 15
+  local x2 = x_position
+  change_y 20
+  local txt_w = w / 10 - (img_w * 1)
+  text name.trimText(txt_w - 17) + "\n" 10 : c#txtc
+  text all_json[name].description
+    .wrapText(txt_w)
+    .split("\n")
+    .trim(1,2)
+    .join("\n") ++ "..." 8
+    
+  goto x y
+  change w / 2 - 20 20
+  rigtext formatFileSize(all_json[name].script.scriptSize) 10
+  goto x y
+)
+
+def navigate(p, d) (
+  page = p
+  page_data = d
+  page_history.append({
+    page,
+    page_data
+  })
 )
 
 mainloop:
 load_theme
 
-ww = window_width
-wh = window_height
-sidebar_width = ww / 5
-if sidebar_width < 300 "sidebar_width = 300"
-loc 999 2 0 -20
-square ww 40 10 1 : c#prim
-
-loc 2 999 sidebar_width / 2 0
-square sidebar_width wh 20 1
-glass:frame window.left window.top window.right window.bottom
-frame "clear"
-frame window.left window.top window.left + sidebar_width + 10 window.bottom (
-  pen "opacity" 50
-  icon "dot 0 0" frame.width
-)
-
-loc 2 2 sidebar_width / 2 + 3 -35
-
-w = sidebar_width - 25
-tab "APPSTORE// Profile"
-change_y -15
-tab "APPSTORE// Store"
-tab "APPSTORE// List"
-tab "APPSTORE// Marketplace"
-tab "APPSTORE// Library"
-
-x = 35
-y = -35
-loc 2 2 x y
-image user_icon 30
-change 30
-text username 10 : c#txtc
-
-y -= 75
-loc 2 2 x y
-icon "w 1.5 square -4 4 2 2 square -4 -4 2 2 square 4 4 2 2 line 4 -2 4 -6 line 2 -4 6 -4 w 4 dot -4 -4 dot 4 4 dot -4 4" 1.7
-text "Store" 9 : chx#22
-
-y -= 60
-loc 2 2 x y
-icon "list" 1
-text "List" 9 : chx#20
-
-y -= 60
-loc 2 2 x y
-icon "w 3 line -7 -10 -10 2 cont 10 2 cont 7 -10 cont -7 -10 line -6 2 -4 10 cont 4 10 cont 6 2" 1
-text "Marketplace" 9 : chx#20
-
-y -= 60
-loc 2 2 x y
-icon "w 3 line 0 6 10 10 cont 10 -6 cont 0 -10 cont 0 6 cont -10 10 cont -10 -6 cont 0 -10" 1
-text "Library" 9 : chx#20
-
-loc 2 -2 sidebar_width / 2 + 5 35
-square w 40 15 : c#window_colour
-if mouse_touching (
-  square w 40 15 : c#seco
-  square w 40 10 : c#window_colour
-)
-if onclick (
-  http "newtab" "https://github.com/RoturTW/apps/tree/main"
-)
-loc 2 -2 x 35
-c txtc
-icon "upload" 0.7
-text "Upload Your Apps" 9 : chx#20
-
-loc 2 2 sidebar_width + 20 -20
-text page_name 9 : c#txtc
-
-c seco
-frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
-
-if page == "APPSTORE// Loading" (
-  page_name = "Loading..."
-  direction timer * 360
-  icon "cutcircle 0 0 10 0 90" 5 : c#txtc
-  direction 90
-  if apps.len == 0 (
-    data = "https://raw.githubusercontent.com/RoturTW/apps/main/apps.json".getAsync()
-    if data != "loading" (
-      apps = data
-    )
-  )
+if home_json == null (
   data = "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/home.json".getAsync()
-  if data != "loading" and apps.len > 0 (
+  if data != "loading" (
     home_json = data
-    page = "APPSTORE// Store"
   )
 )
-
-if page == "APPSTORE// store" (
-  c window_colour
-  page_name = "Home"
-  w = frame.width - 25
-  
-  h = w * 0.56
-  goto 0 frame.top - (h/2) - 51.5 + scroll_y
-  local name = home_json.featured.name
-  square w h + 80 15 : chy#2.5
-  change_y -2.5
-  if onclick (
-    page = home_json.featured.name
-    app_tab = "Description"
-    installed = 0
-  )
-  change_y 40
-  image home_json.featured.image w h
-  local pos = [x_position, y_position]
-  local views = stats.views[name] + "Views"
-  v_w = views.len * 10 + 15
-  change w / -2 + (v_w / 2) + 5 h / 2 - 23
-  square v_w - 15 20 15
-  change_x v_w / -2 + 7.5
-  text views 10 : c#txtc
-  goto pos[1] pos[2]
-  
-  change w / -2 + 35 h / -2 - 45
-  loadicn name
-  icon icons[name] 2.5
-  change 40 15
-  text name ++ "\n" 15 : c#txtc
-  text home_json.featured.desc 10
-  author = "Made By " ++ home_json.featured.auth
-  set_x frame.right - (author.len * 10) - 20 : chy#35
-  text author 10
-  
-  stretch [100,100]
-  change_y -83
-  each app home_json.tiles (
-    set_x 0
-    square w 30 15 : c#window_colour
-    if onclick (
-      page = app.title
-      app_tab = "Description"
-      installed = 0
-    )
-    set_x frame.left + 27
-    loadicn app.title
-    icon icons[app.title] 1.5
-    text app.title 10 : c#txtc chx#25
-    change_y -50
-  )
-  
-  len = h + 163 + (home_json.tiles.len * 30)
-)
-
-if page == "APPSTORE// List" (
-  page_name = "List"
-  app_h = frame_width / 2
-  count = (scroll_y / 70).round() - 1
-  w = frame.width - 25
-  len = apps.len
-  loop (frame_height / 70 + 2).ceiling().clamp(0,len) (
-    count ++
-    y = count - 0.5 * -70 + scroll_y
-    loc 999 2 0 y
-    cur = apps[count]
-    square w 50 15 : c#window_colour
-    // note: the second part of this statement is a bandaid fix
-    // for an OSL issue where items outside of a frame can still
-    // be clicked. if that's fixed, the second condition can be removed
-    if mouse_touching and mouse_y < (wh/2 - 40) (
-      square w 50 15 : c#seco
-      square w 50 10 : c#window_colour
-      if clicked (
-        page = cur
-        app_tab = "Description"
-        installed = 0
+if all_json == null (
+  data = "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/all-info.json".getAsync()
+  if data != "loading" (
+    all_json = data
+    supported_json = all_json.getValues()
+      .filter(v -> (v.supports.contains("originOS")))
+      .sortBy("genre")
+      
+    categories = supported_json
+      .map(v -> (v.genre.toLower()))
+      
+    out = {}
+    for i supported_json.len (
+      cur = categories[i].split(",")
+      for i2 cur.len (
+        out[cur[i2].strip()] ??= []
+        
+        void out[cur[i2].strip()]
+          .append(supported_json[i].title)
       )
     )
-    loadicn cur
-    loc 2 2 35 y
-    icon icons[cur].replace(newline," ") 1.5
-    loc 2 2 65 y
-    text cur.toTitle() 10 : c#txtc
+    categories @= out
   )
-  len = apps.len - 0.25 * 70
 )
 
-if page == "APPSTORE// profile" (
-  page_name = "Profile"
-  
+if all_json != null and home_json != null and page == "loading" (
+  page = "home"
+)
+
+frame window.left window.top window.right window.top - 40 (
   goto 0 0
-  square 200 300 15 : c#window_colour
-  goto 0 60
-  image user.pfp 100
-  txt = user.username
-  goto txt.len * -5 -5
-  text txt 10 : c#txtc
-)
+  square frame.width 40 10 : c#prim
 
-if page == "APPSTORE// library" (
-  page_name = "Library"
-  library_apps = (user_folder ++ "/Applications").getFolder()
-  app_h = frame_width / 2
-  w = frame.width - 25
-  count = (scroll_y / 70).round() - 1
-  len = library_apps.len
-  loop (frame_height / 70 + 2).ceiling().clamp(0,len) (
-    count ++
-    y = count - 0.5 * -70 + scroll_y
-    loc 999 2 0 y
-    file "open" library_apps[count] "onlyaccess"
-    square w 50 15 : c#window_colour
-    if mouse_touching (
-      square w 50 15 : c#seco
-      square w 50 10 : c#window_colour
-    )
-    loc -2 2 -35 y
-    square 30 30 10 : c#prim
-    icon "play" 0.8 : c#txtc
+  dragbox = [[2,2,0,0],[-2,2,0,-40]]
+
+  loc 2 2 10 -20
+  if page_history.len > 1 (
+    change_x 10
+    dragbox = [[2,2,40,0],[-2,2,0,-40]]
+    square 20 20 10 : c#seco
     if onclick (
-      file "start"
+      cur = page_history[page_history.len - 1]
+      page = cur.page
+      page_data = cur.page_data
+      void page_history.pop()
     )
-    loc 2 2 35 y
-    file "render" 1.5
-    loc 2 2 60 y
-    file "get" 2
-    text data.toTitle() 10 : c#txtc
+    icon "left" 0.8 : c#txtc
+    change_x 20
   )
-  len = library_apps.len - 0.5 * 70
+  window "set_dragbox" dragbox
+
+  text "App Store" 10 : c#txtc
 )
 
-if page == "APPSTORE// marketplace" (
-  page_name = "Marketplace"
-  items = itemAll()
-  app_h = frame_width / 2
-  w = frame.width - 25
-  count = max(0,(scroll_y / 70).round - 1)
-  len = items.len
-  loop (frame_height / 70 + 2).ceiling().clamp(0,len) (
-    count ++
-    y = count - 0.5 * -70 + scroll_y
-    loc 999 2 0 y
-    cur = items[count]
-    square w 50 15 : c#window_colour
-    if mouse_touching (
-      square w 50 15 : c#seco
-      square w 50 10 : c#window_colour
-      if clicked (
-        page = "MARKETPLACE// " ++ cur.name
-        current_item = cur
-      )
-    )
-    price_text = cur.price + " Credits"
-    loc -2 2 -35 - (price_text.len * 9) y
-    text price_text 9 : c#txtc
-    
-    loc 2 2 30 y
-    text cur.name.toTitle() 9
-  )
-  len = items.len - 0.5 * 70
-)
+c prim
+frame window.left window.top - 45 window.right window.bottom page_len (
+  w = min(700, frame.width)
+  page_len = 0
 
-if page.startsWith("MARKETPLACE// ") (
-  cur = current_item.name.toLower()
-  y = -50 + scroll_y
-  desc = current_item.description
-  w = frame_width
-  loc 999 2 0 y
-  square w - 20 130 10 1 : c#window_colour
-  loc 2 2 30 y
-  text cur.toTitle() 10 : c#txtc
-  loc 2 2 30 y - 30
-  text "By" + current_item.author 9
-  loc 2 2 20 y - 110
-  text_width = window_width - sidebar_width - 30
-  desc.wrapText(text_width / 9)
-  len = desc.count(newline) * 21 + 150
-  text desc 9
-  loc -2 2 -140 y - 10
-  if itemOwns(current_item.id) (
-    square 190 30 15 : c#prim
-    text "Owned" 10 : c#txtc chx#-25
-  ) else (
-    square 190 30 15 : c#prim
-    if mouse_touching (
-      square 190 30 15 : c#seco
-      square 190 30 10 : c#prim
-      if onclick (
-        items "purchase" current_item.id
-      )
-    )
-    txt = current_item.price + "Credits"
-    change_x txt.len * -4.5
-    text txt 9 : c#txtc
-  )
-  c txtc
-)
-
-app_page = page.contains("// ").not
-
-if app_page (
-  if current_app == "" (
-    data = ("https://apps.mistium.com/info?appname=" ++ encodeURIComponent(page)).getAsync()
-    if data == "Loading" (
-      direction timer * 360
-      icon "cutcircle 0 0 10 0 90" 5 : c#txtc
+  switch page (
+    case "loading"
+      goto 0 0
+      direction timer * 600
+      icon "w 2 cutcircle 0 0 10 0 90" 3 : c#txtc
       direction 90
-    ) else (
-      current_app = data
-    )
-  ) else (
-    cur = current_app.title.toLower()
-    if installed == 0 and cur != "" (
-      app_path = user_folder ++ "/applications/" ++ cur ++ ".osl"
-      file "exists" app_path
-      save_data = "installed.json".saveGet()
-      installed = save_data.contains(cur) and exists
-      install_version = save_data[cur] ?? 0
-    )
-    y = -50 + scroll_y
-    desc = current_app.description.toStr()
-    w = frame_width
-    loc 999 2 0 y
-    square w - 20 130 10 1 : c#window_colour
-    loc 2 2 60 y - 10
-    icon icons[cur].toStr() 3
-    loc 2 2 140 y
-    text cur.toTitle() + "(v" ++ current_app.version ++ ")" 10 : c#txtc
-    loc 2 2 140 y - 30
-    text "By" + current_app.author 9 : tooltip#"Donate Rotur Credits"
-    if onclick (
-      window.create("wallet", {
-        passed_data: {
-          mode: "transfer",
-          user: current_app.author.split(" ").first().replace(",","")
-        }
-      })
-    )
-    loc 2 2 30 y - 95
-    icon "eye" 0.7
-    text stats.views[cur] 10 : chx#20
-    icon "download" 0.6 : chx#20
-    text stats.downloads[cur] 10 : chx#20
-    loc 2 2 20 y - 130
-    screenshots = current_app.screenshots
-    text_width = window_width - sidebar_width - 30
-    desc.wrapText(text_width / 9)
-    len = desc.count(newline) * 21 + 170
-    if screenshots.len > 0 and window_width > 800 (
-      loc -2 2 -196 y - 110
-      screenshots.trim(1,5)
-      each screenshot screenshots (
-        url = "https://raw.githubusercontent.com/RoturTW/apps/main/all/" ++ encodeURIComponent(page) ++ "/screenshots/" ++ screenshot
-        change_y -108
-        image url 384 216
-        change_y -118
-      )
-      loc 2 2 20 y - 130
-      desc = current_app.description.toStr()
-      desc.wrapText(text_width - 400 / 9)
-      len = desc.count("\n") * 21 + 170
-      sc_len = screenshots.len * 226 + 170
-      if len < sc_len (
-        len = sc_len
-      )
-    )
-    text desc 9
-    if installed "loc -2 2 -100 y + 15" else "loc -2 2 -100 y - 10"
-    square 150 30 15 : c#global_accent
-    square 150 30 10 : c#prim hover_c#seco
-    if onclick (
-      if installed and current_app.version == install_version (
-        file "open" app_path "onlyaccess"
-        file "start"
-        file "close"
-      ) else (
-        terminal "app install" + cur.toStr()
-        save_data = "installed.json".saveGet() ?? {}
-        install_version = current_app.version
-        save_data[cur] = install_version
-        save "installed.json" "set" save_data
-        say cur + "Has been installed to /Applications"
-        installed = true
-      )
-    )
-    c txtc
-    change_x -60
-    if installed (
-      if current_app.version == install_version (
-        icon "play" 0.7
-        text "Open" 9 : chx#20
-      ) else (
-        icon "reload" 0.7
-        text "Update" 9 : chx#20
-      )
-      loc -2 2 -100 y - 35
-      square 150 30 15 : c#global_accent
-      square 150 30 10 : c#prim hover_c#seco
+      break
+    case "home"
+      h = w / 16 * 9
+      goto 0 frame.top - (h / 2) + scroll_y - 10
+      square w - 30 h - 30 20 : c#prim
+      image home_json.featured.image w - 30 h - 30
+      change_y h - 30 / -2 - 65
+      page_len += h + 10
+      h = 100
+      appCard(home_json.featured.name)
+      page_len += h
+      
+      change_y -80
+      square w - 30 30 20 : c#prim
       if onclick (
-        terminal "app uninstall" + cur.str
-        save "installed.json" "get"
-        save "installed.json" "set" save_data.delete(cur,version)
-        say cur + "Has been uninstalled"
-        installed = false
+        navigate("categories")
       )
-      change_x -60
-      icon "Bin" 0.7 : c#txtc
-      text "Uninstall" 9 : chx#20
-    ) else (
-      icon "download" 0.7
-      text "Install" 9 : chx#20
-    )
-  )
-) else (
-  current_app = ""
-)
-frame "clear"
+      local y = y_position
+      set_x w / -2 + 40
+      icon "list" 1 : c#txtc
+      text "Categories" 10 : chx#30
+      
+      set_x : chy#-60
+      square w - 30 30 20 : c#prim
+      if onclick (
+        save_data = "installed.json".saveGet().JsonParse()
+        navigate("applist", supported_json
+          .filter(v -> (v.version != save_data[v.title] and save_date[v.title] != null))
+          .map(v -> (v.title)))
+      )
+      local y = y_position
+      set_x w / -2 + 40
+      icon "download" 1 : c#txtc
+      text "Updates" 10 : chx#30
+      
+      change_y -80
+      set_x w / -4
+      page_len += 220
+      w /= 2
 
-if mouse_down.not "can = true"
+      for i home_json.tiles.len (
+        if x_position > w (
+          set_x w / -2
+          change_y -100
+          page_len += 100
+        )
+        appCard(home_json.tiles[i].title)
+        change_x w
+      )
+      break
+    case "categories"
+      goto 0 frame.top + scroll_y - 50
+      local category_keys = categories.getKeys()
+      for i categories.len (
+        local cur = category_keys[i]
+        set_x 0
+        square w - 30 40 20 : c#prim
+        if onclick (
+          navigate("applist", categories[cur])
+        )
+        set_x w / -2 + 20
+        text cur.toTitle() 10 : c#txtc
+        text "(" ++ categories[cur].len + "Apps)" 10 : chx#20
+        change_y -70
+        page_len += 70
+      )
+      break
+    case "applist"
+      h = 100
+      goto 0 frame.top + scroll_y - 70
+      if page_data.len == 0 (
+        centext "Looking Kinda Empty" 10 : c#txtc
+      )
+      
+      for i page_data.len (
+        appCard(page_data[i])
+        change_y -100
+        page_len += 100
+      )
+      break
+    case "app"
+      save_data = "installed.json".saveGet().JsonParse()
+    
+      cur @= all_json[page_data]
+      page_len += 60
+      loc 2 2 50 -50 + scroll_y
+      icon cur.icon 3 : c#txtc
+      text cur.title ++ "\n" 15 : c#txtc chx#40 chy#12
+      text "By" + cur.author 10 : chy#5
+      if onclick (
+        navigate("applist", supported_json
+          .filter(v -> (v.author
+            .toLower()
+            .replace(" ","")
+            .split(",")
+            .contains(cur.author.toLower())))
+          .map(v -> (v.title)))
+      )
+      
+      loc -2 2 -90 -45 + scroll_y
+      square 110 30 10 : c#prim
+
+      if save_data[cur.title] == cur.version (
+        msg = "Launch"
+      ) else (
+        if save_data.getKeys().contains(cur.title) (
+          msg = "Update"
+        ) else (
+          msg = "Install"
+        )
+      )
+      
+      centext msg 10 : c#txtc chx#-15
+      
+      square 80 30 10 0 1
+      if onclick (
+        if msg == "Install" or msg == "Update" (
+          terminal "app install \"" ++ cur.title ++ "\""
+        
+          say "Installed to " ++ username ++ "/Applications"
+        
+          save_data[cur.title] = cur.version
+          save "installed.json" "set" save_data
+        )
+        if msg == "Launch" (
+          file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
+          file "start"
+        )
+      )
+      
+      change_x 45
+      square 0 20 2 : c#global_accent
+      icon "down" 0.5 : chx#15 c#txtc
+      square 20 30 0 0 1
+      if onclick (
+        say "Not implemented rn"
+      )
+      
+      change -45 -35
+      centext formatFileSize(cur.script.scriptSize) 10
+      
+      set_y frame.top - 70 + scroll_y
+      
+      if cur.screenshots.len > 0 (
+        cur.screenshot ??= 1
+        cur.screenshot_x ??= 0
+        cur.screenshot_x += cur.screenshot - 1 - cur.screenshot_x / 10
+        set_x 0
+        change_y -200
+        page_len += 200
+        square window.width 330 10 : c#prim
+        set_x cur.screenshot_x * frame.width / -1
+        for i cur.screenshots.len (
+          image "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/all/" ++ page_data ++ "/screenshots/" ++ encodeURIComponent(cur.screenshots[i]) null 300
+          change_x frame.width
+        )
+        set_x cur.screenshots.len - 1 * -10
+        change_y -160
+        page_len += 160
+        for i cur.screenshots.len (
+          if i == cur.screenshot (
+            c global_accent
+          ) else (
+            c seco
+          )
+          icon "w 15 dot 0 0" 0.5
+          if onclick (
+            cur.screenshot = i
+          )
+          change_x 20
+        )
+      )
+      descr = cur.description.wrapText(frame.width / 10 - 3)
+      lines = descr.split("\n").len
+      set_x 0
+      change_y lines * -11.5 - 30
+      square frame.width lines * 23 10 : c#prim
+      change frame.left + 10 lines * 11.5 - 15
+      text descr 10 : c#txtc
+      page_len += lines * 23 + 30
+      
+      set_x 0
+      change_y -80
+      square frame.width 90 10 : c#prim
+      
+      set_x frame.left + 10 : chy#35
+      text "Views:" + (stats.views[page_data] ?? 0) ++ ", Downloads:" + (stats.downloads[page_data] ?? 0) 10 : c#txtc
+      
+      set_x frame.left + 10 : chy#-23
+      if cur.permissions.len == 0 (
+        text "No permissions are required for this app" 10
+      ) else (
+        text "Requires Permissions: " ++ cur.permissions.join(",") 10
+      )
+      
+      set_x frame.left + 10 : chy#-23
+      text "Version: " ++ cur.version 10
+      
+      set_x frame.left + 10 : chy#-23
+      text "Last Edited: " ++ cur.script.lastModified.timestamp("to-relative") 10
+      page_len += 120
+      break
+  )
+)
+
 import "win-buttons"
