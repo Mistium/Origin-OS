@@ -4,6 +4,13 @@ import as "glass" from "packages"
 permission "request" "terminal"
 permission "request" "rvoice"
 
+terminal "rvoice my_status"
+if terminal_output[1] == "connected" (
+  log "RVoice: already connected, closing"
+  terminal "rvoice close"
+  window.close()
+)
+
 window.on("close",def() -> (
   terminal "rvoice close"
 ))
