@@ -86,6 +86,9 @@ if menu == "transfer" (
   exit
 )
 
+goto 95 -15
+square window.width - 230 window.height - 70 20 : c#window_colour
+
 loc 2 2 10 -20
 text "My Wallet (" ++ menu ++ ")" 10 : c#txtc
 loc 2 2 100 -100
@@ -106,11 +109,6 @@ square 0 0 40 : c#seco hover_c#tert
 if onclick (;menu = "send";)
 change -2 -2
 icon "send" 0.8 : c#txtc
-
-change 52 2
-square 0 0 40 : c#seco hover_c#tert
-if onclick (;menu = "items";)
-icon "grid-apps-full" 0.8 : c#txtc
 
 c prim
 switch menu (
@@ -134,40 +132,41 @@ switch menu (
     text "Sent" 10 : c#txtc
     break
     
-  case "items"
-    items = user["sys.purchases"]
-    if items == [] (
-      loc 999 2 30 -70
-      text "No Transactions" 10 : c#txtc
-    ) else (
-      frame window.left + 200 window.top - 35 window.right window.bottom transactions.len * 35 (
-        each i txt items (
-          y = i - 0.5 * -35 + scroll_y - 5
-          
-          loc 999 2 0 y
-          square frame_width - 20 20 10 : c#prim
-          
-          loc 2 2 10 y
-          text txt 10 : c#txtc
-        )
-      )
-    )
-    break
-    
   case "transfers"
     if transactions == [] (
       loc 999 2 30 -70
       text "No Transactions" 10 : c#txtc
     ) else (
-      frame window.left + 200 window.top - 35 window.right window.bottom transactions.len * 35 (
-        each i txt transactions (
+      frame window.left + 200 window.top - 37 window.right - 10 window.bottom transactions.len * 35 (
+        for i transactions.len (
+          txt @= transactions[i]
           y = i - 0.5 * -35 + scroll_y - 5
         
           loc 999 2 0 y
           square frame_width - 20 20 10 : c#prim
           
-          loc 2 2 10 y
-          text txt 10 : c#txtc
+          c txtc
+          if typeof(txt) == "string" (
+            loc 2 2 10 y
+            text txt 10
+          ) else (
+            loc 2 2 10 y
+            switch txt["type"] (
+              case "gamble"
+                text "You " ++ txt.note + txt.amount + "credits gambling" 10
+                break
+              case "out"
+                text "You sent " ++ txt.amount ++ " credit to " ++ txt.user 10
+                break
+              case "in"
+                text txt.user ++ " sent you " ++ txt.amount ++ " credits" 10
+                break
+              case "tax"
+                text "You got " ++ txt.amount ++ " from " ++ txt.user ++ "'s taxes" 10
+                break
+            )
+            text txt.time.timestamp("to-relative") 10 : chx#10
+          )
         )
       )
     )
