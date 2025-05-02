@@ -19,7 +19,7 @@
     "type": "User",
     "user_view_type": "public",
     "site_admin": false,
-    "contributions": 4119
+    "contributions": 4121
   },
   {
     "login": "RattusDong",
@@ -66,28 +66,6 @@
     "contributions": 73
   },
   {
-    "login": "vernacular7",
-    "id": 132183833,
-    "node_id": "U_kgDOB-D3GQ",
-    "avatar_url": "https://avatars.githubusercontent.com/u/132183833?v=4",
-    "gravatar_id": "",
-    "url": "https://api.github.com/users/vernacular7",
-    "html_url": "https://github.com/vernacular7",
-    "followers_url": "https://api.github.com/users/vernacular7/followers",
-    "following_url": "https://api.github.com/users/vernacular7/following{/other_user}",
-    "gists_url": "https://api.github.com/users/vernacular7/gists{/gist_id}",
-    "starred_url": "https://api.github.com/users/vernacular7/starred{/owner}{/repo}",
-    "subscriptions_url": "https://api.github.com/users/vernacular7/subscriptions",
-    "organizations_url": "https://api.github.com/users/vernacular7/orgs",
-    "repos_url": "https://api.github.com/users/vernacular7/repos",
-    "events_url": "https://api.github.com/users/vernacular7/events{/privacy}",
-    "received_events_url": "https://api.github.com/users/vernacular7/received_events",
-    "type": "User",
-    "user_view_type": "public",
-    "site_admin": false,
-    "contributions": 42
-  },
-  {
     "login": "ThePandaDever",
     "id": 73702185,
     "node_id": "MDQ6VXNlcjczNzAyMTg1",
@@ -104,6 +82,28 @@
     "repos_url": "https://api.github.com/users/ThePandaDever/repos",
     "events_url": "https://api.github.com/users/ThePandaDever/events{/privacy}",
     "received_events_url": "https://api.github.com/users/ThePandaDever/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false,
+    "contributions": 44
+  },
+  {
+    "login": "vernacular7",
+    "id": 132183833,
+    "node_id": "U_kgDOB-D3GQ",
+    "avatar_url": "https://avatars.githubusercontent.com/u/132183833?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/vernacular7",
+    "html_url": "https://github.com/vernacular7",
+    "followers_url": "https://api.github.com/users/vernacular7/followers",
+    "following_url": "https://api.github.com/users/vernacular7/following{/other_user}",
+    "gists_url": "https://api.github.com/users/vernacular7/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/vernacular7/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/vernacular7/subscriptions",
+    "organizations_url": "https://api.github.com/users/vernacular7/orgs",
+    "repos_url": "https://api.github.com/users/vernacular7/repos",
+    "events_url": "https://api.github.com/users/vernacular7/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/vernacular7/received_events",
     "type": "User",
     "user_view_type": "public",
     "site_admin": false,
@@ -173,7 +173,7 @@
     "type": "User",
     "user_view_type": "public",
     "site_admin": false,
-    "contributions": 27
+    "contributions": 29
   },
   {
     "login": "ThatBeaverDev",
