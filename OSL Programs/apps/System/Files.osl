@@ -55,11 +55,9 @@ def sort_files(files) (
     local filetype = file_types[filetype][2]
     obj.filetype = filetype == "" ? "Document" filetype
     if filetype == "Folder" (
-      file "get" 4
-      obj.size = data.len.padStart(20,"0")
+      obj.size = fileGet(4).len
     ) else (
-      file "get" 12
-      obj.size = data.padStart(20,"0")
+      obj.size = fileGet(12).toNum()
     )
     new_files.append(obj)
   )
