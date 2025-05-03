@@ -212,7 +212,9 @@ def "page_frame" "left, top, right, bottom, url" (
       fetch_url = "https://" ++ summit.tlds[current_tld] ++ url
       local data = fetch_url.getAsync()
     ) else if page_protocol == "local" (
-      local data = open(url)
+      local data = open(url, ["name","type","data"])
+      url = data.trim(1,2).join("")
+      data = data[3]
     )
     if data != "Loading" (
       summit.pages.loaded[url] @= {
