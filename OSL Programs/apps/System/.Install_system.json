@@ -256,7 +256,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Summit.osl",
     "icon": "c #6a54b3 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #6a54b3 w 1.5 line -5 -4 -2.5 1 cont -1 -1 line 0 -4 2.7 3 cont 5 -4",
-    "version":"2.7"
+    "version":"2.8"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Studio.osl",
