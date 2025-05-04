@@ -38,7 +38,7 @@ class sandbox (
     my_path = null
     my_location = null
     
-    run [fn(data)] "sandboxed"
+    void fn(data)
     
     my_uuid @= cache.my_uuid
     my_path @= cache.my_path
@@ -58,7 +58,7 @@ class sandbox (
     ]
   
     for i OSL.len (
-      local line = OSL[i].trim()
+      local line = OSL[i].strip()
       for i2 blocked.len (
         if line.startsWith(blocked[i2]) (
           line = ""
@@ -125,7 +125,7 @@ def "draw_page" "url, page_type, tab_id" (
           page.vars @= sandbox.run(page.fn, page.vars)
           
           if tab_info != null (
-            current_tab_name = tab_info
+            current_tab_name @= tab_info
           )
         ) catch e (
           say "Page Error: " + url
@@ -135,14 +135,14 @@ def "draw_page" "url, page_type, tab_id" (
       case "png"
       case "jpg"
         image page.fetch_url 500
-        current_tab_name = {
+        current_tab_name @= {
           "title": url.split("/")[-1],
           "icon": "image" + page.fetch_url + "20"
         }
         break
       default
         goto 0 0
-        inputs[url] = data
+        inputs[url] @= data
         textbox frame.width frame.height url
         break
     )
@@ -162,7 +162,7 @@ def "draw_page" "url, page_type, tab_id" (
     tabs[tab_id].title = current_tab_name.title
     current_tab_name = {}
     page_len = 0
-    summit.pages.loaded[url].onload = false
+    loaded_pages[url].onload = false
   )
 )
 
