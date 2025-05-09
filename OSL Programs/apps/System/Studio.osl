@@ -57,6 +57,7 @@ class editor (
       line_numbers: {
         bg_colour: c_prim
       },
+      sel_colour: c_seco,
       text_colour: c_text,
       ohf: current_ohf
     }
@@ -71,6 +72,7 @@ class editor (
       line_numbers: {
         bg_colour: c_prim
       },
+      sel_colour: c_seco,
       text_colour: c_text,
       ohf: current_ohf
     }
