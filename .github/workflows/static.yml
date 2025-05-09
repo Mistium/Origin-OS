@@ -31,13 +31,75 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Create fix script
+        run: |
+          cat > fix-encoding.js << 'EOF'
+          const fs = require('fs').promises;
+          const path = require('path');
+          
+          async function processFile(filePath) {
+            try {
+              const content = await fs.readFile(filePath, 'utf8');
+              const fixedContent = content.replace(/(%20)+/gi, '%20');
+              
+              if (content !== fixedContent) {
+                await fs.writeFile(filePath, fixedContent, 'utf8');
+                console.log(`Fixed encoding in: ${filePath}`);
+                return true;
+              }
+              return false;
+            } catch (error) {
+              console.error(`Error processing ${filePath}:`, error);
+              return false;
+            }
+          }
+          
+          async function main() {
+            const versionsDir = path.join(process.cwd(), 'Versions');
+            try {
+              const files = await fs.readdir(versionsDir, { recursive: true });
+              let changed = false;
+              
+              for (const file of files) {
+                const fullPath = path.join(versionsDir, file);
+                const stat = await fs.stat(fullPath);
+                
+                if (stat.isFile()) {
+                  const wasFixed = await processFile(fullPath);
+                  changed = changed || wasFixed;
+                }
+              }
+              
+              process.exit(changed ? 0 : 78); // Exit code 78 means no changes needed
+            } catch (error) {
+              console.error('Error:', error);
+              process.exit(1);
+            }
+          }
+          
+          main();
+          EOF
+
+      - name: Run fix script
+        run: node fix-encoding.js
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # Upload entire repository
           path: '.'
+
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -355,10 +355,10 @@ class OSLUtils {
     let methods = {};
     let regExp = /.\(([^()]*)\)/; // Regular expression to match innermost parentheses containing spaces or non-alphanumeric characters
 
-    let static_types = ["str","num","var","unk"]
+    let static_types = ["str", "num", "var", "unk"]
 
     const isStatic = val => static_types.includes(this.evalToken(val).type)
-    
+
     for (let line of OSL) {
       while (regExp.test(line)) {
         line = line.replace(regExp, (match, p1) => {
@@ -493,7 +493,6 @@ class OSLUtils {
     else if (cur.indexOf(" ") !== -1) return this.generateAST({ CODE: cur, START: 0 })[0]
     else return { type: "unk", data: cur }
   }
-
 
   generateAST({ CODE, START }) {
     CODE = CODE + "";
@@ -746,4 +745,18 @@ if (typeof Scratch !== "undefined") {
   // console.log(JSON.stringify(utils.generateAST({ CODE: "jn status == \"Waiting\" or (status == \"login\") 61" }), null, 2))
   // console.log(JSON.stringify(utils.generateAST({ CODE: "loop (frame_height / 20 + 3).round.clamp(0,loops) 208 (" }), null, 2))
   console.log(utils.compileBrackets([`log function("goes insane lol")`]))
+
+  fs = require("fs");
+
+  fs.readFile("./OSL Programs/apps/System/Files.osl", "utf8", (err, data) => {
+    if (err) {
+      console.error("Error reading file:", err);
+      return;
+    }
+    try {
+      utils.generateAST({ CODE: data })
+    } catch (error) {
+      console.error("Error generating AST:", error);
+    }
+  });
 }
