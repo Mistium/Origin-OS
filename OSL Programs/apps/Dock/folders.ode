@@ -6,15 +6,27 @@ square 200 height 20 1 0 1
 if mouse_touching or bg_redrawn or dock_changed_w (
   square 200 height 20 1
   change_x -75
-  file "open" user_folder ++ "/Downloads.folder" "onlyaccess"
-  file "render" 1.7 "interactable"
+  file "open" "~/Downloads.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
   change_x 50
-  file "open" user_folder ++ "/Documents.folder" "onlyaccess"
-  file "render" 1.7 "interactable"
+  file "open" "~/Documents.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
   change_x 50
-  file "open" user_folder ++ "/Applications.folder" "onlyaccess"
-  file "render" 1.7 "interactable"
+  file "open" "~/Applications.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
   change_x 50
-  file "open" user_folder ++ "/Bin.folder" "onlyaccess"
-  file "render" 1.7 "interactable"
+  file "open" "~/Bin.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
 )
