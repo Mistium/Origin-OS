@@ -1,13 +1,19 @@
 import "window_tools" as "wt"
 import as "glass" from "packages"
 
-system_url = "https://web.rotur.dev/"
-
-loaded_pages = {}
-current_pages = []
 summit = {
-  tlds: (system_url ++ "tlds.json").httpGet().JsonParse(),
-  redirect_url: ""
+  pages: {
+    current: [],
+    loaded: {},
+  },
+  tabs: {
+    current: [],
+    all: [],
+    queue: []
+  },
+  system_url: "https://web.rotur.dev/",
+  tlds: "https://web.rotur.dev/tlds.json".httpGet().JsonParse(),
+  redirect_url: null
 }
 
 page_len = 0
@@ -20,46 +26,46 @@ each key window.getKeys() (
   )
 )
 
-tabs_queue = []
-
 class sandbox (
-  def run(data) (
+  def run(fn, data) (
     local cache = {
-      tabs,
-      loaded_pages,
       my_uuid,
       my_path,
-      my_location,
-      current_pages,
-      summit
+      my_location
     }
-    tabs = null
-    loaded_pages = null
+    local summit2 @= summit
     my_uuid = null
     my_path = null
     my_location = null
-    current_pages = null
-    summit = null
     
-    run data "sandboxed"
+    void fn(data)
     
-    tabs @= cache.tabs
-    loaded_pages @= cache.loaded_pages
-    my_uuid = cache.my_uuid
-    my_path = cache.my_path
-    my_location = cache.my_location
-    current_pages @= cache.current_pages
-    summit @= cache.summit
+    my_uuid @= cache.my_uuid
+    my_path @= cache.my_path
+    my_location @= cache.my_location
+    summit @= summit2
+    return data
   )
   
   def sanitiseOSL(OSL) (
+    local blocked = [
+      "save ",
+      "window ",
+      "network ",
+      "file ",
+      "run ",
+      "permission "
+    ]
+  
     for i OSL.len (
-      local line = OSL[i].trim()
-      
-      if line.startsWith("save ") and line.contains("set_directory") (
-        line = ""
+      local line = OSL[i].strip()
+      for i2 blocked.len (
+        if line.startsWith(blocked[i2]) (
+          line = ""
+        )
       )
     )
+    return OSL
   )
 )
 
@@ -67,11 +73,11 @@ permission "request" "file admin"
 
 window "dimensions" 1000 600
 
-def "redirect" "url" (
-  summit.redirect_url = url
-)
-
 def "add_tab" "url" (
+  if url.contains("://").not() (
+    url = "web://" ++ url
+  )
+
   local obj = {
     "title": "Loading",
     "position": 1,
@@ -80,7 +86,11 @@ def "add_tab" "url" (
     "history": [url]
   }
   
-  tabs_queue.append(obj)
+  void summit.tabs.queue.append(obj)
+)
+
+def "redirect" "url" (
+  summit.redirect_url = url
 )
 
 def "opentab" "url" (
@@ -88,15 +98,19 @@ def "opentab" "url" (
 )
 
 def "draw_page" "url, page_type, tab_id" (
-  current_pages.append(url)
+  void summit.pages.current.append(url)
   
   if url == null (
     return
   )
   
+  local page_protocol = url.split(":")[1]
+  
+  local loaded_pages @= summit.pages.loaded
+  
   if loaded_pages.contains(url) (
-    local page = loaded_pages[url]
-    local data = page.data
+    local page @= loaded_pages[url]
+    local data @= page.data
     
     onload = page.onload
     tab_info = null
@@ -108,38 +122,39 @@ def "draw_page" "url, page_type, tab_id" (
     switch page_type (
       case "osl"
         try (
-          sandbox.run(data)
+          page.vars @= sandbox.run(page.fn, page.vars)
           
           if tab_info != null (
-            current_tab_name = tab_info
+            current_tab_name @= tab_info
           )
         ) catch e (
           say "Page Error: " + url
-          tab.delete(tab_id)
+          void tab.delete(tab_id)
         )
         break
       case "png"
       case "jpg"
         image page.fetch_url 500
-        current_tab_name = {
-          "title": url.split("/").last(),
+        current_tab_name @= {
+          "title": url.split("/")[-1],
           "icon": "image" + page.fetch_url + "20"
         }
         break
       default
         goto 0 0
-        inputs[url] = data
+        inputs[url] @= data
         textbox frame.width frame.height url
         break
     )
-    if summit.redirect_url != "" (
-      if summit.redirect_url.split("/").last().contains(".").not or summit.redirect_url.endsWith(".web") (
+    local tabs @= summit.tabs.all
+    if summit.redirect_url != null (
+      if summit.redirect_url.split("/")[-1].contains(".").not() or summit.redirect_url.endsWith(".web") (
         summit.redirect_url = summit.redirect_url.append("/index.osl")
       )
       tabs[tab_id].url = summit.redirect_url
       tabs[tab_id].position ++
-      tabs[tab_id].history = tabs[tab_id].history.append(summit.redirect_url)
-      summit.redirect_url = ""
+      void tabs[tab_id].history.append(summit.redirect_url)
+      summit.redirect_url = null
     )
     
     tabs[tab_id].page_len = page_len
@@ -148,7 +163,48 @@ def "draw_page" "url, page_type, tab_id" (
     current_tab_name = {}
     page_len = 0
     loaded_pages[url].onload = false
-  ) else (
+  )
+)
+
+def "page_frame" "left, top, right, bottom, url" (
+
+  local tabs @= summit.tabs.all
+
+  local tab_id = url
+  
+  local idx = tabs.getKeys("id").index(url)
+  
+  local tab @= tabs[idx]
+  
+  local url = tab.history[tab.position]
+  
+  local page_protocol = url.split("://")[1]
+  
+  local page_type = "text"
+ 
+  if url.startsWith("local://") (
+    local url = url.trim(9,-1)
+    file "open" url "onlyaccess"
+    if [".owf", ".osl"].contains(fileGet(1)) (
+      local page_type = "osl"
+    )
+  )
+  if url.startsWith("web://") (
+    if url.endsWith("/") (
+      local url = url.trim(1,-2)
+    )
+    local url = url.trim(7,-1)
+    if url.endsWith(".osl") (
+      local page_type = "osl"
+    ) else if url.contains("/").not() (
+      local page_type = "osl"
+      local url ++= "/index.osl"
+    ) else (
+      local page_type = url.split("/")[-1].split(".")[-1]
+    )
+  )
+  
+  if summit.pages.loaded.contains(url).not() (
     local fetch_url = ""
     if page_protocol == "web" (
       local parts = url.split("/")
@@ -156,34 +212,25 @@ def "draw_page" "url, page_type, tab_id" (
       fetch_url = "https://" ++ summit.tlds[current_tld] ++ url
       local data = fetch_url.getAsync()
     ) else if page_protocol == "local" (
-      local data = open(url)
+      local data = open(url, ["name","type","data"])
+      url = data.trim(1,2).join("")
+      data = data[3]
     )
     if data != "Loading" (
-      loaded_pages[url] = {
+      summit.pages.loaded[url] @= {
         data: data.split("\n"),
         onload: true,
         vars: {},
         fetch_url
       }
+      if fetch_url.endsWith(".osl") or url.endsWith(".osl") or url.endsWith(".owf") (
+        summit.pages.loaded[url].fn @= function("data", sandbox.sanitiseOSL(data.split("\n")).join("\n"))
+      )
     )
   )
-)
-
-def "page_frame" "left, top, right, bottom, url" (
-
-  local tab_id = url
   
-  local idx = tabs.getKeys("id").index(url)
-  
-  local tab = tabs[idx]
-  
-  local url = tab.history[tab.position]
-  
-  page_protocol = url.split(":")[1]
-
-  
-  local w = (right - left).abs()
-  local h = (top - bottom).abs()
+  local w = abs(right - left)
+  local h = abs(top - bottom)
   
   local x = left + (w / 2)
   local y = bottom + (h / 2)
@@ -192,36 +239,11 @@ def "page_frame" "left, top, right, bottom, url" (
   square w h 10
 
   frame left top right bottom tabs[idx].page_len tabs[idx].id (
-    local page_type = "text"
- 
-    if url.startsWith("local://") (
-      local url = url.trim(9,-1)
-      file "open" url "onlyaccess"
-      if [".owf", ".osl"].contains(fileGet(1)) (
-        local page_type = "osl"
-      )
-    )
-    if url.startsWith("web://") (
-      if url.endsWith("/") (
-        local url = url.trim(1,-2)
-      )
-      local url = url.trim(7,-1)
-      if url.endsWith(".osl") (
-        local page_type = "osl"
-      ) else if url.contains("/").not() (
-        local page_type = "osl"
-        local url ++= "/index.osl"
-      ) else (
-        local page_type = url.split("/").last().split(".").last()
-      )
-    )
     scroll_y = frame.scroll
     draw_page url page_type idx
     scroll_y = 0
   )
 )
-
-tabs = []
 
 if passed_data != "" (
   add_tab "local://" ++ passed_data
@@ -229,9 +251,9 @@ if passed_data != "" (
   add_tab "web://search.web"
 )
 
-current_tabs = [tabs[1].id]
+summit.tabs.current @= [tabs[1].id]
 
-sidebar = {
+summit.sidebar = {
   width: 300,
   x: -300,
   target_x: 0,
@@ -256,25 +278,24 @@ sidebar = {
     }
   ],
   handleSize: def() -> (
-    sidebar.x += sidebar.target_x - sidebar.x / 7
-    return sidebar
+    self.x += self.target_x - self.x / 7
   ),
 }
 
-sidebar.main = def() -> (
-  sidebar = sidebar.handleSize()
+summit.sidebar.main = def() -> (
+  void self.handleSize()
   
-  if mouse_x < window.left + 30 and onclick (
-    sidebar.target_x = 0
+  if mouse_x < window.left + 30 and mouse_ondown (
+    self.target_x = 0
   )
   
-  window "set_dragbox" [[2,2,100 + self.x,0],[2,2,sidebar.width + self.x - 40,-40]]
+  window "set_dragbox" [[2,2,100 + self.x,0],[2,2,self.width + self.x - 40,-40]]
 
-  sidebar.left = window.left + sidebar.x
+  self.left = window.left + self.x
   
-  sidebar.edge = sidebar.left + sidebar.width
+  self.edge = self.left + self.width
   
-  frame sidebar.left window.top sidebar.edge window.bottom (
+  frame self.left window.top self.edge window.bottom (
     goto 0 0
     square frame.width - 20 frame.height - 20 10 : c#window_colour
     
@@ -282,7 +303,7 @@ sidebar.main = def() -> (
     loc -2 2 -25 -25
     icon "left" 0.7
     if onclick (
-      sidebar.target_x = -300
+      self.target_x = -300
     )
     
     goto 0 frame.top - 65
@@ -290,31 +311,31 @@ sidebar.main = def() -> (
     square frame.width - 40 30 10
     input frame.width - 50 25 "main" "Enter A URL"
     if "enter".onKeyDown() and selected_input == "main" (
-      if input_main.contains("://").not() (
-        input_main.prepend("web://")
-      )
-      add_tab input_main
-      input_main = ""
+      opentab input_main
+      inputs.main = ""
     )
     
-    if sidebar.x > -280 (
+    if self.x > -280 (
       c txtc
       loc 2 2 25 -25
-      each i sidebar.icons (
-        icon i.icn 0.7
+      for i self.icons.len (
+        icon self.icons[i].icn 0.7
         if onclick (
-          i.func()
+          void self.icons[i].func()
         )
         change_x 30
       )
     
       c seco
-      frame frame.left + 10 frame.top - 90 frame.right - 10 frame.bottom tabs.len * 45 (
+      frame frame.left + 10 frame.top - 90 frame.right - 10 frame.bottom summit.tabs.current.len * 45 (
         goto 0 frame.top + frame.scroll - 25
-        each this.i this.tab tabs (
+        
+        local all_tabs = summit.tabs.all
+        for i summit.tabs.all.len (
+          local tab = all_tabs[i]
           set_x 0
           square frame.width 40 0 0 1
-          if current_tabs.contains(tab.id) (
+          if summit.tabs.current.contains(tab.id) (
             square frame.width - 20 30 15 : c#seco
             square frame.width - 20 30 10 : c#window_colour
           )
@@ -323,15 +344,15 @@ sidebar.main = def() -> (
             square frame.width - 20 30 10 : c#window_colour
             if onclick (
               if "shift".isKeyDown() (
-                if current_tabs.contains(tab.id) (
-                  if current_tabs.len > 1 (
-                    current_tabs.delete(tab.id)
+                if summit.tabs.current.contains(tab.id) (
+                  if summit.tabs.current.len > 1 (
+                    void summit.tabs.current.delete(tab.id)
                   )
                 ) else (
-                  current_tabs.append(tab.id)
+                  void summit.tabs.current.append(tab.id)
                 )
               ) else (
-                current_tabs = [tab.id]
+                summit.tabs.current = [tab.id]
               )
             )
           )
@@ -342,7 +363,7 @@ sidebar.main = def() -> (
           set_x frame.right - 25
           icon "close" 0.5
           if onclick (
-            tabs.delete(i)
+            void summit.tabs.all.delete(i)
           )
           change_y -45
         )
@@ -350,16 +371,15 @@ sidebar.main = def() -> (
       goto 0 window.top
     )
   )
-  
-  return sidebar
 )
 
 mainloop:
 wt:load_theme
 
-each this.page loaded_pages.getKeys() (
-  if current_pages.contains(page).not() (
-    loaded_pages.delete(page)
+local loaded @= summit.pages.loaded
+each this.page loaded.getKeys() (
+  if loaded.contains(page).not() (
+    void loaded.delete(page)
   )
 )
 
@@ -368,25 +388,23 @@ if file_dropped != 0 (
   file_dropped = 0
 )
 
-current_pages = []
+summit.pages.current = []
 
 glass:frame window.left window.top window.right window.bottom; frame "clear"
 
-sidebar.main()
+void summit.sidebar.main()
 
-local left = sidebar.edge + 10
+local left = summit.sidebar.edge + 10
 local right = window.right - 10
 local w = right - left
 
-for i tabs_queue.len (
-  local new_tab = tabs_queue.shift()
-  tabs.append(new_tab)
-  if tabs.len == 1 or current_tabs.len == 0 (
-    current_tabs = [new_tab.id]
-  )
+for i summit.tabs.queue.len (
+  local new_tab @= summit.tabs.queue.shift()
+  void summit.tabs.all.append(new_tab)
+  summit.tabs.current @= [new_tab.id]
 )
 
-local tab_count = current_tabs.len
+local tab_count = summit.tabs.current.len
 if tab_count == 0 (
   tab_count = 1
 )
@@ -395,7 +413,8 @@ local tab_w = w / tab_count
 local current_left = left
 local current_right = left + tab_w
 
-each this.tab_id current_tabs (
+for i summit.tabs.current.len (
+  tab_id @= summit.tabs.current[i]
   page_frame current_left window.top - 10 current_right window.bottom + 10 tab_id
   local current_left += tab_w
   local current_right += tab_w

@@ -117,14 +117,14 @@ frame window.left window.top window.right window.top - 40 (
   if page_history.len > 1 (
     change_x 10
     dragbox = [[2,2,40,0],[-2,2,0,-40]]
-    square 20 20 10 : c#seco
+    square 17 17 10 : c#seco
     if onclick (
       cur = page_history[page_history.len - 1]
       page = cur.page
       page_data = cur.page_data
       void page_history.pop()
     )
-    icon "left" 0.8 : c#txtc
+    icon "left-arrow" 0.63 : c#txtc
     change_x 20
   )
   window "set_dragbox" dragbox
@@ -289,7 +289,9 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       if cur.screenshots.len > 0 (
         cur.screenshot ??= 1
         cur.screenshot_x ??= 0
-        cur.screenshot_x += cur.screenshot - 1 - cur.screenshot_x / 10
+        cur.smooth_dt ??= delta_time
+        cur.smooth_dt += delta_time - cur.smooth_dt * .05
+        cur.screenshot_x += cur.screenshot - 1 - cur.screenshot_x * cur.smooth_dt * 30
         set_x 0
         change_y -200
         page_len += 200
