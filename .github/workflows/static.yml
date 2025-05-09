@@ -89,7 +89,7 @@ jobs:
           EOF
 
       - name: Run fix script
-        run: node fix-encoding.js
+        run: node fix-encoding.js || [ $? -eq 78 ] # Continue if no changes needed
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
