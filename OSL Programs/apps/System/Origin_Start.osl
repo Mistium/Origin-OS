@@ -74,6 +74,12 @@ before = [
   },
   {
     type: "inf",
+    name: "Support me on patreon!",
+    icon: "icn favorites-full 1",
+    link: "https://patreon.com/mistium"
+  },
+  {
+    type: "inf",
     name: "Used " ++ formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size),
     icon: "icn file 0.9"
   },
