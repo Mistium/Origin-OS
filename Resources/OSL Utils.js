@@ -517,7 +517,7 @@ class OSLUtils {
             cur.right = next;
             cur.right2 = ast[i + 2];
             ast.splice(i - 1, 1);
-            if (cur.right2.data === ":") {
+            if (cur.right2.data === ",") {
               cur.right2 = ast[i + 2];
               ast.splice(i + 2, 1);
             }
