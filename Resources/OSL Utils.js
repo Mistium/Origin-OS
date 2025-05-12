@@ -517,6 +517,10 @@ class OSLUtils {
             cur.right = next;
             cur.right2 = ast[i + 2];
             ast.splice(i - 1, 1);
+            if (cur.right2.data === ":") {
+              cur.right2 = ast[i + 2];
+              ast.splice(i + 2, 1);
+            }
             ast.splice(i, 2);
             i -= 1;
             continue;
@@ -738,25 +742,11 @@ class OSLUtils {
 if (typeof Scratch !== "undefined") {
   Scratch.extensions.register(new OSLUtils());
 } else {
-  let utils = new OSLUtils();
+  // let utils = new OSLUtils();
   // console.log(JSON.stringify(utils.generateAST({ CODE: "val = max(0,(scroll_y / 70).round - 1) - 1" }), null, 2))
   // console.log(JSON.stringify(utils.generateAST({ CODE: "jn ots_script.isType(\"array\") 150" }), null, 2))
   // console.log(JSON.stringify(utils.generateAST({ CODE: "(100 / 100).round()" }), null, 2))
   // console.log(JSON.stringify(utils.generateAST({ CODE: "jn status == \"Waiting\" or (status == \"login\") 61" }), null, 2))
   // console.log(JSON.stringify(utils.generateAST({ CODE: "loop (frame_height / 20 + 3).round.clamp(0,loops) 208 (" }), null, 2))
-  console.log(utils.compileBrackets([`log function("goes insane lol")`]))
-
-  fs = require("fs");
-
-  fs.readFile("./OSL Programs/apps/System/Files.osl", "utf8", (err, data) => {
-    if (err) {
-      console.error("Error reading file:", err);
-      return;
-    }
-    try {
-      utils.generateAST({ CODE: data })
-    } catch (error) {
-      console.error("Error generating AST:", error);
-    }
-  });
+  // console.log(JSON.stringify(utils.generateAST({ CODE: "log () -> 10 + val" }), null, 2))
 }
