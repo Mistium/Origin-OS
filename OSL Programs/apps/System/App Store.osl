@@ -178,9 +178,19 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       icon "download" 1 : c#txtc
       text "Updates" 10 : chx#30
       
+      set_x : chy#-60
+      square w - 30 30 20 : c#prim
+      if onclick (
+        navigate("search")
+      )
+      local y = y_position
+      set_x w / -2 + 40
+      icon "search" 1 : c#txtc
+      text "Search" 10 : chx#30
+      
       change_y -80
       set_x w / -4
-      page_len += 220
+      page_len += 280
       w /= 2
 
       for i home_json.tiles.len (
@@ -208,6 +218,22 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         text "(" ++ categories[cur].len + "Apps)" 10 : chx#20
         change_y -70
         page_len += 70
+      )
+      break
+    case "search"
+      goto 0 frame.top + scroll_y - 50
+      c prim
+      square frame.width - 100 30 10
+      input frame.width - 110 30 "search" "Search for an app"
+      change_y -100
+      page_len += 100
+      local apps = all_json.getValues()
+      for i apps.len (
+        if apps[i].title.contains(inputs.search) or apps[i].description.contains(inputs.search) (
+          appCard(apps[i].title)
+          change_y -100
+          page_len += 100
+        )
       )
       break
     case "applist"
