@@ -857,6 +857,9 @@ def "account" (
   if subcategory == "Subscriptions" (
     page_len = -40
     if typeof(subscriptions) != "array" (
+      goto 0 frame.top - 60 + scroll_y
+      centext "Fetching Subscriptions" 10 : c#txtc
+      
       data = ("https://social.rotur.dev/keys/mine?auth=" ++ roturToken()).getAsync()
       if data != "Loading" (
         subscriptions = data.filter(v -> (v["type"] == "subscription"))
@@ -872,8 +875,20 @@ def "account" (
         x = x_position
         y = y_position
         square w 100 10 : c#prim
-        change w / -2 30
-        // text lol
+        change w / -2 + 10 30
+        text cur.name ?? cur.id ++ "\n" 10 : c#txtc
+        text "by: " ++ cur.creator ++ "\n" 10
+        text "price (credits): " ++ cur.price ++ " per " ++ cur.subscription.frequency ++ " " ++ cur.subscription.period 10
+        goto x y
+        change w / 2 - 70
+        square 100 40 10 : c#seco
+        if onclick (
+          if ("Are you sure you want to cancel '" ++ cur.name ++ "'?").confirm() (
+            void ("https://social.rotur.dev/keys/cancel/" ++ cur.id ++ "?auth=" ++ roturToken()).getAsync()
+            subscriptions = ""
+          )
+        )
+        centext "Cancel" 10 : c#txtc
         goto x y
         change_y -120
         page_len += 120

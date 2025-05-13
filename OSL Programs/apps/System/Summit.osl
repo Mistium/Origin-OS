@@ -113,6 +113,8 @@ def "draw_page" "url, page_type, tab_id" (
     local data @= page.data
     
     onload = page.onload
+    page.onload = false
+
     tab_info = null
     current_tab_name = {
       title: url.split("/")[1],
@@ -162,7 +164,6 @@ def "draw_page" "url, page_type, tab_id" (
     tabs[tab_id].title = current_tab_name.title
     current_tab_name = {}
     page_len = 0
-    loaded_pages[url].onload = false
   )
 )
 
