@@ -1,0 +1,35 @@
+class sound (
+  id = null
+
+  def new(url) (
+    local val = self
+    // clone the sound object
+
+    local id = ouidNew()
+    sound "load" url id
+    
+    val.id = id
+    return val
+  )
+
+  def play() (
+    if id == null (
+      return
+    )
+    sound id "play"
+  )
+
+  def pause() (
+    if id == null (
+      return
+    )
+    sound id "pause"
+  )
+
+  get loaded() (
+    return id.soundinfo()
+  )
+)
+
+self = sound
+// essentially export
