@@ -2,6 +2,7 @@ import as "glass" from "packages"
 import "window_tools"
 
 permission "request" "account"
+permission "request" "rotur token"
 
 menu = "transfers"
 
@@ -100,15 +101,29 @@ loc 2 2 65 -210
 text "Credits" 10
 
 loc 2 -2 30 30
-square 0 0 40 : c#seco hover_c#tert
+square 0 0 40 : c#seco hover_c#tert tooltip#"My Past Transactions"
 if onclick (;menu = "transfers";)
 icon "list" 0.8 : c#txtc
 
 change_x 50
-square 0 0 40 : c#seco hover_c#tert
+square 0 0 40 : c#seco hover_c#tert tooltip#"Transfer Credits"
 if onclick (;menu = "send";)
 change -2 -2
 icon "send" 0.8 : c#txtc
+
+change_x 50
+square 0 0 40 : c#seco hover_c#tert tooltip#"Claim Daily Credit"
+if onclick (
+  token = roturToken()
+  promise.new(def() -> (
+    log window.permissions
+    log roturToken()
+    response = ("https://social.rotur.dev/claim_daily?auth=" ++ token).httpGet()
+    token = null
+    say response.message ?? response.error
+  ))
+)
+icon rotur_icn 1 : c#txtc
 
 c prim
 switch menu (
