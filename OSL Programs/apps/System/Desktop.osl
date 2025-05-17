@@ -255,7 +255,6 @@ for i desktop_apps.len (
   square 30 30 0 0 1
   if mouse_touching or cnrn (
     file "render" app_size "interactable"
-    cursor "pointer"
     rightclick "file" app_id
   )
 
