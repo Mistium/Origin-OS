@@ -213,14 +213,13 @@ if current_login.istype("number") (
       icon "w 3 c #fff line 10 10 -10 -10" 0.7
     )
 
-    local pass = inputs["password_" ++ current_login]
-
     goto x -180
     square 320 30 20 : c#000
     if clicked or "enter".isKeyDown() (
       login_return = "Logging In..."
       promise.new(def() -> (
-        check = ("https://social.rotur.dev/get_user?username=" ++ user ++ "&password=" ++ pass.hashMD5()).httpGet()
+        local pass = inputs["password_" ++ current_login]
+        check = ("https://social.rotur.dev/get_user?username=" ++ current.username ++ "&password=" ++ pass.hashMD5()).httpGet()
         if check.error != null (
           login_return = check.error
         ) else (
