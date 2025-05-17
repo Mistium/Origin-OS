@@ -1,94 +1,94 @@
 {
   "file viewer":         {
     "description": "Allows apps to read file data",
-    "icon": "file"
+    "icon": "icn file 1"
   },
   "display":             {
     "description": "This app wants to edit rendering settings",
-    "icon": "eye"
+    "icon": "icn eye 1"
   },
   "notifications":       {
     "description": "Allows an app to send notifications",
-    "icon": "notifications"
+    "icon": "icn notifications 1"
   },
   "rmail":               {
     "description": "Allows an app to read, send and view your rmails",
-    "icon": "mail"
+    "icon": "icn mail 1"
   },
   "rvoice":              {
     "description": "Allows an app to send voice call requests",
-    "icon": "phone"
+    "icon": "icn phone 1"
   },
   "windows":             {
     "description": "Allows an app to view open windows",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "extensions":          {
     "description": "Allows an app to view running origin extensions",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "simulate inputs":     {
     "description": "(Careful) This app wants to use your keyboard",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "global variables":    {
     "description": "(Careful) This app wants to edit global data",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "account":             {
     "description": "(Careful) This app wants to edit your account",
-    "icon": "accounts"
+    "icon": "icn accounts 1"
   },
   "permission editor":   {
     "description": "(Careful) This app wants to edit permissions",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "file editor":         {
     "description": "(Careful) This app wants to edit all files",
-    "icon": "edit"
+    "icon": "icn edit 1"
   },
   "file admin":          {
     "description": "(Careful) Gives full access to the file system",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "start run":           {
     "description": "(Careful) This app wants to run when you log in",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "terminal":            {
     "description": "(Careful) This allows an app full system access",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "camera":              {
     "description": "(Careful) This app wants to use your camera",
-    "icon": "image"
+    "icon": "icn image 1"
   },
   "screen record":       {
     "description": "(Careful) This app wants to see your screen",
-    "icon": "image"
+    "icon": "icn image 1"
   },
   "save admin":          {
     "description": "(Careful) This lets the app edit all save data",
-    "icon": "save"
+    "icon": "icn save 1"
   },
   "weather":             {
     "description": "(Careful) This app could find your location",
-    "icon": "sun"
+    "icon": "icn sun 1"
   },
   "javascript":          {
     "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "python":              {
     "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "kernel":              {
     "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-    "icon": "originOS"
+    "icon": "icn originOS 1"
   },
   "rotur token":         {
     "description": "(CAREFUL) GIVES COMPLETE ACCESS TO YOUR ACCOUNT",
-    "icon": "rotur"
+    "icon": "icn rotur 1"
   }
 }
