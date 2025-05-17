@@ -708,7 +708,6 @@ def "appearance" (
       text "Scroll Wheel Speed" 9 : c#txtc
       terminal "get scrollspeed"
       data = data.toNum()
-      log 1 data
       if data < 0 (
         data *= -1
         toggle_invert = true
@@ -751,7 +750,7 @@ def "appearance" (
 
 def "account" (
   local w = frame.width - 100
-  page_len = 675
+  page_len = 500
   
   goto 0 frame.top - 50 + scroll_y
   
@@ -931,6 +930,7 @@ def "account" (
   effect "transparency" 70
   image user.banner w w / 3
   effect "clear"
+  page_len += w / 3
   
   local pfp_s = w / 3 - 30
   change_x w / -2 + (pfp_s / 2) + 15
