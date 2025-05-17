@@ -1,25 +1,94 @@
 {
-  "file viewer":         "Allows apps to read file data",
-  "display":             "This app wants to edit rendering settings",
-  "notifications":       "Allows an app to send notifications",
-  "rmail":               "Allows an app to read, send and view your rmails",
-  "rvoice":              "Allows an app to send voice call requests",
-  "windows":             "Allows an app to view open windows",
-  "extensions":          "Allows an app to view running origin extensions",
-  "simulate inputs":     "(Careful) This app wants to use your keyboard",
-  "global variables":    "(Careful) This app wants to edit global data",
-  "account":             "(Careful) This app wants to edit your account",
-  "permission editor":   "(Careful) This app wants to edit permissions",
-  "file editor":         "(Careful) This app wants to edit all files",
-  "file admin":          "(Careful) Gives full access to the file system",
-  "start run":           "(Careful) This app wants to run when you log in",
-  "terminal":            "(Careful) This allows an app full system access",
-  "camera":              "(Careful) This app wants to use your camera",
-  "screen record":       "(Careful) This app wants to see your screen",
-  "save admin":          "(Careful) This lets the app edit all save data",
-  "weather":             "(Careful) This app could find your location",
-  "javascript":          "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-  "python":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-  "kernel":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
-  "rotur token":         "(CAREFUL) GIVES COMPLETE ACCESS TO YOUR ACCOUNT"
+  "file viewer":         {
+    "description": "Allows apps to read file data",
+    "icon": "file"
+  },
+  "display":             {
+    "description": "This app wants to edit rendering settings",
+    "icon": "eye"
+  },
+  "notifications":       {
+    "description": "Allows an app to send notifications",
+    "icon": "notifications"
+  },
+  "rmail":               {
+    "description": "Allows an app to read, send and view your rmails",
+    "icon": "mail"
+  },
+  "rvoice":              {
+    "description": "Allows an app to send voice call requests",
+    "icon": "phone"
+  },
+  "windows":             {
+    "description": "Allows an app to view open windows",
+    "icon": "originOS"
+  },
+  "extensions":          {
+    "description": "Allows an app to view running origin extensions",
+    "icon": "originOS"
+  },
+  "simulate inputs":     {
+    "description": "(Careful) This app wants to use your keyboard",
+    "icon": "originOS"
+  },
+  "global variables":    {
+    "description": "(Careful) This app wants to edit global data",
+    "icon": "originOS"
+  },
+  "account":             {
+    "description": "(Careful) This app wants to edit your account",
+    "icon": "accounts"
+  },
+  "permission editor":   {
+    "description": "(Careful) This app wants to edit permissions",
+    "icon": "originOS"
+  },
+  "file editor":         {
+    "description": "(Careful) This app wants to edit all files",
+    "icon": "edit"
+  },
+  "file admin":          {
+    "description": "(Careful) Gives full access to the file system",
+    "icon": "originOS"
+  },
+  "start run":           {
+    "description": "(Careful) This app wants to run when you log in",
+    "icon": "originOS"
+  },
+  "terminal":            {
+    "description": "(Careful) This allows an app full system access",
+    "icon": "originOS"
+  },
+  "camera":              {
+    "description": "(Careful) This app wants to use your camera",
+    "icon": "image"
+  },
+  "screen record":       {
+    "description": "(Careful) This app wants to see your screen",
+    "icon": "image"
+  },
+  "save admin":          {
+    "description": "(Careful) This lets the app edit all save data",
+    "icon": "save"
+  },
+  "weather":             {
+    "description": "(Careful) This app could find your location",
+    "icon": "sun"
+  },
+  "javascript":          {
+    "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
+    "icon": "originOS"
+  },
+  "python":              {
+    "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
+    "icon": "originOS"
+  },
+  "kernel":              {
+    "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
+    "icon": "originOS"
+  },
+  "rotur token":         {
+    "description": "(CAREFUL) GIVES COMPLETE ACCESS TO YOUR ACCOUNT",
+    "icon": "rotur"
+  }
 }

@@ -75,16 +75,16 @@ def "DrawCategory" "setting,icn_code" (
 
 def "option" "name,icn_code" (
   loc 999 2 0 y
-  this.w = frame.width - 100
-  square this.w 30 10 0 1
+  local w = frame.width - 100
+  square w 30 10 0 1
   if mouse_touching (
-    square this.w 30 15 : c#seco
-    square this.w 30 10 : c#prim
+    square w 30 15 : c#seco
+    square w 30 10 : c#prim
     if onclick "gotosubcategory = name"
   ) else (
-    square this.w 30 15 1 : c#prim
+    square w 30 15 1 : c#prim
   )
-  change_x this.w / -2 + 20
+  change_x w / -2 + 20
   if icn_code == "" "icn_code = name"
   icon icn_code 0.8 : c#txtc
   text name 10 : chx#30
@@ -191,32 +191,42 @@ def "system" (
         network "update" "onboot" boot_apps
         new_transmit = false
       )
-      loc 2 2 20 -20 + scroll_y
-      text "Reset Boot To Default: " 10 : c#txtc
-      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.7 : chx#20
+      w = frame.width - 25
+      y = -30 + scroll_y
+      loc 9999 2 0 y
+      square w 30 15 : c#prim
+      loc 2 2 30 y
+      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
       if onclick (
-        boot_apps = ["Origin/(A) System/System Apps/Desktop.osl","Origin/(A) System/Docks/Dock.osl","Origin/(A) System/System Apps/Quick_Settings.osl"]
+        boot_apps = [
+          "Origin/(A) System/System Apps/Desktop.osl",
+          "Origin/(A) System/Docks/Dock.osl",
+          "Origin/(A) System/System Apps/Quick_Settings.osl"
+        ]
         network "update" "onboot" boot_apps
       )
+      text "Reset Boot To Default" 9 : chx#20
       loc 2 2 20 -70 + scroll_y
       text "Drop File Here" 9 : c#txtc
       if file_dropped != 0 (
-        local dat = open(file_dropped, ["path","name","type"])
+        local dat = open(file_dropped, ["location","name","type"])
         void boot_apps.append(dat[1] ++ "/" ++ dat[2] ++ dat[3])
        
         network "update" "onboot" boot_apps
         file_dropped = 0
       )
-      loc 2 2 20 -100 + scroll_y
-      text "Click here to pick an osl file" 9
+      loc 9999 2 0 y - 50
+      square w 30 15 : c#prim
       if onclick (
         file "pick" "osl"
         can = false
       )
-      count = 0
-      loop boot_apps.len (
-        count ++
-        y = count + 2 * -60 + scroll_y
+      loc 2 2 30 y - 50
+      icon "upload" 0.7 : c#txtc
+      text "Click here or drop an osl file to add it to your boot" 9 : chx#20
+
+      for count boot_apps.len (
+        y = count + 1.5 * -60 + scroll_y
         loc 999 2 0 y
         square w 40 15 : c#prim
         loc 2 2 15 y
@@ -237,7 +247,7 @@ def "system" (
     case "Storage"
       y = -160 + 75 + scroll_y
       loc 2 2 80 y
-      image user.pfp 100 100
+      image pfp 100 100
       text "(Network)" + username 15 : chx#80 chy#20 c#txtc
       change_x 20
       square 120 20 10 : c#prim chx#100
@@ -247,7 +257,7 @@ def "system" (
           http "newtab" "https://patreon.com/mistium"
         )
       )
-      image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
+      image "https://origin.mistium.com/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
       
       loc 2 2 160 y
       text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
@@ -381,7 +391,7 @@ def "network_page" (
   option "Cors Proxy" "network"
 )
 
-def "colour_selector" "this.name,this.id" (
+def "colour_selector" "name, id" (
   loc 9999 2 0 y
   w = frame.width - 25
   square w 30 15 : c#prim
@@ -390,18 +400,18 @@ def "colour_selector" "this.name,this.id" (
     square w 30 10 : c#prim
   )
   loc 2 2 15 y
-  text this.name ++ ":" 10 : c#txtc
+  text name ++ ":" 10 : c#txtc
   loc -2 2 -130 y
-  text theme_select[this.id] 10
+  text theme_select[id] 10
   square 0 0 25 0 : chx#30
-  c theme_select[this.id]
+  c theme_select[id]
   square 0 0 20 0
   if onclick (
-    colourpicker "setcol" theme_select[this.id]
+    colourpicker "setcol" theme_select[id]
     colourpicker "show"
-    selected_col = this.id
+    selected_col = id
   )
-  if user.theme[this.id] != theme_select[this.id] (
+  if user.theme[id] != theme_select[id] (
     change_x -120
     square 20 20 10 0 1 : tooltip#"Reset Colour"
     if mouse_touching (
@@ -410,9 +420,9 @@ def "colour_selector" "this.name,this.id" (
     )
     icon "reload" 0.5 : c#txtc
     if onclick (
-      theme_select[this.id] = user.theme[this.id]
-      colourpicker "setcol" theme_select[this.id]
-      selected_col = this.id
+      theme_select[id] = user.theme[id]
+      colourpicker "setcol" theme_select[id]
+      selected_col = id
     )
   )
 )
@@ -438,7 +448,7 @@ def "appearance" (
       text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
       loc 2 2 25 y
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      if wallpapers.contains(current_wallpaper).not (
+      if wallpapers.contains(current_wallpaper).not() (
         if current_wallpaper.imageinfo("loaded") (
           wallpapers.insert(1,current_wallpaper.destr)
           save "wallpapers.json" "set" wallpapers
@@ -687,21 +697,25 @@ def "appearance" (
       page_len = 380 + (themes.len * 50)      
       break
     case "File Types"
-      count = 0
-      loop ftkeys.len (
-        count ++
-        y = count * -60 + scroll_y + 20
+      for count ftkeys.len (
+        y = count * -60 + scroll_y + 30
+        
         loc 999 2 0 y
-        square frame_width - 20 40 10 : c#prim hover_c#seco
+        square frame.width - 20 40 10 : c#prim
+        if mouse_touching (
+          square frame.width - 20 40 10 : c#seco
+          square frame.width - 20 40 5 : c#prim
+        )
+        
         loc 2 2 30 y
-        c seco
-        square 30 30 10
-        c txtc
-        ftv = ftvalues[count]
-        icon ftv[1] 0.8
-        text ftv[2] + "(" ++ ftkeys[count] ++ ")" 10 : chx#30 c#txtc
+        square 40 40 10 : c#seco
+        square 40 40 5 : c#prim
+        
+        ftv @= ftvalues[count]
+        icon ftv[1] 1 : c#txtc
+        text ftv[2] + "(" ++ ftkeys[count] ++ ")" 9 : chx#35 : c#txtc
       )
-      page_len = count * 60 - 20
+      page_len = count * 60
       break
     case "mouse"
       loc 2 2 10 -20
@@ -724,7 +738,6 @@ def "appearance" (
       toggle "invert" 20 : c#prim chx#30
       if toggle_invert (
         temp = slider_scrollsp * -1
-        log 2 temp
       ) else (
         temp = slider_scrollsp
       )
@@ -934,7 +947,7 @@ def "account" (
   
   local pfp_s = w / 3 - 30
   change_x w / -2 + (pfp_s / 2) + 15
-  image user.pfp pfp_s pfp_s
+  image pfp pfp_s pfp_s
   if timer - upload_time < 5 and current_pfp != "" (
     direction timer * 300
     icon "cutcircle 0 0 10 0 90" 1 : c#txtc
@@ -1133,7 +1146,10 @@ def "bluetooth_page" (
   local changePage = def() -> (
     
   )
-  local devices = roturlink.bluetooth.devices.filter(v -> (v.name != "unknown")).sortBy("rssi").reverse()
+  local devices = roturlink.bluetooth.devices
+    .filter(v -> (v.name != "unknown"))
+    .sortBy("rssi")
+    .reverse()
   
   inputs.bluetooth = roturlink.bluetooth.enabled
   setting_do devices.len ++ " Devices" w def() -> ()
@@ -1144,7 +1160,7 @@ def "bluetooth_page" (
     setting_do device.name w changePage
     
     set_x w / 2 - 20
-    connection = ((device.rssi + 100).clamp(0, 100) / 25).round()
+    connection = round((device.rssi + 100).clamp(0, 100) / 25)
  
     icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
     c txtc
@@ -1213,6 +1229,13 @@ def "credits" (
     text "Thanks to GarboMuffin and the scratch team for making TurboWarp possible".wrapText(w / 9 - 1) 9
     goto x y - 120
     square w 40 20 : c#prim
+    if onclick (
+      http "newtab" "vm.runtime.platform.url".eval()
+    )
+    change_x w / -2 + 10
+    text "Made With " ++ "vm.runtime.platform.name".eval() 10 : c#txtc
+    goto x y - 190
+    square w 40 20 : c#prim
     if clicked (
       subcategory = "Contributors"
     )
@@ -1232,7 +1255,7 @@ def "credits" (
       loc 2 2 15 y
       text extensions[count] 9 : c#txtc
     )
-    page_len = extensions.len - 0.5 * 60
+    page_len = extensions.len * 60
   )
   if subcategory == "Contributors" (
     w = frame_width - 25
@@ -1251,7 +1274,7 @@ def "credits" (
       
       text "(" ++ cur.contributions ++ " commits)" 8 : chx#10
     )
-    page_len = contributors.len - 0.5 * 60
+    page_len = contributors.len * 60
   )
   if subcategory == "Community" (
     loc 2 2 110 -30
@@ -1272,8 +1295,8 @@ def "credits" (
     ]
 
     loc 2 2 10 -100
-    count = scroll_y // 20
-    loop frame.height // 20 (
+    count = floor(scroll_y / 20)
+    loop floor(frame.height / 20) (
       count ++
       loc 2 2 10 count * -20 + scroll_y - 100
       text supporters[count] 10
@@ -1370,9 +1393,6 @@ themes = {
   "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3","accent":"#f8e0ff"},
 }
 
-round_pfp = "w 2 line 11 11 11 -11 cont -11 -11 cont -11 11 cont 11 11 cutcircle 9 9 2 4. 45 cutcircle 9 -9 2 13.5 40 cutcircle -9 9 2 -4.5 45 cutcircle -9 -9 2 -13.5 45"
-
-
 system
 // file type pages
 ftkeys = file_types.getKeys()
@@ -1386,9 +1406,20 @@ window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 terminal "info"
 info_string = terminal_output.join("\n")
 
+def genPfp() (
+  pfp = "https://avatars.rotur.dev/" ++ username ++ "?radius=10&random=" ++ random(9999,9999999999)
+)
+original_pfp = user.pfp
+genPfp()
 
 mainloop:
 networking()
+
+if original_pfp != user.pfp (
+  genPfp()
+  original_pfp = user.pfp
+)
+
 
 glass:frame window.left window.top window.left + 215 window.bottom
 c window_colour
@@ -1430,9 +1461,8 @@ DrawCategory "Permissions" "key"
 change_y -25
 DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
 
-
 loc 2 2 25 -25
-image user_icon.toStr() 35 35
+image pfp 35 35
 
 loc 2 2 232 -25
 if subcategory == "none" (
