@@ -58,8 +58,8 @@ def "reload_extensions" (
 def "handle_dropped_file" (
   loc 2 2 35 -35
   file "open" file_dropped "onlyaccess"
-  file "set" "6" round(x_position - mouse_x / -icon_distance) * 70
-  file "set" "7" round(y_position - mouse_y / -icon_distance) * 70
+  file "set" "6" (x_position - mouse_x / -70).round * 70
+  file "set" "7" (y_position - mouse_y / -70).round * 70
 )
 
 def "handle_app_culling" (
@@ -67,8 +67,8 @@ def "handle_app_culling" (
     desktop_apps = desktop
   ) else (
     loc 2 2 35 -35
-    x = round(mouse_x - x_position / 70) * icon_distance
-    y = round(mouse_y - y_position / 70) * icon_distance
+    x = round(mouse_x - x_position / 70) * 70
+    y = round(mouse_y - y_position / 70) * 70
 
     desktop_apps = []
     cur = app_positions[y][x]
@@ -203,8 +203,6 @@ cnrn = desktop != data or bg_redrawn
 if cnrn.not and nhvr "exit"
 desktop = data
 
-icon_distance = 40 * app_size
-
 // set window parameters
 window.drop_location = windowfileloc
 window.width = screensize_x
@@ -221,13 +219,13 @@ if nhvr.not() (
     can = false
     mouse_start_x = mouse_x
     mouse_start_y = mouse_y
-    window.callRender()
+    window "refresh_bg"
   )
   if mouse_down (
     render_selection
   ) else (
     if can.not() (
-      window.callRender()
+      window "refresh_bg"
     )
     can = true
   )
@@ -247,18 +245,26 @@ for i desktop_apps.len (
   app_id @= desktop_apps[i]
 
   file "open" app_id "onlyaccess"
-  x = round(fileGet(6) / 70) * icon_distance
-  y = round(fileGet(7) / 70) * icon_distance
+  x = round(fileGet(6) / 70) * 70
+  y = round(fileGet(7) / 70) * 70
   app_positions[y][x] = app_id
 
-  loc 2 2 40 + x -40 + y
+  loc 2 2 35 + x -35 + y
   square 30 30 0 0 1
   if mouse_touching or cnrn (
     file "render" app_size "interactable"
     rightclick "file" app_id
   )
 
-  data = fileGet(2).trim(1, icon_distance / 8 - 2).strip()
-  square data.len * 8 0 15 : c#back chy#-35
-  centext data 8 : c#txtc
+  data = fileGet(2)
+  if mouse_touching (
+    square data.len * 8 5 15 : c#back chy#-35
+    centext data 8 : c#txtc
+    name = data
+  ) else (
+    if name == data (
+      window "refresh_bg"
+      name = null
+    )
+  )
 )
