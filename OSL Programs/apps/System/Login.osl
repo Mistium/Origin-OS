@@ -11,6 +11,7 @@ window "hide"
 current_login = 1
 network_accounts = []
 network_data = []
+current_provider = null
 
 new_network_data = false
 login_return = ""
@@ -27,7 +28,9 @@ signup_return = ""
 
 window.no_desktop = true
 
-round_pfp = "w 2 line 11 11 11 -11 cont -11 -11 cont -11 11 cont 11 11 cutcircle 9 9 2 4. 45 cutcircle 9 -9 2 13.5 40 cutcircle -9 9 2 -4.5 45 cutcircle -9 -9 2 -13.5 45"
+login_page = "basic"
+target_y = 0
+login_y_position = 0
 
 mainloop:
 window "dimensions" screensize_x + 20 screensize_y + 20
@@ -37,11 +40,17 @@ if new_network_data (
   if network_data_command == "get_my_accounts" (
     accounts = network_data
     for count accounts.len (
-      network "getsync_asurl" "https://avatars.rotur.dev/" ++ accounts[count].username
-      js = "`data:image/svg+xml;base64,${btoa(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><defs><clipPath id='circleClip'><circle cx='50' cy='50' r='50' /></clipPath></defs><image href='" ++ data ++ "' x='0' y='0' height='100' width='100' clip-path='url(#circleClip)' /></svg>`)}`"
-      accounts[count].pfp = js.eval
+      accounts[count].pfp = "https://avatars.rotur.dev/" ++ accounts[count].username ++ "?radius=256"
+      image accounts[count].pfp 0
+      // start loading each pfp in the background
     )
-    window "refresh_bg"
+    if accounts.len == 0 (
+      current_login = "add"
+      current_provider = "rotur"
+    ) else (
+      systemvars "setvar" "SYSTEM // GETBACKGROUND" accounts[1].wallpaper
+    )
+    window.callRender()
   )
   if network_data_command == "New_Account" (
     signup_return = network_data
@@ -54,13 +63,13 @@ if new_network_data (
   new_network_data = false
 )
 
-if status == "Waiting" or (status == "login") (
+if status == "Waiting" or status == "login" (
   goto 0 -40
   icon "w 3 cutcircle 0 0 20" + (timer * 20) + "70" 2 : c#fff
   exit
 )
 
-if accounts.isType("array").not() (
+if typeof(accounts) != "array" (
   goto 0 0
   square 210 40 10 : c#111
   centext "Loading Accounts" 10 : c#fff chx#-95
@@ -69,48 +78,114 @@ if accounts.isType("array").not() (
   exit
 )
 
-goto 0 -40
-square w h 25 1 : c#current.accent
-square w h 20 1 : c#111
-goto 0 0
-frame w / -2 - 5 h / 2 - 35 -10 h / -2 - 45
-image "wallpaper_blur" background_width background_height
-frame "clear"
+window.callRender()
+frame window.left window.top window.left + 320 window.bottom (
+  goto -frame.x 0
+  effect "transparency" 20
+  effect "brightness" -10
+  image "wallpaper_blur" background_width background_height
+  effect "clear"
+)
 
-frame w / -2 - 5 h / 2 - 35 -10 h / -2 - 45 accounts.len * 70 - 20
-loc 999999 2 0 -40 + scroll_y
-x = x_position
-if accounts.len == 0 (
-  loc 2 2 20 -30
-  text "No Accounts" 10 : c#fff
+loc 2 2 40 -70
+text hour ++ ":" ++ minute 30 : c#fff
+loc 2 2 40 -120
+text day_number ++ "/" ++ month_number ++ "/" ++ year 15 : c#fff
+
+login_y_position += target_y - login_y_position / 5
+
+loc 2 -2 160 70 + login_y_position
+square 320 70 20 0 1
+if onclick (
+  window "refresh_bg"
+  current_login = 1
+)
+
+loc 2 -2 50 70 + login_y_position
+image accounts[1].pfp 50 50
+text accounts[1].username ++ "\n" 9 : c#fff chx#40 chy#10
+if accounts.len > 1 (
+  text accounts.len - 1 ++ " Other Account" ++ (accounts.len - 1 == 1 ? "" "s") 9
 ) else (
-  for count accounts.len (
-    current @= accounts[count]
-    square frame.width 70 20 0 1
-    if clicked (
-      window "refresh_bg"
-      current_login = count
-      login_return = 0
-    )
-    pen "size" 60
-    c #000
-    pen "opacity" 60
-    set_x frame.left + 40
-    pen "down"
-    set_x frame.right - 40
-    pen "up"
-    set_x frame.left + 40
-    image current.pfp 50
-    text current.username 8 : c#fff chx#40
-    set_x x
-    change_y -70
+  text "No Other Accounts" 9
+)
+
+if mouse_ondown (
+  if mouse_x < window.left + 320 and mouse_y < y_position + 35 and mouse_y > y_position - 35 (
+    target_y = min(accounts.len - 1 * 70, window.height - 200) - target_y
   )
 )
-frame "clear"
+if y_position > window.bottom + 80 (
+  set_x window.left + 160
+  change_y -30
+  c #fff
+  pen "opacity" 20
+  square 250 0 3
+  pen "opacity" 0
+  frame window.left + 10 y_position window.left + 320 window.bottom + 10 accounts.len - 1 * 70 (
+    goto 0 frame.top - 35
+    change_y frame.scroll
+    local i = 1
+    loop accounts.len - 1 (
+      i ++
+      local current @= accounts[i]
+      set_x 0
+      square frame.width - 25 50 20 0 1 : c#000
+      if onclick (
+        window "refresh_bg"
+        current_login = i
+        login_return = 0
+      )
+      set_x frame.left + 40
+      image current.pfp 50
+      text current.username 8 : c#fff chx#40
+      set_x 0 : chy#-70
+    )
+  )
+)
 
-x = 200
-w = 800
-h = 500
+x = 150
+w = 400
+h = 420
+goto x -25
+square w h 30 : c#111
+
+providers = [
+  {
+  "name": "rotur",
+  "icn": "rotur",
+  }
+]
+
+goto x - (providers.len - 1 * 25) window.bottom + 50
+for count providers.len (
+  local current @= providers[count]
+  if current.name == current_provider (
+    square 30 30 25 : c#fff
+  )
+  square 30 30 20 : c#000
+  icon current.icn 1.5 : c#fff
+  if clicked (
+    current_provider = current.name
+  )
+  change_x 50
+)
+
+if current_provider != null (
+  goto x window.bottom + 100
+  if current_login != "login" (
+    centext "Login With " ++ current_provider 8 : c#fff
+    if onclick (
+      current_login = "login"
+    )
+    change_y 30
+  ) else if current_login != "add" (
+    centext "Register With " ++ current_provider 8
+    if onclick (
+      current_login = "add"
+    )
+  )
+)
 
 if current_login.istype("number") (
   if accounts.len > 0 (
@@ -143,12 +218,15 @@ if current_login.istype("number") (
     goto x -180
     square 320 30 20 : c#000
     if clicked or "enter".isKeyDown() (
-      check = ("https://social.rotur.dev/get_user?username=" ++ user ++ "&password=" ++ pass.hashMD5()).httpGet()
-      if check.error != null (
-        login_return = check.error
-      ) else (
-        login user pass
-      )
+      login_return = "Logging In..."
+      promise.new(def() -> (
+        check = ("https://social.rotur.dev/get_user?username=" ++ user ++ "&password=" ++ pass.hashMD5()).httpGet()
+        if check.error != null (
+          login_return = check.error
+        ) else (
+          login user pass
+        )
+      ))
     )
     goto x 70
     image current.pfp 140
@@ -160,8 +238,10 @@ if current_login.istype("number") (
     goto x - 150 -180
     text "Login" 8
 
-    goto x -20
-    centext login_return 9
+    if login_return != "0" (
+      goto x -20
+      centext login_return 9
+    )
   )
 )
 
@@ -200,9 +280,14 @@ if current_login == "add" (
     network "new_account" inputs.signup_name inputs.signup_pass
     status = "Waiting"
   )
-  centext "Create Account" 8 : c#fff
-  goto x -20
-  centext signup_return 9
+  centext "Create Account With " ++ current_provider 8 : c#fff
+  change_y -50
+  centext "You are creating a public account" 8 : c#fff
+
+  if signup_return != "0" (
+    goto x -20
+    centext signup_return 9
+  )
 )
 
 if current_login == "login" (
@@ -236,35 +321,20 @@ if current_login == "login" (
   goto x -180
   square 320 30 20 : c#000
   if clicked or "enter".isKeyDown() (
-    check = ("https://social.rotur.dev/get_user?username=" ++ inputs.login_name ++ "&password=" ++ inputs.login_pass.hashMD5()).httpGet()
-    if check.error != null (
-      login_return = check.error
-    ) else (
-      network "login" inputs.login_name inputs.login_pass
-    )
+    login_return = "Logging In..."
+    promise.new(def() -> (
+      check = ("https://social.rotur.dev/get_user?username=" ++ inputs.login_name ++ "&password=" ++ inputs.login_pass.hashMD5()).httpGet()
+      if check.error != null (
+        login_return = check.error
+      ) else (
+        network "login" inputs.login_name inputs.login_pass
+      )
+    ))
   )
-  centext "Login" 8 : c#fff
+  centext "Login With " ++ current_provider 8 : c#fff
 
   goto x -20
   centext login_return 9
 )
 
 if mouse_down.not() "can = true"
-
-txt = "Make A Rotur Account"
-goto x -240
-centext txt 9 : c#fff
-if clicked and can (
-  window "refresh_bg"
-  current_login = "Add"
-  can = false
-)
-
-txt = "Add A Rotur Account"
-goto x -275
-centext txt 9 : c#fff
-if clicked and can (
-  window "refresh_bg"
-  current_login = "Login"
-  can = false
-)
