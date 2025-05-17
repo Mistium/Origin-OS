@@ -979,7 +979,7 @@ def "account" (
       current_pfp = ""
     )
   )
-  local all_badges System().badges ?? {}
+  local all_badges = System().badges ?? {}
   if all_badges.istype("object") (
     user_badges = user["sys.badges"]
     local w2 = user_badges.len * 30
