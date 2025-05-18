@@ -13,6 +13,7 @@ y = 300
 y_target = -200
 
 ai_response = ""
+ai_response_get = null
 last_change = timer
 changed = true
 input_prev = ""
@@ -25,44 +26,43 @@ clicking = false
 last_clicking = false
 
 terminal "get filepaths"
-files_paths = data.join("\n")
+files_paths = data
 search = []
 
-def searchFiles(this.term) (
-  return files_paths.match("/.+" ++ this.term ++ ".+/gm")
+def searchFiles(term) (
+  return files_paths.search(term).trim(1,10).map(v -> (v.item))
 )
-
-apps = "user/Applications".listFolder()
 
 frames = 0
 
-input "focus" "main"
-
 mainloop:
+
+if inputs.selected.id != "main" (
+  input "focus" "main"
+)
 
 frames ++
 wt:load_theme
 
-window "refresh_bg"
+window.callRender()
 
 w += w_target - w / 10
 y += y_target - y / 10
 
 if y > 400 (
-  window "stop"
+  window.close()
 )
 if y_target > y (
   search.delete(search.len)
   ai_response.delete(ai_response.len)
 )
-window.width = w
 
 w2 = w - 35
 
 goto 0 0
-square w2 window.height - 35 30 0 1
+square window.width window.height 0 0 1
 
-if mouse_down and clicked.not or (window_id != focused_application_id and frames > 2) (
+if mouse_ondown and clicked.not() or (window_id != focused_application_id) (
   y_target = 500
   w_target = 10
 )
@@ -81,38 +81,36 @@ change_x w / -2 + 15
 direction ai_url != "none" ? timer * 150 90
 icon "w 1 ellipse 0 0 7 0.45 100 ellipse 0 0 7 0.45 160 ellipse 0 0 7 0.45 220" 2 : c#txtc
 direction 90
-if timer - last_change > 1 and changed and prompt.len > 0 and search.len == 0 (
-  ai_url = "https://apps.mistium.com/autocomplete?content=" ++ encodeURIComponent(prompt) ++ "&user=" ++ encodeURIComponent(user_obj)
+if prompt.len > 0 and ("enter".onKeyDown() or ai_response_get != null) (
+  ai_url = "https://apps.mistium.com/autocomplete?content=" ++ encodeURIComponent(prompt)
   ai_response_get = ai_url.getAsync()
   if ai_response_get != "Loading" (
-    ai_response = ai_response_get.replace("\n","\n\n\n").wrapText(w2 / 9).split("\n")
+    ai_response = ai_response_get.wrapText(w2 / 9).split("\n")
     ai_lines = ai_response.len
     changed = false
     ai_time = timer
     prompt = ""
+    ai_response_get = null
   )
 ) else (
   ai_url = "none"
 )
-if input_main != input_prev (
+
+if input_main != inputprev (
   last_change = timer
   changed = true
-  input_prev = input_main
+  inputprev = input_main
   if input_main == "" (
     search = []
     ai_response = []
     prompt = ""
   ) else (
-    prompt = input_main + "\nTime:" + timestamp.timestamp("convert-full")
-    if input_main.contains("apps") (
-      prompt += "\nApps:" + apps.JsonStringify()
-    )
+    prompt = input_main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
     search = searchFiles(input_main).trim(1,10)
   )
 )
 
 if ai_response.len > 0 (
-
   ai_current = ai_response.trim(1, timer - ai_time * 50)
   goto 0 window.top - 90 - (ai_current.len * 10.5)
   square w2 ai_current.len * 21 25 : c#window_colour
@@ -120,7 +118,6 @@ if ai_response.len > 0 (
   goto window.left + 15 window.top - 95
   text ai_current.join("\n") 9 : c#txtc
   h += ai_current.len * 21 + 35
-  
 )
 
 if search.len > 0 (
@@ -153,5 +150,6 @@ if search.len > 0 (
   
 )
 window.height = h
-window.y = screensize_y / 2 + y - (window.height / 2)
+window.width = w
+window.y = screensize_y / 2 + y - (h / 2)
 h = 75
