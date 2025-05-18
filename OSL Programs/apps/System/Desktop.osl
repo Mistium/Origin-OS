@@ -52,7 +52,7 @@ def "reload_extensions" (
     desktop_rightclick[desktop_rightclick.len] = ["Apps"].concat(extensions)
   )
 
-  data @= temp
+  data = temp
   // restore the data variable from the local temp var
 )
 
@@ -196,7 +196,7 @@ txtc = user.theme.text
 
 include windowfileloc
 nhvr = window_id_index != window_top_index
-cnrn = desktop != data or bg_redrawnth
+cnrn = desktop != data or bg_redrawn
 
 if cnrn.not() and nhvr "exit"
 desktop = data
