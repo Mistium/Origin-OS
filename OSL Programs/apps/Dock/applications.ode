@@ -10,9 +10,9 @@ if data.len != 0 (
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
-      void data.delete(file_dropped)
+      data.delete(file_dropped)
       pos = round(mouse_x - (x - (width / 2) + 25) / 50)
-      data.insert(pos,file_dropped)
+      data.insert(pos, file_dropped)
       file "set" 4 data
       file_dropped = 0
     )
