@@ -6,12 +6,12 @@ if data.len != 0 (
   set_y y
   square width height 30 1 0 1
   cur = ""
-  if data.len != dock_len or mouse_touching or bg_redrawn or dock_changed_w (
+  if data != dock or mouse_touching or bg_redrawn or dock_changed_w (
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
-      data.delete(file_dropped)
-      pos = (mouse_x - (x - (width / 2)) / 50).round
+      void data.delete(file_dropped)
+      pos = round(mouse_x - (x - (width / 2) + 25) / 50)
       data.insert(pos,file_dropped)
       file "set" 4 data
       file_dropped = 0
@@ -34,7 +34,7 @@ if data.len != 0 (
   )
   if cur != last_cur (
     last_cur = cur
-    window "refresh_bg"
+    window.callRender()
   )
   if cur != "" (
     goto curx 20
