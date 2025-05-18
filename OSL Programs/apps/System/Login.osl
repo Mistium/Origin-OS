@@ -219,7 +219,7 @@ if current_login.istype("number") (
       login_return = "Logging In..."
       promise.new(def() -> (
         local pass = inputs["password_" ++ current_login]
-        check = ("https://social.rotur.dev/get_user?username=" ++ current.username ++ "&password=" ++ pass.hashMD5()).httpGet()
+        check = ("https://social.rotur.dev/get_user?username=" ++ accounts[current_login].username ++ "&password=" ++ pass.hashMD5()).httpGet()
         if check.error != null (
           login_return = check.error
         ) else (
