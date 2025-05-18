@@ -8,4 +8,4 @@ say "Look at js console for result"
 oasm "compile" data
 start = performance
 oasm data
-log newline ++ "Finished Execution:" ++ newline ++ data.join(newline) ++ newline ++ "Completed in" + ( performance - start ) ++ "ms"
+log newline ++ "Finished Execution:\n" ++ data.join("\n") ++ "\nCompleted in" + (performance - start) ++ "ms"

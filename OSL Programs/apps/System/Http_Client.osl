@@ -31,7 +31,7 @@ for "count" buttons.len (
   c #fff
   x = x_position
   change_x -30
-  text buttons.[count] 8
+  text buttons[count] 8
   set_x x + 75
 )
 
@@ -44,7 +44,7 @@ if clicked (
 icon "close" 0.6 : c#fff
 
 loc 2 2 10 -60
-text `Make a ${buttons.[selected]} request to website:` 10 : c#fff
+text `Make a ${buttons[selected]} request to website:` 10 : c#fff
 loc 2 2 0 -100
 set_x -50
 c #333
@@ -58,7 +58,7 @@ if clicked and can (
   // send the http request if send is clicked
   can = false
   http "new"
-  http "method" buttons.[selected]
+  http "method" buttons[selected]
   http "body" input_body
   http "type" input_type
   http "sendto" input_url.str
@@ -70,7 +70,7 @@ text "Send" 10
 // render the request body input
 loc 99999 2 0 -140
 square window_width - 20 25 10 : c#333
-if buttons.[selected] == "get" (
+if buttons[selected] == "get" (
   loc 2 2 15 -140
   text "Cant use request body for `get`" 8 : c#fff
 ) else (
@@ -87,7 +87,7 @@ if response_failed nor response_success (
   http "get_response"
   resp_all = response
   resp_len = resp_all.len
-  resp = response.split(newline).[1].trim(1,100)
+  resp = response.split(newline)[1].trim(1,100)
   http "new"
 )
 loc 2 2 10 -220
@@ -113,5 +113,5 @@ loc 2 2 140 -350
 c #333
 button "Copy response to clipboard" 250 25 10 : hover_c#444 click_c#222
 if clicked (
-  clipboard "set" resp_all.str.destr
+  clipboard "set" resp_all.toStr().destr
 )
