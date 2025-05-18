@@ -131,9 +131,9 @@ def "system" (
         terminal "get access camera"
         data2 = data
         terminal "get access microphone"
-        if "granted" in (data + data2) (
+        if [data, data2].contains("granted") (
           terminal "get mediadevices"
-          media = data
+          media = data.JsonParse()
           keys = media.getKeys()
           types = media.getValues().getKeys("type")
         ) else (
@@ -176,7 +176,7 @@ def "system" (
           )
           text cur 9 : chx#30
         )
-        page_len = keys.len + 2.5 * 60
+        page_len = keys.len + 3 * 60
       ) else (
         text media 10
         page_len = 100
