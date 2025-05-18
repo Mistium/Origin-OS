@@ -45,13 +45,14 @@ def "reload_extensions" (
     apps_temp = extensions
     // only run when the extensions change
 
-    each this.i this.extension extensions (
+    for i extensions.len (
+      local extension = extensions[i]
       extensions[i] = extension.JsonParse()
     )
     desktop_rightclick[desktop_rightclick.len] = ["Apps"].concat(extensions)
   )
 
-  data = temp
+  data @= temp
   // restore the data variable from the local temp var
 )
 
@@ -74,7 +75,7 @@ def "handle_app_culling" (
     cur = app_positions[y][x]
     if desktop.contains(cur) (
       if cur != "" (
-        desktop_apps.append(cur)
+        void desktop_apps.append(cur)
       )
     ) else (
       app_positions[y][x] = ""
@@ -99,7 +100,7 @@ def "render_selection" (
     fh = frame_height
   )
   window "dimensions" screensize_x screensize_y - 70
-  window "refresh_bg"
+  window.callRender()
 )
 
 def getUuid(path) (
@@ -183,10 +184,7 @@ app_size = theme.app_size
 clicked_id = 0
 window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
-include windowfileloc
-file "open" windowfileloc ++ ".folder" "onlyaccess"
-file "get" 14
-desktop_uuid = data
+desktop_uuid = open(windowfileloc ++ ".folder", [14])[1]
 positions = {}
 name = null
 apps_temp = ""
@@ -198,9 +196,9 @@ txtc = user.theme.text
 
 include windowfileloc
 nhvr = window_id_index != window_top_index
-cnrn = desktop != data or bg_redrawn
+cnrn = desktop != data or bg_redrawnth
 
-if cnrn.not and nhvr "exit"
+if cnrn.not() and nhvr "exit"
 desktop = data
 
 // set window parameters
@@ -212,20 +210,20 @@ window.y = 35
 if nhvr.not() (
   if file_dropped != 0 (
     handle_dropped_file
-    window "refresh_bg"
+    window.callRender()
     file_dropped = 0
   )
   if mouse_down and can (
     can = false
     mouse_start_x = mouse_x
     mouse_start_y = mouse_y
-    window "refresh_bg"
+    window.callRender()
   )
   if mouse_down (
     render_selection
   ) else (
     if can.not() (
-      window "refresh_bg"
+      window.callRender()
     )
     can = true
   )
@@ -263,7 +261,7 @@ for i desktop_apps.len (
     name = data
   ) else (
     if name == data (
-      window "refresh_bg"
+      window.callRender()
       name = null
     )
   )
