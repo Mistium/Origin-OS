@@ -259,6 +259,7 @@ if passed_data == "" (
   tabs.append("> Welcome")
 ) else (
   change_focus = true
+  current_tab = passed_data
   tabs.append(passed_data)
   loadFileUUID(passed_data)
 )

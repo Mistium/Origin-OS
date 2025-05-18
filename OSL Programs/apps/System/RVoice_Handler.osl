@@ -81,6 +81,9 @@ c txtc
 change 40 10
 if incoming (
   text "Incoming call from\n" 10
+  if start - timestamp > 10000 (
+    window "to_position" 0 screensize_y / 2 + 50
+  )
 )
 text name ++ "\n" 10
 if incoming.not() (
@@ -94,7 +97,7 @@ terminal "rvoice peer"
 if terminal_output[1] != "" (
   was_connected = true
 )
-if onclick or (status == "disconnected" and timestamp - start > 10000) or (was_connected and terminal_output[1] == "") (
+if onclick or status == "disconnected" or (was_connected and terminal_output[1] == "") (
   window "to_position" 0 screensize_y / 2 + 50
 )
 icon "close" 1.2 : c#911
