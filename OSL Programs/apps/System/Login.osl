@@ -332,8 +332,10 @@ if current_login == "login" (
   )
   centext "Login With " ++ current_provider 8 : c#fff
 
-  goto x -20
-  centext login_return 9
+  if login_return != "0" (
+    goto x -20
+    centext login_return 9
+  )
 )
 
 if mouse_down.not() "can = true"
