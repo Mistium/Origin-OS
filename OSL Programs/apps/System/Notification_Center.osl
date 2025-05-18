@@ -21,10 +21,10 @@ loc -2 2 -15 -20
 square 10 10 20 : c#000 hover_c#555
 if clicked and can (
   can = false
-  notifs_open = notifs_open.not
+  notifs_open = notifs_open.not()
 )
 icon "notifications" 1 : c#fff
-frame window."left" window."top" window."right" window."bottom" notifications.len * 60
+frame window.left window.top window.right window.bottom notifications.len * 60
 if scroll_y != sy (
   sy = scroll_y
   window "redraw_bg"
@@ -33,17 +33,19 @@ count = 0
 loop notifications.len (
   count ++
   loc 999 2 0 count - 0.5 * -60 + sy
-  cur = notifications.[count]
-  file "open" "id" cur."app"
+  cur = notifications[count]
+  file "open" "id" cur.app
   square 170 30 20 : c#000
   change_x -70
   file "render" 1.5
   change 30 10
   x = x_position
-  text file.[2] 8 : c#fff
+  text file[2] 8 : c#fff
   goto x y_position - 20
-  text cur."text".toStr() 7
+  text cur.text.toStr() 7
 )
 if mouse_down "can = true"
 frame "clear"
-if "escape".onpress "window stop"
+if "escape".onKeyDown() (
+  window.close()
+)
