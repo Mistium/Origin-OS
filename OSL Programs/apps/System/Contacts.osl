@@ -151,7 +151,7 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       goto 0 frame.top - 100
       image "https://avatars.rotur.dev/.banners/" ++ selected_user 700
       change_y -90
-      image "https://avatars.rotur.dev/" ++ selected_user 100
+      image "https://avatars.rotur.dev/" ++ selected_user ++ "?radius=10px" 100
     
       change cur.badges.len + 1 * -15 -70
       centext selected_user 10 : c#txtc
