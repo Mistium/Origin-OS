@@ -58,8 +58,7 @@ def "DrawCategory" "setting,icn_code" (
   temp = x_position
   change_x 80
   if category == setting (
-    square 190 30 15 : c#window_accent
-    square 190 30 10 : c#prim
+    square 190 30 10 : c#seco
   ) else (
     square 190 30 15 0 1
   )
