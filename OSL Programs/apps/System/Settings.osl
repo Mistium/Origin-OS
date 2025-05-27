@@ -22,6 +22,7 @@ def "setting_toggle" "txt, w, state, callback" (
   if state (
     icon "tick" 0.8 : c#txtc
   )
+  set_x x
 )
 
 def "setting_do" "txt, w, callback, inp" (
@@ -58,7 +59,8 @@ def "DrawCategory" "setting,icn_code" (
   temp = x_position
   change_x 80
   if category == setting (
-    square 190 30 10 : c#seco
+    square 190 30 15 : c#seco
+    square 190 30 10 : c#prim
   ) else (
     square 190 30 15 0 1
   )
@@ -79,12 +81,14 @@ def "option" "name,icn_code" (
   if mouse_touching (
     square w 30 15 : c#seco
     square w 30 10 : c#prim
-    if onclick "gotosubcategory = name"
+    if onclick (
+      gotosubcategory = name
+    )
   ) else (
     square w 30 15 1 : c#prim
   )
   change_x w / -2 + 20
-  if icn_code == "" "icn_code = name"
+  icn_code ??= name
   icon icn_code 0.8 : c#txtc
   text name 10 : chx#30
   y -= 50
@@ -111,19 +115,18 @@ def "system" (
       loc 2 2 10 -20
       text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
       terminal "system display get invert"
-      toggle_invert = (data / 100).round().toBool()
-      loc 2 2 10 -70
-      c txtc
-      text "Invert Colours" 10
-      toggle "invert" 20 : c#prim chx#30
-      inp = toggle_invert.toNum() * 100
-      terminal "system display set invert" + inp.toStr()
-      loc 2 2 10 -110
-      text "Night Mode" 10 : c#txtc
+      loc 9999 2 0 -70 : c#txtc
+      setting_toggle "Invert Colours" w data === 100 def(val) -> (
+        terminal "system display get invert"
+        inp = 100 - data
+        terminal "system display set invert" + inp.toStr()
+      )
       terminal "flags nightmode get"
-      toggle_nightmode = data
-      toggle "nightmode" 20 : c#prim chx#70
-      terminal "flags nightmode set" + toggle_nightmode.toStr()
+      change_y -45 : c#txtc
+      setting_toggle "Night Mode" w data def(val) -> (
+        terminal "flags nightmode get"
+        terminal "flags nightmode set" + (data == false)
+      )
       break
     case "Media"
       if media == "" (
@@ -427,6 +430,7 @@ def "colour_selector" "name, id" (
 )
 
 def "appearance" (
+  local w = frame.width - 25
   switch subcategory (
     case "none"
       option "Background" "w 3 square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
@@ -539,7 +543,14 @@ def "appearance" (
       icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
       text "Reset Dock To Default" 9 : chx#20
       if clicked (
-        segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/running.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
+        segments = [
+          "Origin/(A) System/Docks/Modules/main.ode",
+          "Origin/(A) System/Docks/Modules/applications.ode",
+          "Origin/(A) System/Docks/Modules/running.ode",
+          "Origin/(A) System/Docks/Modules/folders.ode",
+          "Origin/(A) System/Docks/Modules/time.ode",
+          "Origin/(A) System/Docks/Modules/battery.ode"
+        ]
         network "update" "origin_dock" segments
       )
       if file_dropped != 0 (
@@ -547,7 +558,7 @@ def "appearance" (
         data = fileGet(1)
         if data == ".ode" (
           f = fileGet(3) ++ "/" ++ fileGet(2) ++ data
-          segments.append(f)
+          void segments.append(f)
           network "update" "origin_dock" segments
         )
         file_dropped = 0
@@ -613,7 +624,7 @@ def "appearance" (
       page_len = segments.len + 2 * 60
       break
     case "Colours"
-      if theme_select.isType("object").not (
+      if typeof(theme_select) != "object" (
         window_accent = global_accent
         theme_select = user.theme
       )
@@ -718,42 +729,31 @@ def "appearance" (
       break
     case "mouse"
       loc 2 2 10 -20
-      text "Scroll Wheel Speed" 9 : c#txtc
+      text "Scroll Wheel Speed" 12 : c#txtc
       terminal "get scrollspeed"
       data = data.toNum()
+      flipped = false
       if data < 0 (
         data *= -1
-        toggle_invert = true
+        flipped = true
       )
       slider_scrollsp = data.clamp(1,10)
       loc 2 2 10 -90
-      text "Scrolling " ++ ((slider_scrollsp * 10).round() / 10) ++ "x speed" 9 : c#txtc
+      text "Scrolling " ++ (round(slider_scrollsp * 10) / 10) ++ "x speed" 9 : c#txtc
       slider_scrollsp = slider_scrollsp - 1 / 9
       loc 999 2 0 -60
-      slider frame_width - 30 20 "scrollsp" 10 : c#prim
+      slider w 25 "scrollsp" 10 : c#prim
       slider_scrollsp = slider_scrollsp * 9 + 1
-      loc 2 2 10 -140
-      text "Invert Scroll Direction" 9 : c#txtc
-      toggle "invert" 20 : c#prim chx#30
-      if toggle_invert (
-        temp = slider_scrollsp * -1
-      ) else (
-        temp = slider_scrollsp
+      change_y -90
+      setting_toggle "Invert Scroll Direction" w flipped def() -> (
+        flipped = flipped.not()
       )
-      terminal "system scrollspeed" + temp
-      if temp != user.scrollspeed (
-        loc -2 2 -120 -140
-        square 200 20 15 0 1
-        if onclick (
-          network "update" "scrollspeed" temp
-        )
-        c prim
-        if mouse_touching and clicked.not() (
-          square 200 25 12
-        ) else (
-          square 200 25 10
-        )
-        text "Sync With Network" 9 : c#txtc chx#-95
+      if flipped (
+        slider_scrollsp *= -1
+      )
+      terminal "system scrollspeed" + slider_scrollsp
+      if slider_scrollsp != user.scrollspeed and mouse_down.not() (
+        network "update" "scrollspeed" slider_scrollsp
       )
       break
   )
@@ -1430,7 +1430,7 @@ frame "clear"
 
 loc 2 2 105 -25
 if category == "Account" (
-  square 190 30 15 : c#window_accent
+  square 190 30 15 : c#seco
   square 190 30 10 : c#prim
 ) else (
   square 190 30 15 0 1
