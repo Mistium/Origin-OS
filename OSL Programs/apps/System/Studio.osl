@@ -455,7 +455,7 @@ def sidebarButtons(file_uuid, input_name) (
     ) else (
       icon "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" 0.6
       if onclick (
-        inputs[input_name] = [inputs[input_name].join("\n").JsonParse().toStr()]
+        inputs[input_name] = inputs[input_name].join("\n").JsonParse().toStr().split("\n")
       )
     )
     change_y -50
