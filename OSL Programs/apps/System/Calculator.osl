@@ -100,7 +100,7 @@ if clicked or "backspace".isKeyDown() and can (
   can = false
   temp = current.len - 1
   temp2 = secondary.len - 1
-  current.left(operation == "" ? temp temp2)
+  current = current.toStr().left(operation == "" ? temp temp2)
 )
 
 loc -2 2 -22.5 -22.5
