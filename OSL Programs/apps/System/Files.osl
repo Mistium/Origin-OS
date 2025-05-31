@@ -27,10 +27,11 @@ sorting_dir = "descending"
 dta = ""
 can = true
 def "navigate" "path" (
-  tab_data = {}
-  tab_data.title = path.split("/").last()
-  tab_data.url = path
-  tab_data.icon = file_types[".folder"][1]
+  tab_data = {
+    title: path.split("/").last(),
+    url: path,
+    icon: file_types[".folder"][1]
+  }
   
   tabs[current_tab].url = path
   pos = tabs[current_tab].position + 1
@@ -59,7 +60,7 @@ def sort_files(files) (
     ) else (
       obj.size = fileGet(12).toNum()
     )
-    new_files.append(obj)
+    void new_files.append(obj)
   )
   return new_files.sortBy(sorting_mode.toLower(), sorting_direction).getKeys("uuid")
 )
@@ -183,7 +184,7 @@ def "file_folder" "txt, folder" (
 )
 
 def "render_tabs" (
-  offset = 55
+  offset = 10
   total_width = window.width - 190
   positions = tabs.getKeys("position")
   width = total_width / tabs.len - 20
@@ -219,15 +220,16 @@ def "render_tabs" (
       icon "close" 0.5
     )
   )
-  loc 2 2 22.5 -22.5
+  loc 2 2 count * width2 - temp + 22 -22.5
   square 25 25 15 : c#prim
   if tabs.len < 10 "c txtc" else "c seco"
   icon "add" 0.55
   if onclick and tabs.len < 10 (
-    tab_data = {}
-    tab_data.icon = file_types[".folder"][1]
-    tab_data.title = username
-    tab_data.url = user_folder
+    tab_data = {
+      icon: file_types[".folder"][1],
+      title: username,
+      url: user_folder
+    }
     
     cur_tab = {
       history: [tab_data],
@@ -239,6 +241,7 @@ def "render_tabs" (
     current_tab = tabs.len
     refresh
   )
+  window.setDragbox([2,2,count * width2 + 40,0],[-2,2,0,-40])
 )
 
 def "sorting_option" "sort_name" (
@@ -268,7 +271,7 @@ def "render_files" (
   )
   local temp_x = x_position
   local temp_y = y_position
-  loc -2 -2 0 32
+  loc -2 -2 0 35
   if window.width > 1000 and selected_files.len != 0 (
     change_x -292
   )
@@ -436,7 +439,7 @@ def "render_files" (
     )
     text "Empty Bin" 9 : c#txtc chx#-40
   )
-  goto temp_x + 55 temp_y + 15
+  goto temp_x + 55 temp_y + 5
   sorting_option "Name"
   set_x temp_x2 - 115
   sorting_option "Size"
@@ -590,28 +593,22 @@ mainloop:
   )
   if window_width > 1000 and selected_files.len > 0 (
     loc -2 999 -147 -54
-    square 270 window_height - 192 10 1 : c#prim
+    square 265 window_height - 205 15 1 : c#prim
     if selected_files.len == 1 (
       loc -2 2 -150 -250
       file "open" file_open "onlyaccess"
       file "render" 5 : c#txtc
       loc -2 2 -280 -330 : c#txtc
       x = x_position
-      file "get" 1
-      data1 = data
-      file "get" 2
-      text data ++ data1 10
+      text fileGet(2) ++ fileGet(1) 10
       set_x x
       text "File Info" 8.5 : chy#-35
       set_x x
-      file "get" 9
-      text "Created:" + data.timestamp("convert-relative") 8.5 : chy#-25
+      text "Created:" + fileGet(9).timestamp("convert-relative") 8.5 : chy#-25
       set_x x
-      file "get" 10
-      text "Last Edited:" + data.timestamp("convert-relative") 8.5 : chy#-25
+      text "Last Edited:" + fileGet(10).timestamp("convert-relative") 8.5 : chy#-25
       set_x x
-      file "get" 12
-      text "Size:" + data + "Bytes" 8.5 : chy#-25
+      text "Size:" + fileGet(12) + "Bytes" 8.5 : chy#-25
     )
   )
   file "open" input_path ++ ".folder" "onlyaccess"
