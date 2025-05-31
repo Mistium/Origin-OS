@@ -322,7 +322,7 @@ def "system" (
       change_y -50
       setting_toggle "Use 24 hour time" w user.timeformat.hours == "24h" def() -> (
         local current_format = user.timeformat
-        current_format.hours = current_format.hours == "24h" ? "12h" : "24h"
+        current_format.hours = current_format.hours == "24h" ? "12h" "24h"
         network "update" "timeformat" current_format
       )
       break
