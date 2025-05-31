@@ -96,9 +96,9 @@ def "folder" "txt" (
   if mouse_touching (
     if onclick (
       if con (
-        hidden.delete(txt)
+        void hidden.delete(txt)
       ) else (
-        hidden.append(txt)
+        void hidden.append(txt)
       )
     )
     square 225 20 15 : c#seco
@@ -229,12 +229,13 @@ def "render_tabs" (
     tab_data.title = username
     tab_data.url = user_folder
     
-    cur_tab = {}
-    cur_tab.history = [].append(tab_data)
-    cur_tab.position = 1
-    cur_tab.input = user_folder
+    cur_tab = {
+      history: [tab_data],
+      position: 1,
+      input: user_folder
+    }
     
-    tabs.append(cur_tab)
+    void tabs.append(cur_tab)
     current_tab = tabs.len
     refresh
   )
@@ -293,14 +294,16 @@ def "render_files" (
         
         temp_sorting_mode = sorting_mode + sorting_direction
       )
-      rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [].append(current_folder_uuid)
+      goto 0 0
+      square frame.width frame.height 10 0 1
+      rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [current_folder_uuid]
     ) else (
       files = []
     )
   )
   len = files.len
   if len > 0 (
-    count = scroll_y // 45
+    count = floor(scroll_y / 45)
     num = frame.height / 45
     
     if count + num > (len - 1) (
