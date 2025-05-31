@@ -576,7 +576,10 @@ mainloop:
               window "add" "Files_Info" file_open
               break
             case "bin"
-              file "move_to_bin"
+              // stop it crashing if the file doesnt exist
+              try (
+                file "move_to_bin"
+              )
               break
           )
           cur = ""
