@@ -311,6 +311,20 @@ def "system" (
       centext time.offset ++ "ms" 20
       change_y -40
       centext "to make it more accurate" 10
+
+      change_y -50
+      setting_toggle "Show Seconds" w user.timeformat.show_seconds def() -> (
+        local current_format = user.timeformat
+        current_format.show_seconds = current_format.show_seconds.not()
+        network "update" "timeformat" current_format
+      )
+
+      change_y -50
+      setting_toggle "Use 24 hour time" w user.timeformat.hours == "24h" def() -> (
+        local current_format = user.timeformat
+        current_format.hours = current_format.hours == "24h" ? "12h" : "24h"
+        network "update" "timeformat" current_format
+      )
       break
     case "Gamepads"
       local gamepads = getGamepads()

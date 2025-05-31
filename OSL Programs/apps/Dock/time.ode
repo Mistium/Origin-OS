@@ -10,7 +10,20 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
   timeode_secondtemp = second
   set_y y + 10
   square 95 15 5 : c#dock_colour
-  text hour ++ ":" ++ minute ++ ":" ++ second 9 : chx#-45 c#icon_colour
+
+  local is12h = user.timeformat.hours == "12h"
+
+  local time = is12h ? (hour % 12) hour
+
+  time ++= ":" ++ minute
+
+  if user.timeformat.show_seconds (
+    time ++= ":" ++ second
+  )
+  if is12h (
+    time ++= hour < 12 ? " AM" : " PM"
+  )
+  text time 9 : chx#-45 c#icon_colour
 )
 if day != timeode_daytemp or bg_redrawn (
   timeode_daytemp = day

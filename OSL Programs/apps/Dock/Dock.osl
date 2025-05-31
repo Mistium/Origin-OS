@@ -18,6 +18,14 @@ if typeof(segments) != "array" (
   network "update" "origin_dock" segments
 )
 
+// reset the user time format if it is not set
+if user.timeformat == null (
+  network "update" "timeformat" {
+    "hours": "24h",
+    "show_seconds": true,
+  }
+)
+
 goto 0 y
 dock_x = 0
 for syscount segments.len (
@@ -34,13 +42,19 @@ height = 36
 
 // theme
 if user.theme.len < 5 or typeof(user.theme) != "object" (
-  network "update" "theme" {"primary":"#222","secondary":"#555","tertiary":"#777","text":"#fff","background":"#050505","accent":"#57cdac"}
+  network "update" "theme" {
+    "primary":"#222",
+    "secondary":"#555",
+    "tertiary":"#777",
+    "text":"#fff",
+    "background":"#050505",
+    "accent":"#57cdac"
+  }
 )
 
 file_loc = user_folder ++ "/Dock"
 
 dock_changed_w = false
-
 network "update" "hostOS" system_os
 network "update" "timezone" timezone
 
