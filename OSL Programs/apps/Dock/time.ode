@@ -21,7 +21,7 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
     time ++= ":" ++ second
   )
   if is12h (
-    time ++= hour < 12 ? " AM" : " PM"
+    time ++= hour < 12 ? " AM" " PM"
   )
   text time 9 : chx#-45 c#icon_colour
 )
