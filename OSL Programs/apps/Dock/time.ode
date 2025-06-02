@@ -12,8 +12,11 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
   square 95 15 5 : c#dock_colour
 
   local is12h = user.timeformat.hours == "12h"
+  local time = hour
 
-  local time = is12h ? (hour % 12).toStr().padStart("0", 2) hour
+  if is12h and hour > 12 (
+    time = (hour - 12).toStr().padStart("0", 2)
+  )
 
   time ++= ":" ++ minute
 
