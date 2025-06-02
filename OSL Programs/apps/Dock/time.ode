@@ -13,7 +13,7 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
 
   local is12h = user.timeformat.hours == "12h"
 
-  local time = is12h ? (hour % 12) hour
+  local time = is12h ? (hour % 12).toStr().padStart(2,"0") hour
 
   time ++= ":" ++ minute
 
