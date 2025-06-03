@@ -70,7 +70,7 @@ if mouse_touching (
   target = 180
 )
 cps = ( upgrades.[1] * cursor_per ) + ( upgrades.[2] * grandma_per ) * 10
-cps = cps.round / 10
+cps = round(cps) / 10
 cps_displ = "per second:" + cps
 
 if mouse_down.not "can = true"

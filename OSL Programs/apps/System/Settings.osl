@@ -143,7 +143,7 @@ def "system" (
         )
       )
       loc 2 2 10 -40 + scroll_y
-      text "System Volume" + (slider_volume * 100).round ++ "%" 10 : c#txtc
+      text "System Volume" + round(slider_volume * 100) ++ "%" 10 : c#txtc
       loc 999 2 0 -90 + scroll_y
       terminal "system sound get volume"
       slider_volume = data / 100
@@ -539,7 +539,7 @@ def "appearance" (
         )
         icon "bin" 0.7 : c#txtc
       )
-      page_len = (wallpapers.len / 2).ceiling * 230 + 310
+      page_len = ceil(wallpapers.len / 2) * 230 + 310
       break
     case "Dock"
       if new_transmit (

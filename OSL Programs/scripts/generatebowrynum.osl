@@ -1,22 +1,7 @@
-def findbowry "number"
-return = false
-if number.multiply(3).divide(2).floor % 59 == 0 "return = true"
-endef
-
-iterate "count" 0 1000 1 (
-findbowry count
-if return "terminal = terminal + count.str"
+def findbowry(number) (
+  return floor(number * 3 / 2) % 59 == 0
 )
 
-// count = 0
-// loop 1000 (
-// count += 1
-// findbowry count
-// if return "print count.str"
-// )
-
-// iterate "count" 0 1000 1 (
-//   if count.multiply(1.5).floor % 59 == 0 (
-//     terminal = terminal + count.str
-//   )
-// )
+for count 1000 (
+  log findbowry(count)
+)
