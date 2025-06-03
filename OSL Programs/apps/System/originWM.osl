@@ -1,0 +1,89 @@
+// this is a not finished WIP window manager for originOS written in OSL
+
+permission "request" "windows"
+permission "request" "javascript"
+
+def checkCollision(x,y,x2,y2,w,h) (
+  return (x - x2).abs() < (w / 2) and (y - y2).abs() < (h / 2)
+)
+
+window "responsive" true
+
+hitbox_size = 13
+
+window.on("close", def() -> (
+  log "closed"
+))
+
+def dragEdge(prop, axis) (
+  if mouse_down (
+    if axis == "x" (
+      if top.tile.startsWith("-1,") or top.tile.startsWith("1,") (
+        local split @= "origin.desktop.split".eval()
+      )
+    ) else (
+    
+    )
+  )
+)
+
+state = {
+  dragEdge: null,
+  changeState: def(edge,prop) -> (
+    self.dragEdge = edge
+    self.div = ["left"].contains(edge) ? -2 2
+    self.resize1 = top.x - (top.width / div)
+    self.resize2 = top.y - (top.height / div)
+    self.prop = prop
+    self.axis = ["width"].contains(prop) ? "x" "y"
+    self.last_size = top[prop]
+    self.pos = top.tile
+  )
+}
+
+mainloop:
+
+if wins[1].id == window.id (
+  window.resize(0,0)
+) else (
+  window.resize(screensize_x,screensize_y)
+)
+
+wins @= Windows()
+
+if "space".onKeyDown() (
+  window.close()
+)
+
+top @= wins[1].window
+
+x2 = hitbox_size * 2
+x25 = hitbox_size / 4
+
+if top.tile == null (
+
+)
+if mouse_down.not() (
+  state.cursor = null
+)
+// left edge
+if checkCollision(mouse_x, mouse_y, top.x + top.left, top.y, hitbox_size, top.height - x25) (
+  state.cursor = "ew-resize"
+  if mouse_ondown (
+    state.changeState("left","width")
+  )
+)
+// right edge
+if checkCollision(mouse_x, mouse_y, top.x + top.right, top.y, hitbox_size, top.height - x25) (
+  state.cursor = "ew-resize"
+  if mouse_ondown (
+    state.changeState("right","width")
+  )
+)
+
+if state.dragEdge != null (
+  dragEdge(state.prop,state.axis)
+)
+if state.cursor != null (
+  cursor state.cursor
+)
