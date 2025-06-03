@@ -409,7 +409,7 @@ def "network_page" (
 
 def "colour_selector" "name, id" (
   loc 9999 2 0 y
-  w = frame.width - 25
+  local w = frame.width - 25
   square w 30 15 : c#prim
   if mouse_touching (
     square w 30 15 : c#seco
@@ -449,6 +449,7 @@ def "appearance" (
     case "none"
       option "Background" "w 3 square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
       option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
+      option "Windows" "maximise"
       option "Colours" "w 3 cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
       option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
       option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
@@ -636,6 +637,14 @@ def "appearance" (
         )
       )
       page_len = segments.len + 2 * 60
+      break
+    case "windows"
+      goto 0 frame.top + scroll_y - 30
+      setting_toggle "Show Window Outline" w user.theme.show_outline != false def() -> (
+        local theme = user.theme
+        theme.show_outline = theme.show_outline == false
+        network "update" "theme" theme
+      )
       break
     case "Colours"
       if typeof(theme_select) != "object" (
