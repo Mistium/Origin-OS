@@ -113,7 +113,7 @@ if frame > 7 "frame = 2"
 )
 if mouse_down.not "frame = 1"
 loc -4 -2 0 50
-image weapon1 ++ frame.floor ++ ".png" window_width / 2 window_width / 2
+image weapon1 ++ floor(frame) ++ ".png" window_width / 2 window_width / 2
 loc 2 2 20 -20
 text "<fps>" 10 : c#fff
 cursor "lock"

@@ -9,8 +9,8 @@ if "w".isKeyDown() "camy -= 0.2"
 if "a".isKeyDown() "camx -= 0.2"
 if "s".isKeyDown() "camy += 0.2"
 if "d".isKeyDown() "camx += 0.2"
-displx = camx.floor
-disply = camy.floor
+displx = floor(camx)
+disply = floor(camy)
 loc 2 2 20 -20
 c #fff
 text scrollx 10
