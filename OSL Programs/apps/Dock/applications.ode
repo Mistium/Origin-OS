@@ -6,7 +6,8 @@ if data.len != 0 (
   set_y y
   square width height 30 1 0 1
   cur = ""
-  if data != dock or mouse_touching or bg_redrawn or dock_changed_w (
+  if data != dock or (mouse_touching and mouse_x != last_mouse_x) or bg_redrawn or dock_changed_w (
+    last_mouse_x = mouse_x
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
