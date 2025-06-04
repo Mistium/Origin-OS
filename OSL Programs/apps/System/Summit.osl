@@ -95,7 +95,7 @@ def "draw_page" "url, page_type, tab_id" (
   
   if loaded_pages.contains(url) (
     local page @= loaded_pages[url]
-    data @= page.data
+    local data @= page.data
     
     onload = page.onload
     page.onload = false
@@ -136,7 +136,7 @@ def "draw_page" "url, page_type, tab_id" (
     local tabs @= summit.tabs.all
     if summit.redirect_url != null (
       if summit.redirect_url.split("/")[-1].contains(".").not() or summit.redirect_url.endsWith(".web") (
-        summit.redirect_url = summit.redirect_url.append("/index.osl")
+        summit.redirect_url ++= "/index.osl"
       )
       tabs[tab_id].url = summit.redirect_url
       tabs[tab_id].position ++
@@ -190,7 +190,7 @@ def "page_frame" "left, top, right, bottom, url" (
     )
   )
   
-  if summit.pages.loaded.contains(url).not() (
+  if summit.pages.loaded[url] == null (
     local fetch_url = ""
     if page_protocol == "web" (
       local parts = url.split("/")
@@ -198,10 +198,9 @@ def "page_frame" "left, top, right, bottom, url" (
       fetch_url = "https://" ++ summit.tlds[current_tld] ++ url
       local data = fetch_url.getAsync()
     ) else if page_protocol == "local" (
-      local data = open(url, ["name","type","data"])
-      url = data.trim(1,2).join("")
-      data = data[3]
-      fetch_url = url
+      local data = open(url, ["path","name","type","data"])
+      fetch_url = data[1] ++ "/" ++ data[2] ++ data[3]
+      data = data[4]
     )
     if data != "Loading" (
       summit.pages.loaded[url] @= {
@@ -210,7 +209,7 @@ def "page_frame" "left, top, right, bottom, url" (
         vars: {},
         fetch_url
       }
-      if fetch_url.endsWith(".osl") or url.endsWith(".osl") or url.endsWith(".owf") (
+      if fetch_url.endsWith(".osl") or url.endsWith(".osl") or fetch_url.endsWith(".owf") (
         summit.pages.loaded[url].fn @= function("data", sandbox.sanitiseOSL(data.split("\n")).join("\n"))
       )
     )
@@ -319,7 +318,7 @@ summit.sidebar.main = def() -> (
         
         local all_tabs = summit.tabs.all
         for i summit.tabs.all.len (
-          local tab = all_tabs[i]
+          local tab @= all_tabs[i]
           set_x 0
           square frame.width 40 0 0 1
           if summit.tabs.current.contains(tab.id) (
@@ -362,13 +361,6 @@ summit.sidebar.main = def() -> (
 
 mainloop:
 wt:load_theme
-
-local loaded @= summit.pages.loaded
-each this.page loaded.getKeys() (
-  if loaded.contains(page).not() (
-    void loaded.delete(page)
-  )
-)
 
 if file_dropped != 0 (
   add_tab "local://" ++ file_dropped
