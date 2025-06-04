@@ -170,7 +170,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       if onclick (
         save_data = "installed.json".saveGet().JsonParse()
         navigate("applist", supported_json
-          .filter(v -> (v.version != save_data[v.title] and save_date[v.title] != null))
+          .filter(v -> (v.version != save_data[v.title] and save_data.contains(v.title)))
           .map(v -> (v.title)))
       )
       local y = y_position
@@ -271,14 +271,15 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       loc -2 2 -90 -45 + scroll_y
       square 110 30 10 : c#prim
 
-      if save_data[cur.title] == cur.version (
-        msg = "Launch"
-      ) else (
-        if save_data.getKeys().contains(cur.title) (
-          msg = "Update"
+      file "exists" parseFilePath("~/Applications/" ++ cur.title ++ ".osl")
+      if exists (
+        if save_data[cur.title] == cur.version (
+          msg = "Launch"
         ) else (
-          msg = "Install"
+          msg = "Update"
         )
+      ) else (
+        msg = "Install"
       )
       
       centext msg 10 : c#txtc chx#-15
