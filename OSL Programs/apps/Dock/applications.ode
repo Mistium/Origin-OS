@@ -5,8 +5,11 @@ if data.len != 0 (
   x = x_position
   set_y y
   square width height 30 1 0 1
+  if mouse_touching (
+    cursor app_segment_cursor
+  )
   cur = ""
-  if data != dock or (mouse_touching and mouse_x != last_mouse_x) or bg_redrawn or dock_changed_w (
+  if data != dock or (mouse_touching and (mouse_x != last_mouse_x or mouse_down)) or bg_redrawn or dock_changed_w (
     last_mouse_x = mouse_x
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
@@ -21,11 +24,13 @@ if data.len != 0 (
     square width height 20
     goto x - (width / 2) + 20 y
     dock_len = dock.len
+    app_segment_cursor = null
     each app dock (
       file = open(app, [2])
       file "render" 1.7 "interactable"
       square 45 45 0 0 1
       if mouse_touching (
+        app_segment_cursor = "pointer"
         curx = x_position
         cur = file[1]
       )
