@@ -8,7 +8,7 @@ if data.len != 0 (
   if mouse_touching (
     cursor app_segment_cursor
   )
-  cur = ""
+  cur = null
   if data != dock or (mouse_touching and (mouse_moving or mouse_down)) or bg_redrawn or dock_changed_w (
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
@@ -38,10 +38,12 @@ if data.len != 0 (
     )
   )
   if cur != last_cur (
-    last_cur = cur
-    window.callRender()
-  )
-  if cur != "" (
+      last_cur = cur
+      if mouse_moving (
+        window.callRender()
+      )
+    )
+  if cur != null (
     goto curx 20
     square cur.len * 8 10 12 : c#000
     change_x cur.len * -4
