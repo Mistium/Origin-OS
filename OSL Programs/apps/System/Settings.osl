@@ -17,6 +17,7 @@ def "setting_toggle" "txt, w, state, callback" (
   set_x x + (w / 2 - 15)
   square 30 30 5 : c#seco
   if onclick (
+    set_x x
     return callback()
   )
   if state (
