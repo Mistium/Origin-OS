@@ -9,7 +9,7 @@ if data.len != 0 (
     cursor app_segment_cursor
   )
   cur = null
-  if data != dock or (mouse_touching and (mouse_moving or mouse_down)) or bg_redrawn or dock_changed_w (
+  if data != dock or (mouse_touching and (mouse_moving or mouse_down or mouse_right)) or bg_redrawn or dock_changed_w (
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
