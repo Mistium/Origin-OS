@@ -59,8 +59,8 @@ def "reload_extensions" (
 def "handle_dropped_file" (
   loc 2 2 35 -35
   file "open" file_dropped "onlyaccess"
-  file "set" "6" (x_position - mouse_x / -70).round * 70
-  file "set" "7" (y_position - mouse_y / -70).round * 70
+  file "set" "6" round(x_position - mouse_x / -70) * 70
+  file "set" "7" round(y_position - mouse_y / -70) * 70
 )
 
 def "handle_app_culling" (
