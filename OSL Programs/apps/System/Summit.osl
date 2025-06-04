@@ -28,22 +28,7 @@ each key window.getKeys() (
 
 class sandbox (
   def run(fn, data) (
-    local cache = {
-      my_uuid,
-      my_path,
-      my_location
-    }
-    local summit2 @= summit
-    my_uuid = null
-    my_path = null
-    my_location = null
-    
     void fn(data)
-    
-    my_uuid @= cache.my_uuid
-    my_path @= cache.my_path
-    my_location @= cache.my_location
-    summit @= summit2
     return data
   )
   
@@ -110,7 +95,7 @@ def "draw_page" "url, page_type, tab_id" (
   
   if loaded_pages.contains(url) (
     local page @= loaded_pages[url]
-    local data @= page.data
+    data @= page.data
     
     onload = page.onload
     page.onload = false
@@ -216,6 +201,7 @@ def "page_frame" "left, top, right, bottom, url" (
       local data = open(url, ["name","type","data"])
       url = data.trim(1,2).join("")
       data = data[3]
+      fetch_url = url
     )
     if data != "Loading" (
       summit.pages.loaded[url] @= {
