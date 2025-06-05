@@ -7,8 +7,8 @@ file "use_type" "folder"
 
 save "files@system" "set_directory"
 
-window "dimensions" 1000 600
-window "show"
+window.resize(1000,600)
+window.show()
 
 files_path = "Origin/(C) Users/" ++ username
 user_path = files_path ++ "/"
@@ -43,11 +43,11 @@ def "navigate" "path" (
 def sort_files(files) (
   new_files = []
   each i file files (
-    obj = {}
+    obj = {
+      uuid: file
+    }
     
     file "open" file "onlyaccess"
-    obj.uuid = file
-    
     local filetype = fileGet(1)
     obj.name = fileGet(2) ++ filetype
   
@@ -97,7 +97,7 @@ def "folder" "txt" (
   if mouse_touching (
     if onclick (
       if con (
-        void hidden.delete(txt)
+        hidden.delete(txt)
       ) else (
         void hidden.append(txt)
       )
@@ -109,19 +109,29 @@ def "folder" "txt" (
   c txtc
   icon con ? "right" "down" 0.6
   change_x -210
-  text txt.str 9
+  text txt.toStr() 9
   y -= 35
 )
 
 def "file_folder" "txt, folder" (
-  file "open" txt ++ ".folder" "onlyaccess"
+  local isExternal = txt.startsWith("/dev")
+  if isExternal (
+    current_drive = txt
+    local current = roturlink.drives
+      .filter(v -> (v.device_node == current_drive))
+      
+    local file = [txt,current[1].name,".folder"]
+  ) else (
+    local file = open(txt ++ ".folder", ["location","name","type"])
+    file[1] = file.left(2).join("/")
+  )
   
   if hidden.contains(folder).not() (
     loc 2 2 125 y
     square 225 20 10 0 1
     if mouse_touching (
       if onclick (
-        navigate fileGet(3) ++ "/" ++ fileGet(2)
+        navigate file[1]
       )
       square 225 20 15 : c#seco
       square 225 20 10 : c#prim
@@ -178,7 +188,7 @@ def "file_folder" "txt, folder" (
     stretch [100,100]
     file "render" 1
     c txtc : chx#30
-    text fileGet(2) 8
+    text file[2].trimText(20) 8
     y -= 35
   )
 )
@@ -283,6 +293,9 @@ def "render_files" (
   window.drop_location = null
   if input_path == "origin" (
     files = []
+  ) else if input_path.startsWith("/dev") (
+    files = roturlink.drives
+      .filter(v -> (v.device_node == input_path))[1].files
   ) else (
     file "exists" input_path ++ ".folder"
     if exists (
@@ -319,34 +332,53 @@ def "render_files" (
       draw_y = 16 + scroll_y - (45 * count)
       loc 999 2 0 draw_y
       current_file = files[count]
-      if selected_files.contains(current_file) (
-        square w 20 15 : c#global_accent
-        square w 30 10 : c#prim
-      ) else (
-        square w 30 15 0 1
-      )
+      square w 30 15 0 1
       if mouse_touching and (file_dropped == 0 nor mouse_down) (
         file "open" file_dropped "onlyaccess"
-        file "get" 3
-        file "open" data ++ ".folder"
-        new = file[4].delete(file_dropped).append(file_dropped)
+        file "open" fileGet(3) ++ ".folder"
+        new @= file[4].delete(file_dropped).append(file_dropped)
         file "set" 4 new
         current_folder_update = new
         refresh
         file_dropped = 0
       )
-      rightclick "file" selected_files
       
       // open the current file so that it can be handled for moving and rendering
-      file "open" current_file "onlyaccess"
+      local use_file_obj = typeof(current_file) == "object"
+      file_id = current_file
+      if use_file_obj (
+        file = [
+          current_file["type"] == "directory" ? ".folder" current_file.extension,
+          current_file.name,
+          "",
+          current_file.modified * 1000,
+          current_file.size
+        ]
+        file_id = current_file.path
+      ) else (
+        file = open(current_file, [1,2,3,10,12])
+        if file[1] == ".folder" (
+          file[5] = open(current_file).len
+        )
+      )
+      
+      if selected_files.contains(file_id) (
+        square w 20 15 : c#global_accent
+        square w 30 10 : c#prim
+      ) else (
+        square w 30 15 0 1
+      )
+      if !use_file_obj (
+        rightclick "file" selected_files
+      )
       
       if onclick and drag_id == 0 (
         // add or remove a single file from selection
         if "control".isKeyDown() (
-          if selected_files.contains(current_file) (
-            selected_files.delete(current_file)
+          if selected_files.contains(file_id) (
+            selected_files.delete(file_id)
           ) else (
-            selected_files.append(current_file)
+            void selected_files.append(file_id)
           )
         // multiselect between points
         ) else if "shift".isKeyDown() (
@@ -361,36 +393,40 @@ def "render_files" (
         // select a single file
           drag_id = 0
         ) else (
-          selected_files = [].append(current_file)
-          drag_id = current_file
+          selected_files @= [file_id]
+          drag_id = file_id
           click_time = timestamp
           can = false
         )
-      ) else if drag_id == current_file and selected_files.len == 1 (
+      ) else if drag_id == file_id and selected_files.len == 1 (
         if mouse_touching.not() (
           drag_id = 0
-          if mouse_down (
+          if mouse_down and !use_obj_file (
             file "move" current_file
           )
         ) else if clicked and can (
           drag_id = 0
           if fileGet(1) == ".folder" (
-            navigate fileGet(3) ++ "/" ++ fileGet(2)
-          ) else (
+            navigate file[3] ++ "/" ++ file[2]
+          ) else if !use_obj_file (
             file "start"
           )
           files_selected_id = 0
         )
       )
       loc 2 2 25 draw_y
-      file "render" 1 : c#txtc
+      if use_obj_file (
+        icon (file_types[file[1]] ?? file_types[".txt"])[1] 1 : c#txtc
+      ) else (
+        file "render" 1 : c#txtc
+      )
       c txtc
       change_x 30
-      data2 = fileGet(2)
+      data2 = file[2]
       max_chars = frame.width - (frame.width > 600 ? 500 330) / 9
-      data = fileGet(10).toNum()
+      data = file[4].toNum()
       local edited_time = timestamp - data < 172800000 ? data.timestamp("convert-relative") data.timestamp("convert-date")
-      data = fileGet(1)
+      data = file[1]
       if data == ".folder" (
         text data2.trimText(max_chars) 8
         
@@ -403,7 +439,7 @@ def "render_files" (
         text "Folder" 8
         
         loc -2 2 -100 draw_y
-        text fileGet(4).len + "Items" 8
+        text file[5] + "Items" 8
       ) else (
         data2 ++= data
         text data2.trimText(max_chars) 8
@@ -417,7 +453,7 @@ def "render_files" (
         data = file_types[data][2]
         text data ?? "Document" 8
         loc -2 2 -100 draw_y
-        text formatFileSize(fileGet(12)) 8
+        text formatFileSize(file[5]) 8
       )
     )
   ) else (
@@ -529,6 +565,13 @@ mainloop:
       file_folder "/(a) system" "Drives"
       file_folder "/(b) local" "Drives"
       file_folder "/(c) users/" ++ username "Drives"
+      
+      if roturlink.enabled and roturlink.drives.len > 0 (
+        folder "External"
+        for i roturlink.drives.len (
+          file_folder roturlink.drives[i].device_node "External"
+        )
+      )
     )
     goto window.left + 255 window.bottom + 15
     square 8 36 0 : c#prim
