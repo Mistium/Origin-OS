@@ -27,13 +27,15 @@ def "setting_toggle" "txt, w, state, callback" (
 )
 
 def "setting_do" "txt, w, callback, inp" (
+  local x = x_position
   square w 30 10 : c#prim
-  if onclick (
-    return callback(inp ?? "")
-  )
-
+  local cl = onclick
   change_x w / -2 + 10
   text txt 10 : c#txtc
+  set_x x
+  if cl (
+   void callback(inp ?? "")
+  )
 )
 
 def "setting_input" "id, default_txt, w, callback" (
@@ -113,10 +115,25 @@ def "system" (
       info
       break
     case "Display"
-      loc 2 2 10 -20
+      loc 2 2 10 -20 + scroll_y
       text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
+      
+      goto 0 window.top - 100 + scroll_y
+      if roturlink.enabled (
+        local before_brightness = slider_brightness
+        centext "Brightness" 10 : c#txtc
+        slider w 20 "brightness" : c#prim chy#-30
+        if round(before_brightness * 100) != round(slider_brightness * 100) (
+          roturlink.send({
+            "cmd":"brightness_set",
+            "val":round(slider_brightness * 100)
+          })
+        )
+        change_y -50
+      )
+      
       terminal "system display get invert"
-      loc 9999 2 0 -70 : c#txtc
+      c #txtc
       setting_toggle "Invert Colours" w data === 100 def(val) -> (
         terminal "system display get invert"
         inp = 100 - data
@@ -383,7 +400,7 @@ def "network_page" (
     )
     return
   )
-  goto 0 window.top - 70
+  goto 0 window.top - 70 + scroll_y
 
   icon "network" 4 : c#txtc
   if network.connected (
@@ -396,16 +413,41 @@ def "network_page" (
   change_y -60
   centext message 10
   
-  change_y -60
-  centext "Ping:" + ping.time ++ "ms" 9
-  
-  if timestamp - ping.sent > 5000 (
-    ping.sent = timestamp
-    network "server" "ping"
+  if roturlink.enabled (
+    change_y -100
+    setting_do "Connected to " ++ roturlink.wifi.ssid w () -> ()
+    change_y -50
+    setting_do "Signal Strength: " ++ roturlink.wifi.signal_strength w () -> ()
+    
+    change_y -70
+    local networks @= roturlink.wifi.scan
+      .sortBy("signal_strength")
+      .reverse()
+    
+    setting_do networks.len + (networks.len == 1 ? "Network" "Networks") w def() -> ()
+    change_y -10
+    
+    each cur networks (
+      set_x 0 : chy#-50
+      setting_do cur.ssid w (val) -> (
+        // implement network switching
+      ) cur
+      
+      set_x w / 2 - 20
+      connection = round(cur.signal_strength.clamp(0, 75) / 25)
+   
+      icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
+      c txtc
+      icon [
+        "",
+        "w 4 dot 0 -6",
+        "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
+        "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6"
+      ][connection + 1] 0.8
+    )
+    page_len = networks.len * 50 + 350
   )
-  
-  y = -300
-  option "Cors Proxy" "network"
+  // option "Cors Proxy" "network"
 )
 
 def "colour_selector" "name, id" (
@@ -1434,6 +1476,8 @@ def genPfp() (
 )
 original_pfp = user.pfp
 genPfp()
+
+slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 
 mainloop:
 networking()
