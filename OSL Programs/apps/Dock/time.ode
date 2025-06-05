@@ -14,8 +14,13 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
   local is12h = user.timeformat.hours == "12h"
   local time = hour
 
-  if is12h and hour > 12 (
-    time = (hour - 12).toStr().padStart("0", 2)
+  if is12h (
+    if hour > 12 (
+      time = (hour - 12).toStr().padStart("0", 2)
+    )
+    if hour < 1 (
+      time = "12"
+    )
   )
 
   time ++= ":" ++ minute
@@ -24,7 +29,7 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
     time ++= ":" ++ second
   )
   if is12h (
-    time ++= (hour < 13 and hour > 0) ? " AM" " PM"
+    time ++= hour < 12 ? " AM" " PM"
   )
   text time 9 : chx#-45 c#icon_colour
 )
