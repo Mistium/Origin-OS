@@ -344,7 +344,7 @@ def "render_files" (
       )
       
       // open the current file so that it can be handled for moving and rendering
-      local use_file_obj = typeof(current_file) == "object"
+      local use_file_obj = current_file.isType("object")
       file_id = current_file
       if use_file_obj (
         file = [
@@ -368,7 +368,7 @@ def "render_files" (
       ) else (
         square w 30 15 0 1
       )
-      if !use_file_obj (
+      if use_file_obj.not() (
         rightclick "file" selected_files
       )
       
@@ -401,21 +401,21 @@ def "render_files" (
       ) else if drag_id == file_id and selected_files.len == 1 (
         if mouse_touching.not() (
           drag_id = 0
-          if mouse_down and !use_obj_file (
+          if mouse_down and use_file_obj.not() (
             file "move" current_file
           )
         ) else if clicked and can (
           drag_id = 0
           if fileGet(1) == ".folder" (
             navigate file[3] ++ "/" ++ file[2]
-          ) else if !use_obj_file (
+          ) else if use_file_obj.not() (
             file "start"
           )
           files_selected_id = 0
         )
       )
       loc 2 2 25 draw_y
-      if use_obj_file (
+      if use_file_obj (
         icon (file_types[file[1]] ?? file_types[".txt"])[1] 1 : c#txtc
       ) else (
         file "render" 1 : c#txtc
