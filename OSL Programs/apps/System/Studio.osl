@@ -497,11 +497,11 @@ def sidebarButtons(file_uuid, input_name) (
           )
         )
         if frame.interactable (
-          icn.zoom += scroll_velocity / 10
+          icn.zoom += system_os == "Windows" ? scroll_velocity / -100 scroll_velocity / 10
         )
         goto self.icn.display
-        c c_text
-        icon inputs[self.input_name].join(" ") icn.zoom
+        c c_seco
+        icon "w 0 square 0 0 10 9999 square 0 0 9999 10 w 5 c" + c_text + inputs[self.input_name].join(" ") icn.zoom
       )
       break
   )
