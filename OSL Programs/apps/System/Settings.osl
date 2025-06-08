@@ -1352,11 +1352,11 @@ def "credits" (
     supporters = [
       "--- OriginDrive ---",
       "ThePandaDev",
+      "Stormy",
       "",
       "--- Supporter ---",
       "plopa 1",
-      "Random Content Generator",
-      "Milo"
+      "Random Content Generator"
     ]
 
     loc 2 2 10 -100
