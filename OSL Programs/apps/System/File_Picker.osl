@@ -38,9 +38,9 @@ load_theme
 c prim
 frame window.left window.top - 40 window.right window.bottom + 35 current.len * 45
 y = -40 + scroll_y
-count = (scroll_y / 45).round
+count = (scroll_y / 45).round()
 len = current.len
-loop (frame_height / 45).round.clamp(0,len) (
+loop (frame_height / 45).round().clamp(0,len) (
   count ++
   y = count * -45 + scroll_y
 
