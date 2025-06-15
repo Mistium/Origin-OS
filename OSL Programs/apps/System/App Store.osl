@@ -49,7 +49,7 @@ def appCard(name) (
   local txt_w = w / 10 - (img_w * 1)
   text name.trimText(txt_w - 17) + "\n" 10 : c#txtc
   text all_json[name].description
-    .wrapText(txt_w)
+    .wrapText(txt_w - 2)
     .split("\n")
     .trim(1,2)
     .join("\n") ++ "..." 8
