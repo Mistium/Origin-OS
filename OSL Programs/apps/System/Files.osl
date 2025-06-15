@@ -33,6 +33,9 @@ def "navigate" "path" (
     icon: file_types[".folder"][1]
   }
   
+  path = path.JsonParse()
+  // this removes osl quotes from around a string
+  
   tabs[current_tab].url = path
   pos = tabs[current_tab].position + 1
   tabs[current_tab].position = pos
@@ -288,7 +291,7 @@ def "render_files" (
   local temp_x2 = x_position
   local temp_y2 = y_position
   
-  frame temp_x temp_y temp_x2 temp_y2 files.len * 45 : c#prim
+  frame temp_x temp_y temp_x2 temp_y2 files.len * 45 - 10 : c#prim
   current_folder_uuid = ""
   window.drop_location = null
   if input_path == "origin" (
@@ -320,7 +323,7 @@ def "render_files" (
   len = files.len
   if len > 0 (
     count = floor(scroll_y / 45)
-    num = frame.height / 45
+    num = frame.height / 45 + 1
     
     if count + num > (len - 1) (
       num = len - count
@@ -329,7 +332,7 @@ def "render_files" (
     w = frame.width - 20
     loop num (
       count ++
-      draw_y = 16 + scroll_y - (45 * count)
+      draw_y = 25 + scroll_y - (45 * count)
       loc 999 2 0 draw_y
       current_file = files[count]
       square w 30 15 0 1
@@ -475,7 +478,7 @@ def "render_files" (
     )
     text "Empty Bin" 9 : c#txtc chx#-40
   )
-  goto temp_x + 55 temp_y + 5
+  goto temp_x + 55 temp_y + 10
   sorting_option "Name"
   set_x temp_x2 - 115
   sorting_option "Size"
@@ -555,7 +558,7 @@ mainloop:
   if sideshow (
     pen "opacity" 0
     frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "sidebar" (
-      y = -30 + frame.scroll
+      y = -17 + frame.scroll
       folder "Favorites"
       each fav favorites (
         file_folder fav "Favorites"
@@ -586,7 +589,8 @@ mainloop:
   if onclick (
     file "download" "new folder.folder" null null input_path
   )
-  icon "w 3 line 0 -8 0 8" 0.7 : chx#20
+  icon "w 3 line 0 -8 0 8" 0.7 : chx#20 c#seco
+  c txtc
   change -10
   if selected_files.len != 1 (
     files_buttons = []
