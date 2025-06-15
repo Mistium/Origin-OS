@@ -5,7 +5,7 @@ if window.parent.id != -1 (
 )
 
 accounts = ""
-wrong = 1234567890.hashMD5()
+wrong = "1234567890".hashMD5()
 paged = null
 window "hide"
 current_login = 1
@@ -21,6 +21,10 @@ input_shown = false
 
 def "login" "username, password" (
   network "login" username password
+)
+
+def removeQuotes(str) (
+  return str.JsonParse()
 )
 
 status = ""
@@ -219,7 +223,7 @@ if current_login.istype("number") (
       login_return = "Logging In..."
       promise.new(def() -> (
         local pass = inputs["password_" ++ current_login]
-        check = ("https://social.rotur.dev/get_user?username=" ++ accounts[current_login].username ++ "&password=" ++ pass.hashMD5()).httpGet()
+        check = ("https://social.rotur.dev/get_user?username=" ++ accounts[current_login].username ++ "&password=" ++ removeQuotes(pass).hashMD5()).httpGet()
         if check.error != null (
           login_return = check.error
         ) else (
@@ -276,7 +280,7 @@ if current_login == "add" (
   if signup_return != "" "c #491515"
   square 320 30 20
   if clicked or "enter".isKeyDown() and status == "" (
-    network "new_account" inputs.signup_name inputs.signup_pass
+    network "new_account" inputs.signup_name removeQuotes(inputs.signup_pass)
     status = "Waiting"
   )
   centext "Create Account With " ++ current_provider 8 : c#fff
@@ -322,7 +326,7 @@ if current_login == "login" (
   if clicked or "enter".isKeyDown() (
     login_return = "Logging In..."
     promise.new(def() -> (
-      check = ("https://social.rotur.dev/get_user?username=" ++ inputs.login_name ++ "&password=" ++ inputs.login_pass.hashMD5()).httpGet()
+      check = ("https://social.rotur.dev/get_user?username=" ++ inputs.login_name ++ "&password=" ++ removeQuotes(inputs.login_pass).hashMD5()).httpGet()
       if check.error != null (
         login_return = check.error
       ) else (
