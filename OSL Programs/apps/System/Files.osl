@@ -79,7 +79,7 @@ def "setup_tabs" (
   cur_tab.position = 0
   cur_tab.input = user_folder
   
-  tabs = [].append(cur_tab)
+  tabs = [cur_tab]
   current_tab = 1
 )
 
@@ -221,6 +221,9 @@ def "render_tabs" (
     )
     loc 2 2 count - 1 * width2 - temp + 20 -22.5
     icon cur.icon 0.8 : c#txtc
+    if cur.url == user_folder (
+      title = username
+    )
     text cur.title 8 : c#txtc chx#20
     if tabs.len > 1 (
       loc 2 2 count * width2 - temp - 20 -22.5
@@ -442,7 +445,7 @@ def "render_files" (
         text "Folder" 8
         
         loc -2 2 -100 draw_y
-        text file[5] + "Items" 8
+        text file[5] + (file[5] == 1 ? "Item" "Items") 8
       ) else (
         data2 ++= data
         text data2.trimText(max_chars) 8
@@ -695,5 +698,7 @@ mainloop:
   
   render_files
   
-  if mouse_down.not() "can = true"
+  if mouse_down.not() (
+    can = true
+  )
   import "win-buttons"
