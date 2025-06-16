@@ -468,7 +468,7 @@ def sidebarButtons(file_uuid, input_name) (
   )
   
   change_y -50
-  icon "search" 0.8
+  icon "w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12" 0.8
   if onclick (
     window.create("find_replace_helper", file_uuid)
   )
