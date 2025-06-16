@@ -222,7 +222,7 @@ def "render_tabs" (
     loc 2 2 count - 1 * width2 - temp + 20 -22.5
     icon cur.icon 0.8 : c#txtc
     if cur.url == user_folder (
-      title = username
+      cur.title = username
     )
     text cur.title 8 : c#txtc chx#20
     if tabs.len > 1 (
