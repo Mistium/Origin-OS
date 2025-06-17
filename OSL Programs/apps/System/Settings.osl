@@ -219,9 +219,10 @@ def "system" (
       icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
       if onclick (
         boot_apps = [
-          "Origin/(A) System/System Apps/Desktop.osl",
-          "Origin/(A) System/Docks/Dock.osl",
-          "Origin/(A) System/System Apps/Quick_Settings.osl"
+          "origin/(a) system/system apps/originWM.osl",
+          "origin/(a) system/system apps/Desktop.osl",
+          "origin/(a) system/docks/Dock.osl",
+          "origin/(a) system/system apps/Quick_Settings.osl"
         ]
         network "update" "onboot" boot_apps
       )
