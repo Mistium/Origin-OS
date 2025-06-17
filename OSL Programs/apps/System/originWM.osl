@@ -4,16 +4,20 @@ permission "request" "windows"
 permission "request" "javascript"
 
 def checkCollision(x2,y2,w,h) (
-  return (mouse_x - x2).abs() < (w / 2) and (mouse_y - y2).abs() < (h / 2)
+  return abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2
 )
 
-if origin.version < 579 (
+if origin.version < 578 (
   window.close()
 )
 
 window "responsive" true
 
 hitbox_size = 13
+
+window.on("close", def() -> (
+  log "closed"
+))
 
 def dragEdge(prop, axis) (
   if !mouse_down (
@@ -92,6 +96,10 @@ if wins[1].id == window.id (
 
 wins @= Windows()
 
+if "space".onKeyDown() (
+  window.close()
+)
+
 top @= wins[1].window
 
 x2 = hitbox_size * 2
@@ -100,9 +108,9 @@ x25 = hitbox_size / 4
 if !mouse_down (
   state.cursor = null
 )
-if state.dragEdge == null and state.dragDiag == null (
-  local x = top.x
-  local y = top.y
+local x = top.x
+local y = top.y
+if state.dragEdge == null and state.dragDiag == null and checkCollision(x, y, top.width + x2, top.height + x2) and !file_dragging and top.isMini().not() (
 
   // left edge
   if checkCollision(x + top.left, y, hitbox_size, top.height - x25) (
