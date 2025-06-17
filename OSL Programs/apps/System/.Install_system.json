@@ -228,7 +228,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "originWM.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn multitasking 0.5",
-    "version":"1.4"
+    "version":"1.5"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Files.osl",
