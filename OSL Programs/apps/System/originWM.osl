@@ -7,7 +7,7 @@ def checkCollision(x2,y2,w,h) (
   return abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2
 )
 
-if origin.version < 578 (
+if origin.version < 579 (
   window.close()
 )
 
