@@ -151,11 +151,11 @@ if "arrowdown".onKeyDown() (
 )
 
 c prim
-frame window.left window.top window.right window.bottom loops + 1.5 * 20
+frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20
 
 c txtc
-count = round(scroll_y / 20).clamp(0,loops)
-loop (frame_height / 20 + 3).round().clamp(0,loops) (
+count = floor(scroll_y / 20).clamp(0,loops)
+loop round(frame_height / 20 + 3).clamp(0,loops) (
   count ++
   y = count * -20 + scroll_y + 5
   loc 2 2 10 y
@@ -165,7 +165,7 @@ loop (frame_height / 20 + 3).round().clamp(0,loops) (
 if terminal_worker.cmd == null (
   loc 2 2 10 loops * -20 + scroll_y - 15
   text user_start 10 : c#txtc
-  set_x user_start.len * 5
+  set_x user_start.len * 5 - 10
   pen "opacity" 0
   input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
 )
