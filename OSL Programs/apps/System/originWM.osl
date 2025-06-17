@@ -3,8 +3,12 @@
 permission "request" "windows"
 permission "request" "javascript"
 
-def checkCollision(x,y,x2,y2,w,h) (
-  return (x - x2).abs() < (w / 2) and (y - y2).abs() < (h / 2)
+def checkCollision(x2,y2,w,h) (
+  return (mouse_x - x2).abs() < (w / 2) and (mouse_y - y2).abs() < (h / 2)
+)
+
+if origin.version < 578 (
+  window.close()
 )
 
 window "responsive" true
@@ -16,26 +20,67 @@ window.on("close", def() -> (
 ))
 
 def dragEdge(prop, axis) (
-  if mouse_down (
+  if !mouse_down (
+    state.dragEdge = null
+    return
+  )
+  if mouse_moved (
+    local pos = top.tile
     if axis == "x" (
-      if top.tile.startsWith("-1,") or top.tile.startsWith("1,") (
-        local split @= "origin.desktop.split".eval()
+      if pos.startsWith("-1,") or pos.startsWith("1,") (
+        local desktop @= "origin.desktop".eval()
+        local mouse = pos[1] == "-" ? -mouse_x mouse_x
+        desktop.split[desktop.current + 1] = (abs(state.resize1 + mouse) / screensize_x).clamp(0.3, 0.7)
+      ) else (
+        top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
+        top.x = state.resize1 + (top.width / state.div)
       )
     ) else (
-    
+      top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
+      top.y = state.resize2 + (top.height / state.div)
     )
+    top.callRender()
+  )
+)
+
+def dragDiagonal() (
+  if !mouse_down (
+    state.dragDiag = null
+    return
+  )
+  if mouse_moved (
+    top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
+    top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
+    top.x = state.resize1 + (top.width / state.div1)
+    top.y = state.resize2 + (top.height / state.div2)
+    
+    local w = top.width / 2
+    local h = top.height / 2
+    
+    top.callRender()
   )
 )
 
 state = {
   dragEdge: null,
+  dragDiag: null,
   changeState: def(edge,prop) -> (
-    self.dragEdge = edge
-    self.div = ["left"].contains(edge) ? -2 2
-    self.resize1 = top.x - (top.width / div)
-    self.resize2 = top.y - (top.height / div)
+    if prop == "both" (
+      self.dragDiag = edge.split(",")
+      self.axis = "both"
+      self.div1 = dragDiag[1] == "left" ? -2 2
+      self.div2 = dragDiag[2] == "bottom" ? -2 2
+      self.resize1 = top.x - (top.width / div1)
+      self.resize2 = top.y - (top.height / div2)
+    ) else (
+      self.dragEdge = edge
+      self.axis = ["width"].contains(prop) ? "x" "y"
+      self.div = ["left","bottom"].contains(edge) ? -2 2
+      self.resize1 = top.x - (top.width / div)
+      self.resize2 = top.y - (top.height / div)
+    )
+    
     self.prop = prop
-    self.axis = ["width"].contains(prop) ? "x" "y"
     self.last_size = top[prop]
     self.pos = top.tile
   )
@@ -60,29 +105,79 @@ top @= wins[1].window
 x2 = hitbox_size * 2
 x25 = hitbox_size / 4
 
-if top.tile == null (
-
-)
-if mouse_down.not() (
+if !mouse_down (
   state.cursor = null
 )
-// left edge
-if checkCollision(mouse_x, mouse_y, top.x + top.left, top.y, hitbox_size, top.height - x25) (
-  state.cursor = "ew-resize"
-  if mouse_ondown (
-    state.changeState("left","width")
-  )
-)
-// right edge
-if checkCollision(mouse_x, mouse_y, top.x + top.right, top.y, hitbox_size, top.height - x25) (
-  state.cursor = "ew-resize"
-  if mouse_ondown (
-    state.changeState("right","width")
-  )
-)
+if state.dragEdge == null and state.dragDiag == null (
+  local x = top.x
+  local y = top.y
 
-if state.dragEdge != null (
-  dragEdge(state.prop,state.axis)
+  // left edge
+  if checkCollision(x + top.left, y, hitbox_size, top.height - x25) (
+    state.cursor = "ew-resize"
+    if mouse_ondown (
+      state.changeState("left","width")
+    )
+  )
+  // right edge
+  if checkCollision(x + top.right, y, hitbox_size, top.height - x25) (
+    state.cursor = "ew-resize"
+    if mouse_ondown (
+      state.changeState("right","width")
+    )
+  )
+  
+  if top.tile == null (
+    // bottom edge
+    if checkCollision(x, y + top.top, top.width - x25, hitbox_size) (
+      state.cursor = "ns-resize"
+      if mouse_ondown (
+        state.changeState("top","height")
+      )
+    )
+    // top edge
+    if checkCollision(x, y + top.bottom, top.width - x25, hitbox_size) (
+      state.cursor = "ns-resize"
+      if mouse_ondown (
+        state.changeState("bottom","height")
+      )
+    )
+    
+    if checkCollision(x + top.right, y + top.top, x2, x2) (
+      state.cursor = "nesw-resize"
+      if mouse_ondown (
+        state.changeState("right,top","both")
+      )
+    )
+    
+    if checkCollision(x + top.right, y + top.bottom, x2, x2) (
+      state.cursor = "nwse-resize"
+      if mouse_ondown (
+        state.changeState("right,bottom","both")
+      )
+    )
+    
+    if checkCollision(x + top.left, y + top.top, x2, x2) (
+      state.cursor = "nwse-resize"
+      if mouse_ondown (
+        state.changeState("left,top","both")
+      )
+    )
+    
+    if checkCollision(x + top.left, y + top.bottom, x2, x2) (
+      state.cursor = "nesw-resize"
+      if mouse_ondown (
+        state.changeState("left,bottom","both")
+      )
+    )
+  )
+) else (
+  if state.dragEdge != null (
+    dragEdge(state.prop,state.axis)
+  )
+  if state.dragDiag != null (
+    dragDiagonal()
+  )
 )
 if state.cursor != null (
   cursor state.cursor
