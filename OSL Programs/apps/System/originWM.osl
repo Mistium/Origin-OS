@@ -15,10 +15,6 @@ window "responsive" true
 
 hitbox_size = 13
 
-window.on("close", def() -> (
-  log "closed"
-))
-
 def dragEdge(prop, axis) (
   if !mouse_down (
     state.dragEdge = null
@@ -96,10 +92,6 @@ if wins[1].id == window.id (
 
 wins @= Windows()
 
-if "space".onKeyDown() (
-  window.close()
-)
-
 top @= wins[1].window
 
 x2 = hitbox_size * 2
@@ -112,7 +104,7 @@ local x = top.x
 local y = top.y
 
 isntMini = true
-if "isMini" in top (
+if top.isType("string").not() (
   isntMini = top.isMini().not()
 )
 
