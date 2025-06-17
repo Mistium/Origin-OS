@@ -16,6 +16,7 @@ if passed_data.isType("object") (
 )
 
 rotur_icn = "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220"
+cur_tag = "all"
 
 def transfer(input_recipient) (
   if balance < (input_amount.toNum() + 1) (
@@ -101,28 +102,27 @@ loc 2 2 65 -210
 text "Credits" 10
 
 loc 2 -2 30 30
-square 0 0 40 : c#seco hover_c#tert tooltip#"My Past Transactions"
+square 0 0 40 : c#window_colour hover_c#prim tooltip#"My Past Transactions"
 if onclick (;menu = "transfers";)
 icon "list" 0.8 : c#txtc
 
 change_x 50
-square 0 0 40 : c#seco hover_c#tert tooltip#"Transfer Credits"
+square 0 0 40 : c#window_colour hover_c#prim tooltip#"Transfer Credits"
 if onclick (;menu = "send";)
 change -2 -2
 icon "send" 0.8 : c#txtc
 
 change_x 50
-square 0 0 40 : c#seco hover_c#tert tooltip#"Claim Daily Credit"
+square 0 0 40 : c#window_colour hover_c#prim tooltip#"Claim Daily Credit"
 if onclick (
   token = roturToken()
   promise.new(def() -> (
-    log window.permissions
-    log roturToken()
     response = ("https://social.rotur.dev/claim_daily?auth=" ++ token).httpGet()
     token = null
     say response.message ?? response.error
   ))
 )
+change -0.5
 icon rotur_icn 1 : c#txtc
 
 c prim
@@ -152,10 +152,36 @@ switch menu (
       loc 999 2 30 -70
       text "No Transactions" 10 : c#txtc
     ) else (
-      frame window.left + 200 window.top - 37 window.right - 10 window.bottom transactions.len * 35 (
-        for i transactions.len (
-          txt @= transactions[i]
-          y = i - 0.5 * -35 + scroll_y - 5
+      local l = window.left + 200
+      local r = window.right - 10
+      local tags = transactions.map(v -> (v["type"])).deDupe().prepend("all")
+      
+      frame l window.top - 41 r window.top - 81 (
+        loc 2 2 3 -20
+        for i tags.len (
+          local cur = tags[i]
+          change_x cur.len * 5 + 8
+          if cur == cur_tag (
+            square cur.len * 10 20 14 : c#global_accent
+          )
+          square cur.len * 10 20 10 : c#prim
+          if onclick (
+            cur_tag = cur
+          )
+          centext cur 10 : c#txtc
+          change_x cur.len * 5 + 8
+        )
+      )
+      c prim
+      filtered @= transactions
+      if cur_tag != "all" (
+        filtered @= transactions.filter(v -> (v["type"] == cur_tag))
+      )
+      frame l window.top - 81 r window.bottom + 10 filtered.len * 35 - 5 (
+        y = scroll_y + 15
+        for i filtered.len (
+          txt @= filtered[i]
+          y -= 35
         
           loc 999 2 0 y
           square frame_width - 20 20 10 : c#prim
