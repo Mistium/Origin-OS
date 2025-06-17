@@ -92,7 +92,7 @@ if wins[1].id == window.id (
 
 wins @= Windows()
 
-top @= wins[1].window
+top @= wins[1].window ?? ""
 
 x2 = hitbox_size * 2
 x25 = hitbox_size / 4
