@@ -110,7 +110,13 @@ if !mouse_down (
 )
 local x = top.x
 local y = top.y
-if state.dragEdge == null and state.dragDiag == null and checkCollision(x, y, top.width + x2, top.height + x2) and !file_dragging and top.isMini().not() (
+
+isntMini = true
+if "isMini" in top (
+  isntMini = top.isMini().not()
+)
+
+if state.dragEdge == null and state.dragDiag == null and checkCollision(x, y, top.width + x2, top.height + x2) and !file_dragging and isntMini (
 
   // left edge
   if checkCollision(x + top.left, y, hitbox_size, top.height - x25) (
