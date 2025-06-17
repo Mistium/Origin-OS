@@ -3,8 +3,8 @@ import "window_tools"
 permission "request" "windows"
 permission "request" "terminal"
 
-window "show"
-window "dimensions" 600 400
+window.show()
+window.resize(600,400)
 current_tab = "no_perms"
 
 activity_info = false
@@ -35,14 +35,29 @@ def arrSum(this.arr) (
 
 
 def getWindowsData() (
-  windows_list = Windows()
-  windows_names = windows_list.getKeys("name")
-  windows_drawtimes = windows_list.getKeys("render")
-  windows_ids = windows_list.getKeys("id")
-  windows_draw_main = []
-  each this.item windows_drawtimes (
-    windows_draw_main.append(item[1])
-  )
+  windows_list @= Windows()
+  
+  windows_names @= windows_list.getKeys("name")
+  windows_drawtimes @= windows_list.getKeys("render")
+  windows_ids @= windows_list.getKeys("id")
+  windows_draw_main @= windows_drawtimes.map(v -> (v[1]))
+  
+  local vals = []
+  for i windows_list.len (
+    vals.append({
+      name: windows_names[i],
+      time: windows_draw_main[i].toNum(),
+      id: windows_ids[i],
+      draw: windows_drawtimes[i]
+    })
+   )
+   
+   vals @= vals.sortBy("time").reverse()
+   
+   windows_names @= vals.getKeys("name")
+   windows_ids @= vals.getKeys("id")
+   windows_drawtimes @= vals.getKeys("draw")
+   windows_draw_main @= vals.getKeys("time")
 )
 
 created_time = timer
