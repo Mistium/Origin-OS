@@ -261,10 +261,10 @@ if current_tab == "Render Info" (
     rightclick "window" windows_names[count]
     loc 2 2 15 y
     text windows_names[count] 7 : c#txtc
-    loc -2 2 -50 y
+    loc -2 2 -15 y
     d = windows_drawtimes[count][1]
     tot += d
-    text d.toStr() 7
+    rigtext d.toStr() 7
     y -= 40
   )
 )
