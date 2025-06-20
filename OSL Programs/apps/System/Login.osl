@@ -73,15 +73,6 @@ if status == "Waiting" or status == "login" (
   exit
 )
 
-if typeof(accounts) != "array" (
-  goto 0 0
-  square 210 40 10 : c#111
-  centext "Loading Accounts" 10 : c#fff chx#-95
-  goto 90 0
-  icon "w 3 cutcircle 0 0 10" + (timer * 20) + "70" 1 : c#fff
-  exit
-)
-
 window.callRender()
 frame window.left window.top window.left + 320 window.bottom (
   goto -frame.x 0
