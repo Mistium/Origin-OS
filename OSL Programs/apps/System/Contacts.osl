@@ -34,7 +34,11 @@ def extractUsername(name) (
 mainloop:
 load_theme
 
-online = network.online_users.map(extractUsername)
+try (
+  online @= network.online.deDupe().filter(v -> v != null)
+) catch (
+  online @= network.online ?? []
+)
 
 list = page == "Friends" ? user["sys.friends"] user["sys.requests"]
 
