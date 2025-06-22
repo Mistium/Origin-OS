@@ -2,6 +2,7 @@ save "desktop@system" "set_directory"
 permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "windows"
+permission "request" "javascript"
 
 window.no_desktop = true
 
@@ -36,11 +37,8 @@ def upload_file() (
 )
 
 def "reload_extensions" (
-  local temp = data
-  // save the data in a local var so we can restore it after done refreshing the extensions
-
-  terminal "get extensions"
-  local extensions = data
+  local extensions @= "window.osl_extensions".eval().getValues()
+  
   if extensions != apps_temp (
     apps_temp = extensions
     // only run when the extensions change
@@ -51,9 +49,6 @@ def "reload_extensions" (
     )
     desktop_rightclick[desktop_rightclick.len] = ["Apps"].concat(extensions)
   )
-
-  data = temp
-  // restore the data variable from the local temp var
 )
 
 def "handle_dropped_file" (
@@ -99,7 +94,7 @@ def "render_selection" (
     fw = frame_width
     fh = frame_height
   )
-  window "dimensions" screensize_x screensize_y - 70
+  window.resize(screensize_x,screensize_y - 70)
   window.callRender()
 )
 
