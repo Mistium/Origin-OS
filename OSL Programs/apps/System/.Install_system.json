@@ -277,7 +277,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Contacts.osl",
     "icon": "c #b37740 w 10 square 0 0 5 5 w 8 c #111 square 0 0 5 5 w 5.5 c #b37740 square 0 0 5 5 w 6 c #111 square -2 0 3 5 line -2 -5 -2 5 w 2.5 dot 6 4.5 dot 6 0 dot 6 -4.5 c #b37740 icn accounts 0.5 -2.6 0",
-    "version":"2.5"
+    "version":"2.6"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/OMail.osl",
