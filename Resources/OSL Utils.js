@@ -683,13 +683,13 @@ class OSLUtils {
       while (!done) {
         while ((array1 = regex.exec(CODE)) !== null) {
           let depth = 1
-          let i = regex.lastIndex
-          for (i; depth != 0 && i < CODE.length; i++) {
+          let j = regex.lastIndex
+          for (j; depth != 0 && j < CODE.length; j++) {
             const cur = CODE[i]
             if (cur === "(") depth++
             else if (cur === ")") depth--
           }
-          regex_data.push([array1[1], CODE.substring(regex.lastIndex, i - 1).trim(), CODE.slice(array1.index, i)])
+          regex_data.push([array1[1], CODE.substring(regex.lastIndex, j - 1).trim(), CODE.slice(array1.index, j)])
         }
 
         for (let j = 0; j < regex_data.length; j++) {
@@ -702,7 +702,7 @@ class OSLUtils {
           }
         }
 
-        if (regex.exec(CODE) === null) break;
+        if (regex.exec(CODE) === null || done) break;
       }
     }
 
