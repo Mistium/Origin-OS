@@ -685,7 +685,7 @@ class OSLUtils {
           let depth = 1
           let j = regex.lastIndex
           for (j; depth != 0 && j < CODE.length; j++) {
-            const cur = CODE[i]
+            const cur = CODE[j]
             if (cur === "(") depth++
             else if (cur === ")") depth--
           }
