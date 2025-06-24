@@ -679,31 +679,37 @@ class OSLUtils {
       let regex = regexes[i]
       let regex_data = []
       let array1;
-      let done = false
-      while (!done) {
-        while ((array1 = regex.exec(CODE)) !== null) {
-          let depth = 1
-          let j = regex.lastIndex
-          for (j; depth != 0 && j < CODE.length; j++) {
-            const cur = CODE[j]
-            if (cur === "(") depth++
-            else if (cur === ")") depth--
-          }
-          regex_data.push([array1[1], CODE.substring(regex.lastIndex, j - 1).trim(), CODE.slice(array1.index, j)])
-        }
+      let maxIterations = 1000;
+      let iterationCount = 0;
 
-        for (let j = 0; j < regex_data.length; j++) {
-          let name = "func_" + randomString(10)
-          let cur = regex_data[j]
-          CODE = CODE.replaceAll(cur[2], `function(${JSON.stringify(cur[0].replace(/^\(|\)/gi, ""))}, "${i === 1 ? "return " : ""}${JSON.stringify(this.inlineCompile({ CODE: insertQuotes(cur[1].split("\n").join("\n"), quotedata) })).slice(1, -1)}")`)
-          if (j > 100000) {
-            done = true
-            break
-          }
+      regex.lastIndex = 0;
+      
+      while ((array1 = regex.exec(CODE)) !== null && iterationCount < maxIterations) {
+        iterationCount++;
+        let depth = 1
+        let j = regex.lastIndex
+        for (j; depth != 0 && j < CODE.length; j++) {
+          const cur = CODE[j]
+          if (cur === "(") depth++
+          else if (cur === ")") depth--
         }
-
-        if (regex.exec(CODE) === null || done) break;
+        regex_data.push([array1[1], CODE.substring(regex.lastIndex, j - 1).trim(), CODE.slice(array1.index, j)])
+        
+        if (regex.lastIndex === array1.index) {
+          regex.lastIndex = array1.index + 1;
+        }
       }
+
+      for (let j = regex_data.length - 1; j >= 0; j--) {
+        let cur = regex_data[j]
+        let compiledInner = insertQuotes(cur[1].split("\n").join("\n"), quotedata);
+        if (compiledInner !== cur[1]) {
+          compiledInner = this.inlineCompile({ CODE: compiledInner });
+        }
+        CODE = CODE.replace(cur[2], `function(${JSON.stringify(cur[0].replace(/^\(|\)/gi, ""))}, "${i === 1 ? "return " : ""}${JSON.stringify(compiledInner).slice(1, -1)}")`)
+      }
+      
+      regex.lastIndex = 0;
     }
 
     return insertQuotes(CODE, quotedata);
