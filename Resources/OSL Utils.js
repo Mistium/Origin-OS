@@ -139,7 +139,7 @@ function insertQuotes(OSL, quotes) {
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
-    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "", "^", "b+", "b-", "b/", "b*", "b^"]
+    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "b+", "b-", "b/", "b*", "b^"]
     this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
@@ -293,6 +293,17 @@ class OSLUtils {
           },
         },
         {
+          opcode: "generateFullAST",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "Generate Full AST [CODE]",
+          arguments: {
+            CODE: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: 'def test(a, b) -> a + b\nlog test(10, 20)',
+            },
+          },
+        },
+        {
           opcode: "setOperators",
           blockType: Scratch.BlockType.COMMAND,
           text: "Set Operators [OPERATORS]",
@@ -430,6 +441,62 @@ class OSLUtils {
     return out.split("\n");
   }
 
+  tokeniseLineOSL(code) {
+    try {
+      let letter = 0;
+      let depth = "";
+      let brackets = 0;
+      let b_depth = 0;
+      let out = [];
+      let split = [];
+      let escaped = false;
+      const len = code.length;
+
+      while (letter < len) {
+        depth = code[letter];
+        if (brackets === 0 && !escaped) {
+          if (depth === "[" || depth === "{" || depth === "(") b_depth++
+          if (depth === "]" || depth === "}" || depth === ")") b_depth--
+          b_depth = b_depth < 0 ? 0 : b_depth;
+        }
+        if (depth === '"' && !escaped) brackets = 1 - brackets;
+        else if (depth === '\\' && !escaped) escaped = !escaped;
+        else escaped = false;
+        out.push(depth);
+        letter++;
+
+        if (brackets === 0 && b_depth === 0 && (code[letter] === " " || this.operators.includes(depth) || (code[letter] === ")"))) {
+          if ([" ", ")"].includes(code[letter]) === false) {
+            while (code[letter] === "=" || code[letter] === depth || (depth === "-" && code[letter] === ">")) {
+              depth += code[letter];
+              letter++;
+            }
+            split.push(depth);
+          } else {
+            split.push(out.join(""));
+          }
+          out = [];
+          letter++;
+        }
+      }
+      split.push(out.join(""));
+      return split;
+    } catch (e) {
+      return [];
+    }
+  }
+
+  findMatchingParentheses(code, startIndex) {
+    let depth = 1;
+    let endIndex = startIndex + 1;
+    while (endIndex < code.length) {
+      if (code[endIndex] === "(") depth++;
+      else if (code[endIndex] === ")" && --depth === 0) return endIndex;
+      endIndex++;
+    }
+    return -1;
+  }
+
   evalToken(cur, param) {
     if ((cur[0] === "{" && cur[cur.length - 1] === "}") || (cur[0] === "[" && cur[cur.length - 1] === "]")) {
       try {
@@ -441,12 +508,14 @@ class OSLUtils {
             tokens[i] = this.generateAST({ CODE: ("" + tokens[i]).trim(), START: 0 })[0];
           }
 
+          if (param) return { type: "mtv", data: "item", parameters: tokens };
           return { type: "arr", data: tokens }
         } else if (cur[0] === "{") {
           if (cur == "{}") return { type: "obj", data: {} }
 
           let output = {};
-          let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
+          let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",")
+            .filter((token) => token.trim() !== "");
           for (let token of tokens) {
             let [key, value] = autoTokenise(token, ":");
             key = key.trim();
@@ -470,43 +539,66 @@ class OSLUtils {
     else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
     else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
     else if (this.unary.indexOf(cur) !== -1) return { type: "ury", data: cur }
-    else if (autoTokenise(cur, " ").length > 1) {
-      let method = autoTokenise(cur, " ")
-      method = method.map((input, index) => this.evalToken(input, index > 0))
-      return method
-    }
     else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
       method = method.map((input, index) => this.evalToken(input, index > 0))
-      return { type: "mtd", data: method }
+      return { type: "mtd", data: method };
     }
     else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
-    else if (cur.startsWith("(") && cur.endsWith(")")) return this.generateAST({ CODE: cur.substring(1, cur.length - 1).trim(), START: 0 })[0]
+    else if (cur === "->") return { type: "inl", data: "->" }
+    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0 }) }
+    else if (cur.startsWith("(") && cur.endsWith(")")) {
+      let end = this.findMatchingParentheses(cur, 0);
+      if (end === -1) return { type: "unk", data: cur };
+      const body = cur.substring(1, end).trim();
+      return this.generateAST({ CODE: body, START: 0 })[0]
+    }
     else if (cur.endsWith(")")) {
       let out = { type: param ? "mtv" : "fnc", data: cur.substring(0, cur.indexOf("(")), parameters: [] }
       if (cur.endsWith("()")) return out
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
-      method = method.map((input) => this.generateAST({ CODE: input, START: 0 })[0])
+      method = method.map((input) => this.generateAST({ CODE: input.trim(), START: 0 })[0])
       out.parameters = method
       return out
     }
-    else if (cur.indexOf(" ") !== -1) return this.generateAST({ CODE: cur, START: 0 })[0]
+    else if (cur === ":") return { type: "mod_indicator", data: ":" };
+    else if (cur.endsWith("=")) return { type: "asi", data: cur }
     else return { type: "unk", data: cur }
+  }
+
+  isStaticToken(token) {
+    return ["str", "num", "unk"].includes(token.type);
   }
 
   generateAST({ CODE, START }) {
     CODE = CODE + "";
 
     let ast = []
-    let tokens = autoTokenise(CODE, " ")
+    let tokens = this.tokeniseLineOSL(CODE)
     for (let i = 0; i < tokens.length; i++) {
-      const cur = tokens[i]
+      const cur = tokens[i].trim()
+      if (cur === "->") {
+        ast.push({ type: "inl", data: "->" })
+        ast.push({ type: "str", data: tokens[i + 1].trim() })
+        i += 1
+        continue
+      }
       ast.push(this.evalToken(cur))
     }
 
-    const types = ["opr", "cmp", "qst", "bit", "log", "ury"];
+    let modifiers = false;
+    for (let token of ast) {
+      if (modifiers && token.type === "unk") {
+        token.type = "mod"
+        const pivot = token.data.indexOf("#") + 1
+        token.data = [token.data.substring(0, pivot - 1), token.data.substring(pivot)]
+      }
+      if (token.type === "mod_indicator") modifiers = true
+    }
+
+    const types = ["inl", "opr", "cmp", "qst", "bit", "log", "asi"];
     for (let type of types) {
-      for (let i = START ?? (type === "ury" ? 1 : 2); i < ast.length; i++) {
+      for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
         const prev = ast[i - 1];
         const next = ast[i + 1];
@@ -536,8 +628,22 @@ class OSLUtils {
       }
     }
 
-    function evalASTNode(node) {
+    const evalASTNode = node => {
       if (!node) return node;
+      if (node.type === "inl") {
+        const params = (node?.left?.parameters || []).map(p => p.data).join(",");
+        return {
+          type: "fnc",
+          data: "function",
+          parameters: [
+            {
+              type: "str",
+              data: params
+            },
+            this.generateAST({ CODE: node.right.data, START: 0 })[0]
+          ],
+        }
+      }
       if (node.type === "opr" && node.left && node.right) {
         // Recursively evaluate left and right nodes first
         node.left = evalASTNode(node.left);
@@ -547,14 +653,14 @@ class OSLUtils {
         if (node.left.type === "num" && node.right.type === "num" && ["+", "-", "/", "*", "%", "^"].includes(node.data)) {
           let result;
           switch (node.data) {
-            case "^":
-              result = +Math.pow(Number(node.left.data), Number(node.right.data));
-              break;
-            default:
-              result = +eval(node.left.data + node.data + node.right.data);
-              break;
+            case "^": result = +Math.pow(+node.left.data, +node.right.data); break;
+            case "+": result = +node.left.data + +node.right.data; break;
+            case "-": result = +node.left.data - +node.right.data; break;
+            case "*": result = +node.left.data * +node.right.data; break;
+            case "/": result = +node.left.data / +node.right.data; break;
+            case "%": result = +node.left.data % +node.right.data; break;
           }
-          return {
+          if (result) return {
             type: "num",
             data: +result
           };
@@ -568,7 +674,54 @@ class OSLUtils {
       ast[i] = evalASTNode(ast[i]);
     }
 
-    return ast
+    return ast.filter(token => token.type.length === 3)
+  }
+
+  generateFullAST({ CODE }) {
+    CODE = CODE + "";
+    let lines = autoTokenise(CODE, "\n").map((line) => {
+      line = line.trim();
+      if (line.startsWith("//") || line === "") return null;
+      line = line.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(/gm, (match) => {
+        if (match === "(") return ".call(";
+        if (match === "[") return ".[";
+        return match;
+      });
+
+      const ast = this.generateAST({ CODE: line });
+      return ast;
+    });
+
+    lines = lines.filter((line) => line !== null);
+
+    for (let i = 0; i < lines.length; i++) {
+      const first = lines[i][0] ?? {};
+      const second = lines[i][1] ?? {};
+      if (
+        first.type === "var" &&
+        first.data === "def" &&
+        second.type === "fnc"
+      ) {
+        first.data = second.data;
+        lines[i].splice(1, 0, {
+          type: "unk",
+          data: "="
+        });
+        lines[i][2] = {
+          type: "fnc",
+          data: "function",
+          parameters: [
+            {
+              type: "str",
+              data: second.parameters.map(p => p.data).join(",")
+            },
+            lines[i][3]
+          ]
+        };
+        lines[i].splice(3, 1);
+      }
+    }
+    return lines
   }
 
 
@@ -666,53 +819,8 @@ class OSLUtils {
     return insertQuotes(CODE, JSON.parse(QUOTES));
   }
 
-  inlineCompile({ CODE }) {
-    CODE = Scratch.Cast.toString(CODE);
-
-    let [string, quotedata] = extractQuotes(CODE);
-
-    CODE = string;
-
-    const regexes = [/def\(([^())]*)\) *-> *\(\n?/gm, /((?:[^()\n ]+|\([^()\n]*\))) *-> *\(\n?/gm]
-
-    for (let i = 0; i < regexes.length; i++) {
-      let regex = regexes[i]
-      let regex_data = []
-      let array1;
-      let maxIterations = 1000;
-      let iterationCount = 0;
-
-      regex.lastIndex = 0;
-      
-      while ((array1 = regex.exec(CODE)) !== null && iterationCount < maxIterations) {
-        iterationCount++;
-        let depth = 1
-        let j = regex.lastIndex
-        for (j; depth != 0 && j < CODE.length; j++) {
-          const cur = CODE[j]
-          if (cur === "(") depth++
-          else if (cur === ")") depth--
-        }
-        regex_data.push([array1[1], CODE.substring(regex.lastIndex, j - 1).trim(), CODE.slice(array1.index, j)])
-        
-        if (regex.lastIndex === array1.index) {
-          regex.lastIndex = array1.index + 1;
-        }
-      }
-
-      for (let j = regex_data.length - 1; j >= 0; j--) {
-        let cur = regex_data[j]
-        let compiledInner = insertQuotes(cur[1].split("\n").join("\n"), quotedata);
-        if (compiledInner !== cur[1]) {
-          compiledInner = this.inlineCompile({ CODE: compiledInner });
-        }
-        CODE = CODE.replace(cur[2], `function(${JSON.stringify(cur[0].replace(/^\(|\)/gi, ""))}, "${i === 1 ? "return " : ""}${JSON.stringify(compiledInner).slice(1, -1)}")`)
-      }
-      
-      regex.lastIndex = 0;
-    }
-
-    return insertQuotes(CODE, quotedata);
+  inlineCompile() {
+    return "";
   }
 
   setOperators({ OPERATORS }) {
@@ -744,11 +852,9 @@ class OSLUtils {
 if (typeof Scratch !== "undefined") {
   Scratch.extensions.register(new OSLUtils());
 } else {
-  // let utils = new OSLUtils();
-  // console.log(JSON.stringify(utils.generateAST({ CODE: "val = max(0,(scroll_y / 70).round - 1) - 1" }), null, 2))
-  // console.log(JSON.stringify(utils.generateAST({ CODE: "jn ots_script.isType(\"array\") 150" }), null, 2))
-  // console.log(JSON.stringify(utils.generateAST({ CODE: "(100 / 100).round()" }), null, 2))
-  // console.log(JSON.stringify(utils.generateAST({ CODE: "jn status == \"Waiting\" or (status == \"login\") 61" }), null, 2))
-  // console.log(JSON.stringify(utils.generateAST({ CODE: "loop (frame_height / 20 + 3).round.clamp(0,loops) 208 (" }), null, 2))
-  // console.log(JSON.stringify(utils.generateAST({ CODE: "log () -> 10 + val" }), null, 2))
+  let utils = new OSLUtils();
+  const fs = require("fs");
+
+  fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
+    CODE: ``}), null, 2));
 }
