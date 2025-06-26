@@ -600,8 +600,8 @@ class OSLUtils {
     for (let type of types) {
       for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
-        const prev = ast[i - 1];
-        const next = ast[i + 1];
+        let prev = ast[i - 1];
+        let next = ast[i + 1];
 
         if (cur?.type === type) {
           if (type === "qst") {
@@ -612,10 +612,17 @@ class OSLUtils {
             ast.splice(i, 2);
             i -= 1;
             continue;
-          } else if (type === "ury") {
-            cur.right = next;
-            ast.splice(i + 1, 1);
-            continue;
+          } else if (type === "asi") {
+            if (ast[0].data === "local") {
+              prev = this.generateAST({ CODE: "this." + prev.data, START: 0 })[0];
+              ast.splice(0, 1);
+              i -= 1;
+            }
+            if (ast.length > 1) {
+              cur.set_type = ast[i - 2].data;
+              ast.splice(i - 2, 1);
+              i -= 1;
+            }
           }
           if (!cur.left) {
             cur.left = prev;
@@ -856,5 +863,5 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: ``}), null, 2));
+    CODE: `local number val = 10`}), null, 2));
 }
