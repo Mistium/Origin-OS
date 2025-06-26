@@ -618,7 +618,7 @@ class OSLUtils {
               ast.splice(0, 1);
               i -= 1;
             }
-            if (ast.length > 1) {
+            if (ast.length > 1 && i > 1) {
               cur.set_type = ast[i - 2].data;
               ast.splice(i - 2, 1);
               i -= 1;
@@ -863,5 +863,9 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `local number val = 10`}), null, 2));
+    CODE: `
+    val = 10
+    local val = 10
+    number val = 10
+    local number val = 10`}), null, 2));
 }
