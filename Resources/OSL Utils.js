@@ -760,7 +760,7 @@ class OSLUtils {
     return ast.filter(token => (
       token.type &&
       token.type.length === 3 &&
-      !String(token.data).startsWith("/*")
+      !(String(token.data).startsWith("/*") && token.type === "unk")
     ))
   }
 
