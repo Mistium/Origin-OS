@@ -447,6 +447,7 @@ class OSLUtils {
       let depth = "";
       let quotes = 0;
       let squotes = 0;
+      let m_comm = 0;
       let b_depth = 0;
       let out = [];
       let split = [];
@@ -462,12 +463,26 @@ class OSLUtils {
         }
         if (depth === '"' && !escaped && squotes === 0) quotes = 1 - quotes;
         else if (depth === "'" && !escaped && quotes === 0) squotes = 1 - squotes;
+        else if (depth === "/" && code[letter + 1] === "*" && quotes === 0 && squotes === 0) m_comm = 1;
+        else if (depth === "*" && code[letter + 1] === "/" && quotes === 0 && squotes === 0 && m_comm === 1) m_comm = 0;
         else if (depth === '\\' && !escaped) escaped = !escaped;
         else escaped = false;
         out.push(depth);
         letter++;
 
-        if (quotes === 0 && squotes === 0 && b_depth === 0 && (code[letter] === " " || (this.operators.includes(depth) && !(depth === "-" && !/[\d"]/.test(code[letter - 2]))) || (code[letter] === ")"))) {
+        if (quotes === 0 &&
+            squotes === 0 &&
+            b_depth === 0 &&
+            m_comm === 0 &&
+            (
+              code[letter] === " " ||
+              code[letter] === ")" ||
+              (
+                this.operators.includes(depth) &&
+                (depth !== "-" && /[\d"]/.test(code[letter - 2]))
+              )
+            )
+          ) {
           if ([" ", ")"].includes(code[letter]) === false) {
             while (code[letter] === "=" || code[letter] === depth || (depth === "-" && code[letter] === ">")) {
               depth += code[letter];

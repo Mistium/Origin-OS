@@ -17234,12 +17234,8 @@
             "data": [
               [
                 {
-                  "type": "opr",
-                  "data": "/"
-                },
-                {
-                  "type": "num",
-                  "data": 0
+                  "type": "unk",
+                  "data": "/*"
                 }
               ],
               [
@@ -17494,12 +17490,8 @@
               ],
               [
                 {
-                  "type": "opr",
-                  "data": "*"
-                },
-                {
-                  "type": "num",
-                  "data": 0
+                  "type": "unk",
+                  "data": "*/"
                 }
               ],
               [
@@ -22071,10 +22063,6 @@
                   "left": {
                     "type": "var",
                     "data": "count"
-                  },
-                  "right": {
-                    "type": "num",
-                    "data": 0
                   }
                 }
               ],
@@ -25663,10 +25651,6 @@
                       {
                         "type": "opr",
                         "data": "++"
-                      },
-                      {
-                        "type": "num",
-                        "data": 0
                       }
                     ],
                     [
