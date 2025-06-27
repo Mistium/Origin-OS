@@ -712,7 +712,10 @@
             "type": "mod",
             "data": [
               "c",
-              "window_colour"
+              {
+                "type": "var",
+                "data": "window_colour"
+              }
             ]
           }
         ],
@@ -794,7 +797,10 @@
             "type": "mod",
             "data": [
               "c",
-              "window_colour"
+              {
+                "type": "var",
+                "data": "window_colour"
+              }
             ]
           }
         ],
@@ -816,14 +822,20 @@
             "type": "mod",
             "data": [
               "chx",
-              "30"
+              {
+                "type": "num",
+                "data": 30
+              }
             ]
           },
           {
             "type": "mod",
             "data": [
               "c",
-              "txtc"
+              {
+                "type": "var",
+                "data": "txtc"
+              }
             ]
           }
         ],
@@ -963,7 +975,10 @@
                   "type": "mod",
                   "data": [
                     "chx",
-                    "-30"
+                    {
+                      "type": "num",
+                      "data": -30
+                    }
                   ]
                 }
               ],
@@ -1077,7 +1092,10 @@
                   "type": "mod",
                   "data": [
                     "chx",
-                    "-30"
+                    {
+                      "type": "num",
+                      "data": -30
+                    }
                   ]
                 }
               ]

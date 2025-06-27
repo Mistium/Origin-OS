@@ -594,7 +594,7 @@ class OSLUtils {
       if (modifiers && token.type === "unk") {
         token.type = "mod"
         const pivot = token.data.indexOf("#") + 1
-        token.data = [token.data.substring(0, pivot - 1), token.data.substring(pivot)]
+        token.data = [token.data.substring(0, pivot - 1), this.evalToken(token.data.substring(pivot))]
       }
       if (token.type === "mod_indicator") modifiers = true
     }
