@@ -757,7 +757,11 @@ class OSLUtils {
       ast[0].source = CODE;
     }
 
-    return ast.filter(token => token.type.length === 3)
+    return ast.filter(token => (
+      token.type &&
+      token.type.length === 3 &&
+      !String(token.data).startsWith("/*")
+    ))
   }
 
   generateFullAST({ CODE }) {
@@ -916,6 +920,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("OSL Programs/apps/system/settings.osl")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Terminal.osl")
   }), null, 2));
 }
