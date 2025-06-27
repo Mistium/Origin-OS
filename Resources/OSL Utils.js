@@ -536,6 +536,7 @@ class OSLUtils {
       }
     } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: cur }
     else if (!isNaN(+cur)) return { type: "num", data: +cur }
+    else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
     else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
     else if (cur === "?") return { type: "qst", data: cur }
@@ -573,7 +574,7 @@ class OSLUtils {
     return ["str", "num", "unk"].includes(token.type);
   }
 
-  generateAST({ CODE, START }) {
+  generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
 
     let ast = []
@@ -736,7 +737,7 @@ class OSLUtils {
 
     if (ast.length === 0) return [];
 
-    if (ast[0].type === "var") {
+    if (ast[0].type === "var" && MAIN) {
       ast[0].type = "cmd";
       ast[0].source = CODE;
     }
@@ -759,7 +760,7 @@ class OSLUtils {
         return match;
       });
 
-      const ast = this.generateAST({ CODE: line });
+      const ast = this.generateAST({ CODE: line, MAIN: true });
       return ast;
     });
 
@@ -900,6 +901,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("OSL Programs/apps/system/quick_settings.osl")
+    CODE: fs.readFileSync("OSL Programs/apps/system/settings.osl")
   }), null, 2));
 }
