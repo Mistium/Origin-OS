@@ -612,17 +612,6 @@ class OSLUtils {
             ast.splice(i, 2);
             i -= 1;
             continue;
-          } else if (type === "asi") {
-            if (ast[0].data === "local") {
-              prev = this.generateAST({ CODE: "this." + prev.data, START: 0 })[0];
-              ast.splice(0, 1);
-              i -= 1;
-            }
-            if (ast.length > 1 && i > 1) {
-              cur.set_type = ast[i - 2].data;
-              ast.splice(i - 2, 1);
-              i -= 1;
-            }
           }
           if (!cur.left) {
             cur.left = prev;
@@ -707,6 +696,13 @@ class OSLUtils {
       ast.splice(3, 1);
     }
 
+    if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1) {
+      ast.unshift(ast[0].data[0], {
+        type: "asi",
+        data: "=??"
+      });
+    }
+
     for (let i = START ?? 1; i < ast.length; i++) {
       const cur = ast[i];
       let prev = ast[i - 1];
@@ -732,6 +728,8 @@ class OSLUtils {
         }
       }
     }
+
+    if (!ast[0]) return [];
 
     if (ast[0].type === "var") {
       ast[0].type = "cmd";
@@ -893,5 +891,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: ``}), null, 2));
+    CODE: fs.readFileSync("OSL Programs/apps/system/settings.osl")
+  }), null, 2));
 }
