@@ -27176,13 +27176,22 @@
         {
           "type": "arr",
           "data": [
-            null,
+            {
+              "type": "num",
+              "data": -2
+            },
             {
               "type": "num",
               "data": 2
             },
-            null,
-            null
+            {
+              "type": "num",
+              "data": -100
+            },
+            {
+              "type": "num",
+              "data": -40
+            }
           ]
         }
       ]
