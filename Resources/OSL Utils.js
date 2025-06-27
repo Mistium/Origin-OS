@@ -445,7 +445,8 @@ class OSLUtils {
     try {
       let letter = 0;
       let depth = "";
-      let brackets = 0;
+      let quotes = 0;
+      let squotes = 0;
       let b_depth = 0;
       let out = [];
       let split = [];
@@ -454,18 +455,19 @@ class OSLUtils {
 
       while (letter < len) {
         depth = code[letter];
-        if (brackets === 0 && !escaped) {
+        if (quotes === 0 && squotes === 0 && !escaped) {
           if (depth === "[" || depth === "{" || depth === "(") b_depth++
           if (depth === "]" || depth === "}" || depth === ")") b_depth--
           b_depth = b_depth < 0 ? 0 : b_depth;
         }
-        if (depth === '"' && !escaped) brackets = 1 - brackets;
+        if (depth === '"' && !escaped && squotes === 0) quotes = 1 - quotes;
+        else if (depth === "'" && !escaped && quotes === 0) squotes = 1 - squotes;
         else if (depth === '\\' && !escaped) escaped = !escaped;
         else escaped = false;
         out.push(depth);
         letter++;
 
-        if (brackets === 0 && b_depth === 0 && (code[letter] === " " || (this.operators.includes(depth) && !(depth === "-" && code[letter - 2] === " ")) || (code[letter] === ")"))) {
+        if (quotes === 0 && squotes === 0 && b_depth === 0 && (code[letter] === " " || (this.operators.includes(depth) && !(depth === "-" && code[letter - 2] === " ")) || (code[letter] === ")"))) {
           if ([" ", ")"].includes(code[letter]) === false) {
             while (code[letter] === "=" || code[letter] === depth || (depth === "-" && code[letter] === ">")) {
               depth += code[letter];
@@ -482,6 +484,7 @@ class OSLUtils {
       split.push(out.join(""));
       return split;
     } catch (e) {
+      console.error("Error in tokeniseLineOSL:", e);
       return [];
     }
   }
@@ -696,6 +699,8 @@ class OSLUtils {
       ast.splice(3, 1);
     }
 
+    if (ast.length === 0) return [];
+
     if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1) {
       ast.unshift(ast[0].data[0], {
         type: "asi",
@@ -729,7 +734,7 @@ class OSLUtils {
       }
     }
 
-    if (!ast[0]) return [];
+    if (ast.length === 0) return [];
 
     if (ast[0].type === "var") {
       ast[0].type = "cmd";
@@ -741,6 +746,10 @@ class OSLUtils {
 
   generateFullAST({ CODE }) {
     CODE = CODE + "";
+    CODE = CODE.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|\n\s*\./gm, (match) => {
+        if (match.startsWith("\n")) return match.replace(/\n\s*\./, ".");
+        return match;
+      });
     let lines = autoTokenise(CODE, "\n").map((line) => {
       line = line.trim();
       if (line.startsWith("//") || line === "") return null;
