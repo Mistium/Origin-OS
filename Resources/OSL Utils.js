@@ -366,7 +366,7 @@ class OSLUtils {
     let methods = {};
     let regExp = /.\(([^()]*)\)/; // Regular expression to match innermost parentheses containing spaces or non-alphanumeric characters
 
-    let static_types = ["str", "num", "var", "unk"]
+    let static_types = ["str", "num", "unk"]
 
     const isStatic = val => static_types.includes(this.evalToken(val).type)
 
@@ -465,7 +465,7 @@ class OSLUtils {
         out.push(depth);
         letter++;
 
-        if (brackets === 0 && b_depth === 0 && (code[letter] === " " || this.operators.includes(depth) || (code[letter] === ")"))) {
+        if (brackets === 0 && b_depth === 0 && (code[letter] === " " || (this.operators.includes(depth) && !(depth === "-" && code[letter - 2] === " ")) || (code[letter] === ")"))) {
           if ([" ", ")"].includes(code[letter]) === false) {
             while (code[letter] === "=" || code[letter] === depth || (depth === "-" && code[letter] === ">")) {
               depth += code[letter];
@@ -596,7 +596,7 @@ class OSLUtils {
       if (token.type === "mod_indicator") modifiers = true
     }
 
-    const types = ["inl", "opr", "cmp", "qst", "bit", "log", "asi"];
+    const types = ["inl", "opr", "cmp", "qst", "bit", "log"];
     for (let type of types) {
       for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
@@ -681,6 +681,64 @@ class OSLUtils {
       ast[i] = evalASTNode(ast[i]);
     }
 
+    console.log(ast)
+    const first = ast[0] ?? {};
+    const second = ast[1] ?? {};
+    if (
+      first.type === "var" &&
+      first.data === "def" &&
+      second.type === "fnc"
+    ) {
+      first.data = second.data;
+      ast.splice(1, 0, {
+        type: "asi",
+        data: "="
+      });
+      ast[2] = {
+        type: "fnc",
+        data: "function",
+        parameters: [
+          {
+            type: "str",
+            data: second.parameters.map(p => p.data).join(",")
+          },
+          ast[3]
+        ]
+      };
+      ast.splice(3, 1);
+    }
+
+    for (let i = START ?? 1; i < ast.length; i++) {
+      const cur = ast[i];
+      let prev = ast[i - 1];
+      let next = ast[i + 1];
+
+      if (cur?.type === "asi") {
+        if (ast[0].data === "local") {
+          prev = this.generateAST({ CODE: "this." + prev.data, START: 0 })[0];
+          ast.splice(0, 1);
+          i -= 1;
+        }
+        if (ast.length > 1 && i > 1) {
+          cur.set_type = ast[i - 2].data;
+          ast.splice(i - 2, 1);
+          i -= 1;
+        }
+        if (!cur.left) {
+          cur.left = prev;
+          cur.right = next;
+          ast.splice(i - 1, 1);
+          ast.splice(i, 1);
+          i -= 1;
+        }
+      }
+    }
+
+    if (ast[0].type === "var") {
+      ast[0].type = "cmd";
+      ast[0].source = CODE;
+    }
+
     return ast.filter(token => token.type.length === 3)
   }
 
@@ -701,33 +759,6 @@ class OSLUtils {
 
     lines = lines.filter((line) => line !== null);
 
-    for (let i = 0; i < lines.length; i++) {
-      const first = lines[i][0] ?? {};
-      const second = lines[i][1] ?? {};
-      if (
-        first.type === "var" &&
-        first.data === "def" &&
-        second.type === "fnc"
-      ) {
-        first.data = second.data;
-        lines[i].splice(1, 0, {
-          type: "unk",
-          data: "="
-        });
-        lines[i][2] = {
-          type: "fnc",
-          data: "function",
-          parameters: [
-            {
-              type: "str",
-              data: second.parameters.map(p => p.data).join(",")
-            },
-            lines[i][3]
-          ]
-        };
-        lines[i].splice(3, 1);
-      }
-    }
     return lines
   }
 
@@ -863,9 +894,5 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `
-    val = 10
-    local val = 10
-    number val = 10
-    local number val = 10`}), null, 2));
+    CODE: ``}), null, 2));
 }
