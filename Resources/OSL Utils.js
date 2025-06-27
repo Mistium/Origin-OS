@@ -681,7 +681,6 @@ class OSLUtils {
       ast[i] = evalASTNode(ast[i]);
     }
 
-    console.log(ast)
     const first = ast[0] ?? {};
     const second = ast[1] ?? {};
     if (
