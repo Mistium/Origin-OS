@@ -783,6 +783,13 @@ class OSLUtils {
       if (match.startsWith("\n")) return match.replace(/\n\s*\./, ".");
       return match;
     });
+    CODE = autoTokenise(CODE, "\n").map(line => {
+      line = line.trim();
+      if (line === "endef") return ")";
+      if (line.startsWith("def ") && !line.endsWith("(")) return line + " (";
+      return line;
+    }).join("\n");
+
     let lines = autoTokenise(CODE, "\n").map((line) => {
       line = line.trim();
       if (line.startsWith("//") || line === "") return null;
@@ -930,6 +937,14 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Terminal.osl")
+    CODE: `def "frame" "this.left, this.top, this.right, this.bottom, this.contentheight, this.id"
+  frame this.left this.top this.right this.bottom this.contentheight this.id
+  effect "transparency" 50
+  goto frame.x * -1 frame.y * -1
+  
+  image "wallpaper_blur" background_width background_height
+  effect "clear"
+endef
+`
   }), null, 2));
 }
