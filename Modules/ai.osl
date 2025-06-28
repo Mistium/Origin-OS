@@ -1,10 +1,10 @@
-def "blackbox" "history"
+def "blackbox" "history" (
   obj = {}
   obj.messages = history
   response = "https://ai.milosantos.com/blackbox".http("POST",obj,{"Content-Type":"application/json"}).choices.[1].message.content
-endef
+)
 
-def "generate_completion" "history, model, api_key"
+def "generate_completion" "history, model, api_key" (
   if authed = true (
     obj = {}
     obj.messages = history
@@ -26,4 +26,4 @@ def "generate_completion" "history, model, api_key"
       response = "Invalid API Key."
     )
   )
-endef
+)
