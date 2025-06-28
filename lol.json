@@ -123,36 +123,36 @@
                                   "data": "terminal"
                                 },
                                 "right": {
-                                  "type": "opr",
-                                  "data": "++",
-                                  "left": {
-                                    "type": "mtd",
-                                    "data": [
-                                      {
-                                        "type": "var",
-                                        "data": "terminal"
-                                      },
-                                      {
-                                        "type": "mtv",
-                                        "data": "trim",
-                                        "parameters": [
-                                          {
-                                            "type": "num",
-                                            "data": 1
-                                          },
-                                          {
-                                            "type": "var",
-                                            "data": "terminal_length"
-                                          }
-                                        ]
-                                      }
-                                    ]
-                                  },
-                                  "right": {
-                                    "type": "var",
-                                    "data": "terminal_output"
-                                  }
+                                  "type": "mtd",
+                                  "data": [
+                                    {
+                                      "type": "var",
+                                      "data": "terminal"
+                                    },
+                                    {
+                                      "type": "mtv",
+                                      "data": "trim",
+                                      "parameters": [
+                                        {
+                                          "type": "num",
+                                          "data": 1
+                                        },
+                                        {
+                                          "type": "var",
+                                          "data": "terminal_length"
+                                        }
+                                      ]
+                                    }
+                                  ]
                                 }
+                              },
+                              {
+                                "type": "unk",
+                                "data": "++"
+                              },
+                              {
+                                "type": "var",
+                                "data": "terminal_output"
                               }
                             ],
                             [
@@ -859,17 +859,17 @@
         "data": "user_start"
       },
       "right": {
-        "type": "opr",
-        "data": "++",
-        "left": {
-          "type": "var",
-          "data": "username"
-        },
-        "right": {
-          "type": "str",
-          "data": "\"@originos ~ % \""
-        }
+        "type": "var",
+        "data": "username"
       }
+    },
+    {
+      "type": "unk",
+      "data": "++"
+    },
+    {
+      "type": "str",
+      "data": "\"@originos ~ % \""
     }
   ],
   [
@@ -1351,13 +1351,12 @@
                     ],
                     [
                       {
-                        "type": "cmd",
-                        "data": "loops",
-                        "source": "loops ++"
-                      },
-                      {
-                        "type": "opr",
-                        "data": "++"
+                        "type": "asi",
+                        "data": "++",
+                        "left": {
+                          "type": "var",
+                          "data": "loops"
+                        }
                       }
                     ]
                   ]
@@ -1437,13 +1436,12 @@
               ],
               [
                 {
-                  "type": "cmd",
-                  "data": "loops",
-                  "source": "loops ++"
-                },
-                {
-                  "type": "opr",
-                  "data": "++"
+                  "type": "asi",
+                  "data": "++",
+                  "left": {
+                    "type": "var",
+                    "data": "loops"
+                  }
                 }
               ]
             ]
@@ -1874,25 +1872,8 @@
                             "data": "append",
                             "parameters": [
                               {
-                                "type": "opr",
-                                "data": "++",
-                                "left": {
-                                  "type": "var",
-                                  "data": "user_start"
-                                },
-                                "right": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "inputs"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "main"
-                                    }
-                                  ]
-                                }
+                                "type": "var",
+                                "data": "user_start"
                               }
                             ]
                           }
@@ -1930,25 +1911,8 @@
                             "data": "append",
                             "parameters": [
                               {
-                                "type": "opr",
-                                "data": "++",
-                                "left": {
-                                  "type": "var",
-                                  "data": "user_start"
-                                },
-                                "right": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "inputs"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "main"
-                                    }
-                                  ]
-                                }
+                                "type": "var",
+                                "data": "user_start"
                               }
                             ]
                           }
@@ -2119,36 +2083,36 @@
                     "data": "terminal"
                   },
                   "right": {
-                    "type": "opr",
-                    "data": "++",
-                    "left": {
-                      "type": "mtd",
-                      "data": [
-                        {
-                          "type": "var",
-                          "data": "terminal"
-                        },
-                        {
-                          "type": "mtv",
-                          "data": "trim",
-                          "parameters": [
-                            {
-                              "type": "num",
-                              "data": 1
-                            },
-                            {
-                              "type": "var",
-                              "data": "terminal_length"
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    "right": {
-                      "type": "var",
-                      "data": "term"
-                    }
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "terminal"
+                      },
+                      {
+                        "type": "mtv",
+                        "data": "trim",
+                        "parameters": [
+                          {
+                            "type": "num",
+                            "data": 1
+                          },
+                          {
+                            "type": "var",
+                            "data": "terminal_length"
+                          }
+                        ]
+                      }
+                    ]
                   }
+                },
+                {
+                  "type": "unk",
+                  "data": "++"
+                },
+                {
+                  "type": "var",
+                  "data": "term"
                 }
               ],
               [
@@ -2205,13 +2169,12 @@
       "data": [
         [
           {
-            "type": "cmd",
-            "data": "last_index",
-            "source": "last_index --"
-          },
-          {
-            "type": "unk",
-            "data": "--"
+            "type": "asi",
+            "data": "--",
+            "left": {
+              "type": "var",
+              "data": "last_index"
+            }
           }
         ],
         [
@@ -2322,13 +2285,12 @@
       "data": [
         [
           {
-            "type": "cmd",
-            "data": "last_index",
-            "source": "last_index ++"
-          },
-          {
-            "type": "opr",
-            "data": "++"
+            "type": "asi",
+            "data": "++",
+            "left": {
+              "type": "var",
+              "data": "last_index"
+            }
           }
         ],
         [
@@ -2634,13 +2596,12 @@
       "data": [
         [
           {
-            "type": "cmd",
-            "data": "count",
-            "source": "count ++"
-          },
-          {
-            "type": "opr",
-            "data": "++"
+            "type": "asi",
+            "data": "++",
+            "left": {
+              "type": "var",
+              "data": "count"
+            }
           }
         ],
         [
