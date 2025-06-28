@@ -3,15 +3,15 @@
     {
       "type": "cmd",
       "data": "def",
-      "source": "def \"seticon\" \"icon\" (\n  file \"open\" my_uuid\n  file \"set\" 11 icon\n)"
+      "source": "def \"frame\" \"this.left, this.top, this.right, this.bottom, this.contentheight, this.id\" (\nframe this.left this.top this.right this.bottom this.contentheight this.id\neffect \"transparency\" 50\ngoto frame.x * -1 frame.y * -1\n\nimage \"wallpaper_blur\" background_width background_height\neffect \"clear\"\n)"
     },
     {
       "type": "str",
-      "data": "\"seticon\""
+      "data": "\"frame\""
     },
     {
       "type": "str",
-      "data": "\"icon\""
+      "data": "\"this.left, this.top, this.right, this.bottom, this.contentheight, this.id\""
     },
     {
       "type": "blk",
@@ -19,255 +19,180 @@
         [
           {
             "type": "cmd",
-            "data": "file",
-            "source": "file \"open\" my_uuid"
+            "data": "frame",
+            "source": "frame this.left this.top this.right this.bottom this.contentheight this.id"
           },
           {
-            "type": "str",
-            "data": "\"open\""
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "this"
+              },
+              {
+                "type": "var",
+                "data": "left"
+              }
+            ]
           },
           {
-            "type": "var",
-            "data": "my_uuid"
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "this"
+              },
+              {
+                "type": "var",
+                "data": "top"
+              }
+            ]
+          },
+          {
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "this"
+              },
+              {
+                "type": "var",
+                "data": "right"
+              }
+            ]
+          },
+          {
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "this"
+              },
+              {
+                "type": "var",
+                "data": "bottom"
+              }
+            ]
+          },
+          {
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "this"
+              },
+              {
+                "type": "var",
+                "data": "contentheight"
+              }
+            ]
+          },
+          {
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "this"
+              },
+              {
+                "type": "var",
+                "data": "id"
+              }
+            ]
           }
         ],
         [
           {
             "type": "cmd",
-            "data": "file",
-            "source": "file \"set\" 11 icon"
+            "data": "effect",
+            "source": "effect \"transparency\" 50"
           },
           {
             "type": "str",
-            "data": "\"set\""
+            "data": "\"transparency\""
           },
           {
             "type": "num",
-            "data": 11
+            "data": 50
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "goto",
+            "source": "goto frame.x * -1 frame.y * -1"
+          },
+          {
+            "type": "opr",
+            "data": "*",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "frame"
+                },
+                {
+                  "type": "var",
+                  "data": "x"
+                }
+              ]
+            },
+            "right": {
+              "type": "num",
+              "data": -1
+            }
+          },
+          {
+            "type": "opr",
+            "data": "*",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "frame"
+                },
+                {
+                  "type": "var",
+                  "data": "y"
+                }
+              ]
+            },
+            "right": {
+              "type": "num",
+              "data": -1
+            }
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "image",
+            "source": "image \"wallpaper_blur\" background_width background_height"
+          },
+          {
+            "type": "str",
+            "data": "\"wallpaper_blur\""
           },
           {
             "type": "var",
-            "data": "icon"
-          }
-        ]
-      ]
-    }
-  ],
-  [
-    {
-      "type": "cmd",
-      "data": "def",
-      "source": "def \"load_theme\" (\n  local global @= Variables()\n  global.window_colour = user.theme.background\n  global.prim = user.theme.primary\n  global.seco = user.theme.secondary\n  global.tert = user.theme.tertiary\n  global.txtc = user.theme.text\n)"
-    },
-    {
-      "type": "str",
-      "data": "\"load_theme\""
-    },
-    {
-      "type": "blk",
-      "data": [
-        [
+            "data": "background_width"
+          },
           {
-            "type": "asi",
-            "data": "@=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "this"
-                },
-                {
-                  "type": "var",
-                  "data": "global"
-                }
-              ]
-            },
-            "right": {
-              "type": "fnc",
-              "data": "Variables",
-              "parameters": []
-            }
+            "type": "var",
+            "data": "background_height"
           }
         ],
         [
           {
-            "type": "asi",
-            "data": "=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "global"
-                },
-                {
-                  "type": "var",
-                  "data": "window_colour"
-                }
-              ]
-            },
-            "right": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "user"
-                },
-                {
-                  "type": "var",
-                  "data": "theme"
-                },
-                {
-                  "type": "var",
-                  "data": "background"
-                }
-              ]
-            }
-          }
-        ],
-        [
+            "type": "cmd",
+            "data": "effect",
+            "source": "effect \"clear\""
+          },
           {
-            "type": "asi",
-            "data": "=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "global"
-                },
-                {
-                  "type": "var",
-                  "data": "prim"
-                }
-              ]
-            },
-            "right": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "user"
-                },
-                {
-                  "type": "var",
-                  "data": "theme"
-                },
-                {
-                  "type": "var",
-                  "data": "primary"
-                }
-              ]
-            }
-          }
-        ],
-        [
-          {
-            "type": "asi",
-            "data": "=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "global"
-                },
-                {
-                  "type": "var",
-                  "data": "seco"
-                }
-              ]
-            },
-            "right": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "user"
-                },
-                {
-                  "type": "var",
-                  "data": "theme"
-                },
-                {
-                  "type": "var",
-                  "data": "secondary"
-                }
-              ]
-            }
-          }
-        ],
-        [
-          {
-            "type": "asi",
-            "data": "=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "global"
-                },
-                {
-                  "type": "var",
-                  "data": "tert"
-                }
-              ]
-            },
-            "right": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "user"
-                },
-                {
-                  "type": "var",
-                  "data": "theme"
-                },
-                {
-                  "type": "var",
-                  "data": "tertiary"
-                }
-              ]
-            }
-          }
-        ],
-        [
-          {
-            "type": "asi",
-            "data": "=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "global"
-                },
-                {
-                  "type": "var",
-                  "data": "txtc"
-                }
-              ]
-            },
-            "right": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "user"
-                },
-                {
-                  "type": "var",
-                  "data": "theme"
-                },
-                {
-                  "type": "var",
-                  "data": "text"
-                }
-              ]
-            }
+            "type": "str",
+            "data": "\"clear\""
           }
         ]
       ]
