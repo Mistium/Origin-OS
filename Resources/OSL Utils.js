@@ -139,7 +139,7 @@ function insertQuotes(OSL, quotes) {
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
-    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "b+", "b-", "b/", "b*", "b^"]
+    this.operators = ["+", "-", "*", "/", "//", "%", "??", "^", "b+", "b-", "b/", "b*", "b^"]
     this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
@@ -310,7 +310,7 @@ class OSLUtils {
           arguments: {
             OPERATORS: {
               type: Scratch.ArgumentType.STRING,
-              defaultValue: '["+", "++", "-", "*", "/", "//", "%", "??", "", "^", "b+", "b-", "b/", "b*", "b^"]',
+              defaultValue: '["+", "-", "*", "/", "//", "%", "??", "", "^", "b+", "b-", "b/", "b*", "b^"]',
             },
           },
         },
@@ -750,7 +750,20 @@ class OSLUtils {
       }
     }
 
-    if (ast.length === 0) return [];
+    if (ast.length === 0) return null;
+
+    if (ast.length === 2 &&
+        ast[0].type === "var" && 
+        ast[1].type === "unk" &&
+        ["++","--"].includes(ast[1].data)
+      ) {
+        ast[0] = {
+          type: "asi",
+          data: ast[1].data,
+          left: ast[0]
+        }
+        ast.splice(1, 1);
+      }
 
     if (ast[0].type === "var" && MAIN) {
       ast[0].type = "cmd";
@@ -779,13 +792,10 @@ class OSLUtils {
         return match;
       });
 
-      const ast = this.generateAST({ CODE: line, MAIN: true });
-      return ast;
+      return this.generateAST({ CODE: line, MAIN: true });
     });
 
-    lines = lines.filter((line) => line !== null);
-
-    return lines
+    return lines.filter((line) => line !== null);
   }
 
 
