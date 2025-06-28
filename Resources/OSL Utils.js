@@ -785,7 +785,6 @@ class OSLUtils {
     });
     CODE = autoTokenise(CODE, "\n").map(line => {
       line = line.trim();
-      console.log(line);
       if (line === "endef") return ")";
       if (line.startsWith("def ") && !(line.endsWith("(") || line.endsWith(")"))) return line + " (";
       return line;
