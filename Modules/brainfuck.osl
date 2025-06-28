@@ -1,6 +1,6 @@
-def "setup@brainfuck"
-  this.return_char = 13.chr()
-  code = data.replace(newline,"").replace(this.return_char,"")
+def "setup" (
+  local return_char = 13.chr()
+  code = data.replace("\n","").replace(return_char,"")
   memory = [0]
   cur = 0
   memory_slots = 1
@@ -8,9 +8,9 @@ def "setup@brainfuck"
   input_buffer = ""
   output_buffer = ""
   count = 0
-endef
+)
 
-def "exec@brainfuck" "token"
+def "exec" "token" (
   switch token (
       case ">"
         memory[pointer] = cur
@@ -82,12 +82,12 @@ def "exec@brainfuck" "token"
         log "unknown cmd" + code[count].ord()
         break
     )
-endef
+)
 
-def "run@brainfuck" "code"
+def "run" "code" (
   setup@brainfuck
   while count < code.len (
     count ++
     exec@brainfuck code[count]
   )
-endef
+)
