@@ -166,7 +166,7 @@ if current_login.istype("number") (
     )
     goto x + 140 -110
     icon "eye" 0.7
-    if clicked and can (
+    if onclick and can (
       can = false
       inputs.shown = inputs.shown.not()
     )
@@ -176,10 +176,14 @@ if current_login.istype("number") (
 
     goto x -180
     square 320 30 20 : c#000
-    if clicked or "enter".isKeyDown() (
+    if onclick or "enter".isKeyDown() (
       login_return = "Logging In..."
       promise.new(def() -> (
         local pass = inputs["password_" ++ current_login]
+        if pass == "" (
+          login_return = "Please enter a password"
+          return
+        )
         check = ("https://social.rotur.dev/get_user?username=" ++ accounts[current_login].username ++ "&password=" ++ removeQuotes(pass).hashMD5()).httpGet()
         if check.error != null (
           login_return = check.error
@@ -234,7 +238,7 @@ if current_login == "add" (
   )
   goto x+140 -110
   icon "eye" 0.7
-  if clicked and can (
+  if onclick and can (
     can = false
     inputs.shown = inputs.shown.not()
   )
@@ -245,7 +249,7 @@ if current_login == "add" (
   goto x -180 : c#000
   if signup_return != "" "c #491515"
   square 320 30 20
-  if clicked or "enter".isKeyDown() and status == "" (
+  if onclick or "enter".isKeyDown() and status == "" (
     network "new_account" inputs.signup_name removeQuotes(inputs.signup_pass)
     status = "Waiting"
   )
@@ -289,7 +293,7 @@ if current_login == "login" (
   )
   goto x+140 -110
   icon "eye" 0.7
-  if clicked and can (
+  if onclick and can (
     can = false
     inputs.shown = inputs.shown.not()
   )
@@ -299,9 +303,13 @@ if current_login == "login" (
 
   goto x -180
   square 320 30 20 : c#000
-  if clicked or "enter".isKeyDown() (
+  if onclick or "enter".isKeyDown() (
     login_return = "Logging In..."
     promise.new(def() -> (
+      if inputs.login_name == "" or inputs.login_pass == "" (
+        login_return = "Please enter a username and password"
+        return
+      )
       check = ("https://social.rotur.dev/get_user?username=" ++ inputs.login_name ++ "&password=" ++ removeQuotes(inputs.login_pass).hashMD5()).httpGet()
       if check.error != null (
         login_return = check.error
