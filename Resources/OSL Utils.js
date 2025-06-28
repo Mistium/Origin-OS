@@ -751,17 +751,11 @@ class OSLUtils {
     }
 
     if (ast.length === 0) return null;
-
+    
     if (ast.length === 2 &&
       ast[0].type === "var" &&
-      (
-        ast[1].data === "--" &&
-        ast[1].type === "unk"
-      ) ||
-      (
-        ast[1]?.data === "++" &&
-        ast[1]?.type === "opr"
-      )
+      (ast[1]?.data === "--" && ast[1]?.type === "unk") ||
+      (ast[1]?.data === "++" && ast[1]?.type === "opr")
     ) {
       ast[0] = {
         type: "asi",
