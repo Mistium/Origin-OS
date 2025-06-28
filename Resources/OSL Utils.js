@@ -139,7 +139,7 @@ function insertQuotes(OSL, quotes) {
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
-    this.operators = ["+", "-", "*", "/", "//", "%", "??", "^", "b+", "b-", "b/", "b*", "b^"]
+    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "b+", "b-", "b/", "b*", "b^"]
     this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
@@ -471,18 +471,18 @@ class OSLUtils {
         letter++;
 
         if (quotes === 0 &&
-            squotes === 0 &&
-            b_depth === 0 &&
-            m_comm === 0 &&
+          squotes === 0 &&
+          b_depth === 0 &&
+          m_comm === 0 &&
+          (
+            code[letter] === " " ||
+            code[letter] === ")" ||
             (
-              code[letter] === " " ||
-              code[letter] === ")" ||
-              (
-                this.operators.includes(depth) &&
-                (depth !== "-" && /[\d"]/.test(code[letter - 2]))
-              )
+              this.operators.includes(depth) &&
+              (depth !== "-" && /[\d"]/.test(code[letter - 2]))
             )
-          ) {
+          )
+        ) {
           if ([" ", ")"].includes(code[letter]) === false) {
             while (code[letter] === "=" || code[letter] === depth || (depth === "-" && code[letter] === ">")) {
               depth += code[letter];
@@ -753,17 +753,23 @@ class OSLUtils {
     if (ast.length === 0) return null;
 
     if (ast.length === 2 &&
-        ast[0].type === "var" && 
-        ast[1].type === "unk" &&
-        ["++","--"].includes(ast[1].data)
-      ) {
-        ast[0] = {
-          type: "asi",
-          data: ast[1].data,
-          left: ast[0]
-        }
-        ast.splice(1, 1);
+      ast[0].type === "var" &&
+      (
+        ast[1].data === "--" &&
+        ast[1].type === "unk"
+      ) ||
+      (
+        ast[1]?.data === "++" &&
+        ast[1]?.type === "opr"
+      )
+    ) {
+      ast[0] = {
+        type: "asi",
+        data: ast[1].data,
+        left: ast[0]
       }
+      ast.splice(1, 1);
+    }
 
     if (ast[0].type === "var" && MAIN) {
       ast[0].type = "cmd";
@@ -780,9 +786,9 @@ class OSLUtils {
   generateFullAST({ CODE }) {
     CODE = CODE + "";
     CODE = CODE.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|\n\s*\./gm, (match) => {
-        if (match.startsWith("\n")) return match.replace(/\n\s*\./, ".");
-        return match;
-      });
+      if (match.startsWith("\n")) return match.replace(/\n\s*\./, ".");
+      return match;
+    });
     let lines = autoTokenise(CODE, "\n").map((line) => {
       line = line.trim();
       if (line.startsWith("//") || line === "") return null;

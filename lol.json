@@ -123,36 +123,36 @@
                                   "data": "terminal"
                                 },
                                 "right": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "terminal"
-                                    },
-                                    {
-                                      "type": "mtv",
-                                      "data": "trim",
-                                      "parameters": [
-                                        {
-                                          "type": "num",
-                                          "data": 1
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "terminal_length"
-                                        }
-                                      ]
-                                    }
-                                  ]
+                                  "type": "opr",
+                                  "data": "++",
+                                  "left": {
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "terminal"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "trim",
+                                        "parameters": [
+                                          {
+                                            "type": "num",
+                                            "data": 1
+                                          },
+                                          {
+                                            "type": "var",
+                                            "data": "terminal_length"
+                                          }
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "right": {
+                                    "type": "var",
+                                    "data": "terminal_output"
+                                  }
                                 }
-                              },
-                              {
-                                "type": "unk",
-                                "data": "++"
-                              },
-                              {
-                                "type": "var",
-                                "data": "terminal_output"
                               }
                             ],
                             [
@@ -859,17 +859,17 @@
         "data": "user_start"
       },
       "right": {
-        "type": "var",
-        "data": "username"
+        "type": "opr",
+        "data": "++",
+        "left": {
+          "type": "var",
+          "data": "username"
+        },
+        "right": {
+          "type": "str",
+          "data": "\"@originos ~ % \""
+        }
       }
-    },
-    {
-      "type": "unk",
-      "data": "++"
-    },
-    {
-      "type": "str",
-      "data": "\"@originos ~ % \""
     }
   ],
   [
@@ -1872,8 +1872,25 @@
                             "data": "append",
                             "parameters": [
                               {
-                                "type": "var",
-                                "data": "user_start"
+                                "type": "opr",
+                                "data": "++",
+                                "left": {
+                                  "type": "var",
+                                  "data": "user_start"
+                                },
+                                "right": {
+                                  "type": "mtd",
+                                  "data": [
+                                    {
+                                      "type": "var",
+                                      "data": "inputs"
+                                    },
+                                    {
+                                      "type": "var",
+                                      "data": "main"
+                                    }
+                                  ]
+                                }
                               }
                             ]
                           }
@@ -1911,8 +1928,25 @@
                             "data": "append",
                             "parameters": [
                               {
-                                "type": "var",
-                                "data": "user_start"
+                                "type": "opr",
+                                "data": "++",
+                                "left": {
+                                  "type": "var",
+                                  "data": "user_start"
+                                },
+                                "right": {
+                                  "type": "mtd",
+                                  "data": [
+                                    {
+                                      "type": "var",
+                                      "data": "inputs"
+                                    },
+                                    {
+                                      "type": "var",
+                                      "data": "main"
+                                    }
+                                  ]
+                                }
                               }
                             ]
                           }
@@ -2083,36 +2117,36 @@
                     "data": "terminal"
                   },
                   "right": {
-                    "type": "mtd",
-                    "data": [
-                      {
-                        "type": "var",
-                        "data": "terminal"
-                      },
-                      {
-                        "type": "mtv",
-                        "data": "trim",
-                        "parameters": [
-                          {
-                            "type": "num",
-                            "data": 1
-                          },
-                          {
-                            "type": "var",
-                            "data": "terminal_length"
-                          }
-                        ]
-                      }
-                    ]
+                    "type": "opr",
+                    "data": "++",
+                    "left": {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "terminal"
+                        },
+                        {
+                          "type": "mtv",
+                          "data": "trim",
+                          "parameters": [
+                            {
+                              "type": "num",
+                              "data": 1
+                            },
+                            {
+                              "type": "var",
+                              "data": "terminal_length"
+                            }
+                          ]
+                        }
+                      ]
+                    },
+                    "right": {
+                      "type": "var",
+                      "data": "term"
+                    }
                   }
-                },
-                {
-                  "type": "unk",
-                  "data": "++"
-                },
-                {
-                  "type": "var",
-                  "data": "term"
                 }
               ],
               [
