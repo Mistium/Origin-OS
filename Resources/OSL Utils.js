@@ -563,6 +563,7 @@ class OSLUtils {
       method = method.map((input, index) => this.evalToken(input, index > 0))
       return { type: "mtd", data: method };
     }
+    else if (cur === "null") return { type: "unk", data: null }
     else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
     else if (cur === "->") return { type: "inl", data: "->" }
     else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0 }) }
@@ -707,7 +708,9 @@ class OSLUtils {
         parameters: [
           {
             type: "str",
-            data: second.parameters.map(p => p.data).join(",")
+            data: second.parameters.map(p => p.type === "mtd" ?
+               (p.data.map(p2 => p2.data).join(".")) : p.data
+              ).join(",")
           },
           ast[3]
         ]
@@ -937,14 +940,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `def "frame" "this.left, this.top, this.right, this.bottom, this.contentheight, this.id"
-  frame this.left this.top this.right this.bottom this.contentheight this.id
-  effect "transparency" 50
-  goto frame.x * -1 frame.y * -1
-  
-  image "wallpaper_blur" background_width background_height
-  effect "clear"
-endef
-`
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Terminal.osl", "utf-8")
   }), null, 2));
 }
