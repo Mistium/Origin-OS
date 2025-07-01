@@ -717,7 +717,6 @@ class OSLUtils {
         data: "=",
         source: CODE
       });
-      console.log(JSON.stringify(second.parameters))
       ast[2] = {
         type: "fnc",
         data: "function",
