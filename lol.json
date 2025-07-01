@@ -133,7 +133,7 @@
       "source": "class sidebar (\n  mode = \"none\"\n  fn = () -> ()\n  resize = 0.5\n\n  _resizing = false\n  \n  def frameInnerRender(callback) (\n    if self._resizing and mouse_down.not() (\n      self._resizing = false\n    )\n    if self.mode == \"none\" (\n      callback()\n      return\n    )\n    local w = self.resize * frame.width\n    \n    local join_x = frame.right - w\n    \n    frame join_x frame.top frame.right frame.bottom (\n      goto 0 0\n      square frame.width frame.height 10 : c#c_prim\n      self.fn()\n    )\n    if abs(mouse_x - join_x) < 20 (\n      cursor \"ew-resize\"\n      if onclick (\n        self._resizing = true\n      )\n    )\n    frame frame.left frame.top join_x frame.bottom (\n      callback()\n    )\n    if self._resizing (\n      self.resize = frame.right - mouse_x / frame.width\n      self.resize = self.resize.clamp(0.2,0.8)\n    )\n  )\n)"
     },
     {
-      "type": "var",
+      "type": "str",
       "data": "sidebar",
       "source": "sidebar"
     },
@@ -663,21 +663,7 @@
                           "type": "fnc",
                           "data": "abs",
                           "parameters": [
-                            {
-                              "type": "opr",
-                              "data": "-",
-                              "source": "-",
-                              "left": {
-                                "type": "var",
-                                "data": "mouse_x",
-                                "source": "mouse_x"
-                              },
-                              "right": {
-                                "type": "var",
-                                "data": "join_x",
-                                "source": "join_x"
-                              }
-                            }
+                            null
                           ],
                           "source": "abs(mouse_x - join_x)"
                         },
@@ -3057,7 +3043,7 @@
         "parameters": [
           {
             "type": "str",
-            "data": "string"
+            "data": "string type"
           },
           {
             "type": "blk",
@@ -13680,32 +13666,7 @@
                                   ],
                                   "source": "connection.room"
                                 },
-                                {
-                                  "type": "opr",
-                                  "data": "++",
-                                  "source": "++",
-                                  "left": {
-                                    "type": "str",
-                                    "data": "\"ori-\"",
-                                    "source": "\"ori-\""
-                                  },
-                                  "right": {
-                                    "type": "mtd",
-                                    "data": [
-                                      {
-                                        "type": "var",
-                                        "data": "inputs",
-                                        "source": "inputs"
-                                      },
-                                      {
-                                        "type": "var",
-                                        "data": "Invite",
-                                        "source": "Invite"
-                                      }
-                                    ],
-                                    "source": "inputs.Invite"
-                                  }
-                                },
+                                null,
                                 {
                                   "type": "obj",
                                   "data": {
@@ -14038,55 +13999,7 @@
                                     "type": "mtv",
                                     "data": "filter",
                                     "parameters": [
-                                      {
-                                        "type": "fnc",
-                                        "data": "function",
-                                        "parameters": [
-                                          {
-                                            "type": "str",
-                                            "data": ""
-                                          },
-                                          {
-                                            "type": "asi",
-                                            "data": "=??",
-                                            "source": "(v.startsWith(\"^ \").not())",
-                                            "left": {
-                                              "type": "var",
-                                              "data": "v",
-                                              "source": "v"
-                                            },
-                                            "right": {
-                                              "type": "mtd",
-                                              "data": [
-                                                {
-                                                  "type": "var",
-                                                  "data": "v",
-                                                  "source": "v"
-                                                },
-                                                {
-                                                  "type": "mtv",
-                                                  "data": "startsWith",
-                                                  "parameters": [
-                                                    {
-                                                      "type": "str",
-                                                      "data": "\"^ \"",
-                                                      "source": "\"^ \""
-                                                    }
-                                                  ],
-                                                  "source": "startsWith(\"^ \")"
-                                                },
-                                                {
-                                                  "type": "mtv",
-                                                  "data": "not",
-                                                  "parameters": [],
-                                                  "source": "not()"
-                                                }
-                                              ],
-                                              "source": "v.startsWith(\"^ \").not()"
-                                            }
-                                          }
-                                        ]
-                                      }
+                                      null
                                     ],
                                     "source": "filter(v -> (v.startsWith(\"^ \").not()))"
                                   }
