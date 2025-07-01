@@ -585,12 +585,12 @@ class OSLUtils {
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
       method = method.map(v => {
         const tkns = autoTokenise(v.trim(), " ");
-        if (tkns.length === 1) return this.generateAST({ CODE: v.trim(), START: 0 })[0]
-        else if (tkns.length === 2) {
+        if (tkns.length === 2) {
           const ast = this.generateAST({ CODE: tkns[1].trim(), START: 0 })[0]
           ast.set_type = tkns[0]
           return ast
         }
+        return this.generateAST({ CODE: v.trim(), START: 0 })[0]
       })
       out.parameters = method
       return out
@@ -973,6 +973,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Studio.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Terminal.osl", "utf-8")
   }), null, 2));
 }
