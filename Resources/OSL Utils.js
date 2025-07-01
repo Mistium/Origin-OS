@@ -819,8 +819,8 @@ class OSLUtils {
       const cur = lines[i]
       if (!cur) continue;
       if (
-        cur[0].type === "cmd" &&
-        ["for", "each", "class"].includes(cur[0].data)
+        cur?.[0]?.type === "cmd" &&
+        ["for", "each", "class"].includes(cur?.[0]?.data)
       ) {
         if (cur?.[4]?.type === "blk" && cur[0].data === "each") cur[2].type = "str"
         cur[1].type = "str"
