@@ -618,7 +618,7 @@ class OSLUtils {
 
     const types = ["inl", "opr", "cmp", "qst", "bit", "log"];
     for (let type of types) {
-      for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
+      for (let i = START; i < ast.length; i++) {
         const cur = ast[i];
         let prev = ast[i - 1];
         let next = ast[i + 1];
@@ -700,7 +700,8 @@ class OSLUtils {
       first.data = second.data;
       ast.splice(1, 0, {
         type: "asi",
-        data: "="
+        data: "=",
+        source: CODE
       });
       ast[2] = {
         type: "fnc",
@@ -723,7 +724,8 @@ class OSLUtils {
     if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1) {
       ast.unshift(ast[0].data[0], {
         type: "asi",
-        data: "=??"
+        data: "=??",
+        source: CODE
       });
     }
 
@@ -750,6 +752,7 @@ class OSLUtils {
           ast.splice(i, 1);
           i -= 1;
         }
+        cur.source = CODE;
       }
     }
 
@@ -763,7 +766,8 @@ class OSLUtils {
       ast[0] = {
         type: "asi",
         data: ast[1].data,
-        left: ast[0]
+        left: ast[0],
+        source: CODE
       }
       ast.splice(1, 1);
     }
