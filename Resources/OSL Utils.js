@@ -583,7 +583,15 @@ class OSLUtils {
       let out = { type: param ? "mtv" : "fnc", data: cur.substring(0, cur.indexOf("(")), parameters: [] }
       if (cur.endsWith("()")) return out
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
-      method = method.map((input) => this.generateAST({ CODE: input.trim(), START: 0 })[0])
+      method = method.map(v => {
+        const tkns = autoTokenise(v.trim(), " ");
+        if (tkns.length === 1) return this.generateAST({ CODE: v.trim(), START: 0 })[0]
+        else if (tkns.length === 2) {
+          const ast = this.generateAST({ CODE: tkns[1].trim(), START: 0 })[0]
+          ast.set_type = tkns[0]
+          return ast
+        }
+      })
       out.parameters = method
       return out
     }
@@ -709,15 +717,18 @@ class OSLUtils {
         data: "=",
         source: CODE
       });
+      console.log(JSON.stringify(second.parameters))
       ast[2] = {
         type: "fnc",
         data: "function",
         parameters: [
           {
             type: "str",
-            data: second.parameters.map(p => p.type === "mtd" ?
-              (p.data.map(p2 => p2.data).join(".")) : p.data
-            ).join(",")
+            data: second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
+              p.type === "mtd" ?
+              p.data.map(p2 => p2.data).join(".") :
+              p.data
+            )).join(",")
           },
           ast[3]
         ]
