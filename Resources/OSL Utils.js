@@ -89,6 +89,33 @@ function autoTokenise(CODE, DELIMITER) {
   }
 }
 
+function parseTemplate(str) {
+    let depth = 0;
+    let cur = '';
+    const arr = [];
+    for (let i = 0; i < str.length; i ++) {
+        if (str[i] + str[i + 1] === '${') {
+            if (depth === 0) {
+                arr.push(cur);
+                cur = "$";
+            }
+            depth ++;
+            continue;
+        }
+        if (str[i] === '}') {
+            depth --
+            if (depth === 0) {
+                arr.push(cur + '}');
+                cur = "";
+            }
+            continue;
+        };
+        cur += str[i];
+    }
+    arr.push(cur);
+    return arr;
+}
+
 function randomString(length) {
   let result = "";
   let characters =
@@ -555,7 +582,15 @@ class OSLUtils {
         console.error(e)
         return { type: "unk", data: cur }
       }
-    } else if (cur[0] === "\"" && cur[cur.length - 1] === "\"") return { type: "str", data: cur }
+    } 
+    else if (cur[0] + cur[cur.length - 1] === '""') return { type: "str", data: cur }
+    else if (cur[0] + cur[cur.length - 1] === "''") return { type: "str", data: cur }
+    else if (cur[0] + cur[cur.length - 1] === "``") {
+      return { type: "tsr", data: parseTemplate(cur.slice(1,-1)).filter(v => v !== "").map(v => {
+        if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
+        else return {type: "str", data: v}
+      }) }
+    }
     else if (!isNaN(+cur)) return { type: "num", data: +cur }
     else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
@@ -790,7 +825,7 @@ class OSLUtils {
 
     if (ast[0].type === "var" && MAIN) {
       ast[0].type = "cmd";
-      ast[0].source = CODE;
+      ast[0].source = CODE.split("\n", 1)[0];
     }
 
     return ast.filter(token => (
@@ -973,6 +1008,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Terminal.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/battery.ode", "utf-8")
   }), null, 2));
 }
