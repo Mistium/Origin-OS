@@ -89,16 +89,16 @@
                           "source": "if cmd != null (\n      terminal cmd\n      terminal @= terminal.trim(1, terminal_length) ++ terminal_output\n      loops = terminal.len\n      self.cmd = null\n    )"
                         },
                         {
+                          "type": "var",
+                          "data": "cmd"
+                        },
+                        {
                           "type": "cmp",
-                          "data": "!=",
-                          "left": {
-                            "type": "var",
-                            "data": "cmd"
-                          },
-                          "right": {
-                            "type": "unk",
-                            "data": null
-                          }
+                          "data": "!="
+                        },
+                        {
+                          "type": "unk",
+                          "data": null
                         },
                         {
                           "type": "blk",
@@ -117,15 +117,15 @@
                             [
                               {
                                 "type": "asi",
-                                "data": "@=",
+                                "data": "++",
                                 "left": {
-                                  "type": "var",
-                                  "data": "terminal"
-                                },
-                                "right": {
-                                  "type": "opr",
-                                  "data": "++",
+                                  "type": "asi",
+                                  "data": "@=",
                                   "left": {
+                                    "type": "var",
+                                    "data": "terminal"
+                                  },
+                                  "right": {
                                     "type": "mtd",
                                     "data": [
                                       {
@@ -148,11 +148,13 @@
                                       }
                                     ]
                                   },
-                                  "right": {
-                                    "type": "var",
-                                    "data": "terminal_output"
-                                  }
-                                }
+                                  "source": "terminal @= terminal.trim(1, terminal_length) ++ terminal_output"
+                                },
+                                "source": "terminal @= terminal.trim(1, terminal_length) ++ terminal_output"
+                              },
+                              {
+                                "type": "var",
+                                "data": "terminal_output"
                               }
                             ],
                             [
@@ -175,7 +177,8 @@
                                       "data": "len"
                                     }
                                   ]
-                                }
+                                },
+                                "source": "loops = terminal.len"
                               }
                             ],
                             [
@@ -198,7 +201,8 @@
                                 "right": {
                                   "type": "unk",
                                   "data": null
-                                }
+                                },
+                                "source": "self.cmd = null"
                               }
                             ]
                           ]
@@ -211,7 +215,8 @@
             }
           }
         ]
-      }
+      },
+      "source": "terminal_worker @= worker({\n  cmd: null,\n  isThread: true,\n  onframe: def() -> (\n    if cmd != null (\n      terminal cmd\n      terminal @= terminal.trim(1, terminal_length) ++ terminal_output\n      loops = terminal.len\n      self.cmd = null\n    )\n  )\n})"
     }
   ],
   [
@@ -290,7 +295,8 @@
             "data": "\"#fff\""
           }
         }
-      }
+      },
+      "source": "ansi = {\n  \"\\e[30m\": \"#000\",\n  \"\\e[31m\": \"#f00\",\n  \"\\e[32m\": \"#0f0\",\n  \"\\e[33m\": \"#ff0\",\n  \"\\e[34m\": \"#00f\",\n  \"\\e[35m\": \"#f0f\",\n  \"\\e[36m\": \"#0ff\",\n  \"\\e[37m\": \"#fff\",\n  \"\\e[90m\": \"#555\",\n  \"\\e[91m\": \"#f55\",\n  \"\\e[92m\": \"#5f5\",\n  \"\\e[93m\": \"#ff5\",\n  \"\\e[94m\": \"#55f\",\n  \"\\e[95m\": \"#f5f\",\n  \"\\e[96m\": \"#5ff\",\n  \"\\e[97m\": \"#fff\"\n}"
     }
   ],
   [
@@ -304,7 +310,8 @@
       "right": {
         "type": "str",
         "data": "\"/\\e\\[[0-9;]+m/g\""
-      }
+      },
+      "source": "ansi_re = \"/\\e\\[[0-9;]+m/g\""
     }
   ],
   [
@@ -333,7 +340,8 @@
       "right": {
         "type": "str",
         "data": "\"norm\""
-      }
+      },
+      "source": "mode = \"norm\""
     }
   ],
   [
@@ -343,16 +351,16 @@
       "source": "if passed_data != \"\" (\n  file \"open\" passed_data \"onlyaccess\"\n  file \"get\" 4\n  data.replace(\"/^[ \\n\\t]*/gm\",\"\")\n  ots_script = data.split(\"\\n\")\n  each i line ots_script (\n    if line.startsWith(\"if \") or line.startsWith(\"jump \") (\n      line.split(\" \")\n      if line.last().[1] == \":\" (\n        idx = ots_script.index(line.last())\n        line.[line.len] = idx\n        ots_script.[i] = line.join(\" \").destr\n      )\n    )\n  )\n  mode = \"ots\"\n) else (\n  ots_script = \"\"\n)"
     },
     {
+      "type": "var",
+      "data": "passed_data"
+    },
+    {
       "type": "cmp",
-      "data": "!=",
-      "left": {
-        "type": "var",
-        "data": "passed_data"
-      },
-      "right": {
-        "type": "str",
-        "data": "\"\""
-      }
+      "data": "!="
+    },
+    {
+      "type": "str",
+      "data": "\"\""
     },
     {
       "type": "blk",
@@ -395,6 +403,7 @@
           {
             "type": "asi",
             "data": "=??",
+            "source": "data.replace(\"/^[ \\n\\t]*/gm\",\"\")",
             "left": {
               "type": "var",
               "data": "data"
@@ -450,7 +459,8 @@
                   ]
                 }
               ]
-            }
+            },
+            "source": "ots_script = data.split(\"\\n\")"
           }
         ],
         [
@@ -481,46 +491,46 @@
                   "source": "if line.startsWith(\"if \") or line.startsWith(\"jump \") (\n      line.split(\" \")\n      if line.last().[1] == \":\" (\n        idx = ots_script.index(line.last())\n        line.[line.len] = idx\n        ots_script.[i] = line.join(\" \").destr\n      )\n    )"
                 },
                 {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "line"
+                    },
+                    {
+                      "type": "mtv",
+                      "data": "startsWith",
+                      "parameters": [
+                        {
+                          "type": "str",
+                          "data": "\"if \""
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
                   "type": "log",
-                  "data": "or",
-                  "left": {
-                    "type": "mtd",
-                    "data": [
-                      {
-                        "type": "var",
-                        "data": "line"
-                      },
-                      {
-                        "type": "mtv",
-                        "data": "startsWith",
-                        "parameters": [
-                          {
-                            "type": "str",
-                            "data": "\"if \""
-                          }
-                        ]
-                      }
-                    ]
-                  },
-                  "right": {
-                    "type": "mtd",
-                    "data": [
-                      {
-                        "type": "var",
-                        "data": "line"
-                      },
-                      {
-                        "type": "mtv",
-                        "data": "startsWith",
-                        "parameters": [
-                          {
-                            "type": "str",
-                            "data": "\"jump \""
-                          }
-                        ]
-                      }
-                    ]
-                  }
+                  "data": "or"
+                },
+                {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "line"
+                    },
+                    {
+                      "type": "mtv",
+                      "data": "startsWith",
+                      "parameters": [
+                        {
+                          "type": "str",
+                          "data": "\"jump \""
+                        }
+                      ]
+                    }
+                  ]
                 },
                 {
                   "type": "blk",
@@ -529,6 +539,7 @@
                       {
                         "type": "asi",
                         "data": "=??",
+                        "source": "line.split(\" \")",
                         "left": {
                           "type": "var",
                           "data": "line"
@@ -561,36 +572,36 @@
                         "source": "if line.last().[1] == \":\" (\n        idx = ots_script.index(line.last())\n        line.[line.len] = idx\n        ots_script.[i] = line.join(\" \").destr\n      )"
                       },
                       {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "line"
+                          },
+                          {
+                            "type": "mtv",
+                            "data": "last",
+                            "parameters": []
+                          },
+                          {
+                            "type": "mtv",
+                            "data": "item",
+                            "parameters": [
+                              {
+                                "type": "num",
+                                "data": 1
+                              }
+                            ]
+                          }
+                        ]
+                      },
+                      {
                         "type": "cmp",
-                        "data": "==",
-                        "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "line"
-                            },
-                            {
-                              "type": "mtv",
-                              "data": "last",
-                              "parameters": []
-                            },
-                            {
-                              "type": "mtv",
-                              "data": "item",
-                              "parameters": [
-                                {
-                                  "type": "num",
-                                  "data": 1
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        "right": {
-                          "type": "str",
-                          "data": "\":\""
-                        }
+                        "data": "=="
+                      },
+                      {
+                        "type": "str",
+                        "data": "\":\""
                       },
                       {
                         "type": "blk",
@@ -617,6 +628,7 @@
                                       {
                                         "type": "asi",
                                         "data": "=??",
+                                        "source": "line.last()",
                                         "left": {
                                           "type": "var",
                                           "data": "line"
@@ -639,7 +651,8 @@
                                     ]
                                   }
                                 ]
-                              }
+                              },
+                              "source": "idx = ots_script.index(line.last())"
                             }
                           ],
                           [
@@ -677,7 +690,8 @@
                               "right": {
                                 "type": "var",
                                 "data": "idx"
-                              }
+                              },
+                              "source": "line.[line.len] = idx"
                             }
                           ],
                           [
@@ -725,7 +739,8 @@
                                     "data": "destr"
                                   }
                                 ]
-                              }
+                              },
+                              "source": "ots_script.[i] = line.join(\" \").destr"
                             }
                           ]
                         ]
@@ -748,7 +763,8 @@
             "right": {
               "type": "str",
               "data": "\"ots\""
-            }
+            },
+            "source": "mode = \"ots\""
           }
         ]
       ]
@@ -771,7 +787,8 @@
             "right": {
               "type": "str",
               "data": "\"\""
-            }
+            },
+            "source": "ots_script = \"\""
           }
         ]
       ]
@@ -853,23 +870,25 @@
   [
     {
       "type": "asi",
-      "data": "=",
+      "data": "++",
       "left": {
-        "type": "var",
-        "data": "user_start"
-      },
-      "right": {
-        "type": "opr",
-        "data": "++",
+        "type": "asi",
+        "data": "=",
         "left": {
+          "type": "var",
+          "data": "user_start"
+        },
+        "right": {
           "type": "var",
           "data": "username"
         },
-        "right": {
-          "type": "str",
-          "data": "\"@originos ~ % \""
-        }
-      }
+        "source": "user_start = username ++ \"@originos ~ % \""
+      },
+      "source": "user_start = username ++ \"@originos ~ % \""
+    },
+    {
+      "type": "str",
+      "data": "\"@originos ~ % \""
     }
   ],
   [
@@ -883,7 +902,8 @@
       "right": {
         "type": "arr",
         "data": []
-      }
+      },
+      "source": "terminal = []"
     }
   ],
   [
@@ -897,7 +917,8 @@
       "right": {
         "type": "var",
         "data": true
-      }
+      },
+      "source": "canenter = true"
     }
   ],
   [
@@ -911,7 +932,8 @@
       "right": {
         "type": "unk",
         "data": null
-      }
+      },
+      "source": "input_1 = null"
     }
   ],
   [
@@ -925,7 +947,8 @@
       "right": {
         "type": "arr",
         "data": []
-      }
+      },
+      "source": "last = []"
     }
   ],
   [
@@ -939,7 +962,8 @@
       "right": {
         "type": "num",
         "data": 0
-      }
+      },
+      "source": "last_index = 0"
     }
   ],
   [
@@ -961,6 +985,7 @@
     {
       "type": "asi",
       "data": "=??",
+      "source": "window.setDragbox([2,2,0,0],[-2,-2,0,0])",
       "left": {
         "type": "var",
         "data": "window"
@@ -1035,7 +1060,8 @@
       "right": {
         "type": "num",
         "data": 0
-      }
+      },
+      "source": "loops = 0"
     }
   ],
   [
@@ -1049,7 +1075,8 @@
       "right": {
         "type": "var",
         "data": false
-      }
+      },
+      "source": "taking_input = false"
     }
   ],
   [
@@ -1063,7 +1090,8 @@
       "right": {
         "type": "num",
         "data": 1
-      }
+      },
+      "source": "ots_i = 1"
     }
   ],
   [
@@ -1086,54 +1114,54 @@
       "source": "if all_hit.len > 0 and inputs.selected.id != \"main\" (\n  input \"focus\" \"main\"\n)"
     },
     {
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "all_hit"
+        },
+        {
+          "type": "var",
+          "data": "len"
+        }
+      ]
+    },
+    {
+      "type": "cmp",
+      "data": ">"
+    },
+    {
+      "type": "num",
+      "data": 0
+    },
+    {
       "type": "log",
-      "data": "and",
-      "left": {
-        "type": "cmp",
-        "data": ">",
-        "left": {
-          "type": "mtd",
-          "data": [
-            {
-              "type": "var",
-              "data": "all_hit"
-            },
-            {
-              "type": "var",
-              "data": "len"
-            }
-          ]
+      "data": "and"
+    },
+    {
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "inputs"
         },
-        "right": {
-          "type": "num",
-          "data": 0
-        }
-      },
-      "right": {
-        "type": "cmp",
-        "data": "!=",
-        "left": {
-          "type": "mtd",
-          "data": [
-            {
-              "type": "var",
-              "data": "inputs"
-            },
-            {
-              "type": "var",
-              "data": "selected"
-            },
-            {
-              "type": "var",
-              "data": "id"
-            }
-          ]
+        {
+          "type": "var",
+          "data": "selected"
         },
-        "right": {
-          "type": "str",
-          "data": "\"main\""
+        {
+          "type": "var",
+          "data": "id"
         }
-      }
+      ]
+    },
+    {
+      "type": "cmp",
+      "data": "!="
+    },
+    {
+      "type": "str",
+      "data": "\"main\""
     },
     {
       "type": "blk",
@@ -1163,33 +1191,33 @@
       "source": "if new_network_data and terminal_worker.cmd == null (\n  if packet.data.istype(\"array\") (\n    msg = packet.username + \"> \" + packet.data.[0]\n    each line packet.data.delete(1) (\n      terminal.append(line)\n      loops ++\n    )\n  ) else (\n    terminal.append(packet.username + \"> \" + packet.data)\n    loops ++\n  )\n  new_network_data = false\n)"
     },
     {
+      "type": "var",
+      "data": "new_network_data"
+    },
+    {
       "type": "log",
-      "data": "and",
-      "left": {
-        "type": "var",
-        "data": "new_network_data"
-      },
-      "right": {
-        "type": "cmp",
-        "data": "==",
-        "left": {
-          "type": "mtd",
-          "data": [
-            {
-              "type": "var",
-              "data": "terminal_worker"
-            },
-            {
-              "type": "var",
-              "data": "cmd"
-            }
-          ]
+      "data": "and"
+    },
+    {
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "terminal_worker"
         },
-        "right": {
-          "type": "unk",
-          "data": null
+        {
+          "type": "var",
+          "data": "cmd"
         }
-      }
+      ]
+    },
+    {
+      "type": "cmp",
+      "data": "=="
+    },
+    {
+      "type": "unk",
+      "data": null
     },
     {
       "type": "blk",
@@ -1235,53 +1263,54 @@
                     "data": "msg"
                   },
                   "right": {
-                    "type": "opr",
-                    "data": "+",
-                    "left": {
-                      "type": "opr",
-                      "data": "+",
-                      "left": {
-                        "type": "mtd",
-                        "data": [
-                          {
-                            "type": "var",
-                            "data": "packet"
-                          },
-                          {
-                            "type": "var",
-                            "data": "username"
-                          }
-                        ]
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "packet"
                       },
-                      "right": {
-                        "type": "str",
-                        "data": "\"> \""
+                      {
+                        "type": "var",
+                        "data": "username"
                       }
+                    ]
+                  },
+                  "source": "msg = packet.username + \"> \" + packet.data.[0]"
+                },
+                {
+                  "type": "opr",
+                  "data": "+"
+                },
+                {
+                  "type": "str",
+                  "data": "\"> \""
+                },
+                {
+                  "type": "opr",
+                  "data": "+"
+                },
+                {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "packet"
                     },
-                    "right": {
-                      "type": "mtd",
-                      "data": [
+                    {
+                      "type": "var",
+                      "data": "data"
+                    },
+                    {
+                      "type": "mtv",
+                      "data": "item",
+                      "parameters": [
                         {
-                          "type": "var",
-                          "data": "packet"
-                        },
-                        {
-                          "type": "var",
-                          "data": "data"
-                        },
-                        {
-                          "type": "mtv",
-                          "data": "item",
-                          "parameters": [
-                            {
-                              "type": "num",
-                              "data": 0
-                            }
-                          ]
+                          "type": "num",
+                          "data": 0
                         }
                       ]
                     }
-                  }
+                  ]
                 }
               ],
               [
@@ -1324,6 +1353,7 @@
                       {
                         "type": "asi",
                         "data": "=??",
+                        "source": "terminal.append(line)",
                         "left": {
                           "type": "var",
                           "data": "terminal"
@@ -1356,7 +1386,8 @@
                         "left": {
                           "type": "var",
                           "data": "loops"
-                        }
+                        },
+                        "source": "loops ++"
                       }
                     ]
                   ]
@@ -1375,6 +1406,7 @@
                 {
                   "type": "asi",
                   "data": "=??",
+                  "source": "terminal.append(packet.username + \"> \" + packet.data)",
                   "left": {
                     "type": "var",
                     "data": "terminal"
@@ -1441,7 +1473,8 @@
                   "left": {
                     "type": "var",
                     "data": "loops"
-                  }
+                  },
+                  "source": "loops ++"
                 }
               ]
             ]
@@ -1458,7 +1491,8 @@
             "right": {
               "type": "var",
               "data": false
-            }
+            },
+            "source": "new_network_data = false"
           }
         ]
       ]
@@ -1582,16 +1616,16 @@
       "source": "if mode == \"norm\" (\n  if \"enter\".onKeyDown() (\n    void last.append(inputs.main)\n    last_index = last.len + 1\n    try (\n      if input_1.startsWith(\"SRE \") (\n        mode = \"SRE\"\n        sre_target = inputs.main.split(\" \").[2]\n      ) else (\n        terminal_worker.cmd = inputs.main\n        terminal_length = terminal.len + 1\n      )\n      void terminal.append(user_start ++ inputs.main)\n    ) catch e (\n      void terminal.append(user_start ++ inputs.main)\n      void terminal.append(e.error)\n    )\n    loops = terminal.len\n    terminal_output = []\n    inputs.main = null\n  )\n  if terminal_worker.cmd != null (\n    term @= window.getTerminal()\n    terminal @= terminal.trim(1,terminal_length) ++ term\n    loops = terminal.len\n  )\n)"
     },
     {
+      "type": "var",
+      "data": "mode"
+    },
+    {
       "type": "cmp",
-      "data": "==",
-      "left": {
-        "type": "var",
-        "data": "mode"
-      },
-      "right": {
-        "type": "str",
-        "data": "\"norm\""
-      }
+      "data": "=="
+    },
+    {
+      "type": "str",
+      "data": "\"norm\""
     },
     {
       "type": "blk",
@@ -1663,26 +1697,27 @@
                     "data": "last_index"
                   },
                   "right": {
-                    "type": "opr",
-                    "data": "+",
-                    "left": {
-                      "type": "mtd",
-                      "data": [
-                        {
-                          "type": "var",
-                          "data": "last"
-                        },
-                        {
-                          "type": "var",
-                          "data": "len"
-                        }
-                      ]
-                    },
-                    "right": {
-                      "type": "num",
-                      "data": 1
-                    }
-                  }
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "last"
+                      },
+                      {
+                        "type": "var",
+                        "data": "len"
+                      }
+                    ]
+                  },
+                  "source": "last_index = last.len + 1"
+                },
+                {
+                  "type": "opr",
+                  "data": "+"
+                },
+                {
+                  "type": "num",
+                  "data": 1
                 }
               ],
               [
@@ -1733,7 +1768,8 @@
                               "right": {
                                 "type": "str",
                                 "data": "\"SRE\""
-                              }
+                              },
+                              "source": "mode = \"SRE\""
                             }
                           ],
                           [
@@ -1776,7 +1812,8 @@
                                     ]
                                   }
                                 ]
-                              }
+                              },
+                              "source": "sre_target = inputs.main.split(\" \").[2]"
                             }
                           ]
                         ]
@@ -1817,7 +1854,8 @@
                                     "data": "main"
                                   }
                                 ]
-                              }
+                              },
+                              "source": "terminal_worker.cmd = inputs.main"
                             }
                           ],
                           [
@@ -1829,26 +1867,27 @@
                                 "data": "terminal_length"
                               },
                               "right": {
-                                "type": "opr",
-                                "data": "+",
-                                "left": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "terminal"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "len"
-                                    }
-                                  ]
-                                },
-                                "right": {
-                                  "type": "num",
-                                  "data": 1
-                                }
-                              }
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "terminal"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "len"
+                                  }
+                                ]
+                              },
+                              "source": "terminal_length = terminal.len + 1"
+                            },
+                            {
+                              "type": "opr",
+                              "data": "+"
+                            },
+                            {
+                              "type": "num",
+                              "data": 1
                             }
                           ]
                         ]
@@ -2011,7 +2050,8 @@
                         "data": "len"
                       }
                     ]
-                  }
+                  },
+                  "source": "loops = terminal.len"
                 }
               ],
               [
@@ -2025,7 +2065,8 @@
                   "right": {
                     "type": "arr",
                     "data": []
-                  }
+                  },
+                  "source": "terminal_output = []"
                 }
               ],
               [
@@ -2048,7 +2089,8 @@
                   "right": {
                     "type": "unk",
                     "data": null
-                  }
+                  },
+                  "source": "inputs.main = null"
                 }
               ]
             ]
@@ -2061,25 +2103,25 @@
             "source": "if terminal_worker.cmd != null (\n    term @= window.getTerminal()\n    terminal @= terminal.trim(1,terminal_length) ++ term\n    loops = terminal.len\n  )"
           },
           {
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "terminal_worker"
+              },
+              {
+                "type": "var",
+                "data": "cmd"
+              }
+            ]
+          },
+          {
             "type": "cmp",
-            "data": "!=",
-            "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "terminal_worker"
-                },
-                {
-                  "type": "var",
-                  "data": "cmd"
-                }
-              ]
-            },
-            "right": {
-              "type": "unk",
-              "data": null
-            }
+            "data": "!="
+          },
+          {
+            "type": "unk",
+            "data": null
           },
           {
             "type": "blk",
@@ -2105,21 +2147,22 @@
                         "parameters": []
                       }
                     ]
-                  }
+                  },
+                  "source": "term @= window.getTerminal()"
                 }
               ],
               [
                 {
                   "type": "asi",
-                  "data": "@=",
+                  "data": "++",
                   "left": {
-                    "type": "var",
-                    "data": "terminal"
-                  },
-                  "right": {
-                    "type": "opr",
-                    "data": "++",
+                    "type": "asi",
+                    "data": "@=",
                     "left": {
+                      "type": "var",
+                      "data": "terminal"
+                    },
+                    "right": {
                       "type": "mtd",
                       "data": [
                         {
@@ -2142,11 +2185,13 @@
                         }
                       ]
                     },
-                    "right": {
-                      "type": "var",
-                      "data": "term"
-                    }
-                  }
+                    "source": "terminal @= terminal.trim(1,terminal_length) ++ term"
+                  },
+                  "source": "terminal @= terminal.trim(1,terminal_length) ++ term"
+                },
+                {
+                  "type": "var",
+                  "data": "term"
                 }
               ],
               [
@@ -2169,7 +2214,8 @@
                         "data": "len"
                       }
                     ]
-                  }
+                  },
+                  "source": "loops = terminal.len"
                 }
               ]
             ]
@@ -2208,13 +2254,15 @@
             "left": {
               "type": "var",
               "data": "last_index"
-            }
+            },
+            "source": "last_index --"
           }
         ],
         [
           {
             "type": "asi",
             "data": "=??",
+            "source": "last_index.clamp(1,last.len)",
             "left": {
               "type": "var",
               "data": "last_index"
@@ -2288,7 +2336,8 @@
                   ]
                 }
               ]
-            }
+            },
+            "source": "inputs.main = last.[last_index]"
           }
         ]
       ]
@@ -2324,13 +2373,15 @@
             "left": {
               "type": "var",
               "data": "last_index"
-            }
+            },
+            "source": "last_index ++"
           }
         ],
         [
           {
             "type": "asi",
             "data": "=??",
+            "source": "last_index.clamp(1,last.len + 1)",
             "left": {
               "type": "var",
               "data": "last_index"
@@ -2412,7 +2463,8 @@
                   ]
                 }
               ]
-            }
+            },
+            "source": "inputs.main = last.[last_index]"
           }
         ]
       ]
@@ -2462,25 +2514,25 @@
       ]
     },
     {
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "window"
+        },
+        {
+          "type": "var",
+          "data": "right"
+        }
+      ]
+    },
+    {
       "type": "opr",
-      "data": "+",
-      "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "window"
-          },
-          {
-            "type": "var",
-            "data": "right"
-          }
-        ]
-      },
-      "right": {
-        "type": "num",
-        "data": 20
-      }
+      "data": "+"
+    },
+    {
+      "type": "num",
+      "data": 20
     },
     {
       "type": "mtd",
@@ -2496,24 +2548,24 @@
       ]
     },
     {
+      "type": "var",
+      "data": "loops"
+    },
+    {
       "type": "opr",
-      "data": "*",
-      "left": {
-        "type": "opr",
-        "data": "+",
-        "left": {
-          "type": "var",
-          "data": "loops"
-        },
-        "right": {
-          "type": "num",
-          "data": 1.5
-        }
-      },
-      "right": {
-        "type": "num",
-        "data": 20
-      }
+      "data": "+"
+    },
+    {
+      "type": "num",
+      "data": 1.5
+    },
+    {
+      "type": "opr",
+      "data": "*"
+    },
+    {
+      "type": "num",
+      "data": 20
     }
   ],
   [
@@ -2571,7 +2623,8 @@
             ]
           }
         ]
-      }
+      },
+      "source": "count = floor(scroll_y / 20).clamp(0,loops)"
     }
   ],
   [
@@ -2635,7 +2688,8 @@
             "left": {
               "type": "var",
               "data": "count"
-            }
+            },
+            "source": "count ++"
           }
         ],
         [
@@ -2647,33 +2701,34 @@
               "data": "y"
             },
             "right": {
-              "type": "opr",
-              "data": "+",
-              "left": {
-                "type": "opr",
-                "data": "+",
-                "left": {
-                  "type": "opr",
-                  "data": "*",
-                  "left": {
-                    "type": "var",
-                    "data": "count"
-                  },
-                  "right": {
-                    "type": "num",
-                    "data": -20
-                  }
-                },
-                "right": {
-                  "type": "var",
-                  "data": "scroll_y"
-                }
-              },
-              "right": {
-                "type": "num",
-                "data": 5
-              }
-            }
+              "type": "var",
+              "data": "count"
+            },
+            "source": "y = count * -20 + scroll_y + 5"
+          },
+          {
+            "type": "opr",
+            "data": "*"
+          },
+          {
+            "type": "num",
+            "data": -20
+          },
+          {
+            "type": "opr",
+            "data": "+"
+          },
+          {
+            "type": "var",
+            "data": "scroll_y"
+          },
+          {
+            "type": "opr",
+            "data": "+"
+          },
+          {
+            "type": "num",
+            "data": 5
           }
         ],
         [
@@ -2739,25 +2794,25 @@
       "source": "if terminal_worker.cmd == null (\n  loc 2 2 10 loops * -20 + scroll_y - 15\n  text user_start 10 : c#txtc\n  set_x user_start.len * 5 - 10\n  pen \"opacity\" 0\n  input window_width - (user_start.len + 2 * 10) 30 \"main\" null null txtc\n)"
     },
     {
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "terminal_worker"
+        },
+        {
+          "type": "var",
+          "data": "cmd"
+        }
+      ]
+    },
+    {
       "type": "cmp",
-      "data": "==",
-      "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "terminal_worker"
-          },
-          {
-            "type": "var",
-            "data": "cmd"
-          }
-        ]
-      },
-      "right": {
-        "type": "unk",
-        "data": null
-      }
+      "data": "=="
+    },
+    {
+      "type": "unk",
+      "data": null
     },
     {
       "type": "blk",
@@ -2781,32 +2836,32 @@
             "data": 10
           },
           {
+            "type": "var",
+            "data": "loops"
+          },
+          {
             "type": "opr",
-            "data": "-",
-            "left": {
-              "type": "opr",
-              "data": "+",
-              "left": {
-                "type": "opr",
-                "data": "*",
-                "left": {
-                  "type": "var",
-                  "data": "loops"
-                },
-                "right": {
-                  "type": "num",
-                  "data": -20
-                }
-              },
-              "right": {
-                "type": "var",
-                "data": "scroll_y"
-              }
-            },
-            "right": {
-              "type": "num",
-              "data": 15
-            }
+            "data": "*"
+          },
+          {
+            "type": "num",
+            "data": -20
+          },
+          {
+            "type": "opr",
+            "data": "+"
+          },
+          {
+            "type": "var",
+            "data": "scroll_y"
+          },
+          {
+            "type": "opr",
+            "data": "-"
+          },
+          {
+            "type": "num",
+            "data": 15
           }
         ],
         [
@@ -2841,33 +2896,33 @@
             "source": "set_x user_start.len * 5 - 10"
           },
           {
-            "type": "opr",
-            "data": "-",
-            "left": {
-              "type": "opr",
-              "data": "*",
-              "left": {
-                "type": "mtd",
-                "data": [
-                  {
-                    "type": "var",
-                    "data": "user_start"
-                  },
-                  {
-                    "type": "var",
-                    "data": "len"
-                  }
-                ]
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "user_start"
               },
-              "right": {
-                "type": "num",
-                "data": 5
+              {
+                "type": "var",
+                "data": "len"
               }
-            },
-            "right": {
-              "type": "num",
-              "data": 10
-            }
+            ]
+          },
+          {
+            "type": "opr",
+            "data": "*"
+          },
+          {
+            "type": "num",
+            "data": 5
+          },
+          {
+            "type": "opr",
+            "data": "-"
+          },
+          {
+            "type": "num",
+            "data": 10
           }
         ],
         [
@@ -2892,40 +2947,40 @@
             "source": "input window_width - (user_start.len + 2 * 10) 30 \"main\" null null txtc"
           },
           {
+            "type": "var",
+            "data": "window_width"
+          },
+          {
             "type": "opr",
-            "data": "-",
+            "data": "-"
+          },
+          {
+            "type": "opr",
+            "data": "*",
             "left": {
-              "type": "var",
-              "data": "window_width"
-            },
-            "right": {
               "type": "opr",
-              "data": "*",
+              "data": "+",
               "left": {
-                "type": "opr",
-                "data": "+",
-                "left": {
-                  "type": "mtd",
-                  "data": [
-                    {
-                      "type": "var",
-                      "data": "user_start"
-                    },
-                    {
-                      "type": "var",
-                      "data": "len"
-                    }
-                  ]
-                },
-                "right": {
-                  "type": "num",
-                  "data": 2
-                }
+                "type": "mtd",
+                "data": [
+                  {
+                    "type": "var",
+                    "data": "user_start"
+                  },
+                  {
+                    "type": "var",
+                    "data": "len"
+                  }
+                ]
               },
               "right": {
                 "type": "num",
-                "data": 10
+                "data": 2
               }
+            },
+            "right": {
+              "type": "num",
+              "data": 10
             }
           },
           {
