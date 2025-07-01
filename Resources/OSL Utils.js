@@ -516,6 +516,12 @@ class OSLUtils {
   }
 
   evalToken(cur, param) {
+    const out = this.stringToToken(cur, param)
+    out.source = cur;
+    return out
+  }
+
+  stringToToken(cur, param) {
     if ((cur[0] === "{" && cur[cur.length - 1] === "}") || (cur[0] === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (cur[0] === "[") {
@@ -710,8 +716,8 @@ class OSLUtils {
           {
             type: "str",
             data: second.parameters.map(p => p.type === "mtd" ?
-               (p.data.map(p2 => p2.data).join(".")) : p.data
-              ).join(",")
+              (p.data.map(p2 => p2.data).join(".")) : p.data
+            ).join(",")
           },
           ast[3]
         ]
@@ -757,7 +763,7 @@ class OSLUtils {
     }
 
     if (ast.length === 0) return null;
-    
+
     if (ast.length === 2 &&
       ast[0].type === "var" &&
       (ast[1]?.data === "--" && ast[1]?.type === "unk") ||
@@ -808,6 +814,19 @@ class OSLUtils {
 
       return this.generateAST({ CODE: line, MAIN: true });
     });
+
+    for (let i = 0; i < lines.length; i++) {
+      const cur = lines[i]
+      if (!cur) continue;
+      if (
+        cur[0].type === "cmd" &&
+        ["for", "each", "class"].includes(cur[0].data)
+      ) {
+        if (cur?.[4]?.type === "blk" && cur[0].data === "each") cur[2].type = "str"
+        cur[1].type = "str"
+        i++
+      }
+    }
 
     return lines.filter((line) => line !== null);
   }
@@ -944,6 +963,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Terminal.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Studio.osl", "utf-8")
   }), null, 2));
 }
