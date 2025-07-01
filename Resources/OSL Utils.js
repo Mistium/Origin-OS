@@ -618,7 +618,7 @@ class OSLUtils {
 
     const types = ["inl", "opr", "cmp", "qst", "bit", "log"];
     for (let type of types) {
-      for (let i = START; i < ast.length; i++) {
+      for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
         let prev = ast[i - 1];
         let next = ast[i + 1];
