@@ -697,6 +697,10 @@ class OSLUtils {
       if (!node) return node;
       if (node.type === "inl") {
         const params = (node?.left?.parameters || []).map(p => p.data).join(",");
+        const right = node.right;
+        if (typeof right.data === "string" && !right.data.trim().startsWith("(\n")) {
+          right.data = `(\nreturn ${right.data}\n)`;
+        }
         return {
           type: "fnc",
           data: "function",
@@ -705,7 +709,7 @@ class OSLUtils {
               type: "str",
               data: params
             },
-            this.generateAST({ CODE: node.right.data, START: 0 })[0]
+            this.generateAST({ CODE: right.data, START: 0 })[0]
           ],
         }
       }
