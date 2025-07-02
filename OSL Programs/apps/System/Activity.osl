@@ -25,12 +25,12 @@ def "tab" "name" (
   text name 8 : c#txtc
 )
 
-def arrSum(this.arr) (
-  this.out = 0
-  each this.item this.arr (
-    this.out += this.item
+def arrSum(arr) (
+  local out = 0
+  for i arr.len (
+    out += arr[i]
   )
-  return this.out
+  return out
 )
 
 
