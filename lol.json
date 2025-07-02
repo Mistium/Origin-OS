@@ -809,27 +809,40 @@
                                 "data": ""
                               },
                               {
-                                "type": "mtd",
+                                "type": "blk",
                                 "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "v",
-                                    "source": "v"
-                                  },
-                                  {
-                                    "type": "mtv",
-                                    "data": "item",
-                                    "parameters": [
-                                      {
-                                        "type": "num",
-                                        "data": 1,
-                                        "source": "1"
-                                      }
-                                    ],
-                                    "source": "[1]"
-                                  }
+                                  [
+                                    {
+                                      "type": "cmd",
+                                      "data": "return",
+                                      "source": "return (v.[1])"
+                                    },
+                                    {
+                                      "type": "mtd",
+                                      "data": [
+                                        {
+                                          "type": "var",
+                                          "data": "v",
+                                          "source": "v"
+                                        },
+                                        {
+                                          "type": "mtv",
+                                          "data": "item",
+                                          "parameters": [
+                                            {
+                                              "type": "num",
+                                              "data": 1,
+                                              "source": "1"
+                                            }
+                                          ],
+                                          "source": "[1]"
+                                        }
+                                      ],
+                                      "source": "(v.[1])"
+                                    }
+                                  ]
                                 ],
-                                "source": "(v.[1])"
+                                "source": "(\nreturn (v.[1])\n)"
                               }
                             ]
                           }
