@@ -772,7 +772,7 @@ class OSLUtils {
 
     if (ast.length === 0) return [];
 
-    if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1) {
+    if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1 && MAIN) {
       ast.unshift(ast[0].data[0], {
         type: "asi",
         data: "=??",
@@ -1008,6 +1008,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/battery.ode", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
   }), null, 2));
 }
