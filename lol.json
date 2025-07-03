@@ -1,115 +1,14 @@
 [
   [
     {
-      "type": "asi",
-      "data": "=??",
-      "source": "(()->log(\"lol\")).call()",
-      "left": {
-        "type": "fnc",
-        "data": "function",
-        "parameters": [
-          {
-            "type": "str",
-            "data": ""
-          },
-          {
-            "type": "blk",
-            "data": [
-              [
-                {
-                  "type": "cmd",
-                  "data": "return",
-                  "source": "return log(\"lol\")"
-                },
-                {
-                  "type": "fnc",
-                  "data": "log",
-                  "parameters": [
-                    {
-                      "type": "str",
-                      "data": "lol",
-                      "source": "\"lol\""
-                    }
-                  ],
-                  "source": "log(\"lol\")"
-                }
-              ]
-            ],
-            "source": "(\nreturn log(\"lol\")\n)"
-          }
-        ],
-        "source": "(() -> log(\"lol\"))"
-      },
-      "right": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "fnc",
-            "data": "function",
-            "parameters": [
-              {
-                "type": "str",
-                "data": ""
-              },
-              {
-                "type": "blk",
-                "data": [
-                  [
-                    {
-                      "type": "cmd",
-                      "data": "return",
-                      "source": "return log(\"lol\")"
-                    },
-                    {
-                      "type": "fnc",
-                      "data": "log",
-                      "parameters": [
-                        {
-                          "type": "str",
-                          "data": "lol",
-                          "source": "\"lol\""
-                        }
-                      ],
-                      "source": "log(\"lol\")"
-                    }
-                  ]
-                ],
-                "source": "(\nreturn log(\"lol\")\n)"
-              }
-            ],
-            "source": "(() -> log(\"lol\"))"
-          },
-          {
-            "type": "mtv",
-            "data": "call",
-            "parameters": [],
-            "source": "call()"
-          }
-        ],
-        "source": "(() -> log(\"lol\")).call()"
-      }
-    }
-  ],
-  [
-    {
       "type": "cmd",
       "data": "log",
-      "source": "log \"hi\"-1"
+      "source": "log \"hi\\ncrazy\"\""
     },
     {
-      "type": "opr",
-      "data": "-",
-      "source": "\"hi\" - 1",
-      "left": {
-        "type": "str",
-        "data": "hi",
-        "source": "\"hi\""
-      },
-      "right": {
-        "type": "num",
-        "data": 1,
-        "source": "1"
-      }
+      "type": "str",
+      "data": "hi\ncrazy\"",
+      "source": "\"hi\\ncrazy\"\""
     }
   ]
 ]

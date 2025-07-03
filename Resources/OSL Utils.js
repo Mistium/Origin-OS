@@ -1,3 +1,5 @@
+const { parse } = require("path");
+
 function tokenise(CODE, DELIMITER) {
   try {
     let letter = 0;
@@ -79,12 +81,34 @@ function tokeniseEscaped(CODE, DELIMITER) {
   }
 }
 
+function parseEscaped(str) {
+  let result = "";
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] === '\\') {
+      i++;
+      const esc = str[i];
+      switch (esc) {
+        case 'n': result += '\n'; break;
+        case 't': result += '\t'; break;
+        case 'r': result += '\r'; break;
+        case '"': result += '"'; break;
+        case "'": result += "'"; break;
+        case '\\': result += '\\'; break;
+        default: result += esc;
+      }
+    } else {
+      result += str[i];
+    }
+  }
+  return result;
+}
+
 function destr(t, e = '"') {
   if ("object" == typeof t || "symbol" == typeof t) return t;
   const n = t + "", r = e + "";
   if (n.startsWith(r) && n.endsWith(r)) {
     let t = n.substring(1, n.length - 1);
-    return -1 === n.indexOf("\\") ? t : t.replaceAll("\\" + r, r).replaceAll("\\\\", "\\")
+    return parseEscaped(t);
   }
   return t
 };
@@ -1105,7 +1129,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `(()->log("lol"))()
-    log "hi"-1`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/App Store.osl", "utf-8")
+    CODE: `log "hi\\ncrazy\""`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/App Store.osl", "utf-8")
   }), null, 2));
 }
