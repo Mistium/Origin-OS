@@ -121,13 +121,13 @@ if activity_info (
   if timer - last_timer > 0.05 (
     last_timer = timer
     dt = delta_time
-    windows_list = Windows()
+    windows_list @= Windows()
     current = windows_list.getKeys("id").index(page)
-    drawtimes = windows_list[current].render.JsonParse()
+    drawtimes @= windows_list[current].render.JsonParse()
     name = windows_list[current].name
     dt = (1000 / (drawtimes[1] + 0.01)).clamp(1,1000)
     pr = drawtimes[2]
-    graph.append(dt / 1000)
+    void graph.append(dt / 1000)
     graph.delete(1)
   )
   c txtc
