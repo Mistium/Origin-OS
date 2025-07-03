@@ -1,4 +1,4 @@
-window_list = Windows()
+window_list @= Windows()
 
 if running_windows.len == 0 (
   width = 0
