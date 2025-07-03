@@ -422,18 +422,6 @@
                   "parameters": [],
                   "source": "callback()"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 22,
-                  "source": "22"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -483,18 +471,6 @@
                   ],
                   "source": "c#txtc"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 25,
-                  "source": "25"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -511,18 +487,6 @@
             "type": "var",
             "data": "x",
             "source": "x"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 27,
-            "source": "27"
           }
         ]
       ],
@@ -762,33 +726,9 @@
                   ],
                   "source": "callback(inp ?? \"\")"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 38,
-                  "source": "38"
-                }
               ]
             ],
             "source": "[ast BLK]"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 39,
-            "source": "39"
           }
         ]
       ],
@@ -928,18 +868,6 @@
                   },
                   "line": 44
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 45,
-                  "source": "45"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -1009,18 +937,6 @@
                   ],
                   "source": "callback(inputs.[id])"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 48,
-                  "source": "48"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -1067,18 +983,6 @@
             "type": "num",
             "data": 10,
             "source": "10"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 50,
-            "source": "50"
           }
         ]
       ],
@@ -1282,18 +1186,6 @@
             "data": 8,
             "source": "8"
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 59,
-            "source": "59"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -1444,18 +1336,6 @@
                   ],
                   "source": "c#prim"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 67,
-                  "source": "67"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -1499,18 +1379,6 @@
                   "type": "num",
                   "data": 1,
                   "source": "1"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 69,
-                  "source": "69"
                 }
               ]
             ],
@@ -1566,18 +1434,6 @@
                     "source": "\"none\""
                   },
                   "line": 72
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 73,
-                  "source": "73"
                 }
               ]
             ],
@@ -1683,18 +1539,6 @@
               "data": 50,
               "source": "50"
             }
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 78,
-            "source": "78"
           }
         ]
       ],
@@ -1949,33 +1793,9 @@
                         },
                         "line": 88
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 89,
-                        "source": "89"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 90,
-                  "source": "90"
                 }
               ]
             ],
@@ -2027,18 +1847,6 @@
                     }
                   ],
                   "source": "c#prim"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 92,
-                  "source": "92"
                 }
               ]
             ],
@@ -2191,18 +1999,6 @@
             },
             "line": 98
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 99,
-            "source": "99"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -2286,10 +2082,10 @@
                 "display": 13,
                 "media": 25,
                 "boot applications": 38,
-                "storage": 62,
-                "keybinds": 79,
-                "time": 81,
-                "gamepads": 95
+                "storage": 61,
+                "keybinds": 78,
+                "time": 80,
+                "gamepads": 94
               }
             },
             "line": 103
@@ -2910,18 +2706,6 @@
                               },
                               "line": 127
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 131,
-                              "source": "131"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -2938,18 +2722,6 @@
                         "type": "num",
                         "data": -50,
                         "source": "-50"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 133,
-                        "source": "133"
                       }
                     ]
                   ],
@@ -3100,18 +2872,6 @@
                               "source": "inp.toStr()"
                             }
                           }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 141,
-                            "source": "141"
-                          }
                         ]
                       ],
                       "source": "[ast BLK]"
@@ -3234,18 +2994,6 @@
                                 "source": "false"
                               }
                             }
-                          }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 147,
-                            "source": "147"
                           }
                         ]
                       ],
@@ -3502,18 +3250,6 @@
                               },
                               "line": 158
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 159,
-                              "source": "159"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -3543,33 +3279,9 @@
                               },
                               "line": 160
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 161,
-                              "source": "161"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 162,
-                        "source": "162"
                       }
                     ]
                   ],
@@ -4200,18 +3912,6 @@
                                     ],
                                     "source": "c#prim"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 182,
-                                    "source": "182"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
@@ -4427,18 +4127,6 @@
                                     "data": 0.7,
                                     "source": "0.7"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 190,
-                                    "source": "190"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
@@ -4485,18 +4173,6 @@
                                     "type": "num",
                                     "data": 0.7,
                                     "source": "0.7"
-                                  }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 193,
-                                    "source": "193"
                                   }
                                 ]
                               ],
@@ -4545,18 +4221,6 @@
                                     "data": 0.7,
                                     "source": "0.7"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 196,
-                                    "source": "196"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
@@ -4591,33 +4255,9 @@
                               ],
                               "source": "chx#30"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 198,
-                              "source": "198"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 199,
-                        "source": "199"
                       }
                     ],
                     [
@@ -4667,18 +4307,6 @@
                           }
                         }
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 200,
-                        "source": "200"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -4725,18 +4353,6 @@
                           "source": "100"
                         },
                         "line": 202
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 203,
-                        "source": "203"
                       }
                     ]
                   ],
@@ -4998,18 +4614,6 @@
                           "source": "false"
                         },
                         "line": 212
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 213,
-                        "source": "213"
                       }
                     ]
                   ],
@@ -5279,18 +4883,6 @@
                         "type": "var",
                         "data": "boot_apps",
                         "source": "boot_apps"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 228,
-                        "source": "228"
                       }
                     ]
                   ],
@@ -5632,18 +5224,6 @@
                         },
                         "line": 237
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 238,
-                        "source": "238"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -5771,18 +5351,6 @@
                           "source": "false"
                         },
                         "line": 243
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 244,
-                        "source": "244"
                       }
                     ]
                   ],
@@ -6289,33 +5857,9 @@
                                     "data": "boot_apps",
                                     "source": "boot_apps"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 262,
-                                    "source": "262"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 263,
-                              "source": "263"
                             }
                           ]
                         ],
@@ -6351,33 +5895,9 @@
                         ],
                         "source": "c#txtc"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 265,
-                        "source": "265"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 266,
-                  "source": "266"
                 }
               ],
               [
@@ -6711,33 +6231,9 @@
                               "data": "https://patreon.com/mistium",
                               "source": "\"https://patreon.com/mistium\""
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 279,
-                              "source": "279"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 280,
-                        "source": "280"
                       }
                     ]
                   ],
@@ -7438,18 +6934,6 @@
                                     },
                                     "line": 300
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 301,
-                                    "source": "301"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
@@ -7535,18 +7019,6 @@
                                 "source": "files.sort().reverse().trim(1,20)"
                               },
                               "line": 303
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 304,
-                              "source": "304"
                             }
                           ]
                         ],
@@ -7761,18 +7233,6 @@
                         ],
                         "source": "chx#30"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 311,
-                        "source": "311"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -7977,33 +7437,9 @@
                               "data": 9,
                               "source": "9"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 317,
-                              "source": "317"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 318,
-                        "source": "318"
                       }
                     ],
                     [
@@ -8052,18 +7488,6 @@
                             "source": "200"
                           }
                         }
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 319,
-                        "source": "319"
                       }
                     ]
                   ],
@@ -8537,18 +7961,6 @@
                             "data": "current_format",
                             "source": "current_format"
                           }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 339,
-                            "source": "339"
-                          }
                         ]
                       ],
                       "source": "[ast BLK]"
@@ -8754,18 +8166,6 @@
                             "type": "var",
                             "data": "current_format",
                             "source": "current_format"
-                          }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 346,
-                            "source": "346"
                           }
                         ]
                       ],
@@ -9503,33 +8903,9 @@
                                 "source": "20"
                               }
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 369,
-                              "source": "369"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 370,
-                        "source": "370"
                       }
                     ],
                     [
@@ -9729,18 +9105,6 @@
                                     ],
                                     "source": "c#txtc"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 375,
-                                    "source": "375"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
@@ -9915,49 +9279,13 @@
                                     ],
                                     "source": "chy#-40"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 381,
-                                    "source": "381"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 382,
-                              "source": "382"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 383,
-                        "source": "383"
                       }
                     ]
                   ],
@@ -9966,33 +9294,9 @@
               ],
               [
                 {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 384,
-                  "source": "384"
-                }
-              ],
-              [
-                {
                   "type": "cmd",
                   "data": "break",
                   "source": "break"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 385,
-                  "source": "385"
                 }
               ]
             ],
@@ -10015,18 +9319,6 @@
               "source": "false"
             },
             "line": 386
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 387,
-            "source": "387"
           }
         ]
       ],
@@ -10346,33 +9638,9 @@
                                   "data": "value",
                                   "source": "value"
                                 }
-                              ],
-                              [
-                                {
-                                  "type": "unk",
-                                  "data": "/@line",
-                                  "source": "/@line"
-                                },
-                                {
-                                  "type": "num",
-                                  "data": 400,
-                                  "source": "400"
-                                }
                               ]
                             ],
                             "source": "[ast BLK]"
-                          }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 401,
-                            "source": "401"
                           }
                         ]
                       ],
@@ -10387,18 +9655,6 @@
                   "data": "return",
                   "source": "return",
                   "line": 402
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 403,
-                  "source": "403"
                 }
               ]
             ],
@@ -10538,18 +9794,6 @@
                   },
                   "line": 408
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 409,
-                  "source": "409"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -10607,18 +9851,6 @@
                     "source": "\"No Connection\""
                   },
                   "line": 411
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 412,
-                  "source": "412"
                 }
               ]
             ],
@@ -11127,32 +10359,7 @@
                           },
                           {
                             "type": "blk",
-                            "data": [
-                              [
-                                {
-                                  "type": "unk",
-                                  "data": "/@line",
-                                  "source": "/@line"
-                                },
-                                {
-                                  "type": "num",
-                                  "data": 434,
-                                  "source": "434"
-                                }
-                              ],
-                              [
-                                {
-                                  "type": "unk",
-                                  "data": "/@line",
-                                  "source": "/@line"
-                                },
-                                {
-                                  "type": "num",
-                                  "data": 435,
-                                  "source": "435"
-                                }
-                              ]
-                            ],
+                            "data": [],
                             "source": "[ast BLK]"
                           }
                         ]
@@ -11340,33 +10547,9 @@
                         "data": 0.8,
                         "source": "0.8"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 448,
-                        "source": "448"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 449,
-                  "source": "449"
                 }
               ],
               [
@@ -11416,45 +10599,9 @@
                     }
                   }
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 450,
-                  "source": "450"
-                }
               ]
             ],
             "source": "[ast BLK]"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 451,
-            "source": "451"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 452,
-            "source": "452"
           }
         ]
       ],
@@ -11677,18 +10824,6 @@
                     }
                   ],
                   "source": "c#prim"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 461,
-                  "source": "461"
                 }
               ]
             ],
@@ -12007,18 +11142,6 @@
                   },
                   "line": 472
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 473,
-                  "source": "473"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -12232,18 +11355,6 @@
                         ],
                         "source": "c#prim"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 480,
-                        "source": "480"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -12406,49 +11517,13 @@
                         },
                         "line": 485
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 486,
-                        "source": "486"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 487,
-                  "source": "487"
-                }
               ]
             ],
             "source": "[ast BLK]"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 488,
-            "source": "488"
           }
         ]
       ],
@@ -12530,11 +11605,11 @@
               "all": {
                 "none": 0,
                 "background": 8,
-                "dock": 42,
-                "windows": 63,
-                "colours": 67,
-                "file types": 96,
-                "mouse": 101
+                "dock": 40,
+                "windows": 60,
+                "colours": 64,
+                "file types": 92,
+                "mouse": 96
               }
             },
             "line": 492
@@ -12863,18 +11938,6 @@
                         },
                         "line": 507
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 508,
-                        "source": "508"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -13160,18 +12223,6 @@
                               },
                               "line": 517
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 518,
-                              "source": "518"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -13278,33 +12329,9 @@
                               ],
                               "source": "chx#20"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 522,
-                              "source": "522"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 523,
-                        "source": "523"
                       }
                     ]
                   ],
@@ -13979,33 +13006,9 @@
                                     "data": "cur",
                                     "source": "cur"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 547,
-                                    "source": "547"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 548,
-                              "source": "548"
                             }
                           ]
                         ],
@@ -14092,33 +13095,9 @@
                         },
                         "line": 551
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 552,
-                        "source": "552"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 553,
-                  "source": "553"
                 }
               ],
               [
@@ -14344,18 +13323,6 @@
                                 "source": "230"
                               },
                               "line": 560
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 561,
-                              "source": "561"
                             }
                           ]
                         ],
@@ -14657,33 +13624,9 @@
                                     "data": "cur",
                                     "source": "cur"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 573,
-                                    "source": "573"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 574,
-                              "source": "574"
                             }
                           ]
                         ],
@@ -14874,33 +13817,9 @@
                                     "data": "wallpapers",
                                     "source": "wallpapers"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 583,
-                                    "source": "583"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 584,
-                              "source": "584"
                             }
                           ]
                         ],
@@ -14936,33 +13855,9 @@
                         ],
                         "source": "c#txtc"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 586,
-                        "source": "586"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 587,
-                  "source": "587"
                 }
               ],
               [
@@ -15233,18 +14128,6 @@
                           "source": "false"
                         },
                         "line": 595
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 596,
-                        "source": "596"
                       }
                     ]
                   ],
@@ -15555,18 +14438,6 @@
                         "data": "segments",
                         "source": "segments"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 614,
-                        "source": "614"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -15785,18 +14656,6 @@
                               "data": "segments",
                               "source": "segments"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 622,
-                              "source": "622"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -15818,18 +14677,6 @@
                           "source": "0"
                         },
                         "line": 623
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 624,
-                        "source": "624"
                       }
                     ]
                   ],
@@ -15958,18 +14805,6 @@
                           "source": "false"
                         },
                         "line": 629
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 630,
-                        "source": "630"
                       }
                     ]
                   ],
@@ -16328,18 +15163,6 @@
                               ],
                               "source": "c#prim"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 642,
-                              "source": "642"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -16640,33 +15463,9 @@
                                     "data": "segments",
                                     "source": "segments"
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 653,
-                                    "source": "653"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 654,
-                              "source": "654"
                             }
                           ]
                         ],
@@ -16947,33 +15746,9 @@
                                           "data": "segments",
                                           "source": "segments"
                                         }
-                                      ],
-                                      [
-                                        {
-                                          "type": "unk",
-                                          "data": "/@line",
-                                          "source": "/@line"
-                                        },
-                                        {
-                                          "type": "num",
-                                          "data": 665,
-                                          "source": "665"
-                                        }
                                       ]
                                     ],
                                     "source": "[ast BLK]"
-                                  }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 666,
-                                    "source": "666"
                                   }
                                 ]
                               ],
@@ -17008,18 +15783,6 @@
                                 }
                               ],
                               "source": "c#txtc"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 668,
-                              "source": "668"
                             }
                           ]
                         ],
@@ -17281,33 +16044,9 @@
                                           "data": "segments",
                                           "source": "segments"
                                         }
-                                      ],
-                                      [
-                                        {
-                                          "type": "unk",
-                                          "data": "/@line",
-                                          "source": "/@line"
-                                        },
-                                        {
-                                          "type": "num",
-                                          "data": 678,
-                                          "source": "678"
-                                        }
                                       ]
                                     ],
                                     "source": "[ast BLK]"
-                                  }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 679,
-                                    "source": "679"
                                   }
                                 ]
                               ],
@@ -17343,49 +16082,13 @@
                               ],
                               "source": "c#txtc"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 681,
-                              "source": "681"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 682,
-                        "source": "682"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 683,
-                  "source": "683"
                 }
               ],
               [
@@ -17677,18 +16380,6 @@
                             "data": "theme",
                             "source": "theme"
                           }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 691,
-                            "source": "691"
-                          }
                         ]
                       ],
                       "source": "[ast BLK]"
@@ -17794,18 +16485,6 @@
                           "source": "user.theme"
                         },
                         "line": 696
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 697,
-                        "source": "697"
                       }
                     ]
                   ],
@@ -18297,18 +16976,6 @@
                         "source": "break",
                         "line": 731
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 732,
-                        "source": "732"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -18373,18 +17040,6 @@
                           "source": "picker_colour"
                         },
                         "line": 734
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 735,
-                        "source": "735"
                       }
                     ]
                   ],
@@ -18563,18 +17218,6 @@
                               "data": "theme_select",
                               "source": "theme_select"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 744,
-                              "source": "744"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -18648,18 +17291,6 @@
                           }
                         ],
                         "source": "c#prim"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 747,
-                        "source": "747"
                       }
                     ]
                   ],
@@ -19113,33 +17744,9 @@
                                     },
                                     "line": 766
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 767,
-                                    "source": "767"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 768,
-                              "source": "768"
                             }
                           ]
                         ],
@@ -19221,33 +17828,9 @@
                         },
                         "line": 771
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 772,
-                        "source": "772"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 773,
-                  "source": "773"
                 }
               ],
               [
@@ -19609,18 +18192,6 @@
                               ],
                               "source": "c#prim"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 785,
-                              "source": "785"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -19915,33 +18486,9 @@
                         ],
                         "source": "c#txtc"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 794,
-                        "source": "794"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 795,
-                  "source": "795"
                 }
               ],
               [
@@ -20170,18 +18717,6 @@
                           "source": "true"
                         },
                         "line": 805
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 806,
-                        "source": "806"
                       }
                     ]
                   ],
@@ -20553,18 +19088,6 @@
                             },
                             "line": 816
                           }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 817,
-                            "source": "817"
-                          }
                         ]
                       ],
                       "source": "[ast BLK]"
@@ -20603,18 +19126,6 @@
                           "source": "-1"
                         },
                         "line": 819
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 820,
-                        "source": "820"
                       }
                     ]
                   ],
@@ -20724,18 +19235,6 @@
                         "data": "slider_scrollsp",
                         "source": "slider_scrollsp"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 824,
-                        "source": "824"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -20747,18 +19246,6 @@
                   "data": "break",
                   "source": "break",
                   "line": 825
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 826,
-                  "source": "826"
                 }
               ]
             ],
@@ -20776,18 +19263,6 @@
             "type": "str",
             "data": "clear",
             "source": "\"clear\""
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 828,
-            "source": "828"
           }
         ]
       ],
@@ -21220,33 +19695,9 @@
                                               "data": "id",
                                               "source": "id"
                                             }
-                                          ],
-                                          [
-                                            {
-                                              "type": "unk",
-                                              "data": "/@line",
-                                              "source": "/@line"
-                                            },
-                                            {
-                                              "type": "num",
-                                              "data": 844,
-                                              "source": "844"
-                                            }
                                           ]
                                         ],
                                         "source": "[ast BLK]"
-                                      }
-                                    ],
-                                    [
-                                      {
-                                        "type": "unk",
-                                        "data": "/@line",
-                                        "source": "/@line"
-                                      },
-                                      {
-                                        "type": "num",
-                                        "data": 845,
-                                        "source": "845"
                                       }
                                     ]
                                   ],
@@ -21295,33 +19746,9 @@
                               ],
                               "source": "chy#-50"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 847,
-                              "source": "847"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 848,
-                        "source": "848"
                       }
                     ]
                   ],
@@ -21330,33 +19757,9 @@
               ],
               [
                 {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 849,
-                  "source": "849"
-                }
-              ],
-              [
-                {
                   "type": "cmd",
                   "data": "return",
                   "source": "return"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 850,
-                  "source": "850"
                 }
               ]
             ],
@@ -21708,18 +20111,6 @@
                                           "data": "url",
                                           "source": "url"
                                         }
-                                      ],
-                                      [
-                                        {
-                                          "type": "unk",
-                                          "data": "/@line",
-                                          "source": "/@line"
-                                        },
-                                        {
-                                          "type": "num",
-                                          "data": 865,
-                                          "source": "865"
-                                        }
                                       ]
                                     ],
                                     "source": "[ast BLK]"
@@ -21764,18 +20155,6 @@
                                           "data": "Banner purchase aborted",
                                           "source": "\"Banner purchase aborted\""
                                         }
-                                      ],
-                                      [
-                                        {
-                                          "type": "unk",
-                                          "data": "/@line",
-                                          "source": "/@line"
-                                        },
-                                        {
-                                          "type": "num",
-                                          "data": 867,
-                                          "source": "867"
-                                        }
                                       ]
                                     ],
                                     "source": "[ast BLK]"
@@ -21800,33 +20179,9 @@
                                           "data": "Url must start with https",
                                           "source": "\"Url must start with https\""
                                         }
-                                      ],
-                                      [
-                                        {
-                                          "type": "unk",
-                                          "data": "/@line",
-                                          "source": "/@line"
-                                        },
-                                        {
-                                          "type": "num",
-                                          "data": 869,
-                                          "source": "869"
-                                        }
                                       ]
                                     ],
                                     "source": "[ast BLK]"
-                                  }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 870,
-                                    "source": "870"
                                   }
                                 ]
                               ],
@@ -21852,49 +20207,13 @@
                                     "data": "You do not have enough credits for this",
                                     "source": "\"You do not have enough credits for this\""
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 872,
-                                    "source": "872"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 873,
-                              "source": "873"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 874,
-                        "source": "874"
                       }
                     ]
                   ],
@@ -22141,18 +20460,6 @@
                         "data": 10,
                         "source": "10"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 887,
-                        "source": "887"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -22181,18 +20488,6 @@
                         "type": "num",
                         "data": 10,
                         "source": "10"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 889,
-                        "source": "889"
                       }
                     ]
                   ],
@@ -22552,18 +20847,6 @@
                               "data": "banner",
                               "source": "banner"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 903,
-                              "source": "903"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -22636,33 +20919,9 @@
                         },
                         "line": 905
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 906,
-                        "source": "906"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 907,
-                  "source": "907"
                 }
               ],
               [
@@ -22740,18 +20999,6 @@
                   "source": "return",
                   "line": 908
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 909,
-                  "source": "909"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -22782,18 +21029,6 @@
           {
             "type": "blk",
             "data": [
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 912,
-                  "source": "912"
-                }
-              ],
               [],
               [
                 {
@@ -22950,18 +21185,6 @@
                         },
                         "line": 915
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 916,
-                        "source": "916"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -23093,18 +21316,6 @@
                               }
                             },
                             "source": "{\n        service: \"github\",\n        username: \"What is your github username?\".ask()\n      }"
-                          }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 922,
-                            "source": "922"
                           }
                         ]
                       ],
@@ -23306,18 +21517,6 @@
                             ],
                             "source": "\"Enter Your New Email\".ask()"
                           }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 930,
-                            "source": "930"
-                          }
                         ]
                       ],
                       "source": "[ast BLK]"
@@ -23331,18 +21530,6 @@
                   "data": "return",
                   "source": "return",
                   "line": 932
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 933,
-                  "source": "933"
                 }
               ]
             ],
@@ -23655,33 +21842,9 @@
                               },
                               "line": 943
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 944,
-                              "source": "944"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 945,
-                        "source": "945"
                       }
                     ]
                   ],
@@ -23808,18 +21971,6 @@
                                 }
                               ],
                               "source": "c#txtc"
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 949,
-                              "source": "949"
                             }
                           ]
                         ],
@@ -24477,33 +22628,9 @@
                                           },
                                           "line": 966
                                         }
-                                      ],
-                                      [
-                                        {
-                                          "type": "unk",
-                                          "data": "/@line",
-                                          "source": "/@line"
-                                        },
-                                        {
-                                          "type": "num",
-                                          "data": 967,
-                                          "source": "967"
-                                        }
                                       ]
                                     ],
                                     "source": "[ast BLK]"
-                                  }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 968,
-                                    "source": "968"
                                   }
                                 ]
                               ],
@@ -24588,33 +22715,9 @@
                               },
                               "line": 972
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 973,
-                              "source": "973"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 974,
-                        "source": "974"
                       }
                     ]
                   ],
@@ -24627,18 +22730,6 @@
                   "data": "return",
                   "source": "return",
                   "line": 975
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 976,
-                  "source": "976"
                 }
               ]
             ],
@@ -24769,18 +22860,6 @@
                               }
                             ],
                             "source": "user.private.not"
-                          }
-                        ],
-                        [
-                          {
-                            "type": "unk",
-                            "data": "/@line",
-                            "source": "/@line"
-                          },
-                          {
-                            "type": "num",
-                            "data": 982,
-                            "source": "982"
                           }
                         ]
                       ],
@@ -25209,18 +23288,6 @@
                         ],
                         "source": "chy#-50"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1003,
-                        "source": "1003"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -25228,33 +23295,9 @@
               ],
               [
                 {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1004,
-                  "source": "1004"
-                }
-              ],
-              [
-                {
                   "type": "cmd",
                   "data": "return",
                   "source": "return"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1005,
-                  "source": "1005"
                 }
               ]
             ],
@@ -25733,18 +23776,6 @@
                   "data": 90,
                   "source": "90"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1021,
-                  "source": "1021"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -25833,18 +23864,6 @@
                                 "source": "timer"
                               },
                               "line": 1025
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 1026,
-                              "source": "1026"
                             }
                           ]
                         ],
@@ -26018,33 +24037,9 @@
                         "data": 20,
                         "source": "20"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1034,
-                        "source": "1034"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1035,
-                  "source": "1035"
                 }
               ]
             ],
@@ -26311,18 +24306,6 @@
                   },
                   "line": 1047
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1048,
-                  "source": "1048"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -26441,18 +24424,6 @@
                         "data": "Failed to load pfp, try a different   website or try again",
                         "source": "\"Failed to load pfp, try a different   website or try again\""
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1055,
-                        "source": "1055"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -26531,33 +24502,9 @@
                         },
                         "line": 1058
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1059,
-                        "source": "1059"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1060,
-                  "source": "1060"
                 }
               ]
             ],
@@ -27107,18 +25054,6 @@
                               ],
                               "source": "all_badges.[badge].description"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 1073,
-                              "source": "1073"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -27136,33 +25071,9 @@
                         "data": 30,
                         "source": "30"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1075,
-                        "source": "1075"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1076,
-                  "source": "1076"
                 }
               ]
             ],
@@ -27514,33 +25425,9 @@
                         ],
                         "source": "inputs.bio.join(\"\\n\").strip()"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1088,
-                        "source": "1088"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1089,
-                  "source": "1089"
                 }
               ]
             ],
@@ -27709,18 +25596,6 @@
                       ],
                       "source": "\"Enter Your New Password\".ask().hashMD5()"
                     }
-                  ],
-                  [
-                    {
-                      "type": "unk",
-                      "data": "/@line",
-                      "source": "/@line"
-                    },
-                    {
-                      "type": "num",
-                      "data": 1100,
-                      "source": "1100"
-                    }
                   ]
                 ],
                 "source": "[ast BLK]"
@@ -27811,18 +25686,6 @@
                       },
                       "line": 1106
                     }
-                  ],
-                  [
-                    {
-                      "type": "unk",
-                      "data": "/@line",
-                      "source": "/@line"
-                    },
-                    {
-                      "type": "num",
-                      "data": 1107,
-                      "source": "1107"
-                    }
                   ]
                 ],
                 "source": "[ast BLK]"
@@ -27899,18 +25762,6 @@
                         "source": "\"Backups\""
                       },
                       "line": 1111
-                    }
-                  ],
-                  [
-                    {
-                      "type": "unk",
-                      "data": "/@line",
-                      "source": "/@line"
-                    },
-                    {
-                      "type": "num",
-                      "data": 1112,
-                      "source": "1112"
                     }
                   ]
                 ],
@@ -27989,18 +25840,6 @@
                       },
                       "line": 1116
                     }
-                  ],
-                  [
-                    {
-                      "type": "unk",
-                      "data": "/@line",
-                      "source": "/@line"
-                    },
-                    {
-                      "type": "num",
-                      "data": 1117,
-                      "source": "1117"
-                    }
                   ]
                 ],
                 "source": "[ast BLK]"
@@ -28077,18 +25916,6 @@
                         "source": "\"Subscriptions\""
                       },
                       "line": 1121
-                    }
-                  ],
-                  [
-                    {
-                      "type": "unk",
-                      "data": "/@line",
-                      "source": "/@line"
-                    },
-                    {
-                      "type": "num",
-                      "data": 1122,
-                      "source": "1122"
                     }
                   ]
                 ],
@@ -28175,18 +26002,6 @@
                       "data": "su",
                       "source": "\"su\""
                     }
-                  ],
-                  [
-                    {
-                      "type": "unk",
-                      "data": "/@line",
-                      "source": "/@line"
-                    },
-                    {
-                      "type": "num",
-                      "data": 1129,
-                      "source": "1129"
-                    }
                   ]
                 ],
                 "source": "[ast BLK]"
@@ -28211,18 +26026,6 @@
             },
             "line": 1131
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1132,
-            "source": "1132"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -28242,21 +26045,7 @@
     },
     {
       "type": "blk",
-      "data": [
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line",
-            "line": 1135
-          },
-          {
-            "type": "num",
-            "data": 1136,
-            "source": "1136"
-          }
-        ]
-      ],
+      "data": [],
       "source": "[ast BLK]"
     }
   ],
@@ -28412,18 +26201,6 @@
                     "source": "{}"
                   },
                   "line": 1143
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1144,
-                  "source": "1144"
                 }
               ]
             ],
@@ -28897,33 +26674,9 @@
                         ],
                         "source": "chy#-60"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1165,
-                        "source": "1165"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1166,
-                  "source": "1166"
                 }
               ],
               [
@@ -28932,18 +26685,6 @@
                   "data": "return",
                   "source": "return",
                   "line": 1167
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1168,
-                  "source": "1168"
                 }
               ]
             ],
@@ -29018,18 +26759,6 @@
               "source": "60"
             },
             "line": 1171
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1172,
-            "source": "1172"
           }
         ],
         [
@@ -29206,18 +26935,6 @@
                         "data": "continue",
                         "source": "continue",
                         "line": 1178
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1179,
-                        "source": "1179"
                       }
                     ]
                   ],
@@ -29406,18 +27123,6 @@
                           "source": "uuid"
                         },
                         "line": 1184
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1185,
-                        "source": "1185"
                       }
                     ]
                   ],
@@ -29628,18 +27333,6 @@
                         "data": "continue",
                         "source": "continue",
                         "line": 1192
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1193,
-                        "source": "1193"
                       }
                     ]
                   ],
@@ -29895,18 +27588,6 @@
                   "data": 0.8,
                   "source": "0.8"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1203,
-                  "source": "1203"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -29949,18 +27630,6 @@
               }
             },
             "line": 1205
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1206,
-            "source": "1206"
           }
         ]
       ],
@@ -30130,21 +27799,7 @@
                 },
                 {
                   "type": "blk",
-                  "data": [
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line",
-                        "line": 1213
-                      },
-                      {
-                        "type": "num",
-                        "data": 1214,
-                        "source": "1214"
-                      }
-                    ]
-                  ],
+                  "data": [],
                   "source": "[ast BLK]"
                 }
               ]
@@ -30668,33 +28323,9 @@
                   "data": 0.8,
                   "source": "0.8"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1239,
-                  "source": "1239"
-                }
               ]
             ],
             "source": "[ast BLK]"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1240,
-            "source": "1240"
           }
         ],
         [
@@ -30744,18 +28375,6 @@
               }
             },
             "line": 1241
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1242,
-            "source": "1242"
           }
         ]
       ],
@@ -30869,18 +28488,6 @@
             "type": "num",
             "data": 1,
             "source": "1"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1249,
-            "source": "1249"
           }
         ]
       ],
@@ -31433,18 +29040,6 @@
                         },
                         "line": 1272
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1273,
-                        "source": "1273"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -31609,18 +29204,6 @@
                           "source": "\"Community\""
                         },
                         "line": 1280
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1281,
-                        "source": "1281"
                       }
                     ]
                   ],
@@ -32100,18 +29683,6 @@
                         ],
                         "source": "\"vm.runtime.platform.url\".eval()"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1300,
-                        "source": "1300"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -32297,18 +29868,6 @@
                         },
                         "line": 1306
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1307,
-                        "source": "1307"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -32380,18 +29939,6 @@
                     }
                   ],
                   "source": "c#txtc"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1310,
-                  "source": "1310"
                 }
               ]
             ],
@@ -32687,18 +30234,6 @@
                               ],
                               "source": "c#prim"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 1320,
-                              "source": "1320"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -32779,33 +30314,9 @@
                         ],
                         "source": "c#txtc"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1323,
-                        "source": "1323"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1324,
-                  "source": "1324"
                 }
               ],
               [
@@ -32844,18 +30355,6 @@
                       "source": "60"
                     }
                   }
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1325,
-                  "source": "1325"
                 }
               ]
             ],
@@ -33198,18 +30697,6 @@
                               ],
                               "source": "c#prim"
                             }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 1336,
-                              "source": "1336"
-                            }
                           ]
                         ],
                         "source": "[ast BLK]"
@@ -33390,33 +30877,9 @@
                         ],
                         "source": "chx#10"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1342,
-                        "source": "1342"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1343,
-                  "source": "1343"
                 }
               ],
               [
@@ -33455,18 +30918,6 @@
                       "source": "60"
                     }
                   }
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1344,
-                  "source": "1344"
                 }
               ]
             ],
@@ -33597,18 +31048,6 @@
                         "type": "str",
                         "data": "https://www.patreon.com/user?u=51594743",
                         "source": "\"https://www.patreon.com/user?u=51594743\""
-                      }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1350,
-                        "source": "1350"
                       }
                     ]
                   ],
@@ -33939,18 +31378,6 @@
                         "data": 10,
                         "source": "10"
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1369,
-                        "source": "1369"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
@@ -34004,33 +31431,9 @@
                   },
                   "line": 1370
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1371,
-                  "source": "1371"
-                }
               ]
             ],
             "source": "[ast BLK]"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1372,
-            "source": "1372"
           }
         ]
       ],
@@ -34133,18 +31536,6 @@
                               "data": "return",
                               "source": "return",
                               "line": 1378
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 1379,
-                              "source": "1379"
                             }
                           ]
                         ],
@@ -34305,18 +31696,6 @@
                                     "data": "Unable to link to this account",
                                     "source": "\"Unable to link to this account\""
                                   }
-                                ],
-                                [
-                                  {
-                                    "type": "unk",
-                                    "data": "/@line",
-                                    "source": "/@line"
-                                  },
-                                  {
-                                    "type": "num",
-                                    "data": 1387,
-                                    "source": "1387"
-                                  }
                                 ]
                               ],
                               "source": "[ast BLK]"
@@ -34328,18 +31707,6 @@
                               "data": "break",
                               "source": "break",
                               "line": 1388
-                            }
-                          ],
-                          [
-                            {
-                              "type": "unk",
-                              "data": "/@line",
-                              "source": "/@line"
-                            },
-                            {
-                              "type": "num",
-                              "data": 1389,
-                              "source": "1389"
                             }
                           ]
                         ],
@@ -34363,33 +31730,9 @@
                         },
                         "line": 1390
                       }
-                    ],
-                    [
-                      {
-                        "type": "unk",
-                        "data": "/@line",
-                        "source": "/@line"
-                      },
-                      {
-                        "type": "num",
-                        "data": 1391,
-                        "source": "1391"
-                      }
                     ]
                   ],
                   "source": "[ast BLK]"
-                }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1392,
-                  "source": "1392"
                 }
               ]
             ],
@@ -34459,18 +31802,6 @@
               "source": "\"none\""
             },
             "line": 1396
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1397,
-            "source": "1397"
           }
         ]
       ],
@@ -34590,18 +31921,6 @@
               "source": "passed_data.[2]"
             },
             "line": 1400
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1401,
-            "source": "1401"
           }
         ]
       ],
@@ -35224,18 +32543,6 @@
             },
             "line": 1434
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1435,
-            "source": "1435"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -35264,18 +32571,6 @@
               "source": "[]"
             },
             "line": 1436
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1437,
-            "source": "1437"
           }
         ]
       ],
@@ -35431,18 +32726,6 @@
             "type": "var",
             "data": "wallpapers",
             "source": "wallpapers"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1450,
-            "source": "1450"
           }
         ]
       ],
@@ -35726,18 +33009,6 @@
       "data": "system",
       "source": "system",
       "line": 1462
-    }
-  ],
-  [
-    {
-      "type": "unk",
-      "data": "/@line",
-      "source": "/@line"
-    },
-    {
-      "type": "num",
-      "data": 1463,
-      "source": "1463"
     }
   ],
   [
@@ -36047,18 +33318,6 @@
                     "source": "random(9999,9999999999)"
                   }
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1477,
-                  "source": "1477"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -36280,18 +33539,6 @@
               "source": "user.pfp"
             },
             "line": 1488
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1489,
-            "source": "1489"
           }
         ]
       ],
@@ -36582,18 +33829,6 @@
             ],
             "source": "c#prim"
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1504,
-            "source": "1504"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -36637,18 +33872,6 @@
             "type": "num",
             "data": 1,
             "source": "1"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1506,
-            "source": "1506"
           }
         ]
       ],
@@ -36704,18 +33927,6 @@
               "source": "\"none\""
             },
             "line": 1510
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1511,
-            "source": "1511"
           }
         ]
       ],
@@ -36949,18 +34160,6 @@
             "data": "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5",
             "source": "\"w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5\""
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1522,
-            "source": "1522"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -36977,18 +34176,6 @@
       "type": "num",
       "data": -25,
       "source": "-25"
-    }
-  ],
-  [
-    {
-      "type": "unk",
-      "data": "/@line",
-      "source": "/@line"
-    },
-    {
-      "type": "num",
-      "data": 1526,
-      "source": "1526"
     }
   ],
   [
@@ -37173,18 +34360,6 @@
             ],
             "source": "c#txtc"
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1538,
-            "source": "1538"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -37327,18 +34502,6 @@
                   ],
                   "source": "c#prim"
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1544,
-                  "source": "1544"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -37406,18 +34569,6 @@
                   },
                   "line": 1547
                 }
-              ],
-              [
-                {
-                  "type": "unk",
-                  "data": "/@line",
-                  "source": "/@line"
-                },
-                {
-                  "type": "num",
-                  "data": 1548,
-                  "source": "1548"
-                }
               ]
             ],
             "source": "[ast BLK]"
@@ -37452,18 +34603,6 @@
             "type": "num",
             "data": 10,
             "source": "10"
-          }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1551,
-            "source": "1551"
           }
         ]
       ],
@@ -37931,18 +35070,6 @@
             "source": "break",
             "line": 1582
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1583,
-            "source": "1583"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -38071,18 +35198,6 @@
             },
             "line": 1590
           }
-        ],
-        [
-          {
-            "type": "unk",
-            "data": "/@line",
-            "source": "/@line"
-          },
-          {
-            "type": "num",
-            "data": 1591,
-            "source": "1591"
-          }
         ]
       ],
       "source": "[ast BLK]"
@@ -38129,18 +35244,6 @@
       "type": "str",
       "data": "win-buttons",
       "source": "\"win-buttons\""
-    }
-  ],
-  [
-    {
-      "type": "unk",
-      "data": "/@line",
-      "source": "/@line"
-    },
-    {
-      "type": "num",
-      "data": 1594,
-      "source": "1594"
     }
   ]
 ]
