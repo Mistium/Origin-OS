@@ -813,10 +813,16 @@ class OSLUtils {
 
     if (ast.length === 0) return null;
 
+    const t1 = ast[1]
     if (ast.length === 2 &&
       ast[0].type === "var" &&
-      (ast[1]?.data === "--" && ast[1]?.type === "unk") ||
-      (ast[1]?.data === "++" && ast[1]?.type === "opr")
+      ast.length === 2 &&
+      (t1?.data === "--" &&
+       t1?.type === "unk" &&
+       !t1?.right) ||
+      (t1?.data === "++" &&
+       t1?.type === "opr" &&
+       !t1?.right)
     ) {
       ast[0] = {
         type: "asi",
@@ -1012,6 +1018,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/applications.ode", "utf-8")
   }), null, 2));
 }
