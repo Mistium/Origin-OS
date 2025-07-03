@@ -69,11 +69,11 @@ def "handle_app_culling" (
     desktop_apps = []
     cur = app_positions[y][x]
     if desktop.contains(cur) (
-      if cur != "" (
+      if cur != null (
         void desktop_apps.append(cur)
       )
     ) else (
-      app_positions[y][x] = ""
+      app_positions[y][x] = null
     )
   )
 )
