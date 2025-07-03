@@ -981,14 +981,13 @@ class OSLUtils {
     for (let i = 0; i < lines.length; i++) {
       const cur = lines[i]
       if (!cur) continue;
-      // console.log(cur)
       const type = cur?.[0]?.type;
       const data = cur?.[0]?.data;
       if (type === "unk" && data === "/@line") {
         let next = lines[i + 1];
+        lines.splice(i--, 1);
         if (!next?.[0]) continue;
         next[0].line = cur[1].data;
-        lines.splice(i--, 1);
       }
       if (type === "cmd" && ["for", "each", "class"].includes(data)) {
         if (cur?.[4]?.type === "blk" && data === "each") cur[2].type = "str"
@@ -997,9 +996,11 @@ class OSLUtils {
       }
     }
 
-    return lines.filter((line) => line !== null);
+    return lines.filter((line) => 
+      line !== null && 
+      line?.[0]?.data !== "/@line"
+    );
   }
-
 
   splitmethods({ CODE }) {
     CODE = Scratch.Cast.toString(CODE);
