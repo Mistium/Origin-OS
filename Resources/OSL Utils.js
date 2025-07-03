@@ -501,7 +501,7 @@ class OSLUtils {
   }
 
   tokeniseLineOSL(code) {
-    code = code.replace(/("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g, v => {
+    code = code.replace(/("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g, v => {
       if (v.startsWith('"') || v.startsWith("'") || v.startsWith('`')) return v;
       return ` ${v} `
     })
@@ -1127,6 +1127,7 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/battery.ode", "utf-8")
+    CODE: `void def()->(
+    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/battery.ode", "utf-8")
   }), null, 2));
 }
