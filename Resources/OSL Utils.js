@@ -79,12 +79,12 @@ function tokeniseEscaped(CODE, DELIMITER) {
   }
 }
 
-function destr(t,e='"') {
-  if("object"==typeof t||"symbol"==typeof t) return t;
-  const n=t+"",r=e+"";
-  if(n.startsWith(r)&&n.endsWith(r)){
-    let t=n.substring(1,n.length-1);
-    return-1===n.indexOf("\\")?t:t.replaceAll("\\"+r,r).replaceAll("\\\\","\\")
+function destr(t, e = '"') {
+  if ("object" == typeof t || "symbol" == typeof t) return t;
+  const n = t + "", r = e + "";
+  if (n.startsWith(r) && n.endsWith(r)) {
+    let t = n.substring(1, n.length - 1);
+    return -1 === n.indexOf("\\") ? t : t.replaceAll("\\" + r, r).replaceAll("\\\\", "\\")
   }
   return t
 };
@@ -100,30 +100,30 @@ function autoTokenise(CODE, DELIMITER) {
 }
 
 function parseTemplate(str) {
-    let depth = 0;
-    let cur = '';
-    const arr = [];
-    for (let i = 0; i < str.length; i ++) {
-        if (str[i] + str[i + 1] === '${') {
-            if (depth === 0) {
-                arr.push(cur);
-                cur = "$";
-            }
-            depth ++;
-            continue;
-        }
-        if (str[i] === '}') {
-            depth --
-            if (depth === 0) {
-                arr.push(cur + '}');
-                cur = "";
-            }
-            continue;
-        };
-        cur += str[i];
+  let depth = 0;
+  let cur = '';
+  const arr = [];
+  for (let i = 0; i < str.length; i++) {
+    if (str[i] + str[i + 1] === '${') {
+      if (depth === 0) {
+        arr.push(cur);
+        cur = "$";
+      }
+      depth++;
+      continue;
     }
-    arr.push(cur);
-    return arr;
+    if (str[i] === '}') {
+      depth--
+      if (depth === 0) {
+        arr.push(cur + '}');
+        cur = "";
+      }
+      continue;
+    };
+    cur += str[i];
+  }
+  arr.push(cur);
+  return arr;
 }
 
 function randomString(length) {
@@ -479,6 +479,10 @@ class OSLUtils {
   }
 
   tokeniseLineOSL(code) {
+    code = code.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|(?<=["A-Za-z\d\]})])(?:\+\+|\?\?|->|[!=><]=|[><]|[?+*^%\/\-|&])(?=\S)/gm, v => {
+      if (v.startsWith('"')) return v;
+      return ` ${v} `
+    })
     try {
       let letter = 0;
       let depth = "";
@@ -513,18 +517,10 @@ class OSLUtils {
           m_comm === 0 &&
           (
             code[letter] === " " ||
-            code[letter] === ")" ||
-            (
-              this.operators.includes(depth) &&
-              (depth !== "-" && /[\d"]/.test(code[letter - 2]))
-            )
+            code[letter] === ")"
           )
         ) {
           if ([" ", ")"].includes(code[letter]) === false) {
-            while (code[letter] === "=" || code[letter] === depth || (depth === "-" && code[letter] === ">")) {
-              depth += code[letter];
-              letter++;
-            }
             split.push(depth);
           } else {
             split.push(out.join(""));
@@ -537,6 +533,49 @@ class OSLUtils {
       return split;
     } catch (e) {
       console.error("Error in tokeniseLineOSL:", e);
+      return [];
+    }
+  }
+
+  tokeniseLines(CODE) {
+    try {
+      let letter = 0;
+      let depth = "";
+      let brackets = 0;
+      let b_depth = 0;
+      let out = [];
+      let split = [];
+      let escaped = false;
+      const len = CODE.length;
+
+      while (letter < len) {
+        depth = CODE[letter];
+        if (brackets === 0 && !escaped) {
+          if (depth === "[" || depth === "{" || depth === "(") b_depth++
+          if (depth === "]" || depth === "}" || depth === ")") b_depth--
+          b_depth = b_depth < 0 ? 0 : b_depth;
+        }
+        if (depth === '"' && !escaped) {
+          brackets = 1 - brackets;
+          out.push('"');
+        } else if (depth === '\\' && !escaped) {
+          escaped = !escaped;
+          out.push("\\");
+        } else {
+          out.push(depth);
+          escaped = false;
+        }
+        letter++;
+
+        if (brackets === 0 && ["\n", ";"].includes(CODE[letter]) && b_depth === 0) {
+          split.push(out.join(""));
+          out = [];
+          letter++;
+        }
+      }
+      split.push(out.join(""));
+      return split;
+    } catch (e) {
       return [];
     }
   }
@@ -592,14 +631,16 @@ class OSLUtils {
         console.error(e)
         return { type: "unk", data: cur }
       }
-    } 
+    }
     else if (cur[0] + cur[cur.length - 1] === '""') return { type: "str", data: destr(cur) }
     else if (cur[0] + cur[cur.length - 1] === "''") return { type: "str", data: destr(cur, "'") }
     else if (cur[0] + cur[cur.length - 1] === "``") {
-      return { type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
-        if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
-        else return {type: "str", data: v}
-      }) }
+      return {
+        type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
+          if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
+          else return { type: "str", data: v }
+        })
+      }
     }
     else if (!isNaN(+cur)) return { type: "num", data: +cur }
     else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
@@ -680,7 +721,7 @@ class OSLUtils {
     // join together nodes that should be a single node
     const types = ["inl", "opr", "cmp", "qst", "bit", "log"];
     for (let type of types) {
-      for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
+      for (let i = START ?? (["asi", "inl"].includes(type) ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
         let prev = ast[i - 1];
         let next = ast[i + 1];
@@ -698,6 +739,7 @@ class OSLUtils {
           if (!cur.left) {
             cur.left = prev;
             cur.right = next;
+            cur.source = `${prev.source} ${cur.source} ${next.source}`
             ast.splice(i - 1, 1);
             ast.splice(i, 1);
             i -= 1;
@@ -724,7 +766,7 @@ class OSLUtils {
               data: params
             },
             this.generateAST({ CODE: right.data, START: 0 })[0]
-          ],
+          ]
         }
       }
       if (node.type === "opr" && node.left && node.right) {
@@ -779,8 +821,8 @@ class OSLUtils {
             type: "str",
             data: second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
               p.type === "mtd" ?
-              p.data.map(p2 => p2.data).join(".") :
-              p.data
+                p.data.map(p2 => p2.data).join(".") :
+                p.data
             )).join(",")
           },
           ast[3]
@@ -792,7 +834,10 @@ class OSLUtils {
     if (ast.length === 0) return [];
 
     // method commands
-    if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1 && MAIN) {
+    if (ast[0].type === "mtd" &&
+      ast[0].data[1].type === "mtv" &&
+      ast.length === 1 && MAIN
+    ) {
       ast.unshift(ast[0].data[0], {
         type: "asi",
         data: "=??",
@@ -836,11 +881,11 @@ class OSLUtils {
       ast[0].type === "var" &&
       ast.length === 2 &&
       (t1?.data === "--" &&
-       t1?.type === "unk" &&
-       !t1?.right) ||
+        t1?.type === "unk" &&
+        !t1?.right) ||
       (t1?.data === "++" &&
-       t1?.type === "opr" &&
-       !t1?.right)
+        t1?.type === "opr" &&
+        !t1?.right)
     ) {
       ast[0] = {
         type: "asi",
@@ -858,17 +903,17 @@ class OSLUtils {
 
     // switch statements
     if (ast[0].type === "cmd" &&
-        ast[0].data === "switch"
+      ast[0].data === "switch"
     ) {
       if (ast[2]?.type === "blk") {
-        let cases = {type: "array", all: []}
+        let cases = { type: "array", all: [] }
         const blk = ast[2]?.data ?? []
-        for (let i = 0; i < blk.length; i ++) {
+        for (let i = 0; i < blk.length; i++) {
           const cur = blk[i];
-          if (cur[0].data === "case") cases.all.push([cur[1],i])
+          if (cur[0].data === "case") cases.all.push([cur[1], i])
           if (cur[0].data === "default") cases.default = i
         }
-        if (cases.all.every(v => ["str","num"].includes(v[0].type))) {
+        if (cases.all.every(v => ["str", "num"].includes(v[0].type))) {
           const newCases = {}
           cases.all.map(v => {
             if (v[0]?.data) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
@@ -888,9 +933,9 @@ class OSLUtils {
   }
 
   generateFullAST({ CODE }) {
-    CODE = CODE + "";
-    CODE = CODE.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|\n\s*\./gm, (match) => {
+    CODE = String(CODE).replace(/("(?:[^\\"]*|\\.)*(?:"|$))|\n\s*\.|;/gm, (match) => {
       if (match.startsWith("\n")) return match.replace(/\n\s*\./, ".");
+      if (match === ";") return "\n";
       return match;
     });
     CODE = autoTokenise(CODE, "\n").map(line => {
@@ -900,7 +945,7 @@ class OSLUtils {
       return line;
     }).join("\n");
 
-    let lines = autoTokenise(CODE, "\n").map((line) => {
+    let lines = this.tokeniseLines(CODE).map((line) => {
       line = line.trim();
       if (line.startsWith("//") || line === "") return null;
       line = line.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(/gm, (match) => {
@@ -1060,6 +1105,7 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Studio.osl", "utf-8")
+    CODE: `(()->log("lol"))()
+    log "hi"-1`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/App Store.osl", "utf-8")
   }), null, 2));
 }
