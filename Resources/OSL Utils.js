@@ -1,5 +1,3 @@
-const { parse } = require("path");
-
 function tokenise(CODE, DELIMITER) {
   try {
     let letter = 0;
