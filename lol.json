@@ -1,52 +1,93 @@
 [
   [
     {
-      "type": "mtd",
-      "data": [
-        {
-          "type": "fnc",
-          "data": "function",
-          "parameters": [
-            {
-              "type": "str",
-              "data": ""
-            },
-            {
-              "type": "blk",
-              "data": [
-                [
-                  {
-                    "type": "cmd",
-                    "data": "return",
-                    "source": "return log(\"lol\")"
-                  },
-                  {
-                    "type": "fnc",
-                    "data": "log",
-                    "parameters": [
-                      {
-                        "type": "str",
-                        "data": "lol",
-                        "source": "\"lol\""
-                      }
-                    ],
-                    "source": "log(\"lol\")"
-                  }
-                ]
-              ],
-              "source": "(\nreturn log(\"lol\")\n)"
-            }
-          ],
-          "source": "(() -> log(\"lol\"))"
-        },
-        {
-          "type": "mtv",
-          "data": "call",
-          "parameters": [],
-          "source": "call()"
-        }
-      ],
-      "source": "(() -> log(\"lol\")).call()"
+      "type": "asi",
+      "data": "=??",
+      "source": "(()->log(\"lol\")).call()",
+      "left": {
+        "type": "fnc",
+        "data": "function",
+        "parameters": [
+          {
+            "type": "str",
+            "data": ""
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "return",
+                  "source": "return log(\"lol\")"
+                },
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": "lol",
+                      "source": "\"lol\""
+                    }
+                  ],
+                  "source": "log(\"lol\")"
+                }
+              ]
+            ],
+            "source": "(\nreturn log(\"lol\")\n)"
+          }
+        ],
+        "source": "(() -> log(\"lol\"))"
+      },
+      "right": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "fnc",
+            "data": "function",
+            "parameters": [
+              {
+                "type": "str",
+                "data": ""
+              },
+              {
+                "type": "blk",
+                "data": [
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "return",
+                      "source": "return log(\"lol\")"
+                    },
+                    {
+                      "type": "fnc",
+                      "data": "log",
+                      "parameters": [
+                        {
+                          "type": "str",
+                          "data": "lol",
+                          "source": "\"lol\""
+                        }
+                      ],
+                      "source": "log(\"lol\")"
+                    }
+                  ]
+                ],
+                "source": "(\nreturn log(\"lol\")\n)"
+              }
+            ],
+            "source": "(() -> log(\"lol\"))"
+          },
+          {
+            "type": "mtv",
+            "data": "call",
+            "parameters": [],
+            "source": "call()"
+          }
+        ],
+        "source": "(() -> log(\"lol\")).call()"
+      }
     }
   ],
   [

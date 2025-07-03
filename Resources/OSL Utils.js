@@ -739,7 +739,7 @@ class OSLUtils {
           if (!cur.left) {
             cur.left = prev;
             cur.right = next;
-            cur.source = `${prev.source} ${cur.source} ${next.source}`
+            cur.source = `${prev?.source ?? ""} ${cur?.source ?? ""} ${next?.source ?? ""}`
             ast.splice(i - 1, 1);
             ast.splice(i, 1);
             i -= 1;
