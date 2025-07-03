@@ -274,12 +274,7 @@
                 {
                   "type": "cmd",
                   "data": "text",
-                  "source": "text   `${battery_percent}%`   10 : chx#-25"
-                },
-                {
-                  "type": "num",
-                  "data": 0,
-                  "source": ""
+                  "source": "text `${battery_percent}%` 10 : chx#-25"
                 },
                 {
                   "type": "tsr",
@@ -295,11 +290,6 @@
                     }
                   ],
                   "source": "`${battery_percent}%`"
-                },
-                {
-                  "type": "num",
-                  "data": 0,
-                  "source": ""
                 },
                 {
                   "type": "num",
@@ -320,11 +310,11 @@
                 }
               ]
             ],
-            "source": "(\n    battery_temp = battery_percent\n    square 60 height 20 1\n    if battery_charging \"c global_accent\" else \"c icon_colour\"\n    text   `${battery_percent}%`   10 : chx#-25\n  )"
+            "source": "(\n    battery_temp = battery_percent\n    square 60 height 20 1\n    if battery_charging \"c global_accent\" else \"c icon_colour\"\n    text `${battery_percent}%` 10 : chx#-25\n  )"
           }
         ]
       ],
-      "source": "(\n  width = 60\n  set_y y\n  square 60 height 20 1 0 1 : chx#30\n  x = x_position\n  if clicked \"open = Battery_Info\"\n  if battery_temp != battery_percent or bg_redrawn or dock_changed_w (\n    battery_temp = battery_percent\n    square 60 height 20 1\n    if battery_charging \"c global_accent\" else \"c icon_colour\"\n    text  `${battery_percent}%`  10 : chx#-25\n  )\n)"
+      "source": "(\n  width = 60\n  set_y y\n  square 60 height 20 1 0 1 : chx#30\n  x = x_position\n  if clicked \"open = Battery_Info\"\n  if battery_temp != battery_percent or bg_redrawn or dock_changed_w (\n    battery_temp = battery_percent\n    square 60 height 20 1\n    if battery_charging \"c global_accent\" else \"c icon_colour\"\n    text `${battery_percent}%` 10 : chx#-25\n  )\n)"
     }
   ]
 ]
