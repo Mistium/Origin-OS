@@ -79,6 +79,16 @@ function tokeniseEscaped(CODE, DELIMITER) {
   }
 }
 
+function destr(t,e='"') {
+  if("object"==typeof t||"symbol"==typeof t) return t;
+  const n=t+"",r=e+"";
+  if(n.startsWith(r)&&n.endsWith(r)){
+    let t=n.substring(1,n.length-1);
+    return-1===n.indexOf("\\")?t:t.replaceAll("\\"+r,r).replaceAll("\\\\","\\")
+  }
+  return t
+};
+
 function autoTokenise(CODE, DELIMITER) {
   if (CODE.indexOf("\\") !== -1) {
     return tokeniseEscaped(CODE, DELIMITER ?? " ");
@@ -583,10 +593,10 @@ class OSLUtils {
         return { type: "unk", data: cur }
       }
     } 
-    else if (cur[0] + cur[cur.length - 1] === '""') return { type: "str", data: cur }
-    else if (cur[0] + cur[cur.length - 1] === "''") return { type: "str", data: cur }
+    else if (cur[0] + cur[cur.length - 1] === '""') return { type: "str", data: destr(cur) }
+    else if (cur[0] + cur[cur.length - 1] === "''") return { type: "str", data: destr(cur, "'") }
     else if (cur[0] + cur[cur.length - 1] === "``") {
-      return { type: "tsr", data: parseTemplate(cur.slice(1,-1)).filter(v => v !== "").map(v => {
+      return { type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
         if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
         else return {type: "str", data: v}
       }) }
@@ -642,6 +652,7 @@ class OSLUtils {
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
 
+    // tokenise and handle lambda and inline funcs
     let ast = []
     let tokens = this.tokeniseLineOSL(CODE)
     for (let i = 0; i < tokens.length; i++) {
@@ -655,6 +666,7 @@ class OSLUtils {
       ast.push(this.evalToken(cur))
     }
 
+    // modifier node creation
     let modifiers = false;
     for (let token of ast) {
       if (modifiers && token.type === "unk") {
@@ -665,6 +677,7 @@ class OSLUtils {
       if (token.type === "mod_indicator") modifiers = true
     }
 
+    // join together nodes that should be a single node
     const types = ["inl", "opr", "cmp", "qst", "bit", "log"];
     for (let type of types) {
       for (let i = START ?? (type === "asi" ? 1 : 2); i < ast.length; i++) {
@@ -693,6 +706,7 @@ class OSLUtils {
       }
     }
 
+    // eval static nodes
     const evalASTNode = node => {
       if (!node) return node;
       if (node.type === "inl") {
@@ -743,6 +757,7 @@ class OSLUtils {
       ast[i] = evalASTNode(ast[i]);
     }
 
+    // def command -> assignment conversion
     const first = ast[0] ?? {};
     const second = ast[1] ?? {};
     if (
@@ -776,6 +791,7 @@ class OSLUtils {
 
     if (ast.length === 0) return [];
 
+    // method commands
     if (ast[0].type === "mtd" && ast[0].data[1].type === "mtv" && ast.length === 1 && MAIN) {
       ast.unshift(ast[0].data[0], {
         type: "asi",
@@ -784,6 +800,7 @@ class OSLUtils {
       });
     }
 
+    // assignment node creation
     for (let i = START ?? 1; i < ast.length; i++) {
       const cur = ast[i];
       let prev = ast[i - 1];
@@ -813,6 +830,7 @@ class OSLUtils {
 
     if (ast.length === 0) return null;
 
+    // increment and decrement
     const t1 = ast[1]
     if (ast.length === 2 &&
       ast[0].type === "var" &&
@@ -836,6 +854,30 @@ class OSLUtils {
     if (ast[0].type === "var" && MAIN) {
       ast[0].type = "cmd";
       ast[0].source = CODE.split("\n", 1)[0];
+    }
+
+    // switch statements
+    if (ast[0].type === "cmd" &&
+        ast[0].data === "switch"
+    ) {
+      if (ast[2]?.type === "blk") {
+        let cases = {type: "array", all: []}
+        const blk = ast[2]?.data ?? []
+        for (let i = 0; i < blk.length; i ++) {
+          const cur = blk[i];
+          if (cur[0].data === "case") cases.all.push([cur[1],i])
+          if (cur[0].data === "default") cases.default = i
+        }
+        if (cases.all.every(v => ["str","num"].includes(v[0].type))) {
+          const newCases = {}
+          cases.all.map(v => {
+            if (v[0]?.data) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
+          })
+          cases.type = "object"
+          cases.all = newCases;
+        }
+        ast[0].cases = cases
+      }
     }
 
     return ast.filter(token => (
@@ -1018,6 +1060,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/applications.ode", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Studio.osl", "utf-8")
   }), null, 2));
 }
