@@ -615,7 +615,7 @@ class OSLUtils {
 
   evalToken(cur, param) {
     const out = this.stringToToken(cur, param)
-    out.source = cur;
+    out.source = out.type === "blk" ? "[ast BLK]" : cur;
     return out
   }
 
@@ -680,7 +680,7 @@ class OSLUtils {
     else if (cur === "null") return { type: "unk", data: null }
     else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
     else if (cur === "->") return { type: "inl", data: "->" }
-    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0 }) }
+    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
     else if (cur.startsWith("(") && cur.endsWith(")")) {
       let end = this.findMatchingParentheses(cur, 0);
       if (end === -1) return { type: "unk", data: cur };
@@ -954,10 +954,15 @@ class OSLUtils {
     ))
   }
 
-  generateFullAST({ CODE }) {
-    CODE = String(CODE).replace(/("(?:[^\\"]*|\\.)*(?:"|$))|\n\s*\.|;/gm, (match) => {
-      if (match.startsWith("\n")) return match.replace(/\n\s*\./, ".");
+  generateFullAST({ CODE, MAIN = true }) {
+    let line = 0;
+    CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(/("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|\n/gm, (match) => {
+      if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
       if (match === ";") return "\n";
+      if (match === "(") return ".call(";
+      if (match === "[") return ".[";
+      if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line ++; return match }
+      if (match.startsWith("\n")) { line ++; return match.replace(/\n\s*\./, ".") };
       return match;
     });
     CODE = autoTokenise(CODE, "\n").map(line => {
@@ -970,23 +975,23 @@ class OSLUtils {
     let lines = this.tokeniseLines(CODE).map((line) => {
       line = line.trim();
       if (line.startsWith("//") || line === "") return null;
-      line = line.replace(/("(?:[^\\"]*|\\.)*(?:"|$))|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(/gm, (match) => {
-        if (match === "(") return ".call(";
-        if (match === "[") return ".[";
-        return match;
-      });
-
       return this.generateAST({ CODE: line, MAIN: true });
     });
 
     for (let i = 0; i < lines.length; i++) {
       const cur = lines[i]
       if (!cur) continue;
-      if (
-        cur?.[0]?.type === "cmd" &&
-        ["for", "each", "class"].includes(cur?.[0]?.data)
-      ) {
-        if (cur?.[4]?.type === "blk" && cur[0].data === "each") cur[2].type = "str"
+      // console.log(cur)
+      const type = cur?.[0]?.type;
+      const data = cur?.[0]?.data;
+      if (type === "unk" && data === "/@line") {
+        let next = lines[i + 1];
+        if (!next?.[0]) continue;
+        next[0].line = cur[1].data;
+        lines.splice(i--, 1);
+      }
+      if (type === "cmd" && ["for", "each", "class"].includes(data)) {
+        if (cur?.[4]?.type === "blk" && data === "each") cur[2].type = "str"
         cur[1].type = "str"
         i++
       }
@@ -1127,7 +1132,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `void def()->(
-    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/Dock/battery.ode", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Settings.osl", "utf-8")
   }), null, 2));
 }
