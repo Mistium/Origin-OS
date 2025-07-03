@@ -502,7 +502,7 @@ class OSLUtils {
 
   tokeniseLineOSL(code) {
     code = code.replace(/("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g, v => {
-      if (v.startsWith('"')) return v;
+      if (v.startsWith('"') || v.startsWith("'") || v.startsWith('`')) return v;
       return ` ${v} `
     })
     try {
