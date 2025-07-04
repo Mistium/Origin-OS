@@ -2647,7 +2647,7 @@
                             {
                               "type": "asi",
                               "data": "=??",
-                              "source": "roturlink.send({\n            \"cmd\":\"brightness_set\",\n            \"val\":round(slider_brightness * 100)\n          })",
+                              "source": "roturlink.send({",
                               "left": {
                                 "type": "var",
                                 "data": "roturlink",
@@ -4827,7 +4827,7 @@
                       {
                         "type": "asi",
                         "data": "=",
-                        "source": "boot_apps = [\n          \"origin/(a) system/system apps/originWM.osl\",\n          \"origin/(a) system/system apps/Desktop.osl\",\n          \"origin/(a) system/docks/Dock.osl\",\n          \"origin/(a) system/system apps/Quick_Settings.osl\"\n        ]",
+                        "source": "boot_apps = [",
                         "left": {
                           "type": "var",
                           "data": "boot_apps",
@@ -10278,6 +10278,24 @@
               ],
               [
                 {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "each cur networks (",
+                  "line": 431,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_eQcLhmMBrD",
+                    "source": "EACH_I_eQcLhmMBrD"
+                  },
+                  "right": {
+                    "type": "num",
+                    "data": 0,
+                    "source": "0"
+                  }
+                }
+              ],
+              [
+                {
                   "type": "cmd",
                   "data": "each",
                   "source": "each cur networks (",
@@ -10296,6 +10314,19 @@
                 {
                   "type": "blk",
                   "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "++",
+                        "source": "each cur networks (",
+                        "line": 431,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_I_eQcLhmMBrD",
+                          "source": "EACH_I_eQcLhmMBrD"
+                        }
+                      }
+                    ],
                     [
                       {
                         "type": "cmd",
@@ -10597,7 +10628,8 @@
                       "data": 350,
                       "source": "350"
                     }
-                  }
+                  },
+                  "line": 449
                 }
               ]
             ],
@@ -11608,8 +11640,8 @@
                 "dock": 40,
                 "windows": 60,
                 "colours": 64,
-                "file types": 92,
-                "mouse": 96
+                "file types": 93,
+                "mouse": 97
               }
             },
             "line": 492
@@ -14371,7 +14403,7 @@
                       {
                         "type": "asi",
                         "data": "=",
-                        "source": "segments = [\n          \"Origin/(A) System/Docks/Modules/main.ode\",\n          \"Origin/(A) System/Docks/Modules/applications.ode\",\n          \"Origin/(A) System/Docks/Modules/running.ode\",\n          \"Origin/(A) System/Docks/Modules/folders.ode\",\n          \"Origin/(A) System/Docks/Modules/time.ode\",\n          \"Origin/(A) System/Docks/Modules/battery.ode\"\n        ]",
+                        "source": "segments = [",
                         "left": {
                           "type": "var",
                           "data": "segments",
@@ -17405,6 +17437,24 @@
               ],
               [
                 {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "each theme themes.getKeys() (",
+                  "line": 753,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_jZrGOAQPHS",
+                    "source": "EACH_I_jZrGOAQPHS"
+                  },
+                  "right": {
+                    "type": "num",
+                    "data": 0,
+                    "source": "0"
+                  }
+                }
+              ],
+              [
+                {
                   "type": "cmd",
                   "data": "each",
                   "source": "each theme themes.getKeys() (",
@@ -17435,6 +17485,19 @@
                 {
                   "type": "blk",
                   "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "++",
+                        "source": "each theme themes.getKeys() (",
+                        "line": 753,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_I_jZrGOAQPHS",
+                          "source": "EACH_I_jZrGOAQPHS"
+                        }
+                      }
+                    ],
                     [
                       {
                         "type": "cmd",
@@ -19446,6 +19509,24 @@
               ],
               [
                 {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "each this.backup user.[\"sys.backups\"] (",
+                  "line": 838,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_fvAmsZvHgy",
+                    "source": "EACH_I_fvAmsZvHgy"
+                  },
+                  "right": {
+                    "type": "num",
+                    "data": 0,
+                    "source": "0"
+                  }
+                }
+              ],
+              [
+                {
                   "type": "cmd",
                   "data": "each",
                   "source": "each this.backup user.[\"sys.backups\"] (",
@@ -19493,6 +19574,19 @@
                 {
                   "type": "blk",
                   "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "++",
+                        "source": "each this.backup user.[\"sys.backups\"] (",
+                        "line": 838,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_I_fvAmsZvHgy",
+                          "source": "EACH_I_fvAmsZvHgy"
+                        }
+                      }
+                    ],
                     [
                       {
                         "type": "cmd",
@@ -19759,7 +19853,8 @@
                 {
                   "type": "cmd",
                   "data": "return",
-                  "source": "return"
+                  "source": "return",
+                  "line": 849
                 }
               ]
             ],
@@ -20603,6 +20698,24 @@
               ],
               [
                 {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "each banner banners (",
+                  "line": 895,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_RRprMeczvR",
+                    "source": "EACH_I_RRprMeczvR"
+                  },
+                  "right": {
+                    "type": "num",
+                    "data": 0,
+                    "source": "0"
+                  }
+                }
+              ],
+              [
+                {
                   "type": "cmd",
                   "data": "each",
                   "source": "each banner banners (",
@@ -20621,6 +20734,19 @@
                 {
                   "type": "blk",
                   "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "++",
+                        "source": "each banner banners (",
+                        "line": 895,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_I_RRprMeczvR",
+                          "source": "EACH_I_RRprMeczvR"
+                        }
+                      }
+                    ],
                     [
                       {
                         "type": "cmd",
@@ -20989,7 +21115,8 @@
                       "data": 250,
                       "source": "250"
                     }
-                  }
+                  },
+                  "line": 907
                 }
               ],
               [
@@ -22927,7 +23054,7 @@
                 {
                   "type": "asi",
                   "data": "=",
-                  "source": "local items = {\n      \"username\": \"username\",\n      \"profile picture\": \"pfp\",\n      \"banner\": \"sys.banner\",\n      \"bio\": \"bio\",\n      \"theming and colours\": \"theme\",\n      \"rotur credit total\": \"sys.currency\",\n      \"your rotur operating system\": \"system\",\n      \"account creation date\": \"created\"\n    }",
+                  "source": "local items = {",
                   "left": {
                     "type": "mtd",
                     "data": [
@@ -24933,6 +25060,24 @@
               ],
               [
                 {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "each badge user_badges (",
+                  "line": 1069,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_xMAoJmVWqm",
+                    "source": "EACH_I_xMAoJmVWqm"
+                  },
+                  "right": {
+                    "type": "num",
+                    "data": 0,
+                    "source": "0"
+                  }
+                }
+              ],
+              [
+                {
                   "type": "cmd",
                   "data": "each",
                   "source": "each badge user_badges (",
@@ -24951,6 +25096,19 @@
                 {
                   "type": "blk",
                   "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "++",
+                        "source": "each badge user_badges (",
+                        "line": 1069,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_I_xMAoJmVWqm",
+                          "source": "EACH_I_xMAoJmVWqm"
+                        }
+                      }
+                    ],
                     [
                       {
                         "type": "cmd",
@@ -26534,6 +26692,24 @@
               ],
               [
                 {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "each perm my_perms (",
+                  "line": 1160,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_KpbqrAcaCC",
+                    "source": "EACH_I_KpbqrAcaCC"
+                  },
+                  "right": {
+                    "type": "num",
+                    "data": 0,
+                    "source": "0"
+                  }
+                }
+              ],
+              [
+                {
                   "type": "cmd",
                   "data": "each",
                   "source": "each perm my_perms (",
@@ -26552,6 +26728,19 @@
                 {
                   "type": "blk",
                   "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "++",
+                        "source": "each perm my_perms (",
+                        "line": 1160,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_I_KpbqrAcaCC",
+                          "source": "EACH_I_KpbqrAcaCC"
+                        }
+                      }
+                    ],
                     [
                       {
                         "type": "cmd",
@@ -27772,7 +27961,7 @@
           {
             "type": "asi",
             "data": "=",
-            "source": "local changePage = def() -> (\n/@line 1213\n    \n/@line 1214\n  )",
+            "source": "local changePage = def() -> (",
             "left": {
               "type": "mtd",
               "data": [
@@ -28053,6 +28242,24 @@
         ],
         [
           {
+            "type": "asi",
+            "data": "=",
+            "source": "each device devices (",
+            "line": 1224,
+            "left": {
+              "type": "var",
+              "data": "EACH_I_ZRrdSlLseV",
+              "source": "EACH_I_ZRrdSlLseV"
+            },
+            "right": {
+              "type": "num",
+              "data": 0,
+              "source": "0"
+            }
+          }
+        ],
+        [
+          {
             "type": "cmd",
             "data": "each",
             "source": "each device devices (",
@@ -28071,6 +28278,19 @@
           {
             "type": "blk",
             "data": [
+              [
+                {
+                  "type": "asi",
+                  "data": "++",
+                  "source": "each device devices (",
+                  "line": 1224,
+                  "left": {
+                    "type": "var",
+                    "data": "EACH_I_ZRrdSlLseV",
+                    "source": "EACH_I_ZRrdSlLseV"
+                  }
+                }
+              ],
               [
                 {
                   "type": "cmd",
@@ -31116,7 +31336,7 @@
                 {
                   "type": "asi",
                   "data": "=",
-                  "source": "supporters = [\n      \"--- OriginDrive ---\",\n      \"ThePandaDev\",\n      \"Stormy\",\n      \"\",\n      \"--- Supporter ---\",\n      \"plopa 1\",\n      \"Random Content Generator\"\n    ]",
+                  "source": "supporters = [",
                   "left": {
                     "type": "var",
                     "data": "supporters",
@@ -31444,7 +31664,7 @@
     {
       "type": "asi",
       "data": "=",
-      "source": "def networking() (\n/@line 1375\n  if new_network_data (\n/@line 1376\n    if packet.username != \"sys-rotur\" (\n/@line 1377\n      new_network_data = false\n/@line 1378\n      return\n/@line 1379\n    )\n/@line 1380\n    switch network_data_command (\n/@line 1381\n      case \"ping\"\n/@line 1382\n        ping.time = timestamp - ping.sent\n/@line 1383\n        break\n/@line 1384\n      case \"link\"\n/@line 1385\n        if packet.data == \"Failed\" (\n/@line 1386\n          say \"Unable to link to this account\"\n/@line 1387\n        )\n/@line 1388\n        break\n/@line 1389\n    )\n/@line 1390\n    new_network_data = false\n/@line 1391\n  )\n/@line 1392\n)",
+      "source": "def networking() (",
       "left": {
         "type": "var",
         "data": "networking",
@@ -31977,7 +32197,7 @@
     {
       "type": "asi",
       "data": "=",
-      "source": "ping = {\n  \"sent\": timestamp,\n  \"time\": 0\n}",
+      "source": "ping = {",
       "left": {
         "type": "var",
         "data": "ping",
@@ -32650,7 +32870,7 @@
           {
             "type": "asi",
             "data": "=",
-            "source": "wallpapers = [\n    \"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png\",\n    \"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png\",\n    \"https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png\",\n    \"https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg\",\n    \"https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg\",\n    \"https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg\",\n    \"https://images.pexels.com/photos/7919/pexels-photo.jpg\",\n    \"https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg\"\n  ]",
+            "source": "wallpapers = [",
             "left": {
               "type": "var",
               "data": "wallpapers",
@@ -32736,7 +32956,7 @@
     {
       "type": "asi",
       "data": "=",
-      "source": "themes = {\n  \"dark\":{\"primary\":\"#222222\",\"secondary\":\"#555555\",\"tertiary\":\"#777777\",\"text\":\"#ffffff\",\"background\":\"#050505\",\"accent\":\"#57cdac\"},\n  \"midnight\":{\"primary\":\"#111111\",\"secondary\":\"#333333\",\"tertiary\":\"#555555\",\"text\":\"#ffffff\",\"background\":\"#000000\",\"accent\":\"#57cdac\"},\n  \"light\":{\"primary\":\"#cccccc\",\"secondary\":\"#e6e6e6\",\"tertiary\":\"#ffffff\",\"text\":\"#292929\",\"background\":\"#b0b0b0\",\"accent\":\"#57cdac\"},\n  \"ocean\":{\"primary\":\"#1a1d28\",\"secondary\":\"#313f4e\",\"tertiary\":\"#4f617d\",\"text\":\"#bae3ee\",\"background\":\"#090a0b\",\"accent\":\"#7cc2f8\"},\n  \"forest\":{\"primary\":\"#1a2823\",\"secondary\":\"#33523e\",\"tertiary\":\"#417656\",\"text\":\"#e5ffed\",\"background\":\"#090b0a\",\"accent\":\"#7ea59a\"},\n  \"mint\":{\"primary\":\"#8fbcac\",\"secondary\":\"#639274\",\"tertiary\":\"#07170e\",\"text\":\"#000000\",\"background\":\"#cde5dd\",\"accent\":\"#97f7dc\"},\n  \"candyfloss\":{\"primary\":\"#9e8cb1\",\"secondary\":\"#eac5f2\",\"tertiary\":\"#170717\",\"text\":\"#000000\",\"background\":\"#cdb6d3\",\"accent\":\"#f8e0ff\"},\n}",
+      "source": "themes = {",
       "left": {
         "type": "var",
         "data": "themes",
@@ -33247,7 +33467,7 @@
     {
       "type": "asi",
       "data": "=",
-      "source": "def genPfp() (\n/@line 1476\n  return \"https://avatars.rotur.dev/\" ++ username ++ \"?radius=30&random=\" ++ random(9999,9999999999)\n/@line 1477\n)",
+      "source": "def genPfp() (",
       "left": {
         "type": "var",
         "data": "genPfp",

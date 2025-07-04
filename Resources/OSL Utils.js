@@ -714,7 +714,7 @@ class OSLUtils {
 
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
-
+    const start = CODE.split("\n", 1)[0]
     // tokenise and handle lambda and inline funcs
     let ast = []
     let tokens = this.tokeniseLineOSL(CODE)
@@ -833,7 +833,7 @@ class OSLUtils {
       ast.splice(1, 0, {
         type: "asi",
         data: "=",
-        source: CODE
+        source: start
       });
       ast[2] = {
         type: "fnc",
@@ -863,7 +863,7 @@ class OSLUtils {
       ast.unshift(ast[0].data[0], {
         type: "asi",
         data: "=??",
-        source: CODE
+        source: start
       });
     }
 
@@ -891,7 +891,7 @@ class OSLUtils {
           ast.splice(i, 1);
           i -= 1;
         }
-        cur.source = CODE;
+        cur.source = start;
       }
     }
 
@@ -990,7 +990,15 @@ class OSLUtils {
         next[0].line = cur[1].data;
       }
       if (type === "cmd" && ["for", "each", "class"].includes(data)) {
-        if (cur?.[4]?.type === "blk" && data === "each") cur[2].type = "str"
+        if (data === "each") {
+          if (cur?.[4]?.type === "blk") {
+            cur[2].type = "str";
+            continue;
+          }
+          const id = "EACH_I_" + randomString(10);
+          lines.splice(i, 0, [{...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")}]);
+          cur[3].data.splice(0, 0, [{...cur[0], type: "asi", data: "++", left: this.evalToken(id) }])
+        }
         cur[1].type = "str"
         i++
       }
