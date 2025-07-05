@@ -997,7 +997,11 @@ class OSLUtils {
           }
           const id = "EACH_I_" + randomString(10);
           lines.splice(i, 0, [{...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")}]);
-          cur[3].data.splice(0, 0, [{...cur[0], type: "asi", data: "++", left: this.evalToken(id) }])
+          cur[3].data.splice(0, 0, [
+            {...cur[0], type: "asi", data: "++", left: this.evalToken(id) },
+            {...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(cur[2].source + `.[${id}]`) }
+          ])
+          cur[0].data = "loop"
         }
         cur[1].type = "str"
         i++
@@ -1141,6 +1145,8 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Settings.osl", "utf-8")
+    CODE: `each i lol "hello" (
+      log "hi"
+    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Settings.osl", "utf-8")
   }), null, 2));
 }
