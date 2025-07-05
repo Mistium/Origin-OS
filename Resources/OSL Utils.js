@@ -774,11 +774,13 @@ class OSLUtils {
     const evalASTNode = node => {
       if (!node) return node;
       if (node.type === "inl") {
-        const params = (node?.left?.parameters || []).map(p => p.data).join(",");
+        let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         const right = node.right;
-        if (typeof right.data === "string" && !right.data.trim().startsWith("(\n")) {
+        if (typeof right.data === "string" && !right.data.trim().startsWith("(\n") && node.left) {
+          params = node.left.source.replace(/^\(| +|\)$/gi, "");
           right.data = `(\nreturn ${right.data}\n)`;
         }
+        console.log(node.left);
         return {
           type: "fnc",
           data: "function",
@@ -908,8 +910,6 @@ class OSLUtils {
     // increment and decrement
     const t1 = ast[1]
     if (ast.length === 2 &&
-      ast[0].type === "var" &&
-      ast.length === 2 &&
       (t1?.data === "--" &&
         t1?.type === "unk" &&
         !t1?.right) ||
