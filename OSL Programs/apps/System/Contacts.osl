@@ -112,7 +112,7 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       loc 9999 2 0 -120
       square w 30 12 : c#prim hover_c#seco
       if onclick (
-        network "server" "friend_request" input_username
+        network "server" "friend_request" inputs.username
         selected_user = ""
         sending = false
       )

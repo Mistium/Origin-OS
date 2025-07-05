@@ -16,7 +16,7 @@ user_path = files_path ++ "/"
 hidden = []
 tabs = []
 current_tab = 1
-input_path = files_path.destr
+inputs.path = files_path.destr
 files = []
 selected_files = []
 drag_id = 0
@@ -40,7 +40,7 @@ def "navigate" "path" (
   pos = tabs[current_tab].position + 1
   tabs[current_tab].position = pos
   tabs[current_tab].history = tabs[current_tab].history.trim(1,pos - 1).append(tab_data)
-  input_path = path
+  inputs.path = path
 )
 
 def sort_files(files) (
@@ -70,7 +70,7 @@ def sort_files(files) (
 
 def "refresh" (
   cur = tabs[current_tab]
-  input_path = cur.history[cur.position].url
+  inputs.path = cur.history[cur.position].url
 )
 
 def "setup_tabs" (
@@ -297,19 +297,19 @@ def "render_files" (
   frame temp_x temp_y temp_x2 temp_y2 files.len * 45 - 10 : c#prim
   current_folder_uuid = ""
   window.drop_location = null
-  if input_path == "origin" (
+  if inputs.path == "origin" (
     files = []
-  ) else if input_path.startsWith("/dev") (
+  ) else if inputs.path.startsWith("/dev") (
     files = roturlink.drives
-      .filter(v -> (v.device_node == input_path))[1].files
+      .filter(v -> (v.device_node == inputs.path))[1].files
   ) else (
-    file "exists" input_path ++ ".folder"
+    file "exists" inputs.path ++ ".folder"
     if exists (
-      file "open" input_path ++ ".folder" "onlyaccess"
+      file "open" inputs.path ++ ".folder" "onlyaccess"
       current_folder_uuid = fileGet(14)
       data = fileGet(4).JsonParse()
 
-      window.drop_location = input_path
+      window.drop_location = inputs.path
       if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
         current_folder_update = data
         files = sort_files(data)
@@ -468,7 +468,7 @@ def "render_files" (
   )
   frm_w = frame.width
   frame "clear"
-  if input_path == (user_folder ++ "/bin") (
+  if inputs.path == (user_folder ++ "/bin") (
     loc -2 2 -75 -113
     square 120 20 10 : c#prim
     if onclick (
@@ -476,7 +476,7 @@ def "render_files" (
         file "open" uuid "onlyaccess"
         file "delete"
       )
-      file "open" input_path ++ ".folder" "onlyaccess"
+      file "open" inputs.path ++ ".folder" "onlyaccess"
       file "set" 4 []
     )
     text "Empty Bin" 9 : c#txtc chx#-40
@@ -540,7 +540,7 @@ mainloop:
   square w - 330 25 15 : c#prim
   input w - 350 25 "path" null 10 txtc
   if "enter".onKeyDown() and selected_input == "path" (
-    navigate input_path
+    navigate inputs.path
   )
   
   if sideshow.not() (
@@ -586,11 +586,11 @@ mainloop:
   if sideshow "change 250"
   icon "file" 0.7 : c#txtc
   if onclick (
-    window "add" "New_File" input_path
+    window "add" "New_File" inputs.path
   )
   icon "folder" 0.7 : chx#30
   if onclick (
-    file "download" "new folder.folder" null null input_path
+    file "download" "new folder.folder" null null inputs.path
   )
   icon "w 3 line 0 -8 0 8" 0.7 : chx#20 c#seco
   c txtc
@@ -661,7 +661,7 @@ mainloop:
       text "Size:" + fileGet(12) + "Bytes" 8.5 : chy#-25
     )
   )
-  file "open" input_path ++ ".folder" "onlyaccess"
+  file "open" inputs.path ++ ".folder" "onlyaccess"
   if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
   file "get" 4
   c txtc

@@ -141,7 +141,7 @@ def "new_omail" (
   square frame_width - 30 22 20 : c#prim
   change_x -20
   input frame_width - 80 22 "recipient" "Type the username of the person to send this too"
-  input_recipient.strip().trim(0,20)
+  inputs.recipient.strip().trim(0,20)
   
   loc -2 2 -30 -75
   icon "send" 0.8 : c#txtc
@@ -151,8 +151,8 @@ def "new_omail" (
   if clicked and can (
     can = false
     omail_data = {
-      recipient: input_recipient.toLower(),
-      title: input_title.destr,
+      recipient: inputs.recipient.toLower(),
+      title: inputs.title.destr,
       body: inputs.body.join("\n").destr
     }
     network "server" "omail_send" omail_data
@@ -162,7 +162,7 @@ def "new_omail" (
   loc 999 2 0 -128
   square frame_width - 30 22 20 : c#prim
   input frame_width - 30 22 "title" "Type the title of the omail here"
-  input_title.trim(0,50)
+  inputs.title @= inputs.title.trim(0,50)
   
   loc 999 -2 0 frame_height - 160 / 2
   textbox frame_width frame_height - 160 "body" 20 {

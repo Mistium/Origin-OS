@@ -6,12 +6,11 @@ window "show"
 file "open" passed_data "onlyaccess"
 // handle big files
 
-input_main = fileGet(2) ++ fileGet(1)
-input_main.destr
+inputs.main = (fileGet(2) ++ fileGet(1)).JsonParse()
 
 folder = fileGet(1) === ".folder"
 if folder (
-  input_main = fileGet(2).destr
+  inputs.main = fileGet(2).JsonParse()
 )
 
 mainloop:
@@ -24,13 +23,13 @@ input 250 23 "main" "Rename file" txtc
 loc 999 2 0 -113
 square 250 30 10 : c#prim
 if clicked or "enter".onpress (
-  dta = input_main.split(".")
+  dta = inputs.main.split(".")
   if dta.len == 1 and folder (
-    file "set" 2 dta[1].destr
+    file "set" 2 dta[1].JsonParse()
     window "stop"
   )
-  file "set" 2 dta[1].destr
-  file "set" 1 "." ++ dta[2].destr
+  file "set" 2 dta[1].JsonParse()
+  file "set" 1 "." ++ dta[2].JsonParse()
   window "stop"
 )
 change_x -30

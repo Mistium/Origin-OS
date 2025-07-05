@@ -297,7 +297,7 @@ summit.sidebar.main = def() -> (
     square frame.width - 40 30 10
     input frame.width - 50 25 "main" "Enter A URL"
     if "enter".onKeyDown() and selected_input == "main" (
-      opentab input_main
+      opentab inputs.main
       inputs.main = ""
     )
     
