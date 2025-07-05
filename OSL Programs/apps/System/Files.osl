@@ -16,7 +16,7 @@ user_path = files_path ++ "/"
 hidden = []
 tabs = []
 current_tab = 1
-inputs.path = files_path.destr
+inputs.path = files_path
 files = []
 selected_files = []
 drag_id = 0
@@ -514,7 +514,7 @@ if "favorites.json".saveExists() (
   favorites = default_favorites
 )
 
-favorites.map(val -> (val.replace(".folder","").destr))
+favorites.map(v -> (val.replace(".folder","")))
 
 mainloop:
   window_tools:load_theme

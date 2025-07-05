@@ -2548,7 +2548,7 @@
                             "parameters": [
                               {
                                 "type": "str",
-                                "data": ""
+                                "data": "v"
                               },
                               {
                                 "type": "blk",
@@ -6790,7 +6790,7 @@
                             "parameters": [
                               {
                                 "type": "str",
-                                "data": ""
+                                "data": "v"
                               },
                               {
                                 "type": "blk",
@@ -10987,11 +10987,11 @@
                             },
                             {
                               "type": "var",
-                              "data": "EACH_I_hHVgaZYKCt",
-                              "source": "EACH_I_hHVgaZYKCt"
+                              "data": "EACH_I_QJArUbPgxC",
+                              "source": "EACH_I_QJArUbPgxC"
                             }
                           ],
-                          "source": "this.EACH_I_hHVgaZYKCt"
+                          "source": "this.EACH_I_QJArUbPgxC"
                         },
                         "right": {
                           "type": "num",
@@ -11042,11 +11042,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_hHVgaZYKCt",
-                                    "source": "EACH_I_hHVgaZYKCt"
+                                    "data": "EACH_I_QJArUbPgxC",
+                                    "source": "EACH_I_QJArUbPgxC"
                                   }
                                 ],
-                                "source": "this.EACH_I_hHVgaZYKCt"
+                                "source": "this.EACH_I_QJArUbPgxC"
                               }
                             },
                             {
@@ -11081,17 +11081,17 @@
                                           },
                                           {
                                             "type": "var",
-                                            "data": "EACH_I_hHVgaZYKCt",
-                                            "source": "EACH_I_hHVgaZYKCt"
+                                            "data": "EACH_I_QJArUbPgxC",
+                                            "source": "EACH_I_QJArUbPgxC"
                                           }
                                         ],
-                                        "source": "this.EACH_I_hHVgaZYKCt"
+                                        "source": "this.EACH_I_QJArUbPgxC"
                                       }
                                     ],
-                                    "source": "[this.EACH_I_hHVgaZYKCt]"
+                                    "source": "[this.EACH_I_QJArUbPgxC]"
                                   }
                                 ],
-                                "source": "files.[this.EACH_I_hHVgaZYKCt]"
+                                "source": "files.[this.EACH_I_QJArUbPgxC]"
                               }
                             }
                           ],
@@ -11677,7 +11677,7 @@
     {
       "type": "asi",
       "data": "=??",
-      "source": "favorites.map(val -> (val.replace(\".folder\",\"\").destr))",
+      "source": "favorites.map(val, v -> (val.replace(\".folder\",\"\").destr))",
       "left": {
         "type": "var",
         "data": "favorites",
@@ -11696,12 +11696,17 @@
             "data": "map",
             "parameters": [
               {
+                "type": "var",
+                "data": "val",
+                "source": "val"
+              },
+              {
                 "type": "fnc",
                 "data": "function",
                 "parameters": [
                   {
                     "type": "str",
-                    "data": ""
+                    "data": "v"
                   },
                   {
                     "type": "blk",
@@ -11752,10 +11757,10 @@
                 ]
               }
             ],
-            "source": "map(val -> (val.replace(\".folder\",\"\").destr))"
+            "source": "map(val, v -> (val.replace(\".folder\",\"\").destr))"
           }
         ],
-        "source": "favorites.map(val -> (val.replace(\".folder\",\"\").destr))"
+        "source": "favorites.map(val, v -> (val.replace(\".folder\",\"\").destr))"
       },
       "line": 517
     }
@@ -12928,11 +12933,11 @@
                       },
                       {
                         "type": "var",
-                        "data": "EACH_I_eJVuCXKMyx",
-                        "source": "EACH_I_eJVuCXKMyx"
+                        "data": "EACH_I_nuqltYFhre",
+                        "source": "EACH_I_nuqltYFhre"
                       }
                     ],
-                    "source": "this.EACH_I_eJVuCXKMyx"
+                    "source": "this.EACH_I_nuqltYFhre"
                   },
                   "right": {
                     "type": "num",
@@ -12983,11 +12988,11 @@
                             },
                             {
                               "type": "var",
-                              "data": "EACH_I_eJVuCXKMyx",
-                              "source": "EACH_I_eJVuCXKMyx"
+                              "data": "EACH_I_nuqltYFhre",
+                              "source": "EACH_I_nuqltYFhre"
                             }
                           ],
-                          "source": "this.EACH_I_eJVuCXKMyx"
+                          "source": "this.EACH_I_nuqltYFhre"
                         }
                       },
                       {
@@ -13022,17 +13027,17 @@
                                     },
                                     {
                                       "type": "var",
-                                      "data": "EACH_I_eJVuCXKMyx",
-                                      "source": "EACH_I_eJVuCXKMyx"
+                                      "data": "EACH_I_nuqltYFhre",
+                                      "source": "EACH_I_nuqltYFhre"
                                     }
                                   ],
-                                  "source": "this.EACH_I_eJVuCXKMyx"
+                                  "source": "this.EACH_I_nuqltYFhre"
                                 }
                               ],
-                              "source": "[this.EACH_I_eJVuCXKMyx]"
+                              "source": "[this.EACH_I_nuqltYFhre]"
                             }
                           ],
-                          "source": "favorites.[this.EACH_I_eJVuCXKMyx]"
+                          "source": "favorites.[this.EACH_I_nuqltYFhre]"
                         }
                       }
                     ],
@@ -15429,38 +15434,38 @@
             "data": [
               [
                 {
-                  "type": "mtd",
-                  "data": [
-                    {
-                      "type": "var",
-                      "data": "tabs",
-                      "source": "tabs"
-                    },
-                    {
-                      "type": "mtv",
-                      "data": "item",
-                      "parameters": [
-                        {
-                          "type": "var",
-                          "data": "current_tab",
-                          "source": "current_tab"
-                        }
-                      ],
-                      "source": "[current_tab]"
-                    },
-                    {
-                      "type": "var",
-                      "data": "position",
-                      "source": "position"
-                    }
-                  ],
-                  "source": "tabs.[current_tab].position",
-                  "line": 678
-                },
-                {
-                  "type": "unk",
+                  "type": "asi",
                   "data": "--",
-                  "source": "--"
+                  "left": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "tabs",
+                        "source": "tabs"
+                      },
+                      {
+                        "type": "mtv",
+                        "data": "item",
+                        "parameters": [
+                          {
+                            "type": "var",
+                            "data": "current_tab",
+                            "source": "current_tab"
+                          }
+                        ],
+                        "source": "[current_tab]"
+                      },
+                      {
+                        "type": "var",
+                        "data": "position",
+                        "source": "position"
+                      }
+                    ],
+                    "source": "tabs.[current_tab].position"
+                  },
+                  "source": "tabs.[current_tab].position --",
+                  "line": 678
                 }
               ],
               [
