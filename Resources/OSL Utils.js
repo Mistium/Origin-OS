@@ -530,7 +530,7 @@ class OSLUtils {
         else if (depth === "*" && code[letter + 1] === "/" && quotes === 0 && squotes === 0 && m_comm === 1) m_comm = 0;
         else if (depth === '\\' && !escaped) escaped = !escaped;
         else escaped = false;
-        out.push(depth);
+        if (m_comm === 0) out.push(depth);
         letter++;
 
         if (quotes === 0 &&
@@ -994,14 +994,26 @@ class OSLUtils {
     for (let i = 0; i < lines.length; i++) {
       const cur = lines[i]
       if (!cur) continue;
-      const type = cur?.[0]?.type;
-      const data = cur?.[0]?.data;
+      const type = cur[0]?.type;
+      const data = cur[0]?.data;
       if (type === "unk" && data === "/@line") {
         let next = lines[i + 1];
         lines.splice(i--, 1);
         if (!next?.[0]) continue;
         next[0].line = cur[1].data;
       }
+    }
+
+    lines = lines.filter((line) => 
+      line?.length &&
+      line[0]?.data !== "/@line"
+    );
+
+    for (let i = 0; i < lines.length; i++) {
+      const cur = lines[i];
+      if (!cur) continue;
+      const type = cur[0]?.type;
+      const data = cur[0]?.data;
       if (type === "cmd" && ["for", "each", "class"].includes(data)) {
         if (data === "each") {
           if (cur[cur.length - 1].type !== "blk") {
@@ -1047,10 +1059,7 @@ class OSLUtils {
       }
     }
 
-    return lines.filter((line) => 
-      line !== null && 
-      line?.[0]?.data !== "/@line"
-    );
+    return lines;
   }
 
   splitmethods({ CODE }) {
