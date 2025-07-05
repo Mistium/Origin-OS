@@ -282,14 +282,9 @@
       "data": "=??",
       "source": "portName.roturConnect()",
       "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "portName",
-            "source": "portName"
-          }
-        ]
+        "type": "var",
+        "data": "portName",
+        "source": "portName"
       },
       "right": {
         "type": "mtd",
@@ -1604,14 +1599,9 @@
                                                   "data": "=??",
                                                   "source": "portName.roturConnect()",
                                                   "left": {
-                                                    "type": "mtd",
-                                                    "data": [
-                                                      {
-                                                        "type": "var",
-                                                        "data": "portName",
-                                                        "source": "portName"
-                                                      }
-                                                    ]
+                                                    "type": "var",
+                                                    "data": "portName",
+                                                    "source": "portName"
                                                   },
                                                   "right": {
                                                     "type": "mtd",
@@ -1969,14 +1959,9 @@
                                                         "data": "=??",
                                                         "source": "Net.send({\"cmd\":\"ping\"})",
                                                         "left": {
-                                                          "type": "mtd",
-                                                          "data": [
-                                                            {
-                                                              "type": "var",
-                                                              "data": "Net",
-                                                              "source": "Net"
-                                                            }
-                                                          ]
+                                                          "type": "var",
+                                                          "data": "Net",
+                                                          "source": "Net"
                                                         },
                                                         "right": {
                                                           "type": "mtd",
@@ -2183,62 +2168,37 @@
                           ],
                           [
                             {
-                              "type": "asi",
-                              "data": "=??",
+                              "type": "mtd",
+                              "data": [
+                                {
+                                  "type": "var",
+                                  "data": "self",
+                                  "source": "self"
+                                },
+                                {
+                                  "type": "var",
+                                  "data": "packetworker",
+                                  "source": "packetworker"
+                                },
+                                {
+                                  "type": "var",
+                                  "data": "queue",
+                                  "source": "queue"
+                                },
+                                {
+                                  "type": "mtv",
+                                  "data": "append",
+                                  "parameters": [
+                                    {
+                                      "type": "var",
+                                      "data": "data",
+                                      "source": "data"
+                                    }
+                                  ],
+                                  "source": "append(data)"
+                                }
+                              ],
                               "source": "self.packetworker.queue.append(data)",
-                              "left": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "self",
-                                    "source": "self"
-                                  },
-                                  {
-                                    "type": "var",
-                                    "data": "packetworker",
-                                    "source": "packetworker"
-                                  },
-                                  {
-                                    "type": "var",
-                                    "data": "queue",
-                                    "source": "queue"
-                                  }
-                                ]
-                              },
-                              "right": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "self",
-                                    "source": "self"
-                                  },
-                                  {
-                                    "type": "var",
-                                    "data": "packetworker",
-                                    "source": "packetworker"
-                                  },
-                                  {
-                                    "type": "var",
-                                    "data": "queue",
-                                    "source": "queue"
-                                  },
-                                  {
-                                    "type": "mtv",
-                                    "data": "append",
-                                    "parameters": [
-                                      {
-                                        "type": "var",
-                                        "data": "data",
-                                        "source": "data"
-                                      }
-                                    ],
-                                    "source": "append(data)"
-                                  }
-                                ],
-                                "source": "self.packetworker.queue.append(data)"
-                              },
                               "line": 131
                             }
                           ]
@@ -2332,14 +2292,9 @@
                               "data": "=??",
                               "source": "Net.handlePacket(packet)",
                               "left": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "Net",
-                                    "source": "Net"
-                                  }
-                                ]
+                                "type": "var",
+                                "data": "Net",
+                                "source": "Net"
                               },
                               "right": {
                                 "type": "mtd",
@@ -2434,11 +2389,11 @@
                             },
                             {
                               "type": "var",
-                              "data": "EACH_I_GiWrgkNswy",
-                              "source": "EACH_I_GiWrgkNswy"
+                              "data": "EACH_I_MFMHvNhNMT",
+                              "source": "EACH_I_MFMHvNhNMT"
                             }
                           ],
-                          "source": "this.EACH_I_GiWrgkNswy"
+                          "source": "this.EACH_I_MFMHvNhNMT"
                         },
                         "right": {
                           "type": "num",
@@ -2453,8 +2408,8 @@
                         "line": 141,
                         "left": {
                           "type": "var",
-                          "data": "EACH_DAT_UWPZASsivQ",
-                          "source": "EACH_DAT_UWPZASsivQ"
+                          "data": "EACH_DAT_BWKHyGLjMh",
+                          "source": "EACH_DAT_BWKHyGLjMh"
                         },
                         "right": {
                           "type": "mtd",
@@ -2492,8 +2447,8 @@
                         "data": [
                           {
                             "type": "var",
-                            "data": "EACH_DAT_UWPZASsivQ",
-                            "source": "EACH_DAT_UWPZASsivQ"
+                            "data": "EACH_DAT_BWKHyGLjMh",
+                            "source": "EACH_DAT_BWKHyGLjMh"
                           },
                           {
                             "type": "var",
@@ -2501,7 +2456,7 @@
                             "source": "len"
                           }
                         ],
-                        "source": "EACH_DAT_UWPZASsivQ.len"
+                        "source": "EACH_DAT_BWKHyGLjMh.len"
                       },
                       {
                         "type": "blk",
@@ -2522,11 +2477,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_GiWrgkNswy",
-                                    "source": "EACH_I_GiWrgkNswy"
+                                    "data": "EACH_I_MFMHvNhNMT",
+                                    "source": "EACH_I_MFMHvNhNMT"
                                   }
                                 ],
-                                "source": "this.EACH_I_GiWrgkNswy"
+                                "source": "this.EACH_I_MFMHvNhNMT"
                               }
                             },
                             {
@@ -2555,8 +2510,8 @@
                                 "data": [
                                   {
                                     "type": "var",
-                                    "data": "EACH_DAT_UWPZASsivQ",
-                                    "source": "EACH_DAT_UWPZASsivQ"
+                                    "data": "EACH_DAT_BWKHyGLjMh",
+                                    "source": "EACH_DAT_BWKHyGLjMh"
                                   },
                                   {
                                     "type": "mtv",
@@ -2572,17 +2527,17 @@
                                           },
                                           {
                                             "type": "var",
-                                            "data": "EACH_I_GiWrgkNswy",
-                                            "source": "EACH_I_GiWrgkNswy"
+                                            "data": "EACH_I_MFMHvNhNMT",
+                                            "source": "EACH_I_MFMHvNhNMT"
                                           }
                                         ],
-                                        "source": "this.EACH_I_GiWrgkNswy"
+                                        "source": "this.EACH_I_MFMHvNhNMT"
                                       }
                                     ],
-                                    "source": "[this.EACH_I_GiWrgkNswy]"
+                                    "source": "[this.EACH_I_MFMHvNhNMT]"
                                   }
                                 ],
-                                "source": "EACH_DAT_UWPZASsivQ.[this.EACH_I_GiWrgkNswy]"
+                                "source": "EACH_DAT_BWKHyGLjMh.[this.EACH_I_MFMHvNhNMT]"
                               }
                             }
                           ],
@@ -3533,14 +3488,9 @@
                                     "data": "=??",
                                     "source": "self.getChannelMessages(data.[\"data\"], UI.neededMessagesDefault)",
                                     "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "self",
-                                          "source": "self"
-                                        }
-                                      ]
+                                      "type": "var",
+                                      "data": "self",
+                                      "source": "self"
                                     },
                                     "right": {
                                       "type": "mtd",
@@ -3629,14 +3579,9 @@
                                     "data": "=??",
                                     "source": "self.getOnlineUsers()",
                                     "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "self",
-                                          "source": "self"
-                                        }
-                                      ]
+                                      "type": "var",
+                                      "data": "self",
+                                      "source": "self"
                                     },
                                     "right": {
                                       "type": "mtd",
@@ -4073,46 +4018,26 @@
                                 ],
                                 [
                                   {
-                                    "type": "asi",
-                                    "data": "=??",
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "UI",
+                                        "source": "UI"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "user_list",
+                                        "source": "user_list"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "refresh",
+                                        "parameters": [],
+                                        "source": "refresh()"
+                                      }
+                                    ],
                                     "source": "UI.user_list.refresh()",
-                                    "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "user_list",
-                                          "source": "user_list"
-                                        }
-                                      ]
-                                    },
-                                    "right": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "user_list",
-                                          "source": "user_list"
-                                        },
-                                        {
-                                          "type": "mtv",
-                                          "data": "refresh",
-                                          "parameters": [],
-                                          "source": "refresh()"
-                                        }
-                                      ],
-                                      "source": "UI.user_list.refresh()"
-                                    },
                                     "line": 203
                                   }
                                 ],
@@ -4238,14 +4163,9 @@
                                           "data": "=??",
                                           "source": "window.close()",
                                           "left": {
-                                            "type": "mtd",
-                                            "data": [
-                                              {
-                                                "type": "var",
-                                                "data": "window",
-                                                "source": "window"
-                                              }
-                                            ]
+                                            "type": "var",
+                                            "data": "window",
+                                            "source": "window"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -4484,46 +4404,26 @@
                                 ],
                                 [
                                   {
-                                    "type": "asi",
-                                    "data": "=??",
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "UI",
+                                        "source": "UI"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "user_list",
+                                        "source": "user_list"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "refresh",
+                                        "parameters": [],
+                                        "source": "refresh()"
+                                      }
+                                    ],
                                     "source": "UI.user_list.refresh()",
-                                    "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "user_list",
-                                          "source": "user_list"
-                                        }
-                                      ]
-                                    },
-                                    "right": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "user_list",
-                                          "source": "user_list"
-                                        },
-                                        {
-                                          "type": "mtv",
-                                          "data": "refresh",
-                                          "parameters": [],
-                                          "source": "refresh()"
-                                        }
-                                      ],
-                                      "source": "UI.user_list.refresh()"
-                                    },
                                     "line": 217
                                   }
                                 ],
@@ -4665,46 +4565,26 @@
                                 ],
                                 [
                                   {
-                                    "type": "asi",
-                                    "data": "=??",
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "UI",
+                                        "source": "UI"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "user_list",
+                                        "source": "user_list"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "refresh",
+                                        "parameters": [],
+                                        "source": "refresh()"
+                                      }
+                                    ],
                                     "source": "UI.user_list.refresh()",
-                                    "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "user_list",
-                                          "source": "user_list"
-                                        }
-                                      ]
-                                    },
-                                    "right": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "user_list",
-                                          "source": "user_list"
-                                        },
-                                        {
-                                          "type": "mtv",
-                                          "data": "refresh",
-                                          "parameters": [],
-                                          "source": "refresh()"
-                                        }
-                                      ],
-                                      "source": "UI.user_list.refresh()"
-                                    },
                                     "line": 226
                                   }
                                 ],
@@ -4764,8 +4644,8 @@
                                     "line": 230,
                                     "left": {
                                       "type": "var",
-                                      "data": "EACH_DAT_ENsXHKsvBo",
-                                      "source": "EACH_DAT_ENsXHKsvBo"
+                                      "data": "EACH_DAT_jcFIoIULVY",
+                                      "source": "EACH_DAT_jcFIoIULVY"
                                     },
                                     "right": {
                                       "type": "mtd",
@@ -4804,8 +4684,8 @@
                                     "data": [
                                       {
                                         "type": "var",
-                                        "data": "EACH_DAT_ENsXHKsvBo",
-                                        "source": "EACH_DAT_ENsXHKsvBo"
+                                        "data": "EACH_DAT_jcFIoIULVY",
+                                        "source": "EACH_DAT_jcFIoIULVY"
                                       },
                                       {
                                         "type": "var",
@@ -4813,7 +4693,7 @@
                                         "source": "len"
                                       }
                                     ],
-                                    "source": "EACH_DAT_ENsXHKsvBo.len"
+                                    "source": "EACH_DAT_jcFIoIULVY.len"
                                   },
                                   {
                                     "type": "blk",
@@ -4867,8 +4747,8 @@
                                             "data": [
                                               {
                                                 "type": "var",
-                                                "data": "EACH_DAT_ENsXHKsvBo",
-                                                "source": "EACH_DAT_ENsXHKsvBo"
+                                                "data": "EACH_DAT_jcFIoIULVY",
+                                                "source": "EACH_DAT_jcFIoIULVY"
                                               },
                                               {
                                                 "type": "mtv",
@@ -4894,7 +4774,7 @@
                                                 "source": "[this.i]"
                                               }
                                             ],
-                                            "source": "EACH_DAT_ENsXHKsvBo.[this.i]"
+                                            "source": "EACH_DAT_jcFIoIULVY.[this.i]"
                                           }
                                         }
                                       ],
@@ -4904,14 +4784,9 @@
                                           "data": "=??",
                                           "source": "self.handlePacket({\"data\":packet2})",
                                           "left": {
-                                            "type": "mtd",
-                                            "data": [
-                                              {
-                                                "type": "var",
-                                                "data": "self",
-                                                "source": "self"
-                                              }
-                                            ]
+                                            "type": "var",
+                                            "data": "self",
+                                            "source": "self"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -4972,111 +4847,61 @@
                                 ],
                                 [
                                   {
-                                    "type": "asi",
-                                    "data": "=??",
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "self",
+                                        "source": "self"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "packetworker",
+                                        "source": "packetworker"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "worker",
+                                        "source": "worker"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "kill",
+                                        "parameters": [],
+                                        "source": "kill()"
+                                      }
+                                    ],
                                     "source": "self.packetworker.worker.kill()",
-                                    "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "self",
-                                          "source": "self"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "packetworker",
-                                          "source": "packetworker"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "worker",
-                                          "source": "worker"
-                                        }
-                                      ]
-                                    },
-                                    "right": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "self",
-                                          "source": "self"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "packetworker",
-                                          "source": "packetworker"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "worker",
-                                          "source": "worker"
-                                        },
-                                        {
-                                          "type": "mtv",
-                                          "data": "kill",
-                                          "parameters": [],
-                                          "source": "kill()"
-                                        }
-                                      ],
-                                      "source": "self.packetworker.worker.kill()"
-                                    },
                                     "line": 235
                                   }
                                 ],
                                 [
                                   {
-                                    "type": "asi",
-                                    "data": "=??",
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "self",
+                                        "source": "self"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "onlineworker",
+                                        "source": "onlineworker"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "worker",
+                                        "source": "worker"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "kill",
+                                        "parameters": [],
+                                        "source": "kill()"
+                                      }
+                                    ],
                                     "source": "self.onlineworker.worker.kill()",
-                                    "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "self",
-                                          "source": "self"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "onlineworker",
-                                          "source": "onlineworker"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "worker",
-                                          "source": "worker"
-                                        }
-                                      ]
-                                    },
-                                    "right": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "self",
-                                          "source": "self"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "onlineworker",
-                                          "source": "onlineworker"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "worker",
-                                          "source": "worker"
-                                        },
-                                        {
-                                          "type": "mtv",
-                                          "data": "kill",
-                                          "parameters": [],
-                                          "source": "kill()"
-                                        }
-                                      ],
-                                      "source": "self.onlineworker.worker.kill()"
-                                    },
                                     "line": 236
                                   }
                                 ],
@@ -5217,14 +5042,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"user_online\"})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -5358,14 +5178,9 @@
                               "data": "=??",
                               "source": "Net.send({\"cmd\":\"user_settings_get\"})",
                               "left": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "Net",
-                                    "source": "Net"
-                                  }
-                                ]
+                                "type": "var",
+                                "data": "Net",
+                                "source": "Net"
                               },
                               "right": {
                                 "type": "mtd",
@@ -5438,14 +5253,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"user_settings_set\",\"key\":key,\"value\":value})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -5524,14 +5334,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"ping\"})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -5629,14 +5434,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"channel_list\"})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -5734,14 +5534,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"channel_get\",\"data\":channel})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -5844,14 +5639,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"channel_messages\",\"data\":channel,\"amount\":amount})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -6007,14 +5797,9 @@
                               "data": "=??",
                               "source": "Net.send({\"cmd\":\"message_get\",\"data\":message})",
                               "left": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "Net",
-                                    "source": "Net"
-                                  }
-                                ]
+                                "type": "var",
+                                "data": "Net",
+                                "source": "Net"
                               },
                               "right": {
                                 "type": "mtd",
@@ -6133,14 +5918,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"channel_users\",\"data\":channel})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -6286,14 +6066,9 @@
                         "data": "=??",
                         "source": "Net.sendMessageRaw(channel,{\"content\":content,\"attachments\":attachments ?? [],\"reply\":reply})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -6387,14 +6162,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"message_send\",\"data\":message,\"channel\":channel})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -6473,14 +6243,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"message_delete\",\"data\":message,\"channel\":channel})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -6559,14 +6324,9 @@
                         "data": "=??",
                         "source": "Net.send({\"cmd\":\"emote_toggle\",\"message\":message,\"emote\":emote})",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -8989,46 +8749,26 @@
                                 ],
                                 [
                                   {
-                                    "type": "asi",
-                                    "data": "=??",
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "UI",
+                                        "source": "UI"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "channel_list",
+                                        "source": "channel_list"
+                                      },
+                                      {
+                                        "type": "mtv",
+                                        "data": "list",
+                                        "parameters": [],
+                                        "source": "list()"
+                                      }
+                                    ],
                                     "source": "UI.channel_list.list()",
-                                    "left": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "channel_list",
-                                          "source": "channel_list"
-                                        }
-                                      ]
-                                    },
-                                    "right": {
-                                      "type": "mtd",
-                                      "data": [
-                                        {
-                                          "type": "var",
-                                          "data": "UI",
-                                          "source": "UI"
-                                        },
-                                        {
-                                          "type": "var",
-                                          "data": "channel_list",
-                                          "source": "channel_list"
-                                        },
-                                        {
-                                          "type": "mtv",
-                                          "data": "list",
-                                          "parameters": [],
-                                          "source": "list()"
-                                        }
-                                      ],
-                                      "source": "UI.channel_list.list()"
-                                    },
                                     "line": 388
                                   }
                                 ],
@@ -9123,11 +8863,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_txdJmRxjxf",
-                                    "source": "EACH_I_txdJmRxjxf"
+                                    "data": "EACH_I_JYHGWUhLwC",
+                                    "source": "EACH_I_JYHGWUhLwC"
                                   }
                                 ],
-                                "source": "this.EACH_I_txdJmRxjxf"
+                                "source": "this.EACH_I_JYHGWUhLwC"
                               },
                               "right": {
                                 "type": "num",
@@ -9142,8 +8882,8 @@
                               "line": 394,
                               "left": {
                                 "type": "var",
-                                "data": "EACH_DAT_kKqPdWEfSa",
-                                "source": "EACH_DAT_kKqPdWEfSa"
+                                "data": "EACH_DAT_YNbryjEEzY",
+                                "source": "EACH_DAT_YNbryjEEzY"
                               },
                               "right": {
                                 "type": "mtd",
@@ -9175,8 +8915,8 @@
                               "data": [
                                 {
                                   "type": "var",
-                                  "data": "EACH_DAT_kKqPdWEfSa",
-                                  "source": "EACH_DAT_kKqPdWEfSa"
+                                  "data": "EACH_DAT_YNbryjEEzY",
+                                  "source": "EACH_DAT_YNbryjEEzY"
                                 },
                                 {
                                   "type": "var",
@@ -9184,7 +8924,7 @@
                                   "source": "len"
                                 }
                               ],
-                              "source": "EACH_DAT_kKqPdWEfSa.len"
+                              "source": "EACH_DAT_YNbryjEEzY.len"
                             },
                             {
                               "type": "blk",
@@ -9205,11 +8945,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_txdJmRxjxf",
-                                          "source": "EACH_I_txdJmRxjxf"
+                                          "data": "EACH_I_JYHGWUhLwC",
+                                          "source": "EACH_I_JYHGWUhLwC"
                                         }
                                       ],
-                                      "source": "this.EACH_I_txdJmRxjxf"
+                                      "source": "this.EACH_I_JYHGWUhLwC"
                                     }
                                   },
                                   {
@@ -9238,8 +8978,8 @@
                                       "data": [
                                         {
                                           "type": "var",
-                                          "data": "EACH_DAT_kKqPdWEfSa",
-                                          "source": "EACH_DAT_kKqPdWEfSa"
+                                          "data": "EACH_DAT_YNbryjEEzY",
+                                          "source": "EACH_DAT_YNbryjEEzY"
                                         },
                                         {
                                           "type": "mtv",
@@ -9255,17 +8995,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_txdJmRxjxf",
-                                                  "source": "EACH_I_txdJmRxjxf"
+                                                  "data": "EACH_I_JYHGWUhLwC",
+                                                  "source": "EACH_I_JYHGWUhLwC"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_txdJmRxjxf"
+                                              "source": "this.EACH_I_JYHGWUhLwC"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_txdJmRxjxf]"
+                                          "source": "[this.EACH_I_JYHGWUhLwC]"
                                         }
                                       ],
-                                      "source": "EACH_DAT_kKqPdWEfSa.[this.EACH_I_txdJmRxjxf]"
+                                      "source": "EACH_DAT_YNbryjEEzY.[this.EACH_I_JYHGWUhLwC]"
                                     }
                                   }
                                 ],
@@ -9575,11 +9315,11 @@
                                               },
                                               {
                                                 "type": "var",
-                                                "data": "EACH_I_koHbnUHFut",
-                                                "source": "EACH_I_koHbnUHFut"
+                                                "data": "EACH_I_HlVPOnoqhJ",
+                                                "source": "EACH_I_HlVPOnoqhJ"
                                               }
                                             ],
-                                            "source": "this.EACH_I_koHbnUHFut"
+                                            "source": "this.EACH_I_HlVPOnoqhJ"
                                           },
                                           "right": {
                                             "type": "num",
@@ -9594,8 +9334,8 @@
                                           "line": 401,
                                           "left": {
                                             "type": "var",
-                                            "data": "EACH_DAT_NraTKUUqxl",
-                                            "source": "EACH_DAT_NraTKUUqxl"
+                                            "data": "EACH_DAT_WDNMoQpiNG",
+                                            "source": "EACH_DAT_WDNMoQpiNG"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -9627,8 +9367,8 @@
                                           "data": [
                                             {
                                               "type": "var",
-                                              "data": "EACH_DAT_NraTKUUqxl",
-                                              "source": "EACH_DAT_NraTKUUqxl"
+                                              "data": "EACH_DAT_WDNMoQpiNG",
+                                              "source": "EACH_DAT_WDNMoQpiNG"
                                             },
                                             {
                                               "type": "var",
@@ -9636,7 +9376,7 @@
                                               "source": "len"
                                             }
                                           ],
-                                          "source": "EACH_DAT_NraTKUUqxl.len"
+                                          "source": "EACH_DAT_WDNMoQpiNG.len"
                                         },
                                         {
                                           "type": "blk",
@@ -9657,11 +9397,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_koHbnUHFut",
-                                                      "source": "EACH_I_koHbnUHFut"
+                                                      "data": "EACH_I_HlVPOnoqhJ",
+                                                      "source": "EACH_I_HlVPOnoqhJ"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_koHbnUHFut"
+                                                  "source": "this.EACH_I_HlVPOnoqhJ"
                                                 }
                                               },
                                               {
@@ -9690,8 +9430,8 @@
                                                   "data": [
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_DAT_NraTKUUqxl",
-                                                      "source": "EACH_DAT_NraTKUUqxl"
+                                                      "data": "EACH_DAT_WDNMoQpiNG",
+                                                      "source": "EACH_DAT_WDNMoQpiNG"
                                                     },
                                                     {
                                                       "type": "mtv",
@@ -9707,17 +9447,17 @@
                                                             },
                                                             {
                                                               "type": "var",
-                                                              "data": "EACH_I_koHbnUHFut",
-                                                              "source": "EACH_I_koHbnUHFut"
+                                                              "data": "EACH_I_HlVPOnoqhJ",
+                                                              "source": "EACH_I_HlVPOnoqhJ"
                                                             }
                                                           ],
-                                                          "source": "this.EACH_I_koHbnUHFut"
+                                                          "source": "this.EACH_I_HlVPOnoqhJ"
                                                         }
                                                       ],
-                                                      "source": "[this.EACH_I_koHbnUHFut]"
+                                                      "source": "[this.EACH_I_HlVPOnoqhJ]"
                                                     }
                                                   ],
-                                                  "source": "EACH_DAT_NraTKUUqxl.[this.EACH_I_koHbnUHFut]"
+                                                  "source": "EACH_DAT_WDNMoQpiNG.[this.EACH_I_HlVPOnoqhJ]"
                                                 }
                                               }
                                             ],
@@ -10212,46 +9952,26 @@
                                                         ],
                                                         [
                                                           {
-                                                            "type": "asi",
-                                                            "data": "=??",
+                                                            "type": "mtd",
+                                                            "data": [
+                                                              {
+                                                                "type": "var",
+                                                                "data": "UI",
+                                                                "source": "UI"
+                                                              },
+                                                              {
+                                                                "type": "var",
+                                                                "data": "user_list",
+                                                                "source": "user_list"
+                                                              },
+                                                              {
+                                                                "type": "mtv",
+                                                                "data": "refresh",
+                                                                "parameters": [],
+                                                                "source": "refresh()"
+                                                              }
+                                                            ],
                                                             "source": "UI.user_list.refresh()",
-                                                            "left": {
-                                                              "type": "mtd",
-                                                              "data": [
-                                                                {
-                                                                  "type": "var",
-                                                                  "data": "UI",
-                                                                  "source": "UI"
-                                                                },
-                                                                {
-                                                                  "type": "var",
-                                                                  "data": "user_list",
-                                                                  "source": "user_list"
-                                                                }
-                                                              ]
-                                                            },
-                                                            "right": {
-                                                              "type": "mtd",
-                                                              "data": [
-                                                                {
-                                                                  "type": "var",
-                                                                  "data": "UI",
-                                                                  "source": "UI"
-                                                                },
-                                                                {
-                                                                  "type": "var",
-                                                                  "data": "user_list",
-                                                                  "source": "user_list"
-                                                                },
-                                                                {
-                                                                  "type": "mtv",
-                                                                  "data": "refresh",
-                                                                  "parameters": [],
-                                                                  "source": "refresh()"
-                                                                }
-                                                              ],
-                                                              "source": "UI.user_list.refresh()"
-                                                            },
                                                             "line": 416
                                                           }
                                                         ],
@@ -11055,14 +10775,9 @@
                               "data": "=??",
                               "source": "self.locationBar()",
                               "left": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "self",
-                                    "source": "self"
-                                  }
-                                ]
+                                "type": "var",
+                                "data": "self",
+                                "source": "self"
                               },
                               "right": {
                                 "type": "mtd",
@@ -11090,14 +10805,9 @@
                               "data": "=??",
                               "source": "self.winButtons()",
                               "left": {
-                                "type": "mtd",
-                                "data": [
-                                  {
-                                    "type": "var",
-                                    "data": "self",
-                                    "source": "self"
-                                  }
-                                ]
+                                "type": "var",
+                                "data": "self",
+                                "source": "self"
                               },
                               "right": {
                                 "type": "mtd",
@@ -15244,14 +14954,9 @@
                                                                       "data": "=??",
                                                                       "source": "Net.deleteMessage(UI.selected_channel, msg)",
                                                                       "left": {
-                                                                        "type": "mtd",
-                                                                        "data": [
-                                                                          {
-                                                                            "type": "var",
-                                                                            "data": "Net",
-                                                                            "source": "Net"
-                                                                          }
-                                                                        ]
+                                                                        "type": "var",
+                                                                        "data": "Net",
+                                                                        "source": "Net"
                                                                       },
                                                                       "right": {
                                                                         "type": "mtd",
@@ -15447,11 +15152,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_DXBfOnsbEf",
-                                                      "source": "EACH_I_DXBfOnsbEf"
+                                                      "data": "EACH_I_YLWomymVob",
+                                                      "source": "EACH_I_YLWomymVob"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_DXBfOnsbEf"
+                                                  "source": "this.EACH_I_YLWomymVob"
                                                 },
                                                 "right": {
                                                   "type": "num",
@@ -15466,8 +15171,8 @@
                                                 "line": 594,
                                                 "left": {
                                                   "type": "var",
-                                                  "data": "EACH_DAT_yNelbdjRmG",
-                                                  "source": "EACH_DAT_yNelbdjRmG"
+                                                  "data": "EACH_DAT_vMyxgLYpzu",
+                                                  "source": "EACH_DAT_vMyxgLYpzu"
                                                 },
                                                 "right": {
                                                   "type": "mtd",
@@ -15500,8 +15205,8 @@
                                                 "data": [
                                                   {
                                                     "type": "var",
-                                                    "data": "EACH_DAT_yNelbdjRmG",
-                                                    "source": "EACH_DAT_yNelbdjRmG"
+                                                    "data": "EACH_DAT_vMyxgLYpzu",
+                                                    "source": "EACH_DAT_vMyxgLYpzu"
                                                   },
                                                   {
                                                     "type": "var",
@@ -15509,7 +15214,7 @@
                                                     "source": "len"
                                                   }
                                                 ],
-                                                "source": "EACH_DAT_yNelbdjRmG.len"
+                                                "source": "EACH_DAT_vMyxgLYpzu.len"
                                               },
                                               {
                                                 "type": "blk",
@@ -15530,11 +15235,11 @@
                                                           },
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_I_DXBfOnsbEf",
-                                                            "source": "EACH_I_DXBfOnsbEf"
+                                                            "data": "EACH_I_YLWomymVob",
+                                                            "source": "EACH_I_YLWomymVob"
                                                           }
                                                         ],
-                                                        "source": "this.EACH_I_DXBfOnsbEf"
+                                                        "source": "this.EACH_I_YLWomymVob"
                                                       }
                                                     },
                                                     {
@@ -15563,8 +15268,8 @@
                                                         "data": [
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_DAT_yNelbdjRmG",
-                                                            "source": "EACH_DAT_yNelbdjRmG"
+                                                            "data": "EACH_DAT_vMyxgLYpzu",
+                                                            "source": "EACH_DAT_vMyxgLYpzu"
                                                           },
                                                           {
                                                             "type": "mtv",
@@ -15580,17 +15285,17 @@
                                                                   },
                                                                   {
                                                                     "type": "var",
-                                                                    "data": "EACH_I_DXBfOnsbEf",
-                                                                    "source": "EACH_I_DXBfOnsbEf"
+                                                                    "data": "EACH_I_YLWomymVob",
+                                                                    "source": "EACH_I_YLWomymVob"
                                                                   }
                                                                 ],
-                                                                "source": "this.EACH_I_DXBfOnsbEf"
+                                                                "source": "this.EACH_I_YLWomymVob"
                                                               }
                                                             ],
-                                                            "source": "[this.EACH_I_DXBfOnsbEf]"
+                                                            "source": "[this.EACH_I_YLWomymVob]"
                                                           }
                                                         ],
-                                                        "source": "EACH_DAT_yNelbdjRmG.[this.EACH_I_DXBfOnsbEf]"
+                                                        "source": "EACH_DAT_vMyxgLYpzu.[this.EACH_I_YLWomymVob]"
                                                       }
                                                     }
                                                   ],
@@ -15847,14 +15552,9 @@
                                                                         "data": "=??",
                                                                         "source": "action.code(msg)",
                                                                         "left": {
-                                                                          "type": "mtd",
-                                                                          "data": [
-                                                                            {
-                                                                              "type": "var",
-                                                                              "data": "action",
-                                                                              "source": "action"
-                                                                            }
-                                                                          ]
+                                                                          "type": "var",
+                                                                          "data": "action",
+                                                                          "source": "action"
                                                                         },
                                                                         "right": {
                                                                           "type": "mtd",
@@ -16128,14 +15828,9 @@
                                                       "data": "=??",
                                                       "source": "Net.getMessage(msgData.[\"reply\"])",
                                                       "left": {
-                                                        "type": "mtd",
-                                                        "data": [
-                                                          {
-                                                            "type": "var",
-                                                            "data": "Net",
-                                                            "source": "Net"
-                                                          }
-                                                        ]
+                                                        "type": "var",
+                                                        "data": "Net",
+                                                        "source": "Net"
                                                       },
                                                       "right": {
                                                         "type": "mtd",
@@ -17961,11 +17656,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_aGqpUJDKFD",
-                                                      "source": "EACH_I_aGqpUJDKFD"
+                                                      "data": "EACH_I_TzkARtdjVD",
+                                                      "source": "EACH_I_TzkARtdjVD"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_aGqpUJDKFD"
+                                                  "source": "this.EACH_I_TzkARtdjVD"
                                                 },
                                                 "right": {
                                                   "type": "num",
@@ -18016,11 +17711,11 @@
                                                           },
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_I_aGqpUJDKFD",
-                                                            "source": "EACH_I_aGqpUJDKFD"
+                                                            "data": "EACH_I_TzkARtdjVD",
+                                                            "source": "EACH_I_TzkARtdjVD"
                                                           }
                                                         ],
-                                                        "source": "this.EACH_I_aGqpUJDKFD"
+                                                        "source": "this.EACH_I_TzkARtdjVD"
                                                       }
                                                     },
                                                     {
@@ -18066,17 +17761,17 @@
                                                                   },
                                                                   {
                                                                     "type": "var",
-                                                                    "data": "EACH_I_aGqpUJDKFD",
-                                                                    "source": "EACH_I_aGqpUJDKFD"
+                                                                    "data": "EACH_I_TzkARtdjVD",
+                                                                    "source": "EACH_I_TzkARtdjVD"
                                                                   }
                                                                 ],
-                                                                "source": "this.EACH_I_aGqpUJDKFD"
+                                                                "source": "this.EACH_I_TzkARtdjVD"
                                                               }
                                                             ],
-                                                            "source": "[this.EACH_I_aGqpUJDKFD]"
+                                                            "source": "[this.EACH_I_TzkARtdjVD]"
                                                           }
                                                         ],
-                                                        "source": "emoteKeys.[this.EACH_I_aGqpUJDKFD]"
+                                                        "source": "emoteKeys.[this.EACH_I_TzkARtdjVD]"
                                                       }
                                                     }
                                                   ],
@@ -18591,14 +18286,9 @@
                                                                         "data": "=??",
                                                                         "source": "Net.toggleEmote(msg, emote)",
                                                                         "left": {
-                                                                          "type": "mtd",
-                                                                          "data": [
-                                                                            {
-                                                                              "type": "var",
-                                                                              "data": "Net",
-                                                                              "source": "Net"
-                                                                            }
-                                                                          ]
+                                                                          "type": "var",
+                                                                          "data": "Net",
+                                                                          "source": "Net"
                                                                         },
                                                                         "right": {
                                                                           "type": "mtd",
@@ -18905,11 +18595,11 @@
                                                                       },
                                                                       {
                                                                         "type": "var",
-                                                                        "data": "EACH_I_QZIGYIaDqw",
-                                                                        "source": "EACH_I_QZIGYIaDqw"
+                                                                        "data": "EACH_I_DJztYupkto",
+                                                                        "source": "EACH_I_DJztYupkto"
                                                                       }
                                                                     ],
-                                                                    "source": "this.EACH_I_QZIGYIaDqw"
+                                                                    "source": "this.EACH_I_DJztYupkto"
                                                                   },
                                                                   "right": {
                                                                     "type": "num",
@@ -18960,11 +18650,11 @@
                                                                             },
                                                                             {
                                                                               "type": "var",
-                                                                              "data": "EACH_I_QZIGYIaDqw",
-                                                                              "source": "EACH_I_QZIGYIaDqw"
+                                                                              "data": "EACH_I_DJztYupkto",
+                                                                              "source": "EACH_I_DJztYupkto"
                                                                             }
                                                                           ],
-                                                                          "source": "this.EACH_I_QZIGYIaDqw"
+                                                                          "source": "this.EACH_I_DJztYupkto"
                                                                         }
                                                                       },
                                                                       {
@@ -19010,17 +18700,17 @@
                                                                                     },
                                                                                     {
                                                                                       "type": "var",
-                                                                                      "data": "EACH_I_QZIGYIaDqw",
-                                                                                      "source": "EACH_I_QZIGYIaDqw"
+                                                                                      "data": "EACH_I_DJztYupkto",
+                                                                                      "source": "EACH_I_DJztYupkto"
                                                                                     }
                                                                                   ],
-                                                                                  "source": "this.EACH_I_QZIGYIaDqw"
+                                                                                  "source": "this.EACH_I_DJztYupkto"
                                                                                 }
                                                                               ],
-                                                                              "source": "[this.EACH_I_QZIGYIaDqw]"
+                                                                              "source": "[this.EACH_I_DJztYupkto]"
                                                                             }
                                                                           ],
-                                                                          "source": "emoteUsers.[this.EACH_I_QZIGYIaDqw]"
+                                                                          "source": "emoteUsers.[this.EACH_I_DJztYupkto]"
                                                                         }
                                                                       }
                                                                     ],
@@ -19783,14 +19473,9 @@
                                           "data": "=??",
                                           "source": "Net.sendMessage(inputs.[\"input_bar\"].join(\"",
                                           "left": {
-                                            "type": "mtd",
-                                            "data": [
-                                              {
-                                                "type": "var",
-                                                "data": "Net",
-                                                "source": "Net"
-                                              }
-                                            ]
+                                            "type": "var",
+                                            "data": "Net",
+                                            "source": "Net"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -20365,11 +20050,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_pDZxvQSEoP",
-                                    "source": "EACH_I_pDZxvQSEoP"
+                                    "data": "EACH_I_rihfKSuCFN",
+                                    "source": "EACH_I_rihfKSuCFN"
                                   }
                                 ],
-                                "source": "this.EACH_I_pDZxvQSEoP"
+                                "source": "this.EACH_I_rihfKSuCFN"
                               },
                               "right": {
                                 "type": "num",
@@ -20384,8 +20069,8 @@
                               "line": 745,
                               "left": {
                                 "type": "var",
-                                "data": "EACH_DAT_EkXFLhIgVH",
-                                "source": "EACH_DAT_EkXFLhIgVH"
+                                "data": "EACH_DAT_nAxKgDpoiY",
+                                "source": "EACH_DAT_nAxKgDpoiY"
                               },
                               "right": {
                                 "type": "mtd",
@@ -20417,8 +20102,8 @@
                               "data": [
                                 {
                                   "type": "var",
-                                  "data": "EACH_DAT_EkXFLhIgVH",
-                                  "source": "EACH_DAT_EkXFLhIgVH"
+                                  "data": "EACH_DAT_nAxKgDpoiY",
+                                  "source": "EACH_DAT_nAxKgDpoiY"
                                 },
                                 {
                                   "type": "var",
@@ -20426,7 +20111,7 @@
                                   "source": "len"
                                 }
                               ],
-                              "source": "EACH_DAT_EkXFLhIgVH.len"
+                              "source": "EACH_DAT_nAxKgDpoiY.len"
                             },
                             {
                               "type": "blk",
@@ -20447,11 +20132,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_pDZxvQSEoP",
-                                          "source": "EACH_I_pDZxvQSEoP"
+                                          "data": "EACH_I_rihfKSuCFN",
+                                          "source": "EACH_I_rihfKSuCFN"
                                         }
                                       ],
-                                      "source": "this.EACH_I_pDZxvQSEoP"
+                                      "source": "this.EACH_I_rihfKSuCFN"
                                     }
                                   },
                                   {
@@ -20480,8 +20165,8 @@
                                       "data": [
                                         {
                                           "type": "var",
-                                          "data": "EACH_DAT_EkXFLhIgVH",
-                                          "source": "EACH_DAT_EkXFLhIgVH"
+                                          "data": "EACH_DAT_nAxKgDpoiY",
+                                          "source": "EACH_DAT_nAxKgDpoiY"
                                         },
                                         {
                                           "type": "mtv",
@@ -20497,17 +20182,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_pDZxvQSEoP",
-                                                  "source": "EACH_I_pDZxvQSEoP"
+                                                  "data": "EACH_I_rihfKSuCFN",
+                                                  "source": "EACH_I_rihfKSuCFN"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_pDZxvQSEoP"
+                                              "source": "this.EACH_I_rihfKSuCFN"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_pDZxvQSEoP]"
+                                          "source": "[this.EACH_I_rihfKSuCFN]"
                                         }
                                       ],
-                                      "source": "EACH_DAT_EkXFLhIgVH.[this.EACH_I_pDZxvQSEoP]"
+                                      "source": "EACH_DAT_nAxKgDpoiY.[this.EACH_I_rihfKSuCFN]"
                                     }
                                   }
                                 ],
@@ -20944,11 +20629,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_EsgugIwusa",
-                                    "source": "EACH_I_EsgugIwusa"
+                                    "data": "EACH_I_fkeKQxnVFS",
+                                    "source": "EACH_I_fkeKQxnVFS"
                                   }
                                 ],
-                                "source": "this.EACH_I_EsgugIwusa"
+                                "source": "this.EACH_I_fkeKQxnVFS"
                               },
                               "right": {
                                 "type": "num",
@@ -20999,11 +20684,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_EsgugIwusa",
-                                          "source": "EACH_I_EsgugIwusa"
+                                          "data": "EACH_I_fkeKQxnVFS",
+                                          "source": "EACH_I_fkeKQxnVFS"
                                         }
                                       ],
-                                      "source": "this.EACH_I_EsgugIwusa"
+                                      "source": "this.EACH_I_fkeKQxnVFS"
                                     }
                                   },
                                   {
@@ -21049,17 +20734,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_EsgugIwusa",
-                                                  "source": "EACH_I_EsgugIwusa"
+                                                  "data": "EACH_I_fkeKQxnVFS",
+                                                  "source": "EACH_I_fkeKQxnVFS"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_EsgugIwusa"
+                                              "source": "this.EACH_I_fkeKQxnVFS"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_EsgugIwusa]"
+                                          "source": "[this.EACH_I_fkeKQxnVFS]"
                                         }
                                       ],
-                                      "source": "users.[this.EACH_I_EsgugIwusa]"
+                                      "source": "users.[this.EACH_I_fkeKQxnVFS]"
                                     }
                                   }
                                 ],
@@ -21420,11 +21105,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_QHvEUJmjAK",
-                                    "source": "EACH_I_QHvEUJmjAK"
+                                    "data": "EACH_I_RHsViLuieh",
+                                    "source": "EACH_I_RHsViLuieh"
                                   }
                                 ],
-                                "source": "this.EACH_I_QHvEUJmjAK"
+                                "source": "this.EACH_I_RHsViLuieh"
                               },
                               "right": {
                                 "type": "num",
@@ -21475,11 +21160,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_QHvEUJmjAK",
-                                          "source": "EACH_I_QHvEUJmjAK"
+                                          "data": "EACH_I_RHsViLuieh",
+                                          "source": "EACH_I_RHsViLuieh"
                                         }
                                       ],
-                                      "source": "this.EACH_I_QHvEUJmjAK"
+                                      "source": "this.EACH_I_RHsViLuieh"
                                     }
                                   },
                                   {
@@ -21525,17 +21210,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_QHvEUJmjAK",
-                                                  "source": "EACH_I_QHvEUJmjAK"
+                                                  "data": "EACH_I_RHsViLuieh",
+                                                  "source": "EACH_I_RHsViLuieh"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_QHvEUJmjAK"
+                                              "source": "this.EACH_I_RHsViLuieh"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_QHvEUJmjAK]"
+                                          "source": "[this.EACH_I_RHsViLuieh]"
                                         }
                                       ],
-                                      "source": "users.[this.EACH_I_QHvEUJmjAK]"
+                                      "source": "users.[this.EACH_I_RHsViLuieh]"
                                     }
                                   }
                                 ],
@@ -21659,11 +21344,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_eAUygLJMnQ",
-                                          "source": "EACH_I_eAUygLJMnQ"
+                                          "data": "EACH_I_lhtXUKZHnE",
+                                          "source": "EACH_I_lhtXUKZHnE"
                                         }
                                       ],
-                                      "source": "this.EACH_I_eAUygLJMnQ"
+                                      "source": "this.EACH_I_lhtXUKZHnE"
                                     },
                                     "right": {
                                       "type": "num",
@@ -21714,11 +21399,11 @@
                                               },
                                               {
                                                 "type": "var",
-                                                "data": "EACH_I_eAUygLJMnQ",
-                                                "source": "EACH_I_eAUygLJMnQ"
+                                                "data": "EACH_I_lhtXUKZHnE",
+                                                "source": "EACH_I_lhtXUKZHnE"
                                               }
                                             ],
-                                            "source": "this.EACH_I_eAUygLJMnQ"
+                                            "source": "this.EACH_I_lhtXUKZHnE"
                                           }
                                         },
                                         {
@@ -21764,17 +21449,17 @@
                                                       },
                                                       {
                                                         "type": "var",
-                                                        "data": "EACH_I_eAUygLJMnQ",
-                                                        "source": "EACH_I_eAUygLJMnQ"
+                                                        "data": "EACH_I_lhtXUKZHnE",
+                                                        "source": "EACH_I_lhtXUKZHnE"
                                                       }
                                                     ],
-                                                    "source": "this.EACH_I_eAUygLJMnQ"
+                                                    "source": "this.EACH_I_lhtXUKZHnE"
                                                   }
                                                 ],
-                                                "source": "[this.EACH_I_eAUygLJMnQ]"
+                                                "source": "[this.EACH_I_lhtXUKZHnE]"
                                               }
                                             ],
-                                            "source": "roles.[this.EACH_I_eAUygLJMnQ]"
+                                            "source": "roles.[this.EACH_I_lhtXUKZHnE]"
                                           }
                                         }
                                       ],
@@ -23358,11 +23043,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_nxIxvmEsCy",
-                                                      "source": "EACH_I_nxIxvmEsCy"
+                                                      "data": "EACH_I_gmcYZlWYoo",
+                                                      "source": "EACH_I_gmcYZlWYoo"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_nxIxvmEsCy"
+                                                  "source": "this.EACH_I_gmcYZlWYoo"
                                                 },
                                                 "right": {
                                                   "type": "num",
@@ -23377,8 +23062,8 @@
                                                 "line": 840,
                                                 "left": {
                                                   "type": "var",
-                                                  "data": "EACH_DAT_OlJHwXjdim",
-                                                  "source": "EACH_DAT_OlJHwXjdim"
+                                                  "data": "EACH_DAT_SwFmxbsVyp",
+                                                  "source": "EACH_DAT_SwFmxbsVyp"
                                                 },
                                                 "right": {
                                                   "type": "mtd",
@@ -23410,8 +23095,8 @@
                                                 "data": [
                                                   {
                                                     "type": "var",
-                                                    "data": "EACH_DAT_OlJHwXjdim",
-                                                    "source": "EACH_DAT_OlJHwXjdim"
+                                                    "data": "EACH_DAT_SwFmxbsVyp",
+                                                    "source": "EACH_DAT_SwFmxbsVyp"
                                                   },
                                                   {
                                                     "type": "var",
@@ -23419,7 +23104,7 @@
                                                     "source": "len"
                                                   }
                                                 ],
-                                                "source": "EACH_DAT_OlJHwXjdim.len"
+                                                "source": "EACH_DAT_SwFmxbsVyp.len"
                                               },
                                               {
                                                 "type": "blk",
@@ -23440,11 +23125,11 @@
                                                           },
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_I_nxIxvmEsCy",
-                                                            "source": "EACH_I_nxIxvmEsCy"
+                                                            "data": "EACH_I_gmcYZlWYoo",
+                                                            "source": "EACH_I_gmcYZlWYoo"
                                                           }
                                                         ],
-                                                        "source": "this.EACH_I_nxIxvmEsCy"
+                                                        "source": "this.EACH_I_gmcYZlWYoo"
                                                       }
                                                     },
                                                     {
@@ -23473,8 +23158,8 @@
                                                         "data": [
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_DAT_OlJHwXjdim",
-                                                            "source": "EACH_DAT_OlJHwXjdim"
+                                                            "data": "EACH_DAT_SwFmxbsVyp",
+                                                            "source": "EACH_DAT_SwFmxbsVyp"
                                                           },
                                                           {
                                                             "type": "mtv",
@@ -23490,17 +23175,17 @@
                                                                   },
                                                                   {
                                                                     "type": "var",
-                                                                    "data": "EACH_I_nxIxvmEsCy",
-                                                                    "source": "EACH_I_nxIxvmEsCy"
+                                                                    "data": "EACH_I_gmcYZlWYoo",
+                                                                    "source": "EACH_I_gmcYZlWYoo"
                                                                   }
                                                                 ],
-                                                                "source": "this.EACH_I_nxIxvmEsCy"
+                                                                "source": "this.EACH_I_gmcYZlWYoo"
                                                               }
                                                             ],
-                                                            "source": "[this.EACH_I_nxIxvmEsCy]"
+                                                            "source": "[this.EACH_I_gmcYZlWYoo]"
                                                           }
                                                         ],
-                                                        "source": "EACH_DAT_OlJHwXjdim.[this.EACH_I_nxIxvmEsCy]"
+                                                        "source": "EACH_DAT_SwFmxbsVyp.[this.EACH_I_gmcYZlWYoo]"
                                                       }
                                                     }
                                                   ],
@@ -24258,14 +23943,9 @@
                                                       "data": "=??",
                                                       "source": "UI.drawPFP(user, 25, 25)",
                                                       "left": {
-                                                        "type": "mtd",
-                                                        "data": [
-                                                          {
-                                                            "type": "var",
-                                                            "data": "UI",
-                                                            "source": "UI"
-                                                          }
-                                                        ]
+                                                        "type": "var",
+                                                        "data": "UI",
+                                                        "source": "UI"
                                                       },
                                                       "right": {
                                                         "type": "mtd",
@@ -24702,14 +24382,9 @@
                                                             "data": "=??",
                                                             "source": "UI.drawUser(user.trimText(frame.width - 60 / 10), 10)",
                                                             "left": {
-                                                              "type": "mtd",
-                                                              "data": [
-                                                                {
-                                                                  "type": "var",
-                                                                  "data": "UI",
-                                                                  "source": "UI"
-                                                                }
-                                                              ]
+                                                              "type": "var",
+                                                              "data": "UI",
+                                                              "source": "UI"
                                                             },
                                                             "right": {
                                                               "type": "mtd",
@@ -26540,11 +26215,11 @@
                                               },
                                               {
                                                 "type": "var",
-                                                "data": "EACH_I_LIvotEmzfN",
-                                                "source": "EACH_I_LIvotEmzfN"
+                                                "data": "EACH_I_UhhggFuMRI",
+                                                "source": "EACH_I_UhhggFuMRI"
                                               }
                                             ],
-                                            "source": "this.EACH_I_LIvotEmzfN"
+                                            "source": "this.EACH_I_UhhggFuMRI"
                                           },
                                           "right": {
                                             "type": "num",
@@ -26559,8 +26234,8 @@
                                           "line": 945,
                                           "left": {
                                             "type": "var",
-                                            "data": "EACH_DAT_CVFHwoODXV",
-                                            "source": "EACH_DAT_CVFHwoODXV"
+                                            "data": "EACH_DAT_ikdKIonGcB",
+                                            "source": "EACH_DAT_ikdKIonGcB"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -26598,8 +26273,8 @@
                                           "data": [
                                             {
                                               "type": "var",
-                                              "data": "EACH_DAT_CVFHwoODXV",
-                                              "source": "EACH_DAT_CVFHwoODXV"
+                                              "data": "EACH_DAT_ikdKIonGcB",
+                                              "source": "EACH_DAT_ikdKIonGcB"
                                             },
                                             {
                                               "type": "var",
@@ -26607,7 +26282,7 @@
                                               "source": "len"
                                             }
                                           ],
-                                          "source": "EACH_DAT_CVFHwoODXV.len"
+                                          "source": "EACH_DAT_ikdKIonGcB.len"
                                         },
                                         {
                                           "type": "blk",
@@ -26628,11 +26303,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_LIvotEmzfN",
-                                                      "source": "EACH_I_LIvotEmzfN"
+                                                      "data": "EACH_I_UhhggFuMRI",
+                                                      "source": "EACH_I_UhhggFuMRI"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_LIvotEmzfN"
+                                                  "source": "this.EACH_I_UhhggFuMRI"
                                                 }
                                               },
                                               {
@@ -26661,8 +26336,8 @@
                                                   "data": [
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_DAT_CVFHwoODXV",
-                                                      "source": "EACH_DAT_CVFHwoODXV"
+                                                      "data": "EACH_DAT_ikdKIonGcB",
+                                                      "source": "EACH_DAT_ikdKIonGcB"
                                                     },
                                                     {
                                                       "type": "mtv",
@@ -26678,17 +26353,17 @@
                                                             },
                                                             {
                                                               "type": "var",
-                                                              "data": "EACH_I_LIvotEmzfN",
-                                                              "source": "EACH_I_LIvotEmzfN"
+                                                              "data": "EACH_I_UhhggFuMRI",
+                                                              "source": "EACH_I_UhhggFuMRI"
                                                             }
                                                           ],
-                                                          "source": "this.EACH_I_LIvotEmzfN"
+                                                          "source": "this.EACH_I_UhhggFuMRI"
                                                         }
                                                       ],
-                                                      "source": "[this.EACH_I_LIvotEmzfN]"
+                                                      "source": "[this.EACH_I_UhhggFuMRI]"
                                                     }
                                                   ],
-                                                  "source": "EACH_DAT_CVFHwoODXV.[this.EACH_I_LIvotEmzfN]"
+                                                  "source": "EACH_DAT_ikdKIonGcB.[this.EACH_I_UhhggFuMRI]"
                                                 }
                                               }
                                             ],
@@ -26880,14 +26555,9 @@
                                                             "data": "=??",
                                                             "source": "Net.toggleEmote(self.message, emoteKey)",
                                                             "left": {
-                                                              "type": "mtd",
-                                                              "data": [
-                                                                {
-                                                                  "type": "var",
-                                                                  "data": "Net",
-                                                                  "source": "Net"
-                                                                }
-                                                              ]
+                                                              "type": "var",
+                                                              "data": "Net",
+                                                              "source": "Net"
                                                             },
                                                             "right": {
                                                               "type": "mtd",
@@ -27045,14 +26715,9 @@
                                                 "data": "=??",
                                                 "source": "UI.drawEmote(emoteKey, emote_size / 17.5)",
                                                 "left": {
-                                                  "type": "mtd",
-                                                  "data": [
-                                                    {
-                                                      "type": "var",
-                                                      "data": "UI",
-                                                      "source": "UI"
-                                                    }
-                                                  ]
+                                                  "type": "var",
+                                                  "data": "UI",
+                                                  "source": "UI"
                                                 },
                                                 "right": {
                                                   "type": "mtd",
@@ -28249,14 +27914,9 @@
                                                       "data": "=??",
                                                       "source": "Net.setConfigKey(key,Settings.[key])",
                                                       "left": {
-                                                        "type": "mtd",
-                                                        "data": [
-                                                          {
-                                                            "type": "var",
-                                                            "data": "Net",
-                                                            "source": "Net"
-                                                          }
-                                                        ]
+                                                        "type": "var",
+                                                        "data": "Net",
+                                                        "source": "Net"
                                                       },
                                                       "right": {
                                                         "type": "mtd",
@@ -28350,14 +28010,9 @@
                                           "data": "=??",
                                           "source": "self.setting(\"notifications\", \"notifications\", Settings.[settingKey], toggle, settingKey)",
                                           "left": {
-                                            "type": "mtd",
-                                            "data": [
-                                              {
-                                                "type": "var",
-                                                "data": "self",
-                                                "source": "self"
-                                              }
-                                            ]
+                                            "type": "var",
+                                            "data": "self",
+                                            "source": "self"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -28447,14 +28102,9 @@
                                           "data": "=??",
                                           "source": "self.setting(\"background worker\", \"multitasking\", Settings.[settingKey], toggle, settingKey)",
                                           "left": {
-                                            "type": "mtd",
-                                            "data": [
-                                              {
-                                                "type": "var",
-                                                "data": "self",
-                                                "source": "self"
-                                              }
-                                            ]
+                                            "type": "var",
+                                            "data": "self",
+                                            "source": "self"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -28544,14 +28194,9 @@
                                           "data": "=??",
                                           "source": "self.setting(\"show emote users\", \"accounts\", Settings.[settingKey], toggle, settingKey)",
                                           "left": {
-                                            "type": "mtd",
-                                            "data": [
-                                              {
-                                                "type": "var",
-                                                "data": "self",
-                                                "source": "self"
-                                              }
-                                            ]
+                                            "type": "var",
+                                            "data": "self",
+                                            "source": "self"
                                           },
                                           "right": {
                                             "type": "mtd",
@@ -28850,14 +28495,9 @@
       "data": "=??",
       "source": "Net.ping()",
       "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Net",
-            "source": "Net"
-          }
-        ]
+        "type": "var",
+        "data": "Net",
+        "source": "Net"
       },
       "right": {
         "type": "mtd",
@@ -28881,91 +28521,51 @@
   ],
   [
     {
-      "type": "asi",
-      "data": "=??",
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "Net",
+          "source": "Net"
+        },
+        {
+          "type": "var",
+          "data": "packetworker",
+          "source": "packetworker"
+        },
+        {
+          "type": "mtv",
+          "data": "start",
+          "parameters": [],
+          "source": "start()"
+        }
+      ],
       "source": "Net.packetworker.start()",
-      "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Net",
-            "source": "Net"
-          },
-          {
-            "type": "var",
-            "data": "packetworker",
-            "source": "packetworker"
-          }
-        ]
-      },
-      "right": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Net",
-            "source": "Net"
-          },
-          {
-            "type": "var",
-            "data": "packetworker",
-            "source": "packetworker"
-          },
-          {
-            "type": "mtv",
-            "data": "start",
-            "parameters": [],
-            "source": "start()"
-          }
-        ],
-        "source": "Net.packetworker.start()"
-      },
       "line": 1029
     }
   ],
   [
     {
-      "type": "asi",
-      "data": "=??",
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "Net",
+          "source": "Net"
+        },
+        {
+          "type": "var",
+          "data": "onlineworker",
+          "source": "onlineworker"
+        },
+        {
+          "type": "mtv",
+          "data": "start",
+          "parameters": [],
+          "source": "start()"
+        }
+      ],
       "source": "Net.onlineworker.start()",
-      "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Net",
-            "source": "Net"
-          },
-          {
-            "type": "var",
-            "data": "onlineworker",
-            "source": "onlineworker"
-          }
-        ]
-      },
-      "right": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Net",
-            "source": "Net"
-          },
-          {
-            "type": "var",
-            "data": "onlineworker",
-            "source": "onlineworker"
-          },
-          {
-            "type": "mtv",
-            "data": "start",
-            "parameters": [],
-            "source": "start()"
-          }
-        ],
-        "source": "Net.onlineworker.start()"
-      },
       "line": 1030
     }
   ],
@@ -28975,14 +28575,9 @@
       "data": "=??",
       "source": "window.on(\"close\", def() -> (",
       "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "window",
-            "source": "window"
-          }
-        ]
+        "type": "var",
+        "data": "window",
+        "source": "window"
       },
       "right": {
         "type": "mtd",
@@ -29123,14 +28718,9 @@
             "data": "=??",
             "source": "Net.update()",
             "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "Net",
-                  "source": "Net"
-                }
-              ]
+              "type": "var",
+              "data": "Net",
+              "source": "Net"
             },
             "right": {
               "type": "mtd",
@@ -29158,14 +28748,9 @@
             "data": "=??",
             "source": "window.hide()",
             "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "window",
-                  "source": "window"
-                }
-              ]
+              "type": "var",
+              "data": "window",
+              "source": "window"
             },
             "right": {
               "type": "mtd",
@@ -29193,14 +28778,9 @@
             "data": "=??",
             "source": "window.resize(0,0)",
             "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "window",
-                  "source": "window"
-                }
-              ]
+              "type": "var",
+              "data": "window",
+              "source": "window"
             },
             "right": {
               "type": "mtd",
@@ -29259,14 +28839,9 @@
       "data": "=??",
       "source": "Net.update()",
       "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Net",
-            "source": "Net"
-          }
-        ]
+        "type": "var",
+        "data": "Net",
+        "source": "Net"
       },
       "right": {
         "type": "mtd",
@@ -29294,14 +28869,9 @@
       "data": "=??",
       "source": "Input.update()",
       "left": {
-        "type": "mtd",
-        "data": [
-          {
-            "type": "var",
-            "data": "Input",
-            "source": "Input"
-          }
-        ]
+        "type": "var",
+        "data": "Input",
+        "source": "Input"
       },
       "right": {
         "type": "mtd",
@@ -29417,14 +28987,9 @@
             "data": "=??",
             "source": "Net.getChannelList()",
             "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "Net",
-                  "source": "Net"
-                }
-              ]
+              "type": "var",
+              "data": "Net",
+              "source": "Net"
             },
             "right": {
               "type": "mtd",
@@ -29523,14 +29088,9 @@
             "data": "=??",
             "source": "Net.getConfig()",
             "left": {
-              "type": "mtd",
-              "data": [
-                {
-                  "type": "var",
-                  "data": "Net",
-                  "source": "Net"
-                }
-              ]
+              "type": "var",
+              "data": "Net",
+              "source": "Net"
             },
             "right": {
               "type": "mtd",
@@ -29572,11 +29132,11 @@
           },
           {
             "type": "var",
-            "data": "EACH_I_rVxhhHTQTX",
-            "source": "EACH_I_rVxhhHTQTX"
+            "data": "EACH_I_eZgJJWITtW",
+            "source": "EACH_I_eZgJJWITtW"
           }
         ],
-        "source": "this.EACH_I_rVxhhHTQTX"
+        "source": "this.EACH_I_eZgJJWITtW"
       },
       "right": {
         "type": "num",
@@ -29591,8 +29151,8 @@
       "line": 1054,
       "left": {
         "type": "var",
-        "data": "EACH_DAT_OQIQuJrQKW",
-        "source": "EACH_DAT_OQIQuJrQKW"
+        "data": "EACH_DAT_SiPIuqdPeW",
+        "source": "EACH_DAT_SiPIuqdPeW"
       },
       "right": {
         "type": "mtd",
@@ -29624,8 +29184,8 @@
       "data": [
         {
           "type": "var",
-          "data": "EACH_DAT_OQIQuJrQKW",
-          "source": "EACH_DAT_OQIQuJrQKW"
+          "data": "EACH_DAT_SiPIuqdPeW",
+          "source": "EACH_DAT_SiPIuqdPeW"
         },
         {
           "type": "var",
@@ -29633,7 +29193,7 @@
           "source": "len"
         }
       ],
-      "source": "EACH_DAT_OQIQuJrQKW.len"
+      "source": "EACH_DAT_SiPIuqdPeW.len"
     },
     {
       "type": "blk",
@@ -29654,11 +29214,11 @@
                 },
                 {
                   "type": "var",
-                  "data": "EACH_I_rVxhhHTQTX",
-                  "source": "EACH_I_rVxhhHTQTX"
+                  "data": "EACH_I_eZgJJWITtW",
+                  "source": "EACH_I_eZgJJWITtW"
                 }
               ],
-              "source": "this.EACH_I_rVxhhHTQTX"
+              "source": "this.EACH_I_eZgJJWITtW"
             }
           },
           {
@@ -29687,8 +29247,8 @@
               "data": [
                 {
                   "type": "var",
-                  "data": "EACH_DAT_OQIQuJrQKW",
-                  "source": "EACH_DAT_OQIQuJrQKW"
+                  "data": "EACH_DAT_SiPIuqdPeW",
+                  "source": "EACH_DAT_SiPIuqdPeW"
                 },
                 {
                   "type": "mtv",
@@ -29704,17 +29264,17 @@
                         },
                         {
                           "type": "var",
-                          "data": "EACH_I_rVxhhHTQTX",
-                          "source": "EACH_I_rVxhhHTQTX"
+                          "data": "EACH_I_eZgJJWITtW",
+                          "source": "EACH_I_eZgJJWITtW"
                         }
                       ],
-                      "source": "this.EACH_I_rVxhhHTQTX"
+                      "source": "this.EACH_I_eZgJJWITtW"
                     }
                   ],
-                  "source": "[this.EACH_I_rVxhhHTQTX]"
+                  "source": "[this.EACH_I_eZgJJWITtW]"
                 }
               ],
-              "source": "EACH_DAT_OQIQuJrQKW.[this.EACH_I_rVxhhHTQTX]"
+              "source": "EACH_DAT_SiPIuqdPeW.[this.EACH_I_eZgJJWITtW]"
             }
           }
         ],
@@ -29810,14 +29370,9 @@
                         "data": "=??",
                         "source": "Net.getChannel(channel)",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -30064,14 +29619,9 @@
                         "data": "=??",
                         "source": "Net.getChannelMessages(channel, UI.neededMessages.[channel] ?? 0)",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
@@ -30742,14 +30292,9 @@
                         "data": "=??",
                         "source": "Net.sendMessage(\"hi\",\"general\")",
                         "left": {
-                          "type": "mtd",
-                          "data": [
-                            {
-                              "type": "var",
-                              "data": "Net",
-                              "source": "Net"
-                            }
-                          ]
+                          "type": "var",
+                          "data": "Net",
+                          "source": "Net"
                         },
                         "right": {
                           "type": "mtd",
