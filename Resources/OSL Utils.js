@@ -1023,6 +1023,18 @@ class OSLUtils {
         }
         i++
       }
+      if (['loop', 'if', 'while', 'until', 'for'].includes(data)) {
+        if (cur.length === 2 || 
+           (data === 'for' && cur.length === 3)
+        ) {
+          const blk = lines.splice(i + 1, 1)[0];
+          cur.push({
+            type: "blk",
+            data: [blk],
+            source: '[ast BLK]'
+          })
+        }
+      }
     }
 
     return lines.filter((line) => 
