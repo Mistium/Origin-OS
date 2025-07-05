@@ -991,22 +991,27 @@ class OSLUtils {
       }
       if (type === "cmd" && ["for", "each", "class"].includes(data)) {
         if (data === "each") {
-          if (cur[4]?.type === "blk") {
-            cur[2].type = "str";
-            continue;
-          } else if (cur[3]?.type === "blk") {
-            const id = "EACH_I_" + randomString(10);
+          let has_i = cur[4]?.type === "blk"
+          if (has_i || cur[3]?.type === "blk") {
+
+            const id = has_i ? cur[1].source : "EACH_I_" + randomString(10);
+            if (has_i) cur.splice(1, 1);
+            const dat = "EACH_DAT_" + randomString(10);
             lines.splice(i, 0, [
-              {...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")}
+              {...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")},
+              {...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }
             ]);
             cur[3].data.splice(0, 0, [
               {...cur[0], type: "asi", data: "++", left: this.evalToken(id) },
-              {...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(cur[2].source + `.[${id}]`) }
+              {...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }
             ])
             cur[0].data = "loop"
+            cur.splice(1, 1)
+            cur[1] = this.evalToken(`${dat}.len`)
           }
+        } else {
+          cur[1].type = "str";
         }
-        cur[1].type = "str"
         i++
       }
     }
@@ -1148,8 +1153,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `each i lol "hello" (
-      log "hi"
-    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Settings.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Settings.osl", "utf-8")
   }), null, 2));
 }
