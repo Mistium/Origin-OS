@@ -791,6 +791,14 @@ class OSLUtils {
           ]
         }
       }
+      if (node.type === "mtd") {
+        if (node.data.length !== 2) return node;
+        if (["str", "num"].includes(node.data[0].type))
+        switch (node.data[1].data) {
+          case "len": return this.evalToken(node.data[0].data.length);
+        }
+        return node;
+      }
       if (node.type === "opr" && node.left && node.right) {
         // Recursively evaluate left and right nodes first
         node.left = evalASTNode(node.left);
@@ -993,14 +1001,16 @@ class OSLUtils {
         if (data === "each") {
           let has_i = cur[4]?.type === "blk"
           if (has_i || cur[3]?.type === "blk") {
-
-            const id = has_i ? cur[1].source : "EACH_I_" + randomString(10);
+            const id = has_i ? cur[1].source : "this.EACH_I_" + randomString(10);
             if (has_i) cur.splice(1, 1);
-            const dat = "EACH_DAT_" + randomString(10);
-            lines.splice(i, 0, [
+            const static_var = cur[2].type === "var"
+            const dat = static_var ? cur[2].source : "EACH_DAT_" + randomString(10);
+            const spl = [
               {...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")},
               {...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }
-            ]);
+            ]
+            if (static_var) spl.pop();
+            lines.splice(i, 0, spl);
             cur[3].data.splice(0, 0, [
               {...cur[0], type: "asi", data: "++", left: this.evalToken(id) },
               {...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }
@@ -1153,6 +1163,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Settings.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }), null, 2));
 }
