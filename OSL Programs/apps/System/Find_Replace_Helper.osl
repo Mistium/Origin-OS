@@ -8,8 +8,8 @@ if passed_data == "" (
 ) else (
   file "open" passed_data
 )
-input_main = null
-input_replace = null
+inputs.main = null
+inputs.replace = null
 
 list = []
 search = []
@@ -53,7 +53,7 @@ square 330 30 10 : c#prim
 if onclick and list.len > 0 (
   file "get" 4
   file "set" 4 data.replaceFirst(inputs.main, inputs.replace)
-  if input_replace.contains(input_main) (
+  if inputs.replace.contains(inputs.main) (
     list[1] = list[1].replaceFirst(inputs.main, inputs.replace)
   ) else (
     list.shift()

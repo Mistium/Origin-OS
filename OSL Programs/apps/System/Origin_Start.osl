@@ -132,7 +132,7 @@ frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 tota
   total = apps.len
   goto 0 frame.top - 20 + frame.scroll
   each item apps (
-    if item.name.toStr().contains(input_search).not() and input_search != "" (
+    if item.name.toStr().contains(inputs.search).not() and inputs.search != "" (
       total --
       continue
     )
@@ -151,7 +151,7 @@ frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 tota
       )
       file "render" 1
       change_x 20
-    ) else if input_search.len > 0 (
+    ) else if inputs.search.len > 0 (
       total --
       continue
     ) else if item["type"] == "inf" (

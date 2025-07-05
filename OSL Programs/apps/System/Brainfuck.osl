@@ -3,7 +3,7 @@ file "get" 4
 return_char = 13.chr()
 code = data.replace("/[^\[\]><+-.,]+/gm","")
 
-def "reset"
+def "reset" (
   memory = [0]
   cur = 0
   memory_slots = 1
@@ -13,7 +13,7 @@ def "reset"
   count = 0
   running = false
   inp_chr = 1
-endef
+)
 
 reset
 mainloop:
@@ -65,7 +65,7 @@ while count < code.len and change_count < 500 (
       output_buffer += cur.chr()
       break
     case ","
-      memory[pointer] = input_main[inp_chr].ord()
+      memory[pointer] = inputs.main[inp_chr].ord()
       inp_chr ++
       break
     case "["

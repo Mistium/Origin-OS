@@ -18,22 +18,22 @@ if passed_data.isType("object") (
 rotur_icn = "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220"
 cur_tag = "all"
 
-def transfer(input_recipient) (
-  if balance < (input_amount.toNum() + 1) (
+def transfer(recipient) (
+  // this is validated server side too.
+  if balance < (inputs.amount.toNum() + 1) (
     say "Too Few Credits For This Transaction"
-  ) else if input_amount.toNum() < 0.01 (
+  ) else if inputs.amount.toNum() < 0.01 (
     say "Send amount must be greater than 0.01"
-  ) else if input_recipient == username (
+  ) else if recipient == username (
     say "You Cannot Send To Yourself"
   ) else (
-    rotur "transfer" input_amount.toNum() input_recipient
-    input_amount = null
-    input_recipient = null
+    rotur "transfer" inputs.amount.toNum() recipient
+    inputs.amount = null
   )
 )
 
 def "transfer_button" "w, name" (
-  if input_amount == "" or name == "" (
+  if inputs.amount == "" or name == "" (
     c prim
     can = false
   ) else (
@@ -44,7 +44,7 @@ def "transfer_button" "w, name" (
   if onclick and can (
     transfer(name)
   )
-  message = "Transfer" + input_amount.toNum() ++ " (+ 1 tax)" + "Total Cost: " ++ (input_amount.toNum() + 1)
+  message = "Transfer" + inputs.amount.toNum() ++ " (+ 1 tax)" + "Total Cost: " ++ (inputs.amount.toNum() + 1)
   centext message 8 : c#txtc
 )
 
@@ -73,8 +73,6 @@ if menu == "transfer" (
   
   change_y -137
   centext recipient 15 : c#txtc
-  
-  input_recipient = recipient
   
   change_y -77
   c prim
@@ -139,7 +137,7 @@ switch menu (
     square 360 25 10 : c#prim
     input 350 25 "amount" "Amount Of Credits"
     loc 999 2 105 -190
-    transfer_button 360 input_recipient
+    transfer_button 360 inputs.recipient
     break
 
   case "sent"
