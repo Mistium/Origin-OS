@@ -712,6 +712,12 @@ class OSLUtils {
     return ["str", "num", "unk"].includes(token.type);
   }
 
+  generateError(source, error) {
+    const ast = this.generateAST({ CODE: `throw "error" '${error}'` });
+    ast[0].source = source;
+    return ast;
+  }
+
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
     const start = CODE.split("\n", 1)[0]
@@ -957,7 +963,7 @@ class OSLUtils {
     return ast.filter(token => (
       token.type &&
       token.type.length === 3 &&
-      !(String(token.data).startsWith("/*") && token.type === "unk")
+      !((String(token.data).startsWith("/*") || String(token.data).endsWith("*/")) && token.type === "unk")
     ))
   }
 
@@ -998,6 +1004,10 @@ class OSLUtils {
       }
       if (type === "cmd" && ["for", "each", "class"].includes(data)) {
         if (data === "each") {
+          if (cur[cur.length - 1].type !== "blk") {
+            lines[i] = this.generateError(cur[0].source, "Each loops require a block after the variable(s). Example: each i arr ( ... )");
+            continue;
+          }
           let has_i = cur[4]?.type === "blk"
           if (has_i || cur[3]?.type === "blk") {
             const id = has_i ? cur[1].source : "this.EACH_I_" + randomString(10);
