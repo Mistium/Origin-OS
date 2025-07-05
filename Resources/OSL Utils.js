@@ -780,7 +780,6 @@ class OSLUtils {
           params = node.left.source.replace(/^\(| +|\)$/gi, "");
           right.data = `(\nreturn ${right.data}\n)`;
         }
-        console.log(node.left);
         return {
           type: "fnc",
           data: "function",
@@ -1163,6 +1162,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/settings.osl", "utf-8")
   }), null, 2));
 }
