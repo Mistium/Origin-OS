@@ -181,9 +181,8 @@ def "file_folder" "txt, folder" (
         if fileGet(1) == ".folder" (
           favorites.insert(idx, fileGet(3) ++ "/" ++ fileGet(2))
           saveFavorites()
+          file_dropped = 0
         )
-        
-        file_dropped = 0
       )
     )
     
@@ -342,7 +341,9 @@ def "render_files" (
       if mouse_touching and (file_dropped == 0 nor mouse_down) (
         file "open" file_dropped "onlyaccess"
         file "open" fileGet(3) ++ ".folder"
-        new @= file[4].delete(file_dropped).append(file_dropped)
+        new @= file[4]
+        new.delete(file_dropped)
+        new.append(file_dropped)
         file "set" 4 new
         current_folder_update = new
         refresh
