@@ -22,7 +22,8 @@ input 250 23 "name" "Example: 'file.txt'"
 
 loc 999 2 0 -113
 square 250 30 10 : c#prim
-if inputs.name.match("/[^.]+\.[^.]+/gm") != null (
+if inputs.name.contains(".") (
+  square 250 30 10 : c#seco
   if clicked or "enter".onKeyDown() (
     file "download" inputs.name.toStr() null null location
     window.close()
@@ -33,5 +34,5 @@ text "Create File" 10 : c#txtc
 loc -2 2 -15 -15
 icon "close" 0.6 : c#txtc
 if clicked (
-  window "stop"
+  window.close()
 )
