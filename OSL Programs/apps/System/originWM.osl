@@ -20,7 +20,7 @@ def dragEdge(prop, axis) (
     state.dragEdge = null
     return
   )
-  if mouse_moved (
+  if mouse_moving (
     local pos = top.tile
     if axis == "x" (
       if pos.startsWith("-1,") or pos.startsWith("1,") (
@@ -44,7 +44,7 @@ def dragDiagonal() (
     state.dragDiag = null
     return
   )
-  if mouse_moved (
+  if mouse_moving (
     top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
     top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
     top.x = state.resize1 + (top.width / state.div1)
