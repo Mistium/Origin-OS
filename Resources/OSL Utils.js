@@ -1212,6 +1212,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/contacts.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
