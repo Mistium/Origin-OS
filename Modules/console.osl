@@ -4,16 +4,16 @@ self.width = 0
 window "show"
 window "dimensions" 800 550
 
-def log(this.data) (
-  self.console = self.console.append(this.data)
+def log(data) (
+  self.console = self.console.append(data)
 )
 
-def replace_line(this.line, this.data) (
-  self.console[this.line] = this.data
+def replace_line(line, data) (
+  self.console[line] = data
 )
 
-def remove_line(this.line) (
-  self.console = self.console.delete(this.line)
+def remove_line(line) (
+  self.console = self.console.delete(line)
 )
 
 def clear() (
@@ -25,17 +25,17 @@ def run_ui() (
   this.prim = user.theme.primary
   this.txt = user.theme.text
   c this.prim
-  frame frame.left frame.top - 40 frame.right frame.bottom self.console.len * 20 "console_main"
+  frame frame.left frame.top - 40 frame.right frame.bottom self.console.len * 20 "console_main" (
     c this.txt
-    count = (scroll_yconsole_main / 20).round()
+    count = round(scroll_yconsole_main / 20)
     loc 2 2 10 -20 + (scroll_yconsole_main % 20)
     x = frame.left + 10
-    loop frame.height // 20 (
+    loop floor(frame.height / 20) (
       count ++
       loc 2 2 10 scroll_yconsole_main - (20 * count)
       text self.console[count] 10
     )
-  frame "clear"
+  )
 
   loc 999 2 0 -20
   square frame.width 30 10 : c#this.prim
@@ -50,17 +50,16 @@ def run_ui() (
   )
 )
 
-def mainloop(this.callback) (
+def mainloop(callback) (
   if "shift".isKeyDown() and "control".isKeyDown() and "c".onKeyDown() (
     self.width = 300 - self.width
   )
-  frame window.left window.top window.right - self.width window.bottom
-    this.callback()
-  frame "clear"
-  
+  frame window.left window.top window.right - self.width window.bottom (
+    callback()
+  )
   if self.width > 0 (
-    frame window.right - self.width window.top window.right window.bottom
+    frame window.right - self.width window.top window.right window.bottom (
       self.run_ui()
-    frame "clear"
+    )
   )
 )

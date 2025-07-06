@@ -158,7 +158,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "New_File.osl",
     "icon": "c #1a1a1a w 10 square 0 0 5 5 icn add 0.5",
-    "version":"1.6"
+    "version":"1.7"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/StandbyMode.osl",
@@ -221,7 +221,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "originWM.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn multitasking 0.5",
-    "version":"1.8"
+    "version":"1.9"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Files.osl",
