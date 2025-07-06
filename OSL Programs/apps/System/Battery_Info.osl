@@ -11,32 +11,18 @@ square 270 20 15 : c#prim
 loc -2 2 -15 -15
 icon "close" 0.6 : c#txtc
 if clicked (
-  window "stop"
+  window.close()
 )
 loc 2 2 10 -15
 text "Battery" 9 : c#txtc
-buf = battery_time_until_full / 60
-bue = battery_time_until_empty / 60
-buf.round
-bue.round
+buf = round(battery_time_until_full / 60)
+bue = round(battery_time_until_empty / 60)
 loc 2 2 10 -70
 text battery_percent ++ "%" 13
-if battery_charging (
-  text "(charging)" 8 : chx#10
-) else (
-  text "(not charging)" 8 : chx#10
-)
+text battery_charging ? "(charging)" "(not charging)" 8 : chx#10
 loc 2 2 10 -110
 if battery_percent < 100 (
-  if battery_charging (
-    text buf + "mins until full" 10
-  ) else (
-    text bue + "mins until empty" 10
-  )
+  text battery_charging ? buf + "mins until full" bue + "mins until empty" 10
 ) else (
-  if battery_charging (
-    text "Full Charge" 10
-  ) else (
-    text bue + "mins until empty" 10
-  )
+  text battery_charging ? "Full Charge" bue + "mins until empty" 10
 )

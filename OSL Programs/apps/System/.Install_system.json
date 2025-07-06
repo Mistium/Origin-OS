@@ -18,7 +18,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Battery_Info.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn battery_2 0.4",
-    "version":"1.1"
+    "version":"1.2"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/main.ode",

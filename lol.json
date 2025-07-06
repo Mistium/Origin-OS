@@ -393,7 +393,8 @@
         "parameters": [
           {
             "type": "str",
-            "data": "name"
+            "data": "name",
+            "source": "name"
           },
           {
             "type": "blk",
@@ -574,7 +575,8 @@
                       "parameters": [
                         {
                           "type": "str",
-                          "data": "v"
+                          "data": "v",
+                          "source": "v"
                         },
                         {
                           "type": "blk",
@@ -583,12 +585,22 @@
                               {
                                 "type": "cmd",
                                 "data": "return",
-                                "source": "return !="
+                                "source": "return v != null"
                               },
                               {
                                 "type": "cmp",
                                 "data": "!=",
-                                "source": "!="
+                                "source": "v != null",
+                                "left": {
+                                  "type": "var",
+                                  "data": "v",
+                                  "source": "v"
+                                },
+                                "right": {
+                                  "type": "unk",
+                                  "data": null,
+                                  "source": "null"
+                                }
                               }
                             ]
                           ],
@@ -4219,11 +4231,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_ckVnAxzfoS",
-                                    "source": "EACH_I_ckVnAxzfoS"
+                                    "data": "EACH_I_hXBBoeeZBR",
+                                    "source": "EACH_I_hXBBoeeZBR"
                                   }
                                 ],
-                                "source": "this.EACH_I_ckVnAxzfoS"
+                                "source": "this.EACH_I_hXBBoeeZBR"
                               },
                               "right": {
                                 "type": "num",
@@ -4274,11 +4286,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_ckVnAxzfoS",
-                                          "source": "EACH_I_ckVnAxzfoS"
+                                          "data": "EACH_I_hXBBoeeZBR",
+                                          "source": "EACH_I_hXBBoeeZBR"
                                         }
                                       ],
-                                      "source": "this.EACH_I_ckVnAxzfoS"
+                                      "source": "this.EACH_I_hXBBoeeZBR"
                                     }
                                   },
                                   {
@@ -4313,17 +4325,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_ckVnAxzfoS",
-                                                  "source": "EACH_I_ckVnAxzfoS"
+                                                  "data": "EACH_I_hXBBoeeZBR",
+                                                  "source": "EACH_I_hXBBoeeZBR"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_ckVnAxzfoS"
+                                              "source": "this.EACH_I_hXBBoeeZBR"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_ckVnAxzfoS]"
+                                          "source": "[this.EACH_I_hXBBoeeZBR]"
                                         }
                                       ],
-                                      "source": "badges.[this.EACH_I_ckVnAxzfoS]"
+                                      "source": "badges.[this.EACH_I_hXBBoeeZBR]"
                                     }
                                   }
                                 ],
@@ -5142,7 +5154,8 @@
                         "parameters": [
                           {
                             "type": "str",
-                            "data": ""
+                            "data": "",
+                            "source": ""
                           },
                           {
                             "type": "blk",
@@ -5253,7 +5266,8 @@
                         "parameters": [
                           {
                             "type": "str",
-                            "data": ""
+                            "data": "",
+                            "source": ""
                           },
                           {
                             "type": "blk",
@@ -5363,7 +5377,8 @@
                         "parameters": [
                           {
                             "type": "str",
-                            "data": ""
+                            "data": "",
+                            "source": ""
                           },
                           {
                             "type": "blk",

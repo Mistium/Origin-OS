@@ -668,18 +668,13 @@ class OSLUtils {
     else if (!isNaN(+cur)) return { type: "num", data: +cur }
     else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
+    else if (cur === "--") return { type: "unk", data: "--" }
     else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
     else if (cur === "?") return { type: "qst", data: cur }
     else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
     else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
     else if (cur.endsWith("=")) return { type: "asi", data: cur }
-    else if (["!", "-", "+"].includes(start) && cur.length > 1) {
-      if (["+", "-"].includes(cur[1])) {
-        start += cur[1];
-        cur = cur.slice(1);
-      }
-      return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
-    }
+    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
     else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
     else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
@@ -735,8 +730,9 @@ class OSLUtils {
     for (let i = 0; i < tokens.length; i++) {
       const cur = tokens[i].trim()
       if (cur === "->") {
+        const data = tokens[i + 1].trim()
         ast.push({ type: "inl", data: "->" })
-        ast.push({ type: "str", data: tokens[i + 1].trim() })
+        ast.push({ type: "str", data, source: data })
         i += 1
         continue
       }
@@ -788,13 +784,12 @@ class OSLUtils {
     const evalASTNode = node => {
       if (!node) return node;
       if (node.type === "inl") {
-        console.log("Inline function detected:", node.left, node.right);
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         if (node.left?.type === "var") params = node.left.data;
         const right = node.right;
         if (typeof right.data === "string" && !right.data.trim().startsWith("(\n") && node.left) {
           params = node.left.source.replace(/^\(| +|\)$/gi, "");
-          right.data = `(\nreturn ${right.data}\n)`;
+          right.data = `(\nreturn ${right.source}\n)`;
         }
         return {
           type: "fnc",
@@ -802,7 +797,8 @@ class OSLUtils {
           parameters: [
             {
               type: "str",
-              data: params
+              data: params,
+              source: params
             },
             this.generateAST({ CODE: right.data, START: 0 })[0]
           ]
@@ -834,7 +830,8 @@ class OSLUtils {
           }
           if (result) return {
             type: "num",
-            data: +result
+            data: +result,
+            source: result.toString()
           };
         }
       }
@@ -860,17 +857,19 @@ class OSLUtils {
         data: "=",
         source: start
       });
+      const params = second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
+        p.type === "mtd" ?
+        p.data.map(p2 => p2.data).join(".") :
+        p.data
+      )).join(",")
       ast[2] = {
         type: "fnc",
         data: "function",
         parameters: [
           {
             type: "str",
-            data: second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
-              p.type === "mtd" ?
-                p.data.map(p2 => p2.data).join(".") :
-                p.data
-            )).join(",")
+            data: params,
+            source: params
           },
           ast[3]
         ]
