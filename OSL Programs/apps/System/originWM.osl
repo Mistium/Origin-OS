@@ -15,6 +15,12 @@ window "responsive" true
 
 hitbox_size = 13
 
+// Tiling configuration
+window_area_top = screensize_y / 2
+window_area_left = screensize_x / -2
+window_area_right = screensize_x / 2
+window_area_bottom = screensize_y / -2 + 70
+
 def dragEdge(prop, axis) (
   if !mouse_down (
     state.dragEdge = null
@@ -57,59 +63,54 @@ def dragDiagonal() (
   )
 )
 
-state = {
-  dragEdge: null,
-  dragDiag: null,
-  changeState: def(edge,prop) -> (
-    if prop == "both" (
-      self.dragDiag = edge.split(",")
-      self.axis = "both"
-      self.div1 = dragDiag[1] == "left" ? -2 2
-      self.div2 = dragDiag[2] == "bottom" ? -2 2
-      self.resize1 = top.x - (top.width / div1)
-      self.resize2 = top.y - (top.height / div2)
-    ) else (
-      self.dragEdge = edge
-      self.axis = ["width"].contains(prop) ? "x" "y"
-      self.div = ["left","bottom"].contains(edge) ? -2 2
-      self.resize1 = top.x - (top.width / div)
-      self.resize2 = top.y - (top.height / div)
+def moveWindow() (
+  if !mouse_down (
+      if mouse_y > window_area_top - 13 (
+        top.tile = "0,-1"
+        top.target_x = 0
+        top.target_y = 35
+        top.target_width = window_area_right - window_area_left
+        top.target_height = window_area_top - window_area_bottom
+      ) else if mouse_x < window_area_left + 13 (
+        top.tile = "-1,0"
+        top.target_y = 35
+        top.target_height = window_area_top - window_area_bottom
+      ) else if mouse_x > window_area_right - 13 (
+        top.tile = "1,0"
+        top.target_y = 35
+        top.target_height = window_area_top - window_area_bottom
+      )
+      state.move = null
+      return
     )
-    
-    self.prop = prop
-    self.last_size = top[prop]
-    self.pos = top.tile
-  )
-}
+    state.cursor = "grabbing"
+    if mouse_moving (
+      if top.tile != null (
+        local relative_x = (mouse_x - top.x) / top.width
+        local relative_y = (mouse_y - top.y) / top.height
+        
+        top.tile = null
+        top.target_width = 700
+        top.target_height = 450
+        
+        top.x = mouse_x - (relative_x * top.target_width)
+        top.y = mouse_y - (relative_y * top.target_height)
 
-mainloop:
-
-if wins[1].id == window.id (
-  window.resize(0,0)
-) else (
-  window.resize(screensize_x,screensize_y)
+        state.move.x = top.x
+        state.move.y = top.y
+      ) else (
+        top.x = state.move.x + (mouse_x - state.move.mouse_x)
+        top.y = state.move.y + (mouse_y - state.move.mouse_y)
+        state.move.x = top.x
+        state.move.y = top.y
+      )
+      state.move.mouse_x = mouse_x
+      state.move.mouse_y = mouse_y
+      top.callRender()
+    )
 )
 
-wins @= Windows()
-
-top @= wins[1].window ?? ""
-
-x2 = hitbox_size * 2
-x25 = hitbox_size / 4
-
-if !mouse_down (
-  state.cursor = null
-)
-local x = top.x
-local y = top.y
-
-isntMini = true
-if top.isType("string").not() (
-  isntMini = top.isMini().not()
-)
-
-if state.dragEdge == null and state.dragDiag == null and checkCollision(x, y, top.width + x2, top.height + x2) and !file_dragging and isntMini (
-
+def handleResize() (
   // left edge
   if checkCollision(x + top.left, y, hitbox_size, top.height - x25) (
     state.cursor = "ew-resize"
@@ -169,12 +170,102 @@ if state.dragEdge == null and state.dragDiag == null and checkCollision(x, y, to
       )
     )
   )
+)
+
+def handleMove() (
+  drag @= top.dragbox[1]
+  goto x y
+  change top.width / -drag[1] + drag[3] top.height / drag[2] + drag[4]
+  if mouse_x < x_position or mouse_y > y_position (
+    return
+  )
+
+  drag @= top.dragbox[2]
+  goto x y
+  change top.width / -drag[1] + drag[3] top.height / drag[2] + drag[4]
+  if mouse_x > x_position or mouse_y < y_position (
+    return
+  )
+  state.cursor = "grab"
+  if mouse_ondown (
+    state.dragDiag = null
+    state.dragEdge = null
+    state.move = {
+      x: top.x,
+      y: top.y,
+      mouse_x: mouse_x,
+      mouse_y: mouse_y,
+      tile: top.tile
+    }
+  )
+)
+
+state = {
+  dragEdge: null,
+  dragDiag: null,
+  move: null,
+  changeState: def(edge,prop) -> (
+    if prop == "both" (
+      self.dragDiag = edge.split(",")
+      self.axis = "both"
+      self.div1 = dragDiag[1] == "left" ? -2 2
+      self.div2 = dragDiag[2] == "bottom" ? -2 2
+      self.resize1 = top.x - (top.width / div1)
+      self.resize2 = top.y - (top.height / div2)
+    ) else (
+      self.dragEdge = edge
+      self.axis = ["width"].contains(prop) ? "x" "y"
+      self.div = ["left","bottom"].contains(edge) ? -2 2
+      self.resize1 = top.x - (top.width / div)
+      self.resize2 = top.y - (top.height / div)
+    )
+    
+    self.prop = prop
+    self.last_size = top[prop]
+    self.pos = top.tile
+  )
+}
+
+mainloop:
+
+if wins[1].id == window.id (
+  window.resize(0,0)
+) else (
+  window.resize(screensize_x,screensize_y)
+)
+
+wins @= Windows()
+
+top @= wins[1].window ?? ""
+
+x2 = hitbox_size * 2
+x25 = hitbox_size / 4
+
+if !mouse_down (
+  state.cursor = null
+)
+x = top.x
+y = top.y
+
+isntMini = true
+if top.isType("string").not() (
+  isntMini = top.isMini().not()
+)
+
+nodragging = state.dragEdge == null and state.dragDiag == null and state.move == null
+hovering = checkCollision(x, y, top.width + x2, top.height + x2)
+if nodragging and hovering and !file_dragging and isntMini (
+  handleResize()
+  handleMove()
 ) else (
   if state.dragEdge != null (
     dragEdge(state.prop,state.axis)
   )
   if state.dragDiag != null (
     dragDiagonal()
+  )
+  if state.move != null (
+    moveWindow()
   )
 )
 if state.cursor != null (
