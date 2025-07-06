@@ -620,7 +620,7 @@ class OSLUtils {
   }
 
   stringToToken(cur, param) {
-    const start = cur[0]
+    let start = cur[0]
     if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (start === "[") {
@@ -672,7 +672,14 @@ class OSLUtils {
     else if (cur === "?") return { type: "qst", data: cur }
     else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
     else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
-    else if (["!", "-"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) }
+    else if (cur.endsWith("=")) return { type: "asi", data: cur }
+    else if (["!", "-", "+"].includes(start) && cur.length > 1) {
+      if (["+", "-"].includes(cur[1])) {
+        start += cur[1];
+        cur = cur.slice(1);
+      }
+      return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
+    }
     else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
     else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
@@ -706,7 +713,6 @@ class OSLUtils {
       return out
     }
     else if (cur === ":") return { type: "mod_indicator", data: ":" };
-    else if (cur.endsWith("=")) return { type: "asi", data: cur }
     else return { type: "unk", data: cur }
   }
 
@@ -749,7 +755,7 @@ class OSLUtils {
     }
 
     // join together nodes that should be a single node
-    const types = ["inl", "opr", "cmp", "qst", "bit", "log"];
+    const types = ["opr", "cmp", "qst", "bit", "log", "inl"];
     for (let type of types) {
       for (let i = START ?? (["asi", "inl"].includes(type) ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
@@ -782,7 +788,9 @@ class OSLUtils {
     const evalASTNode = node => {
       if (!node) return node;
       if (node.type === "inl") {
+        console.log("Inline function detected:", node.left, node.right);
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
+        if (node.left?.type === "var") params = node.left.data;
         const right = node.right;
         if (typeof right.data === "string" && !right.data.trim().startsWith("(\n") && node.left) {
           params = node.left.source.replace(/^\(| +|\)$/gi, "");
@@ -1205,6 +1213,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `lol = [1, 2, ...arr.lol(1,2,3), 3]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/settings.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/contacts.osl", "utf-8")
   }), null, 2));
 }
