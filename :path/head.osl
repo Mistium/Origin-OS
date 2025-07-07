@@ -1,0 +1,5 @@
+local lines = args[2].split("\n", args[1])
+
+void lines.map(v -> (
+    terminal.writeLine(v)
+))

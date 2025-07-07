@@ -1,0 +1,9 @@
+local obj = args[2].JsonParse()
+if typeof(obj) != "object" (
+    terminal.writeLine("Invalid JSON object provided.")
+    return
+)
+
+obj[args[1]] = args[3]
+
+terminal.writeLine(obj.JsonStringify())
