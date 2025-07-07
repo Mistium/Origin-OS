@@ -1,12 +1,12 @@
 files = open(terminal.pwd ++ ".folder")
 
-files.map(f -> open(f, ["name", "type"]).join("."))
+files @= files.map(f -> (open(f, ["name", "type"]).join(".")))
 
-if !args.contains("-a") (
-  files @= files.filter(v -> v[1] != ":")
+if args.contains("-a").not() (
+  files @= files.filter(v -> (v[1] != ":"))
 )
 
-void files.map(v -> (
+void files.map(def(v) -> (
   local ov = v
   if ov.endsWith(".folder") (
     ov = ov.trim(1, -9) ++ "/"

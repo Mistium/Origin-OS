@@ -2,15 +2,80 @@ import as "glass" from "packages"
 import "window_tools"
 
 file "use_type" "ots"
+permission "request" "terminal"
+permission "request" "file admin"
+save "system@terminal" "set_directory"
+network "set_app_id" "terminal@system"
+
+class terminal (
+  lines = []
+  pwd = user_folder
+  
+  def writeLine(data) (
+    void self.lines.append(data)
+  )
+  
+  def write(data) (
+    self.lines[self.lines.len] += data
+  )
+  
+  def clear() (
+    self.lines = []
+  )
+  
+  self.user_start = {_get: def() -> (
+    local pos = self.pwd
+    if pos == user_folder (
+      pos = "~"
+    ) else (
+      pos = pos.split("/")[-1]
+    )
+    return username ++ "@originos " ++ pos ++ " % "
+  )}
+)
+
+def evalCmd(cmd) (
+  local tokens = cmd.oslTokenise()
+  local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
+  if self.cache.contains(path).not() (
+    file "exists" path
+    local data = open(path)
+    if data == null or exists.not() (
+      terminal cmd
+      terminal.lines @= terminal.lines.trim(1, terminal_length) ++ terminal_output
+      return
+    ) else (
+      self.cache[path] @= function("args", data)
+    )
+  )
+  void tokens.shift()
+  local lines = terminal.lines
+  for i tokens.len (
+    local cur = tokens[i]
+    if cur[1] == "(" and cur[-1] == ")" (
+      terminal.lines = []
+      evalCmd(cur.trim(2, -2))
+      if terminal.lines.len > 0 (
+        if terminal.lines.len == 1 (
+          terminal.lines = terminal.lines[1]
+        )
+        tokens[i] @= terminal.lines
+      ) else (
+        tokens[i] = null
+      )
+    )
+  )
+  terminal.lines = lines
+  void self.cache[path](tokens)
+)
 
 terminal_worker @= worker({
   cmd: null,
   isThread: true,
+  cache: {},
   onframe: def() -> (
     if cmd != null (
-      terminal cmd
-      terminal @= terminal.trim(1, terminal_length) ++ terminal_output
-      loops = terminal.len
+      evalCmd(cmd)
       self.cmd = null
     )
   )
@@ -37,44 +102,15 @@ ansi = {
 
 ansi_re = "/\e\[[0-9;]+m/g"
 
-save "system@terminal" "set_directory"
-
 mode = "norm"
 
-if passed_data != "" (
-  file "open" passed_data "onlyaccess"
-  file "get" 4
-  data.replace("/^[ \n\t]*/gm","")
-  ots_script = data.split("\n")
-  each i line ots_script (
-    if line.startsWith("if ") or line.startsWith("jump ") (
-      line.split(" ")
-      if line.last()[1] == ":" (
-        idx = ots_script.index(line.last())
-        line[line.len] = idx
-        ots_script[i] = line.join(" ").destr
-      )
-    )
-  )
-  mode = "ots"
-) else (
-  ots_script = ""
-)
-network "set_app_id" "terminal@system"
-window "set_dragbox" [[2,2,0,0],[-2,2,-100,-30]]
-
-user_start = username ++ "@originos ~ % "
-terminal = []
 canenter = true
 inputs.main = null
 last = []
 last_index = 0
 
-permission "request" "terminal"
-
 window.setDragbox([2,2,0,0],[-2,-2,0,0])
 
-loops = 0
 taking_input = false
 ots_i = 1
 
@@ -89,11 +125,11 @@ if new_network_data and terminal_worker.cmd == null (
   if packet.data.istype("array") (
     msg = packet.username + "> " + packet.data[0]
     each line packet.data.delete(1) (
-      terminal.append(line)
+      void terminal.lines.append(line)
       loops ++
     )
   ) else (
-    terminal.append(packet.username + "> " + packet.data)
+    void terminal.lines.append(packet.username + "> " + packet.data)
     loops ++
   )
   new_network_data = false
@@ -105,12 +141,6 @@ pen "opacity" 60
 icon "w 999 dot 0 0" 100
 frame "clear"
 
-/* if mode == "SRE" (
-  if "enter".onKeyDown() (
-    network "SRE" inputs.main sre_target
-    terminal = terminal.destr.append(username ++ "/:" ++ inputs.main)
-  )
-) */
 if mode == "norm" (
   if "enter".onKeyDown() (
     void last.append(inputs.main)
@@ -121,21 +151,16 @@ if mode == "norm" (
         sre_target = inputs.main.split(" ")[2]
       ) else (
         terminal_worker.cmd = inputs.main
-        terminal_length = terminal.len + 1
+        terminal_length = terminal.lines.len + 1
       )
-      void terminal.append(user_start ++ inputs.main)
+      void terminal.lines.append(user_start ++ inputs.main)
     ) catch e (
-      void terminal.append(user_start ++ inputs.main)
-      void terminal.append(e.error)
+      void terminal.lines.append(user_start ++ inputs.main)
+      void terminal.lines.append(e.error)
     )
     loops = terminal.len
     terminal_output = []
     inputs.main = null
-  )
-  if terminal_worker.cmd != null (
-    term @= window.getTerminal()
-    terminal @= terminal.trim(1,terminal_length) ++ term
-    loops = terminal.len
   )
 )
 
@@ -154,14 +179,27 @@ c prim
 frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20
 
 c txtc
+loops = terminal.lines.len
 count = floor(scroll_y / 20).clamp(0,loops)
-loop round(frame_height / 20 + 3).clamp(0,loops) (
+loop round(frame.height / 20 + 3).clamp(0,loops) (
   count ++
-  y = count * -20 + scroll_y + 5
+  y = count * -20 + frame.scroll + 5
   loc 2 2 10 y
-  text terminal[count] 10
+  local line = terminal.lines[count]
+  if typeof(line) == "array" (
+    local i = 0
+    loop line.len / 2 (
+      i += 2
+      c line[i - 1] ?? txtc
+      text line[i] 10
+      c txtc
+    )
+  ) else (
+    text line 10
+  )
 )
 
+local user_start = terminal.user_start
 if terminal_worker.cmd == null (
   loc 2 2 10 loops * -20 + scroll_y - 15
   text user_start 10 : c#txtc
