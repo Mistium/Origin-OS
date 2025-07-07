@@ -1,0 +1,19 @@
+local wins @= Windows()
+
+local idx = args.index("-p")
+if idx > 0 (
+  for i wins.len (
+    local w @= wins[i]
+    if w.name == args[idx + 1] (
+      terminal.writeLine(w.id)
+    )
+  )
+  return
+)
+
+if args.contains("-x") (
+  wins.map(w -> (
+    terminal.writeLine(w.id + " " + w.name)
+  ))
+  return
+)

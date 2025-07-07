@@ -1,0 +1,13 @@
+local pwd = terminal.pwd.split("/")
+pwd[1] = ""
+pwd.append(args[1])
+
+local dir = parseFilePath(pwd.join("/"))
+file "exists" dir
+if exists (
+  void open(dir).split("\n").map(v -> (
+    terminal.writeLine(v)
+  ))
+) else (
+  terminal.writeLine("Unknown target file: " ++ args[1])
+)
