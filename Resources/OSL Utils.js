@@ -967,7 +967,7 @@ class OSLUtils {
           if (cur[0].data === "case") cases.all.push([cur[1], i])
           if (cur[0].data === "default") cases.default = i
         }
-        if (cases.all.every(v => ["str", "num"].includes(v[0].type))) {
+        if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
           const newCases = {}
           cases.all.map(v => {
             if (v[0]?.data) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
