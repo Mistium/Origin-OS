@@ -1,1 +1,1 @@
-console.writeLine(args[1].len)
+terminal.writeLine(args[1].len)
