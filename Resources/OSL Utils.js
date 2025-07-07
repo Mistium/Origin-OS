@@ -621,6 +621,7 @@ class OSLUtils {
 
   stringToToken(cur, param) {
     let start = cur[0]
+    if (cur === "/@line") return { type: "unk", data: "/@line" }
     if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (start === "[") {
@@ -691,7 +692,7 @@ class OSLUtils {
       const body = cur.substring(1, end).trim();
       return this.generateAST({ CODE: body, START: 0 })[0]
     }
-    else if (cur.endsWith(")")) {
+    else if (cur.endsWith(")") && cur.length > 1) {
       let out = { type: param ? "mtv" : "fnc", data: cur.substring(0, cur.indexOf("(")), parameters: [] }
       if (cur.endsWith("()")) return out
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
@@ -724,9 +725,11 @@ class OSLUtils {
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
     const start = CODE.split("\n", 1)[0]
+    console.log("Generating AST for:", CODE);
     // tokenise and handle lambda and inline funcs
     let ast = []
     let tokens = this.tokeniseLineOSL(CODE)
+    console.log("Tokens:", JSON.stringify(tokens));
     for (let i = 0; i < tokens.length; i++) {
       const cur = tokens[i].trim()
       if (cur === "->") {
@@ -988,12 +991,15 @@ class OSLUtils {
 
   generateFullAST({ CODE, MAIN = true }) {
     let line = 0;
-    CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(/("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|\n/gm, (match) => {
+    const re = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|\n\s+\/\/[^\n]+|\n/gm
+    console.log("Generating Full AST for:", CODE);
+    CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(re, (match) => {
       if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
       if (match === ";") return "\n";
       if (match === "(") return ".call(";
       if (match === "[") return ".[";
       if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line ++; return match }
+      if (match.trim().startsWith("//")) { line ++; return ""; }
       if (match.startsWith("\n")) { line ++; return match.replace(/\n\s*\./, ".") };
       return match;
     });
@@ -1005,10 +1011,10 @@ class OSLUtils {
     }).join("\n");
 
     let lines = this.tokeniseLines(CODE).map((line) => {
-      line = line.trim();
-      if (line.startsWith("//") || line === "") return null;
-      return this.generateAST({ CODE: line, MAIN: true });
+      return this.generateAST({ CODE: line.trim(), MAIN: true });
     });
+
+    lines = lines.filter(l => l !== null && l.length > 0);
 
     for (let i = 0; i < lines.length; i++) {
       const cur = lines[i]
@@ -1018,15 +1024,12 @@ class OSLUtils {
       if (type === "unk" && data === "/@line") {
         let next = lines[i + 1];
         lines.splice(i--, 1);
-        if (!next?.[0]) continue;
+        if (!next) continue;
         next[0].line = cur[1].data;
       }
     }
 
-    lines = lines.filter((line) => 
-      line?.length &&
-      line[0]?.data !== "/@line"
-    );
+    lines = lines.filter(l => l[0]?.data !== "/@line");
 
     for (let i = 0; i < lines.length; i++) {
       const cur = lines[i];
@@ -1228,7 +1231,211 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `while v !== 10 or lol == 4 (
-    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: `// Welcome to OPAL!
+// ----------------------------------------
+// this is a fully osl based package manager
+// and dev companion for your osl projects
+
+// here you can modify your package source
+local repo = "https://opal.mistium.com"
+// here you can modify the config for opal
+local conf = "~/:opal.conf"
+
+local log @= def(d) -> (
+  if d.contains("\n") (
+    d = d.split("\n")
+    for i d.len (
+      terminal.writeLine(d[i])
+    )
+    return
+  )
+  terminal.writeLine(d)
+)
+
+local pwd = terminal.pwd.split("/")
+pwd[1] = ""
+pwd @= pwd.join("/")
+
+// local config @= open("~/:opal.conf").JsonParse()
+
+local c = {
+  err: "#FF2929",
+  suc: "",
+  opl: "#43c2a7"
+}
+
+local opal = {
+  about: {
+    version: "1.0.0"
+  },
+  getPackages: def() -> (
+    local val @= self.open("packages.folder")
+    local resp @= self.resp
+    if val.exists (
+      local json = val.data.JsonParse()
+      if typeof(json) != "array" (
+        return resp("log", [
+          c.err, "packages/ seems to be corrupted, use ",
+          c.opl, "opal init",
+          c.err, " to reset your project"
+        ])
+      )
+      if json.len == 0 (
+        return resp("log", "No installed opal packages")
+      )
+      return resp("arr", json.map(v -> open(v, ["name"])[1]))
+    ) else (
+      return resp("log", [
+        c.err, "No packages/ found, use ",
+        c.opl, "opal init",
+        c.err, " to setup your project"
+      ])
+    )
+  ),
+  open: def(path) -> (
+    local path = parseFilePath(pwd ++ "/" ++ path)
+    file "exists" path
+    local data = exists ? open(path) null
+    return { exists, data }
+  ),
+  fetchPackage: def(name) -> (
+    local json = self.fetchFile(name, "/package.json")
+    local exists = true
+    if typeof(json) != "object" (
+      json = {}
+      exists = false
+    )
+    return { exists, json }
+  ),
+  fetchFile: def(name, file) -> (
+    return (self.repo ++ "/" ++ name ++ file).httpGet().JsonParse()
+  ),
+  format: {
+    arr: v -> v.join(", ").wrapText(40)
+  }
+}
+
+opal.c = c
+opal.log = log
+opal.pwd = pwd
+opal.repo = repo
+opal.resp = (t, d) -> {t, d}
+
+local commands = [
+  "install",
+  "uninstall",
+  "describe",
+  "list",
+  "search",
+  "sync",
+  "init",
+  "export",
+  "path"
+]
+
+if args.len == 0 (
+  log("Opal " ++ opal.about.version)
+  log("")
+  log("opal <command>")
+  log(opal.format.arr(commands))
+  return
+)
+
+switch args[1] (
+  case "init"
+    file "goto_dir" opal.pwd
+    log("Create new opal project at " ++ opal.pwd ++ "?")
+    if terminal.input("y/n") == "y" (
+      file "set_file" "packages.folder"
+      file "set_file" "opal.json" {
+        name: terminal.input("Name your project"),
+        version: "1.0.0",
+        description: "An awesome package",
+        main: "script.osl",
+        dependencies: {},
+        tags: []
+      }
+      file "set_file" "script.osl" "// welcome to your new opal project"
+      log("Finished writing")
+    ) else (
+      log("Aborted")
+    )
+    break
+  case "install"
+    local dat = opal.getPackages()
+    if dat.t[1] == c.err (
+      log(dat.d)
+      break
+    )
+   
+    local v = "latest"
+    local name = args[2].split(":")
+    if name.len > 1 (
+      v = name[2]
+    )
+    
+    local data = opal.fetchPackage(name[1])
+    if !data.exists (
+      log([opal.c.err, "No package found with that name"])
+      break
+    )
+    data @= data.json
+    
+    local cur = null
+    local vers @= data.versions
+    if v == "latest" (
+      cur @= vers[-1]
+    ) else (
+      for i vers.len (
+        if vers[i].version == v (
+          cur @= vers[i]
+          break
+        )
+      )
+    )
+    if cur == null (
+      log([c.err, "Unable to find specified version of package"])
+      return
+    )
+    
+    log("Install " ++ cur.name ++ "(" ++ cur.version ++ ") - size: " ++ cur.size ++ "?")
+    if terminal.input("y/n") == "y" (
+      lol
+      // if cur.install != null (
+      //   log("Found install script: " ++ cur.install)
+      //   run the package's install script
+      //   void function("opal", opal.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.install))(opal)
+      //   log("Finished running install script")
+      // )
+      // file "goto_dir" opal.pwd ++ "/packages"
+      // log("Fetching package script")
+      // local contents = opal.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.main)
+      // log("Fetched " ++ formatFileSize(contents.len))
+      // file "set_file" cur.name ++ ":" ++ cur.version contents
+      // log("Installed")
+    ) else (
+      log("Aborted")
+    )
+    break
+  case "list"
+    local dat = opal.getPackages()
+    if dat.t == "arr" (
+      dat.d = opal.format.arr(dat.d)
+    )
+    log(dat.d)
+    break
+  case "describe"
+    local data = opal.fetchPackage(args[2])
+    if !data.exists (
+      log([opal.c.err, "No package found with that name"])
+      break
+    )
+    data @= data.json
+    local v = data.versions[-1]
+    log(v.name ++ " - " ++ v.version ++ " - " ++ v.size)
+    log("")
+    log(v.description.wrapText(60))
+    break
+)`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }

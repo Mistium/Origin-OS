@@ -1,49 +1,4324 @@
 [
   [
     {
-      "type": "cmd",
-      "data": "while",
-      "source": "while v !== 10 or lol == 4 (",
+      "type": "opr",
+      "data": "//",
+      "source": "//",
       "line": 1
     },
     {
-      "type": "evl",
-      "data": "or",
-      "source": "v !== 10 or lol == 4",
-      "left": {
-        "type": "cmp",
-        "data": "!==",
-        "source": "v !== 10",
-        "left": {
-          "type": "var",
-          "data": "v",
-          "source": "v"
-        },
+      "type": "var",
+      "data": "Welcome",
+      "source": "Welcome"
+    },
+    {
+      "type": "var",
+      "data": "to",
+      "source": "to"
+    },
+    {
+      "type": "unk",
+      "data": "OPAL!",
+      "source": "OPAL!"
+    }
+  ],
+  [
+    {
+      "type": "opr",
+      "data": "//",
+      "source": "//",
+      "line": 2
+    },
+    {
+      "type": "ury",
+      "data": "-",
+      "right": {
+        "type": "ury",
+        "data": "-",
         "right": {
-          "type": "num",
-          "data": 10,
-          "source": "10"
-        }
+          "type": "ury",
+          "data": "-",
+          "right": {
+            "type": "ury",
+            "data": "-",
+            "right": {
+              "type": "ury",
+              "data": "-",
+              "right": {
+                "type": "ury",
+                "data": "-",
+                "right": {
+                  "type": "ury",
+                  "data": "-",
+                  "right": {
+                    "type": "ury",
+                    "data": "-",
+                    "right": {
+                      "type": "ury",
+                      "data": "-",
+                      "right": {
+                        "type": "ury",
+                        "data": "-",
+                        "right": {
+                          "type": "ury",
+                          "data": "-",
+                          "right": {
+                            "type": "ury",
+                            "data": "-",
+                            "right": {
+                              "type": "ury",
+                              "data": "-",
+                              "right": {
+                                "type": "ury",
+                                "data": "-",
+                                "right": {
+                                  "type": "ury",
+                                  "data": "-",
+                                  "right": {
+                                    "type": "ury",
+                                    "data": "-",
+                                    "right": {
+                                      "type": "ury",
+                                      "data": "-",
+                                      "right": {
+                                        "type": "ury",
+                                        "data": "-",
+                                        "right": {
+                                          "type": "ury",
+                                          "data": "-",
+                                          "right": {
+                                            "type": "ury",
+                                            "data": "-",
+                                            "right": {
+                                              "type": "ury",
+                                              "data": "-",
+                                              "right": {
+                                                "type": "ury",
+                                                "data": "-",
+                                                "right": {
+                                                  "type": "ury",
+                                                  "data": "-",
+                                                  "right": {
+                                                    "type": "ury",
+                                                    "data": "-",
+                                                    "right": {
+                                                      "type": "ury",
+                                                      "data": "-",
+                                                      "right": {
+                                                        "type": "ury",
+                                                        "data": "-",
+                                                        "right": {
+                                                          "type": "ury",
+                                                          "data": "-",
+                                                          "right": {
+                                                            "type": "ury",
+                                                            "data": "-",
+                                                            "right": {
+                                                              "type": "ury",
+                                                              "data": "-",
+                                                              "right": {
+                                                                "type": "ury",
+                                                                "data": "-",
+                                                                "right": {
+                                                                  "type": "ury",
+                                                                  "data": "-",
+                                                                  "right": {
+                                                                    "type": "ury",
+                                                                    "data": "-",
+                                                                    "right": {
+                                                                      "type": "ury",
+                                                                      "data": "-",
+                                                                      "right": {
+                                                                        "type": "ury",
+                                                                        "data": "-",
+                                                                        "right": {
+                                                                          "type": "ury",
+                                                                          "data": "-",
+                                                                          "right": {
+                                                                            "type": "ury",
+                                                                            "data": "-",
+                                                                            "right": {
+                                                                              "type": "ury",
+                                                                              "data": "-",
+                                                                              "right": {
+                                                                                "type": "ury",
+                                                                                "data": "-",
+                                                                                "right": {
+                                                                                  "type": "unk",
+                                                                                  "data": "--",
+                                                                                  "source": "--"
+                                                                                },
+                                                                                "source": "---"
+                                                                              },
+                                                                              "source": "----"
+                                                                            },
+                                                                            "source": "-----"
+                                                                          },
+                                                                          "source": "------"
+                                                                        },
+                                                                        "source": "-------"
+                                                                      },
+                                                                      "source": "--------"
+                                                                    },
+                                                                    "source": "---------"
+                                                                  },
+                                                                  "source": "----------"
+                                                                },
+                                                                "source": "-----------"
+                                                              },
+                                                              "source": "------------"
+                                                            },
+                                                            "source": "-------------"
+                                                          },
+                                                          "source": "--------------"
+                                                        },
+                                                        "source": "---------------"
+                                                      },
+                                                      "source": "----------------"
+                                                    },
+                                                    "source": "-----------------"
+                                                  },
+                                                  "source": "------------------"
+                                                },
+                                                "source": "-------------------"
+                                              },
+                                              "source": "--------------------"
+                                            },
+                                            "source": "---------------------"
+                                          },
+                                          "source": "----------------------"
+                                        },
+                                        "source": "-----------------------"
+                                      },
+                                      "source": "------------------------"
+                                    },
+                                    "source": "-------------------------"
+                                  },
+                                  "source": "--------------------------"
+                                },
+                                "source": "---------------------------"
+                              },
+                              "source": "----------------------------"
+                            },
+                            "source": "-----------------------------"
+                          },
+                          "source": "------------------------------"
+                        },
+                        "source": "-------------------------------"
+                      },
+                      "source": "--------------------------------"
+                    },
+                    "source": "---------------------------------"
+                  },
+                  "source": "----------------------------------"
+                },
+                "source": "-----------------------------------"
+              },
+              "source": "------------------------------------"
+            },
+            "source": "-------------------------------------"
+          },
+          "source": "--------------------------------------"
+        },
+        "source": "---------------------------------------"
+      },
+      "source": "----------------------------------------"
+    }
+  ],
+  [
+    {
+      "type": "opr",
+      "data": "//",
+      "source": "//",
+      "line": 3
+    },
+    {
+      "type": "var",
+      "data": "this",
+      "source": "this"
+    },
+    {
+      "type": "var",
+      "data": "is",
+      "source": "is"
+    },
+    {
+      "type": "var",
+      "data": "a",
+      "source": "a"
+    },
+    {
+      "type": "var",
+      "data": "fully",
+      "source": "fully"
+    },
+    {
+      "type": "var",
+      "data": "osl",
+      "source": "osl"
+    },
+    {
+      "type": "var",
+      "data": "based",
+      "source": "based"
+    },
+    {
+      "type": "var",
+      "data": "package",
+      "source": "package"
+    },
+    {
+      "type": "var",
+      "data": "manager",
+      "source": "manager"
+    }
+  ],
+  [
+    {
+      "type": "opr",
+      "data": "//",
+      "source": "//",
+      "line": 4
+    },
+    {
+      "type": "log",
+      "data": "and",
+      "source": "and"
+    },
+    {
+      "type": "var",
+      "data": "dev",
+      "source": "dev"
+    },
+    {
+      "type": "var",
+      "data": "companion",
+      "source": "companion"
+    },
+    {
+      "type": "var",
+      "data": "for",
+      "source": "for"
+    },
+    {
+      "type": "var",
+      "data": "your",
+      "source": "your"
+    },
+    {
+      "type": "var",
+      "data": "osl",
+      "source": "osl"
+    },
+    {
+      "type": "var",
+      "data": "projects",
+      "source": "projects"
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "local repo = \"https://opal.mistium.com\"",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "repo",
+            "source": "repo"
+          }
+        ],
+        "source": "this.repo"
       },
       "right": {
-        "type": "cmp",
-        "data": "==",
-        "source": "lol == 4",
-        "left": {
-          "type": "var",
-          "data": "lol",
-          "source": "lol"
+        "type": "str",
+        "data": "https://opal.mistium.com",
+        "source": "\"https://opal.mistium.com\""
+      },
+      "line": 6
+    }
+  ],
+  [
+    {
+      "type": "opr",
+      "data": "//",
+      "source": "//",
+      "line": 7
+    },
+    {
+      "type": "var",
+      "data": "here",
+      "source": "here"
+    },
+    {
+      "type": "var",
+      "data": "you",
+      "source": "you"
+    },
+    {
+      "type": "var",
+      "data": "can",
+      "source": "can"
+    },
+    {
+      "type": "var",
+      "data": "modify",
+      "source": "modify"
+    },
+    {
+      "type": "var",
+      "data": "the",
+      "source": "the"
+    },
+    {
+      "type": "var",
+      "data": "config",
+      "source": "config"
+    },
+    {
+      "type": "var",
+      "data": "for",
+      "source": "for"
+    },
+    {
+      "type": "var",
+      "data": "opal",
+      "source": "opal"
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "local conf = \"~/:opal.conf\"",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "conf",
+            "source": "conf"
+          }
+        ],
+        "source": "this.conf"
+      },
+      "right": {
+        "type": "str",
+        "data": "~/:opal.conf",
+        "source": "\"~/:opal.conf\""
+      },
+      "line": 8
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "@=",
+      "source": "local log @= def(d) -> (",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "log",
+            "source": "log"
+          }
+        ],
+        "source": "this.log"
+      },
+      "right": {
+        "type": "fnc",
+        "data": "function",
+        "parameters": [
+          {
+            "type": "str",
+            "data": "d",
+            "source": "d"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "if",
+                  "source": "if d.contains(\"",
+                  "line": 11
+                },
+                {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "d",
+                      "source": "d"
+                    },
+                    {
+                      "type": "mtv",
+                      "data": "contains",
+                      "parameters": [
+                        {
+                          "type": "str",
+                          "data": "\n",
+                          "source": "\"\n\""
+                        }
+                      ],
+                      "source": "contains(\"\n\")"
+                    }
+                  ],
+                  "source": "d.contains(\"\n\")"
+                },
+                {
+                  "type": "blk",
+                  "data": [
+                    [
+                      {
+                        "type": "asi",
+                        "data": "=",
+                        "source": "d = d.split(\"",
+                        "left": {
+                          "type": "var",
+                          "data": "d",
+                          "source": "d"
+                        },
+                        "right": {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "d",
+                              "source": "d"
+                            },
+                            {
+                              "type": "mtv",
+                              "data": "split",
+                              "parameters": [
+                                {
+                                  "type": "str",
+                                  "data": "\n",
+                                  "source": "\"\n\""
+                                }
+                              ],
+                              "source": "split(\"\n\")"
+                            }
+                          ],
+                          "source": "d.split(\"\n\")"
+                        },
+                        "line": 12
+                      }
+                    ],
+                    [
+                      {
+                        "type": "cmd",
+                        "data": "for",
+                        "source": "for i d.len (",
+                        "line": 13
+                      },
+                      {
+                        "type": "str",
+                        "data": "i",
+                        "source": "i"
+                      },
+                      {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "d",
+                            "source": "d"
+                          },
+                          {
+                            "type": "var",
+                            "data": "len",
+                            "source": "len"
+                          }
+                        ],
+                        "source": "d.len"
+                      },
+                      {
+                        "type": "blk",
+                        "data": [
+                          [
+                            {
+                              "type": "asi",
+                              "data": "=??",
+                              "source": "terminal.writeLine(d.[i])",
+                              "left": {
+                                "type": "var",
+                                "data": "terminal",
+                                "source": "terminal"
+                              },
+                              "right": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "terminal",
+                                    "source": "terminal"
+                                  },
+                                  {
+                                    "type": "mtv",
+                                    "data": "writeLine",
+                                    "parameters": [
+                                      {
+                                        "type": "mtd",
+                                        "data": [
+                                          {
+                                            "type": "var",
+                                            "data": "d",
+                                            "source": "d"
+                                          },
+                                          {
+                                            "type": "mtv",
+                                            "data": "item",
+                                            "parameters": [
+                                              {
+                                                "type": "var",
+                                                "data": "i",
+                                                "source": "i"
+                                              }
+                                            ],
+                                            "source": "[i]"
+                                          }
+                                        ],
+                                        "source": "d.[i]"
+                                      }
+                                    ],
+                                    "source": "writeLine(d.[i])"
+                                  }
+                                ],
+                                "source": "terminal.writeLine(d.[i])"
+                              },
+                              "line": 14
+                            }
+                          ]
+                        ],
+                        "source": "[ast BLK]"
+                      }
+                    ],
+                    [
+                      {
+                        "type": "cmd",
+                        "data": "return",
+                        "source": "return",
+                        "line": 16
+                      }
+                    ]
+                  ],
+                  "source": "[ast BLK]"
+                }
+              ],
+              [
+                {
+                  "type": "asi",
+                  "data": "=??",
+                  "source": "terminal.writeLine(d)",
+                  "left": {
+                    "type": "var",
+                    "data": "terminal",
+                    "source": "terminal"
+                  },
+                  "right": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "terminal",
+                        "source": "terminal"
+                      },
+                      {
+                        "type": "mtv",
+                        "data": "writeLine",
+                        "parameters": [
+                          {
+                            "type": "var",
+                            "data": "d",
+                            "source": "d"
+                          }
+                        ],
+                        "source": "writeLine(d)"
+                      }
+                    ],
+                    "source": "terminal.writeLine(d)"
+                  },
+                  "line": 18
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ]
+      },
+      "line": 10
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "local pwd = terminal.pwd.split(\"/\")",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "pwd",
+            "source": "pwd"
+          }
+        ],
+        "source": "this.pwd"
+      },
+      "right": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "terminal",
+            "source": "terminal"
+          },
+          {
+            "type": "var",
+            "data": "pwd",
+            "source": "pwd"
+          },
+          {
+            "type": "mtv",
+            "data": "split",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "/",
+                "source": "\"/\""
+              }
+            ],
+            "source": "split(\"/\")"
+          }
+        ],
+        "source": "terminal.pwd.split(\"/\")"
+      },
+      "line": 21
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "pwd.[1] = \"\"",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "pwd",
+            "source": "pwd"
+          },
+          {
+            "type": "mtv",
+            "data": "item",
+            "parameters": [
+              {
+                "type": "num",
+                "data": 1,
+                "source": "1"
+              }
+            ],
+            "source": "[1]"
+          }
+        ],
+        "source": "pwd.[1]"
+      },
+      "right": {
+        "type": "str",
+        "data": "",
+        "source": "\"\""
+      },
+      "line": 22
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "@=",
+      "source": "pwd @= pwd.join(\"/\")",
+      "left": {
+        "type": "var",
+        "data": "pwd",
+        "source": "pwd"
+      },
+      "right": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "pwd",
+            "source": "pwd"
+          },
+          {
+            "type": "mtv",
+            "data": "join",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "/",
+                "source": "\"/\""
+              }
+            ],
+            "source": "join(\"/\")"
+          }
+        ],
+        "source": "pwd.join(\"/\")"
+      },
+      "line": 23
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "local c = {",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "c",
+            "source": "c"
+          }
+        ],
+        "source": "this.c"
+      },
+      "right": {
+        "type": "obj",
+        "data": {
+          "err": {
+            "type": "str",
+            "data": "#FF2929",
+            "source": "\"#FF2929\""
+          },
+          "suc": {
+            "type": "str",
+            "data": "",
+            "source": "\"\""
+          },
+          "opl": {
+            "type": "str",
+            "data": "#43c2a7",
+            "source": "\"#43c2a7\""
+          }
         },
-        "right": {
-          "type": "num",
-          "data": 4,
-          "source": "4"
-        }
+        "source": "{\n  err: \"#FF2929\",\n  suc: \"\",\n  opl: \"#43c2a7\"\n}"
+      },
+      "line": 26
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "local opal = {",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "opal",
+            "source": "opal"
+          }
+        ],
+        "source": "this.opal"
+      },
+      "right": {
+        "type": "obj",
+        "data": {
+          "about": {
+            "type": "obj",
+            "data": {
+              "version": {
+                "type": "str",
+                "data": "1.0.0",
+                "source": "\"1.0.0\""
+              }
+            },
+            "source": "{\n    version: \"1.0.0\"\n  }"
+          },
+          "getPackages": {
+            "type": "fnc",
+            "data": "function",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "",
+                "source": ""
+              },
+              {
+                "type": "blk",
+                "data": [
+                  [
+                    {
+                      "type": "asi",
+                      "data": "@=",
+                      "source": "local val @= self.open(\"packages.folder\")",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "this",
+                            "source": "this"
+                          },
+                          {
+                            "type": "var",
+                            "data": "val",
+                            "source": "val"
+                          }
+                        ],
+                        "source": "this.val"
+                      },
+                      "right": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "self",
+                            "source": "self"
+                          },
+                          {
+                            "type": "mtv",
+                            "data": "open",
+                            "parameters": [
+                              {
+                                "type": "str",
+                                "data": "packages.folder",
+                                "source": "\"packages.folder\""
+                              }
+                            ],
+                            "source": "open(\"packages.folder\")"
+                          }
+                        ],
+                        "source": "self.open(\"packages.folder\")"
+                      },
+                      "line": 37
+                    }
+                  ],
+                  [
+                    {
+                      "type": "asi",
+                      "data": "@=",
+                      "source": "local resp @= self.resp",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "this",
+                            "source": "this"
+                          },
+                          {
+                            "type": "var",
+                            "data": "resp",
+                            "source": "resp"
+                          }
+                        ],
+                        "source": "this.resp"
+                      },
+                      "right": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "self",
+                            "source": "self"
+                          },
+                          {
+                            "type": "var",
+                            "data": "resp",
+                            "source": "resp"
+                          }
+                        ],
+                        "source": "self.resp"
+                      },
+                      "line": 38
+                    }
+                  ],
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "if",
+                      "source": "if val.exists (",
+                      "line": 39
+                    },
+                    {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "val",
+                          "source": "val"
+                        },
+                        {
+                          "type": "var",
+                          "data": "exists",
+                          "source": "exists"
+                        }
+                      ],
+                      "source": "val.exists"
+                    },
+                    {
+                      "type": "blk",
+                      "data": [
+                        [
+                          {
+                            "type": "asi",
+                            "data": "=",
+                            "source": "local json = val.data.JsonParse()",
+                            "left": {
+                              "type": "mtd",
+                              "data": [
+                                {
+                                  "type": "var",
+                                  "data": "this",
+                                  "source": "this"
+                                },
+                                {
+                                  "type": "var",
+                                  "data": "json",
+                                  "source": "json"
+                                }
+                              ],
+                              "source": "this.json"
+                            },
+                            "right": {
+                              "type": "mtd",
+                              "data": [
+                                {
+                                  "type": "var",
+                                  "data": "val",
+                                  "source": "val"
+                                },
+                                {
+                                  "type": "var",
+                                  "data": "data",
+                                  "source": "data"
+                                },
+                                {
+                                  "type": "mtv",
+                                  "data": "JsonParse",
+                                  "parameters": [],
+                                  "source": "JsonParse()"
+                                }
+                              ],
+                              "source": "val.data.JsonParse()"
+                            },
+                            "line": 40
+                          }
+                        ],
+                        [
+                          {
+                            "type": "cmd",
+                            "data": "if",
+                            "source": "if typeof(json) != \"array\" (",
+                            "line": 41
+                          },
+                          {
+                            "type": "cmp",
+                            "data": "!=",
+                            "source": "typeof(json) != \"array\"",
+                            "left": {
+                              "type": "fnc",
+                              "data": "typeof",
+                              "parameters": [
+                                {
+                                  "type": "var",
+                                  "data": "json",
+                                  "source": "json"
+                                }
+                              ],
+                              "source": "typeof(json)"
+                            },
+                            "right": {
+                              "type": "str",
+                              "data": "array",
+                              "source": "\"array\""
+                            }
+                          },
+                          {
+                            "type": "blk",
+                            "data": [
+                              [
+                                {
+                                  "type": "cmd",
+                                  "data": "return",
+                                  "source": "return resp(\"log\", [",
+                                  "line": 42
+                                },
+                                {
+                                  "type": "fnc",
+                                  "data": "resp",
+                                  "parameters": [
+                                    {
+                                      "type": "str",
+                                      "data": "log",
+                                      "source": "\"log\""
+                                    },
+                                    {
+                                      "type": "arr",
+                                      "data": [
+                                        {
+                                          "type": "mtd",
+                                          "data": [
+                                            {
+                                              "type": "var",
+                                              "data": "c",
+                                              "source": "c"
+                                            },
+                                            {
+                                              "type": "var",
+                                              "data": "err",
+                                              "source": "err"
+                                            }
+                                          ],
+                                          "source": "c.err"
+                                        },
+                                        {
+                                          "type": "str",
+                                          "data": "packages/ seems to be corrupted, use ",
+                                          "source": "\"packages/ seems to be corrupted, use \""
+                                        },
+                                        {
+                                          "type": "mtd",
+                                          "data": [
+                                            {
+                                              "type": "var",
+                                              "data": "c",
+                                              "source": "c"
+                                            },
+                                            {
+                                              "type": "var",
+                                              "data": "opl",
+                                              "source": "opl"
+                                            }
+                                          ],
+                                          "source": "c.opl"
+                                        },
+                                        {
+                                          "type": "str",
+                                          "data": "opal init",
+                                          "source": "\"opal init\""
+                                        },
+                                        {
+                                          "type": "mtd",
+                                          "data": [
+                                            {
+                                              "type": "var",
+                                              "data": "c",
+                                              "source": "c"
+                                            },
+                                            {
+                                              "type": "var",
+                                              "data": "err",
+                                              "source": "err"
+                                            }
+                                          ],
+                                          "source": "c.err"
+                                        },
+                                        {
+                                          "type": "str",
+                                          "data": " to reset your project",
+                                          "source": "\" to reset your project\""
+                                        }
+                                      ],
+                                      "source": "[\n          c.err, \"packages/ seems to be corrupted, use \",\n          c.opl, \"opal init\",\n          c.err, \" to reset your project\"\n        ]"
+                                    }
+                                  ],
+                                  "source": "resp(\"log\", [\n          c.err, \"packages/ seems to be corrupted, use \",\n          c.opl, \"opal init\",\n          c.err, \" to reset your project\"\n        ])"
+                                }
+                              ]
+                            ],
+                            "source": "[ast BLK]"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "cmd",
+                            "data": "if",
+                            "source": "if json.len == 0 (",
+                            "line": 48
+                          },
+                          {
+                            "type": "cmp",
+                            "data": "==",
+                            "source": "json.len == 0",
+                            "left": {
+                              "type": "mtd",
+                              "data": [
+                                {
+                                  "type": "var",
+                                  "data": "json",
+                                  "source": "json"
+                                },
+                                {
+                                  "type": "var",
+                                  "data": "len",
+                                  "source": "len"
+                                }
+                              ],
+                              "source": "json.len"
+                            },
+                            "right": {
+                              "type": "num",
+                              "data": 0,
+                              "source": "0"
+                            }
+                          },
+                          {
+                            "type": "blk",
+                            "data": [
+                              [
+                                {
+                                  "type": "cmd",
+                                  "data": "return",
+                                  "source": "return resp(\"log\", \"No installed opal packages\")",
+                                  "line": 49
+                                },
+                                {
+                                  "type": "fnc",
+                                  "data": "resp",
+                                  "parameters": [
+                                    {
+                                      "type": "str",
+                                      "data": "log",
+                                      "source": "\"log\""
+                                    },
+                                    {
+                                      "type": "str",
+                                      "data": "No installed opal packages",
+                                      "source": "\"No installed opal packages\""
+                                    }
+                                  ],
+                                  "source": "resp(\"log\", \"No installed opal packages\")"
+                                }
+                              ]
+                            ],
+                            "source": "[ast BLK]"
+                          }
+                        ],
+                        [
+                          {
+                            "type": "cmd",
+                            "data": "return",
+                            "source": "return resp(\"arr\", json.map(v -> open(v, [\"name\"]).[1]))",
+                            "line": 51
+                          },
+                          {
+                            "type": "fnc",
+                            "data": "resp",
+                            "parameters": [
+                              {
+                                "type": "str",
+                                "data": "arr",
+                                "source": "\"arr\""
+                              },
+                              {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "json",
+                                    "source": "json"
+                                  },
+                                  {
+                                    "type": "mtv",
+                                    "data": "map",
+                                    "parameters": [
+                                      {
+                                        "type": "fnc",
+                                        "data": "function",
+                                        "parameters": [
+                                          {
+                                            "type": "str",
+                                            "data": "v",
+                                            "source": "v"
+                                          },
+                                          {
+                                            "type": "blk",
+                                            "data": [
+                                              [
+                                                {
+                                                  "type": "cmd",
+                                                  "data": "return",
+                                                  "source": "return open(v, [\"name\"]).[1]"
+                                                },
+                                                {
+                                                  "type": "mtd",
+                                                  "data": [
+                                                    {
+                                                      "type": "fnc",
+                                                      "data": "open",
+                                                      "parameters": [
+                                                        {
+                                                          "type": "var",
+                                                          "data": "v",
+                                                          "source": "v"
+                                                        },
+                                                        {
+                                                          "type": "arr",
+                                                          "data": [
+                                                            {
+                                                              "type": "str",
+                                                              "data": "name",
+                                                              "source": "\"name\""
+                                                            }
+                                                          ],
+                                                          "source": "[\"name\"]"
+                                                        }
+                                                      ],
+                                                      "source": "open(v, [\"name\"])"
+                                                    },
+                                                    {
+                                                      "type": "mtv",
+                                                      "data": "item",
+                                                      "parameters": [
+                                                        {
+                                                          "type": "num",
+                                                          "data": 1,
+                                                          "source": "1"
+                                                        }
+                                                      ],
+                                                      "source": "[1]"
+                                                    }
+                                                  ],
+                                                  "source": "open(v, [\"name\"]).[1]"
+                                                }
+                                              ]
+                                            ],
+                                            "source": "[ast BLK]"
+                                          }
+                                        ]
+                                      }
+                                    ],
+                                    "source": "map(v -> open(v, [\"name\"]).[1])"
+                                  }
+                                ],
+                                "source": "json.map(v -> open(v, [\"name\"]).[1])"
+                              }
+                            ],
+                            "source": "resp(\"arr\", json.map(v -> open(v, [\"name\"]).[1]))"
+                          }
+                        ]
+                      ],
+                      "source": "[ast BLK]"
+                    },
+                    {
+                      "type": "var",
+                      "data": "else",
+                      "source": "else"
+                    },
+                    {
+                      "type": "blk",
+                      "data": [
+                        [
+                          {
+                            "type": "cmd",
+                            "data": "return",
+                            "source": "return resp(\"log\", [",
+                            "line": 53
+                          },
+                          {
+                            "type": "fnc",
+                            "data": "resp",
+                            "parameters": [
+                              {
+                                "type": "str",
+                                "data": "log",
+                                "source": "\"log\""
+                              },
+                              {
+                                "type": "arr",
+                                "data": [
+                                  {
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "c",
+                                        "source": "c"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "err",
+                                        "source": "err"
+                                      }
+                                    ],
+                                    "source": "c.err"
+                                  },
+                                  {
+                                    "type": "str",
+                                    "data": "No packages/ found, use ",
+                                    "source": "\"No packages/ found, use \""
+                                  },
+                                  {
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "c",
+                                        "source": "c"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "opl",
+                                        "source": "opl"
+                                      }
+                                    ],
+                                    "source": "c.opl"
+                                  },
+                                  {
+                                    "type": "str",
+                                    "data": "opal init",
+                                    "source": "\"opal init\""
+                                  },
+                                  {
+                                    "type": "mtd",
+                                    "data": [
+                                      {
+                                        "type": "var",
+                                        "data": "c",
+                                        "source": "c"
+                                      },
+                                      {
+                                        "type": "var",
+                                        "data": "err",
+                                        "source": "err"
+                                      }
+                                    ],
+                                    "source": "c.err"
+                                  },
+                                  {
+                                    "type": "str",
+                                    "data": " to setup your project",
+                                    "source": "\" to setup your project\""
+                                  }
+                                ],
+                                "source": "[\n        c.err, \"No packages/ found, use \",\n        c.opl, \"opal init\",\n        c.err, \" to setup your project\"\n      ]"
+                              }
+                            ],
+                            "source": "resp(\"log\", [\n        c.err, \"No packages/ found, use \",\n        c.opl, \"opal init\",\n        c.err, \" to setup your project\"\n      ])"
+                          }
+                        ]
+                      ],
+                      "source": "[ast BLK]"
+                    }
+                  ]
+                ],
+                "source": "[ast BLK]"
+              }
+            ]
+          },
+          "open": {
+            "type": "fnc",
+            "data": "function",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "path",
+                "source": "path"
+              },
+              {
+                "type": "blk",
+                "data": [
+                  [
+                    {
+                      "type": "asi",
+                      "data": "=",
+                      "source": "local path = parseFilePath(pwd ++ \"/\" ++ path)",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "this",
+                            "source": "this"
+                          },
+                          {
+                            "type": "var",
+                            "data": "path",
+                            "source": "path"
+                          }
+                        ],
+                        "source": "this.path"
+                      },
+                      "right": {
+                        "type": "fnc",
+                        "data": "parseFilePath",
+                        "parameters": [
+                          {
+                            "type": "opr",
+                            "data": "++",
+                            "source": "pwd ++ \"/\" ++ path",
+                            "left": {
+                              "type": "opr",
+                              "data": "++",
+                              "source": "pwd ++ \"/\"",
+                              "left": {
+                                "type": "var",
+                                "data": "pwd",
+                                "source": "pwd"
+                              },
+                              "right": {
+                                "type": "str",
+                                "data": "/",
+                                "source": "\"/\""
+                              }
+                            },
+                            "right": {
+                              "type": "var",
+                              "data": "path",
+                              "source": "path"
+                            }
+                          }
+                        ],
+                        "source": "parseFilePath(pwd ++ \"/\" ++ path)"
+                      },
+                      "line": 61
+                    }
+                  ],
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "file",
+                      "source": "file \"exists\" path",
+                      "line": 62
+                    },
+                    {
+                      "type": "str",
+                      "data": "exists",
+                      "source": "\"exists\""
+                    },
+                    {
+                      "type": "var",
+                      "data": "path",
+                      "source": "path"
+                    }
+                  ],
+                  [
+                    {
+                      "type": "asi",
+                      "data": "=",
+                      "source": "local data = exists ? open(path) null",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "this",
+                            "source": "this"
+                          },
+                          {
+                            "type": "var",
+                            "data": "data",
+                            "source": "data"
+                          }
+                        ],
+                        "source": "this.data"
+                      },
+                      "right": {
+                        "type": "qst",
+                        "data": "?",
+                        "source": "?",
+                        "left": {
+                          "type": "var",
+                          "data": "exists",
+                          "source": "exists"
+                        },
+                        "right": {
+                          "type": "fnc",
+                          "data": "open",
+                          "parameters": [
+                            {
+                              "type": "var",
+                              "data": "path",
+                              "source": "path"
+                            }
+                          ],
+                          "source": "open(path)"
+                        },
+                        "right2": {
+                          "type": "unk",
+                          "data": null,
+                          "source": "null"
+                        }
+                      },
+                      "line": 63
+                    }
+                  ],
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "return",
+                      "source": "return { exists, data }",
+                      "line": 64
+                    },
+                    {
+                      "type": "obj",
+                      "data": {
+                        "exists": null,
+                        "data": null
+                      },
+                      "source": "{ exists, data }"
+                    }
+                  ]
+                ],
+                "source": "[ast BLK]"
+              }
+            ]
+          },
+          "fetchPackage": {
+            "type": "fnc",
+            "data": "function",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "name",
+                "source": "name"
+              },
+              {
+                "type": "blk",
+                "data": [
+                  [
+                    {
+                      "type": "asi",
+                      "data": "=",
+                      "source": "local json = self.fetchFile(name, \"/package.json\")",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "this",
+                            "source": "this"
+                          },
+                          {
+                            "type": "var",
+                            "data": "json",
+                            "source": "json"
+                          }
+                        ],
+                        "source": "this.json"
+                      },
+                      "right": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "self",
+                            "source": "self"
+                          },
+                          {
+                            "type": "mtv",
+                            "data": "fetchFile",
+                            "parameters": [
+                              {
+                                "type": "var",
+                                "data": "name",
+                                "source": "name"
+                              },
+                              {
+                                "type": "str",
+                                "data": "/package.json",
+                                "source": "\"/package.json\""
+                              }
+                            ],
+                            "source": "fetchFile(name, \"/package.json\")"
+                          }
+                        ],
+                        "source": "self.fetchFile(name, \"/package.json\")"
+                      },
+                      "line": 67
+                    }
+                  ],
+                  [
+                    {
+                      "type": "asi",
+                      "data": "=",
+                      "source": "local exists = true",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "this",
+                            "source": "this"
+                          },
+                          {
+                            "type": "var",
+                            "data": "exists",
+                            "source": "exists"
+                          }
+                        ],
+                        "source": "this.exists"
+                      },
+                      "right": {
+                        "type": "var",
+                        "data": true,
+                        "source": "true"
+                      },
+                      "line": 68
+                    }
+                  ],
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "if",
+                      "source": "if typeof(json) != \"object\" (",
+                      "line": 69
+                    },
+                    {
+                      "type": "cmp",
+                      "data": "!=",
+                      "source": "typeof(json) != \"object\"",
+                      "left": {
+                        "type": "fnc",
+                        "data": "typeof",
+                        "parameters": [
+                          {
+                            "type": "var",
+                            "data": "json",
+                            "source": "json"
+                          }
+                        ],
+                        "source": "typeof(json)"
+                      },
+                      "right": {
+                        "type": "str",
+                        "data": "object",
+                        "source": "\"object\""
+                      }
+                    },
+                    {
+                      "type": "blk",
+                      "data": [
+                        [
+                          {
+                            "type": "asi",
+                            "data": "=",
+                            "source": "json = {}",
+                            "left": {
+                              "type": "var",
+                              "data": "json",
+                              "source": "json"
+                            },
+                            "right": {
+                              "type": "obj",
+                              "data": {},
+                              "source": "{}"
+                            },
+                            "line": 70
+                          }
+                        ],
+                        [
+                          {
+                            "type": "asi",
+                            "data": "=",
+                            "source": "exists = false",
+                            "left": {
+                              "type": "var",
+                              "data": "exists",
+                              "source": "exists"
+                            },
+                            "right": {
+                              "type": "var",
+                              "data": false,
+                              "source": "false"
+                            },
+                            "line": 71
+                          }
+                        ]
+                      ],
+                      "source": "[ast BLK]"
+                    }
+                  ],
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "return",
+                      "source": "return { exists, json }",
+                      "line": 73
+                    },
+                    {
+                      "type": "obj",
+                      "data": {
+                        "exists": null,
+                        "json": null
+                      },
+                      "source": "{ exists, json }"
+                    }
+                  ]
+                ],
+                "source": "[ast BLK]"
+              }
+            ]
+          },
+          "fetchFile": {
+            "type": "fnc",
+            "data": "function",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "name,file",
+                "source": "name,file"
+              },
+              {
+                "type": "blk",
+                "data": [
+                  [
+                    {
+                      "type": "cmd",
+                      "data": "return",
+                      "source": "return (self.repo ++ \"/\" ++ name ++ file).httpGet().JsonParse()",
+                      "line": 76
+                    },
+                    {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "opr",
+                          "data": "++",
+                          "source": "(self.repo ++ \"/\" ++ name ++ file)",
+                          "left": {
+                            "type": "opr",
+                            "data": "++",
+                            "source": "self.repo ++ \"/\" ++ name",
+                            "left": {
+                              "type": "opr",
+                              "data": "++",
+                              "source": "self.repo ++ \"/\"",
+                              "left": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "self",
+                                    "source": "self"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "repo",
+                                    "source": "repo"
+                                  }
+                                ],
+                                "source": "self.repo"
+                              },
+                              "right": {
+                                "type": "str",
+                                "data": "/",
+                                "source": "\"/\""
+                              }
+                            },
+                            "right": {
+                              "type": "var",
+                              "data": "name",
+                              "source": "name"
+                            }
+                          },
+                          "right": {
+                            "type": "var",
+                            "data": "file",
+                            "source": "file"
+                          }
+                        },
+                        {
+                          "type": "mtv",
+                          "data": "httpGet",
+                          "parameters": [],
+                          "source": "httpGet()"
+                        },
+                        {
+                          "type": "mtv",
+                          "data": "JsonParse",
+                          "parameters": [],
+                          "source": "JsonParse()"
+                        }
+                      ],
+                      "source": "(self.repo ++ \"/\" ++ name ++ file).httpGet().JsonParse()"
+                    }
+                  ]
+                ],
+                "source": "[ast BLK]"
+              }
+            ]
+          },
+          "format": {
+            "type": "obj",
+            "data": {
+              "arr": {
+                "type": "fnc",
+                "data": "function",
+                "parameters": [
+                  {
+                    "type": "str",
+                    "data": "v",
+                    "source": "v"
+                  },
+                  {
+                    "type": "blk",
+                    "data": [
+                      [
+                        {
+                          "type": "cmd",
+                          "data": "return",
+                          "source": "return v.join(\", \").wrapText(40)"
+                        },
+                        {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "v",
+                              "source": "v"
+                            },
+                            {
+                              "type": "mtv",
+                              "data": "join",
+                              "parameters": [
+                                {
+                                  "type": "str",
+                                  "data": ", ",
+                                  "source": "\", \""
+                                }
+                              ],
+                              "source": "join(\", \")"
+                            },
+                            {
+                              "type": "mtv",
+                              "data": "wrapText",
+                              "parameters": [
+                                {
+                                  "type": "num",
+                                  "data": 40,
+                                  "source": "40"
+                                }
+                              ],
+                              "source": "wrapText(40)"
+                            }
+                          ],
+                          "source": "v.join(\", \").wrapText(40)"
+                        }
+                      ]
+                    ],
+                    "source": "[ast BLK]"
+                  }
+                ]
+              }
+            },
+            "source": "{\n    arr: v -> v.join(\", \").wrapText(40)\n  }"
+          }
+        },
+        "source": "{\n  about: {\n    version: \"1.0.0\"\n  },\n  getPackages: def() -> (\n/@line 37\n    local val @= self.open(\"packages.folder\")\n/@line 38\n    local resp @= self.resp\n/@line 39\n    if val.exists (\n/@line 40\n      local json = val.data.JsonParse()\n/@line 41\n      if typeof(json) != \"array\" (\n/@line 42\n        return resp(\"log\", [\n          c.err, \"packages/ seems to be corrupted, use \",\n          c.opl, \"opal init\",\n          c.err, \" to reset your project\"\n        ])\n/@line 47\n      )\n/@line 48\n      if json.len == 0 (\n/@line 49\n        return resp(\"log\", \"No installed opal packages\")\n/@line 50\n      )\n/@line 51\n      return resp(\"arr\", json.map(v -> open(v, [\"name\"]).[1]))\n/@line 52\n    ) else (\n/@line 53\n      return resp(\"log\", [\n        c.err, \"No packages/ found, use \",\n        c.opl, \"opal init\",\n        c.err, \" to setup your project\"\n      ])\n/@line 58\n    )\n/@line 59\n  ),\n  open: def(path) -> (\n/@line 61\n    local path = parseFilePath(pwd ++ \"/\" ++ path)\n/@line 62\n    file \"exists\" path\n/@line 63\n    local data = exists ? open(path) null\n/@line 64\n    return { exists, data }\n/@line 65\n  ),\n  fetchPackage: def(name) -> (\n/@line 67\n    local json = self.fetchFile(name, \"/package.json\")\n/@line 68\n    local exists = true\n/@line 69\n    if typeof(json) != \"object\" (\n/@line 70\n      json = {}\n/@line 71\n      exists = false\n/@line 72\n    )\n/@line 73\n    return { exists, json }\n/@line 74\n  ),\n  fetchFile: def(name, file) -> (\n/@line 76\n    return (self.repo ++ \"/\" ++ name ++ file).httpGet().JsonParse()\n/@line 77\n  ),\n  format: {\n    arr: v -> v.join(\", \").wrapText(40)\n  }\n}"
+      },
+      "line": 32
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "opal.c = c",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "opal",
+            "source": "opal"
+          },
+          {
+            "type": "var",
+            "data": "c",
+            "source": "c"
+          }
+        ],
+        "source": "opal.c"
+      },
+      "right": {
+        "type": "var",
+        "data": "c",
+        "source": "c"
+      },
+      "line": 83
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "opal.log = log",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "opal",
+            "source": "opal"
+          },
+          {
+            "type": "var",
+            "data": "log",
+            "source": "log"
+          }
+        ],
+        "source": "opal.log"
+      },
+      "right": {
+        "type": "var",
+        "data": "log",
+        "source": "log"
+      },
+      "line": 84
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "opal.pwd = pwd",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "opal",
+            "source": "opal"
+          },
+          {
+            "type": "var",
+            "data": "pwd",
+            "source": "pwd"
+          }
+        ],
+        "source": "opal.pwd"
+      },
+      "right": {
+        "type": "var",
+        "data": "pwd",
+        "source": "pwd"
+      },
+      "line": 85
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "opal.repo = repo",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "opal",
+            "source": "opal"
+          },
+          {
+            "type": "var",
+            "data": "repo",
+            "source": "repo"
+          }
+        ],
+        "source": "opal.repo"
+      },
+      "right": {
+        "type": "var",
+        "data": "repo",
+        "source": "repo"
+      },
+      "line": 86
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "opal.resp = (t, d) -> {t, d}",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "opal",
+            "source": "opal"
+          },
+          {
+            "type": "var",
+            "data": "resp",
+            "source": "resp"
+          }
+        ],
+        "source": "opal.resp"
+      },
+      "right": {
+        "type": "fnc",
+        "data": "function",
+        "parameters": [
+          {
+            "type": "str",
+            "data": "t,d",
+            "source": "t,d"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "return",
+                  "source": "return {t, d}"
+                },
+                {
+                  "type": "obj",
+                  "data": {
+                    "t": null,
+                    "d": null
+                  },
+                  "source": "{t, d}"
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ]
+      },
+      "line": 87
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "local commands = [",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "commands",
+            "source": "commands"
+          }
+        ],
+        "source": "this.commands"
+      },
+      "right": {
+        "type": "arr",
+        "data": [
+          {
+            "type": "str",
+            "data": "install",
+            "source": "\"install\""
+          },
+          {
+            "type": "str",
+            "data": "uninstall",
+            "source": "\"uninstall\""
+          },
+          {
+            "type": "str",
+            "data": "describe",
+            "source": "\"describe\""
+          },
+          {
+            "type": "str",
+            "data": "list",
+            "source": "\"list\""
+          },
+          {
+            "type": "str",
+            "data": "search",
+            "source": "\"search\""
+          },
+          {
+            "type": "str",
+            "data": "sync",
+            "source": "\"sync\""
+          },
+          {
+            "type": "str",
+            "data": "init",
+            "source": "\"init\""
+          },
+          {
+            "type": "str",
+            "data": "export",
+            "source": "\"export\""
+          },
+          {
+            "type": "str",
+            "data": "path",
+            "source": "\"path\""
+          }
+        ],
+        "source": "[\n  \"install\",\n  \"uninstall\",\n  \"describe\",\n  \"list\",\n  \"search\",\n  \"sync\",\n  \"init\",\n  \"export\",\n  \"path\"\n]"
+      },
+      "line": 89
+    }
+  ],
+  [
+    {
+      "type": "cmd",
+      "data": "if",
+      "source": "if args.len == 0 (",
+      "line": 101
+    },
+    {
+      "type": "cmp",
+      "data": "==",
+      "source": "args.len == 0",
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "args",
+            "source": "args"
+          },
+          {
+            "type": "var",
+            "data": "len",
+            "source": "len"
+          }
+        ],
+        "source": "args.len"
+      },
+      "right": {
+        "type": "num",
+        "data": 0,
+        "source": "0"
       }
     },
     {
       "type": "blk",
-      "data": [],
+      "data": [
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "opr",
+                "data": "++",
+                "source": "\"Opal \" ++ opal.about.version",
+                "left": {
+                  "type": "str",
+                  "data": "Opal ",
+                  "source": "\"Opal \""
+                },
+                "right": {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "opal",
+                      "source": "opal"
+                    },
+                    {
+                      "type": "var",
+                      "data": "about",
+                      "source": "about"
+                    },
+                    {
+                      "type": "var",
+                      "data": "version",
+                      "source": "version"
+                    }
+                  ],
+                  "source": "opal.about.version"
+                }
+              }
+            ],
+            "source": "log(\"Opal \" ++ opal.about.version)",
+            "line": 102
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "",
+                "source": "\"\""
+              }
+            ],
+            "source": "log(\"\")",
+            "line": 103
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "opal <command>",
+                "source": "\"opal <command>\""
+              }
+            ],
+            "source": "log(\"opal <command>\")",
+            "line": 104
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "mtd",
+                "data": [
+                  {
+                    "type": "var",
+                    "data": "opal",
+                    "source": "opal"
+                  },
+                  {
+                    "type": "var",
+                    "data": "format",
+                    "source": "format"
+                  },
+                  {
+                    "type": "mtv",
+                    "data": "arr",
+                    "parameters": [
+                      {
+                        "type": "var",
+                        "data": "commands",
+                        "source": "commands"
+                      }
+                    ],
+                    "source": "arr(commands)"
+                  }
+                ],
+                "source": "opal.format.arr(commands)"
+              }
+            ],
+            "source": "log(opal.format.arr(commands))",
+            "line": 105
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "return",
+            "source": "return",
+            "line": 106
+          }
+        ]
+      ],
+      "source": "[ast BLK]"
+    }
+  ],
+  [
+    {
+      "type": "cmd",
+      "data": "switch",
+      "source": "switch args.[1] (",
+      "cases": {
+        "type": "object",
+        "all": {
+          "init": 0,
+          "install": 5,
+          "list": 21,
+          "describe": 26
+        }
+      },
+      "line": 109
+    },
+    {
+      "type": "mtd",
+      "data": [
+        {
+          "type": "var",
+          "data": "args",
+          "source": "args"
+        },
+        {
+          "type": "mtv",
+          "data": "item",
+          "parameters": [
+            {
+              "type": "num",
+              "data": 1,
+              "source": "1"
+            }
+          ],
+          "source": "[1]"
+        }
+      ],
+      "source": "args.[1]"
+    },
+    {
+      "type": "blk",
+      "data": [
+        [
+          {
+            "type": "cmd",
+            "data": "case",
+            "source": "case \"init\"",
+            "line": 110
+          },
+          {
+            "type": "str",
+            "data": "init",
+            "source": "\"init\""
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "file",
+            "source": "file \"goto_dir\" opal.pwd",
+            "line": 111
+          },
+          {
+            "type": "str",
+            "data": "goto_dir",
+            "source": "\"goto_dir\""
+          },
+          {
+            "type": "mtd",
+            "data": [
+              {
+                "type": "var",
+                "data": "opal",
+                "source": "opal"
+              },
+              {
+                "type": "var",
+                "data": "pwd",
+                "source": "pwd"
+              }
+            ],
+            "source": "opal.pwd"
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "opr",
+                "data": "++",
+                "source": "\"Create new opal project at \" ++ opal.pwd ++ \"?\"",
+                "left": {
+                  "type": "opr",
+                  "data": "++",
+                  "source": "\"Create new opal project at \" ++ opal.pwd",
+                  "left": {
+                    "type": "str",
+                    "data": "Create new opal project at ",
+                    "source": "\"Create new opal project at \""
+                  },
+                  "right": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "opal",
+                        "source": "opal"
+                      },
+                      {
+                        "type": "var",
+                        "data": "pwd",
+                        "source": "pwd"
+                      }
+                    ],
+                    "source": "opal.pwd"
+                  }
+                },
+                "right": {
+                  "type": "str",
+                  "data": "?",
+                  "source": "\"?\""
+                }
+              }
+            ],
+            "source": "log(\"Create new opal project at \" ++ opal.pwd ++ \"?\")",
+            "line": 112
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if terminal.input(\"y/n\") == \"y\" (",
+            "line": 113
+          },
+          {
+            "type": "cmp",
+            "data": "==",
+            "source": "terminal.input(\"y/n\") == \"y\"",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "terminal",
+                  "source": "terminal"
+                },
+                {
+                  "type": "mtv",
+                  "data": "input",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": "y/n",
+                      "source": "\"y/n\""
+                    }
+                  ],
+                  "source": "input(\"y/n\")"
+                }
+              ],
+              "source": "terminal.input(\"y/n\")"
+            },
+            "right": {
+              "type": "str",
+              "data": "y",
+              "source": "\"y\""
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "file",
+                  "source": "file \"set_file\" \"packages.folder\"",
+                  "line": 114
+                },
+                {
+                  "type": "str",
+                  "data": "set_file",
+                  "source": "\"set_file\""
+                },
+                {
+                  "type": "str",
+                  "data": "packages.folder",
+                  "source": "\"packages.folder\""
+                }
+              ],
+              [
+                {
+                  "type": "cmd",
+                  "data": "file",
+                  "source": "file \"set_file\" \"opal.json\" {",
+                  "line": 115
+                },
+                {
+                  "type": "str",
+                  "data": "set_file",
+                  "source": "\"set_file\""
+                },
+                {
+                  "type": "str",
+                  "data": "opal.json",
+                  "source": "\"opal.json\""
+                },
+                {
+                  "type": "obj",
+                  "data": {
+                    "name": {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "terminal",
+                          "source": "terminal"
+                        },
+                        {
+                          "type": "mtv",
+                          "data": "input",
+                          "parameters": [
+                            {
+                              "type": "str",
+                              "data": "Name your project",
+                              "source": "\"Name your project\""
+                            }
+                          ],
+                          "source": "input(\"Name your project\")"
+                        }
+                      ],
+                      "source": "terminal.input(\"Name your project\")"
+                    },
+                    "version": {
+                      "type": "str",
+                      "data": "1.0.0",
+                      "source": "\"1.0.0\""
+                    },
+                    "description": {
+                      "type": "str",
+                      "data": "An awesome package",
+                      "source": "\"An awesome package\""
+                    },
+                    "main": {
+                      "type": "str",
+                      "data": "script.osl",
+                      "source": "\"script.osl\""
+                    },
+                    "dependencies": {
+                      "type": "obj",
+                      "data": {},
+                      "source": "{}"
+                    },
+                    "tags": {
+                      "type": "arr",
+                      "data": [],
+                      "source": "[]"
+                    }
+                  },
+                  "source": "{\n        name: terminal.input(\"Name your project\"),\n        version: \"1.0.0\",\n        description: \"An awesome package\",\n        main: \"script.osl\",\n        dependencies: {},\n        tags: []\n      }"
+                }
+              ],
+              [
+                {
+                  "type": "cmd",
+                  "data": "file",
+                  "source": "file \"set_file\" \"script.osl\" \"// welcome to your new opal project\"",
+                  "line": 123
+                },
+                {
+                  "type": "str",
+                  "data": "set_file",
+                  "source": "\"set_file\""
+                },
+                {
+                  "type": "str",
+                  "data": "script.osl",
+                  "source": "\"script.osl\""
+                },
+                {
+                  "type": "str",
+                  "data": "// welcome to your new opal project",
+                  "source": "\"// welcome to your new opal project\""
+                }
+              ],
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": "Finished writing",
+                      "source": "\"Finished writing\""
+                    }
+                  ],
+                  "source": "log(\"Finished writing\")",
+                  "line": 124
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          },
+          {
+            "type": "var",
+            "data": "else",
+            "source": "else"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": "Aborted",
+                      "source": "\"Aborted\""
+                    }
+                  ],
+                  "source": "log(\"Aborted\")",
+                  "line": 126
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "break",
+            "source": "break",
+            "line": 128
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "case",
+            "source": "case \"install\"",
+            "line": 129
+          },
+          {
+            "type": "str",
+            "data": "install",
+            "source": "\"install\""
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local dat = opal.getPackages()",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "dat",
+                  "source": "dat"
+                }
+              ],
+              "source": "this.dat"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "opal",
+                  "source": "opal"
+                },
+                {
+                  "type": "mtv",
+                  "data": "getPackages",
+                  "parameters": [],
+                  "source": "getPackages()"
+                }
+              ],
+              "source": "opal.getPackages()"
+            },
+            "line": 130
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if dat.t.[1] == c.err (",
+            "line": 131
+          },
+          {
+            "type": "cmp",
+            "data": "==",
+            "source": "dat.t.[1] == c.err",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "dat",
+                  "source": "dat"
+                },
+                {
+                  "type": "var",
+                  "data": "t",
+                  "source": "t"
+                },
+                {
+                  "type": "mtv",
+                  "data": "item",
+                  "parameters": [
+                    {
+                      "type": "num",
+                      "data": 1,
+                      "source": "1"
+                    }
+                  ],
+                  "source": "[1]"
+                }
+              ],
+              "source": "dat.t.[1]"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "c",
+                  "source": "c"
+                },
+                {
+                  "type": "var",
+                  "data": "err",
+                  "source": "err"
+                }
+              ],
+              "source": "c.err"
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "dat",
+                          "source": "dat"
+                        },
+                        {
+                          "type": "var",
+                          "data": "d",
+                          "source": "d"
+                        }
+                      ],
+                      "source": "dat.d"
+                    }
+                  ],
+                  "source": "log(dat.d)",
+                  "line": 132
+                }
+              ],
+              [
+                {
+                  "type": "cmd",
+                  "data": "break",
+                  "source": "break",
+                  "line": 133
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local v = \"latest\"",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "v",
+                  "source": "v"
+                }
+              ],
+              "source": "this.v"
+            },
+            "right": {
+              "type": "str",
+              "data": "latest",
+              "source": "\"latest\""
+            },
+            "line": 136
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local name = args.[2].split(\":\")",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "name",
+                  "source": "name"
+                }
+              ],
+              "source": "this.name"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "args",
+                  "source": "args"
+                },
+                {
+                  "type": "mtv",
+                  "data": "item",
+                  "parameters": [
+                    {
+                      "type": "num",
+                      "data": 2,
+                      "source": "2"
+                    }
+                  ],
+                  "source": "[2]"
+                },
+                {
+                  "type": "mtv",
+                  "data": "split",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": ":",
+                      "source": "\":\""
+                    }
+                  ],
+                  "source": "split(\":\")"
+                }
+              ],
+              "source": "args.[2].split(\":\")"
+            },
+            "line": 137
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if name.len > 1 (",
+            "line": 138
+          },
+          {
+            "type": "cmp",
+            "data": ">",
+            "source": "name.len > 1",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "name",
+                  "source": "name"
+                },
+                {
+                  "type": "var",
+                  "data": "len",
+                  "source": "len"
+                }
+              ],
+              "source": "name.len"
+            },
+            "right": {
+              "type": "num",
+              "data": 1,
+              "source": "1"
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "v = name.[2]",
+                  "left": {
+                    "type": "var",
+                    "data": "v",
+                    "source": "v"
+                  },
+                  "right": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "name",
+                        "source": "name"
+                      },
+                      {
+                        "type": "mtv",
+                        "data": "item",
+                        "parameters": [
+                          {
+                            "type": "num",
+                            "data": 2,
+                            "source": "2"
+                          }
+                        ],
+                        "source": "[2]"
+                      }
+                    ],
+                    "source": "name.[2]"
+                  },
+                  "line": 139
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local data = opal.fetchPackage(name.[1])",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                }
+              ],
+              "source": "this.data"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "opal",
+                  "source": "opal"
+                },
+                {
+                  "type": "mtv",
+                  "data": "fetchPackage",
+                  "parameters": [
+                    {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "name",
+                          "source": "name"
+                        },
+                        {
+                          "type": "mtv",
+                          "data": "item",
+                          "parameters": [
+                            {
+                              "type": "num",
+                              "data": 1,
+                              "source": "1"
+                            }
+                          ],
+                          "source": "[1]"
+                        }
+                      ],
+                      "source": "name.[1]"
+                    }
+                  ],
+                  "source": "fetchPackage(name.[1])"
+                }
+              ],
+              "source": "opal.fetchPackage(name.[1])"
+            },
+            "line": 142
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if !data.exists (",
+            "line": 143
+          },
+          {
+            "type": "ury",
+            "data": "!",
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                },
+                {
+                  "type": "var",
+                  "data": "exists",
+                  "source": "exists"
+                }
+              ],
+              "source": "data.exists"
+            },
+            "source": "!data.exists"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "arr",
+                      "data": [
+                        {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "opal",
+                              "source": "opal"
+                            },
+                            {
+                              "type": "var",
+                              "data": "c",
+                              "source": "c"
+                            },
+                            {
+                              "type": "var",
+                              "data": "err",
+                              "source": "err"
+                            }
+                          ],
+                          "source": "opal.c.err"
+                        },
+                        {
+                          "type": "str",
+                          "data": "No package found with that name",
+                          "source": "\"No package found with that name\""
+                        }
+                      ],
+                      "source": "[opal.c.err, \"No package found with that name\"]"
+                    }
+                  ],
+                  "source": "log([opal.c.err, \"No package found with that name\"])",
+                  "line": 144
+                }
+              ],
+              [
+                {
+                  "type": "cmd",
+                  "data": "break",
+                  "source": "break",
+                  "line": 145
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "@=",
+            "source": "data @= data.json",
+            "left": {
+              "type": "var",
+              "data": "data",
+              "source": "data"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                },
+                {
+                  "type": "var",
+                  "data": "json",
+                  "source": "json"
+                }
+              ],
+              "source": "data.json"
+            },
+            "line": 147
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local cur = null",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "cur",
+                  "source": "cur"
+                }
+              ],
+              "source": "this.cur"
+            },
+            "right": {
+              "type": "unk",
+              "data": null,
+              "source": "null"
+            },
+            "line": 149
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "@=",
+            "source": "local vers @= data.versions",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "vers",
+                  "source": "vers"
+                }
+              ],
+              "source": "this.vers"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                },
+                {
+                  "type": "var",
+                  "data": "versions",
+                  "source": "versions"
+                }
+              ],
+              "source": "data.versions"
+            },
+            "line": 150
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if v == \"latest\" (",
+            "line": 151
+          },
+          {
+            "type": "cmp",
+            "data": "==",
+            "source": "v == \"latest\"",
+            "left": {
+              "type": "var",
+              "data": "v",
+              "source": "v"
+            },
+            "right": {
+              "type": "str",
+              "data": "latest",
+              "source": "\"latest\""
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "asi",
+                  "data": "@=",
+                  "source": "cur @= vers.[-1]",
+                  "left": {
+                    "type": "var",
+                    "data": "cur",
+                    "source": "cur"
+                  },
+                  "right": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "vers",
+                        "source": "vers"
+                      },
+                      {
+                        "type": "mtv",
+                        "data": "item",
+                        "parameters": [
+                          {
+                            "type": "num",
+                            "data": -1,
+                            "source": "-1"
+                          }
+                        ],
+                        "source": "[-1]"
+                      }
+                    ],
+                    "source": "vers.[-1]"
+                  },
+                  "line": 152
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          },
+          {
+            "type": "var",
+            "data": "else",
+            "source": "else"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "for",
+                  "source": "for i vers.len (",
+                  "line": 154
+                },
+                {
+                  "type": "str",
+                  "data": "i",
+                  "source": "i"
+                },
+                {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "vers",
+                      "source": "vers"
+                    },
+                    {
+                      "type": "var",
+                      "data": "len",
+                      "source": "len"
+                    }
+                  ],
+                  "source": "vers.len"
+                },
+                {
+                  "type": "blk",
+                  "data": [
+                    [
+                      {
+                        "type": "cmd",
+                        "data": "if",
+                        "source": "if vers.[i].version == v (",
+                        "line": 155
+                      },
+                      {
+                        "type": "cmp",
+                        "data": "==",
+                        "source": "vers.[i].version == v",
+                        "left": {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "vers",
+                              "source": "vers"
+                            },
+                            {
+                              "type": "mtv",
+                              "data": "item",
+                              "parameters": [
+                                {
+                                  "type": "var",
+                                  "data": "i",
+                                  "source": "i"
+                                }
+                              ],
+                              "source": "[i]"
+                            },
+                            {
+                              "type": "var",
+                              "data": "version",
+                              "source": "version"
+                            }
+                          ],
+                          "source": "vers.[i].version"
+                        },
+                        "right": {
+                          "type": "var",
+                          "data": "v",
+                          "source": "v"
+                        }
+                      },
+                      {
+                        "type": "blk",
+                        "data": [
+                          [
+                            {
+                              "type": "asi",
+                              "data": "@=",
+                              "source": "cur @= vers.[i]",
+                              "left": {
+                                "type": "var",
+                                "data": "cur",
+                                "source": "cur"
+                              },
+                              "right": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "vers",
+                                    "source": "vers"
+                                  },
+                                  {
+                                    "type": "mtv",
+                                    "data": "item",
+                                    "parameters": [
+                                      {
+                                        "type": "var",
+                                        "data": "i",
+                                        "source": "i"
+                                      }
+                                    ],
+                                    "source": "[i]"
+                                  }
+                                ],
+                                "source": "vers.[i]"
+                              },
+                              "line": 156
+                            }
+                          ],
+                          [
+                            {
+                              "type": "cmd",
+                              "data": "break",
+                              "source": "break",
+                              "line": 157
+                            }
+                          ]
+                        ],
+                        "source": "[ast BLK]"
+                      }
+                    ]
+                  ],
+                  "source": "[ast BLK]"
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if cur == null (",
+            "line": 161
+          },
+          {
+            "type": "cmp",
+            "data": "==",
+            "source": "cur == null",
+            "left": {
+              "type": "var",
+              "data": "cur",
+              "source": "cur"
+            },
+            "right": {
+              "type": "unk",
+              "data": null,
+              "source": "null"
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "arr",
+                      "data": [
+                        {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "c",
+                              "source": "c"
+                            },
+                            {
+                              "type": "var",
+                              "data": "err",
+                              "source": "err"
+                            }
+                          ],
+                          "source": "c.err"
+                        },
+                        {
+                          "type": "str",
+                          "data": "Unable to find specified version of package",
+                          "source": "\"Unable to find specified version of package\""
+                        }
+                      ],
+                      "source": "[c.err, \"Unable to find specified version of package\"]"
+                    }
+                  ],
+                  "source": "log([c.err, \"Unable to find specified version of package\"])",
+                  "line": 162
+                }
+              ],
+              [
+                {
+                  "type": "cmd",
+                  "data": "return",
+                  "source": "return",
+                  "line": 163
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "opr",
+                "data": "++",
+                "source": "\"Install \" ++ cur.name ++ \"(\" ++ cur.version ++ \") - size: \" ++ cur.size ++ \"?\"",
+                "left": {
+                  "type": "opr",
+                  "data": "++",
+                  "source": "\"Install \" ++ cur.name ++ \"(\" ++ cur.version ++ \") - size: \" ++ cur.size",
+                  "left": {
+                    "type": "opr",
+                    "data": "++",
+                    "source": "\"Install \" ++ cur.name ++ \"(\" ++ cur.version ++ \") - size: \"",
+                    "left": {
+                      "type": "opr",
+                      "data": "++",
+                      "source": "\"Install \" ++ cur.name ++ \"(\" ++ cur.version",
+                      "left": {
+                        "type": "opr",
+                        "data": "++",
+                        "source": "\"Install \" ++ cur.name ++ \"(\"",
+                        "left": {
+                          "type": "opr",
+                          "data": "++",
+                          "source": "\"Install \" ++ cur.name",
+                          "left": {
+                            "type": "str",
+                            "data": "Install ",
+                            "source": "\"Install \""
+                          },
+                          "right": {
+                            "type": "mtd",
+                            "data": [
+                              {
+                                "type": "var",
+                                "data": "cur",
+                                "source": "cur"
+                              },
+                              {
+                                "type": "var",
+                                "data": "name",
+                                "source": "name"
+                              }
+                            ],
+                            "source": "cur.name"
+                          }
+                        },
+                        "right": {
+                          "type": "str",
+                          "data": "(",
+                          "source": "\"(\""
+                        }
+                      },
+                      "right": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "cur",
+                            "source": "cur"
+                          },
+                          {
+                            "type": "var",
+                            "data": "version",
+                            "source": "version"
+                          }
+                        ],
+                        "source": "cur.version"
+                      }
+                    },
+                    "right": {
+                      "type": "str",
+                      "data": ") - size: ",
+                      "source": "\") - size: \""
+                    }
+                  },
+                  "right": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "cur",
+                        "source": "cur"
+                      },
+                      {
+                        "type": "var",
+                        "data": "size",
+                        "source": "size"
+                      }
+                    ],
+                    "source": "cur.size"
+                  }
+                },
+                "right": {
+                  "type": "str",
+                  "data": "?",
+                  "source": "\"?\""
+                }
+              }
+            ],
+            "source": "log(\"Install \" ++ cur.name ++ \"(\" ++ cur.version ++ \") - size: \" ++ cur.size ++ \"?\")",
+            "line": 166
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if terminal.input(\"y/n\") == \"y\" (",
+            "line": 167
+          },
+          {
+            "type": "cmp",
+            "data": "==",
+            "source": "terminal.input(\"y/n\") == \"y\"",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "terminal",
+                  "source": "terminal"
+                },
+                {
+                  "type": "mtv",
+                  "data": "input",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": "y/n",
+                      "source": "\"y/n\""
+                    }
+                  ],
+                  "source": "input(\"y/n\")"
+                }
+              ],
+              "source": "terminal.input(\"y/n\")"
+            },
+            "right": {
+              "type": "str",
+              "data": "y",
+              "source": "\"y\""
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "lol",
+                  "source": "lol",
+                  "line": 168
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          },
+          {
+            "type": "var",
+            "data": "else",
+            "source": "else"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "str",
+                      "data": "Aborted",
+                      "source": "\"Aborted\""
+                    }
+                  ],
+                  "source": "log(\"Aborted\")",
+                  "line": 182
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "break",
+            "source": "break",
+            "line": 184
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "case",
+            "source": "case \"list\"",
+            "line": 185
+          },
+          {
+            "type": "str",
+            "data": "list",
+            "source": "\"list\""
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local dat = opal.getPackages()",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "dat",
+                  "source": "dat"
+                }
+              ],
+              "source": "this.dat"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "opal",
+                  "source": "opal"
+                },
+                {
+                  "type": "mtv",
+                  "data": "getPackages",
+                  "parameters": [],
+                  "source": "getPackages()"
+                }
+              ],
+              "source": "opal.getPackages()"
+            },
+            "line": 186
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if dat.t == \"arr\" (",
+            "line": 187
+          },
+          {
+            "type": "cmp",
+            "data": "==",
+            "source": "dat.t == \"arr\"",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "dat",
+                  "source": "dat"
+                },
+                {
+                  "type": "var",
+                  "data": "t",
+                  "source": "t"
+                }
+              ],
+              "source": "dat.t"
+            },
+            "right": {
+              "type": "str",
+              "data": "arr",
+              "source": "\"arr\""
+            }
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "asi",
+                  "data": "=",
+                  "source": "dat.d = opal.format.arr(dat.d)",
+                  "left": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "dat",
+                        "source": "dat"
+                      },
+                      {
+                        "type": "var",
+                        "data": "d",
+                        "source": "d"
+                      }
+                    ],
+                    "source": "dat.d"
+                  },
+                  "right": {
+                    "type": "mtd",
+                    "data": [
+                      {
+                        "type": "var",
+                        "data": "opal",
+                        "source": "opal"
+                      },
+                      {
+                        "type": "var",
+                        "data": "format",
+                        "source": "format"
+                      },
+                      {
+                        "type": "mtv",
+                        "data": "arr",
+                        "parameters": [
+                          {
+                            "type": "mtd",
+                            "data": [
+                              {
+                                "type": "var",
+                                "data": "dat",
+                                "source": "dat"
+                              },
+                              {
+                                "type": "var",
+                                "data": "d",
+                                "source": "d"
+                              }
+                            ],
+                            "source": "dat.d"
+                          }
+                        ],
+                        "source": "arr(dat.d)"
+                      }
+                    ],
+                    "source": "opal.format.arr(dat.d)"
+                  },
+                  "line": 188
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "mtd",
+                "data": [
+                  {
+                    "type": "var",
+                    "data": "dat",
+                    "source": "dat"
+                  },
+                  {
+                    "type": "var",
+                    "data": "d",
+                    "source": "d"
+                  }
+                ],
+                "source": "dat.d"
+              }
+            ],
+            "source": "log(dat.d)",
+            "line": 190
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "break",
+            "source": "break",
+            "line": 191
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "case",
+            "source": "case \"describe\"",
+            "line": 192
+          },
+          {
+            "type": "str",
+            "data": "describe",
+            "source": "\"describe\""
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local data = opal.fetchPackage(args.[2])",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                }
+              ],
+              "source": "this.data"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "opal",
+                  "source": "opal"
+                },
+                {
+                  "type": "mtv",
+                  "data": "fetchPackage",
+                  "parameters": [
+                    {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "args",
+                          "source": "args"
+                        },
+                        {
+                          "type": "mtv",
+                          "data": "item",
+                          "parameters": [
+                            {
+                              "type": "num",
+                              "data": 2,
+                              "source": "2"
+                            }
+                          ],
+                          "source": "[2]"
+                        }
+                      ],
+                      "source": "args.[2]"
+                    }
+                  ],
+                  "source": "fetchPackage(args.[2])"
+                }
+              ],
+              "source": "opal.fetchPackage(args.[2])"
+            },
+            "line": 193
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "if",
+            "source": "if !data.exists (",
+            "line": 194
+          },
+          {
+            "type": "ury",
+            "data": "!",
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                },
+                {
+                  "type": "var",
+                  "data": "exists",
+                  "source": "exists"
+                }
+              ],
+              "source": "data.exists"
+            },
+            "source": "!data.exists"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "fnc",
+                  "data": "log",
+                  "parameters": [
+                    {
+                      "type": "arr",
+                      "data": [
+                        {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "opal",
+                              "source": "opal"
+                            },
+                            {
+                              "type": "var",
+                              "data": "c",
+                              "source": "c"
+                            },
+                            {
+                              "type": "var",
+                              "data": "err",
+                              "source": "err"
+                            }
+                          ],
+                          "source": "opal.c.err"
+                        },
+                        {
+                          "type": "str",
+                          "data": "No package found with that name",
+                          "source": "\"No package found with that name\""
+                        }
+                      ],
+                      "source": "[opal.c.err, \"No package found with that name\"]"
+                    }
+                  ],
+                  "source": "log([opal.c.err, \"No package found with that name\"])",
+                  "line": 195
+                }
+              ],
+              [
+                {
+                  "type": "cmd",
+                  "data": "break",
+                  "source": "break",
+                  "line": 196
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "@=",
+            "source": "data @= data.json",
+            "left": {
+              "type": "var",
+              "data": "data",
+              "source": "data"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                },
+                {
+                  "type": "var",
+                  "data": "json",
+                  "source": "json"
+                }
+              ],
+              "source": "data.json"
+            },
+            "line": 198
+          }
+        ],
+        [
+          {
+            "type": "asi",
+            "data": "=",
+            "source": "local v = data.versions.[-1]",
+            "left": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "this",
+                  "source": "this"
+                },
+                {
+                  "type": "var",
+                  "data": "v",
+                  "source": "v"
+                }
+              ],
+              "source": "this.v"
+            },
+            "right": {
+              "type": "mtd",
+              "data": [
+                {
+                  "type": "var",
+                  "data": "data",
+                  "source": "data"
+                },
+                {
+                  "type": "var",
+                  "data": "versions",
+                  "source": "versions"
+                },
+                {
+                  "type": "mtv",
+                  "data": "item",
+                  "parameters": [
+                    {
+                      "type": "num",
+                      "data": -1,
+                      "source": "-1"
+                    }
+                  ],
+                  "source": "[-1]"
+                }
+              ],
+              "source": "data.versions.[-1]"
+            },
+            "line": 199
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "opr",
+                "data": "++",
+                "source": "v.name ++ \" - \" ++ v.version ++ \" - \" ++ v.size",
+                "left": {
+                  "type": "opr",
+                  "data": "++",
+                  "source": "v.name ++ \" - \" ++ v.version ++ \" - \"",
+                  "left": {
+                    "type": "opr",
+                    "data": "++",
+                    "source": "v.name ++ \" - \" ++ v.version",
+                    "left": {
+                      "type": "opr",
+                      "data": "++",
+                      "source": "v.name ++ \" - \"",
+                      "left": {
+                        "type": "mtd",
+                        "data": [
+                          {
+                            "type": "var",
+                            "data": "v",
+                            "source": "v"
+                          },
+                          {
+                            "type": "var",
+                            "data": "name",
+                            "source": "name"
+                          }
+                        ],
+                        "source": "v.name"
+                      },
+                      "right": {
+                        "type": "str",
+                        "data": " - ",
+                        "source": "\" - \""
+                      }
+                    },
+                    "right": {
+                      "type": "mtd",
+                      "data": [
+                        {
+                          "type": "var",
+                          "data": "v",
+                          "source": "v"
+                        },
+                        {
+                          "type": "var",
+                          "data": "version",
+                          "source": "version"
+                        }
+                      ],
+                      "source": "v.version"
+                    }
+                  },
+                  "right": {
+                    "type": "str",
+                    "data": " - ",
+                    "source": "\" - \""
+                  }
+                },
+                "right": {
+                  "type": "mtd",
+                  "data": [
+                    {
+                      "type": "var",
+                      "data": "v",
+                      "source": "v"
+                    },
+                    {
+                      "type": "var",
+                      "data": "size",
+                      "source": "size"
+                    }
+                  ],
+                  "source": "v.size"
+                }
+              }
+            ],
+            "source": "log(v.name ++ \" - \" ++ v.version ++ \" - \" ++ v.size)",
+            "line": 200
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "str",
+                "data": "",
+                "source": "\"\""
+              }
+            ],
+            "source": "log(\"\")",
+            "line": 201
+          }
+        ],
+        [
+          {
+            "type": "fnc",
+            "data": "log",
+            "parameters": [
+              {
+                "type": "mtd",
+                "data": [
+                  {
+                    "type": "var",
+                    "data": "v",
+                    "source": "v"
+                  },
+                  {
+                    "type": "var",
+                    "data": "description",
+                    "source": "description"
+                  },
+                  {
+                    "type": "mtv",
+                    "data": "wrapText",
+                    "parameters": [
+                      {
+                        "type": "num",
+                        "data": 60,
+                        "source": "60"
+                      }
+                    ],
+                    "source": "wrapText(60)"
+                  }
+                ],
+                "source": "v.description.wrapText(60)"
+              }
+            ],
+            "source": "log(v.description.wrapText(60))",
+            "line": 202
+          }
+        ],
+        [
+          {
+            "type": "cmd",
+            "data": "break",
+            "source": "break",
+            "line": 203
+          }
+        ]
+      ],
       "source": "[ast BLK]"
     }
   ]
