@@ -1,0 +1,1 @@
+terminal.writeLine(args[2].JsonParse()[args[1]].JsonStringify())
