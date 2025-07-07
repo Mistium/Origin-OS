@@ -725,11 +725,9 @@ class OSLUtils {
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
     const start = CODE.split("\n", 1)[0]
-    console.log("Generating AST for:", CODE);
     // tokenise and handle lambda and inline funcs
     let ast = []
     let tokens = this.tokeniseLineOSL(CODE)
-    console.log("Tokens:", JSON.stringify(tokens));
     for (let i = 0; i < tokens.length; i++) {
       const cur = tokens[i].trim()
       if (cur === "->") {
@@ -992,7 +990,6 @@ class OSLUtils {
   generateFullAST({ CODE, MAIN = true }) {
     let line = 0;
     const re = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|\n\s+\/\/[^\n]+|\n/gm
-    console.log("Generating Full AST for:", CODE);
     CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(re, (match) => {
       if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
       if (match === ";") return "\n";
