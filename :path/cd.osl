@@ -1,0 +1,17 @@
+local pwd = terminal.pwd.split("/")
+
+if args.len == 0 (
+  pwd = user_folder
+) else if args[1] == ".." (
+  pwd = pwd.trim(1, -2).join("/")
+) else (
+  pwd = parseFilePath((pwd ++ args).join("/"))
+  file "exists" pwd ++ ".folder"
+  if !exists (
+    terminal.writeLine("Directory does not exist")
+    return
+  )
+)
+
+terminal.pwd = pwd
+terminal.writeLine("Changed directory to" + pwd)

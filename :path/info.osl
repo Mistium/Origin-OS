@@ -1,0 +1,40 @@
+local g = global_accent
+local kernel = origin.kernel
+local uptime = floor(timer / 3600) ++ "hrs, " ++ floor((timer % 3600) / 60) ++ "mins, " ++ round(timer % 60) ++ "secs"
+local gpu = getGpuInfo()
+
+local asciiArt = "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣤⣴⣶⣶⣶⣶⣦⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⠿⠛⠉⠁⠀⠀⠈⠉⠛⠿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⢠⣾⣿⠟⠁⢀⣤⣶⣾⣿⣿⣷⣶⣤⡀⠈⠻⣿⣷⡄⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⣿⣿⠃⠀⣴⣿⣿⡿⠟⠛⠛⠻⢿⣿⣿⣦⠀⠘⣿⣿⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⢰⣿⡇⠀⣸⣿⣿⠏⠀⠀⠀⠀⠀⠀⠹⣿⣿⣇⠀⢸⣿⡆⠀⠀⠀⠀  
+⠀⠀⠀⠀⢸⣿⡀⠀⠘⠛⠋⠀⠀⠀⠀⠀⠀⠀⠀⣿⣿⣿⠀⢈⣿⡇⠀⠀⠀⠀  
+⠀⠀⠀⠀⠘⣿⡇⠀⠀⠀⢀⣴⣶⡄⠀⠀⠀⠀⣴⣿⣿⠏⠀⢸⣿⠃⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⠁⠀⠀⢀⣴⣿⣿⣿⣷⣤⣤⣶⣿⣿⣿⠏⠀⣠⣿⣿⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⠀⢀⣴⣿⣿⡿⠛⠻⠿⣿⣿⠿⠟⠋⠁⢀⣴⣿⡿⠁⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⣴⣿⣿⡿⠋⠀⢀⣀⣀⣀⣀⣀⣠⣤⣾⣿⡿⠋⠀⠀⠀⠀⠀⠀⠀  
+⠀⠀⠀⠀⠀⠛⠛⠛⠀⠀⠀⠘⠛⠿⠿⠿⠿⠛⠛⠛⠁⠀⠀⠀⠀⠀⠀⠀⠀⠀  "
+
+local infoTexts = [
+  "User       |   " ++ username ++ "@" ++ user.system,
+  "System     |   originOS v" ++ origin.version,
+  "Kernel     |   " ++ kernel.name ++ kernel.version ++ " (" ++ kernel["type"] ++ ")",
+  "Uptime     |   " ++ uptime,
+  "Shell      |   RSHv2 (OSL)",
+  "Screen     |   " ++ screensize_x ++ "x" ++ screensize_y,
+  "Cloud      |   " ++ formatFileSize(user.used_size),
+  "Host       |   " ++ system_url.match("/https?:\/\/([^/]+)/")[2],
+  "GPU        |   " ++ gpu.vendor,
+  "OS         |   " ++ system_os,
+  "Browser    |   " ++ system_browser
+]
+
+local artLines = asciiArt.split("\n")
+
+while artLines.len < infoTexts.len (
+  artLines.append("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  ")
+)
+
+for i infoTexts.len (
+  terminal.writeLine([g, artLines[i], null, infoTexts[i]])
+)
