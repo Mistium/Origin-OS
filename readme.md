@@ -16,12 +16,13 @@ The Most Advanced Gui Based ScratchOS<br>
 ## About
 
 Current Kernel Info:
-```
+
+```md
 Name     -   Dawn
 Version  -   1.0.0
 ```
 
-# [Try origin here](https://launcher.mistium.com)
+## [Try origin here](https://launcher.mistium.com)
 
 
 originOS is a shell for running osl.

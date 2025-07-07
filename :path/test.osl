@@ -1,0 +1,3 @@
+// OSL Test Command - example for tracking system
+void terminal.writeLine("This is a test OSL script for the tracking system!")
+void terminal.writeLine("Current timestamp: " + Date.now())
