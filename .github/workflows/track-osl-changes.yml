@@ -1,0 +1,48 @@
+name: Track OSL Script Changes
+
+on:
+  push:
+    paths:
+      - ':path/*.osl'
+  pull_request:
+    paths:
+      - ':path/*.osl'
+
+jobs:
+  track-changes:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+        token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+
+    - name: Install dependencies
+      run: |
+        npm init -y
+        npm install fs path
+
+    - name: Run OSL tracker script
+      run: node .github/scripts/track-osl-changes.js
+
+    - name: Configure Git
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+
+    - name: Commit changes
+      run: |
+        git add :path/osl-tracker.json
+        if git diff --staged --quiet; then
+          echo "No changes to commit"
+        else
+          git commit -m "Update OSL script tracker [automated]"
+          git push
+        fi

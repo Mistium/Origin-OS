@@ -1,3 +1,4 @@
+// OSL Echo Command - outputs text to terminal
 void args.map(v -> (
   terminal.writeLine(v)
 ))
