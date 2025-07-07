@@ -1033,7 +1033,7 @@ class OSLUtils {
       if (!cur) continue;
       const type = cur[0]?.type;
       const data = cur[0]?.data;
-      if (type === "cmd" && ["for", "each", "class"].includes(data)) {
+      if (type === "cmd" && ["for", "each", "class", "while", "until"].includes(data)) {
         if (data === "each") {
           if (cur[cur.length - 1].type !== "blk") {
             lines[i] = this.generateError(cur[0].source, "Each loops require a block after the variable(s). Example: each i arr ( ... )");
@@ -1060,9 +1060,20 @@ class OSLUtils {
             cur[1] = this.evalToken(`${dat}.len`)
           }
         } else {
-          cur[1].type = "str";
+          if (data === "while" || data === "until") cur[1].type = "evl";
+          else cur[1].type = "str";
         }
         i++
+      }
+      if (type === "cmd" && data === "def") {
+        if (cur.length < 3) {
+          lines[i] = this.generateError(cur[0].source, "Function definitions require at least one parameter. Example: def myFunc(a, b) -> a + b");
+          continue;
+        }
+        if (cur[cur.length - 1].type !== "blk") {
+          lines[i] = this.generateError(cur[0].source, "Function definitions require a block after the parameters. Example: def myFunc(a, b) -> a + b ( ... )");
+          continue;
+        }
       }
       if (['loop', 'if', 'while', 'until', 'for'].includes(data)) {
         if (cur.length === 2 || 
@@ -1212,6 +1223,7 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: `while v !== 10 or lol == 4 (
+    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
