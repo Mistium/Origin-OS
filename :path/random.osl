@@ -1,0 +1,1 @@
+terminal.writeLine(random(args[1], args[2]))

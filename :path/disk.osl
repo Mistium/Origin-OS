@@ -1,0 +1,4 @@
+terminal.writeLine("Used        |   " ++ formatFileSize(user.used_size))
+terminal.writeLine("Total       |   " ++ formatFileSize(user.max_size))
+terminal.writeLine("Capacity    |   " ++ floor(user.used_size / user.max_size * 100) ++ "%")
+terminal.writeLine("Files       |   " ++ "window.files.index.value.length".eval())

@@ -1,0 +1,51 @@
+if args.len != 3 {
+    terminal.writeLine("Invalid number of arguments. Expected 3, got " + args.len)
+}
+local left = args[1]
+local right = args[3]
+
+switch args[2] (
+    case "+"
+        terminal.writeLine(left + right)
+    case "-"
+        terminal.writeLine(left - right)
+    case "*"
+        terminal.writeLine(left * right)
+    case "/"
+        terminal.writeLine(left / right)
+    case "%"
+        terminal.writeLine(left % right)
+    case "^"
+        terminal.writeLine(left ^ right)
+    case "and"
+        terminal.writeLine(left and right)
+    case "or"
+        terminal.writeLine(left or right)
+    case "xor"
+        terminal.writeLine(left xor right)
+    case "nor"
+        terminal.writeLine(left nor right)
+    case "nand"
+        terminal.writeLine(left nand right)
+    case "=="
+        terminal.writeLine(left == right)
+    case "!="
+        terminal.writeLine(left != right)
+    case "<"
+        terminal.writeLine(left.toNum() < right.toNum())
+    case ">"
+        terminal.writeLine(left.toNum() > right.toNum())
+    case "<="
+        terminal.writeLine(left.toNum() <= right.toNum())
+    case ">="
+        terminal.writeLine(left.toNum() >= right.toNum())
+    case "join"
+        terminal.writeLine(left ++ right)
+    case "in"
+        terminal.writeLine(right.contains(left))
+    case "item"
+        terminal.writeLine(left[right])
+    default
+        terminal.writeLine("Unknown operator: " + args[2])
+
+)

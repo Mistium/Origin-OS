@@ -1,0 +1,9 @@
+if args.contains("-U") (
+    terminal.writeLine(network.username)
+) else if args.contains("-r") (
+    terminal.writeLine(network.online_users.JsonStringify())
+) else (
+    void network.online_users.map(username -> (
+        terminal.writeLine(username)
+    ))
+)

@@ -1,0 +1,1 @@
+console.writeLine(args[1].len)

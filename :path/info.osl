@@ -1,7 +1,14 @@
 local g = global_accent
 local kernel = origin.kernel
 local uptime = floor(timer / 3600) ++ "hrs, " ++ floor((timer % 3600) / 60) ++ "mins, " ++ round(timer % 60) ++ "secs"
-local gpu = getGpuInfo()
+try (
+    local gpu = getGpuInfo()
+) catch e (
+    local gpu = {
+        vendor: "Unknown",
+        model: "Unknown"
+    }
+)
 
 local asciiArt = "⠀⠀⠀⠀⠀⠀⠀⠀⠀⣀⣤⣤⣴⣶⣶⣶⣶⣦⣤⣤⣀⠀⠀⠀⠀⠀⠀⠀⠀⠀  
 ⠀⠀⠀⠀⠀⠀⢀⣴⣾⣿⠿⠛⠉⠁⠀⠀⠈⠉⠛⠿⣿⣷⣦⡀⠀⠀⠀⠀⠀⠀  
@@ -31,7 +38,7 @@ local infoTexts = [
 
 local artLines = asciiArt.split("\n")
 
-while artLines.len < infoTexts.len (
+loop infoTexts.len - artLines.len (
   artLines.append("⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀  ")
 )
 
