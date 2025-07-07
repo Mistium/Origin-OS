@@ -1,4 +1,4 @@
-local lines = args[2].split("\n").trim(-args[1], -1)
+local lines = args[2].split("\n").trim(-args[1] + 1, -1)
 
 void lines.map(v -> (
     terminal.writeLine(v)
