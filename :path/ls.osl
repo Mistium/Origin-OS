@@ -1,0 +1,20 @@
+files = open(terminal.pwd ++ ".folder")
+
+files.map(f -> open(f, ["name", "type"]).join("."))
+
+if !args.contains("-a") (
+  files @= files.filter(v -> v[1] != ":")
+)
+
+void files.map(v -> (
+  local ov = v
+  if ov.endsWith(".folder") (
+    ov = ov.trim(1, -9) ++ "/"
+    v = [global_accent, ov]
+  )
+  if ov[1] == ":" (
+    v = ["#aaa", ov]
+  )
+  terminal.writeLine(v)
+  return
+))

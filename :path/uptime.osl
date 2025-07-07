@@ -1,0 +1,1 @@
+terminal.writeLine(floor(timer / 3600) ++ "hrs, " ++ floor((timer % 3600) / 60) ++ "mins, " ++ (timer % 60) ++ "secs")
