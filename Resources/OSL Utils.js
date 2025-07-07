@@ -1060,8 +1060,13 @@ class OSLUtils {
             cur[1] = this.evalToken(`${dat}.len`)
           }
         } else {
-          if (data === "while" || data === "until") cur[1].type = "evl";
-          else cur[1].type = "str";
+          if (data === "while" || data === "until") {
+            cur[1] = {
+              type: "evl",
+              data: cur[1],
+              source: cur[1].source || "[ast EVL]"
+            }
+          } else cur[1].type = "str";
         }
         i++
       }
