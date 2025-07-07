@@ -1,0 +1,11 @@
+switch args[1] (
+    case "-c"
+        terminal.writeLine(args[2].len)
+        return
+    case "-m"
+        terminal.writeLine(args[2].match("/[\s\S]/gu").len)
+        return
+    case "-w"
+        terminal.writeLine(args[2].match("/\b./gm").len)
+        return
+)

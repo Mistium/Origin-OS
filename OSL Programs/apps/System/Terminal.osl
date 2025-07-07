@@ -52,6 +52,9 @@ def evalCmd(cmd) (
   local lines = terminal.lines
   for i tokens.len (
     local cur = tokens[i]
+    if cur[1] == "\"" and cur[-1] == "\"" (
+      tokens[i] = cur.trim(2, -2).replace("\\", "")
+    )
     if cur[1] == "(" and cur[-1] == ")" (
       terminal.lines = []
       evalCmd(cur.trim(2, -2))

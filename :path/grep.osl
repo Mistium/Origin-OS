@@ -1,0 +1,32 @@
+local flags = args.filter(v -> v[1] == "-")
+args = args.filter(v -> v[1] != "-")
+
+local exp = args[1]
+local inp = args[2]
+local chk = inp
+
+local flag_v = flags.contains("-v")
+local flag_n = flags.contains("-n")
+local flag_i = flags.contains("-i")
+
+if flag_i (
+  exp = exp.toLower()
+  chk = inp.toLower()
+)
+
+local out = []
+local lines = chk.split("\n")
+local lines2 = inp.split("\n")
+for i lines.len (
+  if lines[i].contains(exp) (
+    void out.append(lines2[i])
+  )
+)
+
+if flags.contains("-c") (
+  terminal.writeLine(out.len)
+) else (
+  for i out.len (
+    terminal.writeLine(out[i])
+  )
+)
