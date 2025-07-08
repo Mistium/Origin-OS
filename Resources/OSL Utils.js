@@ -989,7 +989,7 @@ class OSLUtils {
 
   generateFullAST({ CODE, MAIN = true }) {
     let line = 0;
-    const re = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|(\n|^)\s+\/\/[^\n]+|\n/gm
+    const re = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|(\n|^)\s*\/\/[^\n]+|\n/gm
     CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(re, (match) => {
       if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
       if (match === ";") return "\n";
@@ -1046,15 +1046,15 @@ class OSLUtils {
             const static_var = cur[2].type === "var"
             const dat = static_var ? cur[2].source : "EACH_DAT_" + randomString(10);
             const spl = [
-              {...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")},
-              {...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }
+              [{...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")}],
+              [{...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }]
             ]
             if (static_var) spl.pop();
-            lines.splice(i, 0, spl);
-            cur[3].data.splice(0, 0, [
-              {...cur[0], type: "asi", data: "++", left: this.evalToken(id) },
-              {...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }
-            ])
+            lines.splice(i, 0, ...spl);
+            cur[3].data.splice(0, 0, 
+              [{...cur[0], type: "asi", data: "++", left: this.evalToken(id) }],
+              [{...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
+            )
             cur[0].data = "loop"
             cur.splice(1, 1)
             cur[1] = this.evalToken(`${dat}.len`)
@@ -1233,6 +1233,1104 @@ if (typeof Scratch !== "undefined") {
 isType = "normal"
 if passed_Data == "SYS.onboot" (
   isType = "notif"
-)`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+)
+
+import "window_tools" as "wt"
+import as "glass" from "packages"
+
+if user.onboot.contains(my_path).not() (
+  permission "request" "start run"
+)
+if window.permissions.contains("notifications").not() (
+  permission "request" "notifications"
+)
+
+//save.init("fluficord@flufi")
+
+portName = ("social:" ++ OuidNew())
+
+portName.roturConnect()
+
+window "min_size" 175 300
+
+window.width = 900
+window.height = 500
+
+def "notifyCustom" "text,icon,title" (
+  file "open" my_uuid
+  local icn = file[11]
+  local name = file[2]
+  //file "set" 11 icon
+  //file "set" 2 title
+  notify text
+  //file "set" 11 icn
+  //file "set" 2 name
+)
+
+class Config (
+  server = "flf-server"
+  serversUrl = "https://raw.githubusercontent.com/ThePandaDever/flf/refs/heads/main/social/servers.json"
+  servers = self.serversUrl.get().JsonParse()
+  version = "0.5f-"
+)
+Settings = null
+
+class Net (
+  gotPingBack = false
+  roturUsers = {}
+  //roturToken = roturToken()
+  
+  getCooldown = 0
+  getMessageCooldown = {}
+  
+  channels = null
+  channelData = {}
+  channelMessages = {}
+  channelMessagesLoaded = {}
+  channelUsers = {}
+  
+  onlineUsers = null
+  messages = {}
+  
+  emotes = null
+  roles = null
+  tags = null
+  shush = false
+  users = {}
+  isMod = false
+  
+  def wipe() (
+    self.gotPingBack = false
+    self.roturUsers = {}
+    self.getCooldown = 0
+    self.getMessageCooldown = {}
+    self.channels = null
+    self.channelData = {}
+    self.channelMessages = {}
+    self.channelMessagesLoaded = {}
+    self.channelUsers = {}
+    self.onlineUsers = null
+    self.messages = {}
+    self.emotes = null
+    self.roles = null
+    self.tags = null
+    self.users = {}
+    self.isMod = false
+  )
+  
+  class packetworker (
+    queue = []
+    worker = null
+    def start() (
+      self.worker @= worker({
+        oncreate: def() -> (
+          portName.roturConnect()
+        ),
+        onframe: def() -> (
+          if Net.packetworker.queue.len > 0 (
+            void Config.server.roturSend(Net.packetworker.queue.pop())
+          )
+        )
+      })
+    )
+  )
+  
+  class onlineworker (
+    queue = []
+    worker = null
+    def start() (
+      self.worker @= worker({
+        oncreate: def() -> (
+          oldtimer = timer
+        ),
+        onframe: def() -> (
+          if (timer - oldtimer) > 120 (
+            Net.send({"cmd":"ping"})
+            oldtimer = timer
+          )
+        )
+      })
+    )
+  )
+
+  
+  def send(data) (
+    if Net.shush.not() (
+      log "send" data
+      data["version"] = Config.version.destr
+      self.packetworker.queue.append(data)
+    )
+  )
+  def update() (
+    if new_network_data (
+      log "get" packet["data"]
+      Net.handlePacket(packet)
+      new_network_data = false
+    )
+    self.getCooldown -= 1
+    each this.msg self.getMessageCooldown.getKeys() (
+      self.getMessageCooldown[msg] = self.getMessageCooldown[msg] - 1
+    )
+  )
+  def handlePacket(p) (
+    local data = p["data"]
+    //log "get" data
+    
+    if data.getKeys().contains("cmd") (
+      if data["cmd"] != "comb" (
+        //log "get" data
+      )
+      switch data["cmd"] (
+        case "ping"
+          self.gotPingBack = true
+          break
+        
+        case "channel_list"
+          self.channels = data["data"]
+          break
+        case "channel_get"
+          self.channelData[data["key"]] = data["data"]
+          break
+        case "channel_messages"
+          self.channelMessages[data["key"]] = data["data"]
+          self.channelMessagesLoaded[data["key"]] = true
+          break
+        case "channel_users"
+          self.channelUsers[data["key"]] = data["data"]
+          //log "users" + data["key"] data["data"]
+          break
+        
+        case "message_get"
+          self.messages[data["key"]] = data["data"]
+          break
+        case "message_new"
+          if window.permissions.contains("notifications") (
+          
+          )
+          break
+        
+        case "update_messages"
+          self.getChannelMessages(data["data"], UI.neededMessagesDefault)
+          break
+        case "update_users"
+          self.getOnlineUsers()
+          break
+        
+        case "notif"
+          if Settings["notifs"] ?? false or data["doanyway"] (
+            notifyCustom data["text"] data["icon"] data["title"]
+          )
+          break
+        case "isMod"
+          self.isMod = data["data"]
+          break
+        
+        case "user_online"
+          self.onlineUsers = data["data"]
+          if (username in self.onlineUsers).not() (
+            self.onlineUsers @= self.onlineUsers.append(username)
+          )
+          UI.user_list.refresh()
+          break
+        case "user_settings_get"
+          Settings = data["data"]
+          if isType == "notif" and Settings["bg"].not() (
+            window.close()
+          )
+          break
+        case "user_tags_get"
+          self.tags ??= {}
+          self.tags[data["key"]] = data["data"]
+          break
+        case "user_get"
+          self.users[data.key] = data.data
+          UI.user_list.refresh()
+          break
+        
+        case "emote_list"
+          self.emotes = data["data"]
+          break
+        
+        case "roles_list"
+          self.roles = data["data"]
+          UI.user_list.refresh()
+          break
+        
+        case "comb"
+          each this.i this.packet2 data["packets"] (
+            self.handlePacket({"data":packet2})
+          )
+          break
+        case "killshutthefuckupidontwantpingsanymoresoshush"
+          self.packetworker.worker.kill()
+          self.onlineworker.worker.kill()
+          self.shush = true
+          break
+        
+        default
+          log "unknown packet command" + data["cmd"]
+          //window "stop"
+          break
+      )
+    )
+  )
+  def getOnlineUsers() (
+    Net.send({"cmd":"user_online"})
+  )
+  def getConfig() (
+    if self.getCooldown <= 0 (
+      self.getCooldown = 20
+      Net.send({"cmd":"user_settings_get"})
+    )
+  )
+  def setConfigKey(key,value) (
+    Net.send({"cmd":"user_settings_set","key":key,"value":value})
+  )
+  
+  def ping() (
+    Net.send({"cmd":"ping"})
+    self.getCooldown = 50
+  )
+  
+  def getChannelList() (
+    Net.send({"cmd":"channel_list"})
+    self.getCooldown = 10
+  )
+  def getChannel(channel) (
+    Net.send({"cmd":"channel_get","data":channel})
+    self.getCooldown = 20
+  )
+  def getChannelMessages(channel, amount) (
+    Net.send({"cmd":"channel_messages","data":channel,"amount":amount})
+    self.getCooldown = 10
+  )
+  def getMessage(message) (
+    if self.getMessageCooldown[message] <= 0 (
+      Net.send({"cmd":"message_get","data":message})
+      self.getMessageCooldown[message] = 100
+    )
+  )
+  def getChannelUsers(channel) (
+    Net.send({"cmd":"channel_users","data":channel})
+    self.getCooldown = 10
+  )
+  
+  def sendMessage(content, channel, reply, attachments) (
+    attachments = attachments == null ? null attachments
+    Net.sendMessageRaw(channel,{"content":content,"attachments":attachments ?? [],"reply":reply})
+  )
+  def sendMessageRaw(channel,message) (
+    Net.send({"cmd":"message_send","data":message,"channel":channel})
+  )
+  def deleteMessage(channel, message) (
+    Net.send({"cmd":"message_delete","data":message,"channel":channel})
+  )
+  
+  def toggleEmote(message, emote) (
+    Net.send({"cmd":"emote_toggle","message":message,"emote":emote})
+  )
+)
+
+
+class UI (
+  selected_channel = null
+  replying_message = null
+  channelTypes = {
+    "text": {
+      icon: "w 4 line -6 -10 -3 10 line 3 -10 6 10 line -8 5 10 5 line -10 -5 8 -5"
+    }
+  }
+  neededMessagesDefault = 15
+  neededMessages = {}
+  
+  def getLocation() (
+    return self.selected_channel ?? "no where"
+  )
+  
+  def drawEmote(emote, size) (
+    local e = Net.emotes[emote]
+    if e["text"] (
+      change size * -20 + .75 size * .5 + .75
+      text e["text"] size * 35 : c#txtc
+    ) else (
+      icon e["icon"] ?? "grid-apps-full" size : c#txtc
+    )
+  )
+  
+  def drawText(text, size, color) (
+    text text ?? "" size : c#color
+  )
+  def getUnFormattedText(text) (
+  
+  )
+  def textHeight() (
+    return 2
+  )
+  
+  def drawPFP(user, w, h) (
+    image "https://avatars.rotur.dev/" ++ (user ?? "_") ++ "?radius=256px" w + 1 h + 1
+  )
+  def drawUser(user, size, prefix) (
+    if prefix == "prefix" (
+      prefix = null
+    )
+    user ??= "?"
+    user = (prefix ?? "") ++ user
+    text user size
+  )
+   
+  def colorPad(t) (
+    return t.len == 2 ? t t.prepend("0")
+  )
+  
+  def lerpColor(a,b,t) (
+    local r1 = a.trim(2,3).toBase(16, 10).toNum()
+    local g1 = a.trim(4,5).toBase(16, 10).toNum()
+    local b1 = a.trim(6,7).toBase(16, 10).toNum()
+    local r2 = b.trim(2,3).toBase(16, 10).toNum()
+    local g2 = b.trim(4,5).toBase(16, 10).toNum()
+    local b2 = b.trim(6,7).toBase(16, 10).toNum()
+    return "#" ++ self.colorPad(floor(r2 - r1 * t + r1).toBase(10,16)) ++ self.colorPad(floor(g2 - g1 * t + g1).toBase(10,16)) ++ self.colorPad(floor(b2 - b1 * t + b1).toBase(10,16))
+  )
+  
+  def gradText(text, size, a, b) (
+    local len = text.len
+    local chari = 0
+    while chari < len (
+      c lerpColor(a,b,chari / len)
+      chari ++
+      text text[chari] size
+    )
+  )
+  
+  class channel_list (
+    width = 225
+    real_width = self.width
+    height = 0
+    shown = true
+    
+    def update() (
+      self.shown = window.width > 500
+      self.real_width = self.shown ? self.width 0
+      if self.shown (
+        c prim
+        glass:frame window.left window.top window.left + self.real_width window.bottom + 80 UI.channel_list.height - 15 + 10 "channel_list"
+          UI.channel_list.list()
+        frame "clear"
+      )
+    )
+    def list() (
+      local loaded = true
+      each this.chn Net.channels (
+        loaded = loaded and Net.channelData[chn] != null  
+      )
+      if Net.channels != null and loaded and typeof(Net.channels) == "array" (
+        if Net.channels.len > 0 (
+          local y = frame.top - 27.5 + frame.scroll
+          self.height = 0
+          each this.channel Net.channels (
+            local channelData = Net.channelData[channel]
+            goto 0 y
+            local isSelected = UI.selected_channel == channel
+            local col = isSelected ? global_accent window_colour
+            if isSelected (
+              square frame.width - 25 30 15 : c#col
+              square frame.width - 25 30 10 : c#prim
+            )
+            square frame.width - 25 30 15 0 1
+            if mouse_touching (
+              cursor "pointer"
+              if Input.mouse.leftClick (
+                UI.selected_channel = channel
+                UI.neededMessages[channel] = UI.neededMessagesDefault
+                UI.user_list.refresh()
+                UI.emote_menu.open = false
+              )
+            )
+            goto frame.width * -.5 + 25 y
+            icon UI.channelTypes[channelData["type"] ?? "unknown"].icon .9 : c#txtc
+            text channel 10 : c#txtc chx#20
+            
+            if Net.channelUsers[channel] != Net.users.getKeys() (
+              goto frame.width * -.5 + 25 + 10 y + 10
+              icon "w 10 square 0 0 8 10" .6 : c#prim
+              icon "locked" .6 : c#txtc
+            )
+            
+            y -= 50
+            self.height += 50
+          )
+        ) else (
+          goto 0 0
+          centext "no channels :(" 10 : c#txtc
+        )
+      ) else (
+        goto 0 0
+        direction timer * 720
+        icon "sync" .75 : c#txtc
+        direction 90
+      )
+    )
+  )
+  
+  class topbar (
+    def update() (
+      local dragBox = [[2,2,UI.channel_list.real_width,0],[-2,2,-90,-40]]
+      window "set_dragbox" dragBox
+      self.locationBar()
+      self.winButtons()
+    )
+    def winButtons() (
+      window "show"
+      direction 90
+      loc -2 2 -45 -20
+      c prim
+      square 70 17 10
+      change_x 25
+      c txtc
+      icon "close" 0.6 : hover_size#1.1
+      if mouse_touching (
+        cursor "pointer"
+        if Input.mouse.leftClick (
+          window "stop"
+        )
+      )
+      icon "down" 0.6 : chx#-25 hover_size#1.1
+      if mouse_touching (
+        cursor "pointer"
+        if Input.mouse.leftClick (
+          window "minimise"
+        )
+      )
+      icon "maximise" 0.6 : chx#-25 hover_size#1.1
+      if mouse_touching (
+        cursor "pointer"
+        if Input.mouse.leftClick (
+          window "maximise"
+        )
+      )
+    )
+    def locationBar() (
+      frame window.left + UI.channel_list.real_width window.top window.right window.top - 40 (
+        goto 0 0
+        square frame.width frame.height : c#prim
+        
+        loc 2 9999 15 0
+        text UI.getLocation() 10 : c#txtc
+      )
+    )
+  )
+  
+  class messages (
+    height = 1
+    messageSize = 10
+    def update() (
+      c prim
+      frame window.left + UI.channel_list.real_width window.top - 40 window.right - UI.user_list.real_width window.bottom + UI.input_bar.height self.height "messages" (
+        local messages @= Net.channelMessages[UI.selected_channel]
+        local start = frame.bottom - (self.height > frame.height - 15 ? (frame.scrollMax.height - frame.scroll) 0)
+        local y = start
+        local total_h = 0
+        local isConnected @= def(msgData,otherData) -> (
+          // if its the same user, and the messages are less than 2 minutes apart
+          local timeconnected = msgData.timestamp != null and otherData.timestamp != null ? msgData.timestamp - otherData.timestamp < (2 * 60 * 1000) true
+          //temp["time"] = timeconnected
+          return msgData.user == otherData.user and timeconnected and msgData["reply"] == null
+        )
+        local sizeFunction = def(emote, spacing) -> (
+          return spacing + (emotes[emote].len.toStr().len * 10)
+        )
+        local drawPFP @= UI.drawPFP
+        local drawUser @= UI.drawUser
+        local drawText @= UI.drawText
+        local drawEmote @= UI.drawEmote
+        local messageSize = self.messageSize
+        contentCache ??= {}
+        heightCache ??= {}
+        isConnectedCache ??= {}
+        each this.msgi this.msg messages (
+          local msgData @= Net.messages[msg]
+          local content = msgData.content.wrapText(frame.width / self.messageSize - 4)
+          local Muser = msgData.user
+          local cacheID = msgData.cacheID
+          //temp = {}
+          local doTitle = (messages[msgi + 1] != null) ? isConnected(msgData,Net.messages[messages[msgi + 1]]).not true
+          local connected = (messages[msgi - 1] != null) ? isConnected(Net.messages[messages[msgi - 1]],msgData) false
+          local height = 0
+          emotes = msgData["emotes"]
+          local emoteKeys = emotes.getKeys()
+          height += content.split("\n").len * self.messageSize * 2.3
+          height += doTitle ? (connected ? (self.messageSize * 2) 25) 0
+          height += emotes.len > 0 ? 37.5 0
+          height += msgData["reply"] != null ? 20 0
+          total_h += height
+          if y > frame.top (
+            y += height
+            Continue
+          )
+          if y + height < frame.bottom (
+            y += height
+            Continue
+          )
+          y += height * .5
+          goto 0 y
+          square frame.width height 0 0 1
+          local hovered = mouse_touching
+          if mouse_touching (
+            c tert
+            pen "opacity" UI.replying_message == msg ? 8 4
+            square frame.width height 1
+          ) else (
+            if UI.replying_message == msg (
+              c tert
+              pen "opacity" 4
+              square frame.width height 1
+            )
+          )
+          
+          if hovered (
+            local actions @= {
+              "reply": {
+                "icon": "w 4 line 0 8 -8 0 cont 0 -8 line -8 0 -2 0 cutcircle 0 -8 8 4.5 45" + (UI.replying_message == msg ? "w 7 c" + prim + "line -9 -9 9 9 9 -9 -9 9 c" + txtc + "w 4 line -9 -9 9 9 line 9 -9 -9 9 c" ""),
+                "code": def(msg) -> (
+                  if UI.replying_message != msg (
+                    UI.replying_message = msg
+                  ) else (
+                    UI.replying_message = null
+                  )
+                )
+              },
+              "react": {
+                "icon": "w 2.5 cutcircle 0 0 9 0 180 dot -3 1.5 dot 3 1.5 cutcircle 0 2.5 6 18 30",
+                "code": def(msg) -> (
+                  UI.emote_menu.open = (UI.emote_menu.open and UI.emote_menu.message == msg).not()
+                  UI.emote_menu.x = UI.mouse_x
+                  UI.emote_menu.y = UI.mouse_y
+                  UI.emote_menu.message = msg
+                )
+              }
+            }
+            if Net.isMod or Muser == username (
+              actions["delete"] = {
+                "icon": "bin",
+                "code": def(msg) -> (
+                  Net.deleteMessage(UI.selected_channel, msg)
+                )
+              }
+            )
+            local actionWidth = 22
+            goto frame.right - 25 y + (height / 2) - 12
+            change_x actionWidth / 2
+            each this.actionKey actions.getKeys() (
+              local action @= actions[actionKey]
+              if action.shown !== null ? action.shown true (
+                square 10 10 10 : c#prim hover_c#seco
+                icon action["icon"] .6 : c#txtc
+                if mouse_touching (
+                  cursor "pointer"
+                  if onclick (
+                    action.code(msg)
+                  )
+                )
+                change_x -actionWidth
+              )
+            )
+          )
+          
+          if msgData["reply"] != null (
+            goto frame.left + 50 y + (height / 2 - 13.5)
+            local replyMessage @= Net.messages[msgData["reply"]]
+            if replyMessage == null (
+              Net.getMessage(msgData["reply"])
+            )
+            drawPFP(replyMessage.user, 14, 14)
+            drawUser(replyMessage.user, self.messageSize * .8, "@") : chx#16 c#txtc chx#-6.25
+            drawText(replyMessage.content.replace("\n"," ").trimText(frame.width / (self.messageSize * .8) - 16), self.messageSize * .8, txtc) : chx#5
+            y -= 20
+          )
+          
+          if doTitle (
+            goto frame.left y + (height / 2 - 20)
+            drawPFP(Muser, 25, 25) : chx#17.5 chy#0
+            local roleColor = UI.user_list.roleColorUsers[Muser]
+            if typeof(roleColor) == "string" (
+              drawUser(Muser, self.messageSize) : chx#25 c#roleColor chx#-6.25 chy#6.25
+            ) else (
+              UI.gradText(Muser, self.messageSize, roleColor[1], roleColor[2]) : chx#25 c#roleColor chx#-6.25 chy#6.25
+            )
+            //log msgData.timestamp
+            change_x -6
+            local tags @= Net.tags[msgData.user] ?? []
+            if tags.len > 0 (
+              change_x -2
+            )
+            local tagi = 0
+            for this.tagi tags.len (
+              local tag @= tags[tagi]
+              square 20 20 0 0 1 : chx#22 tooltip#tag.tooltip
+              c txtc
+              if tag.color != null (
+                c tag.color
+              )
+              icon tag.icon .6 * (tag.size ?? 1)
+            )
+            change_x 6
+            text msgData.timestamp.timestamp("to-relative") self.messageSize * .7 : chx#10 c#txtc
+          )
+          
+          goto frame.left y + (height / 2 - (doTitle ? (self.messageSize * 2) -2.5))
+          drawText(content,self.messageSize,txtc) : chx#36.5 chy#-15
+          
+          y += msgData["reply"] != null ? 20 0
+          
+          if emoteKeys.len > 0 (
+            local x2 = frame.left
+            local spacing = 27.5
+            local y2 = y - (height * .5) + 20.5
+            local showUsers = Settings["showEmoteUsers"]
+            each this.emote emoteKeys (
+              local emoteUsers @= emotes[emote]
+              if emoteUsers.len > 0 (
+                local w3 = sizeFunction(emote, spacing)
+                if showUsers (
+                  local w4 = emoteUsers.len * 25
+                  w3 += w4
+                  x2 += w4 / 2
+                )
+                goto x2 + 57.5 y2
+                local pri = emoteUsers.contains(username.toLower()) ? seco prim
+                local hov = emoteUsers.contains(username.toLower()) ? tert seco
+                square w3 20 10 : c#pri hover_c#hov
+                if mouse_touching (
+                  cursor "pointer"
+                  if onclick (
+                    Net.toggleEmote(msg, emote)
+                  )
+                )
+                goto x2 + 57.5 - (w3 * .5 - 10) y2
+                drawEmote(emote, .75)
+                goto x2 + 57.5 - (w3 * .5 - 25) y2
+                text emoteUsers.len 10 : c#txtc
+                if showUsers (
+                  goto x2 + 57.5 - (w3 * .5 - 25) y2
+                  each this.user emoteUsers (
+                    drawPFP(user, 20, 20) : chx#25
+                  )
+                  x2 += w4 / 2
+                )
+                x2 += spacing + (emoteUsers.len.toStr().len * 10) + 17.5
+              )
+            )
+          )
+          
+          //text connected ++ "," + doTitle ++ "," + temp["time"] 10 : c#txtc chx#30
+          
+          //log performance - start
+          
+          y += height * .5
+        )
+        self.height = total_h
+      )
+    )
+  )
+  
+  class input_bar (
+    height = 40
+    def update() (
+      frame window.left + UI.channel_list.real_width window.bottom + self.height window.right - UI.user_list.real_width window.bottom (
+        local height = min(inputs["input_bar"].len * 23, 150)
+        loc 9999 -2 0 height * .5 + 9
+        c prim
+        self.height = height + 18
+        textbox frame.width - 15 self.height - 18 "input_bar" 8 {
+          "bg_colour": prim,
+          "text_colour": txtc,
+          "line_numbers": false
+        }
+        if "enter".onKeyDown() and "shift".isKeyDown().not() (
+          Net.sendMessage(inputs["input_bar"].join("\n"), UI.selected_channel, UI.replying_message)
+          UI.replying_message = null
+          inputs["input_bar"] = [""]
+        )
+      )
+    )
+  )
+  
+  class user_list (
+    width = 215
+    real_width = self.width
+    height = 0
+    shown = true
+    
+    taggedUsers = []
+    sortedUsers = []
+    roleColorUsers = {}
+    roleCount = {}
+    
+    def refresh() (
+      self.taggedUsers = self.tagUsers(Net.users.getKeys())
+      self.sortedUsers = self.sortUsers(taggedUsers)
+      self.roleColorUsers = self.colorUsers(taggedUsers)
+      self.roleCount = {}
+      each this.user self.taggedUsers (
+        local role = user.role
+        self.roleCount[role] ??= 0
+        self.roleCount[role] ++
+      )
+    )
+    
+    def roleToNum(role) (
+      return (["offline","online"] ++ (Net.roles.getKeys() ?? [])).index(role)
+    )
+    
+    def sortRoles(roles) (
+      return roles.map(def(r) -> (
+        return {"name": r, "rank": self.roleToNum(r)}
+      )).sortBy("rank","ascending")
+    )
+    
+    def tagUsers(users) (
+      local newUsers = []
+      each this.user users (
+        local newUser @= {
+          "name": user,
+          "role": self.sortRoles(Net.users[user]["roles"])[-1].name ?? (Net.onlineUsers.contains(user) ? "online" "offline")
+        }
+        newUser["rank"] = self.roleToNum(newUser["role"])
+        newUsers @= newUsers.append(newUser)
+      )
+      return newUsers
+    )
+    
+    def colorUsers(users) (
+      local newUsers = {}
+      each this.user users (
+        local col = null
+        local roles = Net.users[user.name]["roles"]
+        each this.roleKey roles (
+          local role = Net.roles[roleKey]
+          if (role.color != null or role.colora != null) (
+            col = self.getRoleColor(role)
+            break
+          )
+        )
+        newUsers[user.name] = col ?? txtc
+      )
+      return newUsers
+    )
+    
+    def sortUsers(users) (
+      return users.sortBy("rank","ascending").reverse()
+    )
+    
+    def getRoleColor(role) (
+      if role != null (
+        if role.color != null (
+          return role.color
+        )
+        if role.colora != null (
+          return [role.colora,role.colorb]
+        )
+      )
+      return txtc
+    )
+    
+    def update() (
+      self.shown = window.width > (600 + self.width)
+      self.real_width = self.shown ? self.width 0
+      if self.shown (
+        c prim
+        frame window.right - self.real_width window.top - 40 window.right window.bottom self.height + 10 "users" (
+          goto 0 0
+          line frame.left frame.top frame.left frame.bottom : c#prim
+          
+          local scroll = self.height > frame.height - 15 ? (frame.scroll) 0
+
+          
+          if UI.selected_channel == null (
+            goto 0 0
+            centext "select a channel :3" 8 : c#txtc
+            self.height = 0
+            frame "clear"
+            return
+          )
+          local users @= Net.channelUsers[UI.selected_channel]
+          
+          if users == null (
+            goto 0 0
+            direction timer * 720
+            icon "sync" .75 : c#txtc
+            direction 90
+            self.height = 0
+          ) else (
+            local start = frame.top + scroll
+            local y = start
+            local lastRole = null
+            local roleColor = null
+            each this.userData self.sortedUsers (
+              local user = userData.name
+              y -= 10
+              
+              local roleName = userData.role
+              if roleName != lastRole (
+                local role @= Net.roles[roleName]
+                roleColor = self.getRoleColor(role)
+                y -= 4
+                goto frame.left + 10 y
+                if typeof(roleColor) == "string" (
+                  text roleName 10 : c#roleColor
+                  text "-" 10 : chx#5
+                  text self.roleCount[roleName] 10 : chx#5
+                ) else (
+                  local txt = roleName + "-" + self.roleCount[roleName]
+                  void UI.gradText(txt, 10, roleColor[1], roleColor[2])
+                )
+                y -= 20
+              )
+              lastRole = roleName
+              
+              y -= 10
+              
+              goto 0 y
+              square frame.width - 20 25 10 : c#prim
+              set_x frame.left + 22
+              UI.drawPFP(user, 25, 25)
+              //icon "square 0 0 25 25" .5 : c#fff
+              change 10 -10
+              
+              local back = "c" + prim + "w 30 dot 0 0"
+              if Net.onlineUsers == null (
+                icon back .5
+                text "?" 6 : c#txtc chx#-3
+              ) else if Net.onlineUsers.contains(user) (
+                icon back + "c #03c200 w 19 dot 0 0" .5
+              ) else (
+                icon back + "c #424242 w 4.5 cutcircle 0 0 7 0 180" .5
+              )
+              
+              change 12.5 10
+              local roleUserColor = self.roleColorUsers[user]
+              if typeof(roleUserColor) == "string" (
+                c roleUserColor
+                UI.drawUser(user.trimText(frame.width - 60 / 10), 10)
+              ) else (
+                void UI.gradText(user.trimText(frame.width - 60 / 10), 10, roleUserColor[1], roleUserColor[2])
+              )
+              
+              local tags = Net.tags[user] ?? []
+              if tags.len > 0 (
+                change_x -10
+                local tagi = 0
+                for this.tagi tags.len (
+                  local tag @= tags[tagi]
+                  square 20 20 0 0 1 : chx#22 tooltip#tag.tooltip
+                  c txtc
+                  if tag.color != null (
+                    c tag.color
+                  )
+                  icon tag.icon .6 * (tag.size ?? 1)
+                )
+              )
+              
+              y -= 20
+            )
+            self.height = start - y - 20
+            //log self.height
+          )
+        )
+      )
+    )
+  )
+  
+  class emote_menu (
+    open = false
+    x = 0
+    y = 0
+    message = null
+    def update() (
+      if self.open.not() (
+        return
+      )
+      local width = 150
+      local height = 200
+      
+      if self.y - (height * .5) < window.bottom + 10 + UI.input_bar.height (
+        self.y = window.bottom + 10 + UI.input_bar.height + (height * .5)
+      )
+      if self.y + (height * .5) > window.top - 50 (
+        self.y = window.top - 50 - (height * .5)
+      )
+      local x = self.x - (width * .5) - 20
+      local y = self.y
+      
+      goto x y
+      square width height 15 : c#global_accent
+      square width height 10 : c#prim
+      
+      if Net.emotes != null (
+        frame x - (width * .5) y + (height * .5) x + (width * .5) y - (height * .5) (
+          local emote_size = 25
+          local ex = frame.left + (emote_size * 1)
+          local ey = frame.top - (emote_size * 1)
+          each this.emoteKey Net.emotes.getKeys() (
+            local emote = Net.emotes[emoteKey]
+            goto ex ey
+            square emote_size * 1.5 emote_size * 1.5 10 0 1
+            if mouse_touching (
+              cursor "pointer"
+              if Input.mouse.leftClick (
+                Net.toggleEmote(self.message, emoteKey)
+                self.open = false
+              )
+            )
+            c mouse_touching ? tert seco
+            square emote_size * 1.5 emote_size * 1.5 10
+            UI.drawEmote(emoteKey, emote_size / 17.5)
+            ex += emote_size * 2
+            if ex > frame.right (
+              ex = frame.left + (emote_size * 1)
+              ey -= emote_size * 2
+            )
+          )
+        )
+      ) else (
+        goto x y
+        direction timer * 720
+        icon "sync" .75 : c#txtc
+        direction 90
+      )
+    )
+  )
+  
+  class info_panel (
+    def setting(name, icn, current, callback, data) (
+      c (current ?? false).toBool() ? tert prim
+      square 10 10 15 : hover_c#seco chx#30 tooltip#name
+      if mouse_touching (
+        cursor "pointer"
+        if onclick (
+          callback(data)
+        )
+      )
+      square 10 10 10 : c#prim
+      icon icn .65 : c#txtc
+    )
+    def update() (
+      if UI.channel_list.shown (
+        goto 0 0
+        line window.left + UI.channel_list.real_width - 2 window.bottom window.left + UI.channel_list.real_width - 2 window.bottom + 80 - 1 : c#prim
+        frame window.left window.bottom + 80 window.left + UI.channel_list.real_width window.bottom (
+          loc 2 9999 22.5 15
+          image "https://avatars.rotur.dev/" ++ username ++ "?radius=50px" 40 40
+          text username 10 : c#txtc chx#25 chy#9
+          loc 2 -2 15 - 30 17.5
+          
+          local toggle @= def(key) -> (
+            Settings[key] = Settings[key].not()
+            Net.setConfigKey(key,Settings[key])
+          )
+          
+          local settingKey = "notifs"
+          self.setting("notifications", "notifications", Settings[settingKey], toggle, settingKey)
+          
+          settingKey = "bg"
+          self.setting("background worker", "multitasking", Settings[settingKey], toggle, settingKey)
+          
+          settingKey = "showEmoteUsers"
+          self.setting("show emote users", "accounts", Settings[settingKey], toggle, settingKey)
+        )
+      )
+    )
+  )
+)
+
+class Input (
+  class mouse (
+    leftClick = false
+    leftDown = false
+  )
+  def update() (
+    self.mouse.leftClick = mouse_left and self.mouse.leftDown.not()
+    self.mouse.leftDown = mouse_left
+  )
+)
+
+Net.ping()
+Net.packetworker.start()
+Net.onlineworker.start()
+
+window.on("close", def() -> (
+  void Config.server.roturSend({"cmd":"quit","version":Config.version})
+))
+
+mainloop:
+  if isType == "notif" (
+    Net.update()
+    window.hide()
+    window.resize(0,0)
+    return
+  )
+  
+  wt:load_theme
+  Net.update()
+  Input.update()
+  
+  if Net.gotPingBack and Net.channels == null and Net.getCooldown <= 0 (
+    Net.getChannelList()
+  )
+  if Settings == null and Net.gotPingBack and Net.shush (
+    Net.getConfig()
+  )
+  each this.channel Net.channels (
+    if Net.channelData.getKeys().contains(channel).not() (
+      if Net.getCooldown <= 0 (
+        Net.getChannel(channel)
+      )
+    ) else if Net.channelUsers.getKeys().contains(channel).not() (
+      if Net.getCooldown <= 0 (
+        //log channel Net.channelUsers Net.channelUsers.getKeys()
+        //Net.getChannelUsers(channel)
+      )
+    ) else (
+      if UI.neededMessages[channel] > 0 and (Net.channelMessagesLoaded[channel] ?? false).not() (
+        Net.getChannelMessages(channel, UI.neededMessages[channel] ?? 0)
+        UI.neededMessages[channel] = 0
+      )
+    )
+  )
+  if UI.selected_channel != null (
+    local msgs = Net.channelMessages[UI.selected_channel]
+    if msgs (
+      each this.msg msgs.reverse() ( 
+        if Net.messages[msg] == null (
+          Net.getMessage(msg)
+        )
+      )
+    )
+  )
+  
+  UI.mouse_x = mouse_x
+  UI.mouse_y = mouse_y
+  
+  void UI.messages.update()
+  void UI.input_bar.update()
+  void UI.channel_list.update()
+  void UI.user_list.update()
+  void UI.emote_menu.update()
+  void UI.topbar.update()
+  void UI.info_panel.update()
+  
+  if false (
+    goto 0 0
+    square 200 100 10 : c#prim hover_c#seco
+    if mouse_touching (
+      cursor "pointer"
+      if Input.mouse.leftClick (
+        Net.sendMessage("hi","general")
+      )
+    )
+    centext "funny message" 10 : c#txtc
+  )
+`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
