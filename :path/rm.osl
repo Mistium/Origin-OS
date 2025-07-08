@@ -1,0 +1,16 @@
+local pwd = terminal.pwd.split("/")
+pwd[1] = ""
+if !args[1].contains(".") (
+  args[1] ++= ".folder"
+)
+pwd.append(args[1])
+
+local dir = parseFilePath(pwd.join("/"))
+file "exists" dir
+if exists (
+  file "open" dir "onlyaccess"
+  file "delete"
+  file "close"
+) else (
+  terminal.writeLine("Unknown target file: " ++ args[1])
+)

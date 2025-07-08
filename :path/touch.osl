@@ -1,0 +1,5 @@
+if !args[1].contains(".") (
+  args[1] ++= ".folder"
+)
+file "goto_dir" terminal.pwd
+file "set_file" args[1] ""

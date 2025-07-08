@@ -7,44 +7,64 @@ local right = args[3]
 switch args[2] (
     case "+"
         terminal.writeLine(left + right)
+        break
     case "-"
         terminal.writeLine(left - right)
+        break
     case "*"
         terminal.writeLine(left * right)
+        break
     case "/"
         terminal.writeLine(left / right)
+        break
     case "%"
         terminal.writeLine(left % right)
+        break
     case "^"
         terminal.writeLine(left ^ right)
+        break
     case "and"
         terminal.writeLine(left and right)
+        break
     case "or"
         terminal.writeLine(left or right)
+        break
     case "xor"
         terminal.writeLine(left xor right)
+        break
     case "nor"
         terminal.writeLine(left nor right)
+        break
     case "nand"
         terminal.writeLine(left nand right)
+        break
     case "=="
         terminal.writeLine(left == right)
+        break
     case "!="
         terminal.writeLine(left != right)
+        break
     case "<"
         terminal.writeLine(left.toNum() < right.toNum())
+        break
     case ">"
         terminal.writeLine(left.toNum() > right.toNum())
+        break
     case "<="
         terminal.writeLine(left.toNum() <= right.toNum())
+        break
     case ">="
         terminal.writeLine(left.toNum() >= right.toNum())
+        break
     case "join"
         terminal.writeLine(left ++ right)
+        break
     case "in"
         terminal.writeLine(right.contains(left))
+        break
     case "item"
         terminal.writeLine(left[right])
+        break
     default
         terminal.writeLine("Unknown operator: " + args[2])
 

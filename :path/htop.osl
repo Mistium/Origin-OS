@@ -1,0 +1,12 @@
+local wins = "origin.windows".eval()
+switch args[1] (
+  case "-l"
+    terminal.writeLine(wins.names.len)
+    return
+  case "-g"
+    terminal.writeLine("window.osl_get_windows()".eval()[args[2]].JsonStringify())
+    return
+  case "-r"
+    terminal.writeLine("window.osl_get_windows()".eval().JsonParse())
+    return
+)

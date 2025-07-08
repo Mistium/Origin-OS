@@ -1,0 +1,10 @@
+
+if args.len == 0 (
+  void args.append("help")
+)
+local url = "https://raw.githubusercontent.com/RoturTW/.rsh/refs/heads/main/spec/" ++ args[1] ++ ".md"
+local dat = url.httpGet().split("\n")
+
+for i dat.len (
+  terminal.writeLine(dat[i])
+)
