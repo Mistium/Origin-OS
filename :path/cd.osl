@@ -15,4 +15,6 @@ if args.len == 0 (
 )
 
 terminal.pwd = pwd
-terminal.writeLine("Changed directory to" + pwd)
+if args.contains("-v") (
+  terminal.writeLine("Current directory: " ++ terminal.pwd)
+)

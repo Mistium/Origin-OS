@@ -2408,70 +2408,68 @@
                       }
                     ],
                     [
-                      [
-                        {
-                          "type": "asi",
-                          "data": "=",
-                          "source": "each this.msg self.getMessageCooldown.getKeys() (",
-                          "line": 141,
-                          "left": {
-                            "type": "mtd",
-                            "data": [
-                              {
-                                "type": "var",
-                                "data": "this",
-                                "source": "this"
-                              },
-                              {
-                                "type": "var",
-                                "data": "EACH_I_uddyXKjmXz",
-                                "source": "EACH_I_uddyXKjmXz"
-                              }
-                            ],
-                            "source": "this.EACH_I_uddyXKjmXz"
-                          },
-                          "right": {
-                            "type": "num",
-                            "data": 0,
-                            "source": "0"
-                          }
+                      {
+                        "type": "asi",
+                        "data": "=",
+                        "source": "each this.msg self.getMessageCooldown.getKeys() (",
+                        "line": 141,
+                        "left": {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "this",
+                              "source": "this"
+                            },
+                            {
+                              "type": "var",
+                              "data": "EACH_I_oDyIkJXpVE",
+                              "source": "EACH_I_oDyIkJXpVE"
+                            }
+                          ],
+                          "source": "this.EACH_I_oDyIkJXpVE"
+                        },
+                        "right": {
+                          "type": "num",
+                          "data": 0,
+                          "source": "0"
                         }
-                      ],
-                      [
-                        {
-                          "type": "asi",
-                          "data": "@=",
-                          "source": "each this.msg self.getMessageCooldown.getKeys() (",
-                          "line": 141,
-                          "left": {
-                            "type": "var",
-                            "data": "EACH_DAT_DBXwBPKLUd",
-                            "source": "EACH_DAT_DBXwBPKLUd"
-                          },
-                          "right": {
-                            "type": "mtd",
-                            "data": [
-                              {
-                                "type": "var",
-                                "data": "self",
-                                "source": "self"
-                              },
-                              {
-                                "type": "var",
-                                "data": "getMessageCooldown",
-                                "source": "getMessageCooldown"
-                              },
-                              {
-                                "type": "mtv",
-                                "data": "getKeys",
-                                "parameters": [],
-                                "source": "getKeys()"
-                              }
-                            ],
-                            "source": "self.getMessageCooldown.getKeys()"
-                          }
+                      }
+                    ],
+                    [
+                      {
+                        "type": "asi",
+                        "data": "@=",
+                        "source": "each this.msg self.getMessageCooldown.getKeys() (",
+                        "line": 141,
+                        "left": {
+                          "type": "var",
+                          "data": "EACH_DAT_sSeItICwxq",
+                          "source": "EACH_DAT_sSeItICwxq"
+                        },
+                        "right": {
+                          "type": "mtd",
+                          "data": [
+                            {
+                              "type": "var",
+                              "data": "self",
+                              "source": "self"
+                            },
+                            {
+                              "type": "var",
+                              "data": "getMessageCooldown",
+                              "source": "getMessageCooldown"
+                            },
+                            {
+                              "type": "mtv",
+                              "data": "getKeys",
+                              "parameters": [],
+                              "source": "getKeys()"
+                            }
+                          ],
+                          "source": "self.getMessageCooldown.getKeys()"
                         }
-                      ]
+                      }
                     ],
                     [
                       {
@@ -2485,8 +2483,8 @@
                         "data": [
                           {
                             "type": "var",
-                            "data": "EACH_DAT_DBXwBPKLUd",
-                            "source": "EACH_DAT_DBXwBPKLUd"
+                            "data": "EACH_DAT_sSeItICwxq",
+                            "source": "EACH_DAT_sSeItICwxq"
                           },
                           {
                             "type": "var",
@@ -2494,7 +2492,7 @@
                             "source": "len"
                           }
                         ],
-                        "source": "EACH_DAT_DBXwBPKLUd.len"
+                        "source": "EACH_DAT_sSeItICwxq.len"
                       },
                       {
                         "type": "blk",
@@ -2515,11 +2513,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_uddyXKjmXz",
-                                    "source": "EACH_I_uddyXKjmXz"
+                                    "data": "EACH_I_oDyIkJXpVE",
+                                    "source": "EACH_I_oDyIkJXpVE"
                                   }
                                 ],
-                                "source": "this.EACH_I_uddyXKjmXz"
+                                "source": "this.EACH_I_oDyIkJXpVE"
                               }
                             }
                           ],
@@ -2550,8 +2548,8 @@
                                 "data": [
                                   {
                                     "type": "var",
-                                    "data": "EACH_DAT_DBXwBPKLUd",
-                                    "source": "EACH_DAT_DBXwBPKLUd"
+                                    "data": "EACH_DAT_sSeItICwxq",
+                                    "source": "EACH_DAT_sSeItICwxq"
                                   },
                                   {
                                     "type": "mtv",
@@ -2567,17 +2565,17 @@
                                           },
                                           {
                                             "type": "var",
-                                            "data": "EACH_I_uddyXKjmXz",
-                                            "source": "EACH_I_uddyXKjmXz"
+                                            "data": "EACH_I_oDyIkJXpVE",
+                                            "source": "EACH_I_oDyIkJXpVE"
                                           }
                                         ],
-                                        "source": "this.EACH_I_uddyXKjmXz"
+                                        "source": "this.EACH_I_oDyIkJXpVE"
                                       }
                                     ],
-                                    "source": "[this.EACH_I_uddyXKjmXz]"
+                                    "source": "[this.EACH_I_oDyIkJXpVE]"
                                   }
                                 ],
-                                "source": "EACH_DAT_DBXwBPKLUd.[this.EACH_I_uddyXKjmXz]"
+                                "source": "EACH_DAT_sSeItICwxq.[this.EACH_I_oDyIkJXpVE]"
                               }
                             }
                           ],
@@ -2847,9 +2845,9 @@
                                   "emote_list": 51,
                                   "roles_list": 54,
                                   "comb": 58,
-                                  "killshutthefuckupidontwantpingsanymoresoshush": 62
+                                  "killshutthefuckupidontwantpingsanymoresoshush": 63
                                 },
-                                "default": 67
+                                "default": 68
                               },
                               "line": 153
                             },
@@ -4711,71 +4709,69 @@
                                   }
                                 ],
                                 [
-                                  [
-                                    {
-                                      "type": "asi",
-                                      "data": "=",
-                                      "source": "each this.i this.packet2 data.[\"packets\"] (",
-                                      "line": 230,
-                                      "left": {
-                                        "type": "mtd",
-                                        "data": [
-                                          {
-                                            "type": "var",
-                                            "data": "this",
-                                            "source": "this"
-                                          },
-                                          {
-                                            "type": "var",
-                                            "data": "i",
-                                            "source": "i"
-                                          }
-                                        ],
-                                        "source": "this.i"
-                                      },
-                                      "right": {
-                                        "type": "num",
-                                        "data": 0,
-                                        "source": "0"
-                                      }
+                                  {
+                                    "type": "asi",
+                                    "data": "=",
+                                    "source": "each this.i this.packet2 data.[\"packets\"] (",
+                                    "line": 230,
+                                    "left": {
+                                      "type": "mtd",
+                                      "data": [
+                                        {
+                                          "type": "var",
+                                          "data": "this",
+                                          "source": "this"
+                                        },
+                                        {
+                                          "type": "var",
+                                          "data": "i",
+                                          "source": "i"
+                                        }
+                                      ],
+                                      "source": "this.i"
+                                    },
+                                    "right": {
+                                      "type": "num",
+                                      "data": 0,
+                                      "source": "0"
                                     }
-                                  ],
-                                  [
-                                    {
-                                      "type": "asi",
-                                      "data": "@=",
-                                      "source": "each this.i this.packet2 data.[\"packets\"] (",
-                                      "line": 230,
-                                      "left": {
-                                        "type": "var",
-                                        "data": "EACH_DAT_ZqBbYjVLGP",
-                                        "source": "EACH_DAT_ZqBbYjVLGP"
-                                      },
-                                      "right": {
-                                        "type": "mtd",
-                                        "data": [
-                                          {
-                                            "type": "var",
-                                            "data": "data",
-                                            "source": "data"
-                                          },
-                                          {
-                                            "type": "mtv",
-                                            "data": "item",
-                                            "parameters": [
-                                              {
-                                                "type": "str",
-                                                "data": "packets",
-                                                "source": "\"packets\""
-                                              }
-                                            ],
-                                            "source": "[\"packets\"]"
-                                          }
-                                        ],
-                                        "source": "data.[\"packets\"]"
-                                      }
+                                  }
+                                ],
+                                [
+                                  {
+                                    "type": "asi",
+                                    "data": "@=",
+                                    "source": "each this.i this.packet2 data.[\"packets\"] (",
+                                    "line": 230,
+                                    "left": {
+                                      "type": "var",
+                                      "data": "EACH_DAT_LwEayyWuea",
+                                      "source": "EACH_DAT_LwEayyWuea"
+                                    },
+                                    "right": {
+                                      "type": "mtd",
+                                      "data": [
+                                        {
+                                          "type": "var",
+                                          "data": "data",
+                                          "source": "data"
+                                        },
+                                        {
+                                          "type": "mtv",
+                                          "data": "item",
+                                          "parameters": [
+                                            {
+                                              "type": "str",
+                                              "data": "packets",
+                                              "source": "\"packets\""
+                                            }
+                                          ],
+                                          "source": "[\"packets\"]"
+                                        }
+                                      ],
+                                      "source": "data.[\"packets\"]"
                                     }
-                                  ]
+                                  }
                                 ],
                                 [
                                   {
@@ -4789,8 +4785,8 @@
                                     "data": [
                                       {
                                         "type": "var",
-                                        "data": "EACH_DAT_ZqBbYjVLGP",
-                                        "source": "EACH_DAT_ZqBbYjVLGP"
+                                        "data": "EACH_DAT_LwEayyWuea",
+                                        "source": "EACH_DAT_LwEayyWuea"
                                       },
                                       {
                                         "type": "var",
@@ -4798,7 +4794,7 @@
                                         "source": "len"
                                       }
                                     ],
-                                    "source": "EACH_DAT_ZqBbYjVLGP.len"
+                                    "source": "EACH_DAT_LwEayyWuea.len"
                                   },
                                   {
                                     "type": "blk",
@@ -4854,8 +4850,8 @@
                                             "data": [
                                               {
                                                 "type": "var",
-                                                "data": "EACH_DAT_ZqBbYjVLGP",
-                                                "source": "EACH_DAT_ZqBbYjVLGP"
+                                                "data": "EACH_DAT_LwEayyWuea",
+                                                "source": "EACH_DAT_LwEayyWuea"
                                               },
                                               {
                                                 "type": "mtv",
@@ -4881,7 +4877,7 @@
                                                 "source": "[this.i]"
                                               }
                                             ],
-                                            "source": "EACH_DAT_ZqBbYjVLGP.[this.i]"
+                                            "source": "EACH_DAT_LwEayyWuea.[this.i]"
                                           }
                                         }
                                       ],
@@ -9054,64 +9050,62 @@
                             }
                           ],
                           [
-                            [
-                              {
-                                "type": "asi",
-                                "data": "=",
-                                "source": "each this.chn Net.channels (",
-                                "line": 394,
-                                "left": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "this",
-                                      "source": "this"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "EACH_I_zOALNJSZvD",
-                                      "source": "EACH_I_zOALNJSZvD"
-                                    }
-                                  ],
-                                  "source": "this.EACH_I_zOALNJSZvD"
-                                },
-                                "right": {
-                                  "type": "num",
-                                  "data": 0,
-                                  "source": "0"
-                                }
+                            {
+                              "type": "asi",
+                              "data": "=",
+                              "source": "each this.chn Net.channels (",
+                              "line": 394,
+                              "left": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "this",
+                                    "source": "this"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "EACH_I_AxZCOLIOUQ",
+                                    "source": "EACH_I_AxZCOLIOUQ"
+                                  }
+                                ],
+                                "source": "this.EACH_I_AxZCOLIOUQ"
+                              },
+                              "right": {
+                                "type": "num",
+                                "data": 0,
+                                "source": "0"
                               }
-                            ],
-                            [
-                              {
-                                "type": "asi",
-                                "data": "@=",
-                                "source": "each this.chn Net.channels (",
-                                "line": 394,
-                                "left": {
-                                  "type": "var",
-                                  "data": "EACH_DAT_ycQNrhEaDY",
-                                  "source": "EACH_DAT_ycQNrhEaDY"
-                                },
-                                "right": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "Net",
-                                      "source": "Net"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "channels",
-                                      "source": "channels"
-                                    }
-                                  ],
-                                  "source": "Net.channels"
-                                }
+                            }
+                          ],
+                          [
+                            {
+                              "type": "asi",
+                              "data": "@=",
+                              "source": "each this.chn Net.channels (",
+                              "line": 394,
+                              "left": {
+                                "type": "var",
+                                "data": "EACH_DAT_YWuTDawmLD",
+                                "source": "EACH_DAT_YWuTDawmLD"
+                              },
+                              "right": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "Net",
+                                    "source": "Net"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "channels",
+                                    "source": "channels"
+                                  }
+                                ],
+                                "source": "Net.channels"
                               }
-                            ]
+                            }
                           ],
                           [
                             {
@@ -9125,8 +9119,8 @@
                               "data": [
                                 {
                                   "type": "var",
-                                  "data": "EACH_DAT_ycQNrhEaDY",
-                                  "source": "EACH_DAT_ycQNrhEaDY"
+                                  "data": "EACH_DAT_YWuTDawmLD",
+                                  "source": "EACH_DAT_YWuTDawmLD"
                                 },
                                 {
                                   "type": "var",
@@ -9134,7 +9128,7 @@
                                   "source": "len"
                                 }
                               ],
-                              "source": "EACH_DAT_ycQNrhEaDY.len"
+                              "source": "EACH_DAT_YWuTDawmLD.len"
                             },
                             {
                               "type": "blk",
@@ -9155,11 +9149,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_zOALNJSZvD",
-                                          "source": "EACH_I_zOALNJSZvD"
+                                          "data": "EACH_I_AxZCOLIOUQ",
+                                          "source": "EACH_I_AxZCOLIOUQ"
                                         }
                                       ],
-                                      "source": "this.EACH_I_zOALNJSZvD"
+                                      "source": "this.EACH_I_AxZCOLIOUQ"
                                     }
                                   }
                                 ],
@@ -9190,8 +9184,8 @@
                                       "data": [
                                         {
                                           "type": "var",
-                                          "data": "EACH_DAT_ycQNrhEaDY",
-                                          "source": "EACH_DAT_ycQNrhEaDY"
+                                          "data": "EACH_DAT_YWuTDawmLD",
+                                          "source": "EACH_DAT_YWuTDawmLD"
                                         },
                                         {
                                           "type": "mtv",
@@ -9207,17 +9201,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_zOALNJSZvD",
-                                                  "source": "EACH_I_zOALNJSZvD"
+                                                  "data": "EACH_I_AxZCOLIOUQ",
+                                                  "source": "EACH_I_AxZCOLIOUQ"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_zOALNJSZvD"
+                                              "source": "this.EACH_I_AxZCOLIOUQ"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_zOALNJSZvD]"
+                                          "source": "[this.EACH_I_AxZCOLIOUQ]"
                                         }
                                       ],
-                                      "source": "EACH_DAT_ycQNrhEaDY.[this.EACH_I_zOALNJSZvD]"
+                                      "source": "EACH_DAT_YWuTDawmLD.[this.EACH_I_AxZCOLIOUQ]"
                                     }
                                   }
                                 ],
@@ -9512,64 +9506,62 @@
                                         }
                                       ],
                                       [
-                                        [
-                                          {
-                                            "type": "asi",
-                                            "data": "=",
-                                            "source": "each this.channel Net.channels (",
-                                            "line": 401,
-                                            "left": {
-                                              "type": "mtd",
-                                              "data": [
-                                                {
-                                                  "type": "var",
-                                                  "data": "this",
-                                                  "source": "this"
-                                                },
-                                                {
-                                                  "type": "var",
-                                                  "data": "EACH_I_ibdOozPIuK",
-                                                  "source": "EACH_I_ibdOozPIuK"
-                                                }
-                                              ],
-                                              "source": "this.EACH_I_ibdOozPIuK"
-                                            },
-                                            "right": {
-                                              "type": "num",
-                                              "data": 0,
-                                              "source": "0"
-                                            }
+                                        {
+                                          "type": "asi",
+                                          "data": "=",
+                                          "source": "each this.channel Net.channels (",
+                                          "line": 401,
+                                          "left": {
+                                            "type": "mtd",
+                                            "data": [
+                                              {
+                                                "type": "var",
+                                                "data": "this",
+                                                "source": "this"
+                                              },
+                                              {
+                                                "type": "var",
+                                                "data": "EACH_I_AVyvbcRGRs",
+                                                "source": "EACH_I_AVyvbcRGRs"
+                                              }
+                                            ],
+                                            "source": "this.EACH_I_AVyvbcRGRs"
+                                          },
+                                          "right": {
+                                            "type": "num",
+                                            "data": 0,
+                                            "source": "0"
                                           }
-                                        ],
-                                        [
-                                          {
-                                            "type": "asi",
-                                            "data": "@=",
-                                            "source": "each this.channel Net.channels (",
-                                            "line": 401,
-                                            "left": {
-                                              "type": "var",
-                                              "data": "EACH_DAT_rIGKiufbTz",
-                                              "source": "EACH_DAT_rIGKiufbTz"
-                                            },
-                                            "right": {
-                                              "type": "mtd",
-                                              "data": [
-                                                {
-                                                  "type": "var",
-                                                  "data": "Net",
-                                                  "source": "Net"
-                                                },
-                                                {
-                                                  "type": "var",
-                                                  "data": "channels",
-                                                  "source": "channels"
-                                                }
-                                              ],
-                                              "source": "Net.channels"
-                                            }
+                                        }
+                                      ],
+                                      [
+                                        {
+                                          "type": "asi",
+                                          "data": "@=",
+                                          "source": "each this.channel Net.channels (",
+                                          "line": 401,
+                                          "left": {
+                                            "type": "var",
+                                            "data": "EACH_DAT_JLTtJkvXXD",
+                                            "source": "EACH_DAT_JLTtJkvXXD"
+                                          },
+                                          "right": {
+                                            "type": "mtd",
+                                            "data": [
+                                              {
+                                                "type": "var",
+                                                "data": "Net",
+                                                "source": "Net"
+                                              },
+                                              {
+                                                "type": "var",
+                                                "data": "channels",
+                                                "source": "channels"
+                                              }
+                                            ],
+                                            "source": "Net.channels"
                                           }
-                                        ]
+                                        }
                                       ],
                                       [
                                         {
@@ -9583,8 +9575,8 @@
                                           "data": [
                                             {
                                               "type": "var",
-                                              "data": "EACH_DAT_rIGKiufbTz",
-                                              "source": "EACH_DAT_rIGKiufbTz"
+                                              "data": "EACH_DAT_JLTtJkvXXD",
+                                              "source": "EACH_DAT_JLTtJkvXXD"
                                             },
                                             {
                                               "type": "var",
@@ -9592,7 +9584,7 @@
                                               "source": "len"
                                             }
                                           ],
-                                          "source": "EACH_DAT_rIGKiufbTz.len"
+                                          "source": "EACH_DAT_JLTtJkvXXD.len"
                                         },
                                         {
                                           "type": "blk",
@@ -9613,11 +9605,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_ibdOozPIuK",
-                                                      "source": "EACH_I_ibdOozPIuK"
+                                                      "data": "EACH_I_AVyvbcRGRs",
+                                                      "source": "EACH_I_AVyvbcRGRs"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_ibdOozPIuK"
+                                                  "source": "this.EACH_I_AVyvbcRGRs"
                                                 }
                                               }
                                             ],
@@ -9648,8 +9640,8 @@
                                                   "data": [
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_DAT_rIGKiufbTz",
-                                                      "source": "EACH_DAT_rIGKiufbTz"
+                                                      "data": "EACH_DAT_JLTtJkvXXD",
+                                                      "source": "EACH_DAT_JLTtJkvXXD"
                                                     },
                                                     {
                                                       "type": "mtv",
@@ -9665,17 +9657,17 @@
                                                             },
                                                             {
                                                               "type": "var",
-                                                              "data": "EACH_I_ibdOozPIuK",
-                                                              "source": "EACH_I_ibdOozPIuK"
+                                                              "data": "EACH_I_AVyvbcRGRs",
+                                                              "source": "EACH_I_AVyvbcRGRs"
                                                             }
                                                           ],
-                                                          "source": "this.EACH_I_ibdOozPIuK"
+                                                          "source": "this.EACH_I_AVyvbcRGRs"
                                                         }
                                                       ],
-                                                      "source": "[this.EACH_I_ibdOozPIuK]"
+                                                      "source": "[this.EACH_I_AVyvbcRGRs]"
                                                     }
                                                   ],
-                                                  "source": "EACH_DAT_rIGKiufbTz.[this.EACH_I_ibdOozPIuK]"
+                                                  "source": "EACH_DAT_JLTtJkvXXD.[this.EACH_I_AVyvbcRGRs]"
                                                 }
                                               }
                                             ],
@@ -13045,35 +13037,33 @@
                                   }
                                 ],
                                 [
-                                  [
-                                    {
-                                      "type": "asi",
-                                      "data": "=",
-                                      "source": "each this.msgi this.msg messages (",
-                                      "line": 521,
-                                      "left": {
-                                        "type": "mtd",
-                                        "data": [
-                                          {
-                                            "type": "var",
-                                            "data": "this",
-                                            "source": "this"
-                                          },
-                                          {
-                                            "type": "var",
-                                            "data": "msgi",
-                                            "source": "msgi"
-                                          }
-                                        ],
-                                        "source": "this.msgi"
-                                      },
-                                      "right": {
-                                        "type": "num",
-                                        "data": 0,
-                                        "source": "0"
-                                      }
+                                  {
+                                    "type": "asi",
+                                    "data": "=",
+                                    "source": "each this.msgi this.msg messages (",
+                                    "line": 521,
+                                    "left": {
+                                      "type": "mtd",
+                                      "data": [
+                                        {
+                                          "type": "var",
+                                          "data": "this",
+                                          "source": "this"
+                                        },
+                                        {
+                                          "type": "var",
+                                          "data": "msgi",
+                                          "source": "msgi"
+                                        }
+                                      ],
+                                      "source": "this.msgi"
+                                    },
+                                    "right": {
+                                      "type": "num",
+                                      "data": 0,
+                                      "source": "0"
                                     }
-                                  ]
+                                  }
                                 ],
                                 [
                                   {
@@ -15388,65 +15378,63 @@
                                               }
                                             ],
                                             [
-                                              [
-                                                {
-                                                  "type": "asi",
-                                                  "data": "=",
-                                                  "source": "each this.actionKey actions.getKeys() (",
-                                                  "line": 594,
-                                                  "left": {
-                                                    "type": "mtd",
-                                                    "data": [
-                                                      {
-                                                        "type": "var",
-                                                        "data": "this",
-                                                        "source": "this"
-                                                      },
-                                                      {
-                                                        "type": "var",
-                                                        "data": "EACH_I_pqBXnqlFqV",
-                                                        "source": "EACH_I_pqBXnqlFqV"
-                                                      }
-                                                    ],
-                                                    "source": "this.EACH_I_pqBXnqlFqV"
-                                                  },
-                                                  "right": {
-                                                    "type": "num",
-                                                    "data": 0,
-                                                    "source": "0"
-                                                  }
+                                              {
+                                                "type": "asi",
+                                                "data": "=",
+                                                "source": "each this.actionKey actions.getKeys() (",
+                                                "line": 594,
+                                                "left": {
+                                                  "type": "mtd",
+                                                  "data": [
+                                                    {
+                                                      "type": "var",
+                                                      "data": "this",
+                                                      "source": "this"
+                                                    },
+                                                    {
+                                                      "type": "var",
+                                                      "data": "EACH_I_ZylKIJDpiV",
+                                                      "source": "EACH_I_ZylKIJDpiV"
+                                                    }
+                                                  ],
+                                                  "source": "this.EACH_I_ZylKIJDpiV"
+                                                },
+                                                "right": {
+                                                  "type": "num",
+                                                  "data": 0,
+                                                  "source": "0"
                                                 }
-                                              ],
-                                              [
-                                                {
-                                                  "type": "asi",
-                                                  "data": "@=",
-                                                  "source": "each this.actionKey actions.getKeys() (",
-                                                  "line": 594,
-                                                  "left": {
-                                                    "type": "var",
-                                                    "data": "EACH_DAT_oITTnlSKUo",
-                                                    "source": "EACH_DAT_oITTnlSKUo"
-                                                  },
-                                                  "right": {
-                                                    "type": "mtd",
-                                                    "data": [
-                                                      {
-                                                        "type": "var",
-                                                        "data": "actions",
-                                                        "source": "actions"
-                                                      },
-                                                      {
-                                                        "type": "mtv",
-                                                        "data": "getKeys",
-                                                        "parameters": [],
-                                                        "source": "getKeys()"
-                                                      }
-                                                    ],
-                                                    "source": "actions.getKeys()"
-                                                  }
+                                              }
+                                            ],
+                                            [
+                                              {
+                                                "type": "asi",
+                                                "data": "@=",
+                                                "source": "each this.actionKey actions.getKeys() (",
+                                                "line": 594,
+                                                "left": {
+                                                  "type": "var",
+                                                  "data": "EACH_DAT_zJWskBWVlh",
+                                                  "source": "EACH_DAT_zJWskBWVlh"
+                                                },
+                                                "right": {
+                                                  "type": "mtd",
+                                                  "data": [
+                                                    {
+                                                      "type": "var",
+                                                      "data": "actions",
+                                                      "source": "actions"
+                                                    },
+                                                    {
+                                                      "type": "mtv",
+                                                      "data": "getKeys",
+                                                      "parameters": [],
+                                                      "source": "getKeys()"
+                                                    }
+                                                  ],
+                                                  "source": "actions.getKeys()"
                                                 }
-                                              ]
+                                              }
                                             ],
                                             [
                                               {
@@ -15460,8 +15448,8 @@
                                                 "data": [
                                                   {
                                                     "type": "var",
-                                                    "data": "EACH_DAT_oITTnlSKUo",
-                                                    "source": "EACH_DAT_oITTnlSKUo"
+                                                    "data": "EACH_DAT_zJWskBWVlh",
+                                                    "source": "EACH_DAT_zJWskBWVlh"
                                                   },
                                                   {
                                                     "type": "var",
@@ -15469,7 +15457,7 @@
                                                     "source": "len"
                                                   }
                                                 ],
-                                                "source": "EACH_DAT_oITTnlSKUo.len"
+                                                "source": "EACH_DAT_zJWskBWVlh.len"
                                               },
                                               {
                                                 "type": "blk",
@@ -15490,11 +15478,11 @@
                                                           },
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_I_pqBXnqlFqV",
-                                                            "source": "EACH_I_pqBXnqlFqV"
+                                                            "data": "EACH_I_ZylKIJDpiV",
+                                                            "source": "EACH_I_ZylKIJDpiV"
                                                           }
                                                         ],
-                                                        "source": "this.EACH_I_pqBXnqlFqV"
+                                                        "source": "this.EACH_I_ZylKIJDpiV"
                                                       }
                                                     }
                                                   ],
@@ -15525,8 +15513,8 @@
                                                         "data": [
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_DAT_oITTnlSKUo",
-                                                            "source": "EACH_DAT_oITTnlSKUo"
+                                                            "data": "EACH_DAT_zJWskBWVlh",
+                                                            "source": "EACH_DAT_zJWskBWVlh"
                                                           },
                                                           {
                                                             "type": "mtv",
@@ -15542,17 +15530,17 @@
                                                                   },
                                                                   {
                                                                     "type": "var",
-                                                                    "data": "EACH_I_pqBXnqlFqV",
-                                                                    "source": "EACH_I_pqBXnqlFqV"
+                                                                    "data": "EACH_I_ZylKIJDpiV",
+                                                                    "source": "EACH_I_ZylKIJDpiV"
                                                                   }
                                                                 ],
-                                                                "source": "this.EACH_I_pqBXnqlFqV"
+                                                                "source": "this.EACH_I_ZylKIJDpiV"
                                                               }
                                                             ],
-                                                            "source": "[this.EACH_I_pqBXnqlFqV]"
+                                                            "source": "[this.EACH_I_ZylKIJDpiV]"
                                                           }
                                                         ],
-                                                        "source": "EACH_DAT_oITTnlSKUo.[this.EACH_I_pqBXnqlFqV]"
+                                                        "source": "EACH_DAT_zJWskBWVlh.[this.EACH_I_ZylKIJDpiV]"
                                                       }
                                                     }
                                                   ],
@@ -17903,35 +17891,33 @@
                                               }
                                             ],
                                             [
-                                              [
-                                                {
-                                                  "type": "asi",
-                                                  "data": "=",
-                                                  "source": "each this.emote emoteKeys (",
-                                                  "line": 661,
-                                                  "left": {
-                                                    "type": "mtd",
-                                                    "data": [
-                                                      {
-                                                        "type": "var",
-                                                        "data": "this",
-                                                        "source": "this"
-                                                      },
-                                                      {
-                                                        "type": "var",
-                                                        "data": "EACH_I_phPkqdokYf",
-                                                        "source": "EACH_I_phPkqdokYf"
-                                                      }
-                                                    ],
-                                                    "source": "this.EACH_I_phPkqdokYf"
-                                                  },
-                                                  "right": {
-                                                    "type": "num",
-                                                    "data": 0,
-                                                    "source": "0"
-                                                  }
+                                              {
+                                                "type": "asi",
+                                                "data": "=",
+                                                "source": "each this.emote emoteKeys (",
+                                                "line": 661,
+                                                "left": {
+                                                  "type": "mtd",
+                                                  "data": [
+                                                    {
+                                                      "type": "var",
+                                                      "data": "this",
+                                                      "source": "this"
+                                                    },
+                                                    {
+                                                      "type": "var",
+                                                      "data": "EACH_I_AFhbgJtYLB",
+                                                      "source": "EACH_I_AFhbgJtYLB"
+                                                    }
+                                                  ],
+                                                  "source": "this.EACH_I_AFhbgJtYLB"
+                                                },
+                                                "right": {
+                                                  "type": "num",
+                                                  "data": 0,
+                                                  "source": "0"
                                                 }
-                                              ]
+                                              }
                                             ],
                                             [
                                               {
@@ -17975,11 +17961,11 @@
                                                           },
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_I_phPkqdokYf",
-                                                            "source": "EACH_I_phPkqdokYf"
+                                                            "data": "EACH_I_AFhbgJtYLB",
+                                                            "source": "EACH_I_AFhbgJtYLB"
                                                           }
                                                         ],
-                                                        "source": "this.EACH_I_phPkqdokYf"
+                                                        "source": "this.EACH_I_AFhbgJtYLB"
                                                       }
                                                     }
                                                   ],
@@ -18027,17 +18013,17 @@
                                                                   },
                                                                   {
                                                                     "type": "var",
-                                                                    "data": "EACH_I_phPkqdokYf",
-                                                                    "source": "EACH_I_phPkqdokYf"
+                                                                    "data": "EACH_I_AFhbgJtYLB",
+                                                                    "source": "EACH_I_AFhbgJtYLB"
                                                                   }
                                                                 ],
-                                                                "source": "this.EACH_I_phPkqdokYf"
+                                                                "source": "this.EACH_I_AFhbgJtYLB"
                                                               }
                                                             ],
-                                                            "source": "[this.EACH_I_phPkqdokYf]"
+                                                            "source": "[this.EACH_I_AFhbgJtYLB]"
                                                           }
                                                         ],
-                                                        "source": "emoteKeys.[this.EACH_I_phPkqdokYf]"
+                                                        "source": "emoteKeys.[this.EACH_I_AFhbgJtYLB]"
                                                       }
                                                     }
                                                   ],
@@ -18846,35 +18832,33 @@
                                                                 }
                                                               ],
                                                               [
-                                                                [
-                                                                  {
-                                                                    "type": "asi",
-                                                                    "data": "=",
-                                                                    "source": "each this.user emoteUsers (",
-                                                                    "line": 686,
-                                                                    "left": {
-                                                                      "type": "mtd",
-                                                                      "data": [
-                                                                        {
-                                                                          "type": "var",
-                                                                          "data": "this",
-                                                                          "source": "this"
-                                                                        },
-                                                                        {
-                                                                          "type": "var",
-                                                                          "data": "EACH_I_VbsSjmzbcm",
-                                                                          "source": "EACH_I_VbsSjmzbcm"
-                                                                        }
-                                                                      ],
-                                                                      "source": "this.EACH_I_VbsSjmzbcm"
-                                                                    },
-                                                                    "right": {
-                                                                      "type": "num",
-                                                                      "data": 0,
-                                                                      "source": "0"
-                                                                    }
+                                                                {
+                                                                  "type": "asi",
+                                                                  "data": "=",
+                                                                  "source": "each this.user emoteUsers (",
+                                                                  "line": 686,
+                                                                  "left": {
+                                                                    "type": "mtd",
+                                                                    "data": [
+                                                                      {
+                                                                        "type": "var",
+                                                                        "data": "this",
+                                                                        "source": "this"
+                                                                      },
+                                                                      {
+                                                                        "type": "var",
+                                                                        "data": "EACH_I_cvIrhKDorg",
+                                                                        "source": "EACH_I_cvIrhKDorg"
+                                                                      }
+                                                                    ],
+                                                                    "source": "this.EACH_I_cvIrhKDorg"
+                                                                  },
+                                                                  "right": {
+                                                                    "type": "num",
+                                                                    "data": 0,
+                                                                    "source": "0"
                                                                   }
-                                                                ]
+                                                                }
                                                               ],
                                                               [
                                                                 {
@@ -18918,11 +18902,11 @@
                                                                             },
                                                                             {
                                                                               "type": "var",
-                                                                              "data": "EACH_I_VbsSjmzbcm",
-                                                                              "source": "EACH_I_VbsSjmzbcm"
+                                                                              "data": "EACH_I_cvIrhKDorg",
+                                                                              "source": "EACH_I_cvIrhKDorg"
                                                                             }
                                                                           ],
-                                                                          "source": "this.EACH_I_VbsSjmzbcm"
+                                                                          "source": "this.EACH_I_cvIrhKDorg"
                                                                         }
                                                                       }
                                                                     ],
@@ -18970,17 +18954,17 @@
                                                                                     },
                                                                                     {
                                                                                       "type": "var",
-                                                                                      "data": "EACH_I_VbsSjmzbcm",
-                                                                                      "source": "EACH_I_VbsSjmzbcm"
+                                                                                      "data": "EACH_I_cvIrhKDorg",
+                                                                                      "source": "EACH_I_cvIrhKDorg"
                                                                                     }
                                                                                   ],
-                                                                                  "source": "this.EACH_I_VbsSjmzbcm"
+                                                                                  "source": "this.EACH_I_cvIrhKDorg"
                                                                                 }
                                                                               ],
-                                                                              "source": "[this.EACH_I_VbsSjmzbcm]"
+                                                                              "source": "[this.EACH_I_cvIrhKDorg]"
                                                                             }
                                                                           ],
-                                                                          "source": "emoteUsers.[this.EACH_I_VbsSjmzbcm]"
+                                                                          "source": "emoteUsers.[this.EACH_I_cvIrhKDorg]"
                                                                         }
                                                                       }
                                                                     ],
@@ -20307,64 +20291,62 @@
                             }
                           ],
                           [
-                            [
-                              {
-                                "type": "asi",
-                                "data": "=",
-                                "source": "each this.user self.taggedUsers (",
-                                "line": 743,
-                                "left": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "this",
-                                      "source": "this"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "EACH_I_xGCWmTAbcW",
-                                      "source": "EACH_I_xGCWmTAbcW"
-                                    }
-                                  ],
-                                  "source": "this.EACH_I_xGCWmTAbcW"
-                                },
-                                "right": {
-                                  "type": "num",
-                                  "data": 0,
-                                  "source": "0"
-                                }
+                            {
+                              "type": "asi",
+                              "data": "=",
+                              "source": "each this.user self.taggedUsers (",
+                              "line": 743,
+                              "left": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "this",
+                                    "source": "this"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "EACH_I_xqbQLmvacC",
+                                    "source": "EACH_I_xqbQLmvacC"
+                                  }
+                                ],
+                                "source": "this.EACH_I_xqbQLmvacC"
+                              },
+                              "right": {
+                                "type": "num",
+                                "data": 0,
+                                "source": "0"
                               }
-                            ],
-                            [
-                              {
-                                "type": "asi",
-                                "data": "@=",
-                                "source": "each this.user self.taggedUsers (",
-                                "line": 743,
-                                "left": {
-                                  "type": "var",
-                                  "data": "EACH_DAT_vggFVBejOM",
-                                  "source": "EACH_DAT_vggFVBejOM"
-                                },
-                                "right": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "self",
-                                      "source": "self"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "taggedUsers",
-                                      "source": "taggedUsers"
-                                    }
-                                  ],
-                                  "source": "self.taggedUsers"
-                                }
+                            }
+                          ],
+                          [
+                            {
+                              "type": "asi",
+                              "data": "@=",
+                              "source": "each this.user self.taggedUsers (",
+                              "line": 743,
+                              "left": {
+                                "type": "var",
+                                "data": "EACH_DAT_cWnKUbQGXs",
+                                "source": "EACH_DAT_cWnKUbQGXs"
+                              },
+                              "right": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "self",
+                                    "source": "self"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "taggedUsers",
+                                    "source": "taggedUsers"
+                                  }
+                                ],
+                                "source": "self.taggedUsers"
                               }
-                            ]
+                            }
                           ],
                           [
                             {
@@ -20378,8 +20360,8 @@
                               "data": [
                                 {
                                   "type": "var",
-                                  "data": "EACH_DAT_vggFVBejOM",
-                                  "source": "EACH_DAT_vggFVBejOM"
+                                  "data": "EACH_DAT_cWnKUbQGXs",
+                                  "source": "EACH_DAT_cWnKUbQGXs"
                                 },
                                 {
                                   "type": "var",
@@ -20387,7 +20369,7 @@
                                   "source": "len"
                                 }
                               ],
-                              "source": "EACH_DAT_vggFVBejOM.len"
+                              "source": "EACH_DAT_cWnKUbQGXs.len"
                             },
                             {
                               "type": "blk",
@@ -20408,11 +20390,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_xGCWmTAbcW",
-                                          "source": "EACH_I_xGCWmTAbcW"
+                                          "data": "EACH_I_xqbQLmvacC",
+                                          "source": "EACH_I_xqbQLmvacC"
                                         }
                                       ],
-                                      "source": "this.EACH_I_xGCWmTAbcW"
+                                      "source": "this.EACH_I_xqbQLmvacC"
                                     }
                                   }
                                 ],
@@ -20443,8 +20425,8 @@
                                       "data": [
                                         {
                                           "type": "var",
-                                          "data": "EACH_DAT_vggFVBejOM",
-                                          "source": "EACH_DAT_vggFVBejOM"
+                                          "data": "EACH_DAT_cWnKUbQGXs",
+                                          "source": "EACH_DAT_cWnKUbQGXs"
                                         },
                                         {
                                           "type": "mtv",
@@ -20460,17 +20442,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_xGCWmTAbcW",
-                                                  "source": "EACH_I_xGCWmTAbcW"
+                                                  "data": "EACH_I_xqbQLmvacC",
+                                                  "source": "EACH_I_xqbQLmvacC"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_xGCWmTAbcW"
+                                              "source": "this.EACH_I_xqbQLmvacC"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_xGCWmTAbcW]"
+                                          "source": "[this.EACH_I_xqbQLmvacC]"
                                         }
                                       ],
-                                      "source": "EACH_DAT_vggFVBejOM.[this.EACH_I_xGCWmTAbcW]"
+                                      "source": "EACH_DAT_cWnKUbQGXs.[this.EACH_I_xqbQLmvacC]"
                                     }
                                   }
                                 ],
@@ -20896,35 +20878,33 @@
                             }
                           ],
                           [
-                            [
-                              {
-                                "type": "asi",
-                                "data": "=",
-                                "source": "each this.user users (",
-                                "line": 762,
-                                "left": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "this",
-                                      "source": "this"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "EACH_I_JepUJTotPM",
-                                      "source": "EACH_I_JepUJTotPM"
-                                    }
-                                  ],
-                                  "source": "this.EACH_I_JepUJTotPM"
-                                },
-                                "right": {
-                                  "type": "num",
-                                  "data": 0,
-                                  "source": "0"
-                                }
+                            {
+                              "type": "asi",
+                              "data": "=",
+                              "source": "each this.user users (",
+                              "line": 762,
+                              "left": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "this",
+                                    "source": "this"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "EACH_I_HIASROHKXF",
+                                    "source": "EACH_I_HIASROHKXF"
+                                  }
+                                ],
+                                "source": "this.EACH_I_HIASROHKXF"
+                              },
+                              "right": {
+                                "type": "num",
+                                "data": 0,
+                                "source": "0"
                               }
-                            ]
+                            }
                           ],
                           [
                             {
@@ -20968,11 +20948,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_JepUJTotPM",
-                                          "source": "EACH_I_JepUJTotPM"
+                                          "data": "EACH_I_HIASROHKXF",
+                                          "source": "EACH_I_HIASROHKXF"
                                         }
                                       ],
-                                      "source": "this.EACH_I_JepUJTotPM"
+                                      "source": "this.EACH_I_HIASROHKXF"
                                     }
                                   }
                                 ],
@@ -21020,17 +21000,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_JepUJTotPM",
-                                                  "source": "EACH_I_JepUJTotPM"
+                                                  "data": "EACH_I_HIASROHKXF",
+                                                  "source": "EACH_I_HIASROHKXF"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_JepUJTotPM"
+                                              "source": "this.EACH_I_HIASROHKXF"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_JepUJTotPM]"
+                                          "source": "[this.EACH_I_HIASROHKXF]"
                                         }
                                       ],
-                                      "source": "users.[this.EACH_I_JepUJTotPM]"
+                                      "source": "users.[this.EACH_I_HIASROHKXF]"
                                     }
                                   }
                                 ],
@@ -21377,35 +21357,33 @@
                             }
                           ],
                           [
-                            [
-                              {
-                                "type": "asi",
-                                "data": "=",
-                                "source": "each this.user users (",
-                                "line": 775,
-                                "left": {
-                                  "type": "mtd",
-                                  "data": [
-                                    {
-                                      "type": "var",
-                                      "data": "this",
-                                      "source": "this"
-                                    },
-                                    {
-                                      "type": "var",
-                                      "data": "EACH_I_RHiZviXymS",
-                                      "source": "EACH_I_RHiZviXymS"
-                                    }
-                                  ],
-                                  "source": "this.EACH_I_RHiZviXymS"
-                                },
-                                "right": {
-                                  "type": "num",
-                                  "data": 0,
-                                  "source": "0"
-                                }
+                            {
+                              "type": "asi",
+                              "data": "=",
+                              "source": "each this.user users (",
+                              "line": 775,
+                              "left": {
+                                "type": "mtd",
+                                "data": [
+                                  {
+                                    "type": "var",
+                                    "data": "this",
+                                    "source": "this"
+                                  },
+                                  {
+                                    "type": "var",
+                                    "data": "EACH_I_EgtHHgKhZB",
+                                    "source": "EACH_I_EgtHHgKhZB"
+                                  }
+                                ],
+                                "source": "this.EACH_I_EgtHHgKhZB"
+                              },
+                              "right": {
+                                "type": "num",
+                                "data": 0,
+                                "source": "0"
                               }
-                            ]
+                            }
                           ],
                           [
                             {
@@ -21449,11 +21427,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_RHiZviXymS",
-                                          "source": "EACH_I_RHiZviXymS"
+                                          "data": "EACH_I_EgtHHgKhZB",
+                                          "source": "EACH_I_EgtHHgKhZB"
                                         }
                                       ],
-                                      "source": "this.EACH_I_RHiZviXymS"
+                                      "source": "this.EACH_I_EgtHHgKhZB"
                                     }
                                   }
                                 ],
@@ -21501,17 +21479,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_RHiZviXymS",
-                                                  "source": "EACH_I_RHiZviXymS"
+                                                  "data": "EACH_I_EgtHHgKhZB",
+                                                  "source": "EACH_I_EgtHHgKhZB"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_RHiZviXymS"
+                                              "source": "this.EACH_I_EgtHHgKhZB"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_RHiZviXymS]"
+                                          "source": "[this.EACH_I_EgtHHgKhZB]"
                                         }
                                       ],
-                                      "source": "users.[this.EACH_I_RHiZviXymS]"
+                                      "source": "users.[this.EACH_I_EgtHHgKhZB]"
                                     }
                                   }
                                 ],
@@ -21620,35 +21598,33 @@
                                   }
                                 ],
                                 [
-                                  [
-                                    {
-                                      "type": "asi",
-                                      "data": "=",
-                                      "source": "each this.roleKey roles (",
-                                      "line": 778,
-                                      "left": {
-                                        "type": "mtd",
-                                        "data": [
-                                          {
-                                            "type": "var",
-                                            "data": "this",
-                                            "source": "this"
-                                          },
-                                          {
-                                            "type": "var",
-                                            "data": "EACH_I_SEardGZLKT",
-                                            "source": "EACH_I_SEardGZLKT"
-                                          }
-                                        ],
-                                        "source": "this.EACH_I_SEardGZLKT"
-                                      },
-                                      "right": {
-                                        "type": "num",
-                                        "data": 0,
-                                        "source": "0"
-                                      }
+                                  {
+                                    "type": "asi",
+                                    "data": "=",
+                                    "source": "each this.roleKey roles (",
+                                    "line": 778,
+                                    "left": {
+                                      "type": "mtd",
+                                      "data": [
+                                        {
+                                          "type": "var",
+                                          "data": "this",
+                                          "source": "this"
+                                        },
+                                        {
+                                          "type": "var",
+                                          "data": "EACH_I_RsAtnFDPKO",
+                                          "source": "EACH_I_RsAtnFDPKO"
+                                        }
+                                      ],
+                                      "source": "this.EACH_I_RsAtnFDPKO"
+                                    },
+                                    "right": {
+                                      "type": "num",
+                                      "data": 0,
+                                      "source": "0"
                                     }
-                                  ]
+                                  }
                                 ],
                                 [
                                   {
@@ -21692,11 +21668,11 @@
                                               },
                                               {
                                                 "type": "var",
-                                                "data": "EACH_I_SEardGZLKT",
-                                                "source": "EACH_I_SEardGZLKT"
+                                                "data": "EACH_I_RsAtnFDPKO",
+                                                "source": "EACH_I_RsAtnFDPKO"
                                               }
                                             ],
-                                            "source": "this.EACH_I_SEardGZLKT"
+                                            "source": "this.EACH_I_RsAtnFDPKO"
                                           }
                                         }
                                       ],
@@ -21744,17 +21720,17 @@
                                                       },
                                                       {
                                                         "type": "var",
-                                                        "data": "EACH_I_SEardGZLKT",
-                                                        "source": "EACH_I_SEardGZLKT"
+                                                        "data": "EACH_I_RsAtnFDPKO",
+                                                        "source": "EACH_I_RsAtnFDPKO"
                                                       }
                                                     ],
-                                                    "source": "this.EACH_I_SEardGZLKT"
+                                                    "source": "this.EACH_I_RsAtnFDPKO"
                                                   }
                                                 ],
-                                                "source": "[this.EACH_I_SEardGZLKT]"
+                                                "source": "[this.EACH_I_RsAtnFDPKO]"
                                               }
                                             ],
-                                            "source": "roles.[this.EACH_I_SEardGZLKT]"
+                                            "source": "roles.[this.EACH_I_RsAtnFDPKO]"
                                           }
                                         }
                                       ],
@@ -23326,64 +23302,62 @@
                                               }
                                             ],
                                             [
-                                              [
-                                                {
-                                                  "type": "asi",
-                                                  "data": "=",
-                                                  "source": "each this.userData self.sortedUsers (",
-                                                  "line": 838,
-                                                  "left": {
-                                                    "type": "mtd",
-                                                    "data": [
-                                                      {
-                                                        "type": "var",
-                                                        "data": "this",
-                                                        "source": "this"
-                                                      },
-                                                      {
-                                                        "type": "var",
-                                                        "data": "EACH_I_MlVMtpcPuq",
-                                                        "source": "EACH_I_MlVMtpcPuq"
-                                                      }
-                                                    ],
-                                                    "source": "this.EACH_I_MlVMtpcPuq"
-                                                  },
-                                                  "right": {
-                                                    "type": "num",
-                                                    "data": 0,
-                                                    "source": "0"
-                                                  }
+                                              {
+                                                "type": "asi",
+                                                "data": "=",
+                                                "source": "each this.userData self.sortedUsers (",
+                                                "line": 838,
+                                                "left": {
+                                                  "type": "mtd",
+                                                  "data": [
+                                                    {
+                                                      "type": "var",
+                                                      "data": "this",
+                                                      "source": "this"
+                                                    },
+                                                    {
+                                                      "type": "var",
+                                                      "data": "EACH_I_FbueInRoUv",
+                                                      "source": "EACH_I_FbueInRoUv"
+                                                    }
+                                                  ],
+                                                  "source": "this.EACH_I_FbueInRoUv"
+                                                },
+                                                "right": {
+                                                  "type": "num",
+                                                  "data": 0,
+                                                  "source": "0"
                                                 }
-                                              ],
-                                              [
-                                                {
-                                                  "type": "asi",
-                                                  "data": "@=",
-                                                  "source": "each this.userData self.sortedUsers (",
-                                                  "line": 838,
-                                                  "left": {
-                                                    "type": "var",
-                                                    "data": "EACH_DAT_LNXjeKPRQY",
-                                                    "source": "EACH_DAT_LNXjeKPRQY"
-                                                  },
-                                                  "right": {
-                                                    "type": "mtd",
-                                                    "data": [
-                                                      {
-                                                        "type": "var",
-                                                        "data": "self",
-                                                        "source": "self"
-                                                      },
-                                                      {
-                                                        "type": "var",
-                                                        "data": "sortedUsers",
-                                                        "source": "sortedUsers"
-                                                      }
-                                                    ],
-                                                    "source": "self.sortedUsers"
-                                                  }
+                                              }
+                                            ],
+                                            [
+                                              {
+                                                "type": "asi",
+                                                "data": "@=",
+                                                "source": "each this.userData self.sortedUsers (",
+                                                "line": 838,
+                                                "left": {
+                                                  "type": "var",
+                                                  "data": "EACH_DAT_TEZYykejyl",
+                                                  "source": "EACH_DAT_TEZYykejyl"
+                                                },
+                                                "right": {
+                                                  "type": "mtd",
+                                                  "data": [
+                                                    {
+                                                      "type": "var",
+                                                      "data": "self",
+                                                      "source": "self"
+                                                    },
+                                                    {
+                                                      "type": "var",
+                                                      "data": "sortedUsers",
+                                                      "source": "sortedUsers"
+                                                    }
+                                                  ],
+                                                  "source": "self.sortedUsers"
                                                 }
-                                              ]
+                                              }
                                             ],
                                             [
                                               {
@@ -23397,8 +23371,8 @@
                                                 "data": [
                                                   {
                                                     "type": "var",
-                                                    "data": "EACH_DAT_LNXjeKPRQY",
-                                                    "source": "EACH_DAT_LNXjeKPRQY"
+                                                    "data": "EACH_DAT_TEZYykejyl",
+                                                    "source": "EACH_DAT_TEZYykejyl"
                                                   },
                                                   {
                                                     "type": "var",
@@ -23406,7 +23380,7 @@
                                                     "source": "len"
                                                   }
                                                 ],
-                                                "source": "EACH_DAT_LNXjeKPRQY.len"
+                                                "source": "EACH_DAT_TEZYykejyl.len"
                                               },
                                               {
                                                 "type": "blk",
@@ -23427,11 +23401,11 @@
                                                           },
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_I_MlVMtpcPuq",
-                                                            "source": "EACH_I_MlVMtpcPuq"
+                                                            "data": "EACH_I_FbueInRoUv",
+                                                            "source": "EACH_I_FbueInRoUv"
                                                           }
                                                         ],
-                                                        "source": "this.EACH_I_MlVMtpcPuq"
+                                                        "source": "this.EACH_I_FbueInRoUv"
                                                       }
                                                     }
                                                   ],
@@ -23462,8 +23436,8 @@
                                                         "data": [
                                                           {
                                                             "type": "var",
-                                                            "data": "EACH_DAT_LNXjeKPRQY",
-                                                            "source": "EACH_DAT_LNXjeKPRQY"
+                                                            "data": "EACH_DAT_TEZYykejyl",
+                                                            "source": "EACH_DAT_TEZYykejyl"
                                                           },
                                                           {
                                                             "type": "mtv",
@@ -23479,17 +23453,17 @@
                                                                   },
                                                                   {
                                                                     "type": "var",
-                                                                    "data": "EACH_I_MlVMtpcPuq",
-                                                                    "source": "EACH_I_MlVMtpcPuq"
+                                                                    "data": "EACH_I_FbueInRoUv",
+                                                                    "source": "EACH_I_FbueInRoUv"
                                                                   }
                                                                 ],
-                                                                "source": "this.EACH_I_MlVMtpcPuq"
+                                                                "source": "this.EACH_I_FbueInRoUv"
                                                               }
                                                             ],
-                                                            "source": "[this.EACH_I_MlVMtpcPuq]"
+                                                            "source": "[this.EACH_I_FbueInRoUv]"
                                                           }
                                                         ],
-                                                        "source": "EACH_DAT_LNXjeKPRQY.[this.EACH_I_MlVMtpcPuq]"
+                                                        "source": "EACH_DAT_TEZYykejyl.[this.EACH_I_FbueInRoUv]"
                                                       }
                                                     }
                                                   ],
@@ -26505,70 +26479,68 @@
                                         }
                                       ],
                                       [
-                                        [
-                                          {
-                                            "type": "asi",
-                                            "data": "=",
-                                            "source": "each this.emoteKey Net.emotes.getKeys() (",
-                                            "line": 943,
-                                            "left": {
-                                              "type": "mtd",
-                                              "data": [
-                                                {
-                                                  "type": "var",
-                                                  "data": "this",
-                                                  "source": "this"
-                                                },
-                                                {
-                                                  "type": "var",
-                                                  "data": "EACH_I_xkrttTfnJh",
-                                                  "source": "EACH_I_xkrttTfnJh"
-                                                }
-                                              ],
-                                              "source": "this.EACH_I_xkrttTfnJh"
-                                            },
-                                            "right": {
-                                              "type": "num",
-                                              "data": 0,
-                                              "source": "0"
-                                            }
+                                        {
+                                          "type": "asi",
+                                          "data": "=",
+                                          "source": "each this.emoteKey Net.emotes.getKeys() (",
+                                          "line": 943,
+                                          "left": {
+                                            "type": "mtd",
+                                            "data": [
+                                              {
+                                                "type": "var",
+                                                "data": "this",
+                                                "source": "this"
+                                              },
+                                              {
+                                                "type": "var",
+                                                "data": "EACH_I_svxJoRqzUp",
+                                                "source": "EACH_I_svxJoRqzUp"
+                                              }
+                                            ],
+                                            "source": "this.EACH_I_svxJoRqzUp"
+                                          },
+                                          "right": {
+                                            "type": "num",
+                                            "data": 0,
+                                            "source": "0"
                                           }
-                                        ],
-                                        [
-                                          {
-                                            "type": "asi",
-                                            "data": "@=",
-                                            "source": "each this.emoteKey Net.emotes.getKeys() (",
-                                            "line": 943,
-                                            "left": {
-                                              "type": "var",
-                                              "data": "EACH_DAT_DNcVBGfHrb",
-                                              "source": "EACH_DAT_DNcVBGfHrb"
-                                            },
-                                            "right": {
-                                              "type": "mtd",
-                                              "data": [
-                                                {
-                                                  "type": "var",
-                                                  "data": "Net",
-                                                  "source": "Net"
-                                                },
-                                                {
-                                                  "type": "var",
-                                                  "data": "emotes",
-                                                  "source": "emotes"
-                                                },
-                                                {
-                                                  "type": "mtv",
-                                                  "data": "getKeys",
-                                                  "parameters": [],
-                                                  "source": "getKeys()"
-                                                }
-                                              ],
-                                              "source": "Net.emotes.getKeys()"
-                                            }
+                                        }
+                                      ],
+                                      [
+                                        {
+                                          "type": "asi",
+                                          "data": "@=",
+                                          "source": "each this.emoteKey Net.emotes.getKeys() (",
+                                          "line": 943,
+                                          "left": {
+                                            "type": "var",
+                                            "data": "EACH_DAT_hlIWPrOjtB",
+                                            "source": "EACH_DAT_hlIWPrOjtB"
+                                          },
+                                          "right": {
+                                            "type": "mtd",
+                                            "data": [
+                                              {
+                                                "type": "var",
+                                                "data": "Net",
+                                                "source": "Net"
+                                              },
+                                              {
+                                                "type": "var",
+                                                "data": "emotes",
+                                                "source": "emotes"
+                                              },
+                                              {
+                                                "type": "mtv",
+                                                "data": "getKeys",
+                                                "parameters": [],
+                                                "source": "getKeys()"
+                                              }
+                                            ],
+                                            "source": "Net.emotes.getKeys()"
                                           }
-                                        ]
+                                        }
                                       ],
                                       [
                                         {
@@ -26582,8 +26554,8 @@
                                           "data": [
                                             {
                                               "type": "var",
-                                              "data": "EACH_DAT_DNcVBGfHrb",
-                                              "source": "EACH_DAT_DNcVBGfHrb"
+                                              "data": "EACH_DAT_hlIWPrOjtB",
+                                              "source": "EACH_DAT_hlIWPrOjtB"
                                             },
                                             {
                                               "type": "var",
@@ -26591,7 +26563,7 @@
                                               "source": "len"
                                             }
                                           ],
-                                          "source": "EACH_DAT_DNcVBGfHrb.len"
+                                          "source": "EACH_DAT_hlIWPrOjtB.len"
                                         },
                                         {
                                           "type": "blk",
@@ -26612,11 +26584,11 @@
                                                     },
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_I_xkrttTfnJh",
-                                                      "source": "EACH_I_xkrttTfnJh"
+                                                      "data": "EACH_I_svxJoRqzUp",
+                                                      "source": "EACH_I_svxJoRqzUp"
                                                     }
                                                   ],
-                                                  "source": "this.EACH_I_xkrttTfnJh"
+                                                  "source": "this.EACH_I_svxJoRqzUp"
                                                 }
                                               }
                                             ],
@@ -26647,8 +26619,8 @@
                                                   "data": [
                                                     {
                                                       "type": "var",
-                                                      "data": "EACH_DAT_DNcVBGfHrb",
-                                                      "source": "EACH_DAT_DNcVBGfHrb"
+                                                      "data": "EACH_DAT_hlIWPrOjtB",
+                                                      "source": "EACH_DAT_hlIWPrOjtB"
                                                     },
                                                     {
                                                       "type": "mtv",
@@ -26664,17 +26636,17 @@
                                                             },
                                                             {
                                                               "type": "var",
-                                                              "data": "EACH_I_xkrttTfnJh",
-                                                              "source": "EACH_I_xkrttTfnJh"
+                                                              "data": "EACH_I_svxJoRqzUp",
+                                                              "source": "EACH_I_svxJoRqzUp"
                                                             }
                                                           ],
-                                                          "source": "this.EACH_I_xkrttTfnJh"
+                                                          "source": "this.EACH_I_svxJoRqzUp"
                                                         }
                                                       ],
-                                                      "source": "[this.EACH_I_xkrttTfnJh]"
+                                                      "source": "[this.EACH_I_svxJoRqzUp]"
                                                     }
                                                   ],
-                                                  "source": "EACH_DAT_DNcVBGfHrb.[this.EACH_I_xkrttTfnJh]"
+                                                  "source": "EACH_DAT_hlIWPrOjtB.[this.EACH_I_svxJoRqzUp]"
                                                 }
                                               }
                                             ],
@@ -29474,64 +29446,62 @@
     }
   ],
   [
-    [
-      {
-        "type": "asi",
-        "data": "=",
-        "source": "each this.channel Net.channels (",
-        "line": 1052,
-        "left": {
-          "type": "mtd",
-          "data": [
-            {
-              "type": "var",
-              "data": "this",
-              "source": "this"
-            },
-            {
-              "type": "var",
-              "data": "EACH_I_FWdlFjCdIm",
-              "source": "EACH_I_FWdlFjCdIm"
-            }
-          ],
-          "source": "this.EACH_I_FWdlFjCdIm"
-        },
-        "right": {
-          "type": "num",
-          "data": 0,
-          "source": "0"
-        }
+    {
+      "type": "asi",
+      "data": "=",
+      "source": "each this.channel Net.channels (",
+      "line": 1052,
+      "left": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "this",
+            "source": "this"
+          },
+          {
+            "type": "var",
+            "data": "EACH_I_DNEbjFaZDW",
+            "source": "EACH_I_DNEbjFaZDW"
+          }
+        ],
+        "source": "this.EACH_I_DNEbjFaZDW"
+      },
+      "right": {
+        "type": "num",
+        "data": 0,
+        "source": "0"
       }
-    ],
-    [
-      {
-        "type": "asi",
-        "data": "@=",
-        "source": "each this.channel Net.channels (",
-        "line": 1052,
-        "left": {
-          "type": "var",
-          "data": "EACH_DAT_EdVMqRnBfn",
-          "source": "EACH_DAT_EdVMqRnBfn"
-        },
-        "right": {
-          "type": "mtd",
-          "data": [
-            {
-              "type": "var",
-              "data": "Net",
-              "source": "Net"
-            },
-            {
-              "type": "var",
-              "data": "channels",
-              "source": "channels"
-            }
-          ],
-          "source": "Net.channels"
-        }
+    }
+  ],
+  [
+    {
+      "type": "asi",
+      "data": "@=",
+      "source": "each this.channel Net.channels (",
+      "line": 1052,
+      "left": {
+        "type": "var",
+        "data": "EACH_DAT_uwHGkmBxFO",
+        "source": "EACH_DAT_uwHGkmBxFO"
+      },
+      "right": {
+        "type": "mtd",
+        "data": [
+          {
+            "type": "var",
+            "data": "Net",
+            "source": "Net"
+          },
+          {
+            "type": "var",
+            "data": "channels",
+            "source": "channels"
+          }
+        ],
+        "source": "Net.channels"
       }
-    ]
+    }
   ],
   [
     {
@@ -29545,8 +29515,8 @@
       "data": [
         {
           "type": "var",
-          "data": "EACH_DAT_EdVMqRnBfn",
-          "source": "EACH_DAT_EdVMqRnBfn"
+          "data": "EACH_DAT_uwHGkmBxFO",
+          "source": "EACH_DAT_uwHGkmBxFO"
         },
         {
           "type": "var",
@@ -29554,7 +29524,7 @@
           "source": "len"
         }
       ],
-      "source": "EACH_DAT_EdVMqRnBfn.len"
+      "source": "EACH_DAT_uwHGkmBxFO.len"
     },
     {
       "type": "blk",
@@ -29575,11 +29545,11 @@
                 },
                 {
                   "type": "var",
-                  "data": "EACH_I_FWdlFjCdIm",
-                  "source": "EACH_I_FWdlFjCdIm"
+                  "data": "EACH_I_DNEbjFaZDW",
+                  "source": "EACH_I_DNEbjFaZDW"
                 }
               ],
-              "source": "this.EACH_I_FWdlFjCdIm"
+              "source": "this.EACH_I_DNEbjFaZDW"
             }
           }
         ],
@@ -29610,8 +29580,8 @@
               "data": [
                 {
                   "type": "var",
-                  "data": "EACH_DAT_EdVMqRnBfn",
-                  "source": "EACH_DAT_EdVMqRnBfn"
+                  "data": "EACH_DAT_uwHGkmBxFO",
+                  "source": "EACH_DAT_uwHGkmBxFO"
                 },
                 {
                   "type": "mtv",
@@ -29627,17 +29597,17 @@
                         },
                         {
                           "type": "var",
-                          "data": "EACH_I_FWdlFjCdIm",
-                          "source": "EACH_I_FWdlFjCdIm"
+                          "data": "EACH_I_DNEbjFaZDW",
+                          "source": "EACH_I_DNEbjFaZDW"
                         }
                       ],
-                      "source": "this.EACH_I_FWdlFjCdIm"
+                      "source": "this.EACH_I_DNEbjFaZDW"
                     }
                   ],
-                  "source": "[this.EACH_I_FWdlFjCdIm]"
+                  "source": "[this.EACH_I_DNEbjFaZDW]"
                 }
               ],
-              "source": "EACH_DAT_EdVMqRnBfn.[this.EACH_I_FWdlFjCdIm]"
+              "source": "EACH_DAT_uwHGkmBxFO.[this.EACH_I_DNEbjFaZDW]"
             }
           }
         ],
