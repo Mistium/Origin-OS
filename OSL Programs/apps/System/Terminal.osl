@@ -179,6 +179,9 @@ loop round(frame.height / 20 + 3).clamp(0,loops) (
   y = count * -20 + frame.scroll + 5
   loc 2 2 10 y
   local line = terminal.lines[count]
+  if line == null (
+    break
+  )
   if typeof(line) == "array" (
     local i = 0
     loop line.len / 2 (
