@@ -1,0 +1,54 @@
+local pwd = terminal.pwd.split("/")
+pwd[1] = ""
+local odir = pwd
+void pwd.append(args[1])
+
+zip_name = args[1]
+void args.shift()
+
+local collected = []
+
+for i args.len (
+  local dir = odir
+  if !args.contains(".") (
+    args[i] ++= ".folder"
+  )
+  void dir.append(args[i])
+  local cdir = parseFilePath(dir.join("/"))
+  file "exists" cdir
+  if exists (
+    terminal.writeLine("Collecting: " ++ args[i])
+    void collected.append(cdir)
+    if args[i].endsWith(".folder") (
+      collected ++= open(cdir)
+    )
+  ) else (
+    if terminal.input(args[i] ++ " doesn't exist, continue? y/n") == "n" (
+      return
+    )
+  )
+)
+
+local dir = parseFilePath(pwd.join("/"))
+local zip_id = ouidNew()
+terminal.writeLine("zipping")
+zip "new" zip_id
+while collected.len > 0 (
+  local first @= collected.shift()
+  local d @= open(first, ["name", "type", "data", "location"])
+  terminal.lines[terminal.lines.len] = d[4] ++ "/" ++ d[1] ++ d[2]
+  d[4] = d[4].toLower().split("/").trim(odir.len + 1, -1)
+  // remove "origin" from path
+  zip "goto" "/" ++ d[4].join("/")
+  if d[2] == ".folder" (
+    zip "new_directory" d[1].toLower()
+    collected ++= d[3].JsonParse()
+  ) else (
+    local name = d.trim(1,2).join("")
+    zip "write" name d[3]
+  )
+)
+zip "export" "string"
+file "goto_dir" parseFilePath(odir.join("/"))
+file "set_file" zip_name data
+zip "remove"
