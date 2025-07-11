@@ -1230,113 +1230,203 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `import as "glass" from "packages"
-import as "window_tools"
+    CODE: `
+def setup() (
+  window.setResizable(false)
 
-cell = "w 10 dot 0 0"
+  window_colour = #fff
+  log window_colour
 
-def reset() (
-  grid = []
+  platforms = []
+  
+  player = {
+    x: -200,
+    y: 150,
+    xv: 0,
+    yv: 0,
+    icn: "c #000 w 5 square 0 0 7 10 w 19 dot 0 0 w 5 line 7 -10 7 -20 line -7 -10 -7 -20 c #fff line 7 3 0 3",
+    dead: false,
+    score: 0,
+  }
 
-  w = 50
-  h = 50
-  rw = 300
-  rh = 300
-  loop w (
-    row = []
-    loop h (
-      row.append(random(1,2) == 1 ? cell "")
-    )
-    grid.append(row)
-  )
+  platforms = [
+    {
+      x: -250,
+      y: 80
+    },
+    {x: 150,y: 0}
+  ]
 
-  cx = 1
-  cy = 1
-  new_grid = grid
-  playing = false
+  platform = {
+    new: def() -> (
+      local me = self.clone()
+      me.y = random(window.bottom + 50, window.top - 150)
+      void platforms.append(me)
+    ),
+    icn: "c #000 w 5 square 0 0 30 5 c #fff w 4 square 0 0 30 5 c #000 w 3 square 0 0 30 5 w 7 square 0 0 26 3",
+    x: window.width,
+    y: 0,
+  }
+
+  last = timer
 )
-
-reset()
-
-def main() (
-  if playing (
-    loop w * 5 (
-      n = 0
-      cyt = cy + 1
-      cyb = cy - 1
-      g @= grid[cx - 1]
-      if g[cyb] != "" "n ++"
-      if g[cy] != "" "n ++"
-      if g[cyt] != "" "n ++"
-      g @= grid[cx]
-      if g[cyb] != "" "n ++"
-      if g[cyt] != "" "n ++"
-      g @= grid[cx + 1]
-      if g[cyb] != "" "n ++"
-      if g[cy] != "" "n ++"
-      if g[cyt] != "" "n ++"
-      r = ""
-      if grid[cx][cy] == "" (
-        if n == 3 (
-          r = cell
-        )
-      ) else (
-        if n == 2 or n == 3 (
-          r = cell
-        )
-      )
-      new_grid[cx][cy] = r
-      cx ++
-      if cx > w (
-        cx = 1
-        cy ++
-        if cy > h (
-          cy = 1
-          grid = new_grid
-        )
-      )
+jumpheld = false
+jump = false
+left = false
+rigth = false
+def setjump() (
+  if gamepad.buttons[1]["pressed"] or gamepad.buttons[2]["pressed"] or "space".isKeyDown() (
+    if jumpheld (
+      jump = false
+    ) else (
+      jump = true
     )
+    jumpheld = true
+  ) else (
+    jumpheld = false
+  )
+)
+def setleft() (
+  if gamepad.axes[1].x ?? 0 < -0.2 or gamepad.buttons[15]["pressed"] or "a".isKeyDown() (
+    left = true
+  ) else (
+    left = false
   )
 )
 
-log main.code
+def setright() (
+  if gamepad.axes[1].x ?? 0 > 0.2 or gamepad.buttons[16]["pressed"] or "d".isKeyDown() (
+    right = true
+  ) else (
+    right = false
+  )
+)
+object io = {
+  haptic: def(option) -> (
+    local configs = {
+      jump1: {
+        duration: 200,
+        weakMagnitude: 0.075,
+        strongMagnitude: 0.04,
+      },
+      jump2: {
+        duration: 170,
+        weakMagnitude: 0.05,
+        strongMagnitude: 0.02,
+      },
+      land: {
+        duration: 100,
+        weakMagnitude: 0.2,
+        strongMagnitude: 0.3,
+      },
+      dead: {
+        duration: 300,
+        weakMagnitude: 0.7,
+        strongMagnitude: 0.7
+      }
+    }
+    
+    if gamepads.len > 0 (
+      void gamepad.haptic(configs[option])
+    )
+  )
+}
+
+log setup
+
+setup()
+log window_colour
+player.dead = true
 
 mainloop:
-window_tools:load_theme
-
-if window.width < window.height (
-  rw = window.width - 50
-  rh = rw
+array gamepads = getGamepads()
+if gamepads.len > 0 (
+  gamepad @= gamepads[1]
+)
+setjump()
+setleft()
+setright()
+if player.dead (
+  goto 0 window.bottom + 50
+  centext "You died, press space to play again" 10 : c#000
+  
+  if jump (
+    player.dead = false
+  )
 ) else (
-  rw = window.height - 50
-  rh = rw
+  if timer > last (
+    last = timer + random(1, 2.5)
+    void platform.new()
+  )
+
+  if jump (
+    if player.grounded or player.double (
+      if player.grounded (
+        io.haptic("jump1")
+      ) else (
+        io.haptic("jump2")
+      )
+      player.double = player.grounded
+      player.grounded = false
+      player.yv = 13
+    )
+  )
+  if left (
+    player.xv -= 1
+  )
+  if right (
+    player.xv += 1
+  )
+)
+goto player.x player.y
+icon player.icn 2
+player.x += player.xv
+player.y += player.yv
+player.xv *= 0.9
+player.yv -= 0.4
+
+if player.dead.not() and player.grounded (
+  player.x -= 3 + (player.score / 10)
 )
 
-main()
+for i platforms.len (
+  cur @= platforms[i]
+  goto cur.x cur.y
+  if player.dead.not() (
+    cur.x -= 3 + (player.score / 10)
+  )
+  icon platform.icn 3
+  
+  if abs(player.x - cur.x) < 100 and player.y - cur.y < 70 and player.y > cur.y - 20 (
+    if player.y < cur.y + 50 (
+      if player.y < cur.y (
+        player.yv = -5
+      ) else if abs(player.x - cur.x) > 95 (
+        player.x = cur.x + (player.x - cur.x < 0 ? -101 101)
+      )
+    ) else (
+      player.yv = 0
+      if abs(player.x - cur.x) < 100 and player.y > cur.y (
+        if player.grounded.not() (
+          player.score ++
+          io.haptic("land")
+        )
+        player.grounded = true
+        player.y = cur.y + 70
+      )
+    )
+  )
+)
+goto 0 window.top - 40
+centext "Score: " ++ player.score 10 : c#000
 
-glass:frame window.left window.top window.right window.bottom
-frame "clear"
+if player.x < window.left - 40 or player.y < window.bottom or player.x > window.right + 40 (
+  setup()
+  io.haptic("dead")
+  player.dead = true
+)
+
 import "win-buttons"
-
-s = 0
-frame rw / -2 - s rh / 2 + s rw / 2 + s rh / -2 - s
-goto 0 0
-c window_colour
-pen "opacity" 40
-icon "w 10 dot 0 0" frame.width + frame.height
-c txtc
-icongrid rw / w rh / h w h new_grid
-frame "clear"
-loc 2 -2 20 20
-icon playing ? "pause" "play" 1
-if onclick (
-  playing.not()
-)
-icon "reload" 0.8 : chx#30
-if onclick (
-  reset()
-)
-text fps 10 : chx#30
 `, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
