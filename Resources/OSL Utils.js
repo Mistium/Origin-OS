@@ -205,8 +205,11 @@ class OSLUtils {
     this.unary = ["typeof", "new"]
     this.listVariable = "";
     // Pre-compile regex for generateFullAST to avoid recompilation
-    this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*\n\s*[}\]]?|\n\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|(\n|^)\s*\/\/[^\n]+|\n/gm;
+    this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
     this.lineTokeniserRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g;
+    // Pre-compile line ending normalization regex
+    this.lineEndingRegex = /\r\n/g;
+    this.macLineEndingRegex = /\r/g;
   }
 
   getInfo() {
@@ -423,6 +426,11 @@ class OSLUtils {
     };
   }
 
+  // Normalize line endings using pre-compiled regex for better performance
+  normalizeLineEndings(text) {
+    return text.replace(this.lineEndingRegex, '\n').replace(this.macLineEndingRegex, '\n');
+  }
+
   compileBrackets(OSL) {
     let out = [];
     let methods = {};
@@ -564,6 +572,9 @@ class OSLUtils {
 
   tokeniseLines(CODE) {
     try {
+      // Normalize line endings first
+      CODE = this.normalizeLineEndings(CODE);
+      
       let letter = 0;
       let depth = "";
       let brackets = 0;
@@ -727,6 +738,8 @@ class OSLUtils {
 
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
+    // Normalize line endings to handle Windows/Mac differences
+    CODE = this.normalizeLineEndings(CODE);
     const start = CODE.split("\n", 1)[0]
     // tokenise and handle lambda and inline funcs
     let ast = []
@@ -992,6 +1005,8 @@ class OSLUtils {
 
   generateFullAST({ CODE, MAIN = true }) {
     let line = 0;
+    // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
+    CODE = this.normalizeLineEndings(CODE);
     CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
       if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
       if (match === ";") return "\n";
@@ -1175,9 +1190,11 @@ class OSLUtils {
     return JSON.stringify(
       JSON.parse(CODE)
         .join("\n")
+        .replace(this.lineEndingRegex, '\n')
+        .replace(this.macLineEndingRegex, '\n')
         .replace(/\n+/gi, "\n")
         .replace(/\n +/gm, "\n")
-        .replace(/\n\/[^\n]+/gm, "")
+        .replace(/\n\/[^\n\r]+/gm, "")
         .trim()
         .split("\n"),
     );
