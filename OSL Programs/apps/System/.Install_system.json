@@ -137,7 +137,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Terminal.osl",
     "icon": "c #1c452a w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #1b8f44 w 1.5 line 0 -4 4 -4 line -4 3 -1 0 cont -4 -3",
-    "version":"3.5"
+    "version":"3.6"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Quick_Settings.osl",
