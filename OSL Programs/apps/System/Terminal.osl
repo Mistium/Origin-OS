@@ -9,6 +9,9 @@ network "set_app_id" "terminal@system"
 
 class terminal (
   lines = []
+  waiting = false
+  show_input = true
+  input_message = null
   pwd = user_folder
   
   def writeLine(data) (
@@ -19,11 +22,24 @@ class terminal (
     self.lines[self.lines.len] += data
   )
   
+  def input(query) (
+    self.show_input = true
+    self.input_message = query
+    while self.show_input (
+      defer
+    )
+    self.input_message = null
+    return last.pop()
+  )
+  
   def clear() (
     self.lines = []
   )
   
   self.user_start = {_get: def() -> (
+    if input_message != null (
+      return input_message ++ ": "
+    )
     local pos = self.pwd
     if pos == user_folder (
       pos = "~"
@@ -75,7 +91,9 @@ terminal_worker @= worker({
   cache: {},
   onframe: def() -> (
     if cmd != null (
+      terminal.show_input = false
       evalCmd(cmd)
+      terminal.show_input = true
       self.cmd = null
     )
   )
@@ -121,20 +139,6 @@ if all_hit.len > 0 and inputs.selected.id != "main" (
   input "focus" "main"
 )
 
-if new_network_data and terminal_worker.cmd == null (
-  if packet.data.istype("array") (
-    msg = packet.username + "> " + packet.data[0]
-    each line packet.data.delete(1) (
-      void terminal.lines.append(line)
-      loops ++
-    )
-  ) else (
-    void terminal.lines.append(packet.username + "> " + packet.data)
-    loops ++
-  )
-  new_network_data = false
-)
-
 glass:frame window.left window.top window.right window.bottom
 c window_colour
 pen "opacity" 60
@@ -145,22 +149,11 @@ if mode == "norm" (
   if "enter".onKeyDown() (
     void last.append(inputs.main)
     last_index = last.len + 1
-    try (
-      if inputs.main.startsWith("SRE ") (
-        mode = "SRE"
-        sre_target = inputs.main.split(" ")[2]
-      ) else (
-        terminal_worker.cmd = inputs.main
-        terminal_length = terminal.lines.len + 1
-      )
-      void terminal.lines.append(user_start ++ inputs.main)
-    ) catch e (
-      void terminal.lines.append(user_start ++ inputs.main)
-      void terminal.lines.append(e.error)
-    )
-    loops = terminal.len
+    void terminal.lines.append(user_start ++ inputs.main)
     terminal_output = []
-    inputs.main = null
+    terminal_worker.cmd = inputs.main
+    inputs.main = ""
+    terminal.show_input = false
   )
 )
 
@@ -186,6 +179,9 @@ loop round(frame.height / 20 + 3).clamp(0,loops) (
   y = count * -20 + frame.scroll + 5
   loc 2 2 10 y
   local line = terminal.lines[count]
+  if line == null (
+    break
+  )
   if typeof(line) == "array" (
     local i = 0
     loop line.len / 2 (
@@ -200,7 +196,7 @@ loop round(frame.height / 20 + 3).clamp(0,loops) (
 )
 
 local user_start = terminal.user_start
-if terminal_worker.cmd == null (
+if terminal.show_input (
   loc 2 2 10 loops * -20 + scroll_y - 15
   text user_start 10 : c#txtc
   set_x user_start.len * 5 - 10
