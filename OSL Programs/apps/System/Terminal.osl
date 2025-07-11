@@ -1,7 +1,6 @@
 import as "glass" from "packages"
 import "window_tools"
 
-file "use_type" "ots"
 permission "request" "terminal"
 permission "request" "file admin"
 save "system@terminal" "set_directory"
@@ -36,7 +35,7 @@ class terminal (
     self.lines = []
   )
   
-  self.user_start = {_get: def() -> (
+  def user_start() (
     if input_message != null (
       return input_message ++ ": "
     )
@@ -47,7 +46,7 @@ class terminal (
       pos = pos.split("/")[-1]
     )
     return username ++ "@originos " ++ pos ++ " % "
-  )}
+  )
 )
 
 def evalCmd(cmd) (
@@ -169,40 +168,39 @@ if "arrowdown".onKeyDown() (
 )
 
 c prim
-frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20
-
-c txtc
-loops = terminal.lines.len
-count = floor(scroll_y / 20).clamp(0,loops)
-loop round(frame.height / 20 + 3).clamp(0,loops) (
-  count ++
-  y = count * -20 + frame.scroll + 5
-  loc 2 2 10 y
-  local line = terminal.lines[count]
-  if line == null (
-    break
-  )
-  if typeof(line) == "array" (
-    local i = 0
-    loop line.len / 2 (
-      i += 2
-      c line[i - 1] ?? txtc
-      text line[i] 10
-      c txtc
+frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
+  c txtc
+  loops = terminal.lines.len
+  count = floor(scroll_y / 20).clamp(0,loops)
+  loop round(frame.height / 20 + 3).clamp(0,loops) (
+    count ++
+    y = count * -20 + frame.scroll + 5
+    loc 2 2 10 y
+    local line = terminal.lines[count]
+    if line == null (
+      break
     )
-  ) else (
-    text line 10
+    if typeof(line) == "array" (
+      local i = 0
+      loop line.len / 2 (
+        i += 2
+        c line[i - 1] ?? txtc
+        text line[i] 10
+        c txtc
+      )
+    ) else (
+      text line 10
+    )
+  )
+
+  local user_start = terminal.user_start()
+  if terminal.show_input (
+    loc 2 2 10 loops * -20 + scroll_y - 15
+    text user_start 10 : c#txtc
+    set_x user_start.len * 5 - 10
+    pen "opacity" 0
+    input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
   )
 )
-
-local user_start = terminal.user_start
-if terminal.show_input (
-  loc 2 2 10 loops * -20 + scroll_y - 15
-  text user_start 10 : c#txtc
-  set_x user_start.len * 5 - 10
-  pen "opacity" 0
-  input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
-)
-frame "clear"
 
 import "win-buttons"
