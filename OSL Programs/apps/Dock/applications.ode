@@ -61,6 +61,9 @@ if data.len != 0 (
       if mouse_touching (
         app_segment_cursor = "pointer"
         file "interact"
+        if data == "open" (
+          file "start"
+        )
       ) else if data == "move" (
         cur_clicked = null
       )
