@@ -29,7 +29,10 @@ if data.len != 0 (
       file "render" 1.7
       square 45 45 0 0 1
       file "interact"
-      // allows the file to be interacted with (drag and drop, click to open)
+      if data == "open" (
+        file "start"
+        // check the output of the interaction
+      )
       if mouse_touching (
         app_segment_cursor = "pointer"
         curx = x_position
