@@ -34,7 +34,7 @@ if data.len != 0 (
         curx = x_position
         cur = file[1]
         if mouse_down (
-          cur_clicked = { app, x_position, y_position }
+          cur_clicked = app
         )
       )
       rightclick "file" app
@@ -53,15 +53,16 @@ if data.len != 0 (
     change_x cur.len * -4
     text cur 8 : c#fff
     if cur_clicked != null (
-      file "open" cur_clicked.app "onlyaccess"
-      goto cur_clicked.x_position cur_clicked.y_position
+      file "open" cur_clicked "onlyaccess"
+      set_y 0
       square 45 45 0 0 1
       data = null
+      file "interact"
       if mouse_touching (
         app_segment_cursor = "pointer"
-        file "interact"
         if data == "open" (
           file "start"
+          cur_clicked = null
         )
       ) else if data == "move" (
         cur_clicked = null
