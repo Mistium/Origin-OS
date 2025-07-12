@@ -10,6 +10,7 @@ if data.len != 0 (
   )
   cur = null
   if data != dock or bg_redrawn or dock_changed_w or (mouse_touching and (mouse_moving or mouse_down or mouse_right)) (
+    cur_clicked = null
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
@@ -33,9 +34,7 @@ if data.len != 0 (
         curx = x_position
         cur = file[1]
         if mouse_down (
-          file "start"
-        ) else (
-          file "interact"
+          cur_clicked = { app, x_position, y_position }
         )
       )
       rightclick "file" app
@@ -53,5 +52,18 @@ if data.len != 0 (
     square cur.len * 8 10 12 : c#000
     change_x cur.len * -4
     text cur 8 : c#fff
+    if cur_clicked != null (
+      file "open" cur_clicked.app "onlyaccess"
+      x_position = cur_clicked.x_position
+      y_position = cur_clicked.y_position
+      square 45 45 0 0 1
+      data = null
+      if mouse_touching (
+        app_segment_cursor = "pointer"
+        file "interact"
+      ) else if data == "move" (
+        cur_clicked = null
+      )
+    )
   )
 )
