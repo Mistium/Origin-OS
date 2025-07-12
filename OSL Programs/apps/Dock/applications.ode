@@ -9,8 +9,7 @@ if data.len != 0 (
     cursor app_segment_cursor
   )
   cur = null
-  if data != dock or bg_redrawn or dock_changed_w or (mouse_touching and (mouse_moving or mouse_down or mouse_right)) (
-    cur_clicked = null
+  if data != dock or bg_redrawn or dock_changed_w or mouse_touching (
     if file_dropped != 0 (
       file "open" user_folder ++ "/dock.folder" "onlyaccess"
       file "get" 4
@@ -33,9 +32,6 @@ if data.len != 0 (
         app_segment_cursor = "pointer"
         curx = x_position
         cur = file[1]
-        if mouse_down (
-          cur_clicked = app
-        )
       )
       rightclick "file" app
       change_x 50
@@ -49,26 +45,7 @@ if data.len != 0 (
   )
   if cur != null (
     goto curx 20
-    square cur.len * 8 10 12 : c#000
-    centext cur 8 : c#fff
-  )
-  if cur_clicked != null (
-    file "open" cur_clicked "onlyaccess"
-    set_y 0
-    square 40 40 0 : c#fff
-    data = null
-    file "interact"
-    if mouse_touching (
-      if data == "open" (
-        file "start"
-        cur_clicked = null
-      )
-    ) else if data == "dragging" (
-      cur_clicked = null
-    )
-    if mouse_down.not() (
-      cur_clicked = null
-    )
-    file "close"
+    square cur.len * 8 10 12 : c#dock_colour
+    centext cur 8 : c#icon_colour
   )
 )
