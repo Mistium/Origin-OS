@@ -42,30 +42,33 @@ if data.len != 0 (
     )
   )
   if cur != last_cur (
-      last_cur = cur
-      if mouse_moving (
-        window.callRender()
-      )
+    last_cur = cur
+    if mouse_moving (
+      window.callRender()
     )
+  )
   if cur != null (
     goto curx 20
     square cur.len * 8 10 12 : c#000
     centext cur 8 : c#fff
-    if cur_clicked != null (
-      file "open" cur_clicked "onlyaccess"
-      set_y 0
-      square 45 45 0 : c#fff
-      data = null
-      file "interact"
-      if mouse_touching (
-        if data == "open" (
-          file "start"
-          cur_clicked = null
-        )
-      ) else if data == "dragging" (
+  )
+  if cur_clicked != null (
+    file "open" cur_clicked "onlyaccess"
+    set_y 0
+    square 40 40 0 : c#fff
+    data = null
+    file "interact"
+    if mouse_touching (
+      if data == "open" (
+        file "start"
         cur_clicked = null
       )
-      file "close"
+    ) else if data == "dragging" (
+      cur_clicked = null
     )
+    if mouse_down.not() (
+      cur_clicked = null
+    )
+    file "close"
   )
 )
