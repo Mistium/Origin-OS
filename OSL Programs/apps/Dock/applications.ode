@@ -54,8 +54,7 @@ if data.len != 0 (
     text cur 8 : c#fff
     if cur_clicked != null (
       file "open" cur_clicked.app "onlyaccess"
-      x_position = cur_clicked.x_position
-      y_position = cur_clicked.y_position
+      goto cur_clicked.x_position cur_clicked.y_position
       square 45 45 0 0 1
       data = null
       if mouse_touching (
