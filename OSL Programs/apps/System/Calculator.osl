@@ -1,7 +1,7 @@
-canclick = False
+canclick = false
 operation = ""
-current = null
-secondary = null
+current = ""
+secondary = ""
 
 def "draw" "x, y, x2, y2, character" (
   loc x y x2 + 5 y2 + 65
@@ -90,7 +90,9 @@ draw 2 2 240 -410 "÷"
 loc 2 2 25 -72.5
 output = operation == "" ? current secondary
 
-if output == null "output = 0"
+if output == null (
+  output = 0
+)
 text output 15
 
 loc -2 2 -27.5 -72.5
@@ -105,5 +107,9 @@ if clicked or "backspace".isKeyDown() and can (
 
 loc -2 2 -22.5 -22.5
 icon "close" 0.6
-if clicked "window stop"
-if mouse_down.not "can = True"
+if clicked (
+  window.close()
+)
+if mouse_down.not() (
+  can = true
+)
