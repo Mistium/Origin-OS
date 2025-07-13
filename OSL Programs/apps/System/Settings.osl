@@ -34,7 +34,7 @@ def "setting_do" "txt, w, callback, inp" (
   text txt 10 : c#txtc
   set_x x
   if cl (
-   void callback(inp ?? "")
+    void callback(inp ?? "")
   )
 )
 
@@ -1243,9 +1243,7 @@ def "bluetooth_page" (
 
 def "info" (
   loc 2 2 0 0
-  configtext "lineheight" 0.9
-  text info_string 10 : c#txtc
-  configtext "lineheight" 1
+  text "originOS v" ++ origin.version 10 : c#txtc
 )
 
 
@@ -1435,7 +1433,7 @@ if "wallpapers.json".saveExists() (
 ) else (
   wallpapers = []
 )
-if wallpapers.len < 1 or wallpapers.istype("Array").not (
+if wallpapers.len < 1 or wallpapers.istype("Array").not() (
   wallpapers = [
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png",
@@ -1466,11 +1464,7 @@ ftvalues = file_types.getValues()
 
 inputs.bio = (user.bio ?? "").split("\n")
 
-window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
-
-
-terminal "info"
-info_string = terminal_output.join("\n")
+window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]§
 
 def genPfp() (
   return "https://avatars.rotur.dev/" ++ username ++ "?radius=30&random=" ++ random(9999,9999999999)
