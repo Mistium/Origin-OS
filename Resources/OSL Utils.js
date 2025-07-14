@@ -933,7 +933,7 @@ class OSLUtils {
           i -= 1;
         }
         if (ast.length > 1 && i > 1) {
-          cur.set_type = String(ast[i - 2].data).toLowerCase();
+          cur.set_type = String(ast?.[i - 2]?.data ?? "").toLowerCase();
           ast.splice(i - 2, 1);
           i -= 1;
         }
