@@ -574,7 +574,7 @@ class OSLUtils {
     try {
       // Normalize line endings first
       CODE = this.normalizeLineEndings(CODE);
-      
+
       let letter = 0;
       let depth = "";
       let brackets = 0;
@@ -762,7 +762,7 @@ class OSLUtils {
         continue;
       }
       const curT = this.evalToken(cur)
-      if (curT.type === "mod_indicator") { 
+      if (curT.type === "mod_indicator") {
         handlingMods = true;
         continue;
       }
@@ -826,9 +826,9 @@ class OSLUtils {
       if (node.type === "mtd") {
         if (node.data.length !== 2) return node;
         if (["str", "num"].includes(node.data[0].type))
-        switch (node.data[1].data) {
-          case "len": return this.evalToken(node.data[0].data.length);
-        }
+          switch (node.data[1].data) {
+            case "len": return this.evalToken(node.data[0].data.length);
+          }
         return node;
       }
       if (node.type === "opr" && node.left && node.right) {
@@ -878,8 +878,8 @@ class OSLUtils {
       });
       const params = second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
         p.type === "mtd" ?
-        p.data.map(p2 => p2.data).join(".") :
-        p.data
+          p.data.map(p2 => p2.data).join(".") :
+          p.data
       )).join(",")
       ast[2] = {
         type: "fnc",
@@ -909,12 +909,12 @@ class OSLUtils {
         const firstMtvIndex = arr.findIndex(node => node.type === "mtv");
         const leftData = firstMtvIndex > 0 ? arr.slice(0, firstMtvIndex) : [arr[0]];
 
-        let first = leftData.length === 1 ? 
-          leftData[0] : 
+        let first = leftData.length === 1 ?
+          leftData[0] :
           { type: 'mtd', data: leftData }
 
         ast.unshift(
-          first, 
+          first,
           { type: "asi", data: "=??", source: start }
         );
       }
@@ -944,9 +944,21 @@ class OSLUtils {
           ast.splice(i, 1);
           i -= 1;
         }
+
+        if (cur.left?.type === "mtd") {
+          const path = cur.left.data.slice();
+          const final = path.pop();
+          cur.left = {
+            type: "rmt",
+            objPath: path,
+            final: final
+          };
+        }
+
         cur.source = start;
       }
     }
+
 
     if (ast.length === 0) return null;
 
@@ -1009,14 +1021,14 @@ class OSLUtils {
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
     CODE = this.normalizeLineEndings(CODE);
-    CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
-      if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
+    CODE = (MAIN ? `/@line ${++line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
+      if (match === "\n") return MAIN ? `\n/@line ${++line}\n` : "\n";
       if (match === ";") return "\n";
       if (match === "(") return ".call(";
       if (match === "[") return ".[";
-      if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line ++; return match }
-      if (match.trim().startsWith("//")) { line ++; return ""; }
-      if (match.startsWith("\n")) { line ++; return match.replace(/\n\s*\./, ".") };
+      if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line++; return match }
+      if (match.trim().startsWith("//")) { line++; return ""; }
+      if (match.startsWith("\n")) { line++; return match.replace(/\n\s*\./, ".") };
       return match;
     });
     CODE = autoTokenise(CODE, "\n").map(line => {
@@ -1065,14 +1077,14 @@ class OSLUtils {
             const static_var = cur[2].type === "var"
             const dat = static_var ? cur[2].source : "EACH_DAT_" + randomString(10);
             const spl = [
-              [{...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")}],
-              [{...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }]
+              [{ ...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0") }],
+              [{ ...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }]
             ]
             if (static_var) spl.pop();
             lines.splice(i, 0, ...spl);
-            cur[3].data.splice(0, 0, 
-              [{...cur[0], type: "asi", data: "++", left: this.evalToken(id) }],
-              [{...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
+            cur[3].data.splice(0, 0,
+              [{ ...cur[0], type: "asi", data: "++", left: this.evalToken(id) }],
+              [{ ...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
             )
             cur[0].data = "loop"
             cur.splice(1, 1)
@@ -1100,8 +1112,8 @@ class OSLUtils {
         }
       }
       if (['loop', 'if', 'while', 'until', 'for'].includes(data)) {
-        if (cur.length === 2 || 
-           (data === 'for' && cur.length === 3)
+        if (cur.length === 2 ||
+          (data === 'for' && cur.length === 3)
         ) {
           const blk = lines.splice(i + 1, 1)[0];
           cur.push({
