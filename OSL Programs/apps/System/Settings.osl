@@ -954,7 +954,7 @@ def "account" (
         y = y_position
         square w 100 10 : c#prim
         change w / -2 + 10 30
-        text cur.name ?? cur.id ++ "\n" 10 : c#txtc
+        text cur.name ?? cur.key ++ "\n" 10 : c#txtc
         text "by: " ++ cur.creator ++ "\n" 10
         text "price (credits): " ++ cur.price ++ " per " ++ cur.subscription.frequency ++ " " ++ cur.subscription.period 10
         goto x y
@@ -962,7 +962,7 @@ def "account" (
         square 100 40 10 : c#seco
         if onclick (
           if ("Are you sure you want to cancel '" ++ cur.name ++ "'?").confirm() (
-            void ("https://social.rotur.dev/keys/cancel/" ++ cur.id ++ "?auth=" ++ roturToken()).getAsync()
+            void ("https://social.rotur.dev/keys/cancel/" ++ cur.key ++ "?auth=" ++ roturToken()).getAsync()
             subscriptions = ""
           )
         )
@@ -978,7 +978,7 @@ def "account" (
   if subcategory == "Privacy" (
     page_len = 500
     setting_toggle "Private Account?" w user.private def() -> (
-      network "update" "private" user.private.not
+      network "update" "private" user.private.not()
     )
     set_x 0 : chy#-50
     centext "Public Data:" 10 : c#txtc
