@@ -210,6 +210,8 @@ class OSLUtils {
     // Pre-compile line ending normalization regex
     this.lineEndingRegex = /\r\n/g;
     this.macLineEndingRegex = /\r/g;
+    // Store inlinable functions
+    this.inlinableFunctions = {};
   }
 
   getInfo() {
@@ -423,6 +425,216 @@ class OSLUtils {
           },
         },
       ],
+    };
+  }
+
+  // Detect if a function is inlinable (simple single return)
+  isInlinableFunction(fnNode) {
+    if (!fnNode || fnNode.type !== "fnc" || fnNode.data !== "function") return false;
+    if (!fnNode.parameters || fnNode.parameters.length !== 2) return false;
+    
+    const body = fnNode.parameters[1];
+    if (!body || body.type !== "blk" || !body.data || !Array.isArray(body.data)) return false;
+    
+    // Check if function body has exactly one statement that's a return
+    if (body.data.length !== 1 || !Array.isArray(body.data[0])) return false;
+    const statement = body.data[0];
+    if (statement.length < 2 || statement[0].type !== "cmd" || statement[0].data !== "return") return false;
+    
+    return true;
+  }
+
+  // Calculate the complexity cost of inlining vs function call
+  calculateInliningBenefit(funcName, parameters, returnExpression) {
+    let totalParamComplexity = 0;
+    let totalParamUsage = 0;
+    
+    const funcInfo = this.inlinableFunctions[funcName];
+    if (!funcInfo) return false;
+    
+    // Calculate complexity for each parameter
+    for (let i = 0; i < funcInfo.parameters.length; i++) {
+      const paramName = funcInfo.parameters[i];
+      const paramExpr = parameters[i];
+      const usageCount = this.countParameterUsage(returnExpression, paramName);
+      
+      totalParamUsage += usageCount;
+      
+      // Complex expressions get higher cost when used multiple times
+      if (!this.isSimpleExpression(paramExpr)) {
+        totalParamComplexity += usageCount * 2; // Penalty for complex expressions
+      } else {
+        totalParamComplexity += usageCount * 0.5; // Simple expressions are cheap
+      }
+    }
+    
+    // Don't inline if the complexity cost is too high
+    // Function call overhead = ~3 units, so only inline if total cost < 6
+    return totalParamComplexity < 6;
+  }
+
+  // Extract parameters from function definition
+  extractFunctionParameters(paramString) {
+    if (!paramString || paramString.trim() === "") return [];
+    return autoTokenise(paramString.trim(), ",").map(p => p.trim()).filter(p => p);
+  }
+
+  // Substitute parameters in an AST node
+  substituteParameters(node, paramMap) {
+    if (!node || typeof node !== "object") return node;
+    
+    if (Array.isArray(node)) {
+      return node.map(item => this.substituteParameters(item, paramMap));
+    }
+    
+    const result = { ...node };
+    
+    // If this is a variable that matches a parameter, replace it
+    if (node.type === "var" && paramMap.hasOwnProperty(node.data)) {
+      return paramMap[node.data];
+    }
+    
+    // Recursively process all object properties
+    for (const key in result) {
+      if (result.hasOwnProperty(key) && key !== "source") {
+        result[key] = this.substituteParameters(result[key], paramMap);
+      }
+    }
+    
+    return result;
+  }
+
+  // Check if a parameter expression is simple (safe to inline directly)
+  isSimpleExpression(expr) {
+    if (!expr || typeof expr !== "object") return true;
+    
+    // Simple types that are safe to duplicate
+    if (["var", "str", "num", "unk"].includes(expr.type)) return true;
+    
+    // Complex expressions should be cached
+    return false;
+  }
+
+  // Count how many times each parameter is used in the expression
+  countParameterUsage(node, paramName) {
+    if (!node || typeof node !== "object") return 0;
+    
+    let count = 0;
+    
+    if (Array.isArray(node)) {
+      return node.reduce((sum, item) => sum + this.countParameterUsage(item, paramName), 0);
+    }
+    
+    // If this is the parameter variable, count it
+    if (node.type === "var" && node.data === paramName) {
+      count++;
+    }
+    
+    // Recursively count in all object properties
+    for (const key in node) {
+      if (node.hasOwnProperty(key) && key !== "source") {
+        count += this.countParameterUsage(node[key], paramName);
+      }
+    }
+    
+    return count;
+  }
+
+  // Try to inline a function call with parameter caching for complex expressions
+  tryInlineFunction(funcName, parameters) {
+    const inlineFunc = this.inlinableFunctions[funcName];
+    if (!inlineFunc) return null;
+    
+    if (parameters.length !== inlineFunc.parameters.length) return null;
+    
+    // Check if inlining would actually be beneficial
+    if (!this.calculateInliningBenefit(funcName, parameters, inlineFunc.returnExpression)) {
+      return null; // Skip inlining - function call is better
+    }
+    
+    const paramMap = {};
+    const tempVars = [];
+    
+    // Analyze each parameter
+    for (let i = 0; i < inlineFunc.parameters.length; i++) {
+      const paramName = inlineFunc.parameters[i];
+      const paramExpr = parameters[i];
+      const usageCount = this.countParameterUsage(inlineFunc.returnExpression, paramName);
+      
+      // If parameter is used multiple times and is complex, create a temp variable
+      if (usageCount > 1 && !this.isSimpleExpression(paramExpr)) {
+        const tempVarName = `__temp_${paramName}_${randomString(8)}`;
+        tempVars.push({
+          name: tempVarName,
+          value: paramExpr
+        });
+        paramMap[paramName] = {
+          type: "var",
+          data: tempVarName,
+          source: tempVarName
+        };
+      } else {
+        // Simple expression or used only once - inline directly
+        paramMap[paramName] = paramExpr;
+      }
+    }
+    
+    // Substitute parameters in the return expression
+    let inlinedExpr = this.substituteParameters(inlineFunc.returnExpression, paramMap);
+    
+    // If we have temp variables, wrap the expression in a block that declares them
+    if (tempVars.length > 0) {
+      // Create assignment statements for temp variables
+      const assignments = tempVars.map(tempVar => [
+        {
+          type: "asi",
+          data: "@=",
+          source: `${tempVar.name} @= ${tempVar.value.source || "[expression]"}`,
+          left: {
+            type: "var",
+            data: tempVar.name,
+            source: tempVar.name
+          },
+          right: tempVar.value
+        }
+      ]);
+      
+      // Create a return statement with the inlined expression
+      const returnStmt = [
+        {
+          type: "cmd",
+          data: "return",
+          source: `return ${inlinedExpr.source || "[inlined]"}`
+        },
+        inlinedExpr
+      ];
+      
+      // Return a block with temp variable assignments followed by the return
+      return {
+        type: "blk",
+        data: [...assignments, returnStmt],
+        source: "[inlined with temps]"
+      };
+    }
+    
+    return inlinedExpr;
+  }
+
+  // Register inlinable functions during AST generation
+  registerInlinableFunction(name, fnNode) {
+    if (!this.isInlinableFunction(fnNode)) return;
+    
+    const paramString = fnNode.parameters[0].data || fnNode.parameters[0].source;
+    const parameters = this.extractFunctionParameters(paramString);
+    const body = fnNode.parameters[1];
+    const returnStatement = body.data[0];
+    
+    // Extract the return expression (everything after the return command)
+    const returnExpression = returnStatement.slice(1);
+    
+    this.inlinableFunctions[name] = {
+      parameters: parameters,
+      returnExpression: returnExpression.length === 1 ? returnExpression[0] : returnExpression
     };
   }
 
@@ -799,9 +1011,30 @@ class OSLUtils {
       }
     }
 
-    // eval static nodes
     const evalASTNode = node => {
       if (!node) return node;
+      
+      if (Array.isArray(node)) {
+        return node.map(item => evalASTNode(item));
+      }
+      
+      if (node.type === "fnc" && typeof node.data === "string" && this.inlinableFunctions[node.data]) {
+        const inlined = this.tryInlineFunction(node.data, node.parameters || []);
+        if (inlined) {
+          return evalASTNode(inlined);
+        }
+      }
+      
+      if (typeof node === "object" && node !== null) {
+        const processedNode = { ...node };
+        for (const key in processedNode) {
+          if (processedNode.hasOwnProperty(key) && key !== "source") {
+            processedNode[key] = evalASTNode(processedNode[key]);
+          }
+        }
+        node = processedNode;
+      }
+      
       if (node.type === "inl") {
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         if (node.left?.type === "var") params = node.left.data;
@@ -832,8 +1065,6 @@ class OSLUtils {
         return node;
       }
       if (node.type === "opr" && node.left && node.right) {
-        // Recursively evaluate left and right nodes first
-        node.left = evalASTNode(node.left);
         node.right = evalASTNode(node.right);
 
         // If both operands are numbers, evaluate the operation
@@ -881,7 +1112,7 @@ class OSLUtils {
           p.data.map(p2 => p2.data).join(".") :
           p.data
       )).join(",")
-      ast[2] = {
+      const funcNode = {
         type: "fnc",
         data: "function",
         parameters: [
@@ -893,7 +1124,11 @@ class OSLUtils {
           ast[3]
         ]
       };
+      ast[2] = funcNode;
       ast.splice(3, 1);
+      
+      // Register for inlining if it's a simple function
+      this.registerInlinableFunction(first.data, funcNode);
     }
 
     if (ast.length === 0) return [];
@@ -1224,8 +1459,19 @@ class OSLUtils {
     return insertQuotes(CODE, JSON.parse(QUOTES));
   }
 
-  inlineCompile() {
-    return "";
+  inlineCompile({ CODE }) {
+    CODE = Scratch.Cast.toString(CODE);
+    // Reset inlinable functions for fresh compilation
+    this.inlinableFunctions = {};
+    
+    // Generate AST which will register inlinable functions and perform inlining
+    const ast = this.generateFullAST({ CODE: CODE });
+    
+    // Count inlined functions
+    const inlinedCount = Object.keys(this.inlinableFunctions).length;
+    
+    // Return summary of inlining
+    return `Inlined ${inlinedCount} function(s): ${Object.keys(this.inlinableFunctions).join(', ')}`;
   }
 
   setOperators({ OPERATORS }) {
@@ -1261,6 +1507,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }), null, 2));
 }
