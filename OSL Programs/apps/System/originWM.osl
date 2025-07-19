@@ -253,9 +253,9 @@ if top.isType("string").not() (
 )
 
 nodragging = state.dragEdge == null and state.dragDiag == null and state.move == null
-shown = top.shown
+log top.shown
 hovering = checkCollision(x, y, top.width + x2, top.height + x2)
-if nodragging and hovering and !file_dragging and isntMini and shown (
+if nodragging and hovering and !file_dragging and isntMini and top.shown (
   handleResize()
   handleMove()
 ) else (
