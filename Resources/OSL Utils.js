@@ -212,8 +212,6 @@ class OSLUtils {
     this.macLineEndingRegex = /\r/g;
     // Store inlinable functions
     this.inlinableFunctions = {};
-    // Track which functions have been inlined and should be removed
-    this.inlinedFunctionNames = new Set();
   }
 
   getInfo() {
@@ -554,9 +552,6 @@ class OSLUtils {
       return null; // Skip inlining - function call is better
     }
     
-    // Mark this function as inlined so it can be removed later
-    this.inlinedFunctionNames.add(funcName);
-    
     const paramMap = {};
     const tempVars = [];
     
@@ -641,26 +636,6 @@ class OSLUtils {
       parameters: parameters,
       returnExpression: returnExpression.length === 1 ? returnExpression[0] : returnExpression
     };
-  }
-
-  // Remove inlined functions from the lines array
-  removeInlinedFunctions(lines) {
-    return lines.filter(line => {
-      if (!line || line.length === 0) return true;
-      
-      // Check if this is a function definition that was inlined
-      const firstToken = line[0];
-      if (firstToken && firstToken.type === "asi" && firstToken.data === "=" && 
-          firstToken.left && firstToken.left.type === "var" &&
-          firstToken.right && firstToken.right.type === "fnc" && firstToken.right.data === "function") {
-        const functionName = firstToken.left.data;
-        if (this.inlinedFunctionNames.has(functionName)) {
-          return false; // Remove this function definition
-        }
-      }
-      
-      return true; // Keep this line
-    });
   }
 
   // Normalize line endings using pre-compiled regex for better performance
@@ -1385,9 +1360,6 @@ class OSLUtils {
       }
     }
 
-    // Remove inlined functions to prevent issues
-    lines = this.removeInlinedFunctions(lines);
-
     return lines;
   }
 
@@ -1489,19 +1461,17 @@ class OSLUtils {
 
   inlineCompile({ CODE }) {
     CODE = Scratch.Cast.toString(CODE);
-    // Reset inlinable functions and inlined function names for fresh compilation
+    // Reset inlinable functions for fresh compilation
     this.inlinableFunctions = {};
-    this.inlinedFunctionNames.clear();
     
     // Generate AST which will register inlinable functions and perform inlining
     const ast = this.generateFullAST({ CODE: CODE });
     
     // Count inlined functions
-    const inlinedCount = this.inlinedFunctionNames.size;
-    const inlinedNames = Array.from(this.inlinedFunctionNames);
+    const inlinedCount = Object.keys(this.inlinableFunctions).length;
     
     // Return summary of inlining
-    return `Inlined and removed ${inlinedCount} function(s): ${inlinedNames.join(', ')}`;
+    return `Inlined ${inlinedCount} function(s): ${Object.keys(this.inlinableFunctions).join(', ')}`;
   }
 
   setOperators({ OPERATORS }) {
