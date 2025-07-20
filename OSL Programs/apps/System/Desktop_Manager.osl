@@ -15,8 +15,8 @@ window.width = screensize_x
 window.y = 0
 window.height = screensize_y
 
-bg_colour = user.dock_colour
-icn_colour = user.icon_colour
+bg_colour = user.theme.background
+icn_colour = user.theme.text
 
 loc 999 2 0 y
 square window.width 150 10 : c#bg_colour
