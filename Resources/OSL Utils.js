@@ -1253,6 +1253,7 @@ class OSLUtils {
   }
 
   generateFullAST({ CODE, MAIN = true }) {
+    if (MAIN) this.inlinableFunctions = {};
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
     CODE = this.normalizeLineEndings(CODE);
@@ -1460,18 +1461,7 @@ class OSLUtils {
   }
 
   inlineCompile({ CODE }) {
-    CODE = Scratch.Cast.toString(CODE);
-    // Reset inlinable functions for fresh compilation
-    this.inlinableFunctions = {};
-    
-    // Generate AST which will register inlinable functions and perform inlining
-    const ast = this.generateFullAST({ CODE: CODE });
-    
-    // Count inlined functions
-    const inlinedCount = Object.keys(this.inlinableFunctions).length;
-    
-    // Return summary of inlining
-    return `Inlined ${inlinedCount} function(s): ${Object.keys(this.inlinableFunctions).join(', ')}`;
+    return ""
   }
 
   setOperators({ OPERATORS }) {
@@ -1507,6 +1497,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: `def sqr(x) (; return x * x; ); log sqr(a)`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Quick_Settings.osl", "utf-8")
   }), null, 2));
 }
