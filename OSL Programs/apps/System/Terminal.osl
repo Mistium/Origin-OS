@@ -6,6 +6,15 @@ permission "request" "file admin"
 save "system@terminal" "set_directory"
 network "set_app_id" "terminal@system"
 
+// fetch the path tracker file
+path_url = "https://origin.mistium.com/%3Apath/"
+path = (path_url ++ "osl-tracker.json").httpGet()
+if typeof(path) !== "object" (
+  path = {}
+)
+
+path = path.scripts.getValues()
+
 class terminal (
   lines = []
   waiting = false
@@ -84,20 +93,6 @@ def evalCmd(cmd) (
   void self.cache[path](tokens)
 )
 
-terminal_worker @= worker({
-  cmd: null,
-  isThread: true,
-  cache: {},
-  onframe: def() -> (
-    if cmd != null (
-      terminal.show_input = false
-      evalCmd(cmd)
-      terminal.show_input = true
-      self.cmd = null
-    )
-  )
-})
-
 ansi = {
   "\e[30m": "#000",
   "\e[31m": "#f00",
@@ -131,6 +126,67 @@ window.setDragbox([2,2,0,0],[-2,-2,0,0])
 taking_input = false
 ots_i = 1
 
+if path.len > 0 (
+  path_folder = parseFilePath("~/:path.folder")
+  file "exists" path_folder
+  if exists.not() (
+    file "goto_dir" user_folder
+    file "set_file" ":path.folder" []
+  )
+
+  path_worker @= worker({
+    isThread: true,
+    onframe: def() -> (
+      local updates = []
+      for i path.len (
+        local cur = path[i]
+        local cmd_path = parseFilePath("~/:path/" ++ cur.name)
+        file "exists" cmd_path
+        if exists (
+          local data = open(cmd_path)
+          if data.hashMD5() != cur.hash (
+            void updates.append(cur)
+          )
+        ) else (
+          void updates.append(cur)
+        )
+      )
+      if updates.len > 0 (
+        terminal.writeLine("Updates found for the following scripts:")
+        for i updates.len (
+          terminal.writeLine("- " ++ updates[i].name)
+        )
+        if terminal.input("Update them? (y/n)") == "y" (
+          file "goto_dir" "~/:path"
+          for i updates.len (
+            local cur = updates[i]
+            file "set_file" cur.name (path_url ++ cur.name).httpGet()
+            terminal.writeLine("Updated " ++ cur.name)
+          )
+        )
+      )
+      terminal.clear()
+      terminal.show_input = true
+      path_worker.kill()
+    )
+  })
+  terminal.writeLine("Checking for updates...")
+)
+
+terminal_worker @= worker({
+  cmd: null,
+  isThread: true,
+  cache: {},
+  onframe: def() -> (
+    if cmd != null (
+      terminal.show_input = false
+      evalCmd(cmd)
+      terminal.show_input = true
+      self.cmd = null
+    )
+  )
+})
+
 mainloop:
 load_theme
 
@@ -150,7 +206,9 @@ if mode == "norm" (
     last_index = last.len + 1
     void terminal.lines.append(user_start ++ inputs.main)
     terminal_output = []
-    terminal_worker.cmd = inputs.main
+    if terminal.input_message == null (
+      terminal_worker.cmd = inputs.main
+    )
     inputs.main = ""
     terminal.show_input = false
   )
