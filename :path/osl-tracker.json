@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-07-20T22:05:29.210Z",
+  "lastUpdated": "2025-07-20T22:12:15.095Z",
   "totalScripts": 32,
   "scripts": {
     "calc.osl": {
@@ -230,10 +230,10 @@
     "help.osl": {
       "name": "help.osl",
       "firstAdded": "2025-07-20T22:05:29.200Z",
-      "lastModified": "2025-07-08T19:19:40.523Z",
-      "changeCount": 0,
-      "size": 237,
-      "hash": "24db09b12f53c82e4909c6089646e697",
+      "lastModified": "2025-07-20T22:09:38.731Z",
+      "changeCount": 1,
+      "size": 236,
+      "hash": "1b6d615d22224279c2326156f17f8469",
       "status": "active"
     },
     "htop.osl": {
@@ -298,7 +298,7 @@
       "name": "calc.osl",
       "changeCount": 1
     },
-    "totalChanges": 3,
-    "averageChangesPerScript": 0.09
+    "totalChanges": 4,
+    "averageChangesPerScript": 0.13
   }
 }
