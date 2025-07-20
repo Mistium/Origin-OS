@@ -37,6 +37,133 @@
   ],
   [
     {
+      "type": "asi",
+      "data": "=",
+      "source": "def checkCollision(x2,y2,w,h) (",
+      "left": {
+        "type": "var",
+        "data": "checkCollision",
+        "source": "def"
+      },
+      "right": {
+        "type": "fnc",
+        "data": "function",
+        "parameters": [
+          {
+            "type": "str",
+            "data": "x2,y2,w,h",
+            "source": "x2,y2,w,h"
+          },
+          {
+            "type": "blk",
+            "data": [
+              [
+                {
+                  "type": "cmd",
+                  "data": "return",
+                  "source": "return abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2",
+                  "line": 8
+                },
+                {
+                  "type": "log",
+                  "data": "and",
+                  "source": "abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2",
+                  "left": {
+                    "type": "cmp",
+                    "data": "<",
+                    "source": "abs(mouse_x - x2) < w / 2",
+                    "left": {
+                      "type": "fnc",
+                      "data": "abs",
+                      "parameters": [
+                        {
+                          "type": "opr",
+                          "data": "-",
+                          "source": "mouse_x - x2",
+                          "left": {
+                            "type": "var",
+                            "data": "mouse_x",
+                            "source": "mouse_x"
+                          },
+                          "right": {
+                            "type": "var",
+                            "data": "x2",
+                            "source": "x2"
+                          }
+                        }
+                      ],
+                      "source": "abs(mouse_x - x2)"
+                    },
+                    "right": {
+                      "type": "opr",
+                      "data": "/",
+                      "source": "w / 2",
+                      "left": {
+                        "type": "var",
+                        "data": "w",
+                        "source": "w"
+                      },
+                      "right": {
+                        "type": "num",
+                        "data": 2,
+                        "source": "2"
+                      }
+                    }
+                  },
+                  "right": {
+                    "type": "cmp",
+                    "data": "<",
+                    "source": "abs(mouse_y - y2) < h / 2",
+                    "left": {
+                      "type": "fnc",
+                      "data": "abs",
+                      "parameters": [
+                        {
+                          "type": "opr",
+                          "data": "-",
+                          "source": "mouse_y - y2",
+                          "left": {
+                            "type": "var",
+                            "data": "mouse_y",
+                            "source": "mouse_y"
+                          },
+                          "right": {
+                            "type": "var",
+                            "data": "y2",
+                            "source": "y2"
+                          }
+                        }
+                      ],
+                      "source": "abs(mouse_y - y2)"
+                    },
+                    "right": {
+                      "type": "opr",
+                      "data": "/",
+                      "source": "h / 2",
+                      "left": {
+                        "type": "var",
+                        "data": "h",
+                        "source": "h"
+                      },
+                      "right": {
+                        "type": "num",
+                        "data": 2,
+                        "source": "2"
+                      }
+                    }
+                  }
+                }
+              ]
+            ],
+            "source": "[ast BLK]"
+          }
+        ]
+      },
+      "line": 7
+    }
+  ],
+  [
+    {
       "type": "cmd",
       "data": "if",
       "source": "if origin.version < 600 (",
@@ -7314,30 +7441,6 @@
   ],
   [
     {
-      "type": "cmd",
-      "data": "log",
-      "source": "log top.shown",
-      "line": 256
-    },
-    {
-      "type": "mtd",
-      "data": [
-        {
-          "type": "var",
-          "data": "top",
-          "source": "top"
-        },
-        {
-          "type": "var",
-          "data": "shown",
-          "source": "shown"
-        }
-      ],
-      "source": "top.shown"
-    }
-  ],
-  [
-    {
       "type": "asi",
       "data": "=",
       "source": "hovering = checkCollision(x, y, top.width + x2, top.height + x2)",
@@ -7477,7 +7580,7 @@
           }
         }
       },
-      "line": 257
+      "line": 256
     }
   ],
   [
@@ -7485,7 +7588,7 @@
       "type": "cmd",
       "data": "if",
       "source": "if nodragging and hovering and !file_dragging and isntMini and top.shown (",
-      "line": 258
+      "line": 257
     },
     {
       "type": "log",
@@ -7557,7 +7660,7 @@
             "data": "handleResize",
             "parameters": [],
             "source": "handleResize()",
-            "line": 259
+            "line": 258
           }
         ],
         [
@@ -7566,7 +7669,7 @@
             "data": "handleMove",
             "parameters": [],
             "source": "handleMove()",
-            "line": 260
+            "line": 259
           }
         ]
       ],
@@ -7585,7 +7688,7 @@
             "type": "cmd",
             "data": "if",
             "source": "if state.dragEdge != null (",
-            "line": 262
+            "line": 261
           },
           {
             "type": "cmp",
@@ -7655,7 +7758,7 @@
                     }
                   ],
                   "source": "dragEdge(state.prop,state.axis)",
-                  "line": 263
+                  "line": 262
                 }
               ]
             ],
@@ -7667,7 +7770,7 @@
             "type": "cmd",
             "data": "if",
             "source": "if state.dragDiag != null (",
-            "line": 265
+            "line": 264
           },
           {
             "type": "cmp",
@@ -7704,7 +7807,7 @@
                   "data": "dragDiagonal",
                   "parameters": [],
                   "source": "dragDiagonal()",
-                  "line": 266
+                  "line": 265
                 }
               ]
             ],
@@ -7716,7 +7819,7 @@
             "type": "cmd",
             "data": "if",
             "source": "if state.move != null (",
-            "line": 268
+            "line": 267
           },
           {
             "type": "cmp",
@@ -7753,7 +7856,7 @@
                   "data": "moveWindow",
                   "parameters": [],
                   "source": "moveWindow()",
-                  "line": 269
+                  "line": 268
                 }
               ]
             ],
@@ -7769,7 +7872,7 @@
       "type": "cmd",
       "data": "if",
       "source": "if state.cursor != null (",
-      "line": 272
+      "line": 271
     },
     {
       "type": "cmp",
@@ -7805,7 +7908,7 @@
             "type": "cmd",
             "data": "cursor",
             "source": "cursor state.cursor",
-            "line": 273
+            "line": 272
           },
           {
             "type": "mtd",
@@ -7833,7 +7936,7 @@
       "type": "num",
       "data": 0,
       "source": "",
-      "line": 275
+      "line": 274
     }
   ]
 ]
