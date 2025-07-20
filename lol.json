@@ -1,76 +1,46 @@
 [
   [
     {
-      "type": "asi",
-      "data": "=",
-      "source": "def sqr(x) (",
-      "left": {
-        "type": "var",
-        "data": "sqr",
-        "source": "def"
-      },
-      "right": {
-        "type": "fnc",
-        "data": "function",
-        "parameters": [
-          {
-            "type": "str",
-            "data": "x",
-            "source": "x"
-          },
-          {
-            "type": "blk",
-            "data": [
-              [
-                {
-                  "type": "cmd",
-                  "data": "return",
-                  "source": "return x * x"
-                },
-                {
-                  "type": "opr",
-                  "data": "*",
-                  "source": "x * x",
-                  "left": {
-                    "type": "var",
-                    "data": "x",
-                    "source": "x"
-                  },
-                  "right": {
-                    "type": "var",
-                    "data": "x",
-                    "source": "x"
-                  }
-                }
-              ]
-            ],
-            "source": "[ast BLK]"
-          }
-        ]
-      },
-      "line": 1
-    }
-  ],
-  [
-    {
       "type": "cmd",
       "data": "log",
-      "source": "log sqr(a)"
+      "source": "log [1,,,,,1]",
+      "line": 1
     },
     {
-      "type": "opr",
-      "data": "*",
-      "source": "x * x",
-      "left": {
-        "type": "var",
-        "data": "a",
-        "source": "a"
-      },
-      "right": {
-        "type": "var",
-        "data": "a",
-        "source": "a"
-      }
+      "type": "arr",
+      "data": [
+        {
+          "type": "num",
+          "data": 1,
+          "source": "1"
+        },
+        {
+          "type": "unk",
+          "data": null,
+          "source": "null"
+        },
+        {
+          "type": "unk",
+          "data": null,
+          "source": "null"
+        },
+        {
+          "type": "unk",
+          "data": null,
+          "source": "null"
+        },
+        {
+          "type": "unk",
+          "data": null,
+          "source": "null"
+        },
+        {
+          "type": "num",
+          "data": 1,
+          "source": "1"
+        }
+      ],
+      "source": "[1,,,,,1]"
     }
   ]
 ]

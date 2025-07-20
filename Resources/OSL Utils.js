@@ -854,12 +854,18 @@ class OSLUtils {
           if (cur == "[]") return { type: "arr", data: [] }
 
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
+          while (tokens[tokens.length - 1] === "") tokens.pop();
+          tokens = tokens.map(token => {
+            token = String(token).trim()
+            if (token === "") return null;
+            return token;
+          });
           for (let i = 0; i < tokens.length; i++) {
-            tokens[i] = this.generateAST({ CODE: ("" + tokens[i]).trim(), START: 0 })[0];
+            tokens[i] = this.generateAST({ CODE: tokens[i], START: 0 })[0];
           }
 
           if (param) return { type: "mtv", data: "item", parameters: tokens };
-          return { type: "arr", data: tokens }
+          return { type: "arr", data: tokens };
         } else if (cur[0] === "{") {
           if (cur == "{}") return { type: "obj", data: {} }
 
@@ -1497,6 +1503,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `def sqr(x) (; return x * x; ); log sqr(a)`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Quick_Settings.osl", "utf-8")
+    CODE: `log [1,,,,,1]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Quick_Settings.osl", "utf-8")
   }), null, 2));
 }
