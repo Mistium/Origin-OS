@@ -3,44 +3,37 @@
     {
       "type": "cmd",
       "data": "log",
-      "source": "log [1,,,,,1]",
+      "source": "log [\"lol\"].[1]",
       "line": 1
     },
     {
-      "type": "arr",
+      "type": "mtd",
       "data": [
         {
-          "type": "num",
-          "data": 1,
-          "source": "1"
+          "type": "arr",
+          "data": [
+            {
+              "type": "str",
+              "data": "lol",
+              "source": "\"lol\""
+            }
+          ],
+          "source": "[\"lol\"]"
         },
         {
-          "type": "unk",
-          "data": null,
-          "source": "null"
-        },
-        {
-          "type": "unk",
-          "data": null,
-          "source": "null"
-        },
-        {
-          "type": "unk",
-          "data": null,
-          "source": "null"
-        },
-        {
-          "type": "unk",
-          "data": null,
-          "source": "null"
-        },
-        {
-          "type": "num",
-          "data": 1,
-          "source": "1"
+          "type": "mtv",
+          "data": "item",
+          "parameters": [
+            {
+              "type": "num",
+              "data": 1,
+              "source": "1"
+            }
+          ],
+          "source": "[1]"
         }
       ],
-      "source": "[1,,,,,1]"
+      "source": "[\"lol\"].[1]"
     }
   ]
 ]
