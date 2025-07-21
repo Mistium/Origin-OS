@@ -45,8 +45,8 @@ class terminal (
   )
   
   def user_start() (
-    if input_message != null (
-      return input_message ++ ": "
+    if self.input_message != null (
+      return self.input_message ++ ": "
     )
     local pos = self.pwd
     if pos == user_folder (
@@ -209,7 +209,7 @@ if mode == "norm" (
     if terminal.input_message == null (
       terminal_worker.cmd = inputs.main
     )
-    inputs.main = ""
+    inputs.main = null
     terminal.show_input = false
   )
 )
