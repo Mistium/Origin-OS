@@ -848,7 +848,12 @@ class OSLUtils {
   stringToToken(cur, param) {
     let start = cur[0]
     if (cur === "/@line") return { type: "unk", data: "/@line" }
-    if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
+    if (autoTokenise(cur, ".").length > 1) {
+      let method = autoTokenise(cur, ".")
+      method = method.map((input, index) => this.evalToken(input, index > 0))
+      return { type: "mtd", data: method };
+    }
+    else if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (start === "[") {
           if (cur == "[]") return { type: "arr", data: [] }
@@ -909,11 +914,6 @@ class OSLUtils {
     else if (cur.endsWith("=")) return { type: "asi", data: cur }
     else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
     else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
-    else if (autoTokenise(cur, ".").length > 1) {
-      let method = autoTokenise(cur, ".")
-      method = method.map((input, index) => this.evalToken(input, index > 0))
-      return { type: "mtd", data: method };
-    }
     else if (cur === "null") return { type: "unk", data: null }
     else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
     else if (cur === "->") return { type: "inl", data: "->" }
@@ -1503,6 +1503,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `log [1,,,,,1]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Quick_Settings.osl", "utf-8")
+    CODE: `log ["lol"][1]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Quick_Settings.osl", "utf-8")
   }), null, 2));
 }
