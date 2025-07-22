@@ -1172,7 +1172,7 @@ class OSLUtils {
 
       if (cur?.type === "asi") {
         if (ast[0].data === "local") {
-          prev = this.generateAST({ CODE: "this." + prev.data, START: 0 })[0];
+          prev = this.generateAST({ CODE: "this." + prev.source, START: 0 })[0];
           ast.splice(0, 1);
           i -= 1;
         }
@@ -1245,7 +1245,7 @@ class OSLUtils {
         if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
           const newCases = {}
           cases.all.map(v => {
-            if (v[0]?.data) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
+            if ((v[0]?.data ?? null) !== null) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
           })
           cases.type = "object"
           cases.all = newCases;
@@ -1506,6 +1506,11 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    f: `log ["lol"][1]`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: `switch chnl["type"] (
+        case 0
+          text "#" 15 : chx#-7
+          change_x 5
+          break
+    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
