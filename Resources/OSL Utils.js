@@ -848,7 +848,28 @@ class OSLUtils {
   stringToToken(cur, param) {
     let start = cur[0]
     if (cur === "/@line") return { type: "unk", data: "/@line" }
-    if (autoTokenise(cur, ".").length > 1) {
+    if (!isNaN(+cur)) return { type: "num", data: +cur }
+    else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
+    else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
+    else if (cur === "--") return { type: "unk", data: "--" }
+    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
+    else if (cur.endsWith("=")) return { type: "asi", data: cur }
+    else if (start + cur[cur.length - 1] === '""') return { type: "str", data: destr(cur) }
+    else if (start + cur[cur.length - 1] === "''") return { type: "str", data: destr(cur, "'") }
+    else if (start + cur[cur.length - 1] === "``") {
+      return {
+        type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
+          if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
+          else return { type: "str", data: v }
+        })
+      }
+    }
+    else if (cur === "?") return { type: "qst", data: cur }
+    else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
+    else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
+    else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
+    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
+    else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
       method = method.map((input, index) => this.evalToken(input, index > 0))
       return { type: "mtd", data: method };
@@ -856,7 +877,10 @@ class OSLUtils {
     else if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (start === "[") {
-          if (cur == "[]") return { type: "arr", data: [] }
+          if (cur == "[]") {
+            if (param) return { type: "mtv", data: "item", parameters: [] };
+            else return { type: "arr", data: [] };
+          }
 
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
           while (tokens[tokens.length - 1] === "") tokens.pop();
@@ -893,27 +917,6 @@ class OSLUtils {
         return { type: "unk", data: cur }
       }
     }
-    else if (start + cur[cur.length - 1] === '""') return { type: "str", data: destr(cur) }
-    else if (start + cur[cur.length - 1] === "''") return { type: "str", data: destr(cur, "'") }
-    else if (start + cur[cur.length - 1] === "``") {
-      return {
-        type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
-          if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
-          else return { type: "str", data: v }
-        })
-      }
-    }
-    else if (!isNaN(+cur)) return { type: "num", data: +cur }
-    else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
-    else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
-    else if (cur === "--") return { type: "unk", data: "--" }
-    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
-    else if (cur === "?") return { type: "qst", data: cur }
-    else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
-    else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
-    else if (cur.endsWith("=")) return { type: "asi", data: cur }
-    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
-    else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
     else if (cur === "null") return { type: "unk", data: null }
     else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
     else if (cur === "->") return { type: "inl", data: "->" }
@@ -1503,6 +1506,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `log ["lol"][1]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Quick_Settings.osl", "utf-8")
+    f: `log ["lol"][1]`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
