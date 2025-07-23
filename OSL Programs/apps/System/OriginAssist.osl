@@ -6,6 +6,7 @@ permission "request" "file admin"
 w = 10
 w_target = 600
 
+window.goto(0,screensize_y / 2 + 300)
 window "dimensions" w 200
 window "responsive" true
 
@@ -16,6 +17,7 @@ ai_response = ""
 ai_response_get = null
 last_change = timer
 changed = true
+input_prev = ""
 prompt = "Hello!"
 
 h = 75
@@ -34,6 +36,10 @@ def searchFiles(term) (
 
 frames = 0
 
+window.resize(w,h)
+
+started = timestamp
+
 mainloop:
 
 if inputs.selected.id != "main" (
@@ -46,7 +52,7 @@ wt:load_theme
 window.callRender()
 
 w += w_target - w / 10
-y += y_target - y / 10
+y += y_target - y / 6
 
 if y > 400 (
   window.close()
@@ -61,7 +67,7 @@ w2 = w - 35
 goto 0 0
 square window.width window.height 0 0 1
 
-if mouse_ondown and clicked.not() or (window_id != focused_application_id) (
+if (mouse_ondown and clicked.not() or (window.id != focused_application_id)) and timestamp - started > 1000 (
   y_target = 500
   w_target = 10
 )
@@ -95,17 +101,17 @@ if prompt.len > 0 and ("enter".onKeyDown() or ai_response_get != null) (
   ai_url = "none"
 )
 
-if inputs.main != inputprev (
+if input_main != inputprev (
   last_change = timer
   changed = true
-  inputprev = inputs.main
-  if inputs.main == "" (
+  inputprev = input_main
+  if input_main == "" (
     search = []
     ai_response = []
     prompt = ""
   ) else (
-    prompt = inputs.main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
-    search = searchFiles(inputs.main).trim(1,10)
+    prompt = input_main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
+    search = searchFiles(input_main).trim(1,10)
   )
 )
 
