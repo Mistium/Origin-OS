@@ -17,7 +17,7 @@ ai_response = ""
 ai_response_get = null
 last_change = timer
 changed = true
-input_prev = ""
+inputprev = ""
 prompt = "Hello!"
 
 h = 75
@@ -101,17 +101,17 @@ if prompt.len > 0 and ("enter".onKeyDown() or ai_response_get != null) (
   ai_url = "none"
 )
 
-if input_main != inputprev (
+if inputs.main != inputprev (
   last_change = timer
   changed = true
-  inputprev = input_main
-  if input_main == "" (
+  inputprev = inputs.main
+  if inputs.main == "" (
     search = []
     ai_response = []
     prompt = ""
   ) else (
-    prompt = input_main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
-    search = searchFiles(input_main).trim(1,10)
+    prompt = inputs.main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
+    search = searchFiles(inputs.main).trim(1,10)
   )
 )
 
