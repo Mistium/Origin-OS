@@ -1464,7 +1464,7 @@ ftvalues = file_types.getValues()
 
 inputs.bio = (user.bio ?? "").split("\n")
 
-window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]§
+window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 
 def genPfp() (
   return "https://avatars.rotur.dev/" ++ username ++ "?radius=30&random=" ++ random(9999,9999999999)
