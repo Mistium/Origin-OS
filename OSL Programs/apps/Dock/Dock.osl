@@ -1,6 +1,7 @@
 permission "request" "start run"
 permission "request" "file admin"
 permission "request" "terminal"
+permission "request" "windows"
 
 save "Dock@System" "set_directory"
 open = 0
@@ -98,7 +99,15 @@ if y > -80 (
   dock_x = dock_width / -2
 )
 if open != 0 and mouse_down.not() (
-  terminal "kill" + open
-  window "add" open
+  local wins @= windows()
+  local exists = false
+  for i wins.len (
+    if wins[i].window.file.path == open (
+      exists = true
+    )
+  )
+  if exists.not() (
+    window.create(open)
+  )
   open = 0
 )

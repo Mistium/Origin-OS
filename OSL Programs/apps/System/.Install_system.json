@@ -4,7 +4,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Dock.osl",
     "icon": "c #111 w 10 square 0 0 5 5",
-    "version":"4.3"
+    "version":"4.4"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Time_Info.osl",
@@ -25,7 +25,7 @@
     "path": "Origin/(A) System/Docks/Modules",
     "name": "main.ode",
     "icon": "",
-    "version":"1.4"
+    "version":"1.5"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/applications.ode",
@@ -53,14 +53,14 @@
     "path": "Origin/(A) System/Docks/Modules",
     "name": "time.ode",
     "icon": "",
-    "version":"2.9"
+    "version":"3.0"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/battery.ode",
     "path": "Origin/(A) System/Docks/Modules",
     "name": "battery.ode",
     "icon": "",
-    "version":"2.2"
+    "version":"2.3"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Login.osl",
