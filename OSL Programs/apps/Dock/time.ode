@@ -3,7 +3,7 @@ change_x 52.5
 x = x_position
 square 105 height 20 0 1
 if clicked (
-  open = "Time_Info"
+  open = "Origin/(A) System/Docks/Time_Info.osl"
 )
 if bg_redrawn "square 105 height 20"
 if second != timeode_secondtemp or bg_redrawn or dock_changed_w (

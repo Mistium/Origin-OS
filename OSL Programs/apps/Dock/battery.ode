@@ -3,7 +3,9 @@ if battery_percent < 100 and battery_percent > 0 (
   set_y y
   square 60 height 20 1 0 1 : chx#30
   x = x_position
-  if clicked "open = Battery_Info"
+  if clicked (
+    open = "Origin/(A) System/Docks/Battery_Info.osl"
+  )
   if battery_temp != battery_percent or bg_redrawn or dock_changed_w (
     battery_temp = battery_percent
     square 60 height 20 1
