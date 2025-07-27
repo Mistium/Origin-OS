@@ -851,6 +851,7 @@ class OSLUtils {
     if (!isNaN(+cur)) return { type: "num", data: +cur }
     else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
+    else if (cur === "++") return { type: "opr", data: "++" }
     else if (cur === "--") return { type: "unk", data: "--" }
     else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
     else if (cur.endsWith("=")) return { type: "asi", data: cur }
