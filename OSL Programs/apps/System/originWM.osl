@@ -28,6 +28,9 @@ def dragEdge(prop, axis) (
   )
   if mouse_moving (
     local pos = top.tile
+    if pos == null (
+      pos = ""
+    )
     if axis == "x" (
       if pos.startsWith("-1,") or pos.startsWith("1,") (
         local desktop @= "origin.desktop".eval()
