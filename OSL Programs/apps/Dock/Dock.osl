@@ -10,6 +10,8 @@ window "responsive" true
 window "hide"
 
 window.no_desktop = true
+window.pinned = true
+// pin to the top to stop other windows from overlapping
 
 window "y" screensize_y / -2 + 35
 
