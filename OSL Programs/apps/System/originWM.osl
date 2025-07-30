@@ -15,11 +15,17 @@ window "responsive" true
 
 hitbox_size = 13
 
+x2 = hitbox_size * 2
+x25 = hitbox_size / 4
+
 // Tiling configuration
 window_area_top = screensize_y / 2
 window_area_left = screensize_x / -2
 window_area_right = screensize_x / 2
 window_area_bottom = screensize_y / -2 + 70
+
+wins @= []
+top @= {}
 
 def dragEdge(prop, axis) (
   if !mouse_down (
@@ -203,6 +209,48 @@ def handleMove() (
   )
 )
 
+def handleTop() (
+  local nodragging = state.dragEdge == null and state.dragDiag == null and state.move == null
+  if nodragging and !file_dragging (
+    wins @= Windows()
+    for i wins.len (
+      local cur @= wins[i].window
+      x = cur.x
+      y = cur.y
+      local hovering = checkCollision(x, y, cur.width + x2, cur.height + x2)
+      local isntMini = true
+      if cur.isMini != null (
+        isntMini = cur.isMini().not()
+      )
+      if hovering and cur.shown and isntMini (
+        top @= cur
+        if mouse_ondown and i > 1 (
+          void top.focus()
+        )
+        handleResize()
+        handleMove()
+        break
+      )
+    )
+  )
+  nodragging = state.dragEdge == null and state.dragDiag == null and state.move == null
+  if nodragging (
+    top @= {}
+    return
+  )
+  if top.shown (
+    if state.dragEdge != null (
+      dragEdge(state.prop,state.axis)
+    )
+    if state.dragDiag != null (
+      dragDiagonal()
+    )
+    if state.move != null (
+      moveWindow()
+    )
+  )
+)
+
 state = {
   dragEdge: null,
   dragDiag: null,
@@ -237,40 +285,11 @@ if wins[1].id == window.id (
   window.resize(screensize_x,screensize_y)
 )
 
-wins @= Windows()
-
-top @= wins[1].window ?? ""
-
-x2 = hitbox_size * 2
-x25 = hitbox_size / 4
-
 if !mouse_down (
   state.cursor = null
 )
-x = top.x
-y = top.y
 
-isntMini = true
-if top.isType("string").not() (
-  isntMini = top.isMini().not()
-)
-
-nodragging = state.dragEdge == null and state.dragDiag == null and state.move == null
-hovering = checkCollision(x, y, top.width + x2, top.height + x2)
-if nodragging and hovering and !file_dragging and isntMini and top.shown (
-  handleResize()
-  handleMove()
-) else (
-  if state.dragEdge != null (
-    dragEdge(state.prop,state.axis)
-  )
-  if state.dragDiag != null (
-    dragDiagonal()
-  )
-  if state.move != null (
-    moveWindow()
-  )
-)
+handleTop()
 if state.cursor != null (
   cursor state.cursor
 )
