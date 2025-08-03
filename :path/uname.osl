@@ -1,0 +1,31 @@
+def getData(opt) (
+    switch opt (
+        case "-a"
+            return getData("-s") ++ " " ++ getData("-n") ++ " " ++ getData("-v") ++ " " ++ getData("-m") ++ " " ++ getData("-o")
+            break
+        case "-r"
+            return origin.kernel.version
+            break
+        case "-v"
+            return origin.kernel.name ++ " Kernel Version " ++ origin.kernel.version ++ " (" ++ origin.kernel["type"] ++ ")"
+            break
+        case "-m"
+            return "web"
+            break
+        case "-s"
+            return origin.kernel.name
+            break
+        case "-n"
+            return user.username ++ "@originos"
+            break
+        case "-o"
+            return "originOS"
+            break
+        default
+            return "uname: illegal option -- " ++ args[1] ++ "\nusage: uname [-amnorsv]"
+    )
+)
+
+args[1] ??= "-s"
+
+terminal.writeLine(getData(args[1]))
