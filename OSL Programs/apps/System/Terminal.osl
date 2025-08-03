@@ -66,7 +66,7 @@ def evalCmd(cmd) (
     local data = open(path)
     if data == null or exists.not() (
       terminal cmd
-      terminal.lines @= terminal.lines.trim(1, terminal_length) ++ terminal_output
+      terminal.lines @= terminal.lines ++ terminal_output
       return
     ) else (
       self.cache[path] @= function("args", data)
