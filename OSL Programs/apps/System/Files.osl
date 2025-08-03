@@ -10,7 +10,7 @@ save "files@system" "set_directory"
 window.resize(1000,600)
 window.show()
 
-files_path = "Origin/(C) Users/" ++ username
+files_path = "/(c) users/" ++ username
 user_path = files_path ++ "/"
 
 hidden = []
@@ -297,7 +297,7 @@ def "render_files" (
   current_folder_uuid = ""
   window.drop_location = null
   if inputs.path == "origin" (
-    files = []
+    files @= open("/")
   ) else if inputs.path.startsWith("/dev") (
     files = roturlink.drives
       .filter(v -> (v.device_node == inputs.path))[1].files
@@ -397,7 +397,7 @@ def "render_files" (
             temp --
             selected_files ++= files.trim(count,temp)
           )
-        // select a single file
+          // select a single file
           drag_id = 0
         ) else (
           selected_files @= [file_id]
