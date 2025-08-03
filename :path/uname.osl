@@ -22,7 +22,7 @@ def getData(opt) (
             return "originOS"
             break
         default
-            return "uname: illegal option -- " ++ opt ++ "\nusage: uname [-amnorsv]"
+            return "uname: illegal option " ++ opt ++ "\nusage: uname [-amnorsv]"
     )
 )
 
