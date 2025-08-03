@@ -204,7 +204,7 @@ if mode == "norm" (
   if "enter".onKeyDown() (
     void last.append(inputs.main)
     last_index = last.len + 1
-    void terminal.lines.append(user_start ++ inputs.main)
+    void terminal.lines.append(terminal.user_start() ++ inputs.main)
     terminal_output = []
     if terminal.input_message == null (
       terminal_worker.cmd = inputs.main
