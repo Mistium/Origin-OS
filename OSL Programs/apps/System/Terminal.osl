@@ -23,7 +23,14 @@ class terminal (
   pwd = user_folder
   
   def writeLine(data) (
-    void self.lines.append(data)
+    if data.contains("\n") (
+      local parts = data.split("\n")
+      for i parts.len (
+        void self.lines.append(parts[i])
+      )
+    ) else (
+      void self.lines.append(data)
+    )
   )
   
   def write(data) (
