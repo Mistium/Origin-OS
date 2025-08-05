@@ -129,16 +129,21 @@ function parseTemplate(str) {
     if (str[i] + str[i + 1] === '${') {
       if (depth === 0) {
         arr.push(cur);
-        cur = "$";
+        cur = "${";
+      } else {
+        cur += "${";
       }
       depth++;
+      i++; // Skip the next character since we processed both $ and {
       continue;
     }
-    if (str[i] === '}') {
+    if (str[i] === '}' && depth > 0) {
       depth--
       if (depth === 0) {
         arr.push(cur + '}');
         cur = "";
+      } else {
+        cur += '}';
       }
       continue;
     };
@@ -1514,6 +1519,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `log \`__setup @= function("", \${setup})\\n__main @= function("", \${main})\\n__setup()\\nmainloop:\\n__main()\``, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: ``, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
