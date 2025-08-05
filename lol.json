@@ -2,108 +2,37 @@
   [
     {
       "type": "cmd",
-      "data": "switch",
-      "source": "switch chnl.[\"type\"] (",
-      "cases": {
-        "type": "object",
-        "all": {
-          "0": 0
-        }
-      },
+      "data": "log",
+      "source": "log `__setup @= function(\"\", ${setup})\\n__main @= function(\"\", ${main})\\n__setup()\\nmainloop:\\n__main()`",
       "line": 1
     },
     {
-      "type": "mtd",
+      "type": "tsr",
       "data": [
         {
-          "type": "var",
-          "data": "chnl",
-          "source": "chnl"
+          "type": "str",
+          "data": "__setup @= function(\"\", "
         },
         {
-          "type": "mtv",
-          "data": "item",
-          "parameters": [
-            {
-              "type": "str",
-              "data": "type",
-              "source": "\"type\""
-            }
-          ],
-          "source": "[\"type\"]"
+          "type": "var",
+          "data": "setup",
+          "source": "setup"
+        },
+        {
+          "type": "str",
+          "data": ")\n__main @= function(\"\", "
+        },
+        {
+          "type": "var",
+          "data": "main",
+          "source": "main"
+        },
+        {
+          "type": "str",
+          "data": ")\n__setup()\nmainloop:\n__main()"
         }
       ],
-      "source": "chnl.[\"type\"]"
-    },
-    {
-      "type": "blk",
-      "data": [
-        [
-          {
-            "type": "cmd",
-            "data": "case",
-            "source": "case 0",
-            "line": 2
-          },
-          {
-            "type": "num",
-            "data": 0,
-            "source": "0"
-          }
-        ],
-        [
-          {
-            "type": "cmd",
-            "data": "text",
-            "source": "text \"#\" 15 : chx#-7",
-            "line": 3
-          },
-          {
-            "type": "str",
-            "data": "#",
-            "source": "\"#\""
-          },
-          {
-            "type": "num",
-            "data": 15,
-            "source": "15"
-          },
-          {
-            "type": "mod",
-            "data": [
-              "chx",
-              {
-                "type": "num",
-                "data": -7,
-                "source": "-7"
-              }
-            ],
-            "source": "chx#-7"
-          }
-        ],
-        [
-          {
-            "type": "cmd",
-            "data": "change_x",
-            "source": "change_x 5",
-            "line": 4
-          },
-          {
-            "type": "num",
-            "data": 5,
-            "source": "5"
-          }
-        ],
-        [
-          {
-            "type": "cmd",
-            "data": "break",
-            "source": "break",
-            "line": 5
-          }
-        ]
-      ],
-      "source": "[ast BLK]"
+      "source": "`__setup @= function(\"\", ${setup})\\n__main @= function(\"\", ${main})\\n__setup()\\nmainloop:\\n__main()`"
     }
   ]
 ]

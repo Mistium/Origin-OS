@@ -733,6 +733,7 @@ class OSLUtils {
       let depth = "";
       let quotes = 0;
       let squotes = 0;
+      let backticks = 0;
       let m_comm = 0;
       let b_depth = 0;
       let out = [];
@@ -742,15 +743,16 @@ class OSLUtils {
 
       while (letter < len) {
         depth = code[letter];
-        if (quotes === 0 && squotes === 0 && !escaped) {
+        if (quotes === 0 && squotes === 0 && backticks === 0 && !escaped) {
           if (depth === "[" || depth === "{" || depth === "(") b_depth++
           if (depth === "]" || depth === "}" || depth === ")") b_depth--
           b_depth = b_depth < 0 ? 0 : b_depth;
         }
-        if (depth === '"' && !escaped && squotes === 0) quotes = 1 - quotes;
-        else if (depth === "'" && !escaped && quotes === 0) squotes = 1 - squotes;
-        else if (depth === "/" && code[letter + 1] === "*" && quotes === 0 && squotes === 0) m_comm = 1;
-        else if (depth === "*" && code[letter + 1] === "/" && quotes === 0 && squotes === 0 && m_comm === 1) m_comm = 0;
+        if (depth === '"' && !escaped && squotes === 0 && backticks === 0) quotes = 1 - quotes;
+        else if (depth === "'" && !escaped && quotes === 0 && backticks === 0) squotes = 1 - squotes;
+        else if (depth === "`" && !escaped && quotes === 0 && squotes === 0) backticks = 1 - backticks;
+        else if (depth === "/" && code[letter + 1] === "*" && quotes === 0 && squotes === 0 && backticks === 0) m_comm = 1;
+        else if (depth === "*" && code[letter + 1] === "/" && quotes === 0 && squotes === 0 && backticks === 0 && m_comm === 1) m_comm = 0;
         else if (depth === '\\' && !escaped) escaped = !escaped;
         else escaped = false;
         if (m_comm === 0) out.push(depth);
@@ -758,6 +760,7 @@ class OSLUtils {
 
         if (quotes === 0 &&
           squotes === 0 &&
+          backticks === 0 &&
           b_depth === 0 &&
           m_comm === 0 &&
           (
@@ -789,7 +792,8 @@ class OSLUtils {
 
       let letter = 0;
       let depth = "";
-      let brackets = 0;
+      let quotes = 0;
+      let backticks = 0;
       let b_depth = 0;
       let out = [];
       let split = [];
@@ -798,14 +802,17 @@ class OSLUtils {
 
       while (letter < len) {
         depth = CODE[letter];
-        if (brackets === 0 && !escaped) {
+        if (quotes === 0 && backticks === 0 && !escaped) {
           if (depth === "[" || depth === "{" || depth === "(") b_depth++
           if (depth === "]" || depth === "}" || depth === ")") b_depth--
           b_depth = b_depth < 0 ? 0 : b_depth;
         }
-        if (depth === '"' && !escaped) {
-          brackets = 1 - brackets;
+        if (depth === '"' && !escaped && backticks === 0) {
+          quotes = 1 - quotes;
           out.push('"');
+        } else if (depth === '`' && !escaped && quotes === 0) {
+          backticks = 1 - backticks;
+          out.push('`');
         } else if (depth === '\\' && !escaped) {
           escaped = !escaped;
           out.push("\\");
@@ -815,7 +822,7 @@ class OSLUtils {
         }
         letter++;
 
-        if (brackets === 0 && ["\n", ";"].includes(CODE[letter]) && b_depth === 0) {
+        if (quotes === 0 && backticks === 0 && ["\n", ";"].includes(CODE[letter]) && b_depth === 0) {
           split.push(out.join(""));
           out = [];
           letter++;
@@ -1507,11 +1514,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `switch chnl["type"] (
-        case 0
-          text "#" 15 : chx#-7
-          change_x 5
-          break
-    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: `log \`__setup @= function("", \${setup})\\n__main @= function("", \${main})\\n__setup()\\nmainloop:\\n__main()\``, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
