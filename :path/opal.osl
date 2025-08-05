@@ -158,11 +158,42 @@ local opal = {
       )
     )
     log("Parsing script.osl")
+    local mtd = {
+      type: "mtd",
+      data: [
+        {
+          type: "var",
+          data: "__opal_imports",
+        },
+        {
+          type: "mtv",
+          data: "item",
+          parameters: [
+            {
+              type: "str",
+              data: ""
+            }
+          ]
+        }
+      ]
+    }
+    log("Collecting imports")
+    local imports = {}
+    
     while queue.len > 0 (
-      log queue
       local item @= queue.shift()
       if item.left != null (
         void queue.append(item.left)
+      )
+      if ["blk"].contains(item["type"]) (
+        local data @= item.data
+        for i data.len (
+          local line = data[i].line
+          for j data[i].len (
+            data[i][j].line = line
+            void queue.append(data[i][j])
+          )
+        )
       )
       if item.right != null (
         void queue.append(item.right)
@@ -178,10 +209,73 @@ local opal = {
           log([c.err, invalid_msg ++ item.line ++ ", expected string parameter, got " ++ params[1]["type"]])
           return
         )
-
+        local path = params[1].data
+        item.type = "mtd"
+        item.data = mtd.data
+        item.data[2].parameters[1].data = path
+        log("Collected " ++ path)
+        local parsed = path
+        if path.startsWith("./") (
+          parsed @= parsed.replaceFirst(".", self.pwd)
+        )
+        local parsed = parseFilePath(parsed)
+        if imports[path] != null (
+          continue
+        )
+        file "exists" parsed
+        if !exists (
+          log([c.err, "Import file not found: ", parsed])
+          return
+        )
+        local data = open(parsed)
+        if data == null (
+          log([c.err, "Failed to open import file: ", parsed])
+          return
+        )
+        try (
+          local ast_cur @= data.oslAST()
+          for i ast_cur.len (
+            local line = ast_cur[i][1].line
+            for j ast_cur[i].len (
+              ast_cur[i][j].line = line
+              void queue.append(ast_cur[i][j])
+            )
+          )
+        ) catch e (
+          log([c.err, "Failed to parse import file: ", parsed, "\nError: ", e])
+          return
+        )
+        imports[path] @= ast_cur
       )
+      item.delete("source")
     )
-    log ast
+    
+    local prepend = []
+    local import_keys = imports.getKeys().reverse()
+    for i import_keys.len (
+      local key = import_keys[i]
+      local data = imports[key]
+      local hash = "__imports__" ++ key.hashMD5()
+      log("Compiled " ++ key ++ " " ++ i ++ "/" ++ import_keys.len)
+      void prepend.append("// " ++ key)
+      void prepend.append("class " ++ hash ++ " " ++ {type: "blk", data}.toStr())
+      void prepend.append("__opal_imports['" ++ key ++ "'] = " ++ hash ++ "")
+    )
+    
+    local mainloop = ast.findIndex(val -> val[1]["type"] == "unk" and val[1].data == "mainloop:")
+    local setup @= {type: "blk", data: ast.left(mainloop - 1)}
+    local main @= {type: "blk", data: ast.right(ast.len - mainloop)}
+
+    local out = `__opal_imports @= {}\n${prepend.join("\n")}\n__setup @= function("", ${setup.toStr()})\n__main @= function("", ${main.toStr()})\n__setup()\nmainloop:\n__main()`
+
+    if !self.open("build.folder").exists (
+      log("Creating /build directory")
+      file "set_file" "build.folder"
+    )
+    file "goto_dir" self.pwd ++ "/build"
+    log("Writing built file")
+    file "set_file" "script.osl" out
+    log("Written to /build/script.osl")
   ),
   format: {
     arr: v -> v.join(", ").wrapText(40)
@@ -202,8 +296,7 @@ local commands = [
   "search",
   "sync",
   "init",
-  "build",
-  "run"
+  "build"
 ]
 
 if args.len == 0 (

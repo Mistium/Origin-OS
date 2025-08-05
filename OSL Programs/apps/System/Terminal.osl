@@ -15,6 +15,41 @@ if typeof(path) !== "object" (
 
 path = path.scripts.getValues()
 
+def evalCmd(cmd) (
+  local tokens = cmd.oslTokenise()
+  local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
+  if self.cache.contains(path).not() (
+    file "exists" path
+    local data = open(path)
+    if data == null or exists.not() (
+      terminal cmd
+      terminal.lines @= terminal.lines ++ terminal_output
+      return
+    ) else (
+      self.cache[path] @= function("args", data)
+    )
+  )
+  void tokens.shift()
+  local lines = terminal.lines
+  for i tokens.len (
+    local cur = tokens[i]
+    if cur[1] == "\"" and cur[-1] == "\"" (
+      tokens[i] = cur.trim(2, -2).replace("\\", "")
+    )
+    if cur[1] == "(" and cur[-1] == ")" (
+      terminal.lines = []
+      evalCmd(cur.trim(2, -2))
+      if terminal.lines.len > 0 (
+        tokens[i] @= terminal.lines.join("\n")
+      ) else (
+        tokens[i] = null
+      )
+    )
+  )
+  terminal.lines = lines
+  void self.cache[path](tokens)
+)
+
 class terminal (
   lines = []
   waiting = false
@@ -63,41 +98,11 @@ class terminal (
     )
     return username ++ "@originos " ++ pos ++ " % "
   )
-)
 
-def evalCmd(cmd) (
-  local tokens = cmd.oslTokenise()
-  local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
-  if self.cache.contains(path).not() (
-    file "exists" path
-    local data = open(path)
-    if data == null or exists.not() (
-      terminal cmd
-      terminal.lines @= terminal.lines ++ terminal_output
-      return
-    ) else (
-      self.cache[path] @= function("args", data)
-    )
+  def run(cmd) (
+    self @= terminal_worker
+    return evalCmd(cmd)
   )
-  void tokens.shift()
-  local lines = terminal.lines
-  for i tokens.len (
-    local cur = tokens[i]
-    if cur[1] == "\"" and cur[-1] == "\"" (
-      tokens[i] = cur.trim(2, -2).replace("\\", "")
-    )
-    if cur[1] == "(" and cur[-1] == ")" (
-      terminal.lines = []
-      evalCmd(cur.trim(2, -2))
-      if terminal.lines.len > 0 (
-        tokens[i] @= terminal.lines.join("\n")
-      ) else (
-        tokens[i] = null
-      )
-    )
-  )
-  terminal.lines = lines
-  void self.cache[path](tokens)
 )
 
 ansi = {
