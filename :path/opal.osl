@@ -142,6 +142,47 @@ local opal = {
       log("Aborted")
     )
   ),
+  build: def() -> (
+    local file @= self.open("script.osl")
+    if !file.exists (
+      log([c.err, "script.osl not found, use ", c.opl, "opal init", c.err, " to create a new project"])
+      return
+    )
+    local ast = file.data.oslAST()
+    local queue = []
+    for i ast.len (
+      local line = ast[i][1].line
+      for j ast[i].len (
+        ast[i][j].line = line
+        void queue.append(ast[i][j])
+      )
+    )
+    log("Parsing script.osl")
+    while queue.len > 0 (
+      log queue
+      local item @= queue.shift()
+      if item.left != null (
+        void queue.append(item.left)
+      )
+      if item.right != null (
+        void queue.append(item.right)
+      )
+      if item["type"] == "fnc" and item.data == "import" (
+        local params @= item.parameters
+        local invalid_msg = "Invalid import statement on line "
+        if params.len != 1 (
+          log([c.err, invalid_msg ++ item.line ++ ", expected 1 parameter, got " ++ params.len])
+          return
+        )
+        if params[1]["type"] != "str" (
+          log([c.err, invalid_msg ++ item.line ++ ", expected string parameter, got " ++ params[1]["type"]])
+          return
+        )
+
+      )
+    )
+    log ast
+  ),
   format: {
     arr: v -> v.join(", ").wrapText(40)
   }
@@ -161,7 +202,8 @@ local commands = [
   "search",
   "sync",
   "init",
-  "export"
+  "build",
+  "run"
 ]
 
 if args.len == 0 (
@@ -187,6 +229,7 @@ if args[1] != "init" (
 
 switch args[1] (
   case "init"
+    // initialize a new opal project
     file "goto_dir" opal.pwd
     log("Create new opal project at " ++ opal.pwd ++ "?")
     if terminal.input("y/n") == "y" (
@@ -211,6 +254,7 @@ switch args[1] (
     )
     break
   case "install"
+    // install a package
     local dat = opal.getPackages()
     if dat.t[1] == c.err (
       log(dat.d)
@@ -220,6 +264,7 @@ switch args[1] (
     opal.install(args[2])
     break
   case "uninstall"
+    // uninstall a package
     file "goto_dir" opal.pwd ++ "/packages"
     local packages = listFiles()
     log("Found " ++ packages.len ++ " packages")
@@ -241,6 +286,7 @@ switch args[1] (
     log("Removed dependencies from opal.json")
     break
   case "list"
+    // list all installed packages
     local dat = opal.getPackages()
     if dat.t == "arr" (
       dat.d = opal.format.arr(dat.d)
@@ -248,6 +294,7 @@ switch args[1] (
     log(dat.d)
     break
   case "describe"
+    // describe a package
     local data = opal.fetchPackage(args[2])
     if !data.exists (
       log([opal.c.err, "No package found with that name"])
@@ -260,6 +307,7 @@ switch args[1] (
     log(v.description.wrapText(60))
     break
   case "sync"
+    // sync dependencies from opal.json
     local opal_json = opal.open("opal.json")
     if !opal_json.exists (
       log([opal.c.err, "opal.json doesnt exist"])
@@ -290,7 +338,12 @@ switch args[1] (
       log("Installing " ++ name ++ "@" ++ version)
       opal.install(name ++ ":" ++ version, true)
     )
+  case "build"
+    // bundle the project into a single file in /build
+    opal.build()
+    break
   case "search"
+    // search for packages by name
     local query = args[2].toLowerCase()
     local dat = opal.getPackages()
     if dat.t[1] == c.err (
