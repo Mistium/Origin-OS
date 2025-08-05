@@ -849,7 +849,7 @@ class OSLUtils {
     let start = cur[0]
     if (cur === "/@line") return { type: "unk", data: "/@line" }
     if (!isNaN(+cur)) return { type: "num", data: +cur }
-    else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
+    else if (cur === "true" || cur === "false") return { type: "raw", data: cur === "true" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
     else if (cur === "++") return { type: "opr", data: "++" }
     else if (cur === "--") return { type: "unk", data: "--" }
