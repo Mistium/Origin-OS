@@ -1116,13 +1116,20 @@ class OSLUtils {
     }
 
     // def command -> assignment conversion
-    const first = ast[0] ?? {};
-    const second = ast[1] ?? {};
+    let first = ast[0] ?? {};
+    let second = ast[1] ?? {};
+    const local = first.data === "local" && first.type === "var";
     if (
       first.type === "var" &&
       first.data === "def" &&
       second.type === "fnc"
     ) {
+      if (local) {
+        ast.splice(0, 1);
+        if (ast.length === 0) return [];
+        first = ast[0] ?? {};
+        second = ast[1] ?? {};
+      }
       first.data = second.data;
       ast.splice(1, 0, {
         type: "asi",
@@ -1146,6 +1153,9 @@ class OSLUtils {
           ast[3]
         ]
       };
+      if (local) {
+        ast[0] = this.generateAST({ CODE: "this." + ast[0].data, START: 0 })[0]
+      }
       ast[2] = funcNode;
       ast.splice(3, 1);
       
@@ -1322,6 +1332,15 @@ class OSLUtils {
       if (!cur) continue;
       const type = cur[0]?.type;
       const data = cur[0]?.data;
+      if (type === "cmd" && data === "local") {
+        if (cur[1].data === "class") {
+          cur[1].source = cur[0].source;
+          cur[1].line = cur[0].line;
+          cur.shift();
+          cur[0].type = "cmd";
+          cur[0].local = true;
+        }
+      }
       if (type === "cmd" && ["for", "each", "class", "while", "until"].includes(data)) {
         if (data === "each") {
           if (cur[cur.length - 1].type !== "blk") {
@@ -1519,6 +1538,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: ``, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: `local class lol {type: "blk"}`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }

@@ -1,104 +1,27 @@
 [
   [
     {
-      "type": "asi",
-      "data": "=",
-      "source": "local out = `__opal_imports @= {}",
-      "left": {
-        "type": "rmt",
-        "objPath": [
-          {
-            "type": "var",
-            "data": "this",
-            "source": "this"
-          }
-        ],
-        "final": {
-          "type": "var",
-          "data": "out",
-          "source": "out"
+      "type": "cmd",
+      "data": "class",
+      "source": "local class lol {type: \"blk\"}",
+      "line": 1,
+      "local": true
+    },
+    {
+      "type": "var",
+      "data": "lol",
+      "source": "lol"
+    },
+    {
+      "type": "obj",
+      "data": {
+        "type": {
+          "type": "str",
+          "data": "blk",
+          "source": "\"blk\""
         }
       },
-      "right": {
-        "type": "tsr",
-        "data": [
-          {
-            "type": "str",
-            "data": "__opal_imports @= {}\n"
-          },
-          {
-            "type": "mtd",
-            "data": [
-              {
-                "type": "var",
-                "data": "prepend",
-                "source": "prepend"
-              },
-              {
-                "type": "mtv",
-                "data": "join",
-                "parameters": [
-                  {
-                    "type": "str",
-                    "data": "\n",
-                    "source": "\"\n\""
-                  }
-                ],
-                "source": "join(\"\n\")"
-              }
-            ],
-            "source": "prepend.join(\"\n\")"
-          },
-          {
-            "type": "str",
-            "data": "\n__setup @= function(\"\", "
-          },
-          {
-            "type": "mtd",
-            "data": [
-              {
-                "type": "var",
-                "data": "setup",
-                "source": "setup"
-              },
-              {
-                "type": "mtv",
-                "data": "toStr",
-                "parameters": [],
-                "source": "toStr()"
-              }
-            ],
-            "source": "setup.toStr()"
-          },
-          {
-            "type": "str",
-            "data": ")\n__main @= function(\"\", "
-          },
-          {
-            "type": "mtd",
-            "data": [
-              {
-                "type": "var",
-                "data": "main",
-                "source": "main"
-              },
-              {
-                "type": "mtv",
-                "data": "toStr",
-                "parameters": [],
-                "source": "toStr()"
-              }
-            ],
-            "source": "main.toStr()"
-          },
-          {
-            "type": "str",
-            "data": ")\n__setup()\nmainloop:\n__main()"
-          }
-        ],
-        "source": "`__opal_imports @= {}\n${prepend.join(\"\n\")}\n__setup @= function(\"\", ${setup.toStr()})\n__main @= function(\"\", ${main.toStr()})\n__setup()\nmainloop:\n__main()`"
-      },
-      "line": 1
+      "source": "{type: \"blk\"}"
     }
   ]
 ]
