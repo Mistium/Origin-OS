@@ -1,0 +1,981 @@
+import "rotur/v1" from "packages" as "rotur"
+import as "glass" from "packages"
+
+file "use_type" "txt"
+
+save "Studio" "set_directory"
+
+permission "request" "file admin"
+permission "request" "notifications"
+
+state = {
+  folder: null,
+  folder_open: true,
+  folder_sidebar: false,
+  open_folders: [],
+  folder_list_len: 0
+}
+
+number right = 0
+number right_smooth = 0
+
+class pages (
+  def home() (
+    goto 0 0
+    square frame.width - 10 frame.height - 10 10 : c#window_colour
+    w = frame.width / 2 - 20
+    w2 = w - 5
+    loc 2 2 20 -25
+    text "New File" 8 : c#c_text
+
+    loc 999 2 20 -25
+    text "Recent Files" 8
+    
+    loc 2 2 w / 2 + 20 -200
+    square w2 30 10 : c#c_seco
+    if onclick (
+      file "pick"
+    )
+    change_x w2 / -2 + 10
+    text "Open File" 9 : c#c_text
+
+    loc 2 2 w / 2 + 20 -250
+    square w2 30 10 : c#c_seco
+    if onclick (
+      add_tab tab_types.invite
+    )
+    change_x w2 / -2 + 10
+    text "Live Share" 9 : c#c_text
+
+    loc 2 2 w / 2 + 20 -65
+    square w2 30 10 : c#c_prim
+    input w2 - 10 25 "name" "hello world.txt" 10 c_text
+    change_y -55
+    local idx = inputs.name.index(".")
+    if idx > 1 and idx < inputs.name.len (
+      square w2 30 10 : c#c_seco cursor#pointer
+      if mouse_touching (
+        square w2 30 15 : c#global_accent
+        square w2 30 10 : c#c_seco
+      )
+      if onclick or "enter".onKeyDown() (
+        file "download" input_name
+        add_tab {
+          type: "file",
+          name: input_name,
+          id: ouidNew(),
+          data: [],
+          uuid: data,
+          ohf: compileOHF(getOHF(input_name.split(".").last())),
+          func: editor.renderNorm
+        }
+      )
+      change_x w2 / -2 + 15
+    ) else (
+      square w2 30 10 : c#c_prim
+      change_x w2 / -2 + 15
+    )
+    c c_text
+    icon "Add" 0.5
+    text "Create New File" 8 : chx#20
+
+    c c_prim
+    frame 10 frame.top - 40 frame.right - 10 frame.bottom recent_2.len * 55
+      w = frame_width - 20
+      for count recent_2.len (
+        y = count * -55 + 30 + scroll_y
+        loc 999 2 0 y
+        square w 30 10 : c#c_prim cursor#pointer
+        cur = recent_2[count].toStr()
+        name @= open(cur, [2, 1])
+        if mouse_touching (
+          if onclick (
+            add_tab {
+              type: "file",
+              data: open(cur).split("\n"),
+              name: name.join(""),
+              id: ouidNew(),
+              uuid: cur,
+              ohf: compileOHF(getOHF(name[2])),
+              func: editor.renderNorm
+            }
+          )
+          square w 30 15 : c#c_seco
+          square w 30 10 : c#c_prim
+        )
+        change w / -2 + 12
+        if loaded_file !== 0 (
+          file "render" 1
+          loc 2 2 40 y
+          text name.join("") 9 : c#c_text
+        ) else (
+          recent.delete(count)
+          save "recent_files.json" "set" recent
+          count --
+          recent2 = recent.trim(1,10)
+        )
+      )
+    frame "clear"
+  )
+
+  def invite() (
+    goto 0 0
+    square frame.width - 10 frame.height - 10 10 : c#window_colour
+    window "responsive" true
+    frame window.left + 300 window.top - 40 window.right window.bottom (
+      goto 0 40
+      centext "Type a user's connection id to invite" 10 : c#c_text
+      goto 0 20
+      centext "Your id is: " ++ connection.username 9
+      goto 0 -20
+      square 300 25 10 : c#c_prim
+      input 260 25 "Invite" "Should look like: '06ec19ff33'" : chx#-20
+      c sharing_tab == null ? c_seco c_text
+      icon "send" 0.8 : chx#150 tooltip#"Send Invite to Edit"
+      if onclick and sharing_tab != null (
+        edit_session = ouidNew()
+        host = true
+        rotur.pMessage(connection.room, "ori-" ++ inputs.Invite, {
+          cmd: "join",
+          ohf: getOHF(open(sharing_tab, ["type"])[1]),
+          room: edit_session,
+          file_data: open(sharing_tab, "all")
+        })
+        joinEditSession(edit_session)
+      )
+      c c_text
+      goto 0 -55
+      centext "Recieved:" 9
+      each invite invites.getKeys() (
+        change_y -45
+        square frame.width - 30 30 10 : c#c_prim
+        if onclick (
+          sharing_tab = ""
+          tabs = tabs.filter(v -> (v.startsWith("^ ").not()))
+          joinEditSession(invites[invite].val.room)
+          local file_data = invites[invite].val.file_data
+          save_name = "temp_" ++ file_data[14] ++ ".lvsh"
+          save save_name "set" file_data[4]
+          sharing_tab = save_name.saveGet(14)
+          inputs.share = file_data[4].split("\n")
+          last_inputs_share = inputs.share
+          share_name = file_data[2] ++ file_data[1]
+          share_type = file_data[1]
+          current_ohf = invites[invite].val.ohf
+          if typeof(current_ohf) == "object" (
+            current_ohf = compileOHF(current_ohf)
+          ) else (
+            current_ohf = null
+          )
+          add_tab "^ " ++ file_data[14]
+          invites = {}
+        )
+        centext "From " ++ invites[invite].origin.username 10 : c#c_text
+      )
+    )
+    frame window.left + 45 window.top - 35 window.left + 300 window.bottom (
+      square frame.width - 25 frame.height - 25 15 : c#c_prim
+      square frame.width - 25 frame.height - 25 10 : c#window_colour
+      goto 0 frame.top + 15
+      each tab tabs (
+        if tab.len == 32 (
+          change_y -45
+          if sharing_tab == tab (
+            square frame.width - 30 30 15 : c#global_accent
+          )
+          square frame.width - 30 30 10 : c#c_prim
+          if clicked (
+            sharing_tab = tab
+          )
+          centext open(tab, ["name", "type"]).join("") 10 : c#c_text
+        )
+      )
+    )
+  )
+)
+
+tab_types = {
+  welcome: {name: "Welcome", func: pages.home},
+  invite: {name: "Invite", func: pages.invite},
+  editor: {name: "Editor", func: editor.renderNorm}
+}
+
+class sidebar (
+  mode = "none"
+  fn = () -> ()
+  resize = 0.5
+
+  _resizing = false
+  
+  def frameInnerRender(callback) (
+    if self._resizing and mouse_down.not() (
+      self._resizing = false
+    )
+    if self.mode == "none" (
+      callback()
+      return
+    )
+    local w = self.resize * frame.width
+    
+    local join_x = frame.right - w
+    
+    frame join_x frame.top frame.right frame.bottom (
+      goto 0 0
+      square frame.width frame.height 10 : c#c_prim
+      self.fn()
+    )
+    if abs(mouse_x - join_x) < 20 (
+      cursor "ew-resize"
+      if onclick (
+        self._resizing = true
+      )
+    )
+    frame frame.left frame.top join_x frame.bottom (
+      callback()
+    )
+    if self._resizing (
+      self.resize = frame.right - mouse_x / frame.width
+      self.resize = self.resize.clamp(0.2,0.8)
+    )
+  )
+)
+
+class editor (
+  def renderNorm() (
+    local tab @= tabs[current_tab]
+    goto 0 -18
+    square frame.width - 12 frame.height - 49 10 : c#window_colour
+    c c_prim
+    inputs[tab.id] @= tab.data
+    textbox frame.width - 4 frame.height - 39 tab.id 0 {
+      line_numbers: {
+        bg_colour: c_prim
+      },
+      sel_colour: c_seco,
+      text_colour: c_text,
+      ohf: tab.ohf
+    }
+    local sel @= inputs.selected
+    if sel.id == tab.id and sel.changed (
+      tab.unsaved = true
+      tabs[current_tab].data @= inputs[tab.id]
+    )
+    
+    goto 0 frame.top - 16.5
+    square frame.width - 12 20 10 : c#window_colour
+    loc 2 2 15 -16.5
+    sidebarbuttons(tab.uuid, tab.id)
+  )
+  
+  def renderShare() (
+    local tab @= tabs[current_tab]
+    window "responsive" true
+    current_studio_page = "Sync"
+    goto 0 0
+    c c_prim
+    textbox frame.width window.height - 45 "share" 0 {
+      line_numbers: {
+        bg_colour: c_prim
+      },
+      sel_colour: c_seco,
+      text_colour: c_text,
+      ohf: tab.ohf
+    }
+
+    if inputs.selected.id == "share" (
+      if inputs.selected.cursor != last_cursor (
+        last_cursor = inputs.selected.cursor
+        rotur.gMessage(edit_connection.room, {
+          cmd: "cursor",
+          data: last_cursor
+        })
+      )
+      if inputs.share.len != last_input_share.len (
+        rotur.gMessage(edit_connection.room, {
+          cmd: "full",
+          data: inputs.share.join("\n")
+        })
+        last_input_share = inputs.share
+      ) else if inputs.share.join("\n") != last_input_share.join("\n") (
+        for i inputs.share.len (
+          if inputs.share[i] != last_input_share[i] (
+            rotur.gMessage(edit_connection.room, {
+              cmd: "line",
+              line: i,
+              data: inputs.share[i].toStr()
+            })
+          )
+        )
+        last_input_share = inputs.share
+      )
+    )
+  )
+)
+
+window.show()
+
+def joinEditSession(id) (
+  if edit_connection != null (
+    rotur.unSubscribe(edit_connection.room)
+  )
+  edit_connection @= rotur.subscribe(id, my_id)
+  edit_connection.onmessage = def(packet) -> (
+    switch packet.val.cmd (
+      case "full"
+        inputs.share = packet.val.data.split("\n")
+        last_input_share = inputs.share
+        break
+      case "reqfull"
+        rotur.gMessage(edit_connection.room, {cmd:"full", data: inputs.share.join("\n")})
+        break
+      case "rename"
+        share_name = packet.val.name
+        break
+      case "line"
+        inputs.share[packet.val.line] = packet.val.data
+        last_input_share[packet.val.line] = packet.val.data
+        break
+      case "cursor"
+        cursors[packet.origin] = packet.val
+        break
+    )
+  )
+  edit_connection.onclose = def() -> (
+    joinEditSession(edit_connection.room) 
+  )
+  edit_connection.onjoin = def() -> (
+    inputs.share = open(sharing_tab).split("\n")
+    share_name = open(sharing_tab, ["name", "type"])
+    share_type = share_name[2]
+    current_ohf = compileOHF(getOHF(share_type))
+    share_name = share_name.join("")
+    add_tab "^ Live Share"
+  )
+)
+
+def getOHF(string type) (
+  type = type.toUpper()
+  if type.startsWith(".") (
+    type.trim(2,-1)
+  )
+  local load_save = false
+  if (type ++ ".ohf").saveExists() (
+    load_save = timestamp - (type ++ ".ohf").saveGet(10) < 86400000
+  )
+  if load_save (
+    return (type ++ ".ohf").saveGet()
+  ) else (
+    local OHF = ("https://raw.githubusercontent.com/Mistium/Origin-OS/main/Other/OHF/" ++ type.toUpper() ++ ".ohf").httpGet()
+    if OHF == "404: Not Found" and (type ++ ".ohf").saveExists() (
+      return (type ++ ".ohf").saveGet()
+    ) else (
+      save type ++ ".ohf" "set" OHF
+      return OHF
+    )
+  )
+)
+
+def compileOHF(ohf) (
+  if typeof(ohf) != "object" (
+    return ""
+  )
+  
+  local output = {
+    tokens: {},
+    overrides: {},
+    parser: {}
+  }
+
+  try (
+    if ohf.categories != null (
+      each o ohf.categories.getValues() (
+        each r o.tokens (
+          output.tokens["tkn:" ++ r] = o.color
+        )
+      )
+    )
+  
+    if ohf.overrides != null (
+      each o ohf.overrides.getKeys() (
+        output.overrides[o] = ohf.overrides[o]
+      )
+    )
+  
+    output.parser = ohf.parser ?? {}
+    output.highlighter = ohf.highlighter ?? {}
+  ) catch o (
+    error o
+    return ""
+  )
+
+  return output
+)
+
+host = false
+my_id = ouidNew().trim(1,3)
+
+edit_session = null
+edit_connection = null
+sharing_tab = null
+share_name = null
+
+last_cursor = ""
+last_share_input = ""
+
+invites = {}
+connection = {}
+def setupRotur() (
+  connection @= rotur.subscribe("Studio", my_id)
+  connection.onmessage = def(packet) -> (
+    if packet.val.cmd == "join" (
+      invites[packet.origin.username] = packet
+    )
+  )
+  connection.onclose = def() -> (
+    setupRotur()
+  )
+)
+
+setupRotur()
+
+change_focus = true
+current_tab_target = 0
+removed = false
+
+if "recent_files.json".saveExists() (
+  recent = "recent_files.json".saveGet()
+) else (
+  save "recent_files.json" "set" []
+  recent = []
+)
+recent_2 = recent.trim(1,10)
+save "recent_files.json" "set" recent_2
+
+def loadFileUUID(uuid) (
+  file = open(uuid, ["name", "type", "data"])
+  inputs[uuid] = file[3].split("\n")
+  file.pop()
+)
+
+tabs = []
+current_tab = 1
+if passed_data == "" (
+  tabs.append(tab_types.welcome)
+) else (
+  change_focus = true
+  local name = open(passed_data, ["name", "type"])
+  tabs.append({
+    type: "file",
+    name: name.join(""),
+    id: ouidNew(),
+    data: open(passed_data).split("\n"),
+    uuid: passed_data,
+    ohf: compileOHF(getOHF(name[2])),
+    func: editor.renderNorm
+  })
+  loadFileUUID(passed_data)
+)
+tabs_out = tabs
+sidebar_items = 0
+
+def "draw_buttons" (
+  loc -2 2 -50 -20
+  square 80 20 10 : c#window_colour
+  loc -2 2 -20 -20
+  
+  icon "close" 0.6 : c#c_text
+  if onclick (
+    window "stop"
+  )
+  
+  change_x -30
+  icon "down" 0.6 : c#c_text
+  if onclick (
+    window "minimise"
+  )
+
+  change_x -30
+  icon "maximise" 0.6 : c#c_text
+  if onclick (
+    window "maximise"
+  )
+  
+  change_x -35
+  square 20 20 10 : c#window_colour
+  icon "w 4 square 0 0 10 10 w 10 line 5 7 5 -7" 0.6 : c#c_text
+  if onclick (
+    state.folder_sidebar = state.folder_sidebar.not()
+  )
+)
+
+def "add_tab" "data" (
+  if data.id == null (
+    data.id = ouidNew()
+  )
+  tabs.append(data)
+  current_tab = tabs.len
+)
+
+def "insert_tab" "index, data" (
+  if data.id == null (
+    data.id = ouidNew()
+  )
+  tabs.insert(index,data)
+  change_focus = true
+  current_tab = index
+)
+
+def "draw_tabs" (
+  loc 2 2 9 -21
+  local removed = false
+  
+  c c_text
+  x = frame.left - 2.5 - frame.scroll_h
+  start = x
+  remove_tabs = []
+  
+  for i tabs.len (
+    local tab @= tabs[i]
+    tw = 0
+    tab_name = tab.name
+    file = tab["type"] == "file"
+    if file (
+      file "open" tab.uuid "onlyaccess"
+    )
+    
+    local l = tab_name.len * 9 + 25
+    if file "l += 20"
+    tw += l + 25
+    set_x x + (tw / 2)
+    
+    square l + 10 20 10 : c#window_colour
+    if file (
+      change_x -10
+      square l - 10 20 10 0 1
+      if mouse_touching (
+        window.dragbox = []
+        rightclick "file" tab.uuid
+      )
+      if mouse_down or mouse_touching (
+        file "interact"
+        if data == "open" (
+          current_tab = i
+        )
+        if data == "dragging" (
+          removed = true
+        )
+      )
+      change_x 10
+    ) else (
+      if onclick (
+        current_tab = i
+      )
+    )
+    change_x l / -2
+    if file (
+      change_x 5
+      file "render" 0.7
+      change_x 15
+    )
+    c i == current_tab ? c_text c_seco
+    text tab_name 9
+    change_x 20
+    if tab.unsaved (
+      icon "w 20 dot 0 0" 0.5 : cursor#pointer
+    ) else (
+      icon "close" 0.5 : cursor#pointer
+      if onclick (
+        removed = true
+      )
+    )
+    if file_dragging (
+      change_x 17
+      if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
+        square 0 20 2 : c#c_text
+        current_tab_target = current_tab_split ++ "," ++ (i + 1)
+      )
+      change_x -17
+    )
+    if removed (
+      if edit_connection != null (
+        rotur.unSubscribe(edit_connection.room)
+      )
+      tabs @= tabs.delete(i)
+      i --
+      removed = false
+    )
+    x += tw
+  )
+  if edit_connection == null (
+    icon "add" 0.6 : chx#30 c#c_text
+    if onclick (
+      add_tab tab_types.welcome
+    )
+  )
+  tab_width = x_position - start
+)
+
+def sidebarButtons(file_uuid, input_name) (
+  c c_text
+  local h = 30
+  local s = 0.65
+  icon "save" s
+  square 30 30 12 1 1
+  local path = open(file_uuid, ["location", "name", "type"])
+  local file_type = path[3]
+  if onclick or ("control".isKeyDown() and "s".onKeyDown()) (
+    for i split_tabs.len (
+      local cur @= split_tabs[i].tabs
+      for j cur.len (
+        local cur2 @= cur[j]
+        if cur2["type"] == "file" and cur2.uuid == file_uuid (
+          cur2.unsaved = false
+        )
+      )
+    )
+    path = path[1] ++ "/" ++ path[2] ++ path[3]
+    file "set" 4 inputs[input_name].join("\n")
+    recents = "recent_files.json".saveGet()
+    save "recent_files.json" "set" recents.delete(file_uuid).prepend(file_uuid).trim(1,8)
+  )
+  
+  change_x h
+  if [".osl",".oasm",".py",".js",".bf",".owf",".ots"].contains(file_type) (
+    icon "play" s
+    square 30 30 12 1 1
+    if onclick (
+      local code = inputs[input_name].join("\n")
+      switch share_type (
+        case ".py"
+          py code
+          script_output = data
+          break
+        case ".js"
+          script_output = code.eval()
+          break
+        default
+          file "open" file_uuid "onlyaccess"
+          file "start"
+          file "close"
+      )
+    )
+    change_x h
+  )
+  if [".json", ".ohf", ".ojff"].contains(file_type) (
+    if inputs[input_name].len == 1 (
+      icon "line -10 10 5 10 line 0 2.5 10 2.5 line 0 -5 10 -5" 0.6
+      if onclick (
+        inputs[input_name] = inputs[input_name][1].JsonParse().JsonFormat().split("\n")
+      )
+    ) else (
+      icon "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" 0.6
+      if onclick (
+        inputs[input_name] = inputs[input_name].join("\n").JsonParse().toStr().split("\n")
+      )
+    )
+    change_x h
+  )
+  
+  icon "w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12" s
+  if onclick (
+    window.create("find_replace_helper", file_uuid)
+  )
+  
+  sidebar.mode = "none"
+  switch file_type (
+    case ".icn"
+      sidebar.icn ??= {
+        display: [0,0],
+        last_display: [0,0],
+        mouse: [0,0],
+        zoom: 1
+      }
+      sidebar.mode = ".icn"
+      sidebar.input_name = input_name
+      sidebar.fn = def() -> (
+        if frame.interactable == "" (
+          frame.interactable = mouse_x > frame.left
+        )
+        if self._resizing.not() and frame.interactable (
+          if mouse_down (
+            icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
+          ) else (
+            icn.last_display = icn.display
+            icn.mouse @= [mouse_x, mouse_y]
+          )
+        )
+        if frame.interactable (
+          icn.zoom += system_os == "Windows" ? scroll_velocity / -100 scroll_velocity / 10
+        )
+        goto self.icn.display
+        c c_seco
+        icon "w 0 square 0 0 10 9999 square 0 0 9999 10 w 5 c" + c_text + inputs[self.input_name].join(" ") icn.zoom
+      )
+      break
+  )
+  
+  change_x h
+  icon "network" s
+  if onclick (
+    add_tab tab_types.invite
+    start = true
+  )
+)
+
+sharing_with = null
+
+start = true
+
+split_tabs = [{tabs, cur: 1}]
+
+def drawFilesList(uuids) (
+  local x = x_position
+  for i uuids.len (
+    file "open" uuids[i] "onlyaccess"
+    local type = fileGet(1)
+    set_x 0
+    square frame.width - 20 20 5 0 1
+    rightclick "file" uuids[i]
+    if type != ".folder" (
+      data = ""
+      if mouse_touching (
+        file "interact"
+      )
+      if data == "open" (
+        local name = open(uuids[i], ["name", "type"])
+        add_tab {
+          type: "file",
+          data: open(uuids[i]).split("\n"),
+          name: name.join(""),
+          id: ouidNew(),
+          uuid: uuids[i],
+          ohf: compileOHF(getOHF(name[2])),
+          func: editor.renderNorm
+        }
+      )
+    ) else (
+      if onclick (
+        if state.open_folders.contains(uuids[i]) (
+          state.open_folders.delete(uuids[i])
+        ) else (
+          state.open_folders.append(uuids[i])
+        )
+      )
+    )
+    set_x x
+    file "render" 0.6
+    text fileGet(2) 9 : c#c_text chx#15
+    if type != ".folder" (
+      text type 9 : c#c_seco
+    )
+    change_y -25
+    if y_position < frame.bottom - 25 (
+      break
+    )
+    if type == ".folder" (
+      set_x x + 20
+      if state.open_folders.contains(uuids[i]) (
+        local files @= fileGet(4)
+        state.folder_list_len += files.len * 25
+        drawFilesList(files)
+      )
+      set_x x
+    )
+  )
+)
+
+mainloop:
+
+window "responsive" false
+local theme = user.theme
+c_prim = theme.primary
+c_seco = theme.secondary
+c_tert = theme.tertiary
+c_text = theme.text
+window_colour = theme.background
+
+if change_focus and start.not() (
+  change_focus = false
+)
+start = false
+
+if mouse_down.not() "can = true"
+
+w @= window
+
+goto 0 window.top - 20
+glass:frame w.left w.top w.right w.bottom
+frame "clear"
+
+if new_transmit (
+  if window.children.contains(transmit_source) (
+    local name = open(transmit_data, ["name", "type"])
+    add_tab {
+      type: "file",
+      name: name.join(""),
+      id: ouidNew(),
+      data: open(transmit_data).split("\n"),
+      uuid: transmit_data,
+      ohf: compileOHF(getOHF(name[2])),
+      func: editor.renderNorm
+    }
+    loadFileUUID(transmit_data)
+  )
+  new_transmit = false
+)
+
+if file_dropped != 0 (
+  local name @= open(file_dropped, ["name", "type"])
+  if name[2] == ".folder" and current_tab_target == "folder_sidebar" (
+    state.folder = open(file_dropped, ["uuid"])[1]
+    state.folder_open = true
+    state.open_folders = []
+  ) else (
+    local spl = current_tab_target.toStr().split(",")
+    local cur @= split_tabs[spl[1]]
+    if current_split_target != 0 (
+      split_tabs.insert(current_split_target, {tabs:[], cur: 1})
+      cur @= split_tabs[current_split_target]
+    )
+    current_tab_target = spl[2]
+    if current_tab_target == 0 (
+      current_tab_target = tabs.len + 1
+    )
+    tabs @= cur.tabs
+    insert_tab current_tab_target {
+      type: "file",
+      name: name.join(""),
+      id: ouidNew(),
+      data: open(file_dropped).toStr().split("\n"),
+      uuid: file_dropped,
+      ohf: compileOHF(getOHF(name[2])),
+      func: editor.renderNorm
+    }
+    cur.cur = tabs.len
+    cur.tabs @= tabs
+    loadFileUUID(file_dropped)
+  )
+  current_tab_target = 0
+  file_dropped = 0
+)
+
+right_target = -5
+if state.folder_sidebar (
+  right_target -= 300
+)
+right_smooth += right_target - right_smooth / 5
+right = w.right + right_smooth
+
+window.dragbox = [[2,2,0,0],[-2,2,-100,-40]]
+frame w.left + 5 w.top right w.top - 40 (
+  local sections = split_tabs.len
+  local fw = frame.width - 10 / sections
+  local x = 0
+  for i sections (
+    local cur @= split_tabs[i]
+    tabs @= cur.tabs
+    current_tab_split = i
+    current_tab = cur.cur
+    frame frame.left + x frame.top frame.left + fw + x frame.bottom - 20 [cur.tab_width + 150,0] "split_" ++ i (
+      draw_tabs
+    )
+    cur.tab_width = tab_width
+    if tabs.len == 0 (
+      split_tabs.delete(i)
+      if split_tabs.len == 0 (
+        window.close()
+      )
+      continue
+    )
+    cur.cur = current_tab.clamp(1, tabs.len)
+    cur.tabs @= tabs
+    split_tabs[i] @= cur
+    x += fw
+  )
+)
+
+draw_buttons
+
+current_split_target = 0
+if current_tab_target == 0 (
+  if file_dragging (
+    frame window.left + 5 window.top - 40 right window.bottom + 5 (
+      local sections = split_tabs.len + 1
+      local fw = frame.width / sections
+      local x = 0
+      for i sections (
+        frame frame.left + x frame.top frame.left + fw + x frame.bottom (
+          if mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
+            current_split_target = i
+            state.draw_highlight = [x, fw]
+          )
+          x += fw
+        )
+      )
+    )
+  )
+  file_dropped = 0
+)
+
+// top level area for the editor itself
+frame window.left + 5 window.top - 40 right window.bottom + 5 (
+  local sections = split_tabs.len
+  if current_split_target != 0 (
+    sections += 1
+    split_tabs.insert(current_split_target, null)
+  )
+  local fw = frame.width / sections
+  local x = 0
+  for i sections (
+    frame frame.left + x frame.top frame.left + fw + x frame.bottom (
+      local cur @= split_tabs[i]
+      if cur != null (
+        tabs @= cur.tabs
+        current_tab = cur.cur
+        sidebar.frameInnerRender(tabs[current_tab].func)
+        cur.cur = current_tab
+        cur.tabs @= tabs
+      )
+      x += fw
+    )
+  )
+  if current_split_target != 0 (
+    x = state.draw_highlight[1]
+    fw = state.draw_highlight[2]
+    frame frame.left + x frame.top frame.left + fw + x frame.bottom (
+      c c_text
+      pen "opacity" 50
+      icon "dot 0 0" 10000
+    )
+  )
+  if current_split_target != 0 (
+    split_tabs.delete(current_split_target)
+  )
+)
+
+if state.folder_sidebar or right_smooth < -10 (
+  c c_prim
+  frame right + 5 window.top - 40 window.right - 5 window.bottom + 5 state.folder_list_len (
+    goto 0 0
+    square frame.width - 10 frame.height - 10 10 : c#window_colour
+    if file_dragging and mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
+      square frame.width - 10 frame.height - 10 10 : c#c_prim
+      icon "open" 3 : c#c_text
+      current_tab_target = "folder_sidebar"
+    ) else if state.folder != null and state.folder_open (
+      local files = open(state.folder)
+      state.folder_list_len = files.len * 25
+      local cur @= split_tabs[split_tabs.len]
+      tabs @= cur.tabs
+      current_tab = cur.cur
+      loc 2 2 20 -20 + frame.scroll
+      drawFilesList(files)
+      cur.tabs @= tabs
+      cur.cur = current_tab
+      split_tabs[split_tabs.len] @= cur
+    ) else (
+      loc 2 2 20 -20
+      text "No folder selected\nDrag and drop a folder here" 9 : c#c_text
+    )
+  )
+)
