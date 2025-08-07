@@ -11,16 +11,13 @@ if terminal_output[1] == "connected" (
   window.close()
 )
 
-window.on("close",def() -> (
-  terminal "rvoice close"
-))
-
 my_role = {
   confirm: "confirm",
   request: "request"
 }[passed_data.payload] ?? "unknown"
 
 if my_role == "unknown" (
+  terminal "rvoice close"
   window.close()
 )
 
@@ -63,6 +60,7 @@ if was_connected (
 )
 status = terminal_output[1]
 if window.y > screensize_y / 2 + 40 (
+  terminal "rvoice close"
   window.close()
 )
 
@@ -76,19 +74,20 @@ incoming = mode == "incoming"
 window "set_dragbox" [[2,2,0,0],[-2,-2,incoming ? -150 0,0]]
 
 goto window.left + 35 window.top - 35
-image "https://avatars.rotur.dev/" ++ name 60 60
+image "https://avatars.rotur.dev/" ++ name ++ "?radius=20" 60 60
 c txtc
 change 40 10
 if incoming (
   text "Incoming call from\n" 10
-  if start - timestamp > 10000 (
+  if timestamp - start > 10000 (
     window "to_position" 0 screensize_y / 2 + 50
   )
 )
 text name ++ "\n" 10
 if incoming.not() (
   terminal "rvoice call_status"
-  text terminal_output[1] 10
+  call_status = terminal_output[1]
+  text status 10
 )
 
 goto window.right - 35 window.top - 35
@@ -97,7 +96,7 @@ terminal "rvoice peer"
 if terminal_output[1] != "" (
   was_connected = true
 )
-if onclick or status == "disconnected" or (was_connected and terminal_output[1] == "") (
+if onclick or ((call_status == "idle" or status == "disconnected" or terminal_output[1] == "") and was_connected) (
   window "to_position" 0 screensize_y / 2 + 50
 )
 icon "close" 1.2 : c#911
