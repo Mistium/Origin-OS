@@ -1538,6 +1538,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `local class lol {type: "blk"}`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    f: `local class lol {type: "blk"}`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Contacts.osl", "utf-8")
   }), null, 2));
 }
