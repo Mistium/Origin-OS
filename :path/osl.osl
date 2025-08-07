@@ -1,0 +1,35 @@
+local path = args[1]
+if !path.contains("/") (
+  path @= "./" ++ path
+)
+if path.startsWith("./") (
+  path @= path.replaceFirst(".", terminal.pwd)
+)
+if path.startsWith("origin/") (
+  path @= path.replaceFirst("origin/","/")
+)
+path @= parseFilePath(path)
+if path.fileExists().not() (
+  terminal.writeLine("File not found: " + path)
+  return
+)
+terminal.writeLine("Running: " + path)
+window.create(path)
+local id @= data
+local wins @= Windows()
+local id_func @= w -> w.window.id == id
+local logs @= wins.filter(id_func)[1].window.logs
+while wins.filter(id_func).len != 0 (
+  local win @= wins.filter(id_func)[1].window
+  if win.logs.len > logs.len (
+    local win_logs @= win.logs
+    for i (win.logs.len - 1) - logs.len (
+      terminal.writeLine(win.logs[i])
+    )
+  )
+  defer
+)
+if win == null (
+  terminal.writeLine("Window not found: " + id)
+  return
+)
