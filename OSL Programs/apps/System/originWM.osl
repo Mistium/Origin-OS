@@ -222,12 +222,14 @@ def handleTop() (
       if cur.isMini != null (
         isntMini = cur.isMini().not()
       )
-      if hovering and cur.shown and cur.isResizable() and isntMini (
+      if hovering and cur.shown and isntMini (
         top @= cur
         if mouse_ondown and i > 1 (
           void top.focus()
         )
-        handleResize()
+        if cur.isResizable() (
+          handleResize()
+        )
         handleMove()
         break
       )
