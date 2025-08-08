@@ -425,12 +425,13 @@ switch args[1] (
       local name = deps[i]
       local version = deps[name]
       if version == null (
-        log([opal.c.err, "No version specified for dependency: ", name])
+        log([opal.c.err, "No version specified for dependency: " ++ name])
         continue
       )
       log("Installing " ++ name ++ "@" ++ version)
       opal.install(name ++ ":" ++ version, true)
     )
+    break
   case "build"
     // bundle the project into a single file in /build
     opal.build()
