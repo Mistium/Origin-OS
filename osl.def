@@ -1,0 +1,7 @@
+osl
+    filter rm_comments_in_strings ' /* */
+    filter rm_comments_in_strings ' // 
+    filter rm_comments_in_strings " /* */
+    filter rm_comments_in_strings " // 
+    3rd_gen_scale 3.81
+    extension osl
