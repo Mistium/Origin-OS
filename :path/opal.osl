@@ -109,9 +109,9 @@ local opal = {
       return
     )
     
-    log("Install " ++ cur.name ++ "(" ++ cur.version ++ ") - size: " ++ cur.size ++ "?")
     local install = true
     if !bypass (
+      log("Install " ++ cur.name ++ "(" ++ cur.version ++ ") - size: " ++ cur.size ++ "?")
       if terminal.input("y/n") != "y" (
         install = false
       )
@@ -120,14 +120,14 @@ local opal = {
       if cur.install != null (
         log("Found install script: " ++ cur.install)
         // run the package's install script
-        local fn = function("opal", self.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.install))
+        local fn = function("opal", self.fetchFile(name[1], "/" ++ cur.version ++ "/" ++ cur.install))
         void fn(opal)
         log("Finished running install script")
       )
       // write the script its to the /packages directory
       file "goto_dir" self.pwd ++ "/packages"
       log("Fetching package script")
-      local contents = self.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.main)
+      local contents = self.fetchFile(name[1], "/" ++ cur.version ++ "/" ++ cur.main)
       file "set_file" cur.name ++ ".osl" contents
       log("Written package to drive")
       
@@ -135,7 +135,7 @@ local opal = {
       file "goto_dir" self.pwd
       log("Writing dependencies to opal.json")
       opal_json.dependencies ??= {}
-      opal_json.dependencies[cur.name] = cur.version
+      opal_json.dependencies[cur.name[1]] = cur.version
       file "set_file" "opal.json" opal_json.JsonFormat()
       log("Installed")
     ) else (
