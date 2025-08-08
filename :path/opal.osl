@@ -128,7 +128,7 @@ local opal = {
       file "goto_dir" self.pwd ++ "/packages"
       log("Fetching package script")
       local contents = self.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.main)
-      file "set_file" cur.name ++ ":" ++ cur.version.replace(".", "_") ++ ".osl" contents
+      file "set_file" cur.name ++ ".osl" contents
       log("Written package to drive")
       
       // write to the opal.json
