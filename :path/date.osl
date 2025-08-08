@@ -1,0 +1,6 @@
+// evaluate some js for date stuff
+if args[1] == "-l" (
+    terminal.writeLine("(function formatDate(t){const d=new Date(t),y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,"0"),day=String(d.getDate()).padStart(2,"0");return`${y}-${m}-${day}`})(Date.now(window.origin.time.date))".eval())
+) else (
+    terminal.writeLine("formatTimestamp(Date.now(window.origin.time.date))".eval())
+)
