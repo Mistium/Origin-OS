@@ -421,8 +421,9 @@ switch args[1] (
       log([opal.c.err, "opal.json dependencies seems to be corrupted"])
       break
     )
-    for i deps.len (
-      local name = deps[i]
+    local names @= deps.getKeys()
+    for i names.len (
+      local name = names[i]
       local version = deps[name]
       if version == null (
         log([opal.c.err, "No version specified for dependency: " ++ name])
