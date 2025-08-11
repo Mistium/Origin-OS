@@ -1277,6 +1277,11 @@ class OSLUtils {
       }
     }
 
+    if (ast[0].type === "cmd" && ast.every(v => ["str", "cmd", "num"].includes(v.type))) {
+      ast[0].isStatic = true;
+      ast[0].full = ast.map(v => v.data);
+    }
+
     return ast.filter(token => (
       token.type &&
       token.type.length === 3 &&
@@ -1538,6 +1543,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    f: `local class lol {type: "blk"}`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Contacts.osl", "utf-8")
+    f: `loc 110 -20 3 5`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Contacts.osl", "utf-8")
   }), null, 2));
 }

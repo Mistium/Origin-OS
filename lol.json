@@ -1,9 +1,13 @@
 [
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "import",
       "source": "import \"window_tools\"",
+      "full": [
+        "import",
+        "window_tools"
+      ],
       "line": 1
     },
     {
@@ -42,9 +46,14 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "permission",
       "source": "permission \"request\" \"account\"",
+      "full": [
+        "permission",
+        "request",
+        "account"
+      ],
       "line": 4
     },
     {
@@ -60,9 +69,14 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "permission",
       "source": "permission \"request\" \"rvoice\"",
+      "full": [
+        "permission",
+        "request",
+        "rvoice"
+      ],
       "line": 5
     },
     {
@@ -78,9 +92,14 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "permission",
       "source": "permission \"request\" \"terminal\"",
+      "full": [
+        "permission",
+        "request",
+        "terminal"
+      ],
       "line": 6
     },
     {
@@ -96,9 +115,14 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "permission",
       "source": "permission \"request\" \"notifications\"",
+      "full": [
+        "permission",
+        "request",
+        "notifications"
+      ],
       "line": 7
     },
     {
@@ -327,16 +351,11 @@
             "data": [
               [
                 {
-                  "type": "cmd",
-                  "data": "local",
-                  "source": "local callback()",
-                  "line": 21
-                },
-                {
                   "type": "fnc",
                   "data": "callback",
                   "parameters": [],
-                  "source": "callback()"
+                  "source": "callback()",
+                  "line": 21
                 }
               ]
             ],
@@ -520,9 +539,12 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "load_theme",
       "source": "load_theme",
+      "full": [
+        "load_theme"
+      ],
       "line": 35
     }
   ],
@@ -834,9 +856,13 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "frame",
-      "source": "frame \"clear\""
+      "source": "frame \"clear\"",
+      "full": [
+        "frame",
+        "clear"
+      ]
     },
     {
       "type": "str",
@@ -846,9 +872,16 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "loc",
       "source": "loc 2 2 10 -20",
+      "full": [
+        "loc",
+        2,
+        2,
+        10,
+        -20
+      ],
       "line": 47
     },
     {
@@ -904,9 +937,16 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "loc",
       "source": "loc 2 2 280 -20",
+      "full": [
+        "loc",
+        2,
+        2,
+        280,
+        -20
+      ],
       "line": 49
     },
     {
@@ -932,9 +972,14 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "icon",
       "source": "icon \"add\" 0.5",
+      "full": [
+        "icon",
+        "add",
+        0.5
+      ],
       "line": 50
     },
     {
@@ -1191,9 +1236,16 @@
             "data": [
               [
                 {
-                  "type": "cmd",
+                  "type": "stc",
                   "data": "loc",
                   "source": "loc 2 2 10 -20",
+                  "full": [
+                    "loc",
+                    2,
+                    2,
+                    10,
+                    -20
+                  ],
                   "line": 60
                 },
                 {
@@ -1747,9 +1799,13 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "change_x",
                         "source": "change_x 30",
+                        "full": [
+                          "change_x",
+                          30
+                        ],
                         "line": 78
                       },
                       {
@@ -1925,9 +1981,16 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "loc",
       "source": "loc 2 -2 152 30",
+      "full": [
+        "loc",
+        2,
+        -2,
+        152,
+        30
+      ],
       "line": 85
     },
     {
@@ -1988,9 +2051,16 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "loc",
       "source": "loc 2 -2 79 30",
+      "full": [
+        "loc",
+        2,
+        -2,
+        79,
+        30
+      ],
       "line": 88
     },
     {
@@ -2148,9 +2218,16 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "loc",
       "source": "loc 2 -2 225 30",
+      "full": [
+        "loc",
+        2,
+        -2,
+        225,
+        30
+      ],
       "line": 96
     },
     {
@@ -2480,9 +2557,16 @@
                   "data": [
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "loc",
                         "source": "loc 9999 2 0 -65",
+                        "full": [
+                          "loc",
+                          9999,
+                          2,
+                          0,
+                          -65
+                        ],
                         "line": 108
                       },
                       {
@@ -2586,9 +2670,16 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "loc",
                         "source": "loc 9999 2 0 -120",
+                        "full": [
+                          "loc",
+                          9999,
+                          2,
+                          0,
+                          -120
+                        ],
                         "line": 112
                       },
                       {
@@ -2803,9 +2894,14 @@
                   "data": [
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "goto",
                         "source": "goto 0 20",
+                        "full": [
+                          "goto",
+                          0,
+                          20
+                        ],
                         "line": 121
                       },
                       {
@@ -2929,9 +3025,16 @@
                   "data": [
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "loc",
                         "source": "loc 9999 2 0 -65",
+                        "full": [
+                          "loc",
+                          9999,
+                          2,
+                          0,
+                          -65
+                        ],
                         "line": 128
                       },
                       {
@@ -3141,9 +3244,16 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "loc",
                         "source": "loc 9999 2 0 -120",
+                        "full": [
+                          "loc",
+                          9999,
+                          2,
+                          0,
+                          -120
+                        ],
                         "line": 138
                       },
                       {
@@ -3627,9 +3737,13 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "change_y",
                         "source": "change_y -90",
+                        "full": [
+                          "change_y",
+                          -90
+                        ],
                         "line": 158
                       },
                       {
@@ -3975,9 +4089,13 @@
                               "data": [
                                 [
                                   {
-                                    "type": "cmd",
+                                    "type": "stc",
                                     "data": "cursor",
                                     "source": "cursor \"pointer\"",
+                                    "full": [
+                                      "cursor",
+                                      "pointer"
+                                    ],
                                     "line": 169
                                   },
                                   {
@@ -4003,9 +4121,13 @@
                                     "data": [
                                       [
                                         {
-                                          "type": "cmd",
+                                          "type": "stc",
                                           "data": "notify",
                                           "source": "notify \"Copied\"",
+                                          "full": [
+                                            "notify",
+                                            "Copied"
+                                          ],
                                           "line": 171
                                         },
                                         {
@@ -4046,9 +4168,13 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "change_x",
                         "source": "change_x 40",
+                        "full": [
+                          "change_x",
+                          40
+                        ],
                         "line": 176
                       },
                       {
@@ -4224,11 +4350,11 @@
                                   },
                                   {
                                     "type": "var",
-                                    "data": "EACH_I_wKactnlyvk",
-                                    "source": "EACH_I_wKactnlyvk"
+                                    "data": "EACH_I_ODhqlwinEW",
+                                    "source": "EACH_I_ODhqlwinEW"
                                   }
                                 ],
-                                "source": "this.EACH_I_wKactnlyvk"
+                                "source": "this.EACH_I_ODhqlwinEW"
                               },
                               "right": {
                                 "type": "num",
@@ -4279,11 +4405,11 @@
                                         },
                                         {
                                           "type": "var",
-                                          "data": "EACH_I_wKactnlyvk",
-                                          "source": "EACH_I_wKactnlyvk"
+                                          "data": "EACH_I_ODhqlwinEW",
+                                          "source": "EACH_I_ODhqlwinEW"
                                         }
                                       ],
-                                      "source": "this.EACH_I_wKactnlyvk"
+                                      "source": "this.EACH_I_ODhqlwinEW"
                                     }
                                   }
                                 ],
@@ -4320,17 +4446,17 @@
                                                 },
                                                 {
                                                   "type": "var",
-                                                  "data": "EACH_I_wKactnlyvk",
-                                                  "source": "EACH_I_wKactnlyvk"
+                                                  "data": "EACH_I_ODhqlwinEW",
+                                                  "source": "EACH_I_ODhqlwinEW"
                                                 }
                                               ],
-                                              "source": "this.EACH_I_wKactnlyvk"
+                                              "source": "this.EACH_I_ODhqlwinEW"
                                             }
                                           ],
-                                          "source": "[this.EACH_I_wKactnlyvk]"
+                                          "source": "[this.EACH_I_ODhqlwinEW]"
                                         }
                                       ],
-                                      "source": "badges.[this.EACH_I_wKactnlyvk]"
+                                      "source": "badges.[this.EACH_I_ODhqlwinEW]"
                                     }
                                   }
                                 ],
@@ -4444,9 +4570,13 @@
                                 ],
                                 [
                                   {
-                                    "type": "cmd",
+                                    "type": "stc",
                                     "data": "change_x",
                                     "source": "change_x 30",
+                                    "full": [
+                                      "change_x",
+                                      30
+                                    ],
                                     "line": 186
                                   },
                                   {
@@ -4569,9 +4699,13 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "change_y",
                               "source": "change_y -30",
+                              "full": [
+                                "change_y",
+                                -30
+                              ],
                               "line": 193
                             },
                             {
@@ -4621,9 +4755,13 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "change_y",
                               "source": "change_y -30",
+                              "full": [
+                                "change_y",
+                                -30
+                              ],
                               "line": 195
                             },
                             {
@@ -4736,9 +4874,13 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "change_y",
                               "source": "change_y -30",
+                              "full": [
+                                "change_y",
+                                -30
+                              ],
                               "line": 198
                             },
                             {
@@ -4813,9 +4955,13 @@
                               "data": [
                                 [
                                   {
-                                    "type": "cmd",
+                                    "type": "stc",
                                     "data": "say",
                                     "source": "say \"Call has timed out.\"",
+                                    "full": [
+                                      "say",
+                                      "Call has timed out."
+                                    ],
                                     "line": 203
                                   },
                                   {
@@ -4908,9 +5054,14 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "text",
                               "source": "text \"Ringing this user...\" 10",
+                              "full": [
+                                "text",
+                                "Ringing this user...",
+                                10
+                              ],
                               "line": 208
                             },
                             {
@@ -4949,9 +5100,14 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "icon",
                               "source": "icon \"sync\" 0.6",
+                              "full": [
+                                "icon",
+                                "sync",
+                                0.6
+                              ],
                               "line": 210
                             },
                             {
@@ -4967,9 +5123,13 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "direction",
                               "source": "direction 90",
+                              "full": [
+                                "direction",
+                                90
+                              ],
                               "line": 211
                             },
                             {
@@ -4980,9 +5140,13 @@
                           ],
                           [
                             {
-                              "type": "cmd",
+                              "type": "stc",
                               "data": "terminal",
                               "source": "terminal \"rvoice peer\"",
+                              "full": [
+                                "terminal",
+                                "rvoice peer"
+                              ],
                               "line": 213
                             },
                             {
@@ -5221,9 +5385,13 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "change_x",
                         "source": "change_x 130",
+                        "full": [
+                          "change_x",
+                          130
+                        ],
                         "line": 226
                       },
                       {
@@ -5332,9 +5500,13 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "change_x",
                         "source": "change_x 180",
+                        "full": [
+                          "change_x",
+                          180
+                        ],
                         "line": 236
                       },
                       {
@@ -5426,9 +5598,13 @@
                     ],
                     [
                       {
-                        "type": "cmd",
+                        "type": "stc",
                         "data": "change_x",
                         "source": "change_x 110",
+                        "full": [
+                          "change_x",
+                          110
+                        ],
                         "line": 242
                       },
                       {
@@ -5451,9 +5627,13 @@
   ],
   [
     {
-      "type": "cmd",
+      "type": "stc",
       "data": "import",
       "source": "import \"win-buttons\"",
+      "full": [
+        "import",
+        "win-buttons"
+      ],
       "line": 246
     },
     {
