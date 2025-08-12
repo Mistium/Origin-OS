@@ -1,0 +1,792 @@
+import as "window_tools"
+import as "glass" from "packages"
+
+permission "request" "file admin"
+
+file "use_type" "folder"
+
+save "files@system" "set_directory"
+
+window.resize(1000,600)
+window.show()
+
+files_path = "/(c) users/" ++ username
+user_path = files_path ++ "/"
+
+hidden = []
+tabs = []
+current_tab = 1
+inputs.path = files_path
+files = []
+selected_files = []
+drag_id = 0
+local_dirs = {}
+
+sorting_mode = "name"
+sorting_dir = "descending"
+
+dta = ""
+can = true
+def "navigate" "path" (
+  tab_data = {
+    title: path.split("/").last(),
+    url: path,
+    icon: file_types[".folder"][1]
+  }
+  
+  path = path.JsonParse()
+  // this removes osl quotes from around a string
+  
+  tabs[current_tab].url = path
+  pos = tabs[current_tab].position + 1
+  tabs[current_tab].position = pos
+  tabs[current_tab].history = tabs[current_tab].history.trim(1,pos - 1).append(tab_data)
+  inputs.path = path
+)
+
+def sort_files(files) (
+  new_files = []
+  each i file files (
+    obj = {
+      uuid: file
+    }
+    
+    file "open" file "onlyaccess"
+    local filetype = fileGet(1)
+    obj.name = fileGet(2) ++ filetype
+  
+    obj.modified = timestamp - fileGet(10)
+    
+    local filetype = file_types[filetype][2]
+    obj.filetype = filetype == "" ? "Document" filetype
+    if filetype == "Folder" (
+      obj.size = fileGet(4).len
+    ) else (
+      obj.size = fileGet(12).toNum()
+    )
+    void new_files.append(obj)
+  )
+  return new_files.sortBy(sorting_mode.toLower(), sorting_direction).getKeys("uuid")
+)
+
+def sort_local_files(files) (
+  new_files = []
+  for i files.len (
+    local file @= files[i]
+    obj = {
+      path: file.path
+    }
+    
+    local filetype = file["type"] == "directory" ? ".folder" file.extension
+    obj.name = file.name
+  
+    obj.modified = file.modified
+    
+    local filetype_name = file_types[filetype][2]
+    obj.filetype = filetype_name == null ? "Document" filetype_name
+    obj.extension = filetype
+    if filetype == ".folder" (
+      obj.size = file.size.len
+    ) else (
+      obj.size = file.size.toNum()
+    )
+    void new_files.append(obj)
+  )
+  return new_files.sortBy(sorting_mode.toLower(), sorting_direction)
+)
+
+def "refresh" (
+  cur = tabs[current_tab]
+  inputs.path = cur.history[cur.position].url
+)
+
+def "setup_tabs" (
+  cur_tab = {}
+  cur_tab.history = []
+  cur_tab.position = 0
+  cur_tab.input = user_folder
+  
+  tabs = [cur_tab]
+  current_tab = 1
+)
+
+setup_tabs
+
+if passed_data != "" (
+  file "open" passed_data "onlyaccess"
+  path = fileGet(3)
+  navigate path ++ "/" ++ fileGet(2)
+) else (
+  navigate user_folder
+)
+
+def "folder" "txt" (
+  local con = hidden.contains(txt)
+  loc 2 2 125 y
+  square 225 20 15 0 1
+  if mouse_touching (
+    if onclick (
+      if con (
+        hidden.delete(txt)
+      ) else (
+        void hidden.append(txt)
+      )
+    )
+    square 225 20 15 : c#seco
+    square 225 20 10 : c#prim
+  )
+  change_x 100
+  c txtc
+  icon con ? "right" "down" 0.6
+  change_x -210
+  text txt.toStr() 9
+  y -= 35
+)
+
+def "file_folder" "txt, folder" (
+  local isExternal = txt.startsWith("/dev")
+  if isExternal (
+    current_drive = txt
+    local current = roturlink.drives
+      .filter(v -> (v.device_node == current_drive))
+      
+    local file = [txt,current[1].name,".folder"]
+  ) else (
+    local file = open(txt ++ ".folder", ["location","name","type"])
+    file[1] = file.left(2).join("/")
+  )
+  
+  if hidden.contains(folder).not() (
+    loc 2 2 125 y
+    square 225 20 10 0 1
+    if mouse_touching (
+      if onclick (
+        navigate file[1]
+      )
+      square 225 20 15 : c#seco
+      square 225 20 10 : c#prim
+      local idx = favorites.index(txt)
+      
+      local down = {"Down": def(path) -> (
+        local idx = favorites.index(path)
+        favorites.swap(idx, idx + 1)
+        saveFavorites()
+      )}
+      local up = {"Up": def(path) -> (
+        local idx = favorites.index(path)
+        favorites.swap(idx, idx - 1)
+        saveFavorites()
+      )}
+      
+      local move = ["Move Pin"]
+      if idx > 1 (
+        local move = move.append(up)
+      )
+      if idx < favorites.len (
+        local move = move.append(down)
+      )
+      
+      rightclick [
+        "> " ++ fileGet(14),
+        "-",
+        {"Open In New Window": def(val) -> (
+          if val.startsWith("user/") (
+            local val = user_folder ++ val.trim(5, -1) ++ ".folder"
+          )
+          window.create(window.file.uuid, {passed_data: val})
+        )},
+        "-",
+        move,
+        {"Unpin": def(path) -> (
+          favorites.delete(path)
+          saveFavorites()
+        )}
+      ] txt
+      
+      if file_dropped != 0 (
+        file "open" file_dropped "onlyaccess"
+        if fileGet(1) == ".folder" (
+          favorites.insert(idx, fileGet(3) ++ "/" ++ fileGet(2))
+          saveFavorites()
+          file_dropped = 0
+        )
+      )
+    )
+    
+    change_x -95
+    stretch [100,100]
+    file "render" 1
+    c txtc : chx#30
+    text file[2].trimText(20) 8
+    y -= 35
+  )
+)
+
+def "render_tabs" (
+  offset = 10
+  total_width = window.width - 190
+  positions = tabs.getKeys("position")
+  width = total_width / tabs.len - 20
+  width.clamp(0,300)
+  width2 = width + 20
+  hs 1
+  for count tabs.len (
+    temp = positions[count]
+    cur = tabs[count].history[temp]
+    temp = 10 - offset
+    loc 2 2 count - 0.5 * width2 - temp -22
+    if count == current_tab (
+      square width - 20 0 5 : c#seco chy#-20
+      square width 25 15 : c#prim chy#20
+    ) else (
+      square width 25 15 : c#prim
+      if onclick (
+        current_tab = count
+        refresh
+      )
+    )
+    loc 2 2 count - 1 * width2 - temp + 20 -22.5
+    icon cur.icon 0.8 : c#txtc
+    if cur.url == user_folder (
+      cur.title = username
+    )
+    text cur.title 8 : c#txtc chx#20
+    if tabs.len > 1 (
+      loc 2 2 count * width2 - temp - 20 -22.5
+      square 20 20 0 0 1
+      if onclick (
+        tabs.delete(count)
+        if count > 1 "current_tab --"
+        refresh
+      )
+      icon "close" 0.5
+    )
+  )
+  loc 2 2 count * width2 - temp + 22 -22.5
+  square 25 25 15 : c#prim
+  if tabs.len < 10 "c txtc" else "c seco"
+  icon "add" 0.55
+  if onclick and tabs.len < 10 (
+    tab_data = {
+      icon: file_types[".folder"][1],
+      title: username,
+      url: user_folder
+    }
+    
+    cur_tab = {
+      history: [tab_data],
+      position: 1,
+      input: user_folder
+    }
+    
+    void tabs.append(cur_tab)
+    current_tab = tabs.len
+    refresh
+  )
+  window.setDragbox([2,2,count * width2 + 40,0],[-2,2,0,-40])
+)
+
+def "sorting_option" "sort_name" (
+  text sort_name 8
+  if sorting_mode == sort_name (
+    if onclick (
+      if sorting_direction == "ascending" (
+        sorting_direction = "descending"
+      ) else (
+        sorting_direction = "ascending"
+      )
+    )
+    icon sorting_direction == "ascending" ? "up" "down" 0.4 : chx#20
+  ) else (
+    if onclick (
+      sorting_mode = sort_name
+      sorting_direction = "ascending"
+    )
+  )
+)
+
+def "render_files" (
+  if window.width > 700 (
+    loc 2 2 260 -160
+  ) else (
+    loc 2 2 5 -160
+  )
+  local temp_x = x_position
+  local temp_y = y_position
+  loc -2 -2 0 35
+  if window.width > 1000 and selected_files.len != 0 (
+    change_x -292
+  )
+  local temp_x2 = x_position
+  local temp_y2 = y_position
+  
+  frame temp_x temp_y temp_x2 temp_y2 files.len * 45 - 10 : c#prim
+  current_folder_uuid = ""
+  window.drop_location = null
+  if inputs.path == "origin" (
+    files @= open("/")
+  ) else if inputs.path.startsWith("/dev") and roturlink.enabled (
+    path_base = inputs.path.split("/",3).join("/")
+    local drive @= roturlink.drives
+      .filter(v -> (v.device_node == path_base))[1]
+    if path_base != inputs.path (
+      local spl = inputs.path.split("/")
+        .trim(4,-1)
+        .join("/")
+      local path = drive.name ++ "/" ++ spl
+      files @= local_dirs[path]
+      if files == null (
+        local_dirs[path] = "requesting"
+        local pr @= promise.new(def() -> (
+          // the local roturLink endpoint for reading the fs
+          local resp @= ("http://127.0.0.1:5001/fs/list/Volumes/" ++ self.path).httpGet().JsonParse()
+          local_dirs[self.path] = resp.contents.filter(v -> (v.name.startsWith(".").not()))
+        ))
+        pr.worker.path = path
+        files = []
+      )
+      if files == "requesting" (
+        files = []
+      )
+    ) else (
+      files @= drive.files.filter(v -> (v.name.startsWith(".").not()))
+    )
+    files @= sort_local_files(files)
+  ) else (
+    file "exists" inputs.path ++ ".folder"
+    if exists (
+      file "open" inputs.path ++ ".folder" "onlyaccess"
+      current_folder_uuid = fileGet(14)
+      data = fileGet(4).JsonParse()
+
+      window.drop_location = inputs.path
+      if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
+        current_folder_update = data
+        files = sort_files(data)
+        
+        temp_sorting_mode = sorting_mode + sorting_direction
+      )
+      goto 0 0
+      square frame.width frame.height 10 0 1
+      rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [current_folder_uuid]
+    ) else (
+      files = []
+    )
+  )
+  len = files.len
+  if len > 0 (
+    count = floor(scroll_y / 45)
+    num = frame.height / 45 + 1
+    
+    if count + num > (len - 1) (
+      num = len - count
+    )
+    
+    w = frame.width - 20
+    loop num (
+      count ++
+      draw_y = 25 + scroll_y - (45 * count)
+      loc 999 2 0 draw_y
+      current_file = files[count]
+      square w 30 15 0 1
+      if mouse_touching and (file_dropped == 0 nor mouse_down) (
+        file "open" file_dropped "onlyaccess"
+        file "open" fileGet(3) ++ ".folder"
+        new @= file[4]
+        new.delete(file_dropped)
+        void new.append(file_dropped)
+        file "set" 4 new
+        current_folder_update = new
+        refresh
+        file_dropped = 0
+      )
+      
+      // open the current file so that it can be handled for moving and rendering
+      local use_file_obj = current_file.isType("object")
+      file_id = current_file
+      if use_file_obj (
+        file = [
+          current_file["type"] == "directory" ? ".folder" current_file.extension,
+          current_file.name,
+          inputs.path,
+          current_file.modified * 1000,
+          current_file.size
+        ]
+        file_id = current_file.path
+      ) else (
+        file = open(current_file, [1,2,3,10,12])
+        if file[1] == ".folder" (
+          file[5] = open(current_file).len
+        )
+      )
+      
+      if selected_files.contains(file_id) (
+        square w 20 15 : c#global_accent
+        square w 30 10 : c#prim
+      ) else (
+        square w 30 15 0 1
+      )
+      if use_file_obj.not() (
+        rightclick "file" selected_files
+      )
+      
+      if onclick and drag_id == 0 (
+        // add or remove a single file from selection
+        if "control".isKeyDown() (
+          if selected_files.contains(file_id) (
+            selected_files.delete(file_id)
+          ) else (
+            void selected_files.append(file_id)
+          )
+        // multiselect between points
+        ) else if "shift".isKeyDown() (
+          temp = files.index(selected_files.last())
+          if temp < count (
+            temp ++
+            selected_files += files.trim(temp,count)
+          ) else (
+            temp --
+            selected_files ++= files.trim(count,temp)
+          )
+          // select a single file
+          drag_id = 0
+        ) else (
+          selected_files @= [file_id]
+          drag_id = file_id
+          click_time = timestamp
+          can = false
+        )
+      ) else if (drag_id == file_id or ("enter".onKeyDown() and selected_files[1] == file_id)) and selected_files.len == 1 (
+        if mouse_touching.not() (
+          drag_id = 0
+          if mouse_down and use_file_obj.not() (
+            file "move" current_file
+          )
+        )
+        if (mouse_touching and clicked and can) or "enter".onKeyDown() (
+          drag_id = 0
+          if use_file_obj (
+            if file[1] == ".folder" (
+              navigate file[3] ++ "/" ++ file[2]
+            ) else if origin.version >= 600 (
+              local pr @= promise.new(def() -> (
+                // the local roturLink endpoint for reading the fs
+                local id = ouidNew()
+                local resp @= ("http://127.0.0.1:5001/fs/read/Volumes/" ++ self.path).httpGet().JsonParse()
+                local content = resp.content
+                local path = id ++ "." ++ self.path.split(".")[-1]
+                log path
+                file "goto_dir" "/(d) temp"
+                file "set_file" path content
+                file "open" path "onlyaccess"
+                file "start"
+                wait 1
+                file "delete"
+                file "close"
+              ))
+              pr.worker.path = file[3].replaceFirst(drive.device_node, drive.name) ++ "/" ++ file[2]
+            )
+          ) else (
+            if file[1] == ".folder" (
+              navigate file[3] ++ "/" ++ file[2]
+            ) else (
+              file "start"
+            )
+          )
+          files_selected_id = 0
+        )
+      )
+      loc 2 2 25 draw_y
+      if use_file_obj (
+        icon (file_types[file[1]] ?? file_types[".txt"])[1] 1 : c#txtc
+      ) else (
+        file "render" 1 : c#txtc
+      )
+      c txtc
+      change_x 30
+      data2 = file[2]
+      max_chars = frame.width - (frame.width > 600 ? 500 330) / 9
+      data = file[4].toNum()
+      local edited_time = timestamp - data < 172800000 ? data.timestamp("convert-relative") data.timestamp("convert-date")
+      data = file[1]
+      if data == ".folder" (
+        text data2.trimText(max_chars) 8
+        
+        if frame.width > 600 (
+          loc -2 2 -400 draw_y
+          text edited_time 8
+        )
+        
+        loc -2 2 -250 draw_y
+        text "Folder" 8
+        
+        loc -2 2 -100 draw_y
+        text file[5] + (file[5] == 1 ? "Item" "Items") 8
+      ) else (
+        if use_file_obj.not() (
+          data2 ++= data
+        )
+        text data2.trimText(max_chars) 8
+        
+        if frame.width > 600 (
+          loc -2 2 -400 draw_y
+          text edited_time 8
+        )
+        
+        loc -2 2 -250 draw_y
+        data = file_types[data][2]
+        text data ?? "Document" 8
+        loc -2 2 -100 draw_y
+        text formatFileSize(file[5]) 8
+      )
+    )
+  ) else (
+    loc 999 2 -100 -20
+    text "This folder is empty" 9 : c#txtc
+  )
+  frm_w = frame.width
+  frame "clear"
+  if inputs.path == (user_folder ++ "/bin") (
+    loc -2 2 -75 -113
+    square 120 20 10 : c#prim
+    if onclick (
+      each uuid files (
+        file "open" uuid "onlyaccess"
+        file "delete"
+      )
+      file "open" inputs.path ++ ".folder" "onlyaccess"
+      file "set" 4 []
+    )
+    text "Empty Bin" 9 : c#txtc chx#-40
+  )
+  goto temp_x + 55 temp_y + 10
+  sorting_option "Name"
+  set_x temp_x2 - 115
+  sorting_option "Size"
+  set_x temp_x2 - 260
+  sorting_option "Filetype"
+  
+  if frm_w > 600 (
+    set_x temp_x2 - 410
+    sorting_option "Modified"
+  )
+
+  if selected_files.len == 1 (
+    local idx = files.index(selected_files[1])
+    if "arrowup".onKeyDown() and idx > 1 (
+      selected_files = [files[idx - 1]]
+    )
+    if "arrowdown".onKeyDown() and idx < len (
+      selected_files = [files[idx + 1]]
+    )
+  )
+)
+def saveFavorites() (
+  save "favorites.json" "set" favorites
+)
+
+array default_favorites = [
+  "user/desktop",
+  "user/documents",
+  "user/applications",
+  "user/downloads",
+  "user/bin"
+]
+
+array favorites = []
+
+if "favorites.json".saveExists() (
+  favorites = "favorites.json".saveGet()
+) else (
+  save "favorites.json" "set" default_favorites
+  favorites = default_favorites
+)
+
+favorites.map(val -> (val.replace(".folder","")))
+
+mainloop:
+  window_tools:load_theme
+  
+  if tabs.len == 0 or typeof(tabs) != "array" (
+    setup_tabs
+  )
+  if mouse_down.not() "can = true"
+  w = window_width
+  sideshow = w > 700
+  if sideshow (
+    c prim
+    glass:frame window.left window.top - 50 window.left + 250 window.bottom
+    c window_colour
+    pen "opacity" 30
+    icon "w 999 dot 0 0" 80
+    frame "clear"
+    loc 999 2 100 -70
+  ) else (
+    loc 999 2 20 -70
+    w += 170
+  )
+  square w - 330 25 15 : c#prim
+  input w - 350 25 "path" null 10 txtc
+  if "enter".onKeyDown() and selected_input == "path" (
+    navigate inputs.path
+  )
+  
+  if sideshow.not() (
+    loc 2 2 45 -70
+    square 70 25 15 1 : c#prim
+  )
+  loc -2 2 -30 -70
+  square 25 25 15 : c#prim
+  icon "search" 0.8 : c#txtc
+  
+  loc 999 -2 0 12
+  if sideshow (
+    change_x 126
+  ) else (
+    w += 100
+  )
+  square w - 250 40 0 : c#prim
+  if sideshow (
+    pen "opacity" 0
+    frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "sidebar" (
+      y = -17 + frame.scroll
+      folder "Favorites"
+      each fav favorites (
+        file_folder fav "Favorites"
+      )
+    
+      folder "Drives"
+      file_folder "/(a) system" "Drives"
+      file_folder "/(b) local" "Drives"
+      file_folder "/(c) users/" ++ username "Drives"
+      
+      if roturlink.enabled and roturlink.drives.len > 0 (
+        folder "External"
+        for i roturlink.drives.len (
+          file_folder roturlink.drives[i].device_node "External"
+        )
+      )
+    )
+    goto window.left + 255 window.bottom + 15
+    square 8 36 0 : c#prim
+  )
+  loc 2 2 20 -118
+  if sideshow "change 250"
+  icon "file" 0.7 : c#txtc
+  if onclick (
+    window "add" "New_File" inputs.path
+  )
+  icon "folder" 0.7 : chx#30
+  if onclick (
+    file "download" "new folder.folder" null null inputs.path
+  )
+  icon "w 3 line 0 -8 0 8" 0.7 : chx#20 c#seco
+  c txtc
+  change -10
+  if selected_files.len != 1 (
+    files_buttons = []
+  ) else (
+    file_open = selected_files[1]
+    file "open" file_open "onlyaccess"
+    file "get" 13
+    if "System" in data (
+      files_buttons = ["Open","Copy","Info"]
+    ) else (
+      files_buttons = ["Open","Edit","Copy","Rename","Bin","Info"]
+    )
+    if selected_files.len == 1 (
+      c txtc
+      cur = ""
+      for count files_buttons.len (
+        icon files_buttons[count] 0.7 : chx#30 tooltip#files_buttons[count]
+        if onclick (
+          switch files_buttons[count] (
+            case "open"
+              file "start"
+              break
+            case "edit"
+              window "add" "studio" file_open
+              break
+            case "copy"
+              clipboard "set" file
+              break
+            case "rename"
+              window "add" "Rename-Helper" file_open
+              break
+            case "info"
+              window "add" "Files_Info" file_open
+              break
+            case "bin"
+              // stop it crashing if the file doesnt exist
+              try (
+                file "move_to_bin"
+              )
+              break
+          )
+          cur = ""
+        )
+        clicked = false
+      )
+    )
+  )
+  if window_width > 1000 and selected_files.len > 0 (
+    loc -2 999 -147 -54
+    square 265 window_height - 205 15 1 : c#prim
+    if selected_files.len == 1 (
+      loc -2 2 -150 -250
+      file "open" file_open "onlyaccess"
+      file "render" 5 : c#txtc
+      loc -2 2 -280 -330 : c#txtc
+      x = x_position
+      text fileGet(2) ++ fileGet(1) 10
+      set_x x
+      text "File Info" 8.5 : chy#-35
+      set_x x
+      text "Created:" + fileGet(9).timestamp("convert-relative") 8.5 : chy#-25
+      set_x x
+      text "Last Edited:" + fileGet(10).timestamp("convert-relative") 8.5 : chy#-25
+      set_x x
+      text "Size:" + fileGet(12) + "Bytes" 8.5 : chy#-25
+    )
+  )
+  file "open" inputs.path ++ ".folder" "onlyaccess"
+  if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
+  file "get" 4
+  c txtc
+  text `${files.len} items | ${selected_files.len} selected` 9
+  
+  render_tabs
+  
+  loc 2 2 25 -70
+  cur_pos = tabs[current_tab].position
+  square 25 25 10 0 1
+  if cur_pos > 1 (
+    c txtc
+    if onclick or "arrowleft".onKeyDown() (
+      tabs[current_tab].position --
+      refresh
+    )
+  ) else (
+    c seco
+  )
+  icon "left-arrow" 0.8
+  change_x 40
+  
+  square 25 25 10 0 1
+  if cur_pos < tabs[current_tab].history.len (
+    c txtc
+    if onclick or "arrowright".onKeyDown() (
+      tabs[current_tab].position ++
+      refresh
+    )
+  ) else (
+    c seco
+  )
+  icon "right-arrow" 0.8
+  
+  render_files
+  
+  if mouse_down.not() (
+    can = true
+  )
+  import "win-buttons"
