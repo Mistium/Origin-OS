@@ -3,6 +3,8 @@ file "get" 4
 return_char = 13.chr()
 code = data.replace("/[^\[\]><+-.,]+/gm","")
 
+file "use_type" "bf"
+
 def "reset" (
   memory = [0]
   cur = 0
@@ -12,9 +14,9 @@ def "reset" (
   output_buffer = ""
   count = 0
   running = false
-  inp_chr = 1
 )
 
+len = 1
 reset
 mainloop:
 if window.height != temp_height (
@@ -25,79 +27,74 @@ if window.height != temp_height (
 if running (
   change_count = 0
 ) else (
-  change_count = 500
+  change_count = 1000
 )
-while count < code.len and change_count < 500 (
+while count < code.len and change_count < 1000 (
   count ++
   change_count ++
   switch code[count] (
     case ">"
-      memory[pointer] = cur
+      memory[pointer] @= cur
       pointer += 1
       if pointer > memory_slots (
-        memory.append(0)
+        void memory.append(0)
         memory_slots ++
       )
       cur = memory[pointer]
       break
     case "<"
-      memory[pointer] = cur
+      memory[pointer] @= cur
       if pointer > 0 (
         pointer -= 1
       )
       cur = memory[pointer]
       break
     case "+"
-      if cur == 255 (
-        cur = 0
+      if cur === 255 (
+        cur @= 0
       ) else (
         cur += 1
       )
       break
     case "-"
-      if cur == 0 (
-        cur = 255
+      if cur === 0 (
+        cur @= 255
       ) else (
         cur -= 1
       )
       break
     case "."
-      output_buffer += cur.chr()
+      output_buffer ++= cur.chr()
       break
     case ","
-      memory[pointer] = inputs.main[inp_chr].ord()
-      inp_chr ++
+      memory[pointer] = "Input A Character".ask().left(1).ord()
       break
     case "["
-      if cur == 0 (
-        openLoops = 1
+      if cur === 0 (
+        local openLoops = 1
         while openLoops > 0 (
           count ++
           change_count ++
-          c = code[count]
+          c @= code[count]
           if c == "[" (
             openLoops ++
-          ) else (
-            if c == "]" (
-              openLoops --
-            )
+          ) else if c == "]" (
+            openLoops --
           )
         )
       )
       break
     case "]"
-      if cur != 0 (
-        openLoops = 1
+      if cur !== 0 (
+        local openLoops = 1
         while openLoops > 0 (
           count --
           change_count ++
-          c = code[count]
+          c @= code[count]
           if c == "[" (
             openLoops --
-          ) else (
-            if c == "]" (
-              openLoops ++
-            )
+          ) else if c == "]" (
+            openLoops ++
           )
         )
       )
@@ -106,11 +103,8 @@ while count < code.len and change_count < 500 (
 )
 
 loc 2 2 20 -20
-text "Instruction:" + count.str.padStart(5,"0") + "Pointer:" + pointer + "Value:" + cur + "Total Memory:" + memory_slots + "Locations" 10 : c#fff
-loc 2 2 110 -50
-square 170 20 10 : c#333
-input 170 25 "main" "Input" 0
-change_x 130
+text "Instruction:" + count.toStr().padStart(5,"0") + "Pointer:" + pointer + "Value:" + cur + "Total Memory:" + memory_slots + "FPS:" + fps 10 : c#fff
+loc 2 2 40 -60
 square 40 20 10 : c#333
 if onclick (
   if running (
@@ -127,8 +121,8 @@ if running (
   text "run" 8 : chx#-15
 )
 loc 2 2 20 -90
-out = output_buffer.split(newline)
+out @= output_buffer.split("\n")
 len = out.len
-output_buffer = out.trim(txt_height,len).join(newline)
+output_buffer @= out.trim(txt_height, len).join("\n")
 text output_buffer 10
 import "win-buttons"
