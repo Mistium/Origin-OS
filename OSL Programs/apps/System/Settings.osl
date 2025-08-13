@@ -1341,31 +1341,59 @@ def "credits" (
     page_len = contributors.len * 60
   )
   if subcategory == "Community" (
-    loc 2 2 110 -30
-    button "My Patreon" 200 25 10 : c#prim
-    if onclick (
-      http "newtab" "https://www.patreon.com/user?u=51594743"
+    local url = "https://social.rotur.dev/supporters"
+    local data = null
+    if supporterData.getType() != "array" (
+      data @= url.getAsync()
+      if data.getType() == "array" (
+        supporterData = data
+      )
     )
-    loc 2 2 10 -70
-    text "Patreon Supporters:" 10 : c#txtc
-    supporters = [
-      "--- OriginDrive ---",
-      "ThePandaDev",
-      "Stormy",
-      "",
-      "--- Supporter ---",
-      "plopa 1",
-      "Random Content Generator"
-    ]
-
-    loc 2 2 10 -100
-    count = floor(scroll_y / 20)
-    loop floor(frame.height / 20) (
-      count ++
-      loc 2 2 10 count * -20 + scroll_y - 100
-      text supporters[count] 10
+    if supporterData == null (
+      goto 0 0
+      direction timer * 720
+      icon "sync" .75 : c#txtc
+    ) else (
+      loc 2 2 115 -30 + scroll_y
+      square 200 25 10 : c#prim hover_c#seco
+      centext "My Patreon" 10 : c#txtc chx#-17.5
+      icon "open" .6 : chx#("My Patreon".len * 5 + 17.5)
+      if onclick (
+        http "newtab" "https://www.patreon.com/user?u=51594743"
+      )
+      loc 2 2 15 -70 + scroll_y
+      text "Patreon Supporters:" 10 : c#txtc
+      
+      supporters @= {
+        "OriginDrive": supporterData.filter(u -> (u.subscription == "originDrive")).map(u -> (u.username)),
+        "Supporter": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username))
+      }
+  
+      local height = 0
+      local y = 0
+      local keys @= supporters.getKeys()
+      local values @= supporters.getValues()
+      for categoryi supporters.getKeys().len (
+        local category @= values[categoryi]
+        local categoryName @= keys[categoryi]
+        
+        y += 20
+        loc 2 2 15 -85 - y + scroll_y
+        text categoryName 11.5 : c#txtc
+        y += 20
+        
+        for useri category.len (
+          local user @= category[useri]
+          
+          y += 8
+          loc 2 2 25 -85 - y + scroll_y
+          image "https://avatars.rotur.dev/" ++ user ++ "?radius=128" 22 : chx#15
+          text user 10 : c#txtc chx#16.5
+          y += 20
+        )
+      )
+      page_len = y + 80
     )
-    page_len = supporters.len * 20 + 100
   )
 )
 
@@ -1471,6 +1499,8 @@ def genPfp() (
 )
 original_pfp = user.pfp
 pfp = genPfp()
+
+supporterData = null
 
 slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 
