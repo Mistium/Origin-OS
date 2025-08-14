@@ -437,15 +437,15 @@ class OSLUtils {
   isInlinableFunction(fnNode) {
     if (!fnNode || fnNode.type !== "fnc" || fnNode.data !== "function") return false;
     if (!fnNode.parameters || fnNode.parameters.length !== 2) return false;
-    
+
     const body = fnNode.parameters[1];
     if (!body || body.type !== "blk" || !body.data || !Array.isArray(body.data)) return false;
-    
+
     // Check if function body has exactly one statement that's a return
     if (body.data.length !== 1 || !Array.isArray(body.data[0])) return false;
     const statement = body.data[0];
     if (statement.length < 2 || statement[0].type !== "cmd" || statement[0].data !== "return") return false;
-    
+
     return true;
   }
 
@@ -453,18 +453,18 @@ class OSLUtils {
   calculateInliningBenefit(funcName, parameters, returnExpression) {
     let totalParamComplexity = 0;
     let totalParamUsage = 0;
-    
+
     const funcInfo = this.inlinableFunctions[funcName];
     if (!funcInfo) return false;
-    
+
     // Calculate complexity for each parameter
     for (let i = 0; i < funcInfo.parameters.length; i++) {
       const paramName = funcInfo.parameters[i];
       const paramExpr = parameters[i];
       const usageCount = this.countParameterUsage(returnExpression, paramName);
-      
+
       totalParamUsage += usageCount;
-      
+
       // Complex expressions get higher cost when used multiple times
       if (!this.isSimpleExpression(paramExpr)) {
         totalParamComplexity += usageCount * 2; // Penalty for complex expressions
@@ -472,7 +472,7 @@ class OSLUtils {
         totalParamComplexity += usageCount * 0.5; // Simple expressions are cheap
       }
     }
-    
+
     // Don't inline if the complexity cost is too high
     // Function call overhead = ~3 units, so only inline if total cost < 6
     return totalParamComplexity < 6;
@@ -487,35 +487,35 @@ class OSLUtils {
   // Substitute parameters in an AST node
   substituteParameters(node, paramMap) {
     if (!node || typeof node !== "object") return node;
-    
+
     if (Array.isArray(node)) {
       return node.map(item => this.substituteParameters(item, paramMap));
     }
-    
+
     const result = { ...node };
-    
+
     // If this is a variable that matches a parameter, replace it
     if (node.type === "var" && paramMap.hasOwnProperty(node.data)) {
       return paramMap[node.data];
     }
-    
+
     // Recursively process all object properties
     for (const key in result) {
       if (result.hasOwnProperty(key) && key !== "source") {
         result[key] = this.substituteParameters(result[key], paramMap);
       }
     }
-    
+
     return result;
   }
 
   // Check if a parameter expression is simple (safe to inline directly)
   isSimpleExpression(expr) {
     if (!expr || typeof expr !== "object") return true;
-    
+
     // Simple types that are safe to duplicate
     if (["var", "str", "num", "unk"].includes(expr.type)) return true;
-    
+
     // Complex expressions should be cached
     return false;
   }
@@ -523,25 +523,25 @@ class OSLUtils {
   // Count how many times each parameter is used in the expression
   countParameterUsage(node, paramName) {
     if (!node || typeof node !== "object") return 0;
-    
+
     let count = 0;
-    
+
     if (Array.isArray(node)) {
       return node.reduce((sum, item) => sum + this.countParameterUsage(item, paramName), 0);
     }
-    
+
     // If this is the parameter variable, count it
     if (node.type === "var" && node.data === paramName) {
       count++;
     }
-    
+
     // Recursively count in all object properties
     for (const key in node) {
       if (node.hasOwnProperty(key) && key !== "source") {
         count += this.countParameterUsage(node[key], paramName);
       }
     }
-    
+
     return count;
   }
 
@@ -549,23 +549,23 @@ class OSLUtils {
   tryInlineFunction(funcName, parameters) {
     const inlineFunc = this.inlinableFunctions[funcName];
     if (!inlineFunc) return null;
-    
+
     if (parameters.length !== inlineFunc.parameters.length) return null;
-    
+
     // Check if inlining would actually be beneficial
     if (!this.calculateInliningBenefit(funcName, parameters, inlineFunc.returnExpression)) {
       return null; // Skip inlining - function call is better
     }
-    
+
     const paramMap = {};
     const tempVars = [];
-    
+
     // Analyze each parameter
     for (let i = 0; i < inlineFunc.parameters.length; i++) {
       const paramName = inlineFunc.parameters[i];
       const paramExpr = parameters[i];
       const usageCount = this.countParameterUsage(inlineFunc.returnExpression, paramName);
-      
+
       // If parameter is used multiple times and is complex, create a temp variable
       if (usageCount > 1 && !this.isSimpleExpression(paramExpr)) {
         const tempVarName = `__temp_${paramName}_${randomString(8)}`;
@@ -583,10 +583,10 @@ class OSLUtils {
         paramMap[paramName] = paramExpr;
       }
     }
-    
+
     // Substitute parameters in the return expression
     let inlinedExpr = this.substituteParameters(inlineFunc.returnExpression, paramMap);
-    
+
     // If we have temp variables, wrap the expression in a block that declares them
     if (tempVars.length > 0) {
       // Create assignment statements for temp variables
@@ -603,7 +603,7 @@ class OSLUtils {
           right: tempVar.value
         }
       ]);
-      
+
       // Create a return statement with the inlined expression
       const returnStmt = [
         {
@@ -613,7 +613,7 @@ class OSLUtils {
         },
         inlinedExpr
       ];
-      
+
       // Return a block with temp variable assignments followed by the return
       return {
         type: "blk",
@@ -621,22 +621,22 @@ class OSLUtils {
         source: "[inlined with temps]"
       };
     }
-    
+
     return inlinedExpr;
   }
 
   // Register inlinable functions during AST generation
   registerInlinableFunction(name, fnNode) {
     if (!this.isInlinableFunction(fnNode)) return;
-    
+
     const paramString = fnNode.parameters[0].data || fnNode.parameters[0].source;
     const parameters = this.extractFunctionParameters(paramString);
     const body = fnNode.parameters[1];
     const returnStatement = body.data[0];
-    
+
     // Extract the return expression (everything after the return command)
     const returnExpression = returnStatement.slice(1);
-    
+
     this.inlinableFunctions[name] = {
       parameters: parameters,
       returnExpression: returnExpression.length === 1 ? returnExpression[0] : returnExpression
@@ -860,7 +860,7 @@ class OSLUtils {
   stringToToken(cur, param) {
     let start = cur[0]
     if (cur === "/@line") return { type: "unk", data: "/@line" }
-    if (!isNaN(+cur)) return { type: "num", data: +cur }
+    if (!isNaN(+cur.replaceAll("_", ""))) return { type: "num", data: +cur.replaceAll("_", "") }
     else if (cur === "true" || cur === "false") return { type: "raw", data: cur === "true" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
     else if (cur === "++") return { type: "opr", data: "++" }
@@ -906,8 +906,21 @@ class OSLUtils {
             tokens[i] = this.generateAST({ CODE: tokens[i], START: 0 })[0];
           }
 
-          if (param) return { type: "mtv", data: "item", parameters: tokens };
-          return { type: "arr", data: tokens };
+          if (param) {
+            const obj = { type: "mtv", data: "item", parameters: tokens };
+            obj.isStatic = tokens.every(token => this.isStaticToken(token));
+            if (obj.isStatic) {
+              if (tokens.length === 1 && tokens[0].type === "str") {
+                return {type: "mtv", data: tokens[0].data}
+              }
+              obj.static = tokens.map(token => token.data);
+            }
+            return obj;
+          }
+          const arr = { type: "arr", data: tokens };
+          arr.isStatic = tokens.every(token => this.isStaticToken(token));
+          if (arr.isStatic) arr.static = tokens.map(token => token.data);
+          return arr;
         } else if (cur[0] === "{") {
           if (cur == "{}") return { type: "obj", data: {} }
 
@@ -936,7 +949,7 @@ class OSLUtils {
     else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
     else if (cur.startsWith("(") && cur.endsWith(")")) {
       let end = this.findMatchingParentheses(cur, 0);
-      if (end === -1) return { type: "unk", data: cur };
+      if (end === -1) return { type: "unk", data: cur, parse_error: "Unmatched parentheses" };
       const body = cur.substring(1, end).trim();
       return this.generateAST({ CODE: body, START: 0 })[0]
     }
@@ -953,6 +966,10 @@ class OSLUtils {
         }
         return this.generateAST({ CODE: v.trim(), START: 0 })[0]
       })
+      if (method.every(item => this.isStaticToken(item)) || method.length === 0) {
+        out.isStatic = true;
+        out.static = method.map(item => item.data)
+      }
       out.parameters = method
       return out
     }
@@ -961,13 +978,14 @@ class OSLUtils {
   }
 
   isStaticToken(token) {
-    return ["str", "num", "unk"].includes(token.type);
+    return ["str", "num", "unk", "cmd", "raw"].includes(token?.type);
   }
 
-  generateError(source, error) {
-    const ast = this.generateAST({ CODE: `throw "error" '${error}'` });
-    ast[0].source = source;
-    return ast;
+  generateError(ast, error) {
+    const newAst = this.generateAST({ CODE: `throw "error" '${error}'` });
+    newAst[0].source = ast.source;
+    newAst[0].line = ast.line;
+    return newAst;
   }
 
   generateAST({ CODE, START, MAIN }) {
@@ -1033,20 +1051,26 @@ class OSLUtils {
       }
     }
 
+    for (let i = 0; i < ast.length; i++) {
+      if (ast[i] && ast[i].parse_error) {
+        return this.generateError(ast[i], ast[i].parse_error);
+      }
+    }
+
     const evalASTNode = node => {
       if (!node) return node;
-      
+
       if (Array.isArray(node)) {
         return node.map(item => evalASTNode(item));
       }
-      
+
       if (node.type === "fnc" && typeof node.data === "string" && this.inlinableFunctions[node.data]) {
         const inlined = this.tryInlineFunction(node.data, node.parameters || []);
         if (inlined) {
           return evalASTNode(inlined);
         }
       }
-      
+
       if (typeof node === "object" && node !== null) {
         const processedNode = { ...node };
         for (const key in processedNode) {
@@ -1056,7 +1080,7 @@ class OSLUtils {
         }
         node = processedNode;
       }
-      
+
       if (node.type === "inl") {
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         if (node.left?.type === "var") params = node.left.data;
@@ -1158,7 +1182,7 @@ class OSLUtils {
       }
       ast[2] = funcNode;
       ast.splice(3, 1);
-      
+
       // Register for inlining if it's a simple function
       this.registerInlinableFunction(first.data, funcNode);
     }
@@ -1248,12 +1272,11 @@ class OSLUtils {
       ast.splice(1, 1);
     }
 
-    if (ast[0].type === "var" && MAIN) {
-      ast[0].type = "cmd";
+    if (MAIN) {
+      if (ast[0].type === "var") ast[0].type = "cmd";
       ast[0].source = CODE.split("\n", 1)[0];
     }
 
-    // switch statements
     if (ast[0].type === "cmd" &&
       ast[0].data === "switch"
     ) {
@@ -1280,6 +1303,9 @@ class OSLUtils {
     if (ast[0].type === "cmd" && ast.every(v => ["str", "cmd", "num"].includes(v.type))) {
       ast[0].isStatic = true;
       ast[0].full = ast.map(v => v.data);
+    }
+    if (ast[0].type === "asi" && this.isStaticToken(ast[0].right)) {
+      ast[0].right.staticAssignment = true;
     }
 
     return ast.filter(token => (
@@ -1349,7 +1375,7 @@ class OSLUtils {
       if (type === "cmd" && ["for", "each", "class", "while", "until"].includes(data)) {
         if (data === "each") {
           if (cur[cur.length - 1].type !== "blk") {
-            lines[i] = this.generateError(cur[0].source, "Each loops require a block after the variable(s). Example: each i arr ( ... )");
+            lines[i] = this.generateError(cur[0], "'each' loop missing body block. Use: each i item array ( ... ) OR each item array ( ... )");
             continue;
           }
           let has_i = cur[4]?.type === "blk"
@@ -1385,11 +1411,11 @@ class OSLUtils {
       }
       if (type === "cmd" && data === "def") {
         if (cur.length < 3) {
-          lines[i] = this.generateError(cur[0].source, "Function definitions require at least one parameter. Example: def myFunc(a, b) -> a + b");
+          lines[i] = this.generateError(cur[0], "Incomplete function definition. Expected: def name(param1, param2) ( ... )");
           continue;
         }
         if (cur[cur.length - 1].type !== "blk") {
-          lines[i] = this.generateError(cur[0].source, "Function definitions require a block after the parameters. Example: def myFunc(a, b) -> a + b ( ... )");
+          lines[i] = this.generateError(cur[0], "Function body missing. Add a block: ( ... )");
           continue;
         }
       }
@@ -1405,8 +1431,27 @@ class OSLUtils {
           })
         }
       }
+      for (let j = 0; j < cur.length; j++) {
+        const t = cur[j];
+        if (!t) continue;
+        if (["opr", "cmp", "bit", "log"].includes(t.type)) {
+          if (!t.left || !t.right) {
+            if (j <= 1) {
+              lines[i] = this.generateError(cur[0], `Malformed line. Cannot use '${t.data}' here`);
+              continue;
+            }
+            lines[i] = this.generateError(t.left || t.right || t, `Malformed ${t.type === 'opr' ? 'operator' : t.type} '${t.data}'. Missing ${!t.left && !t.right ? 'operands' : !t.left ? 'left operand' : 'right operand'}.`);
+            continue;
+          }
+        }
+        if (t.type === 'qst') {
+          if (!t.left || !t.right || !t.right2) {
+            lines[i] = this.generateError(t.left || t, `Incomplete ternary '?'. Expected pattern: condition ? valueIfTrue valueIfFalse`);
+            continue;
+          }
+        }
+      }
     }
-
     return lines;
   }
 
@@ -1543,6 +1588,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    f: `loc 110 -20 3 5`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Contacts.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Studio.osl", "utf-8")
   }), null, 2));
 }
