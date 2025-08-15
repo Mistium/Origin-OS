@@ -4,9 +4,9 @@ permission "request" "terminal"
 
 mainloop:
 
-display "set" "rotation" + (timer * 1000)
+display "rotation" "set" (timer * 1000)
 if "space".isKeyDown() (
-  display "set" "rotation" 0
+  display "rotation" "set" 0
   window.close()
 )
 
