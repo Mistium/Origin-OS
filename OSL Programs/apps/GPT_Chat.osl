@@ -1,8 +1,0 @@
-gpt "new_bot" "test"
-gpt "send" "test" "from now on speak very neko"
-input = 0
-while input2 != "" (
-  input2 = input.ask
-  gpt "send" input "test"
-  input = data
-)

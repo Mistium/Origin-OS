@@ -123,8 +123,7 @@ desktop_rightclick = [
       terminal "upload user/desktop"
     )},
     {"Folder": def() -> (
-      terminal "cd user/desktop"
-      terminal 'mkdir "New Folder"'
+      file "download" "New Folder.folder" "" [] parseFilePath("~/desktop")
     )},
     {"File": def() -> (
       window.create("new_file", {

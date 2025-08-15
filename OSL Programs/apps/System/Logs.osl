@@ -1,24 +1,26 @@
 // Developer: @Mistium
 // Description: This app lets you view the system logs
 permission "request" "terminal"
-window "show"
+window.show()
 mainloop:
 
-terminal "get logs"
+terminal "syslog"
 loc 2 999 20 0
-square 40 window."height" : c#111
+square 40 window.height : c#111
 loc 2 2 20 20
 square 20 20 15 : chy#-40 c#333
 loc 2 2 20 -20
 icon "close" 0.7 : c#fff
-if clicked "window stop"
-c #222
-frame window."left" + 40 window."top" window."right" window."bottom" data.len * 20
-c #fff
-count = scroll_y.divide(20).round - 1
-loop frame_height.divide(20).round + 2 (
-  count ++
-  loc 2 2 10 count * -20 + scroll_y
-  text data.[count].toStr() 10
+if clicked (
+  window.close()
 )
-frame "clear"
+c #222
+frame window.left + 40 window.top window.right window.bottom data.len * 20 (
+  c #fff
+  count = round(scroll_y / 20) - 1
+  loop round(frame_height / 20) + 2 (
+    count ++
+    loc 2 2 10 count * -20 + scroll_y
+    text data[count].toStr() 10
+  )
+)

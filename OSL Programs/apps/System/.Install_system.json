@@ -81,7 +81,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Desktop.osl",
     "icon": "c #111 w 10 square 0 0 5 5 w 4 c #fff dot -7 7 dot -7 1 dot -7 -5 dot -1 7 dot -1 1",
-    "version":"5.0"
+    "version":"5.1"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Desktop_Manager.osl",
@@ -116,7 +116,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Origin_Start.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff w 2 icn power 0.7",
-    "version":"5.0"
+    "version":"5.1"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/File_Info.osl",
@@ -235,7 +235,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Settings.osl",
     "icon": "c #6fa6eb w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #777 w 4 line 0 6 0 -6 line -5 3 5 -3 line 5 3 -5 -3 w 11.5 dot 0 0 w 7 c #111 dot 0 0 w 5 c #6fa6eb dot 0 0",
-    "version":"12.9"
+    "version":"13.0"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Calculator.osl",
@@ -249,7 +249,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Activity.osl",
     "icon": "c #84d5f5 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 w 1.5 c #84d5f5 line -7 0 -6 0 cont -5 2 cont -3 -2 cont -1 5 cont 2 -4 cont 4 0 cont 7 0",
-    "version":"6.7"
+    "version":"6.8"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Summit.osl",
