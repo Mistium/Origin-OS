@@ -69,10 +69,7 @@ graph = 1000.newArray()
 
 getWindowsData()
 
-
-terminal "disk"
-disk_info = terminal_output
-
+disk_info = ""
 
 mainloop:
 load_theme

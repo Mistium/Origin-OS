@@ -132,12 +132,12 @@ def "system" (
         change_y -50
       )
       
-      terminal "system display get invert"
+      display "get" "invert"
       c #txtc
       setting_toggle "Invert Colours" w data === 100 def(val) -> (
-        terminal "system display get invert"
+        display "get" "invert"
         inp = 100 - data
-        terminal "system display set invert" + inp.toStr()
+        display "set" "invert" + inp.toStr()
       )
       terminal "flags nightmode get"
       change_y -45 : c#txtc
@@ -166,7 +166,7 @@ def "system" (
       terminal "system sound get volume"
       slider_volume = data / 100
       slider w 40 "volume" 15 : c#prim
-      terminal "system sound set volume" + ( slider_volume * 100 )
+      terminal "system sound set volume " ++ (slider_volume * 100)
       c txtc
       loc 2 2 10 -160 + scroll_y
       if media.istype("object") (
@@ -1125,7 +1125,8 @@ def "account" (
 
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
-    terminal "su"
+    eval "localStorage.setItem('origin_login', '')"
+    terminal "shutdown"
   )
   
   page_len += 70

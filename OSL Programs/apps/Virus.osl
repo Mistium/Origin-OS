@@ -4,10 +4,10 @@ permission "request" "terminal"
 
 mainloop:
 
-terminal "system display set rotation" + ( timer * 1000 )
+display "set" "rotation" + (timer * 1000)
 if "space".isKeyDown() (
-  terminal "system display set rotation 0"
-  window "Stop"
+  display "set" "rotation" 0
+  window.close()
 )
 
 import "win-buttons"
