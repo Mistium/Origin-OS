@@ -140,7 +140,7 @@
         "endef",
         "return",
         "this",
-        "let
+        "let"
       ]
     },
     "logging": {
