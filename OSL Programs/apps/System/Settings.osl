@@ -139,12 +139,6 @@ def "system" (
         inp = 100 - data
         display "invert" "set" inp
       )
-      terminal "flags nightmode get"
-      change_y -45 : c#txtc
-      setting_toggle "Night Mode" w data def(val) -> (
-        terminal "flags nightmode get"
-        terminal "flags nightmode set" + data.not()
-      )
       break
     case "Media"
       if media == "" (
