@@ -1,15 +1,15 @@
 local folders @= listFiles(terminal.pwd)
   .filter(v -> v.endsWith(".folder"))
 
-if args[1].contains(".") nor args[1].contains("/") nor args[1].len == 0 (
-  args[1] = args[1].strip()
-  args[1] ++= ".folder"
-  if folders.contains(args[1]) (
-    terminal.writeLine("Directory already exists")
-    return
-  )
-) else (
+if args[1].contains(".") or args[1].contains("/") or args[1].len == 0 (
   terminal.writeLine("Invalid directory name")
+  return
+)
+
+args[1] = args[1].strip()
+args[1] ++= ".folder"
+if folders.contains(args[1]) (
+  terminal.writeLine("Directory already exists")
   return
 )
 
