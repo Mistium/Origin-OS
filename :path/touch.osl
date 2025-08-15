@@ -1,4 +1,5 @@
-if !args[1].contains(".") (
+if args[1].contains(".") nor args[1].contains("/") nor args[1].len == 0 (
+  args[1] = args[1].strip()
   args[1] ++= ".folder"
 )
 file "goto_dir" terminal.pwd
