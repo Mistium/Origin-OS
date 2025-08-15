@@ -132,12 +132,12 @@ def "system" (
         change_y -50
       )
       
-      display "get" "invert"
+      display "invert" "get"
       c #txtc
       setting_toggle "Invert Colours" w data === 100 def(val) -> (
-        display "get" "invert"
+        display "invert" "get"
         inp = 100 - data
-        display "set" "invert" + inp.toStr()
+        display "invert" inp.toStr() "set"
       )
       terminal "flags nightmode get"
       change_y -45 : c#txtc
