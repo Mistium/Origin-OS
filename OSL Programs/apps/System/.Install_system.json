@@ -322,13 +322,6 @@
     "version":"4"
   },
   {
-    "url": "https://origin.mistium.com/Modules/character_controller.osl",
-    "path": "Origin/(A) System/Modules",
-    "name": "Character_Controller.osl",
-    "icon": "",
-    "version":"1"
-  },
-  {
     "url": "https://origin.mistium.com/Scripts/window_tools.osl",
     "path": "Origin/(A) System/Modules",
     "name": "Window_Tools.osl",
