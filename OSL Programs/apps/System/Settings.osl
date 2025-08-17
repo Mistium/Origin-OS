@@ -1365,7 +1365,7 @@ def "credits" (
       text "Patreon Supporters:" 10 : c#txtc
       
       supporters @= {
-        "OriginPro": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username)),
+        "OriginPro": supporterData.filter(u -> (u.subscription == "originPro")).map(u -> (u.username)),
         "OriginDrive": supporterData.filter(u -> (u.subscription == "originDrive")).map(u -> (u.username)),
         "Supporter": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username))
       }
