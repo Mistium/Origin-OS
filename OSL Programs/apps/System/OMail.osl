@@ -1,177 +1,35 @@
-import "window_tools"
+import "window_tools" as "wt"
+import as "glass" from "packages"
 
+permission "request" "rmail"
 permission "request" "account"
+
 network "server" "omail_getinfo"
 
-current_email = 0
+window.resize(1000, 550)
 all_mail = []
-if passed_data == "" (
-  page = "main"
-) else (
-  page = passed_data
-)
+current_rmail = 0
 
-def "icon_button" "icn, size" (
-  square 40 40 10 : c#seco hover_c#prim
-  icon icn size : c#txtc
-  change_x 60
-)
-
-def "topbar" (
-  loc 999 2 0 -20
-  square window_width 40 10 : c#prim
-  loc 2 2 10 -22
-  text "OMail" 9 : c#txtc
-)
-
-def "run_ui" (
-  topbar
-  c #333
-  frame window.left window.top - 45 window.left + 300 window.bottom + 60 all_mail.len * 50 - 20
-  count = scroll_y // 50
-  len = all_mail.len
-  if len == 0 (
-    loc 2 2 10 -20
-    text "You have no rmails" 10 : c#txtc
-  )
-  loop (frame_height / 50).clamp(0,len) (
-    count ++
-    item = all_mail[count]
-    y = 20 + scroll_y - (count * 50)
-    loc 999 2 0 y
-    if current_email == count "c seco" else "c prim"
-    square frame_width - 20 40 10
-    if clicked (
-      current_email = count
-      email_data = item
-      if item.body == "" (
-        network "server" "omail_getid" count
-        email_data.body = "loading...."
-      )
-    )
-    y += 5
-    c txtc
-    loc -2 2 -95 y
-    text item.date 8
-    y -= 15
-    loc 2 2 15 y
-    text item.title 8
-    if item.from == username (
-      loc 2 2 15 y + 20
-      text "to >" + item.recipient 9
-      loc -2 2 -25 y
-      icon "send" 0.6
-    ) else (
-      loc 2 2 15 y + 20
-      text item.from 9
-      loc -2 2 -25 y
-      icon "down-arrow" 0.6
-    )
-  )
-  frame "clear"
-  loc 2 -2 150 30
-  square 300 60 0 : c#seco
-  change_x -120
-  icon_button "reload" 0.6
-  if clicked and can (
-    can = false
-    all_mail = []
-    current_email = 0
-    network "server" "omail_getinfo"
-  )
-  if current_email != 0 (
-    icon_button "bin" 0.7
-    if clicked and can (
-      network "server" "omail_delete" current_email
-      email_data = {}
-      all_mail.delete(current_email)
-      if current_email == all_mail.len (
-        current_email = 0
-      ) else (
-        current_email = count
-        email_data = item
-        if item.body == "" (
-          network "server" "omail_getid" count
-          email_data.body = "loading...."
-        )
-      )
-    )
-    icon_button "bookmark" 0.7
-    icon_button "copy" 0.7
-    if clicked and can (
-      clipboard "set" email_data.body
-    )
-  )
-  icon_button "add" 0.7
-  if clicked and can (
-    can = false
-    window "add" window.file.uuid "new"
-  )
-  if current_email != 0 (
-    frame window.left + 305 window.top - 45 window.right window.bottom (
-      square 0 0 100000 : c#prim
-      loc 999 2 0 -20
-      square frame_width 20 10 : c#seco
-    
-      c txtc
-      loc 2 2 10 -20
-      if email_data.from == username (
-        text "You sent this to >" + email_data.recipient 10
-      ) else (
-        text "You got this from >" + email_data.from 10
-      )
-      loc 2 2 10 -60
-      text email_data.title 12
-      
-      goto 0 -50
-      inputs.body = email_data.body.split("\n")
-      
-      c seco
-      textbox frame_width frame_height - 100 "body" 20 {
-        line_numbers: false
-      }
-    )
-  )
-)
-
-def "new_omail" (
-  topbar
-  
-  loc 999 2 0 -75
-  square frame_width - 30 22 20 : c#prim
-  change_x -20
-  input frame_width - 80 22 "recipient" "Type the username of the person to send this too"
-  inputs.recipient.strip().trim(0,20)
-  
-  loc -2 2 -30 -75
-  icon "send" 0.8 : c#txtc
-  if mouse_touching (
-    cursor "pointer"
-  )
-  if clicked and can (
-    can = false
-    omail_data = {
-      recipient: inputs.recipient.toLower(),
-      title: inputs.title.destr,
-      body: inputs.body.join("\n").destr
-    }
-    network "server" "omail_send" omail_data
-    window.close()
-  )
-  
-  loc 999 2 0 -128
-  square frame_width - 30 22 20 : c#prim
-  input frame_width - 30 22 "title" "Type the title of the omail here"
-  inputs.title @= inputs.title.trim(0,50)
-  
-  loc 999 -2 0 frame_height - 160 / 2
-  textbox frame_width frame_height - 160 "body" 20 {
-    "bg_colour": prim
+array filters = [
+  {
+    text: "Inbox",
+    icon: "mail",
+    func: data -> (data.from != username)
+  },
+  {
+    text: "Sent",
+    icon: "send",
+    func: data -> (data.from == username)
   }
-)
+]
+
+current_filter @= filters[1].func
+
+
+new_mail = true
 
 mainloop:
-load_theme
+wt:load_theme
 
 if new_network_data (
   command = network_data_command
@@ -181,23 +39,209 @@ if new_network_data (
   if command == "omail_getinfo" (
     all_mail = network_data
     each i mail all_mail (
-      date = mail.timestamp.timestamp("convert-date").replace("-","/")
-      all_mail[i] = mail.insert("date",date)
+      all_mail[i].date = mail.timestamp.timestamp("to-relative").replace("-","/")
+      all_mail[i].index = i
     )
+    current_rmail = 0
   )
   if command == "omail_getid" (
     i = network_data[1]
     data = network_data[2].body
-    all_mail.[i] = all_mail[i].insert("body",data)
-    if current_email == i (
-      email_data = all_mail[i]
+    all_mail[i].body = data ?? "this message is empty"
+  )
+  if command == "omail_send" (
+    if current_rmail == "new" (
+      say packet.data
+      if packet.full.success (
+        current_rmail = "new"
+        inputs.recipient = ""
+        inputs.title = ""
+        inputs.send_body = []
+      )
     )
   )
   new_network_data = false
 )
 
-if mouse_down.not() "can = true"
+goto 0 window.top - 20
+square window.width 40 13 : c#seco
+square window.width 40 8 : c#prim
 
-if page == "main" "run_ui"
-if page == "new" "new_omail"
+local h = window.height - 85
+local y = -23
+goto window.left + 340 y
+square 250 h 25 : c#seco
+square 250 h 20 : c#prim
+
+w = window.width - 520
+goto window.right - (w / 2) - 20 y
+square w h 25 : c#seco
+square w h 20 : c#prim
+
+glass:frame window.left window.top window.right window.bottom
+frame "clear"
+
+loc 2 2 100 -70
+for i filters.len (
+  set_x window.left + 100
+  square 170 20 15 0 1
+  if onclick (
+    current_filter @= filters[i].func
+    current_rmail = 0
+  )
+  set_x window.left + 30
+  c current_filter === filters[i].func ? txtc seco
+  icon filters[i].icon 0.8
+  text filters[i].text 10 : chx#20
+  change_y -40
+)
+
+c window_colour
+goto window.left + 340 y
+square 250 h 15
+x = x_position
+c prim
+cur_mail @= all_mail.filter(current_filter)
+frame x - 130 window.top - 55 x + 130 window.bottom + 15 cur_mail.len * 85 "mail" (
+  set_y frame.top + frame.scroll - 47.5
+  local y2 = y_position
+  if cur_mail.len == 0 (
+    goto 0 y2
+    centext "This mailbox is empty" 10 : c#txtc
+    if typeof(current_rmail) == "number" (
+      current_rmail = 0
+    )
+  )
+  for i cur_mail.len (
+    local cur @= cur_mail[i]
+    goto 0 y2
+    if cur.index == current_rmail (
+      square frame.width - 15 70 15 : c#seco
+    )
+    square frame.width - 15 70 10 : c#prim
+    if onclick (
+      current_rmail = cur.index
+    )
+    local r_from = cur.from
+    local r_to = cur.recipient
+    
+    all_mail[cur.index].external = r_to == username ? r_from r_to
+    set_x frame.left + 27 : chy#15
+
+    if cur.external != null (
+      image "https://avatars.rotur.dev/" ++ cur.external ++ "?radius=30" 40 40
+    )
+    text cur.external ++ "\n" ++ cur.date 10 : c#txtc chx#30 chy#12
+    set_x frame.left + 10 : chy#-30
+    text cur.title 10
+    y2 -= 85
+  )
+)
+
+if all_mail[current_rmail].body == null and current_rmail.toNum() > 0 (
+  network "server" "omail_getid" current_rmail
+  all_mail[current_rmail].body = "loading..."
+)
+
+c window_colour
+goto window.right - (w / 2) - 20 y
+square w h 15
+x = x_position
+cur @= all_mail[current_rmail]
+c prim
+local l = x - (w / 2)
+frame l window.top - 60 x + (w / 2) window.bottom + 15 (
+  if current_rmail == "new" (
+    goto 0 frame.top - 28
+    square frame.width - 20 22 10 : c#prim
+    change_x -25
+    input frame.width - 80 25 "recipient" "Type the username of the person to send this too"
+    inputs.recipient = inputs.recipient.trim(0,20)
+  
+    goto frame.right - 25 frame.top - 28
+    icon "send" 0.8 : c#txtc
+    if mouse_touching (
+      cursor "pointer"
+      if onclick (
+        omail_data = {
+          recipient: inputs.recipient.toLower(),
+          title: inputs.title,
+          body: inputs.send_body.join("\n")
+        }
+        network "server" "omail_send" omail_data
+        say "Sending"
+      )
+    )
+    
+    goto 0 frame.top - 72
+    square frame.width - 20 22 10 : c#prim
+    input frame.width - 30 25 "title" "Type the title of the omail here"
+    inputs.title = inputs.title.trim(0,50)
+    
+    goto 0 -43
+    c prim
+    textbox frame.width - 20 frame.height - 120 "send_body" 10 {
+      bg_colour: prim,
+      line_numbers: false,
+      default_text: "Type your message here"
+    }
+  ) else if cur != null (
+    loc 2 2 20 -25
+    if cur.external != null (
+      image "https://avatars.rotur.dev/" ++ cur.external ++ "?radius=30" 40 40
+    )
+    text cur.external 10 : c#txtc chx#30
+  
+    local msg = cur.from == username ? "Sent" "Recieved"
+    loc -2 2 -20 - (msg.len * 10) -20
+    text msg 10
+  
+    inputs.body = cur.body.wrapText(frame.width / 10 - 3).split("\n")
+  
+    goto 0 -10
+    c prim
+    textbox frame.width frame.height - 100 "body" 10 {
+      line_numbers: false,
+    }
+  )
+)
+
+goto 0 window.top - 22
+square window.width 43 0 : c#window_colour
+
+loc 2 2 10 -22
+text "Rotur Mail" 10 : c#txtc
+
+if current_rmail.toNum() > 0 (
+  goto 240 window.bottom + 30
+  square window.width - 520 20 10 : c#prim
+  loc 2 -2 515 30
+  icon "bin" 0.8 : c#txtc tooltip#"Delete rmail"
+  if onclick (
+    network "server" "omail_delete" current_rmail
+    all_mail = []
+    network "server" "omail_getinfo"
+    current_rmail = 0
+  )
+  icon "copy" 0.8 : chx#35 tooltip#"Copy Body"
+  if onclick (
+    clipboard "set" all_mail[current_rmail].body
+  )
+)
+
+loc 2 -2 20 20
+icon "add" 0.8 : c#txtc
+if onclick (
+  current_rmail = "new"
+  inputs.recipient = ""
+  inputs.title = ""
+  inputs.send_body = []
+)
+icon "sync" 0.6 : chx#35
+if onclick (
+  network "server" "omail_getinfo"
+  all_mail = []
+  current_rmail = 0
+)
+
 import "win-buttons"
