@@ -1365,6 +1365,7 @@ def "credits" (
       text "Patreon Supporters:" 10 : c#txtc
       
       supporters @= {
+        "OriginPro": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username)),
         "OriginDrive": supporterData.filter(u -> (u.subscription == "originDrive")).map(u -> (u.username)),
         "Supporter": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username))
       }
@@ -1376,20 +1377,22 @@ def "credits" (
       for categoryi supporters.getKeys().len (
         local category @= values[categoryi]
         local categoryName @= keys[categoryi]
-        
-        y += 20
-        loc 2 2 15 -85 - y + scroll_y
-        text categoryName 11.5 : c#txtc
-        y += 20
-        
-        for useri category.len (
-          local user @= category[useri]
-          
-          y += 8
-          loc 2 2 25 -85 - y + scroll_y
-          image "https://avatars.rotur.dev/" ++ user ++ "?radius=128" 22 : chx#15
-          text user 10 : c#txtc chx#16.5
+
+        if category.len > 0 (
           y += 20
+          loc 2 2 15 -85 - y + scroll_y
+          text categoryName 11.5 : c#txtc
+          y += 20
+          
+          for useri category.len (
+            local user @= category[useri]
+            
+            y += 8
+            loc 2 2 25 -85 - y + scroll_y
+            image "https://avatars.rotur.dev/" ++ user ++ "?radius=128" 22 : chx#15
+            text user 10 : c#txtc chx#16.5
+            y += 20
+          )
         )
       )
       page_len = y + 80
