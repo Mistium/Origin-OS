@@ -158,26 +158,8 @@ local opal = {
       )
     )
     log("Parsing script.osl")
-    local mtd = {
-      type: "mtd",
-      data: [
-        {
-          type: "var",
-          data: "__opal_imports",
-        },
-        {
-          type: "mtv",
-          data: "item",
-          parameters: [
-            {
-              type: "str",
-              data: ""
-            }
-          ]
-        }
-      ]
-    }
     log("Collecting imports")
+    
     local imports = {}
     
     while queue.len > 0 (
@@ -245,28 +227,28 @@ local opal = {
           log([c.err, "Failed to parse import file: ", parsed, "\nError: ", e])
           return
         )
-        imports[path] @= ast_cur
+        imports[path] @= data
       )
-      item.delete("source")
+      void item.delete("source")
     )
     
     local prepend = []
-    local import_keys = imports.getKeys().reverse()
+    void prepend.append("opal_imports = {}\ndef import(path) (\n  switch path (\n")
+    local import_keys @= imports.getKeys().reverse()
+    local indent = def(str) -> (
+      return str.replace("/^/gm", "  ")
+    )
     for i import_keys.len (
       local key = import_keys[i]
-      local data = imports[key]
+      local data = indent(imports[key].strip())
       local hash = "__imports__" ++ key.hashMD5()
       log("Compiled " ++ key ++ " " ++ i ++ "/" ++ import_keys.len)
-      void prepend.append("// " ++ key)
-      void prepend.append("class " ++ hash ++ " " ++ {type: "blk", data}.toStr())
-      void prepend.append("__opal_imports['" ++ key ++ "'] = " ++ hash ++ "")
+      void prepend.append("case \"" ++ key ++ "\"")
+      void prepend.append("  class " ++ hash ++ " (\n" ++ indent(data ++ "\n)"))
+      void prepend.append("  return " ++ hash)
     )
-    
-    local mainloop = ast.findIndex(val -> val[1]["type"] == "unk" and val[1].data == "mainloop:")
-    local setup @= {type: "blk", data: ast.left(mainloop - 1)}
-    local main @= {type: "blk", data: ast.right(ast.len - mainloop)}
 
-    local out = `__opal_imports @= {}\n${prepend.join("\n")}\n__setup @= function("", ${setup.toStr()})\n__main @= function("", ${main.toStr()})\n__setup()\nmainloop:\n__main()`
+    local out = prepend.join("\n") ++ ")\n)\n" ++ file.data
 
     if !self.open("build.folder").exists (
       log("Creating /build directory")
