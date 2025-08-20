@@ -18,9 +18,11 @@ graph = []
 network_usage = []
 
 def "tab" "name" (
-  if name == current_tab "c seco" else "c prim"
+  c name == current_tab ? seco prim
   square tab_w 25 10 1
-  if onclick "current_tab = name"
+  if onclick (
+    current_tab = name
+  )
   change_x tab_w / -2 + 5
   text name 8 : c#txtc
 )
@@ -69,7 +71,7 @@ graph = 1000.newArray()
 
 getWindowsData()
 
-disk_info = ""
+disk_info = []
 
 mainloop:
 load_theme
@@ -79,11 +81,15 @@ square 25 25 10 : c#prim
 if clicked "window stop"
 
 square 25 25 10 : chx#-40
-if clicked "window minimise.str"
+if clicked (
+  window.minimise()
+)
 icon "down" 0.7 : c#txtc
 
 icon "close" 0.7 : chx#40
-if clicked "window stop"
+if clicked (
+  window.close()
+)
 
 if current_tab == "no_perms" (
   if window.permissions.contains("windows") (
@@ -106,7 +112,7 @@ if activity_info (
     square 140 25 10 : c#prim hover_c#seco
     if clicked (
       terminal "kill" + page
-      window "stop"
+      window.close()
     )
     icon "close" 0.7 : c#txtc chx#-50
     
@@ -150,9 +156,9 @@ if paused.not() (
     graph.delete(1)
   )
   frames = fps.round()
-  if high < frames "high = frames"
+  high = max(high, frames)
   low *= 1.002
-  if low > frames "low = frames"
+  low = min(low, frames)
 )
 loc 2 2 23 - (frames.len * 5) -20
 text frames 10 : c#txtc
@@ -187,7 +193,7 @@ tab "Network"
 loc 2 2 455 -20
 tab "Disk"
 loc 2 -2 25 25
-if paused "c global_accent" else "c prim"
+c paused ? global_accent prim
 square 25 25 10 : tooltip#Pause
 if onclick (
   paused.not()
@@ -198,12 +204,11 @@ if timer - last_timer > next_update and paused.not() (
   last_timer = timer
   dt = delta_time
   getWindowsData()
-  cpu_percent = (roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)).round().clamp(1,100)
+  cpu_percent = round(roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)).clamp(1,100)
   delta = cpu_percent ++ "%"
 )
 if current_tab == "Performance" (
-  minimised_text = "Fps"
-  window "responsive" True
+  window "responsive" true
   goto 25 -25
   graph window_width - 50 frame_height - 50 graph
 )
@@ -234,8 +239,7 @@ if current_tab == "Network" (
   text info.join("\n") 10 : c#txtc
 )
 if current_tab == "Render Info" (
-  minimised_text = "Info"
-  window "responsive" False
+  window "responsive" false
   loc 2 2 50 -45
   x = x_position
   y = y_position
@@ -251,7 +255,9 @@ if current_tab == "Render Info" (
     if mouse_touching (
       square w 25 10 : c#seco
       if onclick (
-        window "add" window.file.uuid windows_ids[count]
+        window.create(window.file.uuid, {
+          passed_data: windows_ids[count]
+        })
       )
     )
     rightclick "window" windows_names[count]
@@ -278,5 +284,7 @@ if current_tab == "Disk" (
     text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
   )
 )
-if mouse_down.not "can = true"
+if mouse_down.not() (
+  can = true
+)
 frame "clear"

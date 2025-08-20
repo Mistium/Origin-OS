@@ -1319,7 +1319,7 @@ class OSLUtils {
     if (MAIN) this.inlinableFunctions = {};
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
-    CODE = this.normalizeLineEndings(CODE);
+    CODE = this.normalizeLineEndings(CODE.trim());
     CODE = (MAIN ? `/@line ${++line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
       if (match === "\n") return MAIN ? `\n/@line ${++line}\n` : "\n";
       if (match === ";") return "\n";
@@ -1588,9 +1588,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `for i 10 (
-    )
-    for i 10 (
-    )`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Studio.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
   }), null, 2));
 }
