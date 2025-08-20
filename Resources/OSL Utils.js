@@ -217,6 +217,37 @@ class OSLUtils {
     this.macLineEndingRegex = /\r/g;
     // Store inlinable functions
     this.inlinableFunctions = {};
+
+    this.tkn = {
+      str: 0,
+      num: 1,
+      raw: 2,
+      unk: 3,
+      obj: 4,
+      arr: 5,
+      fnc: 6,
+      mtd: 7,
+      asi: 8,
+      opr: 9,
+      cmp: 10,
+      spr: 11,
+      log: 12,
+      qst: 13,
+      bit: 14,
+      ury: 15,
+      mtv: 16,
+      cmd: 17,
+      mod_indicator: 18,
+      inl: 19,
+      blk: 20,
+      var: 21,
+      tsr: 22,
+      evl: 23,
+      rmt: 24,
+      mod: 25,
+    }
+
+    if (typeof window !== "undefined") window.osl_tkn = this.tkn;
   }
 
   getInfo() {
@@ -574,7 +605,7 @@ class OSLUtils {
           value: paramExpr
         });
         paramMap[paramName] = {
-          type: "var",
+          type: "var", num: this.tkn.var,
           data: tempVarName,
           source: tempVarName
         };
@@ -590,24 +621,22 @@ class OSLUtils {
     // If we have temp variables, wrap the expression in a block that declares them
     if (tempVars.length > 0) {
       // Create assignment statements for temp variables
-      const assignments = tempVars.map(tempVar => [
+        const assignments = tempVars.map(tempVar => [
         {
-          type: "asi",
+          type: "asi", num: this.tkn.asi,
           data: "@=",
           source: `${tempVar.name} @= ${tempVar.value.source || "[expression]"}`,
           left: {
-            type: "var",
+            type: "var", num: this.tkn.var,
             data: tempVar.name,
             source: tempVar.name
           },
           right: tempVar.value
         }
-      ]);
-
-      // Create a return statement with the inlined expression
+      ]);      // Create a return statement with the inlined expression
       const returnStmt = [
         {
-          type: "cmd",
+          type: "cmd", num: this.tkn.cmd,
           data: "return",
           source: `return ${inlinedExpr.source || "[inlined]"}`
         },
@@ -616,7 +645,7 @@ class OSLUtils {
 
       // Return a block with temp variable assignments followed by the return
       return {
-        type: "blk",
+        type: "blk", num: this.tkn.blk,
         data: [...assignments, returnStmt],
         source: "[inlined with temps]"
       };
@@ -859,40 +888,41 @@ class OSLUtils {
 
   stringToToken(cur, param) {
     let start = cur[0]
-    if (cur === "/@line") return { type: "unk", data: "/@line" }
-    if (!isNaN(+`${cur}`.replaceAll("_", ""))) return { type: "num", data: +`${cur}`.replaceAll("_", "") }
-    else if (cur === "true" || cur === "false") return { type: "raw", data: cur === "true" }
-    else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
-    else if (cur === "++") return { type: "opr", data: "++" }
-    else if (cur === "--") return { type: "unk", data: "--" }
-    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
-    else if (cur.endsWith("=")) return { type: "asi", data: cur }
-    else if (start + cur[cur.length - 1] === '""') return { type: "str", data: destr(cur) }
-    else if (start + cur[cur.length - 1] === "''") return { type: "str", data: destr(cur, "'") }
+    const tkn = this.tkn;
+    if (cur === "/@line") return { type: "unk", num: tkn.unk, data: "/@line" }
+    if (!isNaN(+`${cur}`.replaceAll("_", ""))) return { type: "num", num: tkn.num, data: +`${cur}`.replaceAll("_", "") }
+    else if (cur === "true" || cur === "false") return { type: "raw", num: tkn.raw, data: cur === "true" }
+    else if (this.operators.indexOf(cur) !== -1) return { type: "opr", num: tkn.opr, data: cur }
+    else if (cur === "++") return { type: "opr", num: tkn.opr, data: "++" }
+    else if (cur === "--") return { type: "unk", num: tkn.unk, data: "--" }
+    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", num: tkn.cmp, data: cur }
+    else if (cur.endsWith("=")) return { type: "asi", num: tkn.asi, data: cur }
+    else if (start + cur[cur.length - 1] === '""') return { type: "str", num: tkn.str, data: destr(cur) }
+    else if (start + cur[cur.length - 1] === "''") return { type: "str", num: tkn.str, data: destr(cur, "'") }
     else if (start + cur[cur.length - 1] === "``") {
       return {
-        type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
+        type: "tsr", num: this.tkn.tsr, data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
           if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
-          else return { type: "str", data: v }
+          else return { type: "str", num: tkn.str, data: v }
         })
       }
     }
-    else if (cur === "?") return { type: "qst", data: cur }
-    else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
-    else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
-    else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
-    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
+    else if (cur === "?") return { type: "qst", num: tkn.qst, data: cur }
+    else if (this.logic.indexOf(cur) !== -1) return { type: "log", num: tkn.log, data: cur }
+    else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", num: tkn.bit, data: cur }
+    else if (cur.startsWith("...")) return { type: "spr", num: tkn.spr, data: this.evalToken(cur.substring(3)) }
+    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", num: tkn.ury, data: start, right: this.evalToken(cur.slice(1)) };
     else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
       method = method.map((input, index) => this.evalToken(input, index > 0))
-      return { type: "mtd", data: method };
+      return { type: "mtd", num: this.tkn.mtd, data: method };
     }
     else if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (start === "[") {
           if (cur == "[]") {
-            if (param) return { type: "mtv", data: "item", parameters: [] };
-            else return { type: "arr", data: [] };
+            if (param) return { type: "mtv", num: this.tkn.mtv, data: "item", parameters: [] };
+            else return { type: "arr", num: this.tkn.arr, data: [] };
           }
 
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
@@ -907,22 +937,22 @@ class OSLUtils {
           }
 
           if (param) {
-            const obj = { type: "mtv", data: "item", parameters: tokens };
+            const obj = { type: "mtv", num: this.tkn.mtv, data: "item", parameters: tokens };
             obj.isStatic = tokens.every(token => this.isStaticToken(token));
             if (obj.isStatic) {
               if (tokens.length === 1 && tokens[0].type === "str") {
-                return {type: "mtv", data: tokens[0].data}
+                return {type: "mtv", num: this.tkn.mtv, data: tokens[0].data}
               }
               obj.static = tokens.map(token => token.data);
             }
             return obj;
           }
-          const arr = { type: "arr", data: tokens };
+          const arr = { type: "arr", num: this.tkn.arr, data: tokens };
           arr.isStatic = tokens.every(token => this.isStaticToken(token));
           if (arr.isStatic) arr.static = tokens.map(token => token.data);
           return arr;
         } else if (cur[0] === "{") {
-          if (cur == "{}") return { type: "obj", data: {} }
+          if (cur == "{}") return { type: "obj", num: this.tkn.obj, data: {} }
 
           let output = {};
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",")
@@ -936,25 +966,25 @@ class OSLUtils {
             if (value === undefined) output[key] = null;
             else output[key] = this.generateAST({ CODE: ("" + value).trim(), START: 0 })[0];
           }
-          return { type: "obj", data: output };
+          return { type: "obj", num: this.tkn.obj, data: output };
         }
       } catch (e) {
         console.error(e)
-        return { type: "unk", data: cur }
+        return { type: "unk", num: this.tkn.unk, data: cur }
       }
     }
-    else if (cur === "null") return { type: "unk", data: null }
-    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
-    else if (cur === "->") return { type: "inl", data: "->" }
-    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
+    else if (cur === "null") return { type: "unk", num: this.tkn.unk, data: null }
+    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", num: this.tkn.var, data: cur }
+    else if (cur === "->") return { type: "inl", num: this.tkn.inl, data: "->" }
+    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", num: this.tkn.blk, data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
     else if (cur.startsWith("(") && cur.endsWith(")")) {
       let end = this.findMatchingParentheses(cur, 0);
-      if (end === -1) return { type: "unk", data: cur, parse_error: "Unmatched parentheses" };
+      if (end === -1) return { type: "unk", num: this.tkn.unk, data: cur, parse_error: "Unmatched parentheses" };
       const body = cur.substring(1, end).trim();
       return this.generateAST({ CODE: body, START: 0 })[0]
     }
     else if (cur.endsWith(")") && cur.length > 1) {
-      let out = { type: param ? "mtv" : "fnc", data: cur.substring(0, cur.indexOf("(")), parameters: [] }
+      let out = { type: param ? "mtv" : "fnc", num: param ? this.tkn.mtv : this.tkn.fnc, data: cur.substring(0, cur.indexOf("(")), parameters: [] }
       if (cur.endsWith("()")) return out
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
       method = method.map(v => {
@@ -973,8 +1003,8 @@ class OSLUtils {
       out.parameters = method
       return out
     }
-    else if (cur === ":") return { type: "mod_indicator", data: ":" };
-    else return { type: "unk", data: cur }
+    else if (cur === ":") return { type: "mod_indicator", num: this.tkn.mod_indicator, data: ":" };
+    else return { type: "unk", num: this.tkn.unk, data: cur }
   }
 
   isStaticToken(token) {
@@ -1001,13 +1031,13 @@ class OSLUtils {
       const cur = tokens[i].trim()
       if (cur === "->") {
         const data = tokens[i + 1].trim()
-        ast.push({ type: "inl", data: "->" })
-        ast.push({ type: "str", data, source: data })
+        ast.push({ type: "inl", num: this.tkn.inl, data: "->" })
+        ast.push({ type: "str", num: this.tkn.str, data, source: data })
         i += 1;
         continue;
       }
       if (handlingMods) {
-        const token = { type: "mod", data: cur, source: cur };
+        const token = { type: "mod", num: this.tkn.mod, data: cur, source: cur };
         const pivot = token.data.indexOf("#") + 1
         token.data = [token.data.substring(0, pivot - 1), this.evalToken(token.data.substring(pivot))]
         ast.push(token);
@@ -1090,11 +1120,11 @@ class OSLUtils {
           right.data = `(\nreturn ${right.source}\n)`;
         }
         return {
-          type: "fnc",
+          type: "fnc", num: this.tkn.fnc,
           data: "function",
           parameters: [
             {
-              type: "str",
+              type: "str", num: this.tkn.str,
               data: params,
               source: params
             },
@@ -1125,7 +1155,7 @@ class OSLUtils {
             case "%": result = +node.left.data % +node.right.data; break;
           }
           if (result) return {
-            type: "num",
+            type: "num", num: this.tkn.num,
             data: +result,
             source: result.toString()
           };
@@ -1156,7 +1186,7 @@ class OSLUtils {
       }
       first.data = second.data;
       ast.splice(1, 0, {
-        type: "asi",
+        type: "asi", num: this.tkn.asi,
         data: "=",
         source: start
       });
@@ -1166,11 +1196,11 @@ class OSLUtils {
           p.data
       )).join(",")
       const funcNode = {
-        type: "fnc",
+        type: "fnc", num: this.tkn.fnc,
         data: "function",
         parameters: [
           {
-            type: "str",
+            type: "str", num: this.tkn.str,
             data: params,
             source: params
           },
@@ -1202,11 +1232,11 @@ class OSLUtils {
 
         let first = leftData.length === 1 ?
           leftData[0] :
-          { type: 'mtd', data: leftData }
+          { type: "mtd", num: this.tkn.mtd, data: leftData }
 
         ast.unshift(
           first,
-          { type: "asi", data: "=??", source: start }
+          { type: "asi", num: this.tkn.asi, data: "=??", source: start }
         );
       }
     }
@@ -1240,7 +1270,7 @@ class OSLUtils {
           const path = cur.left.data.slice();
           const final = path.pop();
           cur.left = {
-            type: "rmt",
+            type: "rmt", num: this.tkn.rmt,
             objPath: path,
             final: final
           };
@@ -1264,7 +1294,7 @@ class OSLUtils {
         !t1?.right)
     ) {
       ast[0] = {
-        type: "asi",
+        type: "asi", num: this.tkn.asi,
         data: ast[1].data,
         left: ast[0],
         source: CODE
@@ -1273,7 +1303,10 @@ class OSLUtils {
     }
 
     if (MAIN) {
-      if (ast[0].type === "var") ast[0].type = "cmd";
+      if (ast[0].type === "var") {
+        ast[0].type = "cmd";
+        ast[0].num = this.tkn.cmd;
+      }
       ast[0].source = CODE.split("\n", 1)[0];
     }
 
@@ -1300,7 +1333,7 @@ class OSLUtils {
       }
     }
 
-    if (ast[0].type === "cmd" && ast.every(v => ["str", "cmd", "num"].includes(v.type))) {
+    if (ast[0].type === "cmd" && ast.every(v => ["str", "cmd", "num", "raw"].includes(v.type))) {
       ast[0].isStatic = true;
       ast[0].full = ast.map(v => v.data);
     }
@@ -1369,6 +1402,7 @@ class OSLUtils {
           cur[1].line = cur[0].line;
           cur.shift();
           cur[0].type = "cmd";
+          cur[0].num = this.tkn.cmd;
           cur[0].local = true;
         }
       }
@@ -1385,14 +1419,14 @@ class OSLUtils {
             const static_var = cur[2].type === "var"
             const dat = static_var ? cur[2].source : "this.EACH_DAT_" + randomString(10);
             const spl = [
-              [{ ...cur[0], type: "asi", data: "@=", left: this.evalToken(id), right: this.evalToken("0") }],
-              [{ ...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }]
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "@=", left: this.evalToken(id), right: this.evalToken("0") }],
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "@=", left: this.evalToken(dat), right: cur[2] }]
             ]
             if (static_var) spl.pop();
             lines.splice(i, 0, ...spl);
             cur[3].data.splice(0, 0,
-              [{ ...cur[0], type: "asi", data: "++", left: this.evalToken(id) }],
-              [{ ...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "++", left: this.evalToken(id) }],
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
             )
             cur[0].data = "loop"
             cur.splice(1, 1)
@@ -1401,11 +1435,14 @@ class OSLUtils {
         } else {
           if (data === "while" || data === "until") {
             cur[1] = {
-              type: "evl",
+              type: "evl", num: this.tkn.evl,
               data: cur[1],
               source: cur[1].source || "[ast EVL]"
             }
-          } else cur[1].type = "str";
+          } else {
+            cur[1].type = "str";
+            cur[1].num = this.tkn.str;
+          }
         }
         i++
       }
@@ -1425,7 +1462,7 @@ class OSLUtils {
         ) {
           const blk = lines.splice(i + 1, 1)[0];
           cur.push({
-            type: "blk",
+            type: "blk", num: this.tkn.blk,
             data: [blk],
             source: '[ast BLK]'
           })
@@ -1440,11 +1477,11 @@ class OSLUtils {
               lines[i] = this.generateError(cur[0], `Malformed line. Cannot use '${t.data}' here`);
               continue;
             }
-            lines[i] = this.generateError(t.left || t.right || t, `Malformed ${t.type === 'opr' ? 'operator' : t.type} '${t.data}'. Missing ${!t.left && !t.right ? 'operands' : !t.left ? 'left operand' : 'right operand'}.`);
+            lines[i] = this.generateError(t.left || t.right || t, `Malformed ${t.type === "opr" ? 'operator' : t.type} '${t.data}'. Missing ${!t.left && !t.right ? 'operands' : !t.left ? 'left operand' : 'right operand'}.`);
             continue;
           }
         }
-        if (t.type === 'qst') {
+        if (t.type === "qst") {
           if (!t.left || !t.right || !t.right2) {
             lines[i] = this.generateError(t.left || t, `Incomplete ternary '?'. Expected pattern: condition ? valueIfTrue valueIfFalse`);
             continue;
