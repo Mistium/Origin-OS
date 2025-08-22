@@ -33,6 +33,7 @@ if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
   )
   text time 9 : chx#-45 c#icon_colour
 )
+timeode_daytemp ??= -1
 if day != timeode_daytemp or bg_redrawn (
   timeode_daytemp = day
   goto x y - 10
