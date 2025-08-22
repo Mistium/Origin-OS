@@ -1467,8 +1467,8 @@
                               "source": "[ast BLK]"
                             },
                             {
-                              "type": "var",
-                              "num": 21,
+                              "type": "cmd",
+                              "num": 17,
                               "data": "else",
                               "source": "else"
                             },
@@ -1772,8 +1772,8 @@
                         "source": "[ast BLK]"
                       },
                       {
-                        "type": "var",
-                        "num": 21,
+                        "type": "cmd",
+                        "num": 17,
                         "data": "else",
                         "source": "else"
                       },
@@ -3374,14 +3374,14 @@
                         "source": "[ast BLK]"
                       },
                       {
-                        "type": "var",
-                        "num": 21,
+                        "type": "cmd",
+                        "num": 17,
                         "data": "else",
                         "source": "else"
                       },
                       {
-                        "type": "var",
-                        "num": 21,
+                        "type": "cmd",
+                        "num": 17,
                         "data": "if",
                         "source": "if"
                       },
@@ -3580,14 +3580,14 @@
                         "source": "[ast BLK]"
                       },
                       {
-                        "type": "var",
-                        "num": 21,
+                        "type": "cmd",
+                        "num": 17,
                         "data": "else",
                         "source": "else"
                       },
                       {
-                        "type": "var",
-                        "num": 21,
+                        "type": "cmd",
+                        "num": 17,
                         "data": "if",
                         "source": "if"
                       },
@@ -4686,8 +4686,8 @@
                         "source": "[ast BLK]"
                       },
                       {
-                        "type": "var",
-                        "num": 21,
+                        "type": "cmd",
+                        "num": 17,
                         "data": "else",
                         "source": "else"
                       },
@@ -11611,8 +11611,8 @@
                       "source": "[ast BLK]"
                     },
                     {
-                      "type": "var",
-                      "num": 21,
+                      "type": "cmd",
+                      "num": 17,
                       "data": "else",
                       "source": "else"
                     },
@@ -12393,8 +12393,8 @@
       "source": "[ast BLK]"
     },
     {
-      "type": "var",
-      "num": 21,
+      "type": "cmd",
+      "num": 17,
       "data": "else",
       "source": "else"
     },

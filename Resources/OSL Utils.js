@@ -1063,6 +1063,7 @@ class OSLUtils {
       }
     }
     else if (cur === "null") return { type: "unk", num: this.tkn.unk, data: null }
+    else if (["if", "else", "as", "to", "from"].includes(cur)) return { type: "cmd", num: this.tkn.cmd, data: cur }
     else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", num: this.tkn.var, data: cur }
     else if (cur === "->") return { type: "inl", num: this.tkn.inl, data: "->" }
     else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", num: this.tkn.blk, data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
