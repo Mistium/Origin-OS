@@ -1445,7 +1445,6 @@ c_imgs = contributors.destr.getall("avatar_url")
 
 window "dimensions" 880 500
 window_accent = global_accent
-dock_location = dock_location
 media = ""
 segments = user.origin_dock
 accent_select = ""

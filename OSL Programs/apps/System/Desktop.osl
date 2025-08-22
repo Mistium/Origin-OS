@@ -88,10 +88,8 @@ def "render_selection" (
     pen "down"
     pen "up"
     pen "opacity" 100
-    fx = frame_x
-    fy = frame_y
-    fw = frame_width
-    fh = frame_height
+    selection_frame @= frame
+    // for later when i want to allow selecting many files
   )
   window.resize(screensize_x,screensize_y - 70)
   window.callRender()
