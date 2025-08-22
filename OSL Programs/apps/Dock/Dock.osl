@@ -29,7 +29,7 @@ if user.timeformat == null (
   }
 )
 
-goto 0 y
+goto 0 0
 dock_x = 0
 for syscount segments.len (
   import segments[syscount] "ode" : c#dock_colour chx#15
