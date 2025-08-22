@@ -181,6 +181,7 @@ desktop_uuid = open(windowfileloc ++ ".folder", [14])[1]
 positions = {}
 name = null
 apps_temp = ""
+can = false
 window "responsive" true
 
 include windowfileloc

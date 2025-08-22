@@ -17,7 +17,14 @@ window "y" screensize_y / -2 + 35
 
 segments = user.origin_dock
 if typeof(segments) != "array" (
-  segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/running.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
+  segments = [
+    "Origin/(A) System/Docks/Modules/main.ode",
+    "Origin/(A) System/Docks/Modules/applications.ode",
+    "Origin/(A) System/Docks/Modules/running.ode",
+    "Origin/(A) System/Docks/Modules/folders.ode",
+    "Origin/(A) System/Docks/Modules/time.ode",
+    "Origin/(A) System/Docks/Modules/battery.ode"
+  ]
   network "update" "origin_dock" segments
 )
 
@@ -29,7 +36,15 @@ if user.timeformat == null (
   }
 )
 
-goto 0 0
+// Parameter setup
+height = 36
+dock_x = 0
+dock_changed_w = false
+y = -100
+dock_y_target = 0
+
+// run the segments once to calculate the width
+goto 0 y
 dock_x = 0
 for syscount segments.len (
   import segments[syscount] "ode" : c#dock_colour chx#15
@@ -37,11 +52,8 @@ for syscount segments.len (
 )
 dock_width = x_position
 
-// Parameter setup
-dock_x = dock_width.round() / -2
-y = -100
-dock_y_target = 0
-height = 36
+// find the proper starting x
+dock_x = round(dock_width) / -2
 
 // theme
 if user.theme.len < 5 or typeof(user.theme) != "object" (
@@ -57,7 +69,6 @@ if user.theme.len < 5 or typeof(user.theme) != "object" (
 
 file_loc = user_folder ++ "/Dock"
 
-dock_changed_w = false
 network "update" "hostOS" system_os
 network "update" "timezone" timezone
 
@@ -74,12 +85,14 @@ if dock_colour + icon_colour != tempcol (
   window "refresh_bg"
 )
 movefileloc file_loc
-if mouse_down.not() "canclick = True"
-window "dimensions" screensize_x 70
+if mouse_down.not() (
+  canclick = true
+)
+window.resize(screensize_x, 70)
 window.y = screensize_y / -2 + 35
 if delta_time < 0.1 (
-  y += dock_y_target - y.round() * delta_time * 3
-  if y.round() != dock_y_target.round() (
+  y += dock_y_target - round(y) * delta_time * 3
+  if round(y) != round(dock_y_target) (
     window "refresh_bg"
   )
 )
@@ -90,7 +103,7 @@ if y > -80 (
     import segment "ode" : c#dock_colour chx#15
     goto width / 2 + x + 15 y
   )
-  dock_width = (x_position - dock_x).round()
+  dock_width = round(x_position - dock_x)
   if dock_width != dock_width_temp (
     dock_width_temp = dock_width
     dock_changed_w = true
