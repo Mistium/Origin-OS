@@ -1,5 +1,6 @@
 window_list @= Windows()
 
+running_windows ??= []
 if running_windows.len == 0 (
   width = 0
   change_x -30
