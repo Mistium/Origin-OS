@@ -6,6 +6,7 @@ if clicked (
   open = "Origin/(A) System/Docks/Time_Info.osl"
 )
 if bg_redrawn "square 105 height 20"
+timeode_secondtemp ??= -1
 if second != timeode_secondtemp or bg_redrawn or dock_changed_w (
   timeode_secondtemp = second
   set_y y + 10
