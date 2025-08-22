@@ -52,6 +52,7 @@ for syscount segments.len (
   goto width / 2 + x + 15 y
 )
 dock_width = x_position
+dock_width_temp = dock_width
 
 // find the proper starting x
 dock_x = round(dock_width) / -2
