@@ -183,6 +183,9 @@ name = null
 apps_temp = ""
 window "responsive" true
 
+include windowfileloc
+desktop @= data
+
 mainloop:
 back = user.theme.background
 txtc = user.theme.text
@@ -194,7 +197,7 @@ cnrn = desktop != data or bg_redrawn
 if cnrn.not() and nhvr (
   exit
 )
-desktop = data
+desktop @= data
 
 // set window parameters
 window.drop_location = windowfileloc
