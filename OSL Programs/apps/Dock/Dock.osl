@@ -42,6 +42,7 @@ dock_x = 0
 dock_changed_w = false
 y = -100
 dock_y_target = 0
+tempcol = ""
 
 // run the segments once to calculate the width
 goto 0 y
