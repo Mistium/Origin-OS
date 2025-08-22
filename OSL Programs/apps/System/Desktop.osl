@@ -191,7 +191,9 @@ include windowfileloc
 nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn
 
-if cnrn.not() and nhvr "exit"
+if cnrn.not() and nhvr (
+  exit
+)
 desktop = data
 
 // set window parameters
@@ -227,11 +229,15 @@ if nhvr.not() (
 
   rightclick desktop_rightclick desktop_uuid
 )
-if data.len == 0 or app_size == 0 "exit"
+if data.len == 0 or app_size == 0 (
+  exit
+)
 
 handle_app_culling
 
-if desktop_apps.len == 0 "exit"
+if desktop_apps.len == 0 (
+  exit
+)
 for i desktop_apps.len (
   app_id @= desktop_apps[i]
 
@@ -252,10 +258,8 @@ for i desktop_apps.len (
     square data.len * 8 5 15 : c#back chy#-35
     centext data 8 : c#txtc
     name = data
-  ) else (
-    if name == data (
-      window.callRender()
-      name = null
-    )
+  ) else if name == data (
+    window.callRender()
+    name = null
   )
 )
