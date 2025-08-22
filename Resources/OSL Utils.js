@@ -247,7 +247,29 @@ class OSLUtils {
       mod: 25,
     }
 
-    if (typeof window !== "undefined") window.osl_tkn = this.tkn;
+    this.byslTypes = {
+      tot: 0,
+      var: 1,
+      num: 2,
+      "+": 3,
+      "-": 4,
+      "*": 5,
+      "/": 6,
+      prp: 7, // get object prop
+      ">": 8,
+      "<": 9,
+      "==":10,
+      "!=":11,
+      and: 12,
+      or:  13,
+      unk: 14,
+      str: 15
+    }
+
+    if (typeof window !== "undefined") {
+      window.osl_tkn = this.tkn;
+      window.bysl_types = this.byslTypes;
+    }
   }
 
   getInfo() {
@@ -464,6 +486,73 @@ class OSLUtils {
     };
   }
 
+  // generate the bytecode
+  generateBysl(ast) {
+    const memMap = new Map()
+    const queue = [];
+    const types = this.byslTypes
+
+    function stepAst(node) {
+      queue.push(node)
+      switch (node?.type) {
+        case "opr": case "cmp": case "log":
+          stepAst(node.left)
+          stepAst(node.right)
+          break
+      }
+    }
+
+    stepAst(ast)
+
+    // reverse so we can process the nodes in reverse
+    queue.reverse()
+    let out = []
+    try {
+      // only ever push to "out"
+      // this means V8 can keep all the memory sequential and fast
+      for (let i = 0, l = queue.length; i < l; i++) {
+        const cur = queue[i]
+        const size = memMap.size
+        // we always set memory so having this outside the switch is more efficient
+        memMap.set(cur, size)
+        // store the size of the map for each node, allowing the memory location to be specific to the node itself
+        // references allow this to work because the queue is full of references, *not values*
+        switch (cur.type) {
+          case "var":
+            out.push(size, types.var, cur.data, 0)
+            break
+          case "num": case "unk": case "str":
+            out.push(size, types[cur.type], cur.data, 0)
+            break
+          case "opr": case "cmp": case "log":
+            if (types[cur.data] === undefined) throw new Error()
+            out.push(size, types[cur.data], memMap.get(cur.left), memMap.get(cur.right))
+            break
+          case "mtd":
+            out.push(size, types.var, cur?.data?.[0].data, 0)
+            const data = cur.data
+            for (let j = 1; j < data.length; j ++) {
+              const cur2 = data[j]
+              if (cur2.type !== "var") throw new Error()
+              memMap.set(cur2, 0)
+              out.push(size, types.prp, memMap.get(cur), cur2.data)
+            }
+            memMap.set(cur, memMap.size - 1)
+            break
+          default:
+            throw new Error() // stop it from compiling if theres unsupported nodes
+        }
+      }
+
+      // let the interpreter know how much memory is nessecary for this bysl
+      // bad for memory but might be the best way here
+      out.unshift(0, types.tot, memMap.size, 0)
+      return { success: true, code: out }
+    } catch {
+      return { success: false, code: out } // catch when it fails to generate
+    }
+  }
+
   // Detect if a function is inlinable (simple single return)
   isInlinableFunction(fnNode) {
     if (!fnNode || fnNode.type !== "fnc" || fnNode.data !== "function") return false;
@@ -621,7 +710,7 @@ class OSLUtils {
     // If we have temp variables, wrap the expression in a block that declares them
     if (tempVars.length > 0) {
       // Create assignment statements for temp variables
-        const assignments = tempVars.map(tempVar => [
+      const assignments = tempVars.map(tempVar => [
         {
           type: "asi", num: this.tkn.asi,
           data: "@=",
@@ -941,7 +1030,7 @@ class OSLUtils {
             obj.isStatic = tokens.every(token => this.isStaticToken(token));
             if (obj.isStatic) {
               if (tokens.length === 1 && tokens[0].type === "str") {
-                return {type: "mtv", num: this.tkn.mtv, data: tokens[0].data}
+                return { type: "mtv", num: this.tkn.mtv, data: tokens[0].data }
               }
               obj.static = tokens.map(token => token.data);
             }
@@ -1276,7 +1365,16 @@ class OSLUtils {
           };
         }
 
+        if (["opr", "cmp", "log"].includes(cur?.right?.type)) {
+          const val = this.generateBysl(cur.right)
+          if (val.success) cur.right.bysl = val.code
+        }
+        
         cur.source = start;
+      }
+      if (["opr", "cmp", "log"].includes(cur?.type)) {
+        const val = this.generateBysl(cur)
+        if (val.success) cur.bysl = val.code
       }
     }
 
