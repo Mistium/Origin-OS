@@ -43,6 +43,7 @@ if data.len != 0 (
       change_x 50
     )
   )
+  last_cur ??= null
   if cur != last_cur (
     last_cur = cur
     if mouse_moving (
