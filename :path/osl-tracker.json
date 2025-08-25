@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-08-18T21:22:42.079Z",
-  "totalScripts": 40,
+  "lastUpdated": "2025-08-25T21:16:02.720Z",
+  "totalScripts": 41,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -361,9 +361,18 @@
       "size": 122,
       "hash": "a7d2043e3b1817caec407cc6830921b8",
       "status": "active"
+    },
+    "kill.osl": {
+      "name": "kill.osl",
+      "firstAdded": "2025-08-25T21:16:02.711Z",
+      "lastModified": "2025-08-25T21:14:46.647Z",
+      "changeCount": 0,
+      "size": 467,
+      "hash": "1946bc5accc09021deffd0b7e587b395",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 40,
+  "totalActiveScripts": 41,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
@@ -371,6 +380,6 @@
       "changeCount": 10
     },
     "totalChanges": 80,
-    "averageChangesPerScript": 2
+    "averageChangesPerScript": 1.95
   }
 }
