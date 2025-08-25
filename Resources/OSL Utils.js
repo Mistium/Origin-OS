@@ -537,7 +537,6 @@ class OSLUtils {
               memMap.set(cur2, 0)
               out.push(size, types.prp, memMap.get(cur), cur2.data)
             }
-            memMap.set(cur, memMap.size - 1)
             break
           default:
             throw new Error() // stop it from compiling if theres unsupported nodes
@@ -1724,6 +1723,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }), null, 2));
 }
