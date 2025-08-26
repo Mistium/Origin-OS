@@ -28,6 +28,9 @@ window "responsive" true
 
 hitbox_size = 13
 
+x2 = hitbox_size * 2
+x25 = hitbox_size / 4
+
 def dragEdge(prop, axis) (
   if !mouse_down (
     state.dragEdge = null
@@ -125,6 +128,7 @@ def moveWindow() (
       state.move = null
       return
     )
+    state.dragDiag = null
     state.cursor = "grabbing"
     if mouse_moving (
       if top.tile != null (
