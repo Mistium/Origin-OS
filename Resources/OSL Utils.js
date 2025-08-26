@@ -129,16 +129,21 @@ function parseTemplate(str) {
     if (str[i] + str[i + 1] === '${') {
       if (depth === 0) {
         arr.push(cur);
-        cur = "$";
+        cur = "${";
+      } else {
+        cur += "${";
       }
       depth++;
+      i++; // Skip the next character since we processed both $ and {
       continue;
     }
-    if (str[i] === '}') {
+    if (str[i] === '}' && depth > 0) {
       depth--
       if (depth === 0) {
         arr.push(cur + '}');
         cur = "";
+      } else {
+        cur += '}';
       }
       continue;
     };
@@ -210,6 +215,61 @@ class OSLUtils {
     // Pre-compile line ending normalization regex
     this.lineEndingRegex = /\r\n/g;
     this.macLineEndingRegex = /\r/g;
+    // Store inlinable functions
+    this.inlinableFunctions = {};
+
+    this.tkn = {
+      str: 0,
+      num: 1,
+      raw: 2,
+      unk: 3,
+      obj: 4,
+      arr: 5,
+      fnc: 6,
+      mtd: 7,
+      asi: 8,
+      opr: 9,
+      cmp: 10,
+      spr: 11,
+      log: 12,
+      qst: 13,
+      bit: 14,
+      ury: 15,
+      mtv: 16,
+      cmd: 17,
+      mod_indicator: 18,
+      inl: 19,
+      blk: 20,
+      var: 21,
+      tsr: 22,
+      evl: 23,
+      rmt: 24,
+      mod: 25,
+    }
+
+    this.byslTypes = {
+      tot: 0,
+      var: 1,
+      num: 2,
+      "+": 3,
+      "-": 4,
+      "*": 5,
+      "/": 6,
+      prp: 7, // get object prop
+      ">": 8,
+      "<": 9,
+      "==":10,
+      "!=":11,
+      and: 12,
+      or:  13,
+      unk: 14,
+      str: 15
+    }
+
+    if (typeof window !== "undefined") {
+      window.osl_tkn = this.tkn;
+      window.bysl_types = this.byslTypes;
+    }
   }
 
   getInfo() {
@@ -426,6 +486,280 @@ class OSLUtils {
     };
   }
 
+  // generate the bytecode
+  generateBysl(ast) {
+    const memMap = new Map()
+    const queue = [];
+    const types = this.byslTypes
+
+    function stepAst(node) {
+      queue.push(node)
+      switch (node?.type) {
+        case "opr": case "cmp": case "log":
+          stepAst(node.left)
+          stepAst(node.right)
+          break
+      }
+    }
+
+    stepAst(ast)
+
+    // reverse so we can process the nodes in reverse
+    queue.reverse()
+    let out = []
+    try {
+      // only ever push to "out"
+      // this means V8 can keep all the memory sequential and fast
+      for (let i = 0, l = queue.length; i < l; i++) {
+        const cur = queue[i]
+        const size = memMap.size
+        // we always set memory so having this outside the switch is more efficient
+        memMap.set(cur, size)
+        // store the size of the map for each node, allowing the memory location to be specific to the node itself
+        // references allow this to work because the queue is full of references, *not values*
+        switch (cur.type) {
+          case "var":
+            out.push(size, types.var, cur.data, 0)
+            break
+          case "num": case "unk": case "str":
+            out.push(size, types[cur.type], cur.data, 0)
+            break
+          case "opr": case "cmp": case "log":
+            if (types[cur.data] === undefined) throw new Error()
+            out.push(size, types[cur.data], memMap.get(cur.left), memMap.get(cur.right))
+            break
+          case "mtd":
+            out.push(size, types.var, cur?.data?.[0].data, 0)
+            const data = cur.data
+            for (let j = 1; j < data.length; j ++) {
+              const cur2 = data[j]
+              if (cur2.type !== "var") throw new Error()
+              memMap.set(cur2, 0)
+              out.push(size, types.prp, memMap.get(cur), cur2.data)
+            }
+            break
+          default:
+            throw new Error() // stop it from compiling if theres unsupported nodes
+        }
+      }
+
+      // let the interpreter know how much memory is nessecary for this bysl
+      // bad for memory but might be the best way here
+      out.unshift(0, types.tot, memMap.size, 0)
+      return { success: true, code: out }
+    } catch {
+      return { success: false, code: out } // catch when it fails to generate
+    }
+  }
+
+  // Detect if a function is inlinable (simple single return)
+  isInlinableFunction(fnNode) {
+    if (!fnNode || fnNode.type !== "fnc" || fnNode.data !== "function") return false;
+    if (!fnNode.parameters || fnNode.parameters.length !== 2) return false;
+
+    const body = fnNode.parameters[1];
+    if (!body || body.type !== "blk" || !body.data || !Array.isArray(body.data)) return false;
+
+    // Check if function body has exactly one statement that's a return
+    if (body.data.length !== 1 || !Array.isArray(body.data[0])) return false;
+    const statement = body.data[0];
+    if (statement.length < 2 || statement[0].type !== "cmd" || statement[0].data !== "return") return false;
+
+    return true;
+  }
+
+  // Calculate the complexity cost of inlining vs function call
+  calculateInliningBenefit(funcName, parameters, returnExpression) {
+    let totalParamComplexity = 0;
+    let totalParamUsage = 0;
+
+    const funcInfo = this.inlinableFunctions[funcName];
+    if (!funcInfo) return false;
+
+    // Calculate complexity for each parameter
+    for (let i = 0; i < funcInfo.parameters.length; i++) {
+      const paramName = funcInfo.parameters[i];
+      const paramExpr = parameters[i];
+      const usageCount = this.countParameterUsage(returnExpression, paramName);
+
+      totalParamUsage += usageCount;
+
+      // Complex expressions get higher cost when used multiple times
+      if (!this.isSimpleExpression(paramExpr)) {
+        totalParamComplexity += usageCount * 2; // Penalty for complex expressions
+      } else {
+        totalParamComplexity += usageCount * 0.5; // Simple expressions are cheap
+      }
+    }
+
+    // Don't inline if the complexity cost is too high
+    // Function call overhead = ~3 units, so only inline if total cost < 6
+    return totalParamComplexity < 6;
+  }
+
+  // Extract parameters from function definition
+  extractFunctionParameters(paramString) {
+    if (!paramString || paramString.trim() === "") return [];
+    return autoTokenise(paramString.trim(), ",").map(p => p.trim()).filter(p => p);
+  }
+
+  // Substitute parameters in an AST node
+  substituteParameters(node, paramMap) {
+    if (!node || typeof node !== "object") return node;
+
+    if (Array.isArray(node)) {
+      return node.map(item => this.substituteParameters(item, paramMap));
+    }
+
+    const result = { ...node };
+
+    // If this is a variable that matches a parameter, replace it
+    if (node.type === "var" && paramMap.hasOwnProperty(node.data)) {
+      return paramMap[node.data];
+    }
+
+    // Recursively process all object properties
+    for (const key in result) {
+      if (result.hasOwnProperty(key) && key !== "source") {
+        result[key] = this.substituteParameters(result[key], paramMap);
+      }
+    }
+
+    return result;
+  }
+
+  // Check if a parameter expression is simple (safe to inline directly)
+  isSimpleExpression(expr) {
+    if (!expr || typeof expr !== "object") return true;
+
+    // Simple types that are safe to duplicate
+    if (["var", "str", "num", "unk"].includes(expr.type)) return true;
+
+    // Complex expressions should be cached
+    return false;
+  }
+
+  // Count how many times each parameter is used in the expression
+  countParameterUsage(node, paramName) {
+    if (!node || typeof node !== "object") return 0;
+
+    let count = 0;
+
+    if (Array.isArray(node)) {
+      return node.reduce((sum, item) => sum + this.countParameterUsage(item, paramName), 0);
+    }
+
+    // If this is the parameter variable, count it
+    if (node.type === "var" && node.data === paramName) {
+      count++;
+    }
+
+    // Recursively count in all object properties
+    for (const key in node) {
+      if (node.hasOwnProperty(key) && key !== "source") {
+        count += this.countParameterUsage(node[key], paramName);
+      }
+    }
+
+    return count;
+  }
+
+  // Try to inline a function call with parameter caching for complex expressions
+  tryInlineFunction(funcName, parameters) {
+    const inlineFunc = this.inlinableFunctions[funcName];
+    if (!inlineFunc) return null;
+
+    if (parameters.length !== inlineFunc.parameters.length) return null;
+
+    // Check if inlining would actually be beneficial
+    if (!this.calculateInliningBenefit(funcName, parameters, inlineFunc.returnExpression)) {
+      return null; // Skip inlining - function call is better
+    }
+
+    const paramMap = {};
+    const tempVars = [];
+
+    // Analyze each parameter
+    for (let i = 0; i < inlineFunc.parameters.length; i++) {
+      const paramName = inlineFunc.parameters[i];
+      const paramExpr = parameters[i];
+      const usageCount = this.countParameterUsage(inlineFunc.returnExpression, paramName);
+
+      // If parameter is used multiple times and is complex, create a temp variable
+      if (usageCount > 1 && !this.isSimpleExpression(paramExpr)) {
+        const tempVarName = `__temp_${paramName}_${randomString(8)}`;
+        tempVars.push({
+          name: tempVarName,
+          value: paramExpr
+        });
+        paramMap[paramName] = {
+          type: "var", num: this.tkn.var,
+          data: tempVarName,
+          source: tempVarName
+        };
+      } else {
+        // Simple expression or used only once - inline directly
+        paramMap[paramName] = paramExpr;
+      }
+    }
+
+    // Substitute parameters in the return expression
+    let inlinedExpr = this.substituteParameters(inlineFunc.returnExpression, paramMap);
+
+    // If we have temp variables, wrap the expression in a block that declares them
+    if (tempVars.length > 0) {
+      // Create assignment statements for temp variables
+      const assignments = tempVars.map(tempVar => [
+        {
+          type: "asi", num: this.tkn.asi,
+          data: "@=",
+          source: `${tempVar.name} @= ${tempVar.value.source || "[expression]"}`,
+          left: {
+            type: "var", num: this.tkn.var,
+            data: tempVar.name,
+            source: tempVar.name
+          },
+          right: tempVar.value
+        }
+      ]);      // Create a return statement with the inlined expression
+      const returnStmt = [
+        {
+          type: "cmd", num: this.tkn.cmd,
+          data: "return",
+          source: `return ${inlinedExpr.source || "[inlined]"}`
+        },
+        inlinedExpr
+      ];
+
+      // Return a block with temp variable assignments followed by the return
+      return {
+        type: "blk", num: this.tkn.blk,
+        data: [...assignments, returnStmt],
+        source: "[inlined with temps]"
+      };
+    }
+
+    return inlinedExpr;
+  }
+
+  // Register inlinable functions during AST generation
+  registerInlinableFunction(name, fnNode) {
+    if (!this.isInlinableFunction(fnNode)) return;
+
+    const paramString = fnNode.parameters[0].data || fnNode.parameters[0].source;
+    const parameters = this.extractFunctionParameters(paramString);
+    const body = fnNode.parameters[1];
+    const returnStatement = body.data[0];
+
+    // Extract the return expression (everything after the return command)
+    const returnExpression = returnStatement.slice(1);
+
+    this.inlinableFunctions[name] = {
+      parameters: parameters,
+      returnExpression: returnExpression.length === 1 ? returnExpression[0] : returnExpression
+    };
+  }
+
   // Normalize line endings using pre-compiled regex for better performance
   normalizeLineEndings(text) {
     return text.replace(this.lineEndingRegex, '\n').replace(this.macLineEndingRegex, '\n');
@@ -521,6 +855,7 @@ class OSLUtils {
       let depth = "";
       let quotes = 0;
       let squotes = 0;
+      let backticks = 0;
       let m_comm = 0;
       let b_depth = 0;
       let out = [];
@@ -530,15 +865,16 @@ class OSLUtils {
 
       while (letter < len) {
         depth = code[letter];
-        if (quotes === 0 && squotes === 0 && !escaped) {
+        if (quotes === 0 && squotes === 0 && backticks === 0 && !escaped) {
           if (depth === "[" || depth === "{" || depth === "(") b_depth++
           if (depth === "]" || depth === "}" || depth === ")") b_depth--
           b_depth = b_depth < 0 ? 0 : b_depth;
         }
-        if (depth === '"' && !escaped && squotes === 0) quotes = 1 - quotes;
-        else if (depth === "'" && !escaped && quotes === 0) squotes = 1 - squotes;
-        else if (depth === "/" && code[letter + 1] === "*" && quotes === 0 && squotes === 0) m_comm = 1;
-        else if (depth === "*" && code[letter + 1] === "/" && quotes === 0 && squotes === 0 && m_comm === 1) m_comm = 0;
+        if (depth === '"' && !escaped && squotes === 0 && backticks === 0) quotes = 1 - quotes;
+        else if (depth === "'" && !escaped && quotes === 0 && backticks === 0) squotes = 1 - squotes;
+        else if (depth === "`" && !escaped && quotes === 0 && squotes === 0) backticks = 1 - backticks;
+        else if (depth === "/" && code[letter + 1] === "*" && quotes === 0 && squotes === 0 && backticks === 0) m_comm = 1;
+        else if (depth === "*" && code[letter + 1] === "/" && quotes === 0 && squotes === 0 && backticks === 0 && m_comm === 1) m_comm = 0;
         else if (depth === '\\' && !escaped) escaped = !escaped;
         else escaped = false;
         if (m_comm === 0) out.push(depth);
@@ -546,6 +882,7 @@ class OSLUtils {
 
         if (quotes === 0 &&
           squotes === 0 &&
+          backticks === 0 &&
           b_depth === 0 &&
           m_comm === 0 &&
           (
@@ -574,10 +911,11 @@ class OSLUtils {
     try {
       // Normalize line endings first
       CODE = this.normalizeLineEndings(CODE);
-      
+
       let letter = 0;
       let depth = "";
-      let brackets = 0;
+      let quotes = 0;
+      let backticks = 0;
       let b_depth = 0;
       let out = [];
       let split = [];
@@ -586,14 +924,17 @@ class OSLUtils {
 
       while (letter < len) {
         depth = CODE[letter];
-        if (brackets === 0 && !escaped) {
+        if (quotes === 0 && backticks === 0 && !escaped) {
           if (depth === "[" || depth === "{" || depth === "(") b_depth++
           if (depth === "]" || depth === "}" || depth === ")") b_depth--
           b_depth = b_depth < 0 ? 0 : b_depth;
         }
-        if (depth === '"' && !escaped) {
-          brackets = 1 - brackets;
+        if (depth === '"' && !escaped && backticks === 0) {
+          quotes = 1 - quotes;
           out.push('"');
+        } else if (depth === '`' && !escaped && quotes === 0) {
+          backticks = 1 - backticks;
+          out.push('`');
         } else if (depth === '\\' && !escaped) {
           escaped = !escaped;
           out.push("\\");
@@ -603,7 +944,7 @@ class OSLUtils {
         }
         letter++;
 
-        if (brackets === 0 && ["\n", ";"].includes(CODE[letter]) && b_depth === 0) {
+        if (quotes === 0 && backticks === 0 && ["\n", ";"].includes(CODE[letter]) && b_depth === 0) {
           split.push(out.join(""));
           out = [];
           letter++;
@@ -635,21 +976,71 @@ class OSLUtils {
 
   stringToToken(cur, param) {
     let start = cur[0]
-    if (cur === "/@line") return { type: "unk", data: "/@line" }
-    if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
+    const tkn = this.tkn;
+    if (cur === "/@line") return { type: "unk", num: tkn.unk, data: "/@line" }
+    if (!isNaN(+`${cur}`.replaceAll("_", ""))) return { type: "num", num: tkn.num, data: +`${cur}`.replaceAll("_", "") }
+    else if (cur === "true" || cur === "false") return { type: "raw", num: tkn.raw, data: cur === "true" }
+    else if (this.operators.indexOf(cur) !== -1) return { type: "opr", num: tkn.opr, data: cur }
+    else if (cur === "++") return { type: "opr", num: tkn.opr, data: "++" }
+    else if (cur === "--") return { type: "unk", num: tkn.unk, data: "--" }
+    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", num: tkn.cmp, data: cur }
+    else if (cur.endsWith("=")) return { type: "asi", num: tkn.asi, data: cur }
+    else if (start + cur[cur.length - 1] === '""') return { type: "str", num: tkn.str, data: destr(cur) }
+    else if (start + cur[cur.length - 1] === "''") return { type: "str", num: tkn.str, data: destr(cur, "'") }
+    else if (start + cur[cur.length - 1] === "``") {
+      return {
+        type: "tsr", num: this.tkn.tsr, data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
+          if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
+          else return { type: "str", num: tkn.str, data: v }
+        })
+      }
+    }
+    else if (cur === "?") return { type: "qst", num: tkn.qst, data: cur }
+    else if (this.logic.indexOf(cur) !== -1) return { type: "log", num: tkn.log, data: cur }
+    else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", num: tkn.bit, data: cur }
+    else if (cur.startsWith("...")) return { type: "spr", num: tkn.spr, data: this.evalToken(cur.substring(3)) }
+    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", num: tkn.ury, data: start, right: this.evalToken(cur.slice(1)) };
+    else if (autoTokenise(cur, ".").length > 1) {
+      let method = autoTokenise(cur, ".")
+      method = method.map((input, index) => this.evalToken(input, index > 0))
+      return { type: "mtd", num: this.tkn.mtd, data: method };
+    }
+    else if ((start === "{" && cur[cur.length - 1] === "}") || (start === "[" && cur[cur.length - 1] === "]")) {
       try {
         if (start === "[") {
-          if (cur == "[]") return { type: "arr", data: [] }
-
-          let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
-          for (let i = 0; i < tokens.length; i++) {
-            tokens[i] = this.generateAST({ CODE: ("" + tokens[i]).trim(), START: 0 })[0];
+          if (cur == "[]") {
+            if (param) return { type: "mtv", num: this.tkn.mtv, data: "item", parameters: [] };
+            else return { type: "arr", num: this.tkn.arr, data: [] };
           }
 
-          if (param) return { type: "mtv", data: "item", parameters: tokens };
-          return { type: "arr", data: tokens }
+          let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
+          while (tokens[tokens.length - 1] === "") tokens.pop();
+          tokens = tokens.map(token => {
+            token = String(token).trim()
+            if (token === "") return null;
+            return token;
+          });
+          for (let i = 0; i < tokens.length; i++) {
+            tokens[i] = this.generateAST({ CODE: tokens[i], START: 0 })[0];
+          }
+
+          if (param) {
+            const obj = { type: "mtv", num: this.tkn.mtv, data: "item", parameters: tokens };
+            obj.isStatic = tokens.every(token => this.isStaticToken(token));
+            if (obj.isStatic) {
+              if (tokens.length === 1 && tokens[0].type === "str") {
+                return { type: "mtv", num: this.tkn.mtv, data: tokens[0].data }
+              }
+              obj.static = tokens.map(token => token.data);
+            }
+            return obj;
+          }
+          const arr = { type: "arr", num: this.tkn.arr, data: tokens };
+          arr.isStatic = tokens.every(token => this.isStaticToken(token));
+          if (arr.isStatic) arr.static = tokens.map(token => token.data);
+          return arr;
         } else if (cur[0] === "{") {
-          if (cur == "{}") return { type: "obj", data: {} }
+          if (cur == "{}") return { type: "obj", num: this.tkn.obj, data: {} }
 
           let output = {};
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",")
@@ -663,51 +1054,26 @@ class OSLUtils {
             if (value === undefined) output[key] = null;
             else output[key] = this.generateAST({ CODE: ("" + value).trim(), START: 0 })[0];
           }
-          return { type: "obj", data: output };
+          return { type: "obj", num: this.tkn.obj, data: output };
         }
       } catch (e) {
         console.error(e)
-        return { type: "unk", data: cur }
+        return { type: "unk", num: this.tkn.unk, data: cur }
       }
     }
-    else if (start + cur[cur.length - 1] === '""') return { type: "str", data: destr(cur) }
-    else if (start + cur[cur.length - 1] === "''") return { type: "str", data: destr(cur, "'") }
-    else if (start + cur[cur.length - 1] === "``") {
-      return {
-        type: "tsr", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
-          if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
-          else return { type: "str", data: v }
-        })
-      }
-    }
-    else if (!isNaN(+cur)) return { type: "num", data: +cur }
-    else if (cur === "true" || cur === "false") return { type: "var", data: cur === "true" }
-    else if (this.operators.indexOf(cur) !== -1) return { type: "opr", data: cur }
-    else if (cur === "--") return { type: "unk", data: "--" }
-    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", data: cur }
-    else if (cur === "?") return { type: "qst", data: cur }
-    else if (this.logic.indexOf(cur) !== -1) return { type: "log", data: cur }
-    else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", data: cur }
-    else if (cur.endsWith("=")) return { type: "asi", data: cur }
-    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", data: start, right: this.evalToken(cur.slice(1)) };
-    else if (cur.startsWith("...")) return { type: "spr", data: this.evalToken(cur.substring(3)) }
-    else if (autoTokenise(cur, ".").length > 1) {
-      let method = autoTokenise(cur, ".")
-      method = method.map((input, index) => this.evalToken(input, index > 0))
-      return { type: "mtd", data: method };
-    }
-    else if (cur === "null") return { type: "unk", data: null }
-    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", data: cur }
-    else if (cur === "->") return { type: "inl", data: "->" }
-    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
+    else if (cur === "null") return { type: "unk", num: this.tkn.unk, data: null }
+    else if (["if", "else", "as", "to", "from"].includes(cur)) return { type: "cmd", num: this.tkn.cmd, data: cur }
+    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", num: this.tkn.var, data: cur }
+    else if (cur === "->") return { type: "inl", num: this.tkn.inl, data: "->" }
+    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", num: this.tkn.blk, data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
     else if (cur.startsWith("(") && cur.endsWith(")")) {
       let end = this.findMatchingParentheses(cur, 0);
-      if (end === -1) return { type: "unk", data: cur };
+      if (end === -1) return { type: "unk", num: this.tkn.unk, data: cur, parse_error: "Unmatched parentheses" };
       const body = cur.substring(1, end).trim();
       return this.generateAST({ CODE: body, START: 0 })[0]
     }
     else if (cur.endsWith(")") && cur.length > 1) {
-      let out = { type: param ? "mtv" : "fnc", data: cur.substring(0, cur.indexOf("(")), parameters: [] }
+      let out = { type: param ? "mtv" : "fnc", num: param ? this.tkn.mtv : this.tkn.fnc, data: cur.substring(0, cur.indexOf("(")), parameters: [] }
       if (cur.endsWith("()")) return out
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
       method = method.map(v => {
@@ -719,21 +1085,26 @@ class OSLUtils {
         }
         return this.generateAST({ CODE: v.trim(), START: 0 })[0]
       })
+      if (method.every(item => this.isStaticToken(item)) || method.length === 0) {
+        out.isStatic = true;
+        out.static = method.map(item => item.data)
+      }
       out.parameters = method
       return out
     }
-    else if (cur === ":") return { type: "mod_indicator", data: ":" };
-    else return { type: "unk", data: cur }
+    else if (cur === ":") return { type: "mod_indicator", num: this.tkn.mod_indicator, data: ":" };
+    else return { type: "unk", num: this.tkn.unk, data: cur }
   }
 
   isStaticToken(token) {
-    return ["str", "num", "unk"].includes(token.type);
+    return ["str", "num", "unk", "cmd", "raw"].includes(token?.type);
   }
 
-  generateError(source, error) {
-    const ast = this.generateAST({ CODE: `throw "error" '${error}'` });
-    ast[0].source = source;
-    return ast;
+  generateError(ast, error) {
+    const newAst = this.generateAST({ CODE: `throw "error" '${error}'` });
+    newAst[0].source = ast.source;
+    newAst[0].line = ast.line;
+    return newAst;
   }
 
   generateAST({ CODE, START, MAIN }) {
@@ -741,6 +1112,7 @@ class OSLUtils {
     // Normalize line endings to handle Windows/Mac differences
     CODE = this.normalizeLineEndings(CODE);
     const start = CODE.split("\n", 1)[0]
+    let handlingMods = false;
     // tokenise and handle lambda and inline funcs
     let ast = []
     let tokens = this.tokeniseLineOSL(CODE)
@@ -748,23 +1120,24 @@ class OSLUtils {
       const cur = tokens[i].trim()
       if (cur === "->") {
         const data = tokens[i + 1].trim()
-        ast.push({ type: "inl", data: "->" })
-        ast.push({ type: "str", data, source: data })
-        i += 1
-        continue
+        ast.push({ type: "inl", num: this.tkn.inl, data: "->" })
+        ast.push({ type: "str", num: this.tkn.str, data, source: data })
+        i += 1;
+        continue;
       }
-      ast.push(this.evalToken(cur))
-    }
-
-    // modifier node creation
-    let modifiers = false;
-    for (let token of ast) {
-      if (modifiers && token.type === "unk") {
-        token.type = "mod"
+      if (handlingMods) {
+        const token = { type: "mod", num: this.tkn.mod, data: cur, source: cur };
         const pivot = token.data.indexOf("#") + 1
         token.data = [token.data.substring(0, pivot - 1), this.evalToken(token.data.substring(pivot))]
+        ast.push(token);
+        continue;
       }
-      if (token.type === "mod_indicator") modifiers = true
+      const curT = this.evalToken(cur)
+      if (curT.type === "mod_indicator") {
+        handlingMods = true;
+        continue;
+      }
+      ast.push(curT)
     }
 
     // join together nodes that should be a single node
@@ -797,9 +1170,36 @@ class OSLUtils {
       }
     }
 
-    // eval static nodes
+    for (let i = 0; i < ast.length; i++) {
+      if (ast[i] && ast[i].parse_error) {
+        return this.generateError(ast[i], ast[i].parse_error);
+      }
+    }
+
     const evalASTNode = node => {
       if (!node) return node;
+
+      if (Array.isArray(node)) {
+        return node.map(item => evalASTNode(item));
+      }
+
+      if (node.type === "fnc" && typeof node.data === "string" && this.inlinableFunctions[node.data]) {
+        const inlined = this.tryInlineFunction(node.data, node.parameters || []);
+        if (inlined) {
+          return evalASTNode(inlined);
+        }
+      }
+
+      if (typeof node === "object" && node !== null) {
+        const processedNode = { ...node };
+        for (const key in processedNode) {
+          if (processedNode.hasOwnProperty(key) && key !== "source") {
+            processedNode[key] = evalASTNode(processedNode[key]);
+          }
+        }
+        node = processedNode;
+      }
+
       if (node.type === "inl") {
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         if (node.left?.type === "var") params = node.left.data;
@@ -809,11 +1209,11 @@ class OSLUtils {
           right.data = `(\nreturn ${right.source}\n)`;
         }
         return {
-          type: "fnc",
+          type: "fnc", num: this.tkn.fnc,
           data: "function",
           parameters: [
             {
-              type: "str",
+              type: "str", num: this.tkn.str,
               data: params,
               source: params
             },
@@ -824,14 +1224,12 @@ class OSLUtils {
       if (node.type === "mtd") {
         if (node.data.length !== 2) return node;
         if (["str", "num"].includes(node.data[0].type))
-        switch (node.data[1].data) {
-          case "len": return this.evalToken(node.data[0].data.length);
-        }
+          switch (node.data[1].data) {
+            case "len": return this.evalToken(node.data[0].data.length);
+          }
         return node;
       }
       if (node.type === "opr" && node.left && node.right) {
-        // Recursively evaluate left and right nodes first
-        node.left = evalASTNode(node.left);
         node.right = evalASTNode(node.right);
 
         // If both operands are numbers, evaluate the operation
@@ -846,7 +1244,7 @@ class OSLUtils {
             case "%": result = +node.left.data % +node.right.data; break;
           }
           if (result) return {
-            type: "num",
+            type: "num", num: this.tkn.num,
             data: +result,
             source: result.toString()
           };
@@ -861,37 +1259,51 @@ class OSLUtils {
     }
 
     // def command -> assignment conversion
-    const first = ast[0] ?? {};
-    const second = ast[1] ?? {};
+    let first = ast[0] ?? {};
+    let second = ast[1] ?? {};
+    const local = first.data === "local" && first.type === "var";
     if (
       first.type === "var" &&
       first.data === "def" &&
       second.type === "fnc"
     ) {
+      if (local) {
+        ast.splice(0, 1);
+        if (ast.length === 0) return [];
+        first = ast[0] ?? {};
+        second = ast[1] ?? {};
+      }
       first.data = second.data;
       ast.splice(1, 0, {
-        type: "asi",
+        type: "asi", num: this.tkn.asi,
         data: "=",
         source: start
       });
       const params = second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
         p.type === "mtd" ?
-        p.data.map(p2 => p2.data).join(".") :
-        p.data
+          p.data.map(p2 => p2.data).join(".") :
+          p.data
       )).join(",")
-      ast[2] = {
-        type: "fnc",
+      const funcNode = {
+        type: "fnc", num: this.tkn.fnc,
         data: "function",
         parameters: [
           {
-            type: "str",
+            type: "str", num: this.tkn.str,
             data: params,
             source: params
           },
           ast[3]
         ]
       };
+      if (local) {
+        ast[0] = this.generateAST({ CODE: "this." + ast[0].data, START: 0 })[0]
+      }
+      ast[2] = funcNode;
       ast.splice(3, 1);
+
+      // Register for inlining if it's a simple function
+      this.registerInlinableFunction(first.data, funcNode);
     }
 
     if (ast.length === 0) return [];
@@ -907,13 +1319,13 @@ class OSLUtils {
         const firstMtvIndex = arr.findIndex(node => node.type === "mtv");
         const leftData = firstMtvIndex > 0 ? arr.slice(0, firstMtvIndex) : [arr[0]];
 
-        let first = leftData.length === 1 ? 
-          leftData[0] : 
-          { type: 'mtd', data: leftData }
+        let first = leftData.length === 1 ?
+          leftData[0] :
+          { type: "mtd", num: this.tkn.mtd, data: leftData }
 
         ast.unshift(
-          first, 
-          { type: "asi", data: "=??", source: start }
+          first,
+          { type: "asi", num: this.tkn.asi, data: "=??", source: start }
         );
       }
     }
@@ -926,12 +1338,12 @@ class OSLUtils {
 
       if (cur?.type === "asi") {
         if (ast[0].data === "local") {
-          prev = this.generateAST({ CODE: "this." + prev.data, START: 0 })[0];
+          prev = this.generateAST({ CODE: "this." + prev.source, START: 0 })[0];
           ast.splice(0, 1);
           i -= 1;
         }
         if (ast.length > 1 && i > 1) {
-          cur.set_type = ast[i - 2].data;
+          cur.set_type = String(ast?.[i - 2]?.data ?? "").toLowerCase();
           ast.splice(i - 2, 1);
           i -= 1;
         }
@@ -942,9 +1354,30 @@ class OSLUtils {
           ast.splice(i, 1);
           i -= 1;
         }
+
+        if (cur.left?.type === "mtd") {
+          const path = cur.left.data.slice();
+          const final = path.pop();
+          cur.left = {
+            type: "rmt", num: this.tkn.rmt,
+            objPath: path,
+            final: final
+          };
+        }
+
+        if (["opr", "cmp", "log"].includes(cur?.right?.type)) {
+          const val = this.generateBysl(cur.right)
+          if (val.success) cur.right.bysl = val.code
+        }
+        
         cur.source = start;
       }
+      if (["opr", "cmp", "log"].includes(cur?.type)) {
+        const val = this.generateBysl(cur)
+        if (val.success) cur.bysl = val.code
+      }
     }
+
 
     if (ast.length === 0) return null;
 
@@ -959,7 +1392,7 @@ class OSLUtils {
         !t1?.right)
     ) {
       ast[0] = {
-        type: "asi",
+        type: "asi", num: this.tkn.asi,
         data: ast[1].data,
         left: ast[0],
         source: CODE
@@ -967,12 +1400,14 @@ class OSLUtils {
       ast.splice(1, 1);
     }
 
-    if (ast[0].type === "var" && MAIN) {
-      ast[0].type = "cmd";
+    if (MAIN) {
+      if (ast[0].type === "var") {
+        ast[0].type = "cmd";
+        ast[0].num = this.tkn.cmd;
+      }
       ast[0].source = CODE.split("\n", 1)[0];
     }
 
-    // switch statements
     if (ast[0].type === "cmd" &&
       ast[0].data === "switch"
     ) {
@@ -987,13 +1422,21 @@ class OSLUtils {
         if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
           const newCases = {}
           cases.all.map(v => {
-            if (v[0]?.data) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
+            if ((v[0]?.data ?? null) !== null) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
           })
           cases.type = "object"
           cases.all = newCases;
         }
         ast[0].cases = cases
       }
+    }
+
+    if (ast[0].type === "cmd" && ast.every(v => ["str", "cmd", "num", "raw"].includes(v.type))) {
+      ast[0].isStatic = true;
+      ast[0].full = ast.map(v => v.data);
+    }
+    if (ast[0].type === "asi" && this.isStaticToken(ast[0].right)) {
+      ast[0].right.staticAssignment = true;
     }
 
     return ast.filter(token => (
@@ -1004,17 +1447,18 @@ class OSLUtils {
   }
 
   generateFullAST({ CODE, MAIN = true }) {
+    if (MAIN) this.inlinableFunctions = {};
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
-    CODE = this.normalizeLineEndings(CODE);
-    CODE = (MAIN ? `/@line ${++ line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
-      if (match === "\n") return MAIN ? `\n/@line ${++ line}\n` : "\n";
+    CODE = this.normalizeLineEndings(CODE.trim());
+    CODE = (MAIN ? `/@line ${++line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
+      if (match === "\n") return MAIN ? `\n/@line ${++line}\n` : "\n";
       if (match === ";") return "\n";
       if (match === "(") return ".call(";
       if (match === "[") return ".[";
-      if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line ++; return match }
-      if (match.trim().startsWith("//")) { line ++; return ""; }
-      if (match.startsWith("\n")) { line ++; return match.replace(/\n\s*\./, ".") };
+      if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line++; return match }
+      if (match.trim().startsWith("//")) { line++; return ""; }
+      if (match.startsWith("\n")) { line++; return match.replace(/\n\s*\./, ".") };
       return match;
     });
     CODE = autoTokenise(CODE, "\n").map(line => {
@@ -1050,10 +1494,20 @@ class OSLUtils {
       if (!cur) continue;
       const type = cur[0]?.type;
       const data = cur[0]?.data;
+      if (type === "cmd" && data === "local") {
+        if (cur[1].data === "class") {
+          cur[1].source = cur[0].source;
+          cur[1].line = cur[0].line;
+          cur.shift();
+          cur[0].type = "cmd";
+          cur[0].num = this.tkn.cmd;
+          cur[0].local = true;
+        }
+      }
       if (type === "cmd" && ["for", "each", "class", "while", "until"].includes(data)) {
         if (data === "each") {
           if (cur[cur.length - 1].type !== "blk") {
-            lines[i] = this.generateError(cur[0].source, "Each loops require a block after the variable(s). Example: each i arr ( ... )");
+            lines[i] = this.generateError(cur[0], "'each' loop missing body block. Use: each i item array ( ... ) OR each item array ( ... )");
             continue;
           }
           let has_i = cur[4]?.type === "blk"
@@ -1061,16 +1515,16 @@ class OSLUtils {
             const id = has_i ? cur[1].source : "this.EACH_I_" + randomString(10);
             if (has_i) cur.splice(1, 1);
             const static_var = cur[2].type === "var"
-            const dat = static_var ? cur[2].source : "EACH_DAT_" + randomString(10);
+            const dat = static_var ? cur[2].source : "this.EACH_DAT_" + randomString(10);
             const spl = [
-              [{...cur[0], type: "asi", data: "=", left: this.evalToken(id), right: this.evalToken("0")}],
-              [{...cur[0], type: "asi", data: "@=", left: this.evalToken(dat), right: cur[2] }]
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "@=", left: this.evalToken(id), right: this.evalToken("0") }],
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "@=", left: this.evalToken(dat), right: cur[2] }]
             ]
             if (static_var) spl.pop();
             lines.splice(i, 0, ...spl);
-            cur[3].data.splice(0, 0, 
-              [{...cur[0], type: "asi", data: "++", left: this.evalToken(id) }],
-              [{...cur[0], type: "asi", data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
+            cur[3].data.splice(0, 0,
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "++", left: this.evalToken(id) }],
+              [{ ...cur[0], type: "asi", num: this.tkn.asi, data: "=", left: cur[1], right: this.evalToken(`${dat}.[${id}]`) }]
             )
             cur[0].data = "loop"
             cur.splice(1, 1)
@@ -1079,38 +1533,60 @@ class OSLUtils {
         } else {
           if (data === "while" || data === "until") {
             cur[1] = {
-              type: "evl",
+              type: "evl", num: this.tkn.evl,
               data: cur[1],
               source: cur[1].source || "[ast EVL]"
             }
-          } else cur[1].type = "str";
+          } else {
+            cur[1].type = "str";
+            cur[1].num = this.tkn.str;
+          }
         }
         i++
       }
       if (type === "cmd" && data === "def") {
         if (cur.length < 3) {
-          lines[i] = this.generateError(cur[0].source, "Function definitions require at least one parameter. Example: def myFunc(a, b) -> a + b");
+          lines[i] = this.generateError(cur[0], "Incomplete function definition. Expected: def name(param1, param2) ( ... )");
           continue;
         }
         if (cur[cur.length - 1].type !== "blk") {
-          lines[i] = this.generateError(cur[0].source, "Function definitions require a block after the parameters. Example: def myFunc(a, b) -> a + b ( ... )");
+          lines[i] = this.generateError(cur[0], "Function body missing. Add a block: ( ... )");
           continue;
         }
       }
       if (['loop', 'if', 'while', 'until', 'for'].includes(data)) {
-        if (cur.length === 2 || 
-           (data === 'for' && cur.length === 3)
+        if (cur.length === 2 ||
+          (data === 'for' && cur.length === 3)
         ) {
           const blk = lines.splice(i + 1, 1)[0];
           cur.push({
-            type: "blk",
+            type: "blk", num: this.tkn.blk,
             data: [blk],
             source: '[ast BLK]'
           })
         }
       }
+      for (let j = 0; j < cur.length; j++) {
+        const t = cur[j];
+        if (!t) continue;
+        if (["opr", "cmp", "bit", "log"].includes(t.type)) {
+          if (!t.left || !t.right) {
+            if (j <= 1) {
+              lines[i] = this.generateError(cur[0], `Malformed line. Cannot use '${t.data}' here`);
+              continue;
+            }
+            lines[i] = this.generateError(t.left || t.right || t, `Malformed ${t.type === "opr" ? 'operator' : t.type} '${t.data}'. Missing ${!t.left && !t.right ? 'operands' : !t.left ? 'left operand' : 'right operand'}.`);
+            continue;
+          }
+        }
+        if (t.type === "qst") {
+          if (!t.left || !t.right || !t.right2) {
+            lines[i] = this.generateError(t.left || t, `Incomplete ternary '?'. Expected pattern: condition ? valueIfTrue valueIfFalse`);
+            continue;
+          }
+        }
+      }
     }
-
     return lines;
   }
 
@@ -1210,8 +1686,8 @@ class OSLUtils {
     return insertQuotes(CODE, JSON.parse(QUOTES));
   }
 
-  inlineCompile() {
-    return "";
+  inlineCompile({ CODE }) {
+    return ""
   }
 
   setOperators({ OPERATORS }) {
@@ -1247,203 +1723,6 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `
-def setup() (
-  window.setResizable(false)
-
-  window_colour = #fff
-  log window_colour
-
-  platforms = []
-  
-  player = {
-    x: -200,
-    y: 150,
-    xv: 0,
-    yv: 0,
-    icn: "c #000 w 5 square 0 0 7 10 w 19 dot 0 0 w 5 line 7 -10 7 -20 line -7 -10 -7 -20 c #fff line 7 3 0 3",
-    dead: false,
-    score: 0,
-  }
-
-  platforms = [
-    {
-      x: -250,
-      y: 80
-    },
-    {x: 150,y: 0}
-  ]
-
-  platform = {
-    new: def() -> (
-      local me = self.clone()
-      me.y = random(window.bottom + 50, window.top - 150)
-      void platforms.append(me)
-    ),
-    icn: "c #000 w 5 square 0 0 30 5 c #fff w 4 square 0 0 30 5 c #000 w 3 square 0 0 30 5 w 7 square 0 0 26 3",
-    x: window.width,
-    y: 0,
-  }
-
-  last = timer
-)
-jumpheld = false
-jump = false
-left = false
-rigth = false
-def setjump() (
-  if gamepad.buttons[1]["pressed"] or gamepad.buttons[2]["pressed"] or "space".isKeyDown() (
-    if jumpheld (
-      jump = false
-    ) else (
-      jump = true
-    )
-    jumpheld = true
-  ) else (
-    jumpheld = false
-  )
-)
-def setleft() (
-  if gamepad.axes[1].x ?? 0 < -0.2 or gamepad.buttons[15]["pressed"] or "a".isKeyDown() (
-    left = true
-  ) else (
-    left = false
-  )
-)
-
-def setright() (
-  if gamepad.axes[1].x ?? 0 > 0.2 or gamepad.buttons[16]["pressed"] or "d".isKeyDown() (
-    right = true
-  ) else (
-    right = false
-  )
-)
-object io = {
-  haptic: def(option) -> (
-    local configs = {
-      jump1: {
-        duration: 200,
-        weakMagnitude: 0.075,
-        strongMagnitude: 0.04,
-      },
-      jump2: {
-        duration: 170,
-        weakMagnitude: 0.05,
-        strongMagnitude: 0.02,
-      },
-      land: {
-        duration: 100,
-        weakMagnitude: 0.2,
-        strongMagnitude: 0.3,
-      },
-      dead: {
-        duration: 300,
-        weakMagnitude: 0.7,
-        strongMagnitude: 0.7
-      }
-    }
-    
-    if gamepads.len > 0 (
-      void gamepad.haptic(configs[option])
-    )
-  )
-}
-
-log setup
-
-setup()
-log window_colour
-player.dead = true
-
-mainloop:
-array gamepads = getGamepads()
-if gamepads.len > 0 (
-  gamepad @= gamepads[1]
-)
-setjump()
-setleft()
-setright()
-if player.dead (
-  goto 0 window.bottom + 50
-  centext "You died, press space to play again" 10 : c#000
-  
-  if jump (
-    player.dead = false
-  )
-) else (
-  if timer > last (
-    last = timer + random(1, 2.5)
-    void platform.new()
-  )
-
-  if jump (
-    if player.grounded or player.double (
-      if player.grounded (
-        io.haptic("jump1")
-      ) else (
-        io.haptic("jump2")
-      )
-      player.double = player.grounded
-      player.grounded = false
-      player.yv = 13
-    )
-  )
-  if left (
-    player.xv -= 1
-  )
-  if right (
-    player.xv += 1
-  )
-)
-goto player.x player.y
-icon player.icn 2
-player.x += player.xv
-player.y += player.yv
-player.xv *= 0.9
-player.yv -= 0.4
-
-if player.dead.not() and player.grounded (
-  player.x -= 3 + (player.score / 10)
-)
-
-for i platforms.len (
-  cur @= platforms[i]
-  goto cur.x cur.y
-  if player.dead.not() (
-    cur.x -= 3 + (player.score / 10)
-  )
-  icon platform.icn 3
-  
-  if abs(player.x - cur.x) < 100 and player.y - cur.y < 70 and player.y > cur.y - 20 (
-    if player.y < cur.y + 50 (
-      if player.y < cur.y (
-        player.yv = -5
-      ) else if abs(player.x - cur.x) > 95 (
-        player.x = cur.x + (player.x - cur.x < 0 ? -101 101)
-      )
-    ) else (
-      player.yv = 0
-      if abs(player.x - cur.x) < 100 and player.y > cur.y (
-        if player.grounded.not() (
-          player.score ++
-          io.haptic("land")
-        )
-        player.grounded = true
-        player.y = cur.y + 70
-      )
-    )
-  )
-)
-goto 0 window.top - 40
-centext "Score: " ++ player.score 10 : c#000
-
-if player.x < window.left - 40 or player.y < window.bottom or player.x > window.right + 40 (
-  setup()
-  io.haptic("dead")
-  player.dead = true
-)
-
-import "win-buttons"
-`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }), null, 2));
 }

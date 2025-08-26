@@ -18,7 +18,7 @@ window.resize(1000,600)
 def "con_button" "w, h, t, callback" (
   square w h 12 : c#prim hover_c#seco
   if onclick (
-    local callback()
+    callback()
   )
   centext t 10 : c#txtc
 )

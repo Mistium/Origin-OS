@@ -1,4 +1,9 @@
+if args[1].contains("/") or args[1].len == 0 (
+  terminal.writeLine("Invalid file name")
+  return
+)
 if !args[1].contains(".") (
+  args[1] = args[1].strip()
   args[1] ++= ".folder"
 )
 file "goto_dir" terminal.pwd

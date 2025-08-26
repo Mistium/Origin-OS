@@ -1,0 +1,1 @@
+terminal.writeLine(user.username ++ " " ++ (timestamp - (timer * 1000)).timestamp("to-full"))

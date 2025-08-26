@@ -1,0 +1,20 @@
+local ids @= args[1].strip()
+  .replace("\n", " ")
+  .split(" ")
+
+if ids.len == 0 (
+  terminal.writeLine("kill: not enough arguments")
+)
+local wins @= Windows()
+for i wins.len (
+  local cur @= wins[i].window
+  if ids.contains(cur.id.toStr()) (
+    // remove the id from the ids array
+    void ids.delete(cur.id.toStr())
+    // close the window
+    void cur.window.close()
+  )
+)
+for i2 ids.len (
+  terminal.writeLine("kill " ++ ids[i2] ++ " failed: no such process")
+)

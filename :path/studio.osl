@@ -1,0 +1,7 @@
+if (args[1] ?? "") === "" (
+    window.create("studio")
+    return
+)
+window.create("studio", {
+    passed_data: args[1]
+})

@@ -1,54 +1,19 @@
 import as "glass" from "packages"
 import "window_tools"
 
-file "use_type" "ots"
 permission "request" "terminal"
 permission "request" "file admin"
 save "system@terminal" "set_directory"
 network "set_app_id" "terminal@system"
 
-class terminal (
-  lines = []
-  waiting = false
-  show_input = true
-  input_message = null
-  pwd = user_folder
-  
-  def writeLine(data) (
-    void self.lines.append(data)
-  )
-  
-  def write(data) (
-    self.lines[self.lines.len] += data
-  )
-  
-  def input(query) (
-    self.show_input = true
-    self.input_message = query
-    while self.show_input (
-      defer
-    )
-    self.input_message = null
-    return last.pop()
-  )
-  
-  def clear() (
-    self.lines = []
-  )
-  
-  self.user_start = {_get: def() -> (
-    if input_message != null (
-      return input_message ++ ": "
-    )
-    local pos = self.pwd
-    if pos == user_folder (
-      pos = "~"
-    ) else (
-      pos = pos.split("/")[-1]
-    )
-    return username ++ "@originos " ++ pos ++ " % "
-  )}
+// fetch the path tracker file
+path_url = "https://origin.mistium.com/%3Apath/"
+path = (path_url ++ "osl-tracker.json").httpGet()
+if typeof(path) !== "object" (
+  path = {}
 )
+
+path = path.scripts.getValues()
 
 def evalCmd(cmd) (
   local tokens = cmd.oslTokenise()
@@ -58,7 +23,7 @@ def evalCmd(cmd) (
     local data = open(path)
     if data == null or exists.not() (
       terminal cmd
-      terminal.lines @= terminal.lines.trim(1, terminal_length) ++ terminal_output
+      terminal.lines @= terminal.lines ++ terminal_output
       return
     ) else (
       self.cache[path] @= function("args", data)
@@ -85,19 +50,60 @@ def evalCmd(cmd) (
   void self.cache[path](tokens)
 )
 
-terminal_worker @= worker({
-  cmd: null,
-  isThread: true,
-  cache: {},
-  onframe: def() -> (
-    if cmd != null (
-      terminal.show_input = false
-      evalCmd(cmd)
-      terminal.show_input = true
-      self.cmd = null
+class terminal (
+  lines = []
+  waiting = false
+  show_input = true
+  input_message = null
+  pwd = user_folder
+  
+  def writeLine(data) (
+    if data.contains("\n") (
+      local parts = data.split("\n")
+      for i parts.len (
+        void self.lines.append(parts[i])
+      )
+    ) else (
+      void self.lines.append(data)
     )
   )
-})
+  
+  def write(data) (
+    self.lines[self.lines.len] += data
+  )
+  
+  def input(query) (
+    self.show_input = true
+    self.input_message = query
+    while self.show_input (
+      defer
+    )
+    self.input_message = null
+    return last.pop()
+  )
+  
+  def clear() (
+    self.lines = []
+  )
+  
+  def user_start() (
+    if self.input_message != null (
+      return self.input_message ++ ": "
+    )
+    local pos = self.pwd
+    if pos == user_folder (
+      pos = "~"
+    ) else (
+      pos = pos.split("/")[-1]
+    )
+    return username ++ "@originos " ++ pos ++ " % "
+  )
+
+  def run(cmd) (
+    self @= terminal_worker
+    return evalCmd(cmd)
+  )
+)
 
 ansi = {
   "\e[30m": "#000",
@@ -132,6 +138,67 @@ window.setDragbox([2,2,0,0],[-2,-2,0,0])
 taking_input = false
 ots_i = 1
 
+if path.len > 0 (
+  path_folder = parseFilePath("~/:path.folder")
+  file "exists" path_folder
+  if exists.not() (
+    file "goto_dir" user_folder
+    file "set_file" ":path.folder" []
+  )
+
+  path_worker @= worker({
+    isThread: true,
+    onframe: def() -> (
+      local updates = []
+      for i path.len (
+        local cur = path[i]
+        local cmd_path = parseFilePath("~/:path/" ++ cur.name)
+        file "exists" cmd_path
+        if exists (
+          local data = open(cmd_path)
+          if data.hashMD5() != cur.hash (
+            void updates.append(cur)
+          )
+        ) else (
+          void updates.append(cur)
+        )
+      )
+      if updates.len > 0 (
+        terminal.writeLine("Updates found for the following scripts:")
+        for i updates.len (
+          terminal.writeLine("- " ++ updates[i].name)
+        )
+        if terminal.input("Update them? (y/n)") == "y" (
+          file "goto_dir" "~/:path"
+          for i updates.len (
+            local cur = updates[i]
+            file "set_file" cur.name (path_url ++ cur.name).httpGet()
+            terminal.writeLine("Updated " ++ cur.name)
+          )
+        )
+      )
+      terminal.clear()
+      terminal.show_input = true
+      path_worker.kill()
+    )
+  })
+  terminal.writeLine("Checking for updates...")
+)
+
+terminal_worker @= worker({
+  cmd: null,
+  isThread: true,
+  cache: {},
+  onframe: def() -> (
+    if cmd != null (
+      terminal.show_input = false
+      evalCmd(cmd)
+      terminal.show_input = true
+      self.cmd = null
+    )
+  )
+})
+
 mainloop:
 load_theme
 
@@ -149,10 +216,12 @@ if mode == "norm" (
   if "enter".onKeyDown() (
     void last.append(inputs.main)
     last_index = last.len + 1
-    void terminal.lines.append(user_start ++ inputs.main)
+    void terminal.lines.append(terminal.user_start() ++ inputs.main)
     terminal_output = []
-    terminal_worker.cmd = inputs.main
-    inputs.main = ""
+    if terminal.input_message == null (
+      terminal_worker.cmd = inputs.main
+    )
+    inputs.main = null
     terminal.show_input = false
   )
 )
@@ -169,40 +238,39 @@ if "arrowdown".onKeyDown() (
 )
 
 c prim
-frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20
-
-c txtc
-loops = terminal.lines.len
-count = floor(scroll_y / 20).clamp(0,loops)
-loop round(frame.height / 20 + 3).clamp(0,loops) (
-  count ++
-  y = count * -20 + frame.scroll + 5
-  loc 2 2 10 y
-  local line = terminal.lines[count]
-  if line == null (
-    break
-  )
-  if typeof(line) == "array" (
-    local i = 0
-    loop line.len / 2 (
-      i += 2
-      c line[i - 1] ?? txtc
-      text line[i] 10
-      c txtc
+frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
+  c txtc
+  loops = terminal.lines.len
+  count = floor(scroll_y / 20).clamp(0,loops)
+  loop round(frame.height / 20 + 3).clamp(0,loops) (
+    count ++
+    y = count * -20 + frame.scroll + 5
+    loc 2 2 10 y
+    local line = terminal.lines[count]
+    if line == null (
+      break
     )
-  ) else (
-    text line 10
+    if typeof(line) == "array" (
+      local i = 0
+      loop line.len / 2 (
+        i += 2
+        c line[i - 1] ?? txtc
+        text line[i] 10
+        c txtc
+      )
+    ) else (
+      text line 10
+    )
+  )
+
+  local user_start = terminal.user_start()
+  if terminal.show_input (
+    loc 2 2 10 loops * -20 + scroll_y - 15
+    text user_start 10 : c#txtc
+    set_x user_start.len * 5 - 10
+    pen "opacity" 0
+    input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
   )
 )
-
-local user_start = terminal.user_start
-if terminal.show_input (
-  loc 2 2 10 loops * -20 + scroll_y - 15
-  text user_start 10 : c#txtc
-  set_x user_start.len * 5 - 10
-  pen "opacity" 0
-  input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
-)
-frame "clear"
 
 import "win-buttons"

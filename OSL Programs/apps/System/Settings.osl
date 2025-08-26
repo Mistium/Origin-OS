@@ -34,7 +34,7 @@ def "setting_do" "txt, w, callback, inp" (
   text txt 10 : c#txtc
   set_x x
   if cl (
-   void callback(inp ?? "")
+    void callback(inp ?? "")
   )
 )
 
@@ -132,18 +132,12 @@ def "system" (
         change_y -50
       )
       
-      terminal "system display get invert"
+      display "invert" "get"
       c #txtc
       setting_toggle "Invert Colours" w data === 100 def(val) -> (
-        terminal "system display get invert"
+        display "invert" "get"
         inp = 100 - data
-        terminal "system display set invert" + inp.toStr()
-      )
-      terminal "flags nightmode get"
-      change_y -45 : c#txtc
-      setting_toggle "Night Mode" w data def(val) -> (
-        terminal "flags nightmode get"
-        terminal "flags nightmode set" + (data == false)
+        display "invert" "set" inp
       )
       break
     case "Media"
@@ -166,7 +160,7 @@ def "system" (
       terminal "system sound get volume"
       slider_volume = data / 100
       slider w 40 "volume" 15 : c#prim
-      terminal "system sound set volume" + ( slider_volume * 100 )
+      terminal "system sound set volume " ++ (slider_volume * 100)
       c txtc
       loc 2 2 10 -160 + scroll_y
       if media.istype("object") (
@@ -954,7 +948,7 @@ def "account" (
         y = y_position
         square w 100 10 : c#prim
         change w / -2 + 10 30
-        text cur.name ?? cur.id ++ "\n" 10 : c#txtc
+        text cur.name ?? cur.key ++ "\n" 10 : c#txtc
         text "by: " ++ cur.creator ++ "\n" 10
         text "price (credits): " ++ cur.price ++ " per " ++ cur.subscription.frequency ++ " " ++ cur.subscription.period 10
         goto x y
@@ -962,7 +956,7 @@ def "account" (
         square 100 40 10 : c#seco
         if onclick (
           if ("Are you sure you want to cancel '" ++ cur.name ++ "'?").confirm() (
-            void ("https://social.rotur.dev/keys/cancel/" ++ cur.id ++ "?auth=" ++ roturToken()).getAsync()
+            void ("https://social.rotur.dev/keys/cancel/" ++ cur.key ++ "?auth=" ++ roturToken()).getAsync()
             subscriptions = ""
           )
         )
@@ -978,7 +972,7 @@ def "account" (
   if subcategory == "Privacy" (
     page_len = 500
     setting_toggle "Private Account?" w user.private def() -> (
-      network "update" "private" user.private.not
+      network "update" "private" user.private.not()
     )
     set_x 0 : chy#-50
     centext "Public Data:" 10 : c#txtc
@@ -1125,7 +1119,8 @@ def "account" (
 
   set_x 0 : chy#-50
   setting_do "Logout" w def() -> (
-    terminal "su"
+    eval "localStorage.setItem('origin_login', '')"
+    terminal "shutdown"
   )
   
   page_len += 70
@@ -1243,9 +1238,7 @@ def "bluetooth_page" (
 
 def "info" (
   loc 2 2 0 0
-  configtext "lineheight" 0.9
-  text info_string 10 : c#txtc
-  configtext "lineheight" 1
+  text "originOS v" ++ origin.version 10 : c#txtc
 )
 
 
@@ -1343,31 +1336,62 @@ def "credits" (
     page_len = contributors.len * 60
   )
   if subcategory == "Community" (
-    loc 2 2 110 -30
-    button "My Patreon" 200 25 10 : c#prim
-    if onclick (
-      http "newtab" "https://www.patreon.com/user?u=51594743"
+    local url = "https://social.rotur.dev/supporters"
+    local data = null
+    if supporterData.getType() != "array" (
+      data @= url.getAsync()
+      if data.getType() == "array" (
+        supporterData = data
+      )
     )
-    loc 2 2 10 -70
-    text "Patreon Supporters:" 10 : c#txtc
-    supporters = [
-      "--- OriginDrive ---",
-      "ThePandaDev",
-      "Stormy",
-      "",
-      "--- Supporter ---",
-      "plopa 1",
-      "Random Content Generator"
-    ]
+    if supporterData == null (
+      goto 0 0
+      direction timer * 720
+      icon "sync" .75 : c#txtc
+    ) else (
+      loc 2 2 115 -30 + scroll_y
+      square 200 25 10 : c#prim hover_c#seco
+      centext "My Patreon" 10 : c#txtc chx#-17.5
+      icon "open" .6 : chx#("My Patreon".len * 5 + 17.5)
+      if onclick (
+        http "newtab" "https://www.patreon.com/user?u=51594743"
+      )
+      loc 2 2 15 -70 + scroll_y
+      text "Patreon Supporters:" 10 : c#txtc
+      
+      supporters @= {
+        "OriginPro": supporterData.filter(u -> (u.subscription == "originPro")).map(u -> (u.username)),
+        "OriginDrive": supporterData.filter(u -> (u.subscription == "originDrive")).map(u -> (u.username)),
+        "Supporter": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username))
+      }
+  
+      local height = 0
+      local y = 0
+      local keys @= supporters.getKeys()
+      local values @= supporters.getValues()
+      for categoryi supporters.getKeys().len (
+        local category @= values[categoryi]
+        local categoryName @= keys[categoryi]
 
-    loc 2 2 10 -100
-    count = floor(scroll_y / 20)
-    loop floor(frame.height / 20) (
-      count ++
-      loc 2 2 10 count * -20 + scroll_y - 100
-      text supporters[count] 10
+        if category.len > 0 (
+          y += 20
+          loc 2 2 15 -85 - y + scroll_y
+          text categoryName 11.5 : c#txtc
+          y += 20
+          
+          for useri category.len (
+            local user @= category[useri]
+            
+            y += 8
+            loc 2 2 25 -85 - y + scroll_y
+            image "https://avatars.rotur.dev/" ++ user ++ "?radius=128" 22 : chx#15
+            text user 10 : c#txtc chx#16.5
+            y += 20
+          )
+        )
+      )
+      page_len = y + 80
     )
-    page_len = supporters.len * 20 + 100
   )
 )
 
@@ -1421,7 +1445,6 @@ c_imgs = contributors.destr.getall("avatar_url")
 
 window "dimensions" 880 500
 window_accent = global_accent
-dock_location = dock_location
 media = ""
 segments = user.origin_dock
 accent_select = ""
@@ -1435,7 +1458,7 @@ if "wallpapers.json".saveExists() (
 ) else (
   wallpapers = []
 )
-if wallpapers.len < 1 or wallpapers.istype("Array").not (
+if wallpapers.len < 1 or wallpapers.istype("Array").not() (
   wallpapers = [
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png",
@@ -1468,15 +1491,13 @@ inputs.bio = (user.bio ?? "").split("\n")
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 
-
-terminal "info"
-info_string = terminal_output.join("\n")
-
 def genPfp() (
   return "https://avatars.rotur.dev/" ++ username ++ "?radius=30&random=" ++ random(9999,9999999999)
 )
 original_pfp = user.pfp
 pfp = genPfp()
+
+supporterData = null
 
 slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 
