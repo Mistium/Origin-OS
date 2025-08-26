@@ -1,3 +1,5 @@
+import "glass" from "packages" as "glass"
+
 permission "request" "start run"
 permission "request" "file admin"
 permission "request" "terminal"
@@ -14,7 +16,14 @@ window "y" screensize_y / -2 + 35
 
 segments = user.origin_dock
 if typeof(segments) != "array" (
-  segments = ["Origin/(A) System/Docks/Modules/main.ode","Origin/(A) System/Docks/Modules/applications.ode","Origin/(A) System/Docks/Modules/running.ode","Origin/(A) System/Docks/Modules/folders.ode","Origin/(A) System/Docks/Modules/time.ode","Origin/(A) System/Docks/Modules/battery.ode"]
+  segments = [
+    "Origin/(A) System/Docks/Modules/main.osl",
+    "Origin/(A) System/Docks/Modules/applications.osl",
+    "Origin/(A) System/Docks/Modules/running.osl",
+    "Origin/(A) System/Docks/Modules/folders.osl",
+    "Origin/(A) System/Docks/Modules/time.osl",
+    "Origin/(A) System/Docks/Modules/battery.osl"
+  ]
   network "update" "origin_dock" segments
 )
 
@@ -28,11 +37,28 @@ if user.timeformat == null (
 
 goto 0 y
 dock_x = 0
+dock_width = 0
+segment_classes = []
 for syscount segments.len (
-  import segments[syscount] "ode" : c#dock_colour chx#15
-  goto width / 2 + x + 15 y
+  local name = segments[syscount]
+    .replace(".ode", ".osl")
+
+  local imp @= import(name)
+  imp.name = name
+
+  if imp.main == null (
+    say "Failed to load: " ++ name ++ "\nMissing main() function"
+    continue
+  ) else if imp.init != null (
+    imp.init()
+  )
+  if imp.conditions == null (
+    imp.conditions @= () -> (true)
+  )
+  dock_width += max(0,imp.width.toNum())
+  void segment_classes.append(imp)
 )
-dock_width = x_position
+dock_width_temp = dock_width
 
 // Parameter setup
 dock_x = dock_width.round() / -2
@@ -58,6 +84,8 @@ dock_changed_w = false
 network "update" "hostOS" system_os
 network "update" "timezone" timezone
 
+run = (1 to segment_classes.len).fill(false)
+
 mainloop:
 dock_colour = user.theme.background
 icon_colour = user.theme.text
@@ -82,12 +110,54 @@ if delta_time < 0.1 (
 )
 if y > -80 (
   width = 0
-  goto dock_x y
-  each segment segments (
-    import segment "ode" : c#dock_colour chx#15
-    goto width / 2 + x + 15 y
+  local x = dock_width / -2 + 15
+  dock_width = 0
+
+  goto x y
+  c dock_colour
+  local hovering = null
+  for bg segment_classes.len (
+    local cur @= segment_classes[bg]
+    if cur.enabled == false (
+      continue
+    )
+    local w = max(0, cur.width.toNum())
+    dock_width += w + 30
+    cur.width = w
+    change_x w / 2
+    square w height 20 0 1
+    run[bg] = cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w
+    if run[bg] (
+      square w height 20
+    )
+    change_x w / 2 + 30
   )
-  dock_width = (x_position - dock_x).round()
+  
+  for i segment_classes.len (
+    local cur @= segment_classes[i]
+    if cur.enabled == false (
+      continue
+    )
+    local w = cur.width
+    c dock_colour
+    if run[i] (
+      local w2 = w / 2 + 10
+      local h2 = height / 2 + 10
+      goto x + (w / 2) y
+      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2
+        effect "transparency" 70
+        goto frame.x * -1 frame.y * -1
+    
+        image "wallpaper_blur" background_width background_height
+        effect "clear"
+      frame "clear"
+      goto x y
+      void cur.main()
+      run[i] = false
+    )
+    x += w + 30
+  )
+
   if dock_width != dock_width_temp (
     dock_width_temp = dock_width
     dock_changed_w = true

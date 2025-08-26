@@ -1,0 +1,17 @@
+width = 60
+enabled = false
+
+def conditions() (
+  return battery_percent < 100 and battery_percent > 0 or battery_charging.not()
+)
+
+def main() (
+  square 60 height 20 1 0 1 : chx#30
+  if clicked (
+    open = "Origin/(A) System/Docks/Battery_Info.osl"
+  )
+  battery_temp = battery_percent
+  square 60 height 20 1
+  c icon_colour
+  text `${battery_percent}%` 10 : chx#-25
+)

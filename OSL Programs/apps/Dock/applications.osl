@@ -1,0 +1,68 @@
+
+width = {
+  w: 0,
+  _get: def() -> (
+    include user_folder ++ "/dock"
+    self.w = data.len * 50 - 15
+    if data.len == 0 (
+      self.w = 0
+    )
+    self.dock @= data
+    return self.w
+  ),
+  _set: def(value) -> (
+    self.w = value.toNum()
+  )
+}
+cursor = null
+dock = null
+last_cur = 0
+
+def conditions() (
+  return false
+)
+
+def main() (
+  local x = x_position
+  change_x self.width / 2
+  square self.width height 30 1 0 1
+  if mouse_touching (
+    cursor self.cursor
+  )
+  cur = null
+  if file_dropped != 0 (
+    file "open" user_folder ++ "/dock.folder" "onlyaccess"
+    file "get" 4
+    void data.delete(file_dropped)
+    pos = round(mouse_x - (x - (width / 2) - 25) / 50)
+    data.insert(pos, file_dropped)
+    file "set" 4 data
+    file_dropped = 0
+  )
+  goto x + 20 y
+  dock_len = dock.len
+  self.cursor = null
+  for i self.dock.len (
+    local app @= dock[i]
+    file = open(app, [2])
+    file "render" 1.7
+    square 45 45 0 0 1
+    file "interact"
+    if data == "open" (
+      file "start"
+      // check the output of the interaction
+    )
+    if mouse_touching (
+      self.cursor = "pointer"
+      curx = x_position
+      cur = file[1]
+    )
+    rightclick "file" app
+    change_x 50
+  )
+  if cur != null (
+    goto curx 15
+    square cur.len * 8 10 12 : c#dock_colour
+    centext cur 8 : c#icon_colour
+  )
+)
