@@ -35,6 +35,12 @@ if user.timeformat == null (
   }
 )
 
+eval "origin.windows.area.bottom += 70"
+
+window.on("close", def() -> (
+  eval "origin.windows.area.bottom -= 70"
+))
+
 goto 0 y
 dock_x = 0
 dock_width = 0

@@ -40,11 +40,19 @@ window.y = screensize_y / 2 - 35
 square window.width window.height 0 0 1
 if winw != winw_target or mouse_touching or bg_redrawn or (timer - last > 0.5) (
   last = timer
-  square window.width - 25 window.height - 25 20 : c#window_colour
+  w2 = window.width
+  h2 = window.height
+  square w2 - 25 h2 - 25 20 : c#window_colour
+  frame x_position + w2 y_position + h2 x_position - w2 y_position - h2
+    effect "transparency" 70
+    goto frame.x * -1 frame.y * -1
+
+    image "wallpaper_blur" background_width background_height
+    effect "clear"
+  frame "clear"
 
   goto window.left + 30 0
-  image user.pfp 40 40
-  icon "w 3.5 cutcircle -13 13 10 -4.5 45 cutcircle -13 -13 10 -13 45 cutcircle 13 -13 10 13 45 cutcircle 13 13 10 4.5 45" 1 : c#window_colour
+  image "https://avatars.rotur.dev/" ++ user.username ++ "?radius=40" 42 42
   text uname 9 : chx#30 c#txtc
 
   goto window.right - 30 0
@@ -53,16 +61,12 @@ if winw != winw_target or mouse_touching or bg_redrawn or (timer - last > 0.5) (
     window "add" "settings"
   )
 
-  if network.connected.not (
+  if network.connected.not() (
     winw_target += 30
     icon "network" 0.9 : chx#-30
     icon "w 2 line -10 -10 10 10" 0.9
   )
 
-  terminal "get filechanges"
-  if data.len > 0 (
-    winw_target += 30
-    direction timer * 160
-    icon "w 3 cutcircle 0 0 10 0 90" 0.9 : chx#-30
-  )
+  winw_target += 20
+  text desktops.current + 1 9 : chx#-40
 )

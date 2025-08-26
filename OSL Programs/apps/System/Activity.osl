@@ -79,14 +79,17 @@ load_theme
 
 loc -2 2 -20 -20
 square 25 25 10 : c#prim
-if clicked "window stop"
+if clicked (
+  window.close()
+)
 
 square 25 25 10 : chx#-40
-if clicked "window minimise.str"
-icon "down" 0.7 : c#txtc
+if clicked (
+  window.minimise()
+)
 
+icon "down" 0.7 : c#txtc
 icon "close" 0.7 : chx#40
-if clicked "window stop"
 
 if current_tab == "no_perms" (
   if window.permissions.contains("windows") (
