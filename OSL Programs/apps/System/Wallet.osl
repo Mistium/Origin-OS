@@ -146,7 +146,7 @@ switch menu (
     break
     
   case "transfers"
-    if transactions == [] (
+    if transactions.len == 0 (
       loc 999 2 30 -70
       text "No Transactions" 10 : c#txtc
     ) else (

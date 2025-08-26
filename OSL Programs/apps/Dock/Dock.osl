@@ -3,6 +3,7 @@ import "glass" from "packages" as "glass"
 permission "request" "start run"
 permission "request" "file admin"
 permission "request" "terminal"
+permission "request" "windows"
 
 save "Dock@System" "set_directory"
 open = 0
@@ -11,6 +12,8 @@ window "responsive" true
 window "hide"
 
 window.no_desktop = true
+window.pinned = true
+// pin to the top to stop other windows from overlapping
 
 window "y" screensize_y / -2 + 35
 
@@ -86,7 +89,6 @@ if user.theme.len < 5 or typeof(user.theme) != "object" (
 
 file_loc = user_folder ++ "/Dock"
 
-dock_changed_w = false
 network "update" "hostOS" system_os
 network "update" "timezone" timezone
 
@@ -105,12 +107,14 @@ if dock_colour + icon_colour != tempcol (
   window "refresh_bg"
 )
 movefileloc file_loc
-if mouse_down.not() "canclick = True"
-window "dimensions" screensize_x 70
+if mouse_down.not() (
+  canclick = true
+)
+window.resize(screensize_x, 70)
 window.y = screensize_y / -2 + 35
 if delta_time < 0.1 (
-  y += dock_y_target - y.round() * delta_time * 3
-  if y.round() != dock_y_target.round() (
+  y += dock_y_target - round(y) * delta_time * 3
+  if round(y) != round(dock_y_target) (
     window "refresh_bg"
   )
 )
@@ -174,7 +178,15 @@ if y > -80 (
   dock_x = dock_width / -2
 )
 if open != 0 and mouse_down.not() (
-  terminal "kill" + open
-  window "add" open
+  local wins @= windows()
+  local exists = false
+  for i wins.len (
+    if wins[i].window.file.path == open (
+      exists = true
+    )
+  )
+  if exists.not() (
+    window.create(open)
+  )
   open = 0
 )

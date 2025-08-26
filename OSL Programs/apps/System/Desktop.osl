@@ -59,13 +59,12 @@ def "handle_dropped_file" (
 )
 
 def "handle_app_culling" (
-  if mouse_down or (app_positions == "{}") or bg_redrawn (
+  if mouse_down or app_positions.len == 0 or bg_redrawn (
     desktop_apps = desktop
   ) else (
     loc 2 2 35 -35
     x = round(mouse_x - x_position / 70) * 70
     y = round(mouse_y - y_position / 70) * 70
-
     desktop_apps = []
     cur = app_positions[y][x]
     if desktop.contains(cur) (
@@ -89,10 +88,8 @@ def "render_selection" (
     pen "down"
     pen "up"
     pen "opacity" 100
-    fx = frame_x
-    fy = frame_y
-    fw = frame_width
-    fh = frame_height
+    selection_frame @= frame
+    // for later when i want to allow selecting many files
   )
   window.resize(screensize_x,screensize_y - 70)
   window.callRender()
@@ -124,8 +121,7 @@ desktop_rightclick = [
       terminal "upload user/desktop"
     )},
     {"Folder": def() -> (
-      terminal "cd user/desktop"
-      terminal 'mkdir "New Folder"'
+      file "download" "New Folder.folder" "" [] parseFilePath("~/desktop")
     )},
     {"File": def() -> (
       window.create("new_file", {
@@ -183,7 +179,11 @@ desktop_uuid = open(windowfileloc ++ ".folder", [14])[1]
 positions = {}
 name = null
 apps_temp = ""
+can = false
 window "responsive" true
+
+include windowfileloc
+desktop @= data
 
 mainloop:
 back = user.theme.background
@@ -193,8 +193,10 @@ include windowfileloc
 nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn
 
-if cnrn.not() and nhvr "exit"
-desktop = data
+if cnrn.not() and nhvr (
+  exit
+)
+desktop @= data
 
 // set window parameters
 window.drop_location = windowfileloc
@@ -229,11 +231,15 @@ if nhvr.not() (
 
   rightclick desktop_rightclick desktop_uuid
 )
-if data.len == 0 or app_size == 0 "exit"
+if data.len == 0 or app_size == 0 (
+  exit
+)
 
 handle_app_culling
 
-if desktop_apps.len == 0 "exit"
+if desktop_apps.len == 0 (
+  exit
+)
 for i desktop_apps.len (
   app_id @= desktop_apps[i]
 
@@ -254,10 +260,8 @@ for i desktop_apps.len (
     square data.len * 8 5 15 : c#back chy#-35
     centext data 8 : c#txtc
     name = data
-  ) else (
-    if name == data (
-      window.callRender()
-      name = null
-    )
+  ) else if name == data (
+    window.callRender()
+    name = null
   )
 )

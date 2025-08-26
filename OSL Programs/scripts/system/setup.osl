@@ -29,7 +29,7 @@ file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #
 file "install_type" "lmc" "c #00d67d w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #006e40 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn script 0.4 0 -3" "LMC Script" []
 file "install_type" "ode" "c #6db2b3 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #456868 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 line -3 -7 3 -7" "Dock Segment" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "json" "c #ff724f w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #772d1c line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "JSON File" ["Origin/(A) System/User Applications/Studio.osl"]
-file "install_type" "csv" icon_cfg "Comma Separated Value document" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "csv" cfg_icn "Comma Separated Value document" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "ojff" "c #489c54 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #306a38 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "Origin Font" ["Font_Loader"]
 file "install_type" "obj" "c #edfff3 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #566a5e line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn cube 0.5 1 -4" "3d Model" []
 file "install_type" "icn" "" "Origin Icon" ["Origin/(A) System/User Applications/Studio.osl","Origin/(A) System/System Apps/Icn Tools.osl"]

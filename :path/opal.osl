@@ -77,7 +77,7 @@ local opal = {
   fetchFile: def(name, file) -> (
     return (self.repo ++ "/packages/" ++ name ++ file).httpGet().JsonParse()
   ),
-  install: def(name) -> (
+  install: def(name, bypass) -> (
     local opal_json = self.open("opal.json").data.JsonParse()
     local v = "latest"
     name = name.split(":")
@@ -109,32 +109,155 @@ local opal = {
       return
     )
     
-    log("Install " ++ cur.name ++ "(" ++ cur.version ++ ") - size: " ++ cur.size ++ "?")
-    if terminal.input("y/n") == "y" (
+    local install = true
+    if !bypass (
+      log("Install " ++ cur.name ++ "(" ++ cur.version ++ ") - size: " ++ cur.size ++ "?")
+      if terminal.input("y/n") != "y" (
+        install = false
+      )
+    )
+    if install (
       if cur.install != null (
         log("Found install script: " ++ cur.install)
         // run the package's install script
-        local fn = function("opal", self.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.install))
+        local fn = function("opal", self.fetchFile(name[1], "/" ++ cur.version ++ "/" ++ cur.install))
         void fn(opal)
         log("Finished running install script")
       )
       // write the script its to the /packages directory
       file "goto_dir" self.pwd ++ "/packages"
       log("Fetching package script")
-      local contents = self.fetchFile(name, "/" ++ cur.version ++ "/" ++ cur.main)
-      file "set_file" cur.name ++ ":" ++ cur.version.replace(".", "_") ++ ".osl" contents
+      local contents = self.fetchFile(name[1], "/" ++ cur.version ++ "/" ++ cur.main)
+      file "set_file" cur.name ++ ".osl" contents
       log("Written package to drive")
       
       // write to the opal.json
       file "goto_dir" self.pwd
       log("Writing dependencies to opal.json")
       opal_json.dependencies ??= {}
-      opal_json.dependencies[cur.name] = cur.version
+      opal_json.dependencies[cur.name[1]] = cur.version
       file "set_file" "opal.json" opal_json.JsonFormat()
       log("Installed")
     ) else (
       log("Aborted")
     )
+  ),
+  build: def() -> (
+    local file @= self.open("script.osl")
+    if !file.exists (
+      log([c.err, "script.osl not found, use ", c.opl, "opal init", c.err, " to create a new project"])
+      return
+    )
+    local ast = file.data.oslAST()
+    local queue = []
+    for i ast.len (
+      local line = ast[i][1].line
+      for j ast[i].len (
+        ast[i][j].line = line
+        void queue.append(ast[i][j])
+      )
+    )
+    log("Parsing script.osl")
+    log("Collecting imports")
+    
+    local imports = {}
+    
+    while queue.len > 0 (
+      local item @= queue.shift()
+      if item.left != null (
+        void queue.append(item.left)
+      )
+      if ["blk"].contains(item["type"]) (
+        local data @= item.data
+        for i data.len (
+          local line = data[i].line
+          for j data[i].len (
+            data[i][j].line = line
+            void queue.append(data[i][j])
+          )
+        )
+      )
+      if item.right != null (
+        void queue.append(item.right)
+      )
+      if item["type"] == "fnc" and item.data == "import" (
+        local params @= item.parameters
+        local invalid_msg = "Invalid import statement on line "
+        if params.len != 1 (
+          log([c.err, invalid_msg ++ item.line ++ ", expected 1 parameter, got " ++ params.len])
+          return
+        )
+        if params[1]["type"] != "str" (
+          log([c.err, invalid_msg ++ item.line ++ ", expected string parameter, got " ++ params[1]["type"]])
+          return
+        )
+        local path = params[1].data
+        item.type = "mtd"
+        item.data = mtd.data
+        item.data[2].parameters[1].data = path
+        log("Collected " ++ path)
+        local parsed = path
+        if path.startsWith("./") (
+          parsed @= parsed.replaceFirst(".", self.pwd)
+        )
+        local parsed = parseFilePath(parsed)
+        if imports[path] != null (
+          continue
+        )
+        file "exists" parsed
+        if !exists (
+          log([c.err, "Import file not found: ", parsed])
+          return
+        )
+        local data = open(parsed)
+        if data == null (
+          log([c.err, "Failed to open import file: ", parsed])
+          return
+        )
+        try (
+          local ast_cur @= data.oslAST()
+          for i ast_cur.len (
+            local line = ast_cur[i][1].line
+            for j ast_cur[i].len (
+              ast_cur[i][j].line = line
+              void queue.append(ast_cur[i][j])
+            )
+          )
+        ) catch e (
+          log([c.err, "Failed to parse import file: ", parsed, "\nError: ", e])
+          return
+        )
+        imports[path] @= data
+      )
+      void item.delete("source")
+    )
+    
+    local prepend = []
+    void prepend.append("opal_imports = {}\ndef import(path) (\n  switch path (\n")
+    local import_keys @= imports.getKeys().reverse()
+    local indent = def(str) -> (
+      return str.replace("/^/gm", "  ")
+    )
+    for i import_keys.len (
+      local key = import_keys[i]
+      local data = indent(imports[key].strip())
+      local hash = "__imports__" ++ key.hashMD5()
+      log("Compiled " ++ key ++ " " ++ i ++ "/" ++ import_keys.len)
+      void prepend.append("case \"" ++ key ++ "\"")
+      void prepend.append("  class " ++ hash ++ " (\n" ++ indent(data ++ "\n)"))
+      void prepend.append("  return " ++ hash)
+    )
+
+    local out = prepend.join("\n") ++ ")\n)\n" ++ file.data
+
+    if !self.open("build.folder").exists (
+      log("Creating /build directory")
+      file "set_file" "build.folder"
+    )
+    file "goto_dir" self.pwd ++ "/build"
+    log("Writing built file")
+    file "set_file" "script.osl" out
+    log("Written to /build/script.osl")
   ),
   format: {
     arr: v -> v.join(", ").wrapText(40)
@@ -155,8 +278,7 @@ local commands = [
   "search",
   "sync",
   "init",
-  "export",
-  "path"
+  "build"
 ]
 
 if args.len == 0 (
@@ -182,6 +304,7 @@ if args[1] != "init" (
 
 switch args[1] (
   case "init"
+    // initialize a new opal project
     file "goto_dir" opal.pwd
     log("Create new opal project at " ++ opal.pwd ++ "?")
     if terminal.input("y/n") == "y" (
@@ -194,7 +317,7 @@ switch args[1] (
       file "set_file" "opal.json" {
         name: terminal.input("Name your project"),
         version: "1.0.0",
-        description: "An awesome package",
+        description: terminal.input("Describe your project"),
         main: "script.osl",
         dependencies: {},
         tags: []
@@ -206,6 +329,7 @@ switch args[1] (
     )
     break
   case "install"
+    // install a package
     local dat = opal.getPackages()
     if dat.t[1] == c.err (
       log(dat.d)
@@ -215,6 +339,7 @@ switch args[1] (
     opal.install(args[2])
     break
   case "uninstall"
+    // uninstall a package
     file "goto_dir" opal.pwd ++ "/packages"
     local packages = listFiles()
     log("Found " ++ packages.len ++ " packages")
@@ -236,6 +361,7 @@ switch args[1] (
     log("Removed dependencies from opal.json")
     break
   case "list"
+    // list all installed packages
     local dat = opal.getPackages()
     if dat.t == "arr" (
       dat.d = opal.format.arr(dat.d)
@@ -243,6 +369,7 @@ switch args[1] (
     log(dat.d)
     break
   case "describe"
+    // describe a package
     local data = opal.fetchPackage(args[2])
     if !data.exists (
       log([opal.c.err, "No package found with that name"])
@@ -254,7 +381,46 @@ switch args[1] (
     log("")
     log(v.description.wrapText(60))
     break
+  case "sync"
+    // sync dependencies from opal.json
+    local opal_json = opal.open("opal.json")
+    if !opal_json.exists (
+      log([opal.c.err, "opal.json doesnt exist"])
+      break
+    )
+    opal_json = opal_json.data.JsonParse()
+    if typeof(opal_json) != "object" (
+      log([opal.c.err, "opal.json seems to be corrupted"])
+      break
+    )
+    if !opal_json.dependencies (
+      log("No dependencies found in opal.json")
+      break
+    )
+    log("Syncing dependencies from opal.json")
+    local deps @= opal_json.dependencies
+    if typeof(deps) != "object" (
+      log([opal.c.err, "opal.json dependencies seems to be corrupted"])
+      break
+    )
+    local names @= deps.getKeys()
+    for i names.len (
+      local name = names[i]
+      local version = deps[name]
+      if version == null (
+        log([opal.c.err, "No version specified for dependency: " ++ name])
+        continue
+      )
+      log("Installing " ++ name ++ "@" ++ version)
+      opal.install(name ++ ":" ++ version, true)
+    )
+    break
+  case "build"
+    // bundle the project into a single file in /build
+    opal.build()
+    break
   case "search"
+    // search for packages by name
     local query = args[2].toLowerCase()
     local dat = opal.getPackages()
     if dat.t[1] == c.err (

@@ -3,6 +3,7 @@ import "window_tools" as "wt"
 
 permission "request" "file admin"
 permission "request" "terminal"
+permission "request" "javascript"
 
 icons = {
   terminal: "w 1.5 line 0 -4 5 -4 line -2 0 -6 4 line -2 0 -6 -4",
@@ -193,7 +194,9 @@ if onclick (
 
 icon icons.logout 0.8 : chx#-40 tooltip#"Logout"
 if onclick (
-  terminal "su"
+  // remove current login state
+  eval "localStorage.setItem('origin_login', '')"
+  terminal "shutdown"
   window.close()
 )
 

@@ -1,0 +1,18 @@
+local flag = args[1]
+
+switch flag (
+  case "-u"
+    // UTC time string (like `date -u`)
+    terminal.writeLine("origin.time.date.toUTCString()".eval())
+    break
+
+  case "-I"
+    // ISO 8601 date only (YYYY-MM-DD)
+    terminal.writeLine("origin.time.date.toISOString().slice(0, 10)".eval())
+    break
+
+  default
+    // Default: local date/time string
+    terminal.writeLine("origin.time.date.toString()".eval())
+    break
+)

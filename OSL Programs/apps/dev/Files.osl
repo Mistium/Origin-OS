@@ -20,6 +20,7 @@ inputs.path = files_path
 files = []
 selected_files = []
 drag_id = 0
+local_dirs = {}
 
 sorting_mode = "name"
 sorting_dir = "descending"
@@ -66,6 +67,32 @@ def sort_files(files) (
     void new_files.append(obj)
   )
   return new_files.sortBy(sorting_mode.toLower(), sorting_direction).getKeys("uuid")
+)
+
+def sort_local_files(files) (
+  new_files = []
+  for i files.len (
+    local file @= files[i]
+    obj = {
+      path: file.path
+    }
+    
+    local filetype = file["type"] == "directory" ? ".folder" file.extension
+    obj.name = file.name
+  
+    obj.modified = file.modified
+    
+    local filetype_name = file_types[filetype][2]
+    obj.filetype = filetype_name == null ? "Document" filetype_name
+    obj.extension = filetype
+    if filetype == ".folder" (
+      obj.size = file.size.len
+    ) else (
+      obj.size = file.size.toNum()
+    )
+    void new_files.append(obj)
+  )
+  return new_files.sortBy(sorting_mode.toLower(), sorting_direction)
 )
 
 def "refresh" (
@@ -298,9 +325,33 @@ def "render_files" (
   window.drop_location = null
   if inputs.path == "origin" (
     files @= open("/")
-  ) else if inputs.path.startsWith("/dev") (
-    files = roturlink.drives
-      .filter(v -> (v.device_node == inputs.path))[1].files
+  ) else if inputs.path.startsWith("/dev") and roturlink.enabled (
+    path_base = inputs.path.split("/",3).join("/")
+    local drive @= roturlink.drives
+      .filter(v -> (v.device_node == path_base))[1]
+    if path_base != inputs.path (
+      local spl = inputs.path.split("/")
+        .trim(4,-1)
+        .join("/")
+      local path = drive.name ++ "/" ++ spl
+      files @= local_dirs[path]
+      if files == null (
+        local_dirs[path] = "requesting"
+        local pr @= promise.new(def() -> (
+          // the local roturLink endpoint for reading the fs
+          local resp @= ("http://127.0.0.1:5001/fs/list/Volumes/" ++ self.path).httpGet().JsonParse()
+          local_dirs[self.path] = resp.contents.filter(v -> (v.name.startsWith(".").not()))
+        ))
+        pr.worker.path = path
+        files = []
+      )
+      if files == "requesting" (
+        files = []
+      )
+    ) else (
+      files @= drive.files.filter(v -> (v.name.startsWith(".").not()))
+    )
+    files @= sort_local_files(files)
   ) else (
     file "exists" inputs.path ++ ".folder"
     if exists (
@@ -343,7 +394,7 @@ def "render_files" (
         file "open" fileGet(3) ++ ".folder"
         new @= file[4]
         new.delete(file_dropped)
-        new.append(file_dropped)
+        void new.append(file_dropped)
         file "set" 4 new
         current_folder_update = new
         refresh
@@ -357,7 +408,7 @@ def "render_files" (
         file = [
           current_file["type"] == "directory" ? ".folder" current_file.extension,
           current_file.name,
-          "",
+          inputs.path,
           current_file.modified * 1000,
           current_file.size
         ]
@@ -414,10 +465,33 @@ def "render_files" (
         )
         if (mouse_touching and clicked and can) or "enter".onKeyDown() (
           drag_id = 0
-          if fileGet(1) == ".folder" (
-            navigate file[3] ++ "/" ++ file[2]
-          ) else if use_file_obj.not() (
-            file "start"
+          if use_file_obj (
+            if file[1] == ".folder" (
+              navigate file[3] ++ "/" ++ file[2]
+            ) else if origin.version >= 600 (
+              local pr @= promise.new(def() -> (
+                // the local roturLink endpoint for reading the fs
+                local id = ouidNew()
+                local resp @= ("http://127.0.0.1:5001/fs/read/Volumes/" ++ self.path).httpGet().JsonParse()
+                local content = resp.content
+                local path = id ++ "." ++ self.path.split(".")[-1]
+                log path
+                file "goto_dir" "/(d) temp"
+                file "set_file" path content
+                file "open" path "onlyaccess"
+                file "start"
+                wait 1
+                file "delete"
+                file "close"
+              ))
+              pr.worker.path = file[3].replaceFirst(drive.device_node, drive.name) ++ "/" ++ file[2]
+            )
+          ) else (
+            if file[1] == ".folder" (
+              navigate file[3] ++ "/" ++ file[2]
+            ) else (
+              file "start"
+            )
           )
           files_selected_id = 0
         )
@@ -449,7 +523,9 @@ def "render_files" (
         loc -2 2 -100 draw_y
         text file[5] + (file[5] == 1 ? "Item" "Items") 8
       ) else (
-        data2 ++= data
+        if use_file_obj.not() (
+          data2 ++= data
+        )
         text data2.trimText(max_chars) 8
         
         if frame.width > 600 (

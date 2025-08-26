@@ -1,0 +1,21 @@
+local folders @= listFiles(terminal.pwd)
+  .filter(v -> v.endsWith(".folder"))
+
+if args[1].contains(".") or args[1].contains("/") or args[1].len == 0 (
+  terminal.writeLine("Invalid directory name")
+  return
+)
+
+args[1] = args[1].strip()
+args[1] ++= ".folder"
+if folders.contains(args[1]) (
+  terminal.writeLine("Directory already exists")
+  return
+)
+
+try (
+  file "goto_dir" terminal.pwd
+  file "set_file" args[1] []
+) catch e (
+  terminal.writeLine("Error creating directory: " ++ e.error)
+)

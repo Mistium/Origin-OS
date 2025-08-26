@@ -1,0 +1,4 @@
+local lines @= args[2].split("\n")
+for i lines.len (
+    terminal.run(lines[i])
+)

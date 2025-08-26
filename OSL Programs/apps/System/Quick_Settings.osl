@@ -6,6 +6,9 @@ import "window_tools" as "wt"
 permission "request" "terminal"
 
 window.no_desktop = true
+window.pinned = true
+// pin to the top to stop other windows from overlapping
+
 window "responsive" true
 uname = user.username
 
