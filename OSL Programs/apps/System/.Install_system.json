@@ -4,7 +4,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Dock.osl",
     "icon": "c #111 w 10 square 0 0 5 5",
-    "version":"4.3"
+    "version":"4.4"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Time_Info.osl",
@@ -21,46 +21,46 @@
     "version":"1.2"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/main.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/main.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "main.ode",
+    "name": "main.osl",
     "icon": "",
-    "version":"1.4"
+    "version":"1.5"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/applications.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/applications.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "applications.ode",
+    "name": "applications.osl",
     "icon": "",
-    "version":"5.5"
+    "version":"5.6"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/running.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/running.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "running.ode",
+    "name": "running.osl",
     "icon": "",
-    "version":"2.2"
+    "version":"2.3"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/folders.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/folders.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "folders.ode",
+    "name": "folders.osl",
     "icon": "",
-    "version":"1.2"
+    "version":"1.3"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/time.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/time.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "time.ode",
+    "name": "time.osl",
     "icon": "",
-    "version":"2.9"
+    "version":"3.0"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/battery.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/battery.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "battery.ode",
+    "name": "battery.osl",
     "icon": "",
-    "version":"2.2"
+    "version":"2.3"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Login.osl",
