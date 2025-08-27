@@ -160,26 +160,25 @@ desktop_rightclick_temp = desktop_rightclick
 
 
 widgets = []
-/* example config, so this basically is just a list of widget files to import
-[
-  {
-    name: "clock",
-    position: [999,999,0,100],
-    size: [300,100],
-    file: "~/widgets/clock.osl",
-    config: {}
-  }
-]
+// example config, so this basically is just a list of widget files to import
+// [
+//   {
+//     name: "clock",
+//     position: [999,999,0,100],
+//     size: [300,100],
+//     file: "~/widgets/clock.osl",
+//     config: {}
+//   }
+// ]
 
 
-- clock.osl
+// - clock.osl
 
-def main() (
-  square frame.width - 20 frame.height - 20 20 : c#user.theme.background
-  local fmt @= time.formatted
-  centext fmt.hour ++ ":" ++ fmt.minute 20 : c#user.theme.text
-)
-*/
+// def main() (
+//   square frame.width - 20 frame.height - 20 20 : c#user.theme.background
+//   local fmt @= time.formatted
+//   centext fmt.hour ++ ":" ++ fmt.minute 20 : c#user.theme.text
+// )
 
 if "widgets.json".saveExists() (
   widgets = "widgets.json".saveGet().JsonClean()
