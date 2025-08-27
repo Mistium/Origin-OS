@@ -91,7 +91,6 @@ def "render_selection" (
     selection_frame @= frame
     // for later when i want to allow selecting many files
   )
-  window.resize(screensize_x,screensize_y - 70)
   window.callRender()
 )
 
@@ -173,7 +172,6 @@ if "theme.json".saveExists() (
 app_size = theme.app_size
 
 clicked_id = 0
-window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
 desktop_uuid = open(windowfileloc ++ ".folder", [14])[1]
 positions = {}
@@ -184,6 +182,8 @@ window "responsive" true
 
 include windowfileloc
 desktop @= data
+
+area @= "origin.windows.area".eval()
 
 mainloop:
 back = user.theme.background
@@ -200,9 +200,13 @@ desktop @= data
 
 // set window parameters
 window.drop_location = windowfileloc
-window.width = screensize_x
-window.height = screensize_y - 70
-window.y = 35
+
+local width = screensize_x - (area.left + area.right)
+local height = screensize_y - (area.top + area.bottom)
+
+window.goto(area.left - area.right / 2, area.bottom - area.top / 2)
+window.width = width
+window.height = height
 
 if nhvr.not() (
   if file_dropped != 0 (

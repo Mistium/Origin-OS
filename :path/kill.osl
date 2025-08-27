@@ -12,7 +12,7 @@ for i wins.len (
     // remove the id from the ids array
     void ids.delete(cur.id.toStr())
     // close the window
-    void cur.window.close()
+    void cur.close()
   )
 )
 for i2 ids.len (
