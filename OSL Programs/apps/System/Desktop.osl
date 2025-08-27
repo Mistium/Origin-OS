@@ -160,8 +160,7 @@ desktop_rightclick_temp = desktop_rightclick
 
 
 widgets = []
-/* example config
-// so this basically is just a list of widget files to import
+/* example config, so this basically is just a list of widget files to import
 [
   {
     name: "clock",
@@ -172,7 +171,8 @@ widgets = []
   }
 ]
 
-// clock.osl
+
+- clock.osl
 
 def main() (
   square frame.width - 20 frame.height - 20 20 : c#user.theme.background
