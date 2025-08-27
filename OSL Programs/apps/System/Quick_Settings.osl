@@ -27,21 +27,21 @@ wt:load_theme
 
 if winw > winw_target (
   window "refresh_bg"
-  if winw.round() == winw_target.round() (
+  if round(winw) == round(winw_target) (
     winw.round()
     winw_target.round()
   )
 )
 winw += winw_target - winw / 10
 
-winw_target = winw_start
-window.width = winw
+window.width = round(winw)
 
 window.x = screensize_x - window.width / 2 - 5
 window.y = screensize_y / 2 - 35
 
 square window.width window.height 0 0 1
-if winw != winw_target or mouse_touching or bg_redrawn or (timer - last > 0.5) (
+if round(winw) !== round(winw_target) or mouse_touching or bg_redrawn or (timer - last > 0.5) (
+  winw_target = winw_start
   last = timer
   w2 = window.width
   h2 = window.height

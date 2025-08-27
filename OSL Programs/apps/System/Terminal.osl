@@ -254,8 +254,21 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
       local i = 0
       loop line.len / 2 (
         i += 2
-        c line[i - 1] ?? txtc
-        text line[i] 10
+        local cur @= line[i]
+        local cols @= line[i - 1]
+        if typeof(cols) == "string" (
+          c cols ?? txtc
+        ) else (
+          if cols.back != null (
+            local len = cur.len * 5
+            change_x len
+            c cols.back.toStr()
+            square len * 2 20 0
+            change_x -len
+          )
+          c cols.text ?? txtc
+        )
+        text cur 10
         c txtc
       )
     ) else (

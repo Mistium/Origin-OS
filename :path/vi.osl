@@ -1,0 +1,96 @@
+if terminal.writeLine == null (
+  window.close()
+)
+
+local term_lines @= terminal.lines
+local textf = []
+local lines = []
+local pos = 1
+
+local cursor_pos = [1,1]
+
+local pwd = terminal.pwd.split("/")
+pwd[1] = ""
+pwd.append(args[1])
+
+local cmd = ""
+local mode = "normal"
+
+local dir = parseFilePath(pwd.join("/"))
+file "exists" dir
+if exists (
+  textf @= open(dir).split("\n")
+) else (
+  terminal.writeLine("Unknown target file: " ++ args[1])
+  return
+)
+
+while true (
+  local keys = all_hit.filter(v -> v.len == 1)
+  local height = round(window.height / 20) - 2
+  lines = textf.trim(pos, pos + height)
+  loop height - lines.len (
+    void lines.append("~")
+  )
+  if "escape".onKeyDown() (
+    mode = "normal"
+  )
+  if keys.contains(":") (
+    keys = []
+    cmd = ""
+    mode = "cmd"
+  )
+  if ["normal","insert"].contains(mode) (
+    if "arrowleft".onKeyDown() (
+      cursor_pos[1] -= 1
+    )
+    if "arrowright".onKeyDown() (
+      cursor_pos[1] += 1
+    )
+    if "arrowup".onKeyDown() (
+      cursor_pos[2] -= 1
+    )
+    if "arrowdown".onKeyDown() (
+      cursor_pos[2] += 1
+    )
+  )
+  switch mode (
+    case "normal"
+      if "i".onKeyDown() (
+        mode = "insert"
+      )
+      break
+    case "insert"
+      break
+    case "cmd"
+      cmd ++= keys.join("")
+      if "backspace".onKeyDown() (
+        cmd.trim(1, -2)
+      )
+      if "enter".onKeyDown() (
+        switch cmd.strip() (
+          case "wq"
+          case "w"
+            file "open" dir "onlyaccess"
+            file "set" 4 textf.join("\n")
+            if cmd == "wq" (
+              terminal.lines @= term_lines
+              return
+            )
+            break
+          case "q!"
+          case "q"
+            terminal.lines @= term_lines
+            return
+          default
+            mode = "normal"
+            cmd = "Unknown editor command: " ++ cmd
+         )
+       )
+       break
+  )
+  lines[-2] = " -- " ++ mode ++ " -- "
+  lines[-1] = (mode == "cmd" ? ":" "") ++ cmd
+  terminal.lines @= lines
+  defer
+)
