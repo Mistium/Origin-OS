@@ -158,6 +158,41 @@ desktop_rightclick = [
 
 desktop_rightclick_temp = desktop_rightclick
 
+
+widgets = []
+/* example config
+// so this basically is just a list of widget files to import
+[
+  {
+    name: "clock",
+    position: [999,999,0,100],
+    size: [300,100],
+    file: "~/widgets/clock.osl",
+    config: {}
+  }
+]
+
+// clock.osl
+
+def main() (
+  square frame.width - 20 frame.height - 20 20 : c#user.theme.background
+  local fmt @= time.formatted
+  centext fmt.hour ++ ":" ++ fmt.minute 20 : c#user.theme.text
+)
+*/
+
+if "widgets.json".saveExists() (
+  widgets = "widgets.json".saveGet().JsonClean()
+  if typeof(widget_config) != "array" (
+    say "Invalid widgets config, must be a valid array"
+    widgets = []
+  )
+)
+for i widgets.len (
+  local cur @= widgets[i]
+  cur.imp @= import(cur.file)
+)
+
 if "theme.json".saveExists() (
   theme = "theme.json".saveGet().JsonClean()
   if typeof(theme) != "object" (
@@ -193,6 +228,18 @@ include windowfileloc
 nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn
 
+
+for j widgets.len (
+  local cur @= widgets[j]
+  local pos = cur.position
+  local size = cur.size
+  size[1] /= 2
+  size[2] /= 2
+  loc pos[1] pos[2] pos[3] pos[4]
+  frame x_position - size[1] y_position + size[2] x_position + size[1] y_position - size[2]
+    void cur.imp.main()
+  frame "clear"
+)
 if cnrn.not() and nhvr (
   exit
 )
