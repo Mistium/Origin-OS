@@ -10,8 +10,12 @@ def main() (
   local y = y_position
   change_x 52.5
   square 105 height 20 0 1
-  if clicked (
-    open = "Origin/(A) System/Docks/Time_Info.osl"
+  if clicked and mouse_ondown (
+    window.create("Origin/(A) System/Docks/Time_Info.osl", {
+      x: x_position + frame.x - 97,
+      y: y_position + frame.y + 87,
+      child: true
+    })
   )
 
   local is12h = user.timeformat.hours == "12h"
