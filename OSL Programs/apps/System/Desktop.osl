@@ -98,12 +98,14 @@ def getUuid(path) (
   if path.startsWith("sys/") (
     local path = "origin/(a) system/user applications/" ++ path.trim(5,-1)
   )
-  file "open" path "onlyaccess"
-  return fileGet(14)
+  local uuid = open(path, ["uuid"])[1]
+  log path uuid
+  file "close"
+  return uuid
 )
 
 desktop_rightclick = [
-  "> " ++ getUuid("user/desktop.folder"),
+  "> " ++ getUuid("~/desktop.folder"),
   "-",
   {"Change Wallpaper": def() -> (
     window.create(getUuid("sys/Settings.osl"), "Style/Background")
