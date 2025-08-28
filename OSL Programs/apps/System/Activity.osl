@@ -220,6 +220,8 @@ if current_tab == "Network" (
     "- Websocket",
     "upload      |   " ++ formatFileSize(network.upload),
     "download    |   " ++ formatFileSize(network.download),
+    "total up    |   " ++ formatFileSize(network.uploadTotal),
+    "total down  |   " ++ formatFileSize(network.downloadTotal)
   ]
   if roturLink.enabled (
     net = roturLink.network

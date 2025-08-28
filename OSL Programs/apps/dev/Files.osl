@@ -475,7 +475,6 @@ def "render_files" (
                 local resp @= ("http://127.0.0.1:5001/fs/read/Volumes/" ++ self.path).httpGet().JsonParse()
                 local content = resp.content
                 local path = id ++ "." ++ self.path.split(".")[-1]
-                log path
                 file "goto_dir" "/(d) temp"
                 file "set_file" path content
                 file "open" path "onlyaccess"

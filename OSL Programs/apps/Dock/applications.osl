@@ -32,9 +32,7 @@ def main() (
   cur = null
   if file_dropped != 0 (
     local data = open(user_folder ++ "/dock.folder")
-    log data.clone() file_dropped
     void data.delete(file_dropped)
-    log data.clone()
     pos = round(mouse_x - (x - 25) / 50)
     void data.insert(pos, file_dropped)
     file "set" 4 data
