@@ -1014,14 +1014,15 @@ class OSLUtils {
           }
 
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
-          while (tokens[tokens.length - 1] === "") tokens.pop();
-          tokens = tokens.map(token => {
-            token = String(token).trim()
-            if (token === "") return null;
-            return token;
-          });
+          while (`${tokens[tokens.length - 1]}`.trim() === "") tokens.pop();          
+          
           for (let i = 0; i < tokens.length; i++) {
-            tokens[i] = this.generateAST({ CODE: tokens[i], START: 0 })[0];
+            let cur = (""+tokens[i]).trim()
+            if (cur.startsWith("/@line ")) {
+              const first = cur.split("\n", 1)[0]
+              cur = cur.replace(first + "\n", "").trim()
+            }
+            tokens[i] = this.generateAST({ CODE: cur, START: 0 })[0];
           }
 
           if (param) {
@@ -1040,19 +1041,35 @@ class OSLUtils {
           if (arr.isStatic) arr.static = tokens.map(token => token.data);
           return arr;
         } else if (cur[0] === "{") {
-          if (cur == "{}") return { type: "obj", num: this.tkn.obj, data: {} }
+          if (cur == "{}") return { type: "obj", num: this.tkn.obj, data: [] }
 
-          let output = {};
+          let output = [];
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",")
-            .filter((token) => token.trim() !== "");
+            .filter(token => token.trim() !== "");
           for (let token of tokens) {
             let [key, value] = autoTokenise(token, ":");
             key = key.trim();
-            if (key[0] === "\"" && key[key.length - 1] === "\"") {
-              key = key.substring(1, key.length - 1);
+            if (key.startsWith("/@line ")) {
+              const first = key.split("\n", 1)[0]
+              key = key.replace(first + "\n", "").trim()
             }
-            if (value === undefined) output[key] = null;
-            else output[key] = this.generateAST({ CODE: ("" + value).trim(), START: 0 })[0];
+            if (value === undefined) {
+              let nkey = this.generateAST({ CODE: key, START: 0 })[0]
+              if (nkey.num === this.tkn.var) {
+                value = nkey
+                nkey = this.generateAST({ CODE: JSON.stringify(key), START: 0 })[0]
+              }
+              output.push([nkey, value ?? null])
+              continue;
+            }
+            if (key.startsWith("(") && key.endsWith(")")) {
+              key = key.substring(1, key.length - 1).trim();
+            } else {
+              key = JSON.stringify(key);
+            }
+            key = this.generateAST({ CODE: key, START: 0 })[0]
+            if (value === undefined) output.push([key, null]);
+            else output.push([key, this.generateAST({ CODE: ("" + value).trim(), START: 0 })[0]]);
           }
           return { type: "obj", num: this.tkn.obj, data: output };
         }
@@ -1457,10 +1474,14 @@ class OSLUtils {
       if (match === "(") return ".call(";
       if (match === "[") return ".[";
       if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line++; return match }
-      if (match.trim().startsWith("//")) { line++; return ""; }
       if (match.startsWith("\n")) { line++; return match.replace(/\n\s*\./, ".") };
       return match;
     });
+    CODE = CODE.split("\n")
+    for (let i = CODE.length - 1; i >= 0; i --) {
+      if (CODE[i].trim().startsWith("//")) CODE.splice(i, 1)
+    }
+    CODE = CODE.join("\n")
     CODE = autoTokenise(CODE, "\n").map(line => {
       line = line.trim();
       if (line === "endef") return ")";
@@ -1723,6 +1744,18 @@ if (typeof Scratch !== "undefined") {
   const fs = require("fs");
 
   fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+    CODE: `
+val = "hi"
+obj = {key2: 10}
+var = 20
+obj = {
+  (val): "world",
+  key: "hi",
+  ...obj,
+  var
+}
+log obj.hi
+// "world"
+`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }), null, 2));
 }
