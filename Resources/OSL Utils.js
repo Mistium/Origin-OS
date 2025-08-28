@@ -1064,10 +1064,12 @@ class OSLUtils {
             }
             if (key.startsWith("(") && key.endsWith(")")) {
               key = key.substring(1, key.length - 1).trim();
+              key = this.generateAST({ CODE: key, START: 0 })[0]
             } else {
-              key = JSON.stringify(key);
+              let temp_key = this.evalToken(key);
+              if (temp_key.num !== this.tkn.str) key = JSON.stringify(key)
+              key = this.generateAST({ CODE: key, START: 0 })[0]
             }
-            key = this.generateAST({ CODE: key, START: 0 })[0]
             if (value === undefined) output.push([key, null]);
             else output.push([key, this.generateAST({ CODE: ("" + value).trim(), START: 0 })[0]]);
           }
@@ -1752,7 +1754,8 @@ obj = {
   (val): "world",
   key: "hi",
   ...obj,
-  var
+  var,
+  "key3": "hi"
 }
 log obj.hi
 // "world"
