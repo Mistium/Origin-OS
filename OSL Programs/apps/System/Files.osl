@@ -653,13 +653,7 @@ def "draw_file" (
       file "render" file_size / 50 : c#txtc
     )
     change_y file_size / -2 + 10
-    // if centext doesnt work
-    if true (
-      change_x name.len * (file_size / -25)
-      text name file_size / 12.5 : c#txtc
-    ) else (
-      centext name file_size / 12.5 : c#txtc
-    )
+    centext name file_size / 12.5 : c#txtc
   )
 )
 def saveFavorites() (
