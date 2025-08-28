@@ -150,9 +150,23 @@
               "data": "var",
               "source": "var"
             }
+          ],
+          [
+            {
+              "type": "str",
+              "num": 0,
+              "data": "key3",
+              "source": "\"key3\""
+            },
+            {
+              "type": "str",
+              "num": 0,
+              "data": "hi",
+              "source": "\"hi\""
+            }
           ]
         ],
-        "source": "{\n  (val): \"world\",\n  key: \"hi\",\n  ...obj,\n  var\n}"
+        "source": "{\n  (val): \"world\",\n  key: \"hi\",\n  ...obj,\n  var,\n  \"key3\": \"hi\"\n}"
       },
       "line": 4
     }
@@ -163,7 +177,7 @@
       "num": 17,
       "data": "log",
       "source": "log obj.hi",
-      "line": 10
+      "line": 11
     },
     {
       "type": "mtd",
