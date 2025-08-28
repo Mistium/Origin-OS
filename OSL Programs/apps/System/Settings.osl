@@ -1008,14 +1008,14 @@ def "account" (
   local pfp_s = w / 3 - 30
   change_x w / -2 + (pfp_s / 2) + 15
   image pfp pfp_s pfp_s
-  if timer - upload_time < 5 and current_pfp != "" (
+  if current_pfp != "" (
     direction timer * 300
     icon "cutcircle 0 0 10 0 90" 1 : c#txtc
     direction 90
   ) else (
     if mouse_touching (
-      if clicked (
-        current_pfp = clipboard.toStr()
+      if mouse_ondown and timer - upload_time > 1 and current_pfp == "" (
+        current_pfp = "Enter A Url".ask()
         upload_time = timer
       )
       change_y 20
@@ -1023,7 +1023,7 @@ def "account" (
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
       
       square 81 10 20 : chy#-40 c#seco
-      centext "Paste Url" 9 : c#txtc
+      centext "Change PFP" 9 : c#txtc
       change_y 20
     )
   )
@@ -1043,13 +1043,13 @@ def "account" (
   
   if current_pfp != "" (
     image current_pfp 0 0
-    if timer - upload_time > 5 (
-      current_pfp = ""
-      say "Failed to load pfp, try a different   website or try again"
-    )
     if current_pfp.imageinfo("loaded") (
       network "update" "pfp" current_pfp
       current_pfp = ""
+    )
+    if timer - upload_time > 5 (
+      current_pfp = ""
+      say "Failed to load pfp, try a different   website or try again"
     )
   )
   local all_badges = System().badges ?? {}
@@ -1491,11 +1491,7 @@ inputs.bio = (user.bio ?? "").split("\n")
 
 window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
 
-def genPfp() (
-  return "https://avatars.rotur.dev/" ++ username ++ "?radius=30&random=" ++ random(9999,9999999999)
-)
-original_pfp = user.pfp
-pfp = genPfp()
+pfp = "https://avatars.rotur.dev/" ++ username ++ "?radius=30"
 
 supporterData = null
 
@@ -1503,12 +1499,6 @@ slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 
 mainloop:
 networking()
-
-if original_pfp != user.pfp (
-  pfp = genPfp()
-  original_pfp = user.pfp
-)
-
 
 glass:frame window.left window.top window.left + 215 window.bottom
 c window_colour

@@ -1,6 +1,5 @@
 width = 100
 sec = second
-log time
 
 def conditions() (
   return second != self.sec
