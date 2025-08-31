@@ -198,5 +198,59 @@
       ],
       "source": "obj.hi"
     }
+  ],
+  [
+    {
+      "type": "cmd",
+      "num": 17,
+      "data": "for",
+      "source": "for i 10 (",
+      "line": 14
+    },
+    {
+      "type": "str",
+      "num": 0,
+      "data": "i",
+      "source": "i"
+    },
+    {
+      "type": "num",
+      "num": 1,
+      "data": 10,
+      "source": "10"
+    },
+    {
+      "type": "blk",
+      "num": 20,
+      "data": [],
+      "source": "[ast BLK]"
+    }
+  ],
+  [
+    {
+      "type": "cmd",
+      "num": 17,
+      "data": "for",
+      "source": "for i 10 (",
+      "line": 18
+    },
+    {
+      "type": "str",
+      "num": 0,
+      "data": "i",
+      "source": "i"
+    },
+    {
+      "type": "num",
+      "num": 1,
+      "data": 10,
+      "source": "10"
+    },
+    {
+      "type": "blk",
+      "num": 20,
+      "data": [],
+      "source": "[ast BLK]"
+    }
   ]
 ]
