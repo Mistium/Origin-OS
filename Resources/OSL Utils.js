@@ -1273,9 +1273,7 @@ class OSLUtils {
     }
 
     // Evaluate each node in the AST
-    for (let i = 0; i < ast.length; i++) {
-      ast[i] = evalASTNode(ast[i]);
-    }
+    for (let i = 0; i < ast.length; i++) ast[i] = evalASTNode(ast[i]);
 
     // def command -> assignment conversion
     let first = ast[0] ?? {};
@@ -1559,13 +1557,12 @@ class OSLUtils {
               type: "evl", num: this.tkn.evl,
               data: cur[1],
               source: cur[1].source || "[ast EVL]"
-            }
+            };
           } else {
             cur[1].type = "str";
             cur[1].num = this.tkn.str;
           }
         }
-        i++
       }
       if (type === "cmd" && data === "def") {
         if (cur.length < 3) {
@@ -1759,6 +1756,14 @@ obj = {
 }
 log obj.hi
 // "world"
+
+for i 10 (
+
+)
+
+for i 10 (
+
+)
 `, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }), null, 2));
 }
