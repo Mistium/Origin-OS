@@ -217,6 +217,35 @@ class OSLUtils {
     this.macLineEndingRegex = /\r/g;
     // Store inlinable functions
     this.inlinableFunctions = {};
+    // Optimization caches and pools
+    this.nodePool = [];
+    this.tokenCache = new Map();
+    this.astCache = new Map();
+    this.constFoldingCache = new Map();
+    this.typeCache = new Map();
+    // Pre-compiled evaluation sets for faster lookups
+    this.staticTypes = new Set(["str", "num", "unk", "cmd", "raw"]);
+    this.evaluableOps = new Set(["+", "-", "*", "/", "%", "^", "==", "!=", ">", "<", ">=", "<=", "and", "or"]);
+    this.inlinableOps = new Set(["+", "-", "*", "/", "%", "^"]);
+    // String pools for common operations
+    this.commonStrings = new Map([
+      ["=", "="], ["@=", "@="], ["++", "++"], ["--", "--"],
+      ["def", "def"], ["if", "if"], ["else", "else"], ["for", "for"],
+      ["while", "while"], ["return", "return"], ["true", "true"], ["false", "false"]
+    ]);
+
+    // Optimization settings
+    this.optimizationSettings = {
+      maxLoopUnrollCount: 8, // Maximum number of iterations to unroll
+      maxLoopUnrollSize: 50, // Maximum AST nodes to unroll
+      deadCodeElimination: true,
+      constantFolding: true,
+      loopUnrolling: true
+    };
+
+    // Track variables and their usage for dead code elimination
+    this.variableUsage = new Map();
+    this.definedVariables = new Set();
 
     this.tkn = {
       str: 0,
@@ -263,7 +292,30 @@ class OSLUtils {
       and: 12,
       or:  13,
       unk: 14,
-      str: 15
+      str: 15,
+      "%": 16,
+      "^": 17,
+      "//": 18,
+      "??": 19,
+      "++": 20,
+      ">=": 21,
+      "<=": 22,
+      "!>": 23,
+      "!<": 24,
+      "===": 25,
+      "!==": 26,
+      in: 27,
+      notIn: 28,
+      nor: 29,
+      xor: 30,
+      xnor: 31,
+      nand: 32,
+      "|": 33,
+      "&": 34,
+      "<<": 35,
+      ">>": 36,
+      "^^": 37,
+      "raw": 38,
     }
 
     if (typeof window !== "undefined") {
@@ -495,7 +547,7 @@ class OSLUtils {
     function stepAst(node) {
       queue.push(node)
       switch (node?.type) {
-        case "opr": case "cmp": case "log":
+        case "opr": case "cmp": case "log": case "bit":
           stepAst(node.left)
           stepAst(node.right)
           break
@@ -521,10 +573,10 @@ class OSLUtils {
           case "var":
             out.push(size, types.var, cur.data, 0)
             break
-          case "num": case "unk": case "str":
+          case "num": case "unk": case "str": case "raw":
             out.push(size, types[cur.type], cur.data, 0)
             break
-          case "opr": case "cmp": case "log":
+          case "opr": case "cmp": case "log": case "bit":
             if (types[cur.data] === undefined) throw new Error()
             out.push(size, types[cur.data], memMap.get(cur.left), memMap.get(cur.right))
             break
@@ -534,12 +586,11 @@ class OSLUtils {
             for (let j = 1; j < data.length; j ++) {
               const cur2 = data[j]
               if (cur2.type !== "var") throw new Error()
-              memMap.set(cur2, 0)
               out.push(size, types.prp, memMap.get(cur), cur2.data)
             }
             break
           default:
-            throw new Error() // stop it from compiling if theres unsupported nodes
+            throw new Error()
         }
       }
 
@@ -549,6 +600,25 @@ class OSLUtils {
       return { success: true, code: out }
     } catch {
       return { success: false, code: out } // catch when it fails to generate
+    }
+  }
+
+  clearCachedBysl(node) {
+    if (!node || typeof node !== "object") return;
+
+    if (Array.isArray(node)) {
+      node.forEach(item => this.clearCachedBysl(item));
+      return;
+    }
+
+    if (node.bysl !== undefined) {
+      delete node.bysl;
+    }
+
+    for (const key in node) {
+      if (node.hasOwnProperty(key) && key !== "source") {
+        this.clearCachedBysl(node[key]);
+      }
     }
   }
 
@@ -615,8 +685,16 @@ class OSLUtils {
 
     // If this is a variable that matches a parameter, replace it
     if (node.type === "var" && paramMap.hasOwnProperty(node.data)) {
-      return paramMap[node.data];
+      const substituted = paramMap[node.data];
+      if (substituted && typeof substituted === "object") {
+        const newNode = { ...substituted };
+        delete newNode.bysl;
+        return newNode;
+      }
+      return substituted;
     }
+
+    if (result.bysl !== undefined) delete result.bysl;
 
     // Recursively process all object properties
     for (const key in result) {
@@ -687,7 +765,7 @@ class OSLUtils {
 
       // If parameter is used multiple times and is complex, create a temp variable
       if (usageCount > 1 && !this.isSimpleExpression(paramExpr)) {
-        const tempVarName = `__temp_${paramName}_${randomString(8)}`;
+        const tempVarName = `temp_${paramName}_${randomString(8)}`;
         tempVars.push({
           name: tempVarName,
           value: paramExpr
@@ -705,6 +783,8 @@ class OSLUtils {
 
     // Substitute parameters in the return expression
     let inlinedExpr = this.substituteParameters(inlineFunc.returnExpression, paramMap);
+
+    this.clearCachedBysl(inlinedExpr);
 
     // If we have temp variables, wrap the expression in a block that declares them
     if (tempVars.length > 0) {
@@ -1382,14 +1462,14 @@ class OSLUtils {
           };
         }
 
-        if (["opr", "cmp", "log"].includes(cur?.right?.type)) {
+        if (["opr", "cmp", "log", "bit"].includes(cur?.right?.type) && cur.right.bysl === undefined) {
           const val = this.generateBysl(cur.right)
           if (val.success) cur.right.bysl = val.code
         }
         
         cur.source = start;
       }
-      if (["opr", "cmp", "log"].includes(cur?.type)) {
+      if (["opr", "cmp", "log", "bit"].includes(cur?.type) && cur.bysl === undefined) {
         const val = this.generateBysl(cur)
         if (val.success) cur.bysl = val.code
       }
@@ -1742,8 +1822,60 @@ if (typeof Scratch !== "undefined") {
   let utils = new OSLUtils();
   const fs = require("fs");
 
-  fs.writeFileSync("lol.json", JSON.stringify(utils.generateFullAST({
-    CODE: `
+  function formatByslJson(obj, indent = 0) {
+    const spaces = '  '.repeat(indent);
+    
+    if (Array.isArray(obj)) {
+      if (obj.length > 0 && obj.every(item => typeof item === 'number' || typeof item === 'string' || Array.isArray(item))) {
+        let isByslArray = false;
+        if (obj.length >= 4) {
+          const firstFew = obj.slice(0, 8);
+          const hasNumbers = firstFew.some(item => typeof item === 'number');
+          const hasStrings = firstFew.some(item => typeof item === 'string');
+          isByslArray = hasNumbers && obj.length % 4 !== 1;
+        }
+        
+        if (isByslArray && obj.length > 8) {
+          let result = '[\n';
+          for (let i = 0; i < obj.length; i += 4) {
+            const chunk = obj.slice(i, i + 4);
+            const formattedChunk = chunk.map(item => 
+              typeof item === 'string' ? JSON.stringify(item) : String(item)
+            ).join(', ');
+            result += `${spaces}  ${formattedChunk}`;
+            if (i + 4 < obj.length) result += ',';
+            result += '\n';
+          }
+          result += `${spaces}]`;
+          return result;
+        }
+      }
+      
+      if (obj.length === 0) return '[]';
+      const items = obj.map(item => formatByslJson(item, indent + 1));
+      if (items.every(item => item.length < 50) && items.length <= 3) {
+        return `[${items.join(', ')}]`;
+      }
+      return `[\n${items.map(item => `${spaces}  ${item}`).join(',\n')}\n${spaces}]`;
+    }
+    
+    if (obj && typeof obj === 'object' && obj.constructor === Object) {
+      const keys = Object.keys(obj);
+      if (keys.length === 0) return '{}';
+      
+      const items = keys.map(key => {
+        const value = formatByslJson(obj[key], indent + 1);
+        return `${JSON.stringify(key)}: ${value}`;
+      });
+      
+      return `{\n${items.map(item => `${spaces}  ${item}`).join(',\n')}\n${spaces}}`;
+    }
+    
+    return JSON.stringify(obj);
+  }
+
+  const result = utils.generateFullAST({
+    f: `
 val = "hi"
 obj = {key2: 10}
 var = 20
@@ -1764,6 +1896,8 @@ for i 10 (
 for i 10 (
 
 )
-`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
-  }), null, 2));
+`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+  });
+
+  fs.writeFileSync("lol.json", formatByslJson(result));
 }

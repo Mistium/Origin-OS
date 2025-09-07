@@ -222,7 +222,25 @@
     {
       "type": "blk",
       "num": 20,
-      "data": [],
+      "data": [
+        [
+          {
+            "type": "cmd",
+            "num": 17,
+            "data": "log",
+            "source": "log 10",
+            "isStatic": true,
+            "full": ["log", 10],
+            "line": 15
+          },
+          {
+            "type": "num",
+            "num": 1,
+            "data": 10,
+            "source": "10"
+          }
+        ]
+      ],
       "source": "[ast BLK]"
     }
   ],
