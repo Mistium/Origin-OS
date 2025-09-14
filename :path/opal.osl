@@ -250,14 +250,15 @@ local opal = {
 
     local out = prepend.join("\n") ++ ")\n)\n" ++ file.data
 
+    file "goto_dir" self.pwd
     if !self.open("build.folder").exists (
-      log("Creating ./build directory")
+      log("Creating /build directory")
       file "set_file" "build.folder"
     )
     file "goto_dir" self.pwd ++ "/build"
     log("Writing built file")
     file "set_file" "script.osl" out
-    log("Written to ./build/script.osl")
+    log("Written to /build/script.osl")
   ),
   format: {
     arr: v -> v.join(", ").wrapText(40)

@@ -209,7 +209,6 @@ class OSLUtils {
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
     this.unary = ["typeof", "new"]
     this.listVariable = "";
-    // Pre-compile regex for generateFullAST to avoid recompilation
     this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
     this.lineTokeniserRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g;
     // Pre-compile line ending normalization regex
@@ -217,6 +216,10 @@ class OSLUtils {
     this.macLineEndingRegex = /\r/g;
     // Store inlinable functions
     this.inlinableFunctions = {};
+    // Store function return type signatures for type checking
+    this.functionReturnTypes = {
+      'random': { accepts: [], returns: 'number' }
+    };
     // Optimization caches and pools
     this.nodePool = [];
     this.tokenCache = new Map();
@@ -287,10 +290,10 @@ class OSLUtils {
       prp: 7, // get object prop
       ">": 8,
       "<": 9,
-      "==":10,
-      "!=":11,
+      "==": 10,
+      "!=": 11,
       and: 12,
-      or:  13,
+      or: 13,
       unk: 14,
       str: 15,
       "%": 16,
@@ -481,6 +484,17 @@ class OSLUtils {
           },
         },
         {
+          opcode: "getErrorsFromAstMain",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "Get Errors From AST [AST]",
+          arguments: {
+            AST: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: '{}',
+            },
+          },
+        },
+        {
           opcode: "setOperators",
           blockType: Scratch.BlockType.COMMAND,
           text: "Set Operators [OPERATORS]",
@@ -583,7 +597,7 @@ class OSLUtils {
           case "mtd":
             out.push(size, types.var, cur?.data?.[0].data, 0)
             const data = cur.data
-            for (let j = 1; j < data.length; j ++) {
+            for (let j = 1; j < data.length; j++) {
               const cur2 = data[j]
               if (cur2.type !== "var") throw new Error()
               out.push(size, types.prp, memMap.get(cur), cur2.data)
@@ -646,6 +660,20 @@ class OSLUtils {
     const funcInfo = this.inlinableFunctions[funcName];
     if (!funcInfo) return false;
 
+    // If the function has a declared signature with specific parameter types,
+    // and any parameter is unused in the return expression, avoid inlining to
+    // preserve type checking on the call site.
+    const sig = this.functionReturnTypes?.[funcName];
+    if (sig && Array.isArray(sig.accepts) && sig.accepts.some(t => t && t !== 'any')) {
+      for (let i = 0; i < funcInfo.parameters.length; i++) {
+        const paramName = funcInfo.parameters[i];
+        const usageCount = this.countParameterUsage(returnExpression, paramName);
+        if (usageCount === 0) {
+          return false;
+        }
+      }
+    }
+
     // Calculate complexity for each parameter
     for (let i = 0; i < funcInfo.parameters.length; i++) {
       const paramName = funcInfo.parameters[i];
@@ -662,15 +690,20 @@ class OSLUtils {
       }
     }
 
-    // Don't inline if the complexity cost is too high
-    // Function call overhead = ~3 units, so only inline if total cost < 6
-    return totalParamComplexity < 6;
+    // Don't inline if the complexity cost is too high  
+    // Use strict threshold to preserve function calls for type checking
+    return totalParamComplexity < 1;
   }
 
   // Extract parameters from function definition
   extractFunctionParameters(paramString) {
     if (!paramString || paramString.trim() === "") return [];
-    return autoTokenise(paramString.trim(), ",").map(p => p.trim()).filter(p => p);
+    return autoTokenise(paramString.trim(), ",").map(p => {
+      const parts = p.trim().split(/\s+/);
+      // If there are multiple parts, assume the last one is the parameter name
+      // e.g., "number a" -> "a", "string param" -> "param"
+      return parts.length > 1 ? parts[parts.length - 1] : p.trim();
+    }).filter(p => p);
   }
 
   // Substitute parameters in an AST node
@@ -743,7 +776,7 @@ class OSLUtils {
   }
 
   // Try to inline a function call with parameter caching for complex expressions
-  tryInlineFunction(funcName, parameters) {
+  tryInlineFunction(funcName, parameters, lineNum = 0) {
     const inlineFunc = this.inlinableFunctions[funcName];
     if (!inlineFunc) return null;
 
@@ -1094,10 +1127,10 @@ class OSLUtils {
           }
 
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
-          while (`${tokens[tokens.length - 1]}`.trim() === "") tokens.pop();          
-          
+          while (`${tokens[tokens.length - 1]}`.trim() === "") tokens.pop();
+
           for (let i = 0; i < tokens.length; i++) {
-            let cur = (""+tokens[i]).trim()
+            let cur = ("" + tokens[i]).trim()
             if (cur.startsWith("/@line ")) {
               const first = cur.split("\n", 1)[0]
               cur = cur.replace(first + "\n", "").trim()
@@ -1283,7 +1316,7 @@ class OSLUtils {
       }
 
       if (node.type === "fnc" && typeof node.data === "string" && this.inlinableFunctions[node.data]) {
-        const inlined = this.tryInlineFunction(node.data, node.parameters || []);
+        const inlined = this.tryInlineFunction(node.data, node.parameters || [], node.line);
         if (inlined) {
           return evalASTNode(inlined);
         }
@@ -1304,7 +1337,7 @@ class OSLUtils {
         if (node.left?.type === "var") params = node.left.data;
         const right = node.right;
         if (typeof right.data === "string" && !right.data.trim().startsWith("(\n") && node.left) {
-          params = node.left.source.replace(/^\(| +|\)$/gi, "");
+          params = node.left.source.replace(/^\(|\)$/gi, "").trim();
           right.data = `(\nreturn ${right.source}\n)`;
         }
         return {
@@ -1360,47 +1393,82 @@ class OSLUtils {
     let second = ast[1] ?? {};
     const local = first.data === "local" && first.type === "var";
     if (
-      first.type === "var" &&
-      first.data === "def" &&
-      second.type === "fnc"
+      (first.type === "var" || first.type === "cmd") &&
+      first.data === "def"
     ) {
-      if (local) {
-        ast.splice(0, 1);
-        if (ast.length === 0) return [];
-        first = ast[0] ?? {};
-        second = ast[1] ?? {};
-      }
-      first.data = second.data;
-      ast.splice(1, 0, {
-        type: "asi", num: this.tkn.asi,
-        data: "=",
-        source: start
-      });
-      const params = second.parameters.map(p => (p.set_type ? `${p.set_type} ` : "") + (
-        p.type === "mtd" ?
-          p.data.map(p2 => p2.data).join(".") :
-          p.data
-      )).join(",")
-      const funcNode = {
-        type: "fnc", num: this.tkn.fnc,
-        data: "function",
-        parameters: [
-          {
-            type: "str", num: this.tkn.str,
-            data: params,
-            source: params
-          },
-          ast[3]
-        ]
-      };
-      if (local) {
-        ast[0] = this.generateAST({ CODE: "this." + ast[0].data, START: 0 })[0]
-      }
-      ast[2] = funcNode;
-      ast.splice(3, 1);
+      if (second.type === "fnc") {
+        if (local) {
+          ast.splice(0, 1);
+          if (ast.length === 0) return [];
+          first = ast[0] ?? {};
+          second = ast[1] ?? {};
+        }
 
-      // Register for inlining if it's a simple function
-      this.registerInlinableFunction(first.data, funcNode);
+        let funcName, paramSpec, funcBody, returnType = 'any';
+
+        // Function definition: def function_name(params)
+        funcName = second.data;
+        const params = second.parameters?.map(p => {
+          const typePrefix = p.set_type ? `${p.set_type} ` : "";
+          return typePrefix + p.data;
+        }).join(",") || "";
+        paramSpec = params;
+
+        if (ast[2]?.type === "var") {
+          returnType = ast[2].data;
+          funcBody = ast[3];
+        } else {
+          funcBody = ast[2];
+        }
+
+        const funcNode = {
+          type: "fnc", num: this.tkn.fnc,
+          data: "function",
+          returns: returnType,
+          parameters: [
+            {
+              type: "str", num: this.tkn.str,
+              data: paramSpec,
+              source: paramSpec
+            },
+            funcBody
+          ]
+        };
+
+        ast.length = 0;
+        ast.push({
+          type: "asi", num: this.tkn.asi,
+          data: "=",
+          source: start,
+          left: {
+            type: "var", num: this.tkn.var,
+            data: funcName,
+            source: funcName
+          },
+          right: funcNode
+        });
+
+        this.registerInlinableFunction(funcName, funcNode);
+
+        paramSpec = `${paramSpec}`.trim();
+        if (paramSpec) {
+          const paramTypes = [];
+          const paramParts = paramSpec.split(',').map(p => p.trim());
+          for (const paramPart of paramParts) {
+            const parts = paramPart.split(' ').filter(p => p);
+            if (parts.length >= 2) {
+              paramTypes.push(parts[0]); // Type is first part
+            } else {
+              paramTypes.push('any'); // No type specified
+            }
+          }
+
+          this.functionReturnTypes[funcName] = {
+            returnType: returnType || 'any',
+            accepts: paramTypes
+          };
+        }
+      }
     }
 
     if (ast.length === 0) return [];
@@ -1466,7 +1534,7 @@ class OSLUtils {
           const val = this.generateBysl(cur.right)
           if (val.success) cur.right.bysl = val.code
         }
-        
+
         cur.source = start;
       }
       if (["opr", "cmp", "log", "bit"].includes(cur?.type) && cur.bysl === undefined) {
@@ -1558,7 +1626,7 @@ class OSLUtils {
       return match;
     });
     CODE = CODE.split("\n")
-    for (let i = CODE.length - 1; i >= 0; i --) {
+    for (let i = CODE.length - 1; i >= 0; i--) {
       if (CODE[i].trim().startsWith("//")) CODE.splice(i, 1)
     }
     CODE = CODE.join("\n")
@@ -1814,32 +1882,1496 @@ class OSLUtils {
     UNARY = Scratch.Cast.toString(UNARY);
     this.unary = JSON.parse(UNARY);
   }
+
+  hasReturnStatement(blockData) {
+    if (!Array.isArray(blockData)) return false;
+
+    for (const line of blockData) {
+      if (!Array.isArray(line) || line.length === 0) continue;
+
+      const first = line[0];
+      if (!first) continue;
+
+      if (first.type === 'cmd' && first.data === 'return') {
+        return true;
+      }
+
+      if (first.type === 'cmd' && first.data === 'if') {
+        const hasIfReturn = this.checkIfElseReturns(line);
+        if (hasIfReturn) return true;
+      }
+
+      if (first.type === 'cmd' && first.data === 'switch') {
+        const hasSwitchReturn = this.checkSwitchReturns(line);
+        if (hasSwitchReturn) return true;
+      }
+    }
+
+    return false;
+  }
+
+  checkIfElseReturns(ifLine) {
+    if (!Array.isArray(ifLine)) return false;
+
+    let ifBlock = null;
+    let elseBlock = null;
+
+    for (let i = 0; i < ifLine.length; i++) {
+      const item = ifLine[i];
+      if (item && item.type === 'blk') {
+        if (ifBlock === null) {
+          ifBlock = item;
+        } else if (i > 0 && ifLine[i - 1]?.data === 'else') {
+          elseBlock = item;
+        }
+      }
+    }
+
+    if (!ifBlock || !elseBlock) {
+      return false;
+    }
+
+    const ifHasReturn = this.hasReturnStatement(ifBlock.data);
+    const elseHasReturn = this.hasReturnStatement(elseBlock.data);
+
+    return ifHasReturn && elseHasReturn;
+  }
+
+  checkSwitchReturns(switchLine) {
+    if (!Array.isArray(switchLine) || switchLine.length < 3) return false;
+
+    const switchBlock = switchLine[2];
+    if (!switchBlock || switchBlock.type !== 'blk' || !Array.isArray(switchBlock.data)) {
+      return false;
+    }
+
+    let hasDefault = false;
+    let allCasesHaveReturns = true;
+
+    for (const caseLine of switchBlock.data) {
+      if (!Array.isArray(caseLine) || caseLine.length === 0) continue;
+
+      const caseFirst = caseLine[0];
+      if (caseFirst?.type === 'cmd') {
+        if (caseFirst.data === 'case') {
+          // Check if this case has a return (look ahead to next lines)
+          const caseHasReturn = this.checkCaseHasReturn(switchBlock.data, caseLine);
+          if (!caseHasReturn) {
+            allCasesHaveReturns = false;
+            break;
+          }
+        } else if (caseFirst.data === 'default') {
+          hasDefault = true;
+          const defaultHasReturn = this.checkCaseHasReturn(switchBlock.data, caseLine);
+          if (!defaultHasReturn) {
+            allCasesHaveReturns = false;
+            break;
+          }
+        }
+      }
+    }
+
+    return hasDefault && allCasesHaveReturns;
+  }
+
+  // Check if a case has a return statement before the next case/default
+  checkCaseHasReturn(switchData, caseLine) {
+    const caseIndex = switchData.indexOf(caseLine);
+    if (caseIndex === -1) return false;
+
+    // Look for return statement between this case and the next case/default
+    for (let i = caseIndex + 1; i < switchData.length; i++) {
+      const line = switchData[i];
+      if (!Array.isArray(line) || line.length === 0) continue;
+
+      // Stop if we hit another case or default
+      if (line[0]?.type === 'cmd' && (line[0].data === 'case' || line[0].data === 'default')) {
+        break;
+      }
+
+      // Found a return statement
+      if (line[0]?.type === 'cmd' && line[0].data === 'return') {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  refineTypes(AST) {
+    // Process function inlining and capture type errors that would be lost
+    this.pendingTypeErrors = [];
+
+    if (!Array.isArray(AST)) return;
+
+    // Initialize functionReturnTypes if not already done
+    if (!this.functionReturnTypes) {
+      this.functionReturnTypes = {};
+    }
+
+    // Process lambda functions first so they're available for type checking
+    this.applyTypes(AST);
+
+    // Check function calls before inlining to catch argument type mismatches
+    for (const line of AST) {
+      if (!Array.isArray(line)) continue;
+      this.checkFunctionCallTypes(line);
+    }
+  }
+
+  checkFunctionCallTypes(line) {
+    const isCompatible = (expected, actual) => {
+      if (!expected || !actual) return true;
+      if (expected === actual) return true;
+      if (expected === 'any' || actual === 'any') return true;
+      if (expected === 'array' && typeof actual === 'string' && actual.endsWith('[]')) return true;
+      return false;
+    };
+
+    const traverseNode = (node) => {
+      if (!node || typeof node !== 'object') return;
+
+      if (Array.isArray(node)) {
+        node.forEach(item => traverseNode(item));
+        return;
+      }
+
+      // Check function calls
+      if (node.type === 'fnc' && typeof node.data === 'string' && node.data !== 'function') {
+        const sig = this.functionReturnTypes[node.data];
+        if (sig && Array.isArray(node.parameters)) {
+          const params = node.parameters;
+          for (let i = 0; i < Math.min(params.length, sig.accepts.length); i++) {
+            const expected = sig.accepts[i] || 'any';
+            const actual = this.inferBasicType(params[i]);
+            if (!isCompatible(expected, actual)) {
+              this.pendingTypeErrors.push({
+                line: node.line || 0,
+                message: `Type mismatch: argument ${i + 1} of '${node.data}' expected ${expected}, got ${actual}`
+              });
+            }
+          }
+        }
+      }
+
+      // Recursively check child nodes
+      if (node.left) traverseNode(node.left);
+      if (node.right) traverseNode(node.right);
+      if (node.right2) traverseNode(node.right2);
+      if (Array.isArray(node.parameters)) traverseNode(node.parameters);
+      if (Array.isArray(node.data)) traverseNode(node.data);
+    };
+
+    traverseNode(line);
+  }
+
+  inferBasicType(token) {
+    if (!token) return 'any';
+    if (token.inferredType) return token.inferredType;
+    if (token.returns) return token.returns;
+    if (token.type === 'var') {
+      const name = typeof token.data === 'string' && token.data.startsWith('this.') ? token.data.slice(5) : token.data;
+      if (this.latestVariableTypeMap && this.latestVariableTypeMap[name]) return this.latestVariableTypeMap[name];
+    }
+    if (token.type === 'num') return 'number';
+    if (token.type === 'str') return 'string';
+    if (token.type === "arr") return 'array';
+    if (token.type === 'unk' && token.data === null) return 'null';
+    if (token.type === 'raw') return typeof token.data === 'boolean' ? 'boolean' : 'any';
+    return 'any';
+  }
+
+  // Apply type information to the AST
+  applyTypes(AST) {
+    if (!Array.isArray(AST)) return AST;
+
+    // Initialize type maps
+    const variableTypeMap = {};
+    const functionReturnTypes = { ...this.functionReturnTypes };
+    const variablePropertyTypes = {};
+
+    // Helper to normalize variable names (e.g., strip 'this.' from local vars)
+    const normalizeVarName = (name) => {
+      if (typeof name === 'string' && name.startsWith('this.')) return name.slice(5);
+      return name;
+    };
+
+    // Recursive function to process nested AST structures
+    const processASTNodes = (astNodes) => {
+      for (const line of astNodes) {
+        if (!Array.isArray(line)) continue;
+
+        for (const token of line) {
+          if (!token) continue;
+
+          // Handle variable assignments (including lambda functions)
+          if (token.type === 'asi') {
+            // Set current function types for lambda processing
+            this.currentFunctionTypes = functionReturnTypes;
+            this._processAssignmentTypes(token, variableTypeMap, variablePropertyTypes);
+            this.currentFunctionTypes = null;
+          }
+
+          // Handle function definitions (but not lambda assignments)
+          if (token.type === 'asi' && token.right?.type === 'fnc' && token.left?.data && token.set_type !== 'function') {
+            this._processFunctionDefinition(token, functionReturnTypes);
+          }
+          
+          // Recursively process nested blocks in assignments
+          if (token.type === 'asi' && token.right?.type === 'fnc' && Array.isArray(token.right.parameters)) {
+            for (const param of token.right.parameters) {
+              if (param?.type === 'blk' && Array.isArray(param.data)) {
+                processASTNodes(param.data);
+              }
+            }
+          }
+          
+          // Recursively process nested blocks
+          if (token.type === 'fnc' && Array.isArray(token.parameters)) {
+            for (const param of token.parameters) {
+              if (param?.type === 'blk' && Array.isArray(param.data)) {
+                processASTNodes(param.data);
+              }
+            }
+          }
+          
+          // Process other block types
+          if (token.type === 'blk' && Array.isArray(token.data)) {
+            processASTNodes(token.data);
+          }
+        }
+
+        // Handle command-style function definitions
+        if (line[0]?.type === 'cmd' && line[0].data === 'def') {
+          this._processCommandDefinition(line, functionReturnTypes);
+        }
+      }
+    };
+
+    // First pass: collect type information from assignments and function definitions
+    processASTNodes(AST);
+
+    // Update global function return types
+    this.functionReturnTypes = { ...this.functionReturnTypes, ...functionReturnTypes };
+
+    // Second pass: apply types to all nodes
+    const applyTypesToNode = (node, scope = {}) => {
+      if (!node || typeof node !== 'object') return node;
+
+      if (Array.isArray(node)) {
+        return node.map(item => applyTypesToNode(item, scope));
+      }
+
+      // Create a copy to avoid mutating original
+      const typedNode = { ...node };
+
+      // Apply type information based on node type
+      switch (typedNode.type) {
+        case 'var':
+          const vName = normalizeVarName(typedNode.data);
+          const varType = scope[vName] || variableTypeMap[vName];
+          if (varType) {
+            typedNode.inferredType = varType;
+          }
+          break;
+
+        case 'cmd':
+          // Apply command parameter types if available
+          if (functionReturnTypes[typedNode.data]) {
+            typedNode.paramTypes = functionReturnTypes[typedNode.data].accepts;
+            typedNode.returnType = functionReturnTypes[typedNode.data].returns;
+          }
+          break;
+
+        case 'fnc':
+          if (typedNode.data !== 'function' && functionReturnTypes[typedNode.data]) {
+            typedNode.returnType = functionReturnTypes[typedNode.data].returns;
+            typedNode.paramTypes = functionReturnTypes[typedNode.data].accepts;
+          }
+          break;
+
+        case 'mtd':
+          if (Array.isArray(typedNode.data) && typedNode.data.length >= 2) {
+            const baseType = this._inferMethodBaseType(typedNode, scope, variableTypeMap);
+            const methodName = this._getMethodName(typedNode.data);
+            typedNode.baseType = baseType;
+            typedNode.methodName = methodName;
+            typedNode.inferredType = this._getMethodReturnType(baseType, methodName);
+          }
+          break;
+
+        case 'arr':
+          if (Array.isArray(typedNode.data)) {
+            const elementType = this._inferArrayElementType(typedNode.data);
+            typedNode.elementType = elementType;
+            typedNode.inferredType = elementType !== 'any' ? `${elementType}[]` : 'array';
+          }
+          break;
+
+        case 'obj':
+          typedNode.inferredType = 'object';
+          if (Array.isArray(typedNode.data)) {
+            const propTypes = {};
+            for (const [keyToken, valueToken] of typedNode.data) {
+              if (keyToken?.type === 'str') {
+                propTypes[keyToken.data] = this._inferTokenType(valueToken, scope, variableTypeMap);
+              }
+            }
+            typedNode.propertyTypes = propTypes;
+          }
+          break;
+
+        case 'num':
+          typedNode.inferredType = 'number';
+          break;
+
+        case 'str':
+          typedNode.inferredType = 'string';
+          break;
+
+        case 'raw':
+          typedNode.inferredType = typeof typedNode.data === 'boolean' ? 'boolean' : 'any';
+          break;
+
+        case 'unk':
+          if (typedNode.data === null) {
+            typedNode.inferredType = 'null';
+          }
+          break;
+
+        case 'opr':
+        case 'cmp':
+        case 'log':
+        case 'bit':
+          if (typedNode.left && typedNode.right) {
+            const leftType = this._inferTokenType(typedNode.left, scope, variableTypeMap);
+            const rightType = this._inferTokenType(typedNode.right, scope, variableTypeMap);
+            typedNode.leftType = leftType;
+            typedNode.rightType = rightType;
+            typedNode.inferredType = this._inferOperatorResultType(typedNode.data, leftType, rightType);
+          }
+          break;
+      }
+
+      // Recursively apply types to child nodes
+      if (typedNode.left) {
+        typedNode.left = applyTypesToNode(typedNode.left, scope);
+      }
+      if (typedNode.right) {
+        typedNode.right = applyTypesToNode(typedNode.right, scope);
+      }
+      if (typedNode.right2) {
+        typedNode.right2 = applyTypesToNode(typedNode.right2, scope);
+      }
+      if (Array.isArray(typedNode.parameters)) {
+        typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, scope));
+      }
+      if (Array.isArray(typedNode.data) && !['arr', 'obj'].includes(typedNode.type)) {
+        typedNode.data = typedNode.data.map(item => applyTypesToNode(item, scope));
+      }
+
+      // Handle block scoping
+      if (typedNode.type === 'blk' && Array.isArray(typedNode.data)) {
+        const blockScope = { ...scope };
+        
+        // Apply types to each line in order, carrying scope forward
+        typedNode.data = typedNode.data.map(line => {
+          if (Array.isArray(line)) {
+            const typedLine = line.map(token => applyTypesToNode(token, blockScope));
+            // After typing this line, update scope with any assignments from this line for subsequent lines
+            for (const token of typedLine) {
+              if (token?.type === 'asi' && token.left?.type === 'var') {
+                const varName = normalizeVarName(token.left.data);
+                const varType = this._inferTokenType(token.right, blockScope, variableTypeMap);
+                if (varType !== 'any') {
+                  blockScope[varName] = varType;
+                }
+              }
+            }
+            return typedLine;
+          }
+          return applyTypesToNode(line, blockScope);
+        });
+      }
+
+      return typedNode;
+    };
+
+  // Persist property type info and latest variable map for later passes
+  this.variablePropertyTypes = variablePropertyTypes;
+  this.latestVariableTypeMap = variableTypeMap;
+
+  // Apply types to the entire AST
+  return AST.map(line => applyTypesToNode(line));
+  }
+
+  // Helper methods for type processing
+  _processAssignmentTypes(asiToken, variableTypeMap, variablePropertyTypes) {
+    const leftNode = asiToken.left;
+    const rightNode = asiToken.right;
+
+    // Support both direct variable and local (rmt) assignments
+    const isLocalRmt = leftNode?.type === 'rmt' && leftNode.final?.type === 'var';
+  // Support assignments to simple property chains like this.FOO or FOO (represented as mtd of vars)
+  const isMtdVarChain = leftNode?.type === 'mtd' && Array.isArray(leftNode.data) && leftNode.data.length >= 1 && leftNode.data.every(seg => seg?.type === 'var');
+    if (leftNode?.type === 'var' || isLocalRmt) {
+      const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
+      const varNameRaw = isLocalRmt ? `this.${leftNode.final.data}` : leftNode.data;
+      const varName = normalizeVarName(varNameRaw);
+      
+      // Handle explicit type declarations
+      if (asiToken.set_type) {
+        const declaredType = asiToken.set_type === 'str' ? 'string' : asiToken.set_type;
+        variableTypeMap[varName] = declaredType;
+        // Also map the raw name if it's different (e.g., this.var)
+        if (varName !== varNameRaw) variableTypeMap[varNameRaw] = declaredType;
+
+        // If declaring an array and RHS is an array literal, capture element type as a typed array
+        if (declaredType === 'array' && rightNode?.type === 'arr' && Array.isArray(rightNode.data)) {
+          const elemType = this._inferArrayElementType(rightNode.data);
+          if (elemType && elemType !== 'any') {
+            variableTypeMap[varName] = `${elemType}[]`;
+            if (varName !== varNameRaw) variableTypeMap[varNameRaw] = `${elemType}[]`;
+          }
+        }
+      }
+      
+      // Handle lambda function assignments  
+      if (rightNode?.type === 'fnc' && rightNode.data === 'function' && Array.isArray(rightNode.parameters)) {
+        const paramsToken = rightNode.parameters[0];
+        const bodyToken = rightNode.parameters[1];
+        
+        if (paramsToken?.type === 'str') {
+          const accepts = [];
+          
+          // The parameter type is directly available in the AST
+          const paramType = paramsToken.data.trim();
+          
+          // Check if this is a type or variable name
+          const knownTypes = ['number', 'string', 'boolean', 'array', 'object', 'function'];
+          if (knownTypes.includes(paramType)) {
+            accepts.push(paramType);
+          } else {
+            // If it's not a known type, it's likely a variable name without type annotation
+            // In this case, try to parse from source as fallback
+            if (asiToken.source) {
+              const sourceMatch = asiToken.source.match(/\(([^)]+)\)/);
+              if (sourceMatch) {
+                const paramString = sourceMatch[1].trim();
+                const params = paramString.split(',').map(p => p.trim());
+                
+                for (const param of params) {
+                  const parts = param.trim().split(/\s+/);
+                  if (parts.length >= 2) {
+                    // Has type annotation: "number x"
+                    accepts.push(parts[0]);
+                  } else {
+                    accepts.push('any');
+                  }
+                }
+              } else {
+                accepts.push('any');
+              }
+            } else {
+              accepts.push('any');
+            }
+          }
+          
+          // Store the lambda function signature in the current function map used by applyTypes
+          const targetFnMap = this.currentFunctionTypes || this.functionReturnTypes || {};
+          // Ensure map exists when writing globally
+          if (!this.currentFunctionTypes && !this.functionReturnTypes) this.functionReturnTypes = {};
+          targetFnMap[varName] = {
+            accepts: accepts,
+            returns: 'any' // Lambda return types are inferred
+          };
+          
+          variableTypeMap[varName] = 'function';
+          if (varName !== varNameRaw) variableTypeMap[varNameRaw] = 'function';
+        }
+      }
+      
+      // Special-case: if assigning result of pop(), keep variable as 'any' to allow flexibility
+      if (rightNode?.type === 'mtd' && Array.isArray(rightNode.data)) {
+        const lastSeg = rightNode.data[rightNode.data.length - 1];
+        if (lastSeg?.data === 'pop') {
+          variableTypeMap[varName] = 'any';
+          if (varName !== varNameRaw) variableTypeMap[varNameRaw] = 'any';
+        }
+      }
+
+      // Infer type from right-hand side
+      if (rightNode) {
+        const inferredType = this._inferTokenType(rightNode, {}, variableTypeMap);
+        if (inferredType !== 'any' && !variableTypeMap[varName]) {
+          variableTypeMap[varName] = inferredType;
+          if (varName !== varNameRaw) variableTypeMap[varNameRaw] = inferredType;
+        }
+
+        // Handle object property types
+        if (rightNode.type === 'obj' && Array.isArray(rightNode.data)) {
+          const propTypes = {};
+          for (const [keyToken, valueToken] of rightNode.data) {
+            if (keyToken?.type === 'str') {
+              propTypes[keyToken.data] = this._inferTokenType(valueToken, {}, variableTypeMap);
+            }
+          }
+          if (Object.keys(propTypes).length > 0) {
+            variablePropertyTypes[varName] = propTypes;
+            if (varName !== varNameRaw) variablePropertyTypes[varNameRaw] = propTypes;
+          }
+        }
+      }
+    } else if (isMtdVarChain) {
+      // Handle left side like this.FOO @= <expr>
+      const fullName = leftNode.data.map(seg => seg.data).join('.');
+      const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
+      const varNameRaw = fullName;
+      const varName = normalizeVarName(fullName);
+
+      // Handle explicit declarations (typed assignment)
+      if (asiToken.set_type) {
+        const declaredType = asiToken.set_type === 'str' ? 'string' : asiToken.set_type;
+        variableTypeMap[varName] = declaredType;
+        variableTypeMap[varNameRaw] = declaredType;
+
+        // If declaring an array and RHS is an array literal, capture element type as a typed array
+        if (declaredType === 'array' && rightNode?.type === 'arr' && Array.isArray(rightNode.data)) {
+          const elemType = this._inferArrayElementType(rightNode.data);
+          if (elemType && elemType !== 'any') {
+            variableTypeMap[varName] = `${elemType}[]`;
+            variableTypeMap[varNameRaw] = `${elemType}[]`;
+          }
+        }
+      }
+
+      // Infer type from RHS as fallback/initialization
+      if (rightNode) {
+        const inferredType = this._inferTokenType(rightNode, {}, variableTypeMap);
+        if (inferredType !== 'any' && !variableTypeMap[varName]) {
+          variableTypeMap[varName] = inferredType;
+          variableTypeMap[varNameRaw] = inferredType;
+        }
+
+        // If assigning an object literal, record property types for later dot access
+        if (rightNode.type === 'obj' && Array.isArray(rightNode.data)) {
+          const propTypes = {};
+          for (const [keyToken, valueToken] of rightNode.data) {
+            if (keyToken?.type === 'str') {
+              propTypes[keyToken.data] = this._inferTokenType(valueToken, {}, variableTypeMap);
+            }
+          }
+          if (Object.keys(propTypes).length > 0) {
+            variablePropertyTypes[varName] = propTypes;
+            variablePropertyTypes[varNameRaw] = propTypes;
+          }
+        }
+      }
+    }
+  }
+
+  _processFunctionDefinition(asiToken, functionReturnTypes) {
+    const funcName = asiToken.left?.data;
+    const funcNode = asiToken.right;
+    
+    if (!funcName || !funcNode || funcNode.type !== 'fnc' || funcNode.data !== 'function') {
+      return;
+    }
+
+    const returnType = funcNode.returns || 'any';
+    const accepts = [];
+
+    if (funcNode.parameters && funcNode.parameters.length >= 1) {
+      const paramString = funcNode.parameters[0]?.data;
+      if (paramString && typeof paramString === 'string') {
+        const paramPairs = paramString.split(',').map(p => p.trim());
+        for (const pair of paramPairs) {
+          const parts = pair.split(/\s+/);
+          if (parts.length >= 2) {
+            accepts.push(parts[0]); // Type is first part
+          } else {
+            accepts.push('any');
+          }
+        }
+      }
+    }
+
+    functionReturnTypes[funcName] = {
+      accepts: accepts,
+      returns: returnType
+    };
+  }
+
+  _processCommandDefinition(line, functionReturnTypes) {
+    if (line.length < 4) return;
+
+    const cmdName = line[1]?.data;
+    const params = line[2]?.data;
+
+    if (!cmdName || typeof params !== 'string') return;
+
+    const accepts = [];
+    const paramPairs = params.split(',').map(p => p.trim());
+    for (const pair of paramPairs) {
+      const parts = pair.split(/\s+/);
+      if (parts.length >= 2) {
+        accepts.push(parts[0]);
+      } else {
+        accepts.push('any');
+      }
+    }
+
+    functionReturnTypes[cmdName] = {
+      accepts: accepts,
+      returns: 'void'
+    };
+  }
+
+  _inferTokenType(token, scope = {}, variableTypeMap = {}) {
+    if (!token) return 'any';
+    
+    if (token.inferredType) return token.inferredType;
+    if (token.returns) return token.returns;
+
+    switch (token.type) {
+      case 'num': return 'number';
+      case 'str': return 'string';
+      case 'raw': return typeof token.data === 'boolean' ? 'boolean' : 'any';
+      case 'unk': return token.data === null ? 'null' : 'any';
+      case 'arr': 
+        if (Array.isArray(token.data)) {
+          const elementType = this._inferArrayElementType(token.data);
+          return elementType !== 'any' ? `${elementType}[]` : 'array';
+        }
+        return 'array';
+      case 'obj': return 'object';
+      case 'var':
+        return scope[token.data] || variableTypeMap[token.data] || 'any';
+      case 'fnc':
+        if (token.data !== 'function' && this.functionReturnTypes[token.data]) {
+          return this.functionReturnTypes[token.data].returns;
+        }
+        return 'any';
+      case 'mtd':
+        if (Array.isArray(token.data) && token.data.length >= 2) {
+          const baseType = this._inferMethodBaseType(token.data[0], scope, variableTypeMap);
+          const methodName = this._getMethodName(token.data);
+          return this._getMethodReturnType(baseType, methodName);
+        }
+        return 'any';
+      default:
+        return 'any';
+    }
+  }
+
+  _inferArrayElementType(arrayData) {
+    if (!Array.isArray(arrayData) || arrayData.length === 0) return 'any';
+
+    let commonType = null;
+    for (const element of arrayData) {
+      let elementType = this._inferTokenType(element);
+      
+      if (commonType === null) {
+        commonType = elementType;
+      } else if (commonType !== elementType) {
+        return 'any'; // Mixed types
+      }
+    }
+    
+    return commonType || 'any';
+  }
+
+  _inferMethodBaseType(nodeOrBase, scope = {}, variableTypeMap = {}) {
+    // Accept either an mtd node or a base token
+    if (!nodeOrBase) return 'any';
+
+    const baseFromToken = (tok) => {
+      const t = this._inferTokenType(tok, scope, variableTypeMap);
+      if (tok?.type === 'arr' && Array.isArray(tok.data)) {
+        const elementType = this._inferArrayElementType(tok.data);
+        return { kind: 'array', elementType: elementType !== 'any' ? elementType : 'any' };
+      }
+      if (tok?.type === 'var') {
+        const name = typeof tok.data === 'string' && tok.data.startsWith('this.')
+          ? tok.data.slice(5)
+          : tok.data;
+        const propTypes = (this.variablePropertyTypes && this.variablePropertyTypes[name])
+          || (this.variablePropertyTypes && this.variablePropertyTypes[tok.data]);
+        if (propTypes) {
+          return { kind: 'object', propertyTypes: propTypes };
+        }
+      }
+      // Typed array shorthand like number[]
+      if (typeof t === 'string' && t.endsWith('[]')) {
+        return { kind: 'array', elementType: t.slice(0, -2) };
+      }
+      return t;
+    };
+
+    if (nodeOrBase.type !== 'mtd') {
+      return baseFromToken(nodeOrBase);
+    }
+
+    const chain = nodeOrBase.data;
+    if (!Array.isArray(chain) || chain.length < 2) return 'any';
+
+    // If the chain starts with a variable path (e.g., this.FOO.BAR.item()), try to resolve the var prefix
+    let prefix = [];
+    for (const seg of chain) {
+      if (seg?.type === 'var') prefix.push(seg.data); else break;
+    }
+    if (prefix.length >= 1) {
+      const fullName = prefix.join('.');
+      const norm = fullName.startsWith('this.') ? fullName.slice(5) : fullName;
+      const direct = variableTypeMap[fullName] || variableTypeMap[norm];
+      if (direct) {
+        if (typeof direct === 'string' && direct.endsWith('[]')) {
+          return { kind: 'array', elementType: direct.slice(0, -2) };
+        }
+        return direct;
+      }
+    }
+
+    // Otherwise, infer from the first segment and let return-type mapping handle methods like len/item
+    let currentBase = baseFromToken(chain[0]);
+    return currentBase;
+  }
+
+  _getMethodName(methodData) {
+    if (!Array.isArray(methodData) || methodData.length < 2) return null;
+    
+    const lastItem = methodData[methodData.length - 1];
+    if (lastItem?.data) return lastItem.data;
+    
+    // Look for method name in any of the segments
+    for (const segment of methodData) {
+      if (segment?.type === 'fnc' || segment?.type === 'mtv' || segment?.type === 'var') {
+        if (typeof segment.data === 'string') {
+          return segment.data;
+        }
+      }
+    }
+    
+    return null;
+  }
+
+  _getMethodReturnType(baseType, methodName) {
+    const typeMap = {
+      string: {
+        toStr: "string", toNum: "number", toUpper: "string", toLower: "string",
+        trim: "string", replace: "string", concat: "string", split: "array",
+        contains: "boolean", startsWith: "boolean", endsWith: "boolean", len: "number"
+      },
+      number: {
+        toNum: "number", round: "number", floor: "number", ceiling: "number",
+        abs: "number", sqrt: "number", sin: "number", cos: "number", tan: "number",
+        asin: "number", acos: "number", atan: "number", len: "number", toStr: "string"
+      },
+      array: {
+        join: "string", append: "array", concat: "array", toStr: "string", len: "number",
+        pop: "any" // default if element type unknown
+      },
+      object: {
+        toStr: "string", getKeys: "array", getValues: "array"
+      },
+      boolean: {
+        toStr: "string", toNum: "number", not: "boolean"
+      }
+    };
+
+    // Handle array element access
+    if (methodName === 'item') {
+      // If baseType is typed array string like number[]
+      if (typeof baseType === 'string' && baseType.endsWith('[]')) {
+        return baseType.slice(0, -2);
+      }
+      // If baseType came from an AST node with elementType
+      if (baseType && typeof baseType === 'object' && baseType.elementType) {
+        return baseType.elementType || 'any';
+      }
+    }
+
+    // Handle typed array base type
+    if (typeof baseType === 'string' && baseType.endsWith('[]')) {
+      baseType = 'array';
+    }
+
+    // Handle object property access when we know property types
+    if (baseType && typeof baseType === 'object' && baseType.propertyTypes && methodName) {
+      const t = baseType.propertyTypes[methodName];
+      if (t) return t;
+    }
+
+    if (typeMap[baseType] && typeMap[baseType][methodName]) {
+      return typeMap[baseType][methodName];
+    }
+
+    return 'any';
+  }
+
+  _inferOperatorResultType(operator, leftType, rightType) {
+    // Numeric and arithmetic-like operations
+    if (['+', '-', '*', '/', '%', '^'].includes(operator)) {
+      switch (operator) {
+        case '+': {
+          // Arrays concatenate
+          if (leftType === 'array' || rightType === 'array') return 'array';
+          // String concatenation if either is string
+          if (leftType === 'string' || rightType === 'string') return 'string';
+          // Numeric addition
+          if (leftType === 'number' && rightType === 'number') return 'number';
+          return 'any';
+        }
+        case '-': {
+          if (leftType === 'number' && rightType === 'number') return 'number';
+          return 'any';
+        }
+        case '*': {
+          // String repeat: string * number
+          if (leftType === 'string' && rightType === 'number') return 'string';
+          // Numeric multiply
+          if (leftType === 'number' && rightType === 'number') return 'number';
+          return 'any';
+        }
+        case '/':
+        case '%':
+        case '^': {
+          if (leftType === 'number' && rightType === 'number') return 'number';
+          return 'any';
+        }
+      }
+    }
+
+    // String concatenation
+    if (operator === '++') {
+      if (leftType === 'string' || rightType === 'string') return 'string';
+      if (leftType === 'array' && rightType === 'array') return 'array';
+      return 'any';
+    }
+
+    // Comparison operations
+    if (['==', '!=', '>', '<', '>=', '<=', '===', '!=='].includes(operator)) {
+      return 'boolean';
+    }
+
+    // Logical operations
+    if (['and', 'or', 'nor', 'xor', 'xnor', 'nand'].includes(operator)) {
+      return 'boolean';
+    }
+
+    // Bitwise operations
+    if (['|', '&', '<<', '>>', '^^'].includes(operator)) {
+      return 'number';
+    }
+
+    return 'any';
+  }
+
+  getErrorsFromAstMain({ AST }) {
+    // Handle string input (JSON) for Scratch compatibility
+    let parsedAST = AST;
+    if (typeof AST === 'string') {
+      try {
+        parsedAST = JSON.parse(AST);
+      } catch (e) {
+        return JSON.stringify([{
+          line: 0,
+          message: `Failed to parse AST: ${e.message}`
+        }]);
+      }
+    }
+
+    // First apply types to the AST
+    const typedAST = this.applyTypes(parsedAST);
+    
+    // Then get type errors using the typed AST
+    const errors = this.getTypeErrorsFromAST(typedAST);
+    
+    // Return as JSON string for Scratch compatibility, or array for direct use
+    return typeof AST === 'string' ? JSON.stringify(errors) : errors;
+  }
+
+  getTypeErrorsFromAST(AST) {
+    const errors = [];
+
+    // Include any pending errors from function inlining
+    if (this.inlineTypeErrors) {
+      errors.push(...this.inlineTypeErrors);
+      this.inlineTypeErrors = [];
+    }
+
+    if (this.pendingTypeErrors) {
+      errors.push(...this.pendingTypeErrors);
+      this.pendingTypeErrors = [];
+    }
+
+    if (!Array.isArray(AST)) return errors;
+
+    const controlFlowCommands = ['for', 'while', 'until', 'each', 'loop', 'if', 'switch'];
+
+  // Shared scope across top-level lines to track variable types between lines
+  let globalScope = {};
+
+    const typesCompatible = (expected, actual) => {
+      if (!expected || !actual) return true;
+      if (expected === actual) return true;
+      if (expected === 'any' || actual === 'any') return true;
+      if (expected === 'array' && typeof actual === 'string' && actual.endsWith('[]')) return true;
+      return false;
+    };
+
+    const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
+
+    const getTypeFromNode = (node, scope = {}) => {
+      if (!node) return 'any';
+      if (node.inferredType && node.inferredType !== 'any') return node.inferredType;
+      if (node.returns) return node.returns;
+      if (node.type === 'var') {
+        const n = normalizeVarName(node.data);
+        if (this.latestVariableTypeMap && this.latestVariableTypeMap[n] === 'any') return 'any';
+        const lvm = (this.latestVariableTypeMap && this.latestVariableTypeMap[n]) || undefined;
+        return scope[n] || lvm || 'any';
+      }
+      if (node.type === 'fnc' && node.data && node.data !== 'function') {
+        const sig = this.functionReturnTypes && this.functionReturnTypes[node.data];
+        return sig?.returns || 'any';
+      }
+      if (node.type === 'mtd' && Array.isArray(node.data) && node.data.length >= 2) {
+        // Recompute method base/return using latest variable map if available
+        const varMap = this.latestVariableTypeMap || {};
+        const baseType = this._inferMethodBaseType({ type: 'mtd', data: node.data }, scope, varMap);
+        const methodName = this._getMethodName(node.data);
+        return this._getMethodReturnType(baseType, methodName);
+      }
+      if (['opr','cmp','log','bit'].includes(node.type)) {
+        const lt = getTypeFromNode(node.left, scope);
+        const rt = getTypeFromNode(node.right, scope);
+        return this._inferOperatorResultType(node.data, lt, rt);
+      }
+      return 'any';
+    };
+
+    const walk = (node, lineNum, fnContext, scopeTypes = {}) => {
+      if (!node) return;
+
+  if (Array.isArray(node)) {
+        // Handle return statements
+        if (node.length >= 2 && node[0]?.type === 'cmd' && node[0].data === 'return') {
+          if (!fnContext) {
+            errors.push({ line: node[0].line || lineNum, message: 'Return statement outside of function' });
+          } else {
+            // Check if commands are trying to return values inappropriately
+            if (fnContext.isCommand && node.length > 1 && node[1] && !fnContext.inControlFlow) {
+              errors.push({ line: node[0].line || lineNum, message: 'Commands cannot return values' });
+              return;
+            }
+
+            const returnValue = node[1];
+            let actualReturnType = getTypeFromNode(returnValue, scopeTypes);
+
+            // Fallback: if returning a variable and we have a latest map, use it
+            if (actualReturnType === 'any' && returnValue?.type === 'var' && this.latestVariableTypeMap) {
+              const rvName = normalizeVarName(returnValue.data);
+              if (this.latestVariableTypeMap[rvName]) {
+                actualReturnType = this.latestVariableTypeMap[rvName];
+              }
+            }
+
+            // If returning a variable that has been shadowed with a different type in inner scopes,
+            // treat it as the shadowed type for stricter checking
+            if (fnContext && fnContext.shadowedTypes && returnValue?.type === 'var') {
+              const rvName = normalizeVarName(returnValue.data);
+              if (fnContext.shadowedTypes[rvName]) {
+                actualReturnType = fnContext.shadowedTypes[rvName];
+              }
+            }
+
+            // Update function context with inferred return type
+            if (fnContext.validateReturnType && fnContext.returns === 'any' && actualReturnType !== 'any') {
+              fnContext.returns = actualReturnType;
+              fnContext.inferredReturnType = true;
+            }
+
+            // Check return type compatibility
+            if (fnContext.returns && fnContext.returns !== 'any' && fnContext.returns !== 'void') {
+              const expectedRet = fnContext.returns;
+              const actualRet = actualReturnType;
+              if (actualRet !== 'any' && !typesCompatible(expectedRet, actualRet)) {
+                const fnName = fnContext.functionName || 'function';
+                errors.push({
+                  line: node[0].line || lineNum,
+                  message: `Return type mismatch: Type mismatch returning from function ${fnName}: expected ${expectedRet}, got ${actualRet}`
+                });
+              }
+            }
+          }
+        }
+
+        // Handle control flow commands
+        if (node.length > 0 && node[0]?.type === 'cmd' && controlFlowCommands.includes(node[0].data)) {
+          const cmdType = node[0].data;
+          const controlFlowContext = { ...fnContext, inControlFlow: true };
+
+          // Process each control flow command with appropriate scoping
+          switch (cmdType) {
+            case 'for':
+              if (node.length >= 4) {
+                const loopVar = node[1]?.data;
+                const newScope = { ...scopeTypes };
+                if (loopVar && typeof loopVar === 'string') {
+                  newScope[loopVar] = 'number';
+                }
+                
+                if (node[3]?.type === 'blk') {
+                  walk(node[3], lineNum, controlFlowContext, newScope);
+                }
+                
+                // Walk other nodes
+                for (let i = 0; i < node.length; i++) {
+                  if (i !== 3 || node[i]?.type !== 'blk') {
+                    walk(node[i], lineNum, fnContext, scopeTypes);
+                  }
+                }
+              }
+              break;
+
+            case 'each':
+              if (node.length >= 5) {
+                const indexVar = node[1]?.data;
+                const itemVar = node[2]?.data;
+                const arrayExpr = node[3];
+                const newScope = { ...scopeTypes };
+
+                if (indexVar && typeof indexVar === 'string') {
+                  newScope[indexVar] = 'number';
+                }
+
+                if (itemVar && typeof itemVar === 'string') {
+                  const arrayType = getTypeFromNode(arrayExpr);
+                  if (typeof arrayType === 'string' && arrayType.endsWith('[]')) {
+                    newScope[itemVar] = arrayType.slice(0, -2);
+                  } else {
+                    newScope[itemVar] = 'any';
+                  }
+                }
+
+                if (node[4]?.type === 'blk') {
+                  walk(node[4], lineNum, controlFlowContext, newScope);
+                }
+
+                // Walk other nodes
+                for (let i = 0; i < node.length; i++) {
+                  if (i !== 4 || node[i]?.type !== 'blk') {
+                    walk(node[i], lineNum, fnContext, scopeTypes);
+                  }
+                }
+              }
+              break;
+
+            default:
+              // Handle other control flow commands
+              node.forEach((n, index) => {
+                if (n?.type === 'blk') {
+                  walk(n, lineNum, controlFlowContext, scopeTypes);
+                } else {
+                  walk(n, lineNum, fnContext, scopeTypes);
+                }
+              });
+          }
+        } else {
+          // Regular array processing
+          node.forEach(n => walk(n, lineNum, fnContext, scopeTypes));
+        }
+        return;
+      }
+
+      const ln = node.line || lineNum;
+
+      // Handle inline lambda/function assignments: validate body in its own context and check missing return
+    if (node.type === 'asi' && node.right?.type === 'fnc' && node.right.data === 'function') {
+        const fnc = node.right;
+        const lambdaName = normalizeVarName(node.left?.data || 'function');
+        const lambdaCtx = {
+          returns: fnc.returns || 'any',
+          functionName: lambdaName,
+      needsReturnCheck: true,
+      isCommand: false,
+      validateReturnType: true
+        };
+        const lambdaScope = {};
+        // Extract parameter types
+        if (fnc.parameters && fnc.parameters.length >= 1) {
+          const paramString = fnc.parameters[0]?.data;
+          if (typeof paramString === 'string') {
+            const paramPairs = paramString.split(',').map(p => p.trim()).filter(Boolean);
+            for (const pair of paramPairs) {
+              const parts = pair.split(/\s+/);
+              if (parts.length >= 2) {
+                lambdaScope[parts[1]] = parts[0];
+              }
+            }
+          }
+        }
+        const body = fnc.parameters?.[1];
+        if (body?.type === 'blk') {
+          // Mark to avoid double-traversal under outer context
+          body._checkedInlineFn = true;
+          walk(body, ln, lambdaCtx, lambdaScope);
+        }
+        // Update function signature for this lambda with inferred return type and accepts
+        const sig = this.functionReturnTypes[lambdaName] || { accepts: [], returns: 'any' };
+        if (lambdaCtx.inferredReturnType || (lambdaCtx.returns && lambdaCtx.returns !== 'any')) {
+          sig.returns = lambdaCtx.inferredReturnType || lambdaCtx.returns;
+        }
+        // Attempt to parse accepts from parameter list when possible
+        if (fnc.parameters && fnc.parameters.length >= 1) {
+          const paramString = fnc.parameters[0]?.data;
+          if (typeof paramString === 'string') {
+            const accepts = [];
+            const paramPairs = paramString.split(',').map(p => p.trim()).filter(Boolean);
+            for (const pair of paramPairs) {
+              const parts = pair.split(/\s+/);
+              if (parts.length >= 2) accepts.push(parts[0]); else accepts.push('any');
+            }
+            sig.accepts = accepts;
+          }
+        }
+        this.functionReturnTypes[lambdaName] = sig;
+        // Continue; right-node traversal will be skipped below if marked
+      }
+
+      // Check function calls for type mismatches
+      if (node.type === 'fnc' && node.data !== 'function') {
+        const params = node.parameters || [];
+        let expected = node.paramTypes;
+        // Fallback to global signature if missing
+        if (!expected && this.functionReturnTypes && this.functionReturnTypes[node.data]) {
+          expected = this.functionReturnTypes[node.data].accepts;
+        }
+        if (expected && Array.isArray(expected)) {
+          for (let i = 0; i < Math.min(params.length, expected.length); i++) {
+            const expectedType = expected[i] || 'any';
+            const actualType = getTypeFromNode(params[i], scopeTypes);
+            if (!typesCompatible(expectedType, actualType)) {
+              errors.push({
+                line: ln,
+                message: `Type mismatch: argument ${i + 1} of '${node.data}' expected ${expectedType}, got ${actualType}`
+              });
+            }
+          }
+        }
+        // Special handling for higher-order functions map/filter to help keep types
+        if ((node.data === 'map' || node.data === 'filter') && params.length >= 2) {
+          const arrType = getTypeFromNode(params[0], scopeTypes);
+          const cb = params[1];
+          const elementType = typeof arrType === 'string' && arrType.endsWith('[]') ? arrType.slice(0, -2) : 'any';
+          // If callback is an inline function or a known function, we assume it maps element -> any/boolean
+          if (node.data === 'map') {
+            // map returns array; keep as array
+          } else if (node.data === 'filter') {
+            // filter returns array
+          }
+        }
+      }
+
+      // Check assignment type compatibility
+      if (node.type === 'asi') {
+        const leftType = getTypeFromNode(node.left, scopeTypes);
+        const rightType = getTypeFromNode(node.right, scopeTypes);
+        
+        // Check for explicit type declarations
+        if (node.set_type) {
+          const expected = node.set_type === 'str' ? 'string' : node.set_type;
+          if (rightType !== 'any' && !typesCompatible(expected, rightType)) {
+            const varName = normalizeVarName(node.left?.data || 'variable');
+            errors.push({
+              line: ln,
+              message: `Type mismatch assigning to ${varName}: expected ${expected} got ${rightType}`
+            });
+          }
+        }
+        // Check for variable reassignments with type mismatch
+        else if (node.left?.type === 'var') {
+          const varName = normalizeVarName(node.left.data);
+          const existingType = scopeTypes[varName];
+          
+          if (existingType && existingType !== 'any' && rightType !== 'any' && !typesCompatible(existingType, rightType)) {
+            errors.push({
+              line: ln,
+              message: `Type mismatch reassigning ${varName}: expected ${existingType}, got ${rightType}`
+            });
+          }
+        }
+
+        // Update scope with new variable types (support local rmt and simple mtd var chains)
+        if ((node.left?.type === 'var') || (node.left?.type === 'rmt' && node.left.final?.type === 'var') || (node.left?.type === 'mtd' && Array.isArray(node.left.data) && node.left.data.every(seg => seg?.type === 'var'))) {
+          const leftName = node.left.type === 'var'
+            ? node.left.data
+            : (node.left.type === 'rmt' ? `this.${node.left.final.data}` : node.left.data.map(seg => seg.data).join('.'));
+          const varName = normalizeVarName(leftName);
+          if (node.set_type) {
+            // Type declaration takes precedence
+            const declaredType = node.set_type === 'str' ? 'string' : node.set_type;
+            scopeTypes[varName] = declaredType;
+          } else if (rightType !== 'any' && !scopeTypes[varName]) {
+            // Infer type for first assignment
+            scopeTypes[varName] = rightType;
+          }
+          // For reassignments, keep the existing type (don't change it)
+        }
+      }
+
+      // Check operator type compatibility
+      if (['opr', 'cmp', 'log', 'bit'].includes(node.type)) {
+        const leftType = node.leftType || getTypeFromNode(node.left);
+        const rightType = node.rightType || getTypeFromNode(node.right);
+        
+        // OSL allows many operations on strings, so we're more permissive
+        // Only flag truly invalid operations
+        if (node.type === 'opr') {
+          // Most arithmetic operations are allowed in OSL between different types
+          // The interpreter handles type coercion, so we don't strictly enforce here
+          // Only restrict operations that are genuinely impossible
+        }
+      }
+
+      // Recursively walk child nodes
+      if (node.left) walk(node.left, ln, fnContext, scopeTypes);
+      if (node.right) {
+        // Avoid re-processing inline function bodies under the outer context
+        const skip = node.right?.type === 'fnc' && node.right.data === 'function' && node.right?.parameters?.[1]?._checkedInlineFn;
+        if (!skip) walk(node.right, ln, fnContext, scopeTypes);
+      }
+      if (node.right2) walk(node.right2, ln, fnContext, scopeTypes);
+      if (Array.isArray(node.parameters)) {
+        node.parameters.forEach(param => walk(param, ln, fnContext, scopeTypes));
+      }
+
+      // Handle block nodes with proper scoping
+  if (node.type === 'blk' && Array.isArray(node.data)) {
+        const blockScope = { ...scopeTypes };
+
+        // Check for missing return statements in functions
+        let hasReturn = false;
+        if (fnContext && fnContext.needsReturnCheck) {
+          hasReturn = this.hasReturnStatement(node.data);
+          fnContext.needsReturnCheck = false;
+
+          if (!hasReturn) {
+            const fnName = fnContext.functionName || 'function';
+            errors.push({
+              line: ln || 0,
+              message: `Function '${fnName}' missing return statement`
+            });
+          }
+        }
+
+        // Walk through block contents
+        for (const innerLine of node.data) {
+          // Update shadowed types if a typed redeclaration exists in this line
+          if (Array.isArray(innerLine)) {
+            for (const tok of innerLine) {
+              if (tok?.type === 'asi' && tok.set_type && tok.left?.type === 'var') {
+                const vName = normalizeVarName(tok.left.data);
+                const newType = tok.set_type === 'str' ? 'string' : tok.set_type;
+                if (blockScope[vName] && blockScope[vName] !== newType) {
+                  if (fnContext) {
+                    fnContext.shadowedTypes = fnContext.shadowedTypes || {};
+                    fnContext.shadowedTypes[vName] = newType;
+                  }
+                }
+                blockScope[vName] = newType;
+              } else if (tok?.type === 'asi' && !tok.set_type && tok.left?.type === 'var') {
+                // Propagate simple assignment type within the block without overriding existing types
+                const vName = normalizeVarName(tok.left.data);
+                const rType = getTypeFromNode(tok.right, blockScope);
+                if (rType && rType !== 'any' && !blockScope[vName]) blockScope[vName] = rType;
+              }
+            }
+          }
+
+          walk(innerLine, ln, fnContext, blockScope);
+        }
+      }
+    };
+
+    // Process each line of the AST
+    for (const line of AST) {
+      const lineNum = line?.[0]?.line;
+      if (!Array.isArray(line)) continue;
+
+  // Note: inline lambda missing-return checks are also handled while walking nested blocks/lines
+
+      // Handle function definitions
+      if (line[0]?.type === 'asi' && line[0].right?.type === 'fnc' && line[0].right.data === 'function') {
+        const fnc = line[0].right;
+        const returnType = fnc.returns || 'any';
+        
+        const ctx = {
+          returns: returnType,
+          functionName: line[0].left?.data || 'function',
+          needsReturnCheck: true,
+          isCommand: fnc.isCommand || false,
+          shadowedTypes: {}
+        };
+
+        const initialScope = {};
+        
+        // Extract parameter types from typed function
+        if (fnc.parameters && fnc.parameters.length >= 1) {
+          const paramString = fnc.parameters[0]?.data;
+          if (paramString && typeof paramString === 'string') {
+            const paramPairs = paramString.split(',').map(p => p.trim());
+            paramPairs.forEach(pair => {
+              const parts = pair.split(/\s+/);
+              if (parts.length >= 2) {
+                const type = parts[0];
+                const name = parts[1];
+                initialScope[name] = type;
+              }
+            });
+          }
+        }
+
+        const functionBody = fnc.parameters[1];
+        if (functionBody?.type === 'blk') {
+          // Pre-scan for shadowed variable types inside nested blocks
+          const collectShadowed = (blk, scope) => {
+            if (!blk || !Array.isArray(blk.data)) return;
+            for (const inner of blk.data) {
+              if (Array.isArray(inner)) {
+                // Look for assignments with explicit type inside this line
+                for (const tok of inner) {
+                  if (tok?.type === 'asi' && tok.set_type && tok.left?.type === 'var') {
+                    const vName = normalizeVarName(tok.left.data);
+                    // If variable exists in outer scope and types differ, record shadowed type
+                    const outerType = initialScope[vName];
+                    const newType = tok.set_type === 'str' ? 'string' : tok.set_type;
+                    if (outerType && outerType !== newType) {
+                      ctx.shadowedTypes[vName] = newType;
+                    }
+                  }
+                }
+                // Recurse into nested blocks
+                inner.forEach(part => {
+                  if (part?.type === 'blk') collectShadowed(part, scope);
+                });
+              }
+            }
+          };
+          collectShadowed(functionBody, initialScope);
+
+          walk(functionBody, lineNum, ctx, initialScope);
+        }
+        
+        continue;
+      }
+
+      // Handle command definitions
+      if (line[0]?.type === 'cmd' && line[0].data === 'def') {
+        if (line.length < 4) continue;
+        
+        const cmdName = line[1]?.data;
+        const params = line[2]?.data;
+        
+        const ctx = {
+          returns: 'void',
+          functionName: cmdName,
+          needsReturnCheck: false,
+          isCommand: true
+        };
+        
+        const initialScope = {};
+        if (params && typeof params === 'string') {
+          const paramPairs = params.split(',').map(p => p.trim());
+          paramPairs.forEach((pair, index) => {
+            const parts = pair.split(/\s+/);
+            if (parts.length >= 2) {
+              const type = parts[0];
+              initialScope[`ARG${index + 1}`] = type;
+            }
+          });
+        }
+
+        const commandBody = line[3];
+        if (commandBody?.type === 'blk') {
+          walk(commandBody, lineNum, ctx, initialScope);
+        }
+        
+        continue;
+      }
+
+      // Handle command calls
+      if (Array.isArray(line) && line[0]?.type === 'cmd') {
+        const cmdName = line[0].data;
+        if (line[0].paramTypes) {
+          const expectedTypes = line[0].paramTypes;
+          const params = line.slice(1);
+
+          for (let i = 0; i < Math.min(params.length, expectedTypes.length); i++) {
+            const expected = expectedTypes[i] || 'any';
+            const actual = getTypeFromNode(params[i]);
+            if (!typesCompatible(expected, actual)) {
+              errors.push({
+                line: lineNum || 0,
+                message: `Type mismatch: argument ${i + 1} of '${cmdName}' expected ${expected}, got ${actual}`
+              });
+            }
+          }
+        }
+      }
+
+  // Walk the entire line with a shared global scope across lines
+  globalScope = globalScope || {};
+  walk(line, lineNum, null, globalScope);
+
+      // Also check for inline lambda missing return in any line (including inside blocks)
+      for (const tok of line) {
+        if (tok?.type === 'asi' && tok.right?.type === 'fnc' && tok.right.data === 'function') {
+          const functionBody = tok.right.parameters?.[1];
+          if (functionBody?.type === 'blk') {
+            const hasReturn = this.hasReturnStatement(functionBody.data);
+            if (!hasReturn) {
+              const lambdaName = normalizeVarName(tok.left?.data || 'function');
+              errors.push({
+                line: lineNum || 0,
+                message: `Function '${lambdaName}' missing return statement`
+              });
+            }
+          }
+        }
+      }
+    }
+
+    return errors;
+  }
 }
 
 if (typeof Scratch !== "undefined") {
   Scratch.extensions.register(new OSLUtils());
+} else if (typeof module !== "undefined" && module.exports) {
+  module.exports = OSLUtils;
 } else {
   let utils = new OSLUtils();
   const fs = require("fs");
 
   function formatByslJson(obj, indent = 0) {
     const spaces = '  '.repeat(indent);
-    
+
     if (Array.isArray(obj)) {
       if (obj.length > 0 && obj.every(item => typeof item === 'number' || typeof item === 'string' || Array.isArray(item))) {
         let isByslArray = false;
         if (obj.length >= 4) {
           const firstFew = obj.slice(0, 8);
           const hasNumbers = firstFew.some(item => typeof item === 'number');
-          const hasStrings = firstFew.some(item => typeof item === 'string');
           isByslArray = hasNumbers && obj.length % 4 !== 1;
         }
-        
+
         if (isByslArray && obj.length > 8) {
           let result = '[\n';
           for (let i = 0; i < obj.length; i += 4) {
             const chunk = obj.slice(i, i + 4);
-            const formattedChunk = chunk.map(item => 
+            const formattedChunk = chunk.map(item =>
               typeof item === 'string' ? JSON.stringify(item) : String(item)
             ).join(', ');
             result += `${spaces}  ${formattedChunk}`;
@@ -1850,7 +3382,7 @@ if (typeof Scratch !== "undefined") {
           return result;
         }
       }
-      
+
       if (obj.length === 0) return '[]';
       const items = obj.map(item => formatByslJson(item, indent + 1));
       if (items.every(item => item.length < 50) && items.length <= 3) {
@@ -1858,23 +3390,23 @@ if (typeof Scratch !== "undefined") {
       }
       return `[\n${items.map(item => `${spaces}  ${item}`).join(',\n')}\n${spaces}]`;
     }
-    
+
     if (obj && typeof obj === 'object' && obj.constructor === Object) {
       const keys = Object.keys(obj);
       if (keys.length === 0) return '{}';
-      
+
       const items = keys.map(key => {
         const value = formatByslJson(obj[key], indent + 1);
         return `${JSON.stringify(key)}: ${value}`;
       });
-      
+
       return `{\n${items.map(item => `${spaces}  ${item}`).join(',\n')}\n${spaces}}`;
     }
-    
+
     return JSON.stringify(obj);
   }
 
-  const result = utils.generateFullAST({
+  const result = utils.applyTypes(utils.generateFullAST({
     f: `
 val = "hi"
 obj = {key2: 10}
@@ -1897,7 +3429,7 @@ for i 10 (
 
 )
 `, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
-  });
+  }));
 
   fs.writeFileSync("lol.json", formatByslJson(result));
 }
