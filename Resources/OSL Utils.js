@@ -1333,6 +1333,7 @@ class OSLUtils {
       }
 
       if (node.type === "inl") {
+        console.log(JSON.stringify(node, null, 2))
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         if (node.left?.type === "var") params = node.left.data;
         const right = node.right;
@@ -1349,7 +1350,11 @@ class OSLUtils {
               data: params,
               source: params
             },
-            this.generateAST({ CODE: right.data, START: 0 })[0]
+            this.generateAST({ CODE: right.data, START: 0 })[0],
+            {
+              type: "unk", num: this.tkn.unk,
+              data: node.source.startsWith("def(") ? false : true
+            }
           ]
         }
       }
@@ -1431,7 +1436,11 @@ class OSLUtils {
               data: paramSpec,
               source: paramSpec
             },
-            funcBody
+            funcBody,
+            {
+              type: "unk", num: this.tkn.unk,
+              data: false
+            }
           ]
         };
 
@@ -3349,7 +3358,7 @@ class OSLUtils {
 
 if (typeof Scratch !== "undefined") {
   Scratch.extensions.register(new OSLUtils());
-} else if (typeof module !== "undefined" && module.exports) {
+} else if (false && typeof module !== "undefined" && module.exports) {
   module.exports = OSLUtils;
 } else {
   let utils = new OSLUtils();
@@ -3407,28 +3416,17 @@ if (typeof Scratch !== "undefined") {
   }
 
   const result = utils.applyTypes(utils.generateFullAST({
-    f: `
-val = "hi"
-obj = {key2: 10}
-var = 20
-obj = {
-  (val): "world",
-  key: "hi",
-  ...obj,
-  var,
-  "key3": "hi"
-}
-log obj.hi
-// "world"
+    CODE: `
+local hi = 10
 
-for i 10 (
-
+void (a, b) -> (
+  return 10
 )
 
-for i 10 (
-
+void def(a, b) -> (
+  return 10
 )
-`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }));
 
   fs.writeFileSync("lol.json", formatByslJson(result));
