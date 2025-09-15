@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-08-25T21:16:02.720Z",
-  "totalScripts": 41,
+  "lastUpdated": "2025-08-27T02:19:09.292Z",
+  "totalScripts": 42,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -185,10 +185,10 @@
     "opal.osl": {
       "name": "opal.osl",
       "firstAdded": "2025-07-20T23:43:22.370Z",
-      "lastModified": "2025-08-18T21:22:37.906Z",
-      "changeCount": 10,
-      "size": 12022,
-      "hash": "32bd154bcf2c2a9784ae773b7d901c70",
+      "lastModified": "2025-08-27T02:18:39.510Z",
+      "changeCount": 11,
+      "size": 12183,
+      "hash": "0cdfd5ac8d53873ca3643ebbfd420b93",
       "status": "active"
     },
     "ord.osl": {
@@ -365,21 +365,30 @@
     "kill.osl": {
       "name": "kill.osl",
       "firstAdded": "2025-08-25T21:16:02.711Z",
-      "lastModified": "2025-08-25T21:14:46.647Z",
+      "lastModified": "2025-08-27T02:04:51.195Z",
+      "changeCount": 1,
+      "size": 460,
+      "hash": "d67b6429706eeb641dc1e4dc7142c675",
+      "status": "active"
+    },
+    "vi.osl": {
+      "name": "vi.osl",
+      "firstAdded": "2025-08-27T02:19:09.291Z",
+      "lastModified": "2025-08-26T17:28:10.862Z",
       "changeCount": 0,
-      "size": 467,
-      "hash": "1946bc5accc09021deffd0b7e587b395",
+      "size": 1990,
+      "hash": "53a87925c49b77aab27bbee4a03ddca5",
       "status": "active"
     }
   },
-  "totalActiveScripts": 41,
+  "totalActiveScripts": 42,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
-      "changeCount": 10
+      "changeCount": 11
     },
-    "totalChanges": 80,
+    "totalChanges": 82,
     "averageChangesPerScript": 1.95
   }
 }

@@ -1,0 +1,35 @@
+
+width = 200
+
+def conditions() (
+  return false
+)
+
+def main() (
+  change_x 100
+  set_y y
+  change_x -75
+  file "open" "~/Downloads.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
+  change_x 50
+  file "open" "~/Documents.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
+  change_x 50
+  file "open" "~/Applications.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
+  change_x 50
+  file "open" "~/Bin.folder" "onlyaccess"
+  file "render" 1.7
+  if onclick (
+    file "start"
+  )
+)
