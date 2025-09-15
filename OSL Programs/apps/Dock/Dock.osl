@@ -100,11 +100,11 @@ icon_colour = user.theme.text
 
 if segments != user.origin_dock (
   segments = user.origin_dock
-  window "refresh_bg"
+  window.callRender()
 )
 if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour
-  window "refresh_bg"
+  window.callRender()
 )
 movefileloc file_loc
 if mouse_down.not() (
@@ -112,11 +112,13 @@ if mouse_down.not() (
 )
 window.resize(screensize_x, 70)
 window.y = screensize_y / -2 + 35
-if delta_time < 0.1 (
-  y += dock_y_target - round(y) * delta_time * 3
-  if round(y) != round(dock_y_target) (
-    window "refresh_bg"
-  )
+y += dock_y_target - round(y) * delta_time * 3
+if y > 0 (
+  y = 0
+)
+
+if round(y) != round(dock_y_target) (
+  window.callRender()
 )
 if y > -80 (
   width = 0
