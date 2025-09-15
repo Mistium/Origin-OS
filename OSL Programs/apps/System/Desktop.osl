@@ -221,7 +221,24 @@ desktop @= data
 
 area @= "origin.windows.area".eval()
 
+def positionWindow() (
+  // set window parameters
+  window.drop_location = windowfileloc
+
+  local width = screensize_x - (area.left + area.right)
+  local height = screensize_y - (area.top + area.bottom)
+
+  window.goto(area.left - area.right / 2, area.bottom - area.top / 2)
+  window.width = width
+  window.height = height
+)
+
+positionWindow()
+
 mainloop:
+
+positionWindow()
+
 back = user.theme.background
 txtc = user.theme.text
 
@@ -245,16 +262,6 @@ if cnrn.not() and nhvr (
   exit
 )
 desktop @= data
-
-// set window parameters
-window.drop_location = windowfileloc
-
-local width = screensize_x - (area.left + area.right)
-local height = screensize_y - (area.top + area.bottom)
-
-window.goto(area.left - area.right / 2, area.bottom - area.top / 2)
-window.width = width
-window.height = height
 
 if nhvr.not() (
   if file_dropped != 0 (
