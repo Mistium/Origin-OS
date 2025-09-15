@@ -11,7 +11,7 @@
     "path": "Origin/(A) System/Docks",
     "name": "Time_Info.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn clock 0.4",
-    "version":"3.3"
+    "version":"3.4"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Battery_Info.osl",
@@ -21,44 +21,44 @@
     "version":"1.2"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/main.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/main.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "main.ode",
+    "name": "main.osl",
     "icon": "",
     "version":"1.5"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/applications.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/applications.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "applications.ode",
+    "name": "applications.osl",
     "icon": "",
-    "version":"5.99"
+    "version":"6.00"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/running.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/running.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "running.ode",
+    "name": "running.osl",
     "icon": "",
     "version":"2.4"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/folders.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/folders.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "folders.ode",
+    "name": "folders.osl",
     "icon": "",
-    "version":"1.2"
+    "version":"1.3"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/time.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/time.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "time.ode",
+    "name": "time.osl",
     "icon": "",
-    "version":"3.2"
+    "version":"3.4"
   },
   {
-    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/battery.ode",
+    "url": "https://origin.mistium.com/OSL%20Programs/apps/Dock/battery.osl",
     "path": "Origin/(A) System/Docks/Modules",
-    "name": "battery.ode",
+    "name": "battery.osl",
     "icon": "",
     "version":"2.3"
   },
@@ -81,7 +81,7 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Desktop.osl",
     "icon": "c #111 w 10 square 0 0 5 5 w 4 c #fff dot -7 7 dot -7 1 dot -7 -5 dot -1 7 dot -1 1",
-    "version":"5.5"
+    "version":"5.9"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Desktop_Manager.osl",
@@ -137,14 +137,14 @@
     "path": "Origin/(A) System/System Apps",
     "name": "Terminal.osl",
     "icon": "c #1c452a w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #1b8f44 w 1.5 line 0 -4 4 -4 line -4 3 -1 0 cont -4 -3",
-    "version":"4.2"
+    "version":"4.3"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Quick_Settings.osl",
     "path": "Origin/(A) System/System Apps",
     "name": "Quick_Settings.osl",
     "icon": "c #1a1a1a w 10 square 0 0 5 5 c #fff icn settings 0.5",
-    "version":"5.8"
+    "version":"5.9"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Brainfuck.osl",
@@ -221,21 +221,21 @@
     "path": "Origin/(A) System/System Apps",
     "name": "originWM.osl",
     "icon": "c #111 w 10 square 0 0 5 5 c #fff icn multitasking 0.5",
-    "version":"2.5"
+    "version":"2.7"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Files.osl",
     "path": "Origin/(A) System/User Applications",
     "name": "Files.osl",
     "icon": "w 10 c #ff724f square 0 0 5 5 w 8 c #111 square 0 0 5 5 w 2.5 c #ff724f square -4 3 1 1 line -2.5 3.5 1.5 0 square 0 -1 5 2.5 w 4 square 0 -1 4 1",
-    "version":"6.9"
+    "version":"7.1"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Settings.osl",
     "path": "Origin/(A) System/User Applications",
     "name": "Settings.osl",
     "icon": "c #6fa6eb w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #777 w 4 line 0 6 0 -6 line -5 3 5 -3 line 5 3 -5 -3 w 11.5 dot 0 0 w 7 c #111 dot 0 0 w 5 c #6fa6eb dot 0 0",
-    "version":"13.2"
+    "version":"13.3"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Calculator.osl",
@@ -249,7 +249,7 @@
     "path": "Origin/(A) System/User Applications",
     "name": "Activity.osl",
     "icon": "c #84d5f5 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 w 1.5 c #84d5f5 line -7 0 -6 0 cont -5 2 cont -3 -2 cont -1 5 cont 2 -4 cont 4 0 cont 7 0",
-    "version":"6.9"
+    "version":"7.0"
   },
   {
     "url": "https://origin.mistium.com/OSL%20Programs/apps/System/Summit.osl",

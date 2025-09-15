@@ -91,7 +91,6 @@ def "render_selection" (
     selection_frame @= frame
     // for later when i want to allow selecting many files
   )
-  window.resize(screensize_x,screensize_y - 70)
   window.callRender()
 )
 
@@ -99,12 +98,14 @@ def getUuid(path) (
   if path.startsWith("sys/") (
     local path = "origin/(a) system/user applications/" ++ path.trim(5,-1)
   )
-  file "open" path "onlyaccess"
-  return fileGet(14)
+  local uuid = open(path, ["uuid"])[1]
+  log path uuid
+  file "close"
+  return uuid
 )
 
 desktop_rightclick = [
-  "> " ++ getUuid("user/desktop.folder"),
+  "> " ++ getUuid("~/desktop.folder"),
   "-",
   {"Change Wallpaper": def() -> (
     window.create(getUuid("sys/Settings.osl"), "Style/Background")
@@ -159,6 +160,40 @@ desktop_rightclick = [
 
 desktop_rightclick_temp = desktop_rightclick
 
+
+widgets = []
+// example config, so this basically is just a list of widget files to import
+// [
+//   {
+//     name: "clock",
+//     position: [999,999,0,100],
+//     size: [300,100],
+//     file: "~/widgets/clock.osl",
+//     config: {}
+//   }
+// ]
+
+
+// - clock.osl
+
+// def main() (
+//   square frame.width - 20 frame.height - 20 20 : c#user.theme.background
+//   local fmt @= time.formatted
+//   centext fmt.hour ++ ":" ++ fmt.minute 20 : c#user.theme.text
+// )
+
+if "widgets.json".saveExists() (
+  widgets = "widgets.json".saveGet().JsonClean()
+  if typeof(widget_config) != "array" (
+    say "Invalid widgets config, must be a valid array"
+    widgets = []
+  )
+)
+for i widgets.len (
+  local cur @= widgets[i]
+  cur.imp @= import(cur.file)
+)
+
 if "theme.json".saveExists() (
   theme = "theme.json".saveGet().JsonClean()
   if typeof(theme) != "object" (
@@ -173,7 +208,6 @@ if "theme.json".saveExists() (
 app_size = theme.app_size
 
 clicked_id = 0
-window "x" 0
 windowfileloc = user_folder ++ "/Desktop"
 desktop_uuid = open(windowfileloc ++ ".folder", [14])[1]
 positions = {}
@@ -185,6 +219,8 @@ window "responsive" true
 include windowfileloc
 desktop @= data
 
+area @= "origin.windows.area".eval()
+
 mainloop:
 back = user.theme.background
 txtc = user.theme.text
@@ -193,6 +229,18 @@ include windowfileloc
 nhvr = window_id_index != window_top_index
 cnrn = desktop != data or bg_redrawn
 
+
+for j widgets.len (
+  local cur @= widgets[j]
+  local pos = cur.position
+  local size = cur.size
+  size[1] /= 2
+  size[2] /= 2
+  loc pos[1] pos[2] pos[3] pos[4]
+  frame x_position - size[1] y_position + size[2] x_position + size[1] y_position - size[2]
+    void cur.imp.main()
+  frame "clear"
+)
 if cnrn.not() and nhvr (
   exit
 )
@@ -200,9 +248,13 @@ desktop @= data
 
 // set window parameters
 window.drop_location = windowfileloc
-window.width = screensize_x
-window.height = screensize_y - 70
-window.y = 35
+
+local width = screensize_x - (area.left + area.right)
+local height = screensize_y - (area.top + area.bottom)
+
+window.goto(area.left - area.right / 2, area.bottom - area.top / 2)
+window.width = width
+window.height = height
 
 if nhvr.not() (
   if file_dropped != 0 (

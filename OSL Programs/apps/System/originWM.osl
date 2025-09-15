@@ -11,21 +11,25 @@ if origin.version < 600 (
   window.close()
 )
 
+origin @= "window.origin".eval()
+// get the origin global object
+// this gives us a shit ton of apis
+
+origin.windows.area = {
+  top: 0,
+  bottom: 0,
+  right: 0,
+  left: 0
+}
+
+window_area @= origin.windows.area
+
 window "responsive" true
 
 hitbox_size = 13
 
 x2 = hitbox_size * 2
 x25 = hitbox_size / 4
-
-// Tiling configuration
-window_area_top = screensize_y / 2
-window_area_left = screensize_x / -2
-window_area_right = screensize_x / 2
-window_area_bottom = screensize_y / -2 + 70
-
-wins @= []
-top @= {}
 
 def dragEdge(prop, axis) (
   if !mouse_down (
@@ -41,7 +45,26 @@ def dragEdge(prop, axis) (
       if pos.startsWith("-1,") or pos.startsWith("1,") (
         local desktop @= "origin.desktop".eval()
         local mouse = pos[1] == "-" ? -mouse_x mouse_x
-        desktop.split[desktop.current + 1] = (abs(state.resize1 + mouse) / screensize_x).clamp(0.3, 0.7)
+        local split = (abs(state.resize1 + mouse) / screensize_x).clamp(0.3, 0.7)
+        desktop.split[desktop.current + 1] = split
+        local left = screen.x / -2 + max(0, window_area.left)
+        local right = screen.x / 2 - max(0, window_area.right)
+
+        local wins @= Windows()
+        for i wins.len (
+          local cur @= wins[i].window
+          local tile = cur.tile
+          if cur.desktop == desktop.current and tile != null and tile.startsWith("-1,") or tile.startsWith("1,") (
+            if tile[1] == "-" (
+              cur.width = split * screen.x - 5
+              cur.x = left + (split * screen.x / 2) - 3
+            ) else (
+              cur.width = 1 - split * screen.x - 5
+              cur.x = right - (1 - split * screen.x / 2) - 3
+            )
+            cur.callRender()
+          )
+        )
       ) else (
         top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
         top.x = state.resize1 + (top.width / state.div)
@@ -74,24 +97,38 @@ def dragDiagonal() (
 
 def moveWindow() (
   if !mouse_down (
-      if mouse_y > window_area_top - 13 (
+      local bottom = screen.y / -2 + max(0, window_area.bottom)
+      local win_top = screen.y / 2 - max(0, window_area.top)
+      local left = screen.x / -2 + max(0, window_area.left)
+      local right = screen.x / 2 - max(0, window_area.right)
+      local width = right - left
+      local desktop @= "origin.desktop".eval()
+      local current = desktop.split[desktop.current + 1]
+      if mouse_y > win_top - 13 (
         top.tile = "0,-1"
-        top.target_x = 0
-        top.target_y = 35
-        top.target_width = window_area_right - window_area_left
-        top.target_height = window_area_top - window_area_bottom
-      ) else if mouse_x < window_area_left + 13 (
+        top.target_x = left + (width / 2)
+        top.target_y = bottom + win_top / 2
+        top.target_width = width
+        top.target_height = win_top - bottom
+      ) else if mouse_x < left + 13 (
+        width = current * screen.x
         top.tile = "-1,0"
-        top.target_y = 35
-        top.target_height = window_area_top - window_area_bottom
-      ) else if mouse_x > window_area_right - 13 (
+        top.target_x = left + (width / 2)
+        top.target_y = bottom + win_top / 2
+        top.target_width = width
+        top.target_height = win_top - bottom
+      ) else if mouse_x > right - 13 (
+        width = 1 - current * screen.x
         top.tile = "1,0"
-        top.target_y = 35
-        top.target_height = window_area_top - window_area_bottom
+        top.target_x = right - (width / 2)
+        top.target_y = bottom + win_top / 2
+        top.target_width = width
+        top.target_height = win_top - bottom
       )
       state.move = null
       return
     )
+    state.dragDiag = null
     state.cursor = "grabbing"
     if mouse_moving (
       if top.tile != null (
@@ -253,6 +290,28 @@ def handleTop() (
   )
 )
 
+def handleKeybinds(keybinds) (
+  local modifiers @= keybinds.getKeys()
+  for i modifiers.len (
+    // keynames
+    local mod = modifiers[i]
+    if mod.isKeyDown().not() (
+      continue
+    )
+    local binds @= keybinds[mod]
+    local keys @= binds.getKeys()
+    for j keys.len (
+      local key = keys[j]
+      if key.onKeyDown().not() (
+        continue
+      )
+      try (
+        void function("", binds[key])()
+      )
+    )
+  )
+)
+
 state = {
   dragEdge: null,
   dragDiag: null,
@@ -280,6 +339,13 @@ state = {
 }
 
 mainloop:
+
+handleKeybinds(origin.keyboard.keybinds)
+
+screen = {
+  x: screensize_x,
+  y: screensize_y
+}
 
 if wins[1].id == window.id (
   window.resize(0,0)

@@ -250,6 +250,7 @@ local opal = {
 
     local out = prepend.join("\n") ++ ")\n)\n" ++ file.data
 
+    file "goto_dir" self.pwd
     if !self.open("build.folder").exists (
       log("Creating /build directory")
       file "set_file" "build.folder"
@@ -278,7 +279,8 @@ local commands = [
   "search",
   "sync",
   "init",
-  "build"
+  "build",
+  "run"
 ]
 
 if args.len == 0 (
@@ -418,6 +420,12 @@ switch args[1] (
   case "build"
     // bundle the project into a single file in /build
     opal.build()
+    break
+  case "run"
+    opal.build()
+    log opal.pwd
+    window.create(opal.pwd ++ "/build/script.osl")
+    terminal.writeLine("Created process")
     break
   case "search"
     // search for packages by name

@@ -1,40 +1,45 @@
 import "window_tools"
+import "glass" from "packages" as "glass"
 
-window "show"
-window "dimensions" 270 140
+window.resize(270,100)
 window "resizable" false
+window "responsive" true
+// remove drag area
+window.setDragbox([],[])
+
+can = false
 
 mainloop:
 load_theme
 
-loc 999 2 0 -15
-square 270 20 15 : c#prim
+goto 0 0
+square window.width - 22 window.height - 22 20 : c#back
+glass:frame window.left window.top window.right window.bottom
+frame "clear"
 
-loc -2 2 -15 -15
-icon "close" 0.6 : c#txtc
-if clicked (
-  window "stop"
+if mouse_down and can (
+  window.close()
 )
+can = mouse_down.not()
 
-loc 2 2 10 -15
-text "Time" 9
+c txtc
 
-loc 2 2 10 -120
+loc 2 2 10 -80
 text `${day} ${day_number} ${month} ${year}` 10
 
-loc 2 2 30 -70
-icon "w 3 cutcircle 0 0 20 0 180" 1
+loc 2 2 35 -35
+icon "w 3 cutcircle 0 0 25 0 180" 1
 pen "down"
 temp = minute * 6
-change temp.sin * 10 temp.cos * 10
+change temp.sin() * 12 temp.cos() * 12
 
-loc 2 2 30 -70
+loc 2 2 35 -35
 temp = hour * 12
-change temp.sin * 7 temp.cos * 7
+change temp.sin() * 8 temp.cos() * 8
 pen "up"
 
-loc 2 2 60 -60
+loc 2 2 70 -20
 text `${hour}:${minute}:${second}` 10
 
-loc 2 2 60 -85
+loc 2 2 70 -50
 text timezone.toStr() 10

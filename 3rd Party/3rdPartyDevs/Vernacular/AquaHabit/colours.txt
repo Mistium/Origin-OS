@@ -1,3 +1,0 @@
-// Hexcodes for Aquahabit
-AquaHabit Blue: #6488ea
-AquaHabit Gray: #242526
