@@ -11,7 +11,7 @@ if origin.version < 600 (
   window.close()
 )
 
-local origin @= "window.origin".eval()
+origin @= "window.origin".eval()
 // get the origin global object
 // this gives us a shit ton of apis
 
@@ -290,6 +290,28 @@ def handleTop() (
   )
 )
 
+def handleKeybinds(keybinds) (
+  local modifiers @= keybinds.getKeys()
+  for i modifiers.len (
+    // keynames
+    local mod = modifiers[i]
+    if mod.isKeyDown().not() (
+      continue
+    )
+    local binds @= keybinds[mod]
+    local keys @= binds.getKeys()
+    for j keys.len (
+      local key = keys[j]
+      if key.onKeyDown().not() (
+        continue
+      )
+      try (
+        void function("", binds[key])()
+      )
+    )
+  )
+)
+
 state = {
   dragEdge: null,
   dragDiag: null,
@@ -317,6 +339,8 @@ state = {
 }
 
 mainloop:
+
+handleKeybinds(origin.keyboard.keybinds)
 
 screen = {
   x: screensize_x,
