@@ -1333,7 +1333,6 @@ class OSLUtils {
       }
 
       if (node.type === "inl") {
-        console.log(JSON.stringify(node, null, 2))
         let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
         if (node.left?.type === "var") params = node.left.data;
         const right = node.right;
