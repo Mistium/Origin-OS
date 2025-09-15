@@ -65,7 +65,7 @@ before = [
     type: "inf",
     name: "Join The originOS Discord Server",
     icon: "image " ++ images.discord ++ " 25",
-    link: "https://dsc.gg/originOS"
+    link: "http://discord.gg/ReyzwPx2g9"
   },
   {
     type: "inf",
