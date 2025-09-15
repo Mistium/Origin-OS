@@ -31,13 +31,45 @@ file "open" user_folder ++ "/Application Data/permissions.json"
 file_permissions = file[4][uuid]
 
 file_config = data
-tabs = ["Info","Edit"]
+tabs = [
+  ["Info", "Info"],
+  ["Edit", "Edit"]
+]
+
 preview = [".3dicn",".icn",".txt"]
+
+if type == ".folder" (
+  folder_icons = [
+    file_types[".folder"][1],
+    "c #334859 square 0 2 10 4 c #42A5F5 square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #575757 square 0 2 10 4 c #B4B6B7 square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #3F5440 square 0 2 10 4 c #4CAF50 square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #562f2e square 0 2 10 4 c #E91E63 square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #808031 square 0 2 10 4 c #FFEB3B square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #703d00 square 0 2 10 4 c #FF9800 square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #6c2d7b square 0 2 10 4 c #bd64e9 square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #000000 square 0 2 10 4 c #FFFFFF square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0",
+    "c #5f134c square 0 2 10 4 c #f436de square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0"
+  ]
+  tabs = [
+    ["Info", "Info"],
+    ["image", "Theme"], 
+    ["Edit", "Edit"]
+  ]
+)
 if type == ".osl" (
-  tabs = ["Info","Permissions","Edit"]
+  tabs = [
+    ["Info", "Info"],
+    ["Permissions", "Permissions"],
+    ["Edit", "Edit"]
+  ]
 )
 if preview.contains(type) (
-  tabs = ["Info","Preview","Edit"]
+  tabs = [
+    ["Info", "Info"],
+    ["Eye", "Preview"],
+    ["Edit", "Edit"]
+  ]
 )
 mainloop:
 load_theme
@@ -48,17 +80,18 @@ loc 2 2 85 -25
 x = x_position
 for count tabs.len (
   x += 160
-  if tab == tabs[count] (
+  local cur @= tabs[count]
+  if tab == cur[2] (
     square 140 25 15 : c#seco
     square 140 25 10 : c#window_colour
   ) else (
     square 140 25 15 : c#window_colour
   )
   if clicked (
-    tab = tabs[count]
+    tab = cur[2]
   )
-  icon tabs[count] 0.7 : c#txtc chx#-60
-  text tabs[count] 8 : chx#20
+  icon cur[1] 0.7 : c#txtc chx#-60
+  text cur[2] 8 : chx#20
   goto x y_position
 )
 loc 999 999 0 -20
@@ -120,7 +153,7 @@ if tab == "edit" (
   loc 2 2 60 -100
   text "Copy As Json" 8
   if clicked (
-    clipboard "set" file_json.str
+    clipboard "set" file_json.toStr()
   )
 
   loc 2 2 235 -100
@@ -151,7 +184,39 @@ if tab == "edit" (
   goto window.right - 120 -50
   square 200 200 10 : c#prim
   icon inputs.icon.join(" ") 10
-  
+)
+if tab == "theme" (
+  // page to select theme colours and icons for folders
+
+  loc 2 2 40 -80
+  text "Folder Theme" 10 : c#txtc
+
+  file "open" passed_data "onlyaccess"
+  local icon = fileGet(11)
+  loc 2 2 80 -170
+  for i folder_icons.len (
+    log i icon.len
+    if icon == folder_icons[i] or (i == 1 and icon.len == 0) (
+      square 80 80 20 : c#seco
+      square 80 80 10 : c#prim
+    ) else (
+      square 80 80 20 : c#prim
+    )
+    if onclick (
+      if i == 1 (
+        file "set" 11 null
+      ) else (
+        file "set" 11 folder_icons[i]
+      )
+    )
+    icon folder_icons[i] 2.5 : c#txtc
+    change_x 110
+    if x_position > window.right - 50 (
+      set_x frame.left + 80
+      change_y -110
+    )
+  )
+
 )
 can = mouse_down.not()
 frame "clear"
