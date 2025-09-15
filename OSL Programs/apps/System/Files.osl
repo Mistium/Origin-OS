@@ -334,7 +334,9 @@ def "render_files" (
   
   scroll_height = files.len * 45 - 10
   if current_display_type == "grid" (
-    local per_line = floor(frame.width / file_size) - 2
+    frame temp_x temp_y temp_x2 temp_y2 scroll_height (
+      local per_line = floor(frame.width / file_size) - 2
+    )
     scroll_height = ceil(files.len / per_line) * file_size - 10
     temp_y += 20
   )
