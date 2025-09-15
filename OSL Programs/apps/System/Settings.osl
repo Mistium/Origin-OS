@@ -497,23 +497,30 @@ def "appearance" (
       w = frame.width - 25
       loc 9999 2 0 y
       square w 30 15 : c#prim
-      if onclick (
-        current_wallpaper = clipboard.toStr()
+      if current_wallpaper == "" (
+        if onclick (
+          wallpaper_started = timer
+          current_wallpaper = "Enter a url for your wallpaper here".ask()
+        )
+        loc 2 2 50 y
+        text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
       )
-      loc 2 2 50 y
-      text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
       loc 2 2 25 y
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
       if wallpapers.contains(current_wallpaper).not() (
         if current_wallpaper.imageinfo("loaded") (
-          wallpapers.insert(1,current_wallpaper.destr)
+          wallpapers.insert(1,current_wallpaper)
           save "wallpapers.json" "set" wallpapers
           current_wallpaper = ""
         )
-        if current_wallpaper == clipboard.toStr() (
-          image current_wallpaper 0 0
+        if current_wallpaper != "" (
+          image current_wallpaper 100 100
           text "Trying" 10 : c#txtc chx#20
         )
+      )
+      if timer - wallpaper_started > 10 and current_wallpaper != "" (
+        current_wallpaper = ""
+        say "Failed to load wallpaper"
       )
       wallpaper_data = "Total:" + wallpapers.len
       loc -2 2 -15 - (wallpaper_data.len * 10) y
@@ -1460,6 +1467,7 @@ if "wallpapers.json".saveExists() (
 )
 if wallpapers.len < 1 or wallpapers.istype("Array").not() (
   wallpapers = [
+    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Veil.jpeg",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png",
     "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png",
@@ -1471,6 +1479,7 @@ if wallpapers.len < 1 or wallpapers.istype("Array").not() (
   ]
   save "wallpapers.json" "set" wallpapers
 )
+current_wallpaper = ""
 
 themes = {
   "dark":{"primary":"#222222","secondary":"#555555","tertiary":"#777777","text":"#ffffff","background":"#050505","accent":"#57cdac"},
