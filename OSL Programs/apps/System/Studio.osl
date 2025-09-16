@@ -273,7 +273,7 @@ class editor (
         tab.unsaved = true
         tabs[current_tab].data @= inputs[tab.id]
         if tab["type"] == "file" and tab.name.endsWith(".osl") (
-          tab.errors @= osl.getErrorsFromAST(osl.generateAST(tab.data.join("\n")))
+          // tab.errors @= osl.getErrorsFromAST(osl.generateAST(tab.data.join("\n")))
         )
       )
     )
