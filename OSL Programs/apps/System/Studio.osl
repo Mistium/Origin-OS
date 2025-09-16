@@ -256,9 +256,26 @@ class editor (
       ohf: tab.ohf
     }
     local sel @= inputs.selected
-    if sel.id == tab.id and sel.changed (
-      tab.unsaved = true
-      tabs[current_tab].data @= inputs[tab.id]
+    local err @= tab.errors.sortBy("line")
+    local data @= inputs[tab.id]
+    local offset @= data.len.len * 8 + 30
+    for i err.len (
+      local cur @= err[i]
+      if err[i - 1].line == cur.line (
+        continue
+      )
+      goto frame.left + (data[cur.line].len * 10 + offset) frame.top - 50 - (cur.line - 1 * 23) + tab.scroll.y
+      text cur.message 10 : c#f66
+    )
+    if sel.id == tab.id (
+      tab.scroll @= sel.scroll
+      if sel.changed (
+        tab.unsaved = true
+        tabs[current_tab].data @= inputs[tab.id]
+        if tab["type"] == "file" and tab.name.endsWith(".osl") (
+          tab.errors @= osl.getErrorsFromAST(osl.generateAST(tab.data.join("\n")))
+        )
+      )
     )
     
     goto 0 frame.top - 16.5
