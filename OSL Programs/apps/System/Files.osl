@@ -901,6 +901,20 @@ mainloop:
     c seco
   )
   icon "right-arrow" 0.8
+
+  change_x 40
+  
+  square 25 25 10 0 1
+  if inputs.path != "origin" (
+    c txtc
+    if onclick (
+      navigate inputs.path.split("/").trim(1, -2).join("/")
+      refresh
+    )
+  ) else (
+    c seco
+  )
+  icon "up-arrow" 0.8
   
   render_files
   
