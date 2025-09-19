@@ -8,6 +8,8 @@ save "Studio" "set_directory"
 permission "request" "file admin"
 permission "request" "notifications"
 
+array pickers = []
+
 state = {
   folder: null,
   folder_open: true,
@@ -35,6 +37,8 @@ class pages (
     square w2 30 10 : c#c_seco
     if onclick (
       file "pick"
+      void pickers.append(data)
+      // list of windows that can send us transmits
     )
     change_x w2 / -2 + 10
     text "Open File" 9 : c#c_text
@@ -529,7 +533,8 @@ def "add_tab" "data" (
   if data.id == null (
     data.id = ouidNew()
   )
-  tabs.append(data)
+  void tabs.append(data)
+  change_focus = true
   current_tab = tabs.len
 )
 
@@ -537,7 +542,7 @@ def "insert_tab" "index, data" (
   if data.id == null (
     data.id = ouidNew()
   )
-  tabs.insert(index,data)
+  tabs.insert(index, data)
   change_focus = true
   current_tab = index
 )
@@ -816,7 +821,9 @@ if change_focus and start.not() (
 )
 start = false
 
-if mouse_down.not() "can = true"
+if mouse_down.not() (
+  can = true
+)
 
 w @= window
 
@@ -825,7 +832,7 @@ glass:frame w.left w.top w.right w.bottom
 frame "clear"
 
 if new_transmit (
-  if window.children.contains(transmit_source) (
+  if pickers.contains(transmit_source) (
     local name = open(transmit_data, ["name", "type"])
     add_tab {
       type: "file",
@@ -836,6 +843,7 @@ if new_transmit (
       ohf: compileOHF(getOHF(name[2])),
       func: editor.renderNorm
     }
+
     loadFileUUID(transmit_data)
   )
   new_transmit = false
