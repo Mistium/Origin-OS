@@ -122,10 +122,24 @@ def lerp(a, b, t) (
 
 setup_tabs
 
+string mode = "browse"
+array type_filter = []
+
 if passed_data != "" (
-  file "open" passed_data "onlyaccess"
-  path = fileGet(3)
-  navigate path ++ "/" ++ fileGet(2)
+  if typeof(passed_data) == "object" (
+    if ["browse", "picker"].contains(passed_data.mode) and typeof(passed_data.types ?? []) == "array" and typeof(passed_data.path ?? "") == "string" (
+      mode = passed_data.mode
+      type_filter = passed_data.types ?? []
+      navigate passed_data.path ?? user_folder
+    ) else (
+      error "Invalid configuration passed to Files app, closing"
+      window.close()
+    )
+  ) else (
+    file "open" passed_data "onlyaccess"
+    path = fileGet(3)
+    navigate path ++ "/" ++ fileGet(2)
+  )
 ) else (
   navigate user_folder
 )
@@ -868,10 +882,46 @@ mainloop:
     )
   )
   file "open" inputs.path ++ ".folder" "onlyaccess"
-  if sideshow "loc 2 -2 265 15" else "loc 2 -2 10 15"
+
+  loc 2 -2 sideshow ? 265 10 15
   file "get" 4
   c txtc
-  text `${files.len} items | ${selected_files.len} selected` 9
+  switch mode (
+    case "browse"
+      text `${files.len} items | ${selected_files.len} selected` 9
+      break
+    case "picker"
+      text `${selected_files.len} items selected` 9
+      loc -2 -2 -40 16
+      square 60 15 13 : c#seco
+      if selected_files.len == 0 (
+        c prim
+      ) else (
+        c seco
+      )
+      square 60 15 10
+      touching_pointer
+      if onclick and selected_files.len > 0 (
+        local selected_file @= selected_files.len == 1 ? selected_files[1] selected_files
+        transmit selected_file window.parent.id
+        window.close()
+      )
+      c txtc
+      centext "Open" 9
+
+      change_x -80
+      square 60 15 13 : c#seco
+      c seco
+      square 60 15 13
+      touching_pointer
+      if onclick (
+        transmit "closed" window.parent.id
+        window.close()
+      )
+      c txtc
+      centext "Cancel" 9
+      break
+  )
   
   render_tabs
   
