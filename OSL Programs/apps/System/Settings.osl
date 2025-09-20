@@ -1138,9 +1138,9 @@ def "apps" (
 )
 
 def "permissions" (
-  file "open" "user/Application Data/permissions.json" "onlyaccess"
+  file "open" "~/application data/permissions.json" "onlyaccess"
   local perms = fileGet(4)
-  if perms.isType("object").not() (
+  if typeof(perms) != "object" (
     file "set" 4 {}
     perms = {}
   )
@@ -1148,9 +1148,9 @@ def "permissions" (
   local w = frame.width - 100
   
   if subcategory != "none" (
-    local my_perms = perms[subcategory]
+    local my_perms @= perms[subcategory]
     
-    goto 0 window.top - 100 + scroll_y
+    goto 0 window.top - 100 + frame.scroll
     file "open" subcategory "onlyaccess"
     file "render" 2
     change_y -50
@@ -1159,49 +1159,104 @@ def "permissions" (
     centext fileGet(3) 9 : c#seco
     
     change_y -100
+    square w 45 10 : c#prim
+    change_x w / -2 + 20
+    text "Add a permission" 10 : c#txtc
+    set_x w / 2 - 20
+    square 20 20 10 : c#seco tooltip#"Add"
+    if onclick and can (
+      void my_perms.prepend("Enter the permission name".ask())
+      file "open" "~/application data/permissions.json" "onlyaccess"
+      file "set" 4 perms
+      file "close"
+    )
+    icon "add" 0.8 : c#txtc
+    set_x 0
+    change_y -70
     each perm my_perms (
       square w 45 10 : c#prim
       change_x w / -2 + 20
       text perm 10 : c#txtc
+      set_x w / 2 - 20
+      square 20 20 10 : c#seco tooltip#"Remove"
+      if onclick and can (
+        can = false
+        void my_perms.delete(perms)
+        file "open" "~/application data/permissions.json" "onlyaccess"
+        file "set" 4 perms
+        file "close"
+      )
+      icon "minus" 0.8 : c#txtc
       set_x 0 : chy#-60
     )
+    file "close"
     
+    page_len = my_perms.len * 60 + 330
     return
   )
-  local perm_keys = perms.getKeys()
+  local perm_keys @= perms
+    .getKeys()
+    .prepend("__ADD__")
+  
+  if new_transmit (
+    if transmit_source == picker_id (
+      file "open" transmit_data "onlyaccess"
+      if fileGet(1) == ".osl" (
+        subcategory = fileGet(14)
+        perms[fileGet(14)] ??= []
+        file "open" "~/application data/permissions.json" "onlyaccess"
+        file "set" 4 perms
+        file "close"
+      ) else (
+        say "Invalid file type, select a .osl file"
+      )
+      
+      file "close"
+    )
+    new_transmit = false
+  )
   
   local ih = 60
-  //rattusdong was here
-  local count = (scroll_y / ih).round() - 1
+  local count = round(frame.scroll / ih) - 1
   
-  loop (frame.height / ih).ceiling() + 1 (
-    local count ++
-    if count > perm_keys.len (
+  loop ceil(frame.height / ih) + 1 (
+    count ++
+    if count > perm_keys.len or count < 1 (
       continue
     )
     local uuid = perm_keys[count]
-    goto 0 frame.top - (count - 0.5 * ih) + scroll_y
+    goto 0 frame.top - (count - 0.5 * ih) + frame.scroll
     square w 45 10 : c#prim
-    if clicked (
-      subcategory = uuid
-    )
     change_x w / -2 + 20
-    file "uuid_exists" uuid
-    if exists.not() or perms[uuid].len == 0 (
-      file "open" "user/application data/permissions.json" "onlyaccess"
-      file "set" 4 perms.delete(uuid)
-      file "close"
-      continue
+    if uuid == "__ADD__" (
+      if onclick (
+        file "pick"
+        picker_id = data
+      )
+      text "Select a script to view and edit permissions".trimText(w / 10 - 8) 10 : c#txtc
+      set_x w / 2 - 20
+      icon "open" 0.8
+    ) else (
+      if onclick (
+        subcategory = uuid
+      )
+      file "uuid_exists" uuid
+      if exists.not() or perms[uuid].len == 0 (
+        file "open" "~/application data/permissions.json" "onlyaccess"
+        file "set" 4 perms.delete(uuid)
+        file "close"
+        continue
+      )
+      file "open" uuid "onlyaccess"
+      file "render" 1.5
+      change 25 -10
+      local x = x_position
+      text fileGet(3).trimText(w / 8 - 14) 8 : c#seco
+      set_x x : chy#20
+      text fileGet(2).trimText(w / 10 - 10) 10 : c#txtc
+      set_x w / 2 - 20 : chy#-10
+      icon "right" 0.8
     )
-    file "open" uuid "onlyaccess"
-    file "render" 1.5
-    change 25 -10
-    local x = x_position
-    text fileGet(3) 8 : c#seco
-    set_x x : chy#20
-    text fileGet(2) 10 : c#txtc
-    set_x w / 2 - 20 : chy#-10
-    icon "right" 0.8
   )
   
   page_len = perm_keys.len * ih
