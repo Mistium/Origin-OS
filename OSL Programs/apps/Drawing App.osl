@@ -18,5 +18,5 @@ if clicked (
 
 loc 2 2 20 -20
 x = mouse_x.round + s
-text x.str + ( s - mouse_y.round ) 10 : c#fff
+text x.toStr() + ( s - mouse_y.round ) 10 : c#fff
 import "win-buttons"
