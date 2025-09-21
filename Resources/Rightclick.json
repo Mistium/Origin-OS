@@ -1,22 +1,5 @@
 {
   "file": {
-    ".osl": [
-      "Open",
-      "Edit",
-      "View Contents",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "Compress",
-      "Copy",
-      "Paste",
-      "Copy Path",
-      "Copy Link To Script"
-    ],
     ".shortcut": [
       "Open",
       "View Original File",
@@ -27,21 +10,6 @@
       "Rename",
       "Duplicate",
       "-",
-      "Copy",
-      "Paste",
-      "Copy Path"
-    ],
-    ".folder": [
-      "Open",
-      "-",
-      "Move To Bin",
-      "-",
-      "Info",
-      "Rename",
-      "Duplicate",
-      "-",
-      "New Folder Inside",
-      "Remove Folder",
       "Copy",
       "Paste",
       "Copy Path"
