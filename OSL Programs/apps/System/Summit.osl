@@ -20,12 +20,6 @@ page_len = 0
 tab_info = null
 current_tab_name = {}
 
-each key window.getKeys() (
-  if window[key]["type"] == "function" (
-    window[key] = () -> ()
-  )
-)
-
 class sandbox (
   def run(fn, data) (
     void fn(data)
