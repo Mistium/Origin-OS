@@ -52,5 +52,5 @@ render_tri [100,100,0] [100,-100,0] [0,0,0]
 c #0f0
 render_tri [100,-100,0] [-100,100,0] [-100,-100,0]
 loc 2 2 20 -60
-text fps.str + "fps" 10 : c#fff
+text fps.toStr() + "fps" 10 : c#fff
 import "win-buttons"

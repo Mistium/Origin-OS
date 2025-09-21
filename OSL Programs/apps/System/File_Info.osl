@@ -13,17 +13,19 @@ if passed_data == null (
 
 file "open" passed_data
 window "dimensions" 600 500
-file_json = file.str
-type = file[1]
-name = file[2]
-loc = file[3]
+file_json = file
+
+// properly handle the types for each file part
+type = file[1].toStr()
+name = file[2].toStr()
+loc = file[3].toStr()
 file_data = file[4]
 data_secondary = file[5]
-created = file[9].destr
-edited = file[10].destr
-icon = file[11].destr
-size = file[12].destr
-uuid = file[14]
+created = file[9].toNum()
+edited = file[10].toNum()
+icon = file[11].toStr()
+size = file[12].toNum()
+uuid = file[14].toStr()
 
 inputs.icon = icon.split("\n")
 
