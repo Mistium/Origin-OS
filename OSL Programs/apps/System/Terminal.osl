@@ -105,26 +105,13 @@ class terminal (
   )
 )
 
-ansi = {
-  "\e[30m": "#000",
-  "\e[31m": "#f00",
-  "\e[32m": "#0f0",
-  "\e[33m": "#ff0",
-  "\e[34m": "#00f",
-  "\e[35m": "#f0f",
-  "\e[36m": "#0ff",
-  "\e[37m": "#fff",
-  "\e[90m": "#555",
-  "\e[91m": "#f55",
-  "\e[92m": "#5f5",
-  "\e[93m": "#ff5",
-  "\e[94m": "#55f",
-  "\e[95m": "#f5f",
-  "\e[96m": "#5ff",
-  "\e[97m": "#fff"
-}
-
-ansi_re = "/\e\[[0-9;]+m/g"
+if typeof(passed_data) == "object" (
+  switch passed_data["type"] (
+    case "cd"
+      terminal.pwd = parseFilePath(passed_data["location"])
+      break
+  )
+)
 
 mode = "norm"
 
