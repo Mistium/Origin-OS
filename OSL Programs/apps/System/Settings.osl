@@ -1502,8 +1502,8 @@ contributors = "https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/m
   .JsonClean()
   .filter(v -> (v["type"] == "User"))
 
-c_names = contributors.destr.getall("username")
-c_imgs = contributors.destr.getall("avatar_url")
+c_names @= contributors.getKeys("username")
+c_imgs @= contributors.getKeys("avatar_url")
 
 window "dimensions" 880 500
 window_accent = global_accent
