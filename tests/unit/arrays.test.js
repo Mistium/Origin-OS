@@ -24,7 +24,7 @@ const tests = [
   helper.createTest(
     'array item type enforcement',
     `def test() string (
-      array numbers = [1, 2, 3]
+      number[] numbers = [1, 2, 3]
       return numbers[1]
     )
     test()
@@ -35,10 +35,20 @@ const tests = [
   helper.createTest(
     'array with expressions',
     `def test() array (
-      array arr = [1 + 2, 3 * 4, 5 - 1]
+      number[] arr = [1 + 2, 3 * 4, 5 - 1]
       return arr
     )`,
     { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'mismatches array type',
+    `def test() array (
+      string[] arr = [1, 2, 3, 4]
+      return arr
+    )
+    test()`,
+    { expectErrors: ['Type mismatch'] }
   ),
 
   helper.createTest(
@@ -77,7 +87,7 @@ const tests = [
       number popped = arr.pop()
       return popped
     )`,
-    { expectNoErrors: true }
+    { expectErrors: ['Return type mismatch'] }
   ),
   
   helper.createTest(
