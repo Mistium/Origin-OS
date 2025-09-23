@@ -209,7 +209,7 @@ class OSLUtils {
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
     this.unary = ["typeof", "new"]
     this.listVariable = "";
-    this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
+    this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[(?=[^\]])|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
     this.lineTokeniserRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g;
     // Pre-compile line ending normalization regex
     this.lineEndingRegex = /\r\n/g;
@@ -218,7 +218,8 @@ class OSLUtils {
     this.inlinableFunctions = {};
     // Store function return type signatures for type checking
     this.functionReturnTypes = {
-      'random': { accepts: [], returns: 'number' }
+      'random': { accepts: ['number', 'number'], returns: 'number' },
+      'typeof': { accepts: ['any'], returns: 'string' }
     };
     // Optimization caches and pools
     this.nodePool = [];
@@ -1891,6 +1892,92 @@ class OSLUtils {
     this.unary = JSON.parse(UNARY);
   }
 
+  _stepAstNode(node, vars) {
+    const t = this.tkn;
+    switch (node.num) {
+      case t.fnc:
+        if (node.data === "function") {// we found a function def
+          const blk = node.parameters[1];
+          if (blk?.num !== t.blk) break;
+          const params = node.parameters[0];
+          if (params?.num !== t.str) break;
+
+          if (node.parameters[2]?.data === true) return
+          const func_vars = new Map();
+
+          const parts = params.data.split(",")
+          for (const part of parts)
+            if (!func_vars.has(part))
+              func_vars.set(part, func_vars.size)
+          
+          node.vars = this._stepAstNode(
+            node.parameters[1],
+            func_vars
+          )
+          if (node.vars)
+            node.vars = Object.fromEntries(node.vars);
+        } else {
+          for (const param of node.parameters)
+            this._stepAstNode(param, vars)
+        }
+        break
+      case t.blk:
+        for (const line of node.data)
+          for (const node of line)
+            this._stepAstNode(node, vars);
+        break
+      case t.var:
+        if (vars === null) return;
+        if (!vars.has(node.data)) vars.set(node.data, vars.size);
+        node.id = vars.get(node.data);
+        break;
+      case t.bit:
+      case t.opr:
+      case t.cmp:
+      case t.asi:
+        if (node.left) this._stepAstNode(node.left, vars)
+        if (node.right) this._stepAstNode(node.right, vars)
+        break;
+      case t.qst:
+        if (node.left) this._stepAstNode(node.left, vars)
+        if (node.right) this._stepAstNode(node.right, vars)
+        if (node.right2) this._stepAstNode(node.right2, vars)
+        break
+      case t.arr:
+      case t.mtd: {
+        for (const val of node.data)
+          this._stepAstNode(val, vars);
+        break;
+      };
+      case t.mtv: {
+        if (!node.parameters) break;
+        for (const val of node.parameters)
+          this._stepAstNode(val, vars);
+        break;
+      };
+      case t.obj:
+        for (const pair of node.data)
+          for (const part of pair)
+            this._stepAstNode(part, vars);
+        break;
+      case t.rmt:
+        for (const item of node.objPath)
+          this._stepAstNode(item, vars);
+        this._stepAstNode(node.final, vars);
+        break;
+    }
+    return vars;
+  }
+
+  _applyVariableIds(ast) {
+    for (const line of ast) {
+      for (const node of line) {
+        this._stepAstNode(node, null)
+      }
+    }
+    return ast
+  }
+
   hasReturnStatement(blockData) {
     if (!Array.isArray(blockData)) return false;
 
@@ -2181,6 +2268,20 @@ class OSLUtils {
           if (varType) {
             typedNode.inferredType = varType;
           }
+          const vars = {
+            file_types: 'object',
+            timestamp: 'number',
+            performance: 'number',
+            data: 'any',
+            mouse_touching: 'boolean',
+            onclick: 'boolean',
+            clicked: 'boolean',
+            inputs: 'object',
+            username: 'string',
+            user: 'object',
+            window: 'object'
+          }
+          typedNode.inferredType = vars[vName] || 'any'
           break;
 
         case 'cmd':
@@ -2191,12 +2292,25 @@ class OSLUtils {
           }
           break;
 
-        case 'fnc':
-          if (typedNode.data !== 'function' && functionReturnTypes[typedNode.data]) {
-            typedNode.returnType = functionReturnTypes[typedNode.data].returns;
-            typedNode.paramTypes = functionReturnTypes[typedNode.data].accepts;
+        case 'fnc': {
+          const my_ret = functionReturnTypes[typedNode.data]
+          if (typedNode.data !== 'function') {
+            if (my_ret) {
+              typedNode.returnType = my_ret.returns;
+              typedNode.paramTypes = my_ret.accepts;
+            } else {
+              switch (typedNode.data) {
+                case 'typeof':
+                  typedNode.returnType = 'string';
+                  typedNode.paramTypes = ['any'];
+                  break;
+              }
+            }
+          } else {
+            typedNode.returnType = 'function';
           }
           break;
+        }
 
         case 'mtd':
           if (Array.isArray(typedNode.data) && typedNode.data.length >= 2) {
@@ -2274,7 +2388,7 @@ class OSLUtils {
       if (Array.isArray(typedNode.parameters)) {
         typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, scope));
       }
-      if (Array.isArray(typedNode.data) && !['arr', 'obj'].includes(typedNode.type)) {
+      if (Array.isArray(typedNode.data)) {
         typedNode.data = typedNode.data.map(item => applyTypesToNode(item, scope));
       }
 
@@ -2305,12 +2419,12 @@ class OSLUtils {
       return typedNode;
     };
 
-  // Persist property type info and latest variable map for later passes
-  this.variablePropertyTypes = variablePropertyTypes;
-  this.latestVariableTypeMap = variableTypeMap;
+    // Persist property type info and latest variable map for later passes
+    this.variablePropertyTypes = variablePropertyTypes;
+    this.latestVariableTypeMap = variableTypeMap;
 
-  // Apply types to the entire AST
-  return AST.map(line => applyTypesToNode(line));
+    // Apply types to the entire AST
+    return AST.map(line => applyTypesToNode(line));
   }
 
   // Helper methods for type processing
@@ -2320,8 +2434,8 @@ class OSLUtils {
 
     // Support both direct variable and local (rmt) assignments
     const isLocalRmt = leftNode?.type === 'rmt' && leftNode.final?.type === 'var';
-  // Support assignments to simple property chains like this.FOO or FOO (represented as mtd of vars)
-  const isMtdVarChain = leftNode?.type === 'mtd' && Array.isArray(leftNode.data) && leftNode.data.length >= 1 && leftNode.data.every(seg => seg?.type === 'var');
+    // Support assignments to simple property chains like this.FOO or FOO (represented as mtd of vars)
+    const isMtdVarChain = leftNode?.type === 'mtd' && Array.isArray(leftNode.data) && leftNode.data.length >= 1 && leftNode.data.every(seg => seg?.type === 'var');
     if (leftNode?.type === 'var' || isLocalRmt) {
       const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
       const varNameRaw = isLocalRmt ? `this.${leftNode.final.data}` : leftNode.data;
@@ -2330,6 +2444,7 @@ class OSLUtils {
       // Handle explicit type declarations
       if (asiToken.set_type) {
         const declaredType = asiToken.set_type === 'str' ? 'string' : asiToken.set_type;
+        leftNode.inferredType = declaredType
         variableTypeMap[varName] = declaredType;
         // Also map the raw name if it's different (e.g., this.var)
         if (varName !== varNameRaw) variableTypeMap[varNameRaw] = declaredType;
@@ -2356,7 +2471,7 @@ class OSLUtils {
           const paramType = paramsToken.data.trim();
           
           // Check if this is a type or variable name
-          const knownTypes = ['number', 'string', 'boolean', 'array', 'object', 'function'];
+          const knownTypes = ['number', 'string', 'boolean', 'array', 'object', 'function', 'null'];
           if (knownTypes.includes(paramType)) {
             accepts.push(paramType);
           } else {
@@ -2396,15 +2511,6 @@ class OSLUtils {
           
           variableTypeMap[varName] = 'function';
           if (varName !== varNameRaw) variableTypeMap[varNameRaw] = 'function';
-        }
-      }
-      
-      // Special-case: if assigning result of pop(), keep variable as 'any' to allow flexibility
-      if (rightNode?.type === 'mtd' && Array.isArray(rightNode.data)) {
-        const lastSeg = rightNode.data[rightNode.data.length - 1];
-        if (lastSeg?.data === 'pop') {
-          variableTypeMap[varName] = 'any';
-          if (varName !== varNameRaw) variableTypeMap[varNameRaw] = 'any';
         }
       }
 
@@ -2559,6 +2665,9 @@ class OSLUtils {
         if (token.data !== 'function' && this.functionReturnTypes[token.data]) {
           return this.functionReturnTypes[token.data].returns;
         }
+        switch (token.data) {
+          case 'typeof': return 'string';
+        }
         return 'any';
       case 'mtd':
         if (Array.isArray(token.data) && token.data.length >= 2) {
@@ -2666,46 +2775,65 @@ class OSLUtils {
   _getMethodReturnType(baseType, methodName) {
     const typeMap = {
       string: {
-        toStr: "string", toNum: "number", toUpper: "string", toLower: "string",
+        toNum: "number", toUpper: "string", toLower: "string",
+        append: 'string', prepend: 'string',
         trim: "string", replace: "string", concat: "string", split: "array",
-        contains: "boolean", startsWith: "boolean", endsWith: "boolean", len: "number"
+        contains: "boolean", startsWith: "boolean", endsWith: "boolean",
+        delete: 'string', left: 'string', right: 'string', index: 'number',
+        trimText: 'string', wrapText: 'string'
       },
       number: {
         toNum: "number", round: "number", floor: "number", ceiling: "number",
         abs: "number", sqrt: "number", sin: "number", cos: "number", tan: "number",
-        asin: "number", acos: "number", atan: "number", len: "number", toStr: "string"
+        asin: "number", acos: "number", atan: "number",
       },
       array: {
-        join: "string", append: "array", concat: "array", toStr: "string", len: "number",
-        pop: "any" // default if element type unknown
+        join: "string", append: "array", prepend: 'array', concat: "array", pop: "any",
+        sortBy: 'array', contains: 'boolean', delete: 'array', left: 'array', right: 'array',
+        index: 'number', swap: 'array', insert: 'array'
       },
       object: {
-        toStr: "string", getKeys: "array", getValues: "array"
+        getKeys: "array", getValues: "array", delete: 'object'
       },
-      boolean: {
-        toStr: "string", toNum: "number", not: "boolean"
-      }
+      boolean: {}
     };
+
+    // methods on all data types
+    switch (methodName) {
+      case 'len':
+      case 'toNum':
+        return 'number';
+      case 'toStr':
+        return 'string';
+      case 'not':
+      case 'toBool':
+        return 'boolean';
+    }
+
+    const type = typeof baseType;
 
     // Handle array element access
     if (methodName === 'item') {
       // If baseType is typed array string like number[]
-      if (typeof baseType === 'string' && baseType.endsWith('[]')) {
+      if (type === 'string' && baseType.endsWith('[]')) {
         return baseType.slice(0, -2);
       }
       // If baseType came from an AST node with elementType
-      if (baseType && typeof baseType === 'object' && baseType.elementType) {
+      if (baseType && type === 'object' && baseType.elementType) {
         return baseType.elementType || 'any';
       }
     }
 
     // Handle typed array base type
-    if (typeof baseType === 'string' && baseType.endsWith('[]')) {
+    if (type === 'string' && baseType.endsWith('[]')) {
+      baseType = 'array';
+    }
+    if (type === 'object' && baseType?.kind === 'array') {
       baseType = 'array';
     }
 
     // Handle object property access when we know property types
-    if (baseType && typeof baseType === 'object' && baseType.propertyTypes && methodName) {
+    if (baseType && type === 'object' && baseType.propertyTypes && methodName) {
       const t = baseType.propertyTypes[methodName];
       if (t) return t;
     }
@@ -3068,18 +3196,6 @@ class OSLUtils {
             }
           }
         }
-        // Special handling for higher-order functions map/filter to help keep types
-        if ((node.data === 'map' || node.data === 'filter') && params.length >= 2) {
-          const arrType = getTypeFromNode(params[0], scopeTypes);
-          const cb = params[1];
-          const elementType = typeof arrType === 'string' && arrType.endsWith('[]') ? arrType.slice(0, -2) : 'any';
-          // If callback is an inline function or a known function, we assume it maps element -> any/boolean
-          if (node.data === 'map') {
-            // map returns array; keep as array
-          } else if (node.data === 'filter') {
-            // filter returns array
-          }
-        }
       }
 
       // Check assignment type compatibility
@@ -3357,7 +3473,7 @@ class OSLUtils {
 
 if (typeof Scratch !== "undefined") {
   Scratch.extensions.register(new OSLUtils());
-} else if (false && typeof module !== "undefined" && module.exports) {
+} else if (typeof module !== "undefined" && module.exports) {
   module.exports = OSLUtils;
 } else {
   let utils = new OSLUtils();
@@ -3415,18 +3531,8 @@ if (typeof Scratch !== "undefined") {
   }
 
   const result = utils.applyTypes(utils.generateFullAST({
-    CODE: `
-local hi = 10
-
-void (a, b) -> (
-  return 10
-)
-
-void def(a, b) -> (
-  return 10
-)
-`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+    f: ``, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
   }));
 
-  fs.writeFileSync("lol.json", formatByslJson(result));
+  fs.writeFileSync("lol.json", formatByslJson(utils._applyVariableIds(result)));
 }

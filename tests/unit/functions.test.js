@@ -55,7 +55,7 @@ const tests = [
       return s
     )
     log stringify(double("not_number"))`,
-    { expectNoErrors: true }
+    { expectErrors: ['Type mismatch'] }
   ),
   
   helper.createTest(
