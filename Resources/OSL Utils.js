@@ -584,7 +584,7 @@ class OSLUtils {
         memMap.set(cur, size)
         // store the size of the map for each node, allowing the memory location to be specific to the node itself
         // references allow this to work because the queue is full of references, *not values*
-        switch (cur.type) {
+        switch (cur?.type) {
           case "var":
             out.push(size, types.var, cur.data, 0)
             break
@@ -592,7 +592,7 @@ class OSLUtils {
             out.push(size, types[cur.type], cur.data, 0)
             break
           case "opr": case "cmp": case "log": case "bit":
-            if (types[cur.data] === undefined) throw new Error()
+            if (types[cur.data] === undefined) throw new Error(`'${cur.data}' is unsupported by bysl`)
             out.push(size, types[cur.data], memMap.get(cur.left), memMap.get(cur.right))
             break
           case "mtd":
@@ -600,12 +600,12 @@ class OSLUtils {
             const data = cur.data
             for (let j = 1; j < data.length; j++) {
               const cur2 = data[j]
-              if (cur2.type !== "var") throw new Error()
+              if (cur2.type !== "var") throw new Error(`'${cur2.data}' in mtd must be a var`)
               out.push(size, types.prp, memMap.get(cur), cur2.data)
             }
             break
           default:
-            throw new Error()
+            throw new Error(`Unsupported node for bysl: '${JSON.stringify(cur)}'`)
         }
       }
 
@@ -613,7 +613,7 @@ class OSLUtils {
       // bad for memory but might be the best way here
       out.unshift(0, types.tot, memMap.size, 0)
       return { success: true, code: out }
-    } catch {
+    } catch(e) {
       return { success: false, code: out } // catch when it fails to generate
     }
   }
@@ -1896,26 +1896,28 @@ class OSLUtils {
     const t = this.tkn;
     switch (node.num) {
       case t.fnc:
-        if (node.data === "function") {// we found a function def
+        if (node.data === "function") { // we found a function def
           const blk = node.parameters[1];
           if (blk?.num !== t.blk) break;
           const params = node.parameters[0];
           if (params?.num !== t.str) break;
 
           if (node.parameters[2]?.data === true) return
-          const func_vars = new Map();
 
           const parts = params.data.split(",")
-          for (const part of parts)
-            if (!func_vars.has(part))
-              func_vars.set(part, func_vars.size)
+          let newParams = []
+          for (const part of parts) {
+            if (!vars.has(part))
+              vars.set(part, vars.size)
+            newParams.push(vars.get(part))
+          }
+
+          node.parameters[0].data = newParams.join(",")
           
-          node.vars = this._stepAstNode(
+          this._stepAstNode(
             node.parameters[1],
-            func_vars
+            vars
           )
-          if (node.vars)
-            node.vars = Object.fromEntries(node.vars);
         } else {
           for (const param of node.parameters)
             this._stepAstNode(param, vars)
@@ -1928,13 +1930,26 @@ class OSLUtils {
         break
       case t.var:
         if (vars === null) return;
-        if (!vars.has(node.data)) vars.set(node.data, vars.size);
-        node.id = vars.get(node.data);
+        if (vars.has(node.data))
+          node.id = vars.get(node.data);
+        break;
+      case t.asi:
+        const l = node.left;
+        if (l) {
+          if (!vars.has(l.data) && node.data === "@=" || node.data === "=") {
+            if (l.num === t.var)
+              vars.set(l.data, vars.size);
+            if (l.num === t.rmt && l.objPath[0].data === "this" && l.objPath.length === 1)
+              vars.set(l.final.data, vars.size);
+          }
+
+          this._stepAstNode(node.left, vars)
+        }
+        if (node.right) this._stepAstNode(node.right, vars)
         break;
       case t.bit:
       case t.opr:
       case t.cmp:
-      case t.asi:
         if (node.left) this._stepAstNode(node.left, vars)
         if (node.right) this._stepAstNode(node.right, vars)
         break;
@@ -1970,9 +1985,10 @@ class OSLUtils {
   }
 
   _applyVariableIds(ast) {
+    const vars = new Map();
     for (const line of ast) {
       for (const node of line) {
-        this._stepAstNode(node, null)
+        this._stepAstNode(node, vars);
       }
     }
     return ast
@@ -3473,7 +3489,7 @@ class OSLUtils {
 
 if (typeof Scratch !== "undefined") {
   Scratch.extensions.register(new OSLUtils());
-} else if (typeof module !== "undefined" && module.exports) {
+} else if (false && typeof module !== "undefined" && module.exports) {
   module.exports = OSLUtils;
 } else {
   let utils = new OSLUtils();
