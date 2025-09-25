@@ -1,7 +1,7 @@
 {
   "manifest": {
     "name": "OSL",
-    "version": "5",
+    "version": "6",
     "extensions": [
       ".osl",
       ".ode"
@@ -129,6 +129,8 @@
         "throw",
         "local",
         "class",
+        "type",
+        "interface",
         "extends",
         "void"
       ]
@@ -139,8 +141,7 @@
         "def",
         "endef",
         "return",
-        "this",
-        "let"
+        "this"
       ]
     },
     "logging": {
