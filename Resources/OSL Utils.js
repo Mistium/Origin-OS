@@ -278,6 +278,7 @@ class OSLUtils {
       evl: 23,
       rmt: 24,
       mod: 25,
+      bsl: 26
     }
 
     this.byslTypes = {
@@ -1226,7 +1227,7 @@ class OSLUtils {
       return out
     }
     else if (cur === ":") return { type: "mod_indicator", num: this.tkn.mod_indicator, data: ":" };
-    else return { type: "unk", num: this.tkn.unk, data: cur }
+    return { type: "unk", num: this.tkn.unk, data: cur }
   }
 
   isStaticToken(token) {
@@ -1541,17 +1542,30 @@ class OSLUtils {
 
         if (["opr", "cmp", "log", "bit"].includes(cur?.right?.type) && cur.right.bysl === undefined) {
           const val = this.generateBysl(cur.right)
-          if (val.success) cur.right.bysl = val.code
+          if (val.success) {
+            cur.right = {
+              bysl: val.code,
+              type: "bsl",
+              num: this.tkn.bsl,
+              source: cur.right.source
+            }
+          }
         }
 
         cur.source = start;
       }
       if (["opr", "cmp", "log", "bit"].includes(cur?.type) && cur.bysl === undefined) {
         const val = this.generateBysl(cur)
-        if (val.success) cur.bysl = val.code
+        if (val.success) {
+          ast[i] = {
+            bysl: val.code,
+            type: "bsl",
+            num: this.tkn.bsl,
+            source: cur.source
+          }
+        }
       }
     }
-
 
     if (ast.length === 0) return null;
 
@@ -1904,16 +1918,18 @@ class OSLUtils {
 
           if (node.parameters[2]?.data === true) return
 
-          const parts = params.data.split(",")
-          let newParams = []
-          for (const part of parts) {
-            if (!vars.has(part))
-              vars.set(part, vars.size)
-            newParams.push(vars.get(part))
+          if (params.data.trim().length > 0) {
+            const parts = params.data.split(",")
+            let newParams = []
+            for (const part of parts) {
+              if (!vars.has(part))
+                vars.set(part, vars.size)
+              newParams.push(vars.get(part))
+            }
+
+            node.parameters[0].data = newParams.join(",")
           }
 
-          node.parameters[0].data = newParams.join(",")
-          
           this._stepAstNode(
             node.parameters[1],
             vars
@@ -1936,14 +1952,25 @@ class OSLUtils {
       case t.asi:
         const l = node.left;
         if (l) {
-          if (!vars.has(l.data) && node.data === "@=" || node.data === "=") {
-            if (l.num === t.var)
+          if (node.data === "@=" || node.data === "=") {
+            const lockedVars = [
+              'timer', 'timestamp', 'frame_width', 'frame_height', 'frame_height',
+              'save_directory', 'current_colour', 'performance', 'fps_limit',
+              'infinity', 'timestamp', 'direction', 'this', 'self', 'file_dragging',
+              'mouse_x', 'mouse_y', 'x_position', 'y_position', 'frame',
+              'window_width', 'window_height', 'stretch_x', 'stretch_y', 'window_timer',
+              'local_timer', 'bg_redrawn', 'window_id_index', 'loaded_file', 'scope'
+            ]
+            if (!vars.has(l.data) && l.num === t.var &&
+              !lockedVars.includes(l.data.toLowerCase()))
               vars.set(l.data, vars.size);
-            if (l.num === t.rmt && l.objPath[0].data === "this" && l.objPath.length === 1)
+            if (l.num === t.rmt && l.objPath[0].data === "this" &&
+              l.objPath.length === 1 && !vars.has(l.final.data) &&
+              !lockedVars.includes(l.final.data.toLowerCase()))
               vars.set(l.final.data, vars.size);
           }
 
-          this._stepAstNode(node.left, vars)
+          this._stepAstNode(l, vars)
         }
         if (node.right) this._stepAstNode(node.right, vars)
         break;
@@ -3546,9 +3573,9 @@ if (typeof Scratch !== "undefined") {
     return JSON.stringify(obj);
   }
 
-  const result = utils.applyTypes(utils.generateFullAST({
-    f: ``, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
-  }));
+  const result = utils.generateFullAST({
+    CODE: ``, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+  });
 
-  fs.writeFileSync("lol.json", formatByslJson(utils._applyVariableIds(result)));
+  fs.writeFileSync("lol.json", formatByslJson(result));
 }
