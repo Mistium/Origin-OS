@@ -79,7 +79,7 @@ def gMessage(room, value) (
   })
 )
 
-window.on("frame_end", def() -> (
+window.on("frame_end", (def() -> (
   local subs @= self._subs
   local room = ""
   each room subs.getKeys() (
@@ -123,4 +123,4 @@ window.on("frame_end", def() -> (
       )
     )
   )
-).bind(self))
+)).bind(self))
