@@ -50,7 +50,7 @@ def evalCmd(cmd) (
   void fn.apply(terminal_worker, [tokens])
   local out = null
   if terminal.lines.len > 0 (
-    out @= terminal.lines.join("\n")
+    out @= terminal.lines
   )
   terminal.lines = lines
   return out
@@ -188,7 +188,7 @@ terminal_worker @= worker({
   onframe: def() -> (
     if cmd != null (
       terminal.show_input = false
-      void self.evalCmd(cmd)
+      terminal.lines ++= self.evalCmd(cmd)
       terminal.show_input = true
       self.cmd = null
     )
