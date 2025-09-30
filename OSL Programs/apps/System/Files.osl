@@ -29,9 +29,9 @@ dta = ""
 can = true
 def "navigate" "path" (
   tab_data = {
-    title: path.split("/").last(),
-    url: path,
-    icon: file_types[".folder"][1]
+    "title": path.split("/").last(),
+    "url": path,
+    "icon": file_types[".folder"][1]
   }
   
   path = path.JsonParse()
@@ -72,7 +72,9 @@ def sort_files(files) (
     )
     void new_files.append(obj)
   )
-  return new_files.sortBy(sorting_mode.toLower(), sorting_direction).getKeys("uuid")
+  return new_files
+  	.sortBy(sorting_mode.toLower(), sorting_direction)
+	.getKeys("uuid")
 )
 
 def sort_local_files(files) (

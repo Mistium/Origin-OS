@@ -1,0 +1,18 @@
+
+if args.len != 1 (
+  terminal.writeLine("Usage: durl https://example.com")
+  terminal.writeLine("This will download a file from the given url")
+  terminal.writeLine("and output to stdout")
+  return
+)
+
+local url = args[1]
+
+local data = url.httpGet()
+
+if data == null (
+  terminal.writeLine("Failed to download file")
+  return
+)
+
+terminal.writeLine(data)

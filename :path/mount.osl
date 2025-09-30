@@ -1,0 +1,29 @@
+if args.len != 2 (
+  terminal.writeLine("Usage: mount ./dir http://url/path")
+  terminal.writeLine("This will mount a network ofsf file to your drive")
+  return
+)
+if args[1].contains(".") (
+  terminal.writeLine("Invalid directory name, do not use '.'")
+  return
+)
+local path = args[1] ++ ".mount"
+if !path.contains("/") (
+  path @= "./" ++ path
+)
+if path.startsWith("./") (
+  path @= path.replaceFirst(".", terminal.pwd)
+)
+if path.startsWith("origin/") (
+  path @= path.replaceFirst("origin/","/")
+)
+path @= parseFilePath(path)
+if path.fileExists() (
+  terminal.writeLine("File already exists at " ++ path)
+  return
+)
+local url = args[2]
+file "goto_dir" path
+local name = args[1].split("/")[-1] ++ ".mount"
+file "set_file" name url
+terminal.writeLine("Mounted, reboot for changes to come into effect")
