@@ -1,0 +1,36 @@
+if args.len != 1 (
+  terminal.writeLine("Usage: umount ./dir")
+  terminal.writeLine("This will unmount a network ofsf from your file system")
+  return
+)
+if args[1].contains(".") (
+  terminal.writeLine("Invalid directory name, do not use '.'")
+  return
+)
+local path = args[1] ++ ".mount"
+if !path.contains("/") (
+  path @= "./" ++ path
+)
+if path.startsWith("./") (
+  path @= path.replaceFirst(".", terminal.pwd)
+)
+if path.startsWith("origin/") (
+  path @= path.replaceFirst("origin/","/")
+)
+path @= parseFilePath(path)
+  .split(".")[1] ++ "/"
+
+local origin @= "window.origin".eval()
+local mounts @= origin.files.mount_points
+if mounts[path] == null (
+  terminal.writeLine("No mounting point at " ++ path)
+  return
+)
+log mounts[path]
+local uuid = mounts[path].uuid
+local updates @= origin.network.updates
+local update_ids @= origin.network.update_ids
+
+// add the update to origin directly to bypass the apis
+void updates.append({command: "UUIDd", uuid}.JsonStringify())
+void update_ids.append("")

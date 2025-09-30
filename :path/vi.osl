@@ -2,77 +2,203 @@ if terminal.writeLine == null (
   window.close()
 )
 
-local term_lines @= terminal.lines
-local textf = []
-local lines = []
-local pos = 1
+array term_lines @= terminal.lines
+array textf = [""]
+array lines = [""]
+number pos = 1
 
-local cursor_pos = [1,1]
+array cursor_pos = [1,1]
 
-local pwd = terminal.pwd.split("/")
-pwd[1] = ""
-pwd.append(args[1])
+string cmd = ""
+string mode = "normal"
+string letter_mode = ""
 
-local cmd = ""
-local mode = "normal"
+object state = {
+  current_cmd: ""
+}
 
-local dir = parseFilePath(pwd.join("/"))
-file "exists" dir
-if exists (
-  textf @= open(dir).split("\n")
-) else (
-  terminal.writeLine("Unknown target file: " ++ args[1])
-  return
+string file_name = ""
+
+local move_buffer = ""
+string paste_buffer = ""
+
+array digits = [
+  1,2,3,4,5,6,7,8,9,0
+].map(v -> v.toStr())
+
+local edit_file @= (name) -> (
+  array pwd = terminal.pwd.split("/")
+  pwd[1] = ""
+  pwd.append(name)
+  string dir = parseFilePath(pwd.join("/"))
+  file "exists" dir
+  if exists (
+    file_name = open(dir, ["name", "type"]).join("")
+    textf @= open(dir).split("\n")
+  ) else (
+    file_name = name
+    textf = [""]
+  )
+)
+
+if args[1].len > 0 (
+  edit_file(args[1])
 )
 
 while true (
   local keys = all_hit.filter(v -> v.len == 1)
   local height = round(window.height / 20) - 2
-  lines = textf.trim(pos, pos + height)
-  loop height - lines.len (
-    void lines.append("~")
+  if textf.len == 0 (
+    textf.append("")
+    cursor_pos = [1,1]
   )
   if "escape".onKeyDown() (
     mode = "normal"
+    letter_mode = ""
   )
-  if keys.contains(":") (
+  if keys.contains(":") and mode != "cmd" (
     keys = []
     cmd = ""
     mode = "cmd"
   )
+  boolean shift_down = "shift".isKeyDown()
   if ["normal","insert"].contains(mode) (
-    if "arrowleft".onKeyDown() (
-      cursor_pos[1] -= 1
+    local original_buffer = move_buffer
+    if shift_down (
+      move_buffer = 1 / 0
+    ) else if move_buffer == 1 / 0 or move_buffer == "" (
+      move_buffer = 1
     )
-    if "arrowright".onKeyDown() (
-      cursor_pos[1] += 1
+    if "arrowleft".onKeyDown() or "h".onKeyDown() (
+      cursor_pos[1] = max(2, cursor_pos[1].clamp(0, line.len + 1)) - move_buffer
+      move_buffer = ""
     )
-    if "arrowup".onKeyDown() (
-      cursor_pos[2] -= 1
+    if "arrowright".onKeyDown() or "l".onKeyDown() (
+      cursor_pos[1] = cursor_pos[1].clamp(0, line.len) + move_buffer
+      move_buffer = ""
     )
-    if "arrowdown".onKeyDown() (
-      cursor_pos[2] += 1
+    if "arrowup".onKeyDown() or "k".onKeyDown() (
+      cursor_pos[2] = cursor_pos[2].clamp(1, textf.len) - move_buffer
+      move_buffer = ""
+    )
+    if "arrowdown".onKeyDown() or "j".onKeyDown() (
+      cursor_pos[2] = cursor_pos[2].clamp(1, textf.len) + move_buffer
+      move_buffer = ""
+    )
+    if move_buffer != "" (
+      move_buffer = original_buffer
     )
   )
+  local line_num = cursor_pos[2]
+    .clamp(1, textf.len)
+  local line = textf[line_num]
+  local cursor_num = cursor_pos[1].clamp(1, line.len + 1) - 1
   switch mode (
     case "normal"
       if "i".onKeyDown() (
         mode = "insert"
+        letter_mode = ""
+        break
+      )
+      if "p".onKeyDown() (
+        line @= line.insert(cursor_pos[1] - 1, paste_buffer)
+        textf[line_num] = line
+        letter_mode = ""
+        break
+      )
+      for i keys.len (
+        local key @= keys[i]
+        if digits.contains(key) (
+          move_buffer ++= key
+          move_buffer.toNum()
+          continue
+        )
+        if letter_mode == "" (
+          switch key (
+            case "g"
+              if shift_down (
+                cursor_pos = [textf[-1].len, textf.len]
+                continue
+              )
+              break
+          )
+          letter_mode = key
+          continue
+        )
+        if key == letter_mode (
+          switch key (
+            case "g"
+              cursor_pos = [
+                0, 
+                move_buffer == "" ? 0 move_buffer
+              ]
+              move_buffer = ""
+              letter_mode = ""
+              break
+            case "y"
+              paste_buffer = line
+              letter_mode = ""
+              break
+            case "d"
+              textf[line_num] = ""
+              letter_mode = ""
+              break
+          )
+        ) else (
+          letter_mode = ""
+        )
       )
       break
     case "insert"
+      if "enter".onKeyDown() (
+        textf[line_num] = line.trim(0, cursor_num)
+        line = line.trim(cursor_num + 1, -1)
+        cursor_pos[1] = 0
+        cursor_num = 0
+        line_num ++
+        void textf.insert(line_num, line)
+      )
+      if "backspace".onKeyDown() (
+        line @= line.delete(cursor_num)
+        cursor_pos[1] --
+        cursor_num --
+        if cursor_pos[1] <= 0 (
+          line_num --
+          line = textf[line_num] ++ line
+          cursor_num = textf[line_num].len
+          void textf.delete(line_num + 1)
+        )
+      )
+      local ins = keys.join("")
+      line @= line.insert(cursor_pos[1] - 1, ins)
+      textf[line_num] = line
+      cursor_pos[1] = cursor_num + ins.len + 1
+      cursor_pos[2] = line_num
+      
       break
     case "cmd"
       cmd ++= keys.join("")
       if "backspace".onKeyDown() (
-        cmd.trim(1, -2)
+        cmd = cmd.delete(cmd.len)
       )
       if "enter".onKeyDown() (
-        switch cmd.strip() (
+        array parts = cmd.split(" ")
+          .map(v -> v.strip())
+          
+        switch parts[1] (
+          case "e"
+            edit_file(parts[2])
+            break
           case "wq"
           case "w"
             file "open" dir "onlyaccess"
-            file "set" 4 textf.join("\n")
+            if loaded_file == 0 (
+              cmd = "E32: No file name"
+              break
+            )
+            string joined @= textf.join("\n")
+            file "set" 4 joined
+            cmd = "\"" ++ file_name ++ "\" " ++ textf.len ++ "L, " ++ joined.len ++ "B written"
             if cmd == "wq" (
               terminal.lines @= term_lines
               return
@@ -83,14 +209,92 @@ while true (
             terminal.lines @= term_lines
             return
           default
-            mode = "normal"
             cmd = "Unknown editor command: " ++ cmd
          )
+         mode = "normal"
        )
        break
   )
-  lines[-2] = " -- " ++ mode ++ " -- "
-  lines[-1] = (mode == "cmd" ? ":" "") ++ cmd
+  
+  number line_num @= cursor_pos[2]
+    .clamp(1, textf.len)
+  cursor_pos[2] = line_num
+  
+  if line_num > pos + height - 2 (
+    pos ++
+  )
+  if line_num < pos (
+    pos --
+  )
+  pos += round(scroll.y.velocity)
+  pos @= pos.clamp(1, textf.len)
+  if line_num > pos + height - 2 (
+    cursor_pos[2] = pos + height - 2
+  )
+  if line_num < pos (
+    cursor_pos[2] = pos
+  )
+  string cursor_line @= textf[line_num]
+  
+  number text_pos = cursor_pos[1]
+    .clamp(1, cursor_line.len + 1)
+  
+  array parts = [
+    null, cursor_line.trim(0, text_pos - 1),
+    {back: txtc, text: window_colour}, "",
+    null, (cursor_line[text_pos] ?? "") ++ cursor_line.trim(text_pos + 1, -1)
+  ]
+  
+  lines = textf.trim(pos, pos + height)
+  number true_lines_len = lines.len
+  loop height - true_lines_len + 1 (
+    void lines.append("~")
+  )
+  lines[max(line_num - pos + 1, 1)] = parts
+  
+  string position_string = ""
+  if pos == 1 (
+    position_string = "top"
+  ) else if pos >= (textf.len - height + 2) (
+    position_string = "bot"
+  ) else (
+    position_string = round(pos / (textf.len - height + 2) * 100).toStr() ++ "%"
+  )
+  lines[-2] = [
+    {back: txtc, text: window_colour},
+    file_name.padEnd(" ", window.width / 10 - 21) ++ cursor_pos.join(",").padEnd(" ", 15) ++ position_string.padStart(" ", 4)
+  ]
+  if mode == "normal" (
+    lines[-1] = cmd
+  ) else if mode == "cmd" (
+    lines[-1] = ":" ++ cmd
+  ) else (
+    lines[-1] = " -- " ++ mode ++ " -- "
+  )
+  lines[-1] = lines[-1].padEnd(" ", window.width / 10 - 10) ++ letter_mode
+  
+  local padding = max(line_num, lines.len / 2).toStr().len
+  for i lines.len - 2 (
+    if i > true_lines_len (
+      break
+    )
+    local cur @= lines[i]
+    local my_line = i + pos - 1
+    if my_line != line_num (
+      my_line = abs(my_line - line_num)
+        .toStr().padStart(" ", padding)
+    ) else (
+      my_line = my_line.toStr().padEnd(" ", padding)
+    )
+    lines[i] = [
+      txtc, my_line ++ " ",
+    ]
+    if typeof(cur) == "array" (
+      lines[i] @= lines[i].concat(cur)
+    ) else (
+      void lines[i].append(txtc, cur)
+    )
+  )
   terminal.lines @= lines
   defer
 )
