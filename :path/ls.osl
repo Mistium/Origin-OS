@@ -6,15 +6,47 @@ if args.contains("-a").not() (
   files @= files.filter(v -> (v[1] != ":"))
 )
 
-void files.map(def(v) -> (
+local maxLen = 0
+void files.map((v) -> (
+  local name = v
+  if name.endsWith(".folder") (
+    name = name.trim(1, -8) ++ "/"
+  )
+  if name.len > maxLen (
+    maxLen = name.len
+  )
+))
+
+local cols = floor(window.width / 10 / (maxLen + 2))
+if cols < 1 (
+  cols = 1
+)
+
+array line = []
+local i = 0
+void files.map((v) -> (
   local ov = v
+  local color = txtc
+
   if ov.endsWith(".folder") (
     ov = ov.trim(1, -8) ++ "/"
-    v = [global_accent, ov]
+    color = global_accent
   )
   if ov[1] == ":" (
-    v = ["#aaa", ov]
+    color = "#aaa"
   )
-  terminal.writeLine(v)
-  return
+
+  local padded = ov.padStart(" ", maxLen + 2)
+
+  void line.append(color, padded)
+
+  i += 1
+  if i % cols == 0 (
+    terminal.writeLine(line)
+    line = []
+  )
 ))
+
+if i % cols != 0 (
+  terminal.writeLine(line)
+)

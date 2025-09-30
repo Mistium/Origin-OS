@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-09-30T00:25:05.960Z",
-  "totalScripts": 45,
+  "lastUpdated": "2025-09-30T06:46:34.795Z",
+  "totalScripts": 47,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -149,10 +149,10 @@
     "ls.osl": {
       "name": "ls.osl",
       "firstAdded": "2025-07-20T23:43:22.368Z",
-      "lastModified": "2025-07-08T19:19:40.525Z",
-      "changeCount": 2,
-      "size": 397,
-      "hash": "60fa6737204ffb96559d27c094f7ee35",
+      "lastModified": "2025-09-30T00:51:08.365Z",
+      "changeCount": 3,
+      "size": 882,
+      "hash": "05c63944f97c5a6ea42444f387a08336",
       "status": "active"
     },
     "me.osl": {
@@ -406,16 +406,34 @@
       "size": 994,
       "hash": "0a440e09a54c552cb6d21ae4ffedfc9b",
       "status": "active"
+    },
+    "rush.osl": {
+      "name": "rush.osl",
+      "firstAdded": "2025-09-30T06:46:34.786Z",
+      "lastModified": "2025-09-30T02:40:05.341Z",
+      "changeCount": 0,
+      "size": 0,
+      "hash": "d41d8cd98f00b204e9800998ecf8427e",
+      "status": "active"
+    },
+    "sre.osl": {
+      "name": "sre.osl",
+      "firstAdded": "2025-09-30T06:46:34.787Z",
+      "lastModified": "2025-09-30T06:46:29.045Z",
+      "changeCount": 0,
+      "size": 7641,
+      "hash": "2d459a23cbd2dd8bf99db5fc73732f68",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 45,
+  "totalActiveScripts": 47,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
       "changeCount": 12
     },
-    "totalChanges": 85,
-    "averageChangesPerScript": 1.89
+    "totalChanges": 86,
+    "averageChangesPerScript": 1.83
   }
 }

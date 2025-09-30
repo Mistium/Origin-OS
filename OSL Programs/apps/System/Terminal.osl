@@ -13,22 +13,22 @@ if typeof(path) !== "object" (
   path = {}
 )
 
+inputs.main = ""
+number cursor_pos = 1
+
 path = path.scripts.getValues()
 
 def evalCmd(cmd) (
   local tokens = cmd.oslTokenise()
   local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
-  if self.cache.contains(path).not() (
-    file "exists" path
-    local data = open(path)
-    if data == null or exists.not() (
-      terminal cmd
-      terminal.lines @= terminal.lines ++ terminal_output
-      return
-    ) else (
-      self.cache[path] @= function("args", data)
-    )
+  file "exists" path
+  local data = open(path)
+  if data == null or exists.not() (
+    terminal cmd
+    terminal.lines @= terminal.lines ++ terminal_output
+    return
   )
+  local fn @= function("args", data)
   void tokens.shift()
   local lines = terminal.lines
   for i tokens.len (
@@ -46,8 +46,14 @@ def evalCmd(cmd) (
       )
     )
   )
+  terminal.lines = []
+  void fn.apply(terminal_worker, [tokens])
+  local out = null
+  if terminal.lines.len > 0 (
+    out @= terminal.lines.join("\n")
+  )
   terminal.lines = lines
-  void self.cache[path](tokens)
+  return out
 )
 
 class terminal (
@@ -84,6 +90,7 @@ class terminal (
   
   def clear() (
     self.lines = []
+    self.input_shown = true
   )
   
   def user_start() (
@@ -100,8 +107,7 @@ class terminal (
   )
 
   def run(cmd) (
-    self @= terminal_worker
-    return evalCmd(cmd)
+    return terminal_worker.evalCmd(cmd)
   )
 )
 
@@ -112,8 +118,6 @@ if typeof(passed_data) == "object" (
       break
   )
 )
-
-mode = "norm"
 
 canenter = true
 inputs.main = null
@@ -144,6 +148,10 @@ if path.len > 0 (
         if exists (
           local data = open(cmd_path)
           if data.hashMD5() != cur.hash (
+            local url_data = (path_url ++ cur.name).httpGet()
+            if url_data == data (
+              continue
+            )
             void updates.append(cur)
           )
         ) else (
@@ -176,10 +184,11 @@ terminal_worker @= worker({
   cmd: null,
   isThread: true,
   cache: {},
+  evalCmd,
   onframe: def() -> (
     if cmd != null (
       terminal.show_input = false
-      evalCmd(cmd)
+      void self.evalCmd(cmd)
       terminal.show_input = true
       self.cmd = null
     )
@@ -189,40 +198,11 @@ terminal_worker @= worker({
 mainloop:
 load_theme
 
-if all_hit.len > 0 and inputs.selected.id != "main" (
-  input "focus" "main"
-)
-
 glass:frame window.left window.top window.right window.bottom
 c window_colour
 pen "opacity" 60
 icon "w 999 dot 0 0" 100
 frame "clear"
-
-if mode == "norm" (
-  if "enter".onKeyDown() (
-    void last.append(inputs.main)
-    last_index = last.len + 1
-    void terminal.lines.append(terminal.user_start() ++ inputs.main)
-    terminal_output = []
-    if terminal.input_message == null (
-      terminal_worker.cmd = inputs.main
-    )
-    inputs.main = null
-    terminal.show_input = false
-  )
-)
-
-if "arrowup".onKeyDown() (
-  last_index --
-  last_index.clamp(1,last.len)
-  inputs.main = last[last_index]
-)
-if "arrowdown".onKeyDown() (
-  last_index ++
-  last_index.clamp(1,last.len + 1)
-  inputs.main = last[last_index]
-)
 
 c prim
 frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
@@ -267,9 +247,72 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
   if terminal.show_input (
     loc 2 2 10 loops * -20 + scroll_y - 15
     text user_start 10 : c#txtc
-    set_x user_start.len * 5 - 10
-    pen "opacity" 0
-    input window_width - (user_start.len + 2 * 10) 30 "main" null null txtc
+    inputs.main ??= ""
+    if "control".isKeyDown() or "meta".isKeyDown() (
+      if "v".onKeyDown() (
+        inputs.main ++= clipboard
+      )
+      if "arrowleft".onKeyDown() (
+        cursor_pos = 1
+      )
+      if "arrowright".onKeyDown() (
+        cursor_pos = inputs.main.len
+      )
+    ) else (
+      string append = all_hit
+        .filter(v -> v.len === 1)
+        .join("")
+      if append.len > 0 (
+        inputs.main.insert(cursor_pos - 1, append)
+        cursor_pos += append.len
+      )
+      if "arrowleft".onKeyDown() (
+        cursor_pos --
+      )
+      if "arrowright".onKeyDown() (
+        cursor_pos ++
+      )
+    )
+    if "backspace".onKeyDown() (
+      if "control".isKeyDown() (
+        inputs.main = ""
+        cursor_pos = 1
+      ) else (
+        // remove the last character
+        cursor_pos --
+        inputs.main = inputs.main.delete(cursor_pos)
+      )
+    )
+    if "arrowup".onKeyDown() (
+      last_index --
+      last_index.clamp(1,last.len)
+      inputs.main = last[last_index]
+    )
+    if "arrowdown".onKeyDown() (
+      last_index ++
+      last_index.clamp(1,last.len + 1)
+      inputs.main = last[last_index]
+    )
+    cursor_pos.clamp(1,inputs.main.len + 1)
+    if "enter".onKeyDown() (
+      void last.append(inputs.main)
+      last_index = last.len + 1
+      void terminal.lines.append(terminal.user_start() ++ inputs.main)
+      terminal_output = []
+      if terminal.input_message == null (
+        terminal_worker.cmd = inputs.main
+      )
+      inputs.main = ""
+      cursor_pos = 1
+      terminal.show_input = false
+    )
+    number offset = cursor_pos - 1 * 10
+    change_x offset
+    square 0 15 2
+    change_x -offset
+    text inputs.main ?? "" 10
+  ) else (
+    loops --
   )
 )
 
