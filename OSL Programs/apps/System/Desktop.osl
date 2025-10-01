@@ -132,19 +132,6 @@ desktop_rightclick = [
   ],
   "Info",
   "-",
-  {"Minimise All": def() -> (
-    local shown = Windows().filter(v -> (v.shown == true))
-    each this.app shown (
-      terminal "mini" + app.id
-    )
-  )},
-  {"Close All": def() -> (
-    local shown = Windows().filter(v -> (v.shown == true))
-    each this.app shown (
-      terminal "kill" + app.id
-    )
-  )},
-  "-",
   ["View",
     {"Big Icons":    icons_big   },
     {"Normal Icons": icons_norm  },
