@@ -16,7 +16,7 @@ local asciiArt = {}
 if exists (
   asciiArt = open("~/:path/logo.json")
 ) else (
-  asciiArt = "https://raw.githubusercontent.com/Mistium/Origin-OS/main/:path/logo.json".httpGet()
+  asciiArt = "https://origin.mistium.com/:path/logo.json".httpGet()
 )
 
 local c = asciiArt["c"]
@@ -30,7 +30,7 @@ local infoTexts = [
   "Shell      |   RSHv2 (OSL)",
   "Screen     |   " ++ screensize_x ++ "x" ++ screensize_y,
   "Cloud      |   " ++ formatFileSize(user.used_size),
-  "Host       |   " ++ system_url.match("/https?:\/\/([^/]+)/")[2],
+  "Host       |   " ++ system_url.match("/https?:\\/\\/([^/]+)/")[2],
   "GPU        |   " ++ gpu.vendor,
   "OS         |   " ++ system_os,
   "Browser    |   " ++ system_browser

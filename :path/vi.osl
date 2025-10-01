@@ -64,24 +64,25 @@ while true (
   boolean shift_down = "shift".isKeyDown()
   if ["normal","insert"].contains(mode) (
     local original_buffer = move_buffer
+    local insert_mode = mode == "insert"
     if shift_down (
       move_buffer = 1 / 0
     ) else if move_buffer == 1 / 0 or move_buffer == "" (
       move_buffer = 1
     )
-    if "arrowleft".onKeyDown() or "h".onKeyDown() (
+    if "arrowleft".onKeyDown() or (insert_mode and "h".onKeyDown()) (
       cursor_pos[1] = max(2, cursor_pos[1].clamp(0, line.len + 1)) - move_buffer
       move_buffer = ""
     )
-    if "arrowright".onKeyDown() or "l".onKeyDown() (
+    if "arrowright".onKeyDown() or (insert_mode and "l".onKeyDown()) (
       cursor_pos[1] = cursor_pos[1].clamp(0, line.len) + move_buffer
       move_buffer = ""
     )
-    if "arrowup".onKeyDown() or "k".onKeyDown() (
+    if "arrowup".onKeyDown() or (insert_mode and "k".onKeyDown()) (
       cursor_pos[2] = cursor_pos[2].clamp(1, textf.len) - move_buffer
       move_buffer = ""
     )
-    if "arrowdown".onKeyDown() or "j".onKeyDown() (
+    if "arrowdown".onKeyDown() or (insert_mode and "j".onKeyDown()) (
       cursor_pos[2] = cursor_pos[2].clamp(1, textf.len) + move_buffer
       move_buffer = ""
     )
@@ -170,6 +171,9 @@ while true (
         )
       )
       local ins = keys.join("")
+      if "shift".isKeyDown() (
+        ins = ins.toUpper()
+      )
       line @= line.insert(cursor_pos[1] - 1, ins)
       textf[line_num] = line
       cursor_pos[1] = cursor_num + ins.len + 1
