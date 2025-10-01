@@ -70,19 +70,19 @@ while true (
     ) else if move_buffer == 1 / 0 or move_buffer == "" (
       move_buffer = 1
     )
-    if "arrowleft".onKeyDown() or (insert_mode and "h".onKeyDown()) (
+    if "arrowleft".onKeyDown() or (!insert_mode and "h".onKeyDown()) (
       cursor_pos[1] = max(2, cursor_pos[1].clamp(0, line.len + 1)) - move_buffer
       move_buffer = ""
     )
-    if "arrowright".onKeyDown() or (insert_mode and "l".onKeyDown()) (
+    if "arrowright".onKeyDown() or (!insert_mode and "l".onKeyDown()) (
       cursor_pos[1] = cursor_pos[1].clamp(0, line.len) + move_buffer
       move_buffer = ""
     )
-    if "arrowup".onKeyDown() or (insert_mode and "k".onKeyDown()) (
+    if "arrowup".onKeyDown() or (!insert_mode and "k".onKeyDown()) (
       cursor_pos[2] = cursor_pos[2].clamp(1, textf.len) - move_buffer
       move_buffer = ""
     )
-    if "arrowdown".onKeyDown() or (insert_mode and "j".onKeyDown()) (
+    if "arrowdown".onKeyDown() or (!insert_mode and "j".onKeyDown()) (
       cursor_pos[2] = cursor_pos[2].clamp(1, textf.len) + move_buffer
       move_buffer = ""
     )
