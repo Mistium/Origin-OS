@@ -1038,9 +1038,9 @@ def "account" (
   local pos = [x_position + (pfp_s / 2) + 30, y_position + 15]
   goto pos
   
-  text username ++ "\n" 15 : c#txtc
-  
-  text user.system + "Account" 10
+  local username_x = x_position
+  local uname = user.username.trimText((frame.width - (frame.right + x_position)) / 15 - 5)
+  text uname 15 : c#txtc
   
   loc -2 2 -70 -30 + scroll_y
   icon "edit" 0.8
@@ -1063,10 +1063,17 @@ def "account" (
   if all_badges.istype("object") (
     user_badges = user["sys.badges"]
     local w2 = user_badges.len * 30
-    pos[1] += username.len * 10
-    goto pos[1] + 35 + (w2 * .5) pos[2]
+    local username_w = uname.len * 15
+    local x = pos[1] + username_w + 15 + w2
+    if x < frame.right - 50 (
+      pos[1] += username_w + 0
+    ) else (
+      pos[1] -= 15
+      pos[2] -= 30
+    )
+    goto pos[1] + (w2 * .5) + 15 pos[2]
     square w2 - 5 25 10 : c#prim
-    goto pos[1] + 50 pos[2]
+    goto pos[1] + 30 pos[2]
     each badge user_badges (
       icon all_badges[badge].icon 1.2 : tooltip#badge
       if onclick (
@@ -1075,6 +1082,9 @@ def "account" (
       change_x 30
     )
   )
+  set_x username_x + 5
+  change_y -25
+  text user.system + "Account" 10
   
   local bio_data = inputs.bio.join("\n")
   
@@ -1413,18 +1423,24 @@ def "credits" (
     ) else (
       loc 2 2 115 -30 + scroll_y
       square 200 25 10 : c#prim hover_c#seco
-      centext "My Patreon" 10 : c#txtc chx#-17.5
-      icon "open" .6 : chx#("My Patreon".len * 5 + 17.5)
       if onclick (
         http "newtab" "https://www.patreon.com/user?u=51594743"
       )
+      centext "My Patreon" 10 : c#txtc chx#-17.5
+      icon "open" .6 : chx#("My Patreon".len * 5 + 17.5)
       loc 2 2 15 -70 + scroll_y
       text "Patreon Supporters:" 10 : c#txtc
       
       supporters @= {
-        "OriginPro": supporterData.filter(u -> (u.subscription == "originPro")).map(u -> (u.username)),
-        "OriginDrive": supporterData.filter(u -> (u.subscription == "originDrive")).map(u -> (u.username)),
-        "Supporter": supporterData.filter(u -> (u.subscription == "Supporter")).map(u -> (u.username))
+        "OriginPro": supporterData
+          .filter(u -> u.subscription == "originPro")
+          .map(u -> u.username),
+        "OriginDrive": supporterData
+          .filter(u -> u.subscription == "originDrive")
+          .map(u -> u.username),
+        "Supporter": supporterData
+          .filter(u -> u.subscription == "Supporter")
+          .map(u -> u.username)
       }
   
       local height = 0
@@ -1585,7 +1601,7 @@ if onclick (
   subcategory = "none"
 )
 icon icn_code 0.8 : c#txtc chx#-80
-text user.username 10 : chx#30
+text user.username.trimText(13) 10 : chx#30
 
 set_x window.left + 25
 change_y -70
