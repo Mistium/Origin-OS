@@ -35,26 +35,54 @@ def arrSum(arr) (
   return out
 )
 
+rightclick_menu = [
+  "Unknown",
+  "-",
+  {"Show in Files": def(win) -> (
+    window.create("/(a) system/user applications/Files.osl", win.file.uuid)
+  )},
+  {"More Activity Info": def(win) -> (
+    window.create(window.file.uuid, {
+      passed_data: win.id,
+      child: true
+    })
+  )},
+  {"Copy File Path": def(win) -> (
+    clipboard "set" win.file.path
+  )},
+  {"Get File Info": def(win) -> (
+    window.create("/(a) system/system apps/Files_Info.osl", win.file.uuid)
+  )},
+  "-",
+  {"Kill Process": def(win) -> (
+    void win.close()
+  )},
+]
 
 def getWindowsData() (
   windows_list @= Windows()
+    .map(v -> (
+      v.time = v.render[1].toNum()
+      return v
+    ))
   
   windows_names @= windows_list.getKeys("name")
   windows_drawtimes @= windows_list.getKeys("render")
   windows_ids @= windows_list.getKeys("id")
-  windows_draw_main @= windows_drawtimes.map(v -> (v[1]))
+  windows_draw_main @= windows_list.getKeys("time")
   
   local vals = []
   for i windows_list.len (
     vals.append({
       name: windows_names[i],
-      time: windows_draw_main[i].toNum(),
+      time: windows_draw_main[i],
       id: windows_ids[i],
       draw: windows_drawtimes[i]
     })
    )
    
    vals @= vals.sortBy("time").reverse()
+   windows_list @= windows_list.sortBy("time").reverse()
    
    windows_names @= vals.getKeys("name")
    windows_ids @= vals.getKeys("id")
@@ -199,11 +227,12 @@ if onclick (
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
 
-if timer - last_timer > next_update and paused.not() (
+if timer - last_timer > next_update and !paused (
   last_timer = timer
   dt = delta_time
   getWindowsData()
-  cpu_percent = round(roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)).clamp(1,100)
+  number cpu_usage = roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit))
+  cpu_percent = round(cpu_usage * 100).clamp(1,100)
   delta = cpu_percent ++ "%"
 )
 if current_tab == "Performance" (
@@ -240,6 +269,9 @@ if current_tab == "Network" (
   text info.join("\n") 10 : c#txtc
 )
 if current_tab == "Render Info" (
+  // get an object of {window_id: {worker_id: worker_object, ...}, ...}
+  object workers @= "window.origin.workers".eval()
+
   window "responsive" false
   loc 2 2 50 -45
   x = x_position
@@ -257,17 +289,25 @@ if current_tab == "Render Info" (
       square w 25 10 : c#seco
       if onclick (
         window.create(window.file.uuid, {
-          passed_data: windows_ids[count]
+          passed_data: windows_ids[count],
+          child: true
         })
       )
     )
-    rightclick "window" windows_names[count]
-    loc 2 2 15 y
-    text windows_names[count] 7 : c#txtc
+
+    // handle right clicking
+    object win @= windows_list[count].window
+    rightclick_menu[1] = "> " ++ win.file.uuid
+    rightclick rightclick_menu win
+
+    file "open" win.file.uuid "onlyaccess"
+    loc 2 2 25 y
+    file "render" 1 : c#txtc
+    text fileGet(2) 7 : c#txtc chx#20
     loc -2 2 -15 y
     d = windows_drawtimes[count][1]
     tot += d
-    rigtext d.toStr() 7
+    rigtext d.toStr() ++ "ms" 7
     y -= 40
   )
 )
