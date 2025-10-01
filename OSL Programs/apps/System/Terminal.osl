@@ -143,12 +143,9 @@ if path.len > 0 (
         local cmd_path = parseFilePath("~/:path/" ++ cur.name)
         file "exists" cmd_path
         if exists (
-          local data = open(cmd_path)
-          if data.hashMD5() != cur.hash (
+          local data = open(cmd_path, ["edited"])
+          if data[1] != cur.lastModifiedUnix (
             local url_data = (path_url ++ cur.name).httpGet()
-            if url_data == data (
-              continue
-            )
             void updates.append(cur)
           )
         ) else (
@@ -165,6 +162,8 @@ if path.len > 0 (
           for i updates.len (
             local cur = updates[i]
             file "set_file" cur.name (path_url ++ cur.name).httpGet()
+            file "open" cur.name "onlyaccess"
+            file "set" "edited" cur.lastModifiedUnix
             terminal.writeLine("Updated " ++ cur.name)
           )
         )

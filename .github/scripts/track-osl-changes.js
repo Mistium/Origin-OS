@@ -91,12 +91,14 @@ function trackOSLChanges() {
     
     const existingScript = trackerData.scripts[fileName];
     
+    const lastModifiedUnix = new Date(fileStats.modified).getTime();
     if (!existingScript) {
       // New file
       console.log(`New OSL script detected: ${fileName}`);
       trackerData.scripts[fileName] = {
         name: fileName,
         firstAdded: new Date().toISOString(),
+        lastModifiedUnix,
         lastModified: fileStats.modified,
         changeCount: 0,
         size: fileStats.size,
@@ -104,10 +106,11 @@ function trackOSLChanges() {
         status: 'active'
       };
       hasChanges = true;
-    } else if (existingScript.hash !== fileHash) {
+    } else if (existingScript.hash !== fileHash || existingScript.lastModifiedUnix !== lastModifiedUnix) {
       // File modified
       console.log(`OSL script modified: ${fileName}`);
       existingScript.lastModified = fileStats.modified;
+      existingScript.lastModifiedUnix = lastModifiedUnix;
       existingScript.changeCount += 1;
       existingScript.size = fileStats.size;
       existingScript.hash = fileHash;
