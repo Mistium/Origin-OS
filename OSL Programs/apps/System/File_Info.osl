@@ -182,7 +182,6 @@ if tab == "theme" (
   local icon = fileGet(11)
   loc 2 2 80 -170
   for i folder_icons.len (
-    log i icon.len
     if icon == folder_icons[i] or (i == 1 and icon.len == 0) (
       square 80 80 20 : c#seco
       square 80 80 10 : c#window_colour
