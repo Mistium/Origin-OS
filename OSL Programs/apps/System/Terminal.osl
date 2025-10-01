@@ -145,7 +145,6 @@ if path.len > 0 (
         if exists (
           local data = open(cmd_path, ["edited"])
           if data[1] != cur.lastModifiedUnix (
-            local url_data = (path_url ++ cur.name).httpGet()
             void updates.append(cur)
           )
         ) else (
