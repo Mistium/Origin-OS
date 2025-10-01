@@ -140,7 +140,12 @@ if passed_data != "" (
   ) else (
     file "open" passed_data "onlyaccess"
     path = fileGet(3)
-    navigate path ++ "/" ++ fileGet(2)
+    if fileGet(1) == ".folder" (
+      navigate path ++ "/" ++ fileGet(2)
+    ) else (
+      selected_files = [fileGet(14)]
+      navigate path
+    )
   )
 ) else (
   navigate user_folder
@@ -212,22 +217,24 @@ def "file_folder" "txt, folder" (
         local move = move.append(down)
       )
       
-      rightclick [
-        "> " ++ fileGet(14),
-        "-",
-        {"Open In New Window": def(val) -> (
-          if val.startsWith("user/") (
-            local val = user_folder ++ val.trim(5, -1) ++ ".folder"
-          )
-          window.create(window.file.uuid, {passed_data: val})
-        )},
-        "-",
-        move,
-        {"Unpin": def(path) -> (
-          favorites.delete(path)
-          saveFavorites()
-        )}
-      ] txt
+      if mouse_right (
+        rightclick [
+          "> " ++ fileGet(14),
+          "-",
+          {"Open In New Window": def(val) -> (
+            if val.startsWith("user/") (
+              local val = user_folder ++ val.trim(5, -1) ++ ".folder"
+            )
+            window.create(window.file.uuid, {passed_data: val})
+          )},
+          "-",
+          move,
+          {"Unpin": def(path) -> (
+            favorites.delete(path)
+            saveFavorites()
+          )}
+        ] txt
+      )
       
       if file_dropped != 0 (
         file "open" file_dropped "onlyaccess"
