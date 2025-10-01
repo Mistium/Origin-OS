@@ -43,13 +43,13 @@ class pages (
     change_x w2 / -2 + 10
     text "Open File" 9 : c#c_text
 
-    loc 2 2 w / 2 + 20 -250
-    square w2 30 10 : c#c_seco
-    if onclick (
-      add_tab tab_types.invite
-    )
-    change_x w2 / -2 + 10
-    text "Live Share" 9 : c#c_text
+    // loc 2 2 w / 2 + 20 -250
+    // square w2 30 10 : c#c_seco
+    // if onclick (
+    //   add_tab tab_types.invite
+    // )
+    // change_x w2 / -2 + 10
+    // text "Live Share" 9 : c#c_text
 
     loc 2 2 w / 2 + 20 -65
     square w2 30 10 : c#c_prim
@@ -386,7 +386,7 @@ def getOHF(string type) (
   if load_save (
     return (type ++ ".ohf").saveGet()
   ) else (
-    local OHF = ("https://raw.githubusercontent.com/Mistium/Origin-OS/main/Other/OHF/" ++ type.toUpper() ++ ".ohf").httpGet()
+    local OHF = ("https://origin.mistium.com/Other/OHF/" ++ type.toUpper() ++ ".ohf").httpGet()
     if OHF == "404: Not Found" and (type ++ ".ohf").saveExists() (
       return (type ++ ".ohf").saveGet()
     ) else (
@@ -457,7 +457,7 @@ def setupRotur() (
   )
 )
 
-setupRotur()
+// setupRotur()
 
 change_focus = true
 current_tab_target = 0
@@ -566,9 +566,24 @@ def "draw_tabs" (
     )
     
     local l = tab_name.len * 9 + 25
-    if file "l += 20"
+    if file (
+      l += 20
+    )
     tw += l + 25
-    set_x x + (tw / 2)
+    set_x x
+    if file_dragging (
+      local offset = i == 1 ? 5 0
+      change_x offset
+      if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
+        square 0 20 2 : c#c_text
+        current_tab_target = current_tab_split ++ "," ++ i
+        change_x offset
+        x += offset * 2
+      ) else (
+        change_x -offset
+      )
+    )
+    change_x tw / 2
     
     square l + 10 20 10 : c#window_colour
     if file (
@@ -610,14 +625,6 @@ def "draw_tabs" (
         removed = true
       )
     )
-    if file_dragging (
-      change_x 17
-      if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
-        square 0 20 2 : c#c_text
-        current_tab_target = current_tab_split ++ "," ++ (i + 1)
-      )
-      change_x -17
-    )
     if removed (
       if edit_connection != null (
         rotur.unSubscribe(edit_connection.room)
@@ -627,6 +634,14 @@ def "draw_tabs" (
       removed = false
     )
     x += tw
+  )
+  if file_dragging (
+    change_x 17
+    if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
+      square 0 20 2 : c#c_text
+      current_tab_target = current_tab_split ++ "," ++ (i + 1)
+    )
+    change_x -17
   )
   if edit_connection == null (
     icon "add" 0.6 : chx#30 c#c_text
@@ -736,12 +751,12 @@ def sidebarButtons(file_uuid, input_name) (
       break
   )
   
-  change_x h
-  icon "network" s
-  if onclick (
-    add_tab tab_types.invite
-    start = true
-  )
+  // change_x h
+  // icon "network" s
+  // if onclick (
+  //   add_tab tab_types.invite
+  //   start = true
+  // )
 )
 
 sharing_with = null
