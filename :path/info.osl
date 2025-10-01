@@ -20,7 +20,7 @@ if exists (
 )
 
 local c = asciiArt["c"]
-local asciiArt = asciiArt["logo"]
+local artLines = asciiArt["logo"]
 
 local infoTexts = [
   "User       |   " ++ username ++ "@" ++ user.system,
@@ -35,8 +35,6 @@ local infoTexts = [
   "OS         |   " ++ system_os,
   "Browser    |   " ++ system_browser
 ]
-
-local artLines = asciiArt.split("\n")
 
 loop infoTexts.len - artLines.len (
   artLines.append(" " * infoTexts[1].len)
