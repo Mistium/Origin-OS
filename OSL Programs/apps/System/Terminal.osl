@@ -23,10 +23,9 @@ def evalCmd(cmd) (
   local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
   file "exists" path
   local data = open(path)
-  if data == null or exists.not() (
+  if data == null or !exists (
     terminal cmd
-    terminal.lines @= terminal.lines ++ terminal_output
-    return
+    return terminal_output
   )
   local fn @= function("args", data)
   void tokens.shift()
