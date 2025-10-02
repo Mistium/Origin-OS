@@ -10,11 +10,10 @@ try (
   }
 )
 
-// this is a number array for the sake of utf-8 so that it can be hashed and compared correctly
 file "exists" "~/:path/logo.json"
 local asciiArt = {}
 if exists (
-  asciiArt = open("~/:path/logo.json")
+  asciiArt = open("~/:path/logo.json").JsonParse()
 ) else (
   asciiArt = "https://origin.mistium.com/:path/logo.json".httpGet()
 )
