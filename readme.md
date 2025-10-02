@@ -1,49 +1,35 @@
 # originOS Dawn
 
-<p align="center">
 The Most Advanced Gui Based ScratchOS<br>
-<a href="https://discord.gg/HNycesXRy5"><img src="https://discordapp.com/api/guilds/1147362734300725298/widget.png?style=shield" height="20"></a>
-<img src="https://github.com/Mistium/Origin-OS/assets/92952823/eb34c493-a76d-460c-88f0-7d18d3908eb3" height="20" alt="This OS is a webOS">
-<a href="https://rotur.dev">
-  <img src="https://rotur.dev/rotur%20badge.png" height="20" alt="This OS supports rotur">
-</a>
-<a href="https://github.com/Mistium/Origin-OS/issues"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/2ef7d0f9-184d-408d-ada4-8cf58f522feb" height="20"></a>
-<a target="_blank" href="https://raw.githack.com/Mistium/Origin-OS/main/originOS.html"></a><a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="20"></a>
-<br>Views<br>
-<img src="https://count.getloli.com/@mistium-origin?name=mistium-origin&theme=sketch-1&padding=7&offset=0&align=top&scale=1&pixelated=1&darkmode=auto" alt=":views" height="100"/>
-</p>
-
+  
 ## About
 
-Current Kernel Info:
+originOS is a fully-featured, customisable, web-based desktop environment created for programming and developing with OSL (Origin Scripting Language).
 
-```md
-Name     -   Veil
-Version  -   2.0
-```
+Actively developed for over 3 years, originOS is built to be both powerful and easy to use, making it the most advanced GUI-based ScratchOS project.
 
-## [Try origin here](https://origin.mistium.com)
+## Features
 
+- Customizable Desktop Environment – Themes, wallpapers, and layouts
+  - You can get in deep and swap out your window manager if you wanted
+- File System – Create, organize, and manage files/folders in-browser
+  - Access your files from anywhere with a web browser
+- OSL Integration – Write, run, and debug applications in the custom language
+  - Anything a system app can do, so can you! All apps are written in osl
+- Rotur Support – Seamless account management and cloud storage
+  - Same account, same themes, same customisation across any webOS with rotur
 
-originOS is a shell for running osl.
+## Links
 
-OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
-
+[Try origin here](https://origin.mistium.com)<br>
 [Find documentation for osl here](https://osl.mistium.com)
 
-## Star History
+## License
 
-<p align="center">
-<a href="https://star-history.com/#Mistium/Origin-OS&Timeline">
- <picture>
-   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=Mistium/Origin-OS&type=Timeline&theme=dark" />
-   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=Mistium/Origin-OS&type=Timeline" />
-   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=Mistium/Origin-OS&type=Timeline" />
- </picture>
-</a>
-</p>
+This project is licensed under the AGPL 3.0 License – see the [LICENSE](https://github.com/Mistium/Origin-OS/blob/main/LICENSE) file for details.
 
-<p align="center">
-Join My Patreon To Help Support Me And originOS and get increased storage space on your origin account<br>
-<a href="https://www.patreon.com/user/membership?u=51594743"><img src="https://github.com/Mistium/Origin-OS/assets/92952823/42c8fd7f-fdf8-4731-812f-a45f7797d70b" height="25"></a>
-</p>
+## Community
+
+[Join our Discord](https://discord.com/invite/ReyzwPx2g9)
+[Star the repo](https://github.com/Mistium/Origin-OS)
+[Support on Patreon](https://www.patreon.com/c/mistium)
