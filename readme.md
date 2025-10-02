@@ -18,8 +18,8 @@ The Most Advanced Gui Based ScratchOS<br>
 Current Kernel Info:
 
 ```md
-Name     -   Dawn
-Version  -   1.0.0
+Name     -   Veil
+Version  -   2.0
 ```
 
 ## [Try origin here](https://launcher.mistium.com)
