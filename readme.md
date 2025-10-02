@@ -22,18 +22,14 @@ Name     -   Veil
 Version  -   2.0
 ```
 
-## [Try origin here](https://launcher.mistium.com)
+## [Try origin here](https://origin.mistium.com)
 
 
 originOS is a shell for running osl.
 
 OSL (Origin Scripting Language) is a programming language primarily focused on real time ui rendering.
 
-[Find documentation for osl here](https://github.com/Mistium/Origin-OS/wiki/Origin-Scripting-Language)
-
-## Repo Tracker
-
-[originOS stats](https://repo-tracker.com/r/gh/Mistium/Origin-OS)
+[Find documentation for osl here](https://osl.mistium.com)
 
 ## Star History
 
