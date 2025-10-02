@@ -39,6 +39,6 @@ loop infoTexts.len - artLines.len (
   artLines.append(" " * infoTexts[1].len)
 )
 
-for i infoTexts.len (
+for i max(infoTexts.len, artLines.len) (
   terminal.writeLine([c[i], artLines[i], null, infoTexts[i]])
 )
