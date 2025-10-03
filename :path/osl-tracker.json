@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-10-03T03:10:26.167Z",
-  "totalScripts": 48,
+  "lastUpdated": "2025-10-03T03:12:37.198Z",
+  "totalScripts": 49,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -481,16 +481,26 @@
       "size": 414,
       "hash": "efd7c8a8b1856870519a499b77315af1",
       "status": "active"
+    },
+    "logout.osl": {
+      "name": "logout.osl",
+      "firstAdded": "2025-10-03T03:12:37.190Z",
+      "lastModifiedUnix": 1759461151850,
+      "lastModified": "2025-10-03T03:12:31.850Z",
+      "changeCount": 0,
+      "size": 57,
+      "hash": "0723b46d02710a1644afb5721b7b8c8f",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 48,
-  "totalRemovedScripts": 1,
+  "totalActiveScripts": 49,
+  "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
       "changeCount": 13
     },
     "totalChanges": 138,
-    "averageChangesPerScript": 2.88
+    "averageChangesPerScript": 2.82
   }
 }

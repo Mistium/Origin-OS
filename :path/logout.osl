@@ -1,0 +1,2 @@
+eval "localStorage.clear()"
+eval "vm.runtime.greenFlag()"
