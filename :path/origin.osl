@@ -1,7 +1,5 @@
-local wins @= Windows()
-
-for i wins.len (
-  void wins[i].window.close()
+if Windows().len > 1 (
+    terminal.writeLine("This script can only be run in a tty environment")
 )
 
 local onboot @= [
@@ -13,3 +11,5 @@ local onboot @= [
 for i onboot.len (
   window.create(onboot[i])
 )
+
+window.close()

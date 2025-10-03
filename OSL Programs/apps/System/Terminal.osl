@@ -121,7 +121,7 @@ last = []
 last_index = 0
 
 // handle if created by the onboot and we are the only window
-boolean tty = window.parent.id == -1 and Windows().len == 1
+boolean tty = Windows().len == 1
 if tty (
   window.setDragbox([2,2,0,0],[2,2,0,0])
 ) else (
