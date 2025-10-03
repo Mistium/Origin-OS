@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-10-03T02:38:06.152Z",
-  "totalScripts": 47,
+  "lastUpdated": "2025-10-03T03:10:26.167Z",
+  "totalScripts": 48,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -51,17 +51,6 @@
       "hash": "fd0edda129f45efac42058258bbea867",
       "status": "active",
       "lastModifiedUnix": 1752002380519
-    },
-    "clear.osl": {
-      "name": "clear.osl",
-      "firstAdded": "2025-07-20T23:43:22.361Z",
-      "lastModified": "2025-07-08T19:19:40.519Z",
-      "changeCount": 3,
-      "size": 16,
-      "hash": "cb27cf503e4543e75bf526357305fec2",
-      "status": "removed",
-      "lastModifiedUnix": 1752002380519,
-      "removedDate": "2025-10-03T02:38:06.152Z"
     },
     "disk.osl": {
       "name": "disk.osl",
@@ -482,9 +471,19 @@
       "size": 607,
       "hash": "8f57f4ff83df6b5f07ac5cf4c10ac6f1",
       "status": "active"
+    },
+    "reboot.osl": {
+      "name": "reboot.osl",
+      "firstAdded": "2025-10-03T03:10:02.700Z",
+      "lastModifiedUnix": 1759460979070,
+      "lastModified": "2025-10-03T03:09:39.070Z",
+      "changeCount": 0,
+      "size": 414,
+      "hash": "efd7c8a8b1856870519a499b77315af1",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 47,
+  "totalActiveScripts": 48,
   "totalRemovedScripts": 1,
   "statistics": {
     "mostChangedScript": {
@@ -492,6 +491,6 @@
       "changeCount": 13
     },
     "totalChanges": 138,
-    "averageChangesPerScript": 2.94
+    "averageChangesPerScript": 2.88
   }
 }
