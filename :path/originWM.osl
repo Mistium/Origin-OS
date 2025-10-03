@@ -1,0 +1,2 @@
+window.create("/(a) system/system apps/originWM.osl")
+terminal.writeLine("originWM is running")

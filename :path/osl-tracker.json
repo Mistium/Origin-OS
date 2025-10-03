@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-10-03T17:20:05.657Z",
-  "totalScripts": 50,
+  "lastUpdated": "2025-10-03T19:12:17.149Z",
+  "totalScripts": 52,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -355,12 +355,12 @@
     "osl.osl": {
       "name": "osl.osl",
       "firstAdded": "2025-08-07T21:25:13.115Z",
-      "lastModified": "2025-08-26T15:28:27.848Z",
-      "changeCount": 1,
-      "size": 852,
-      "hash": "3431e8bdb8ad2953b1ded0c8248b5304",
+      "lastModified": "2025-10-03T17:57:18.807Z",
+      "changeCount": 2,
+      "size": 779,
+      "hash": "2fd6f814803ec922bc48f3a8c9347fd1",
       "status": "active",
-      "lastModifiedUnix": 1756222107848
+      "lastModifiedUnix": 1759514238807
     },
     "date.osl": {
       "name": "date.osl",
@@ -501,16 +501,36 @@
       "size": 404,
       "hash": "75f757beffca346e42c4ee44b44dbb94",
       "status": "active"
+    },
+    "originDE.osl": {
+      "name": "originDE.osl",
+      "firstAdded": "2025-10-03T19:12:17.140Z",
+      "lastModifiedUnix": 1759514288585,
+      "lastModified": "2025-10-03T17:58:08.585Z",
+      "changeCount": 0,
+      "size": 95,
+      "hash": "94e10b0f5b7680a98f6740dc5ac65fdc",
+      "status": "active"
+    },
+    "originWM.osl": {
+      "name": "originWM.osl",
+      "firstAdded": "2025-10-03T19:12:17.141Z",
+      "lastModifiedUnix": 1759514269037,
+      "lastModified": "2025-10-03T17:57:49.037Z",
+      "changeCount": 0,
+      "size": 95,
+      "hash": "2da1f252a14d242d98fbe6418a63cee5",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 50,
+  "totalActiveScripts": 52,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
       "changeCount": 13
     },
-    "totalChanges": 141,
-    "averageChangesPerScript": 2.82
+    "totalChanges": 142,
+    "averageChangesPerScript": 2.73
   }
 }
