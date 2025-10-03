@@ -75,6 +75,10 @@ class terminal (
     self.lines[self.lines.len] += data
   )
   
+  def clear() (
+    terminal.lines = []
+  )
+  
   def input(query) (
     self.show_input = true
     self.input_message = query
@@ -83,11 +87,6 @@ class terminal (
     )
     self.input_message = null
     return last.pop()
-  )
-  
-  def clear() (
-    self.lines = []
-    self.input_shown = true
   )
   
   def user_start() (
@@ -143,11 +142,16 @@ if path.len > 0 (
         local cmd_path = parseFilePath("~/:path/" ++ cur.name)
         file "exists" cmd_path
         if exists (
+          if cur.status == "removed" (
+            file "open" cmd_path "onlyaccess"
+            file "delete"
+            continue
+          )
           local data = open(cmd_path, ["edited"])
           if data[1] != cur.lastModifiedUnix (
             void updates.append(cur)
           )
-        ) else (
+        ) else if cur.status != "removed" (
           void updates.append(cur)
         )
       )
@@ -167,7 +171,7 @@ if path.len > 0 (
           )
         )
       )
-      terminal.clear()
+      terminal.lines = []
       terminal.show_input = true
       path_worker.kill()
     )
@@ -251,12 +255,15 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
         cursor_pos = 1
       )
       if "arrowright".onKeyDown() (
-        cursor_pos = inputs.main.len
+        cursor_pos = inputs.main.len + 1
       )
     ) else (
       string append = all_hit
         .filter(v -> v.len === 1)
         .join("")
+      if "shift".isKeyDown() (
+        append.toUpper()
+      )
       if append.len > 0 (
         inputs.main.insert(cursor_pos - 1, append)
         cursor_pos += append.len
@@ -282,23 +289,27 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
       last_index --
       last_index.clamp(1,last.len)
       inputs.main = last[last_index]
+      cursor_pos = inputs.main.len + 1
     )
     if "arrowdown".onKeyDown() (
       last_index ++
       last_index.clamp(1,last.len + 1)
       inputs.main = last[last_index]
+      cursor_pos = inputs.main.len + 1
     )
     cursor_pos.clamp(1,inputs.main.len + 1)
     if "enter".onKeyDown() (
       void last.append(inputs.main)
       last_index = last.len + 1
       void terminal.lines.append(terminal.user_start() ++ inputs.main)
-      if terminal.input_message == null (
+      if inputs.main == "clear" (
+        terminal.lines = []
+      ) else if terminal.input_message == null (
         terminal_worker.cmd = inputs.main
+        terminal.show_input = false
       )
       inputs.main = ""
       cursor_pos = 1
-      terminal.show_input = false
     )
     number offset = cursor_pos - 1 * 10
     change_x offset

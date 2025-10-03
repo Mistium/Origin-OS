@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-10-03T02:24:21.038Z",
-  "totalScripts": 48,
+  "lastUpdated": "2025-10-03T02:38:06.152Z",
+  "totalScripts": 47,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -59,8 +59,9 @@
       "changeCount": 3,
       "size": 16,
       "hash": "cb27cf503e4543e75bf526357305fec2",
-      "status": "active",
-      "lastModifiedUnix": 1752002380519
+      "status": "removed",
+      "lastModifiedUnix": 1752002380519,
+      "removedDate": "2025-10-03T02:38:06.152Z"
     },
     "disk.osl": {
       "name": "disk.osl",
@@ -483,14 +484,14 @@
       "status": "active"
     }
   },
-  "totalActiveScripts": 48,
-  "totalRemovedScripts": 0,
+  "totalActiveScripts": 47,
+  "totalRemovedScripts": 1,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
       "changeCount": 13
     },
-    "totalChanges": 141,
+    "totalChanges": 138,
     "averageChangesPerScript": 2.94
   }
 }
