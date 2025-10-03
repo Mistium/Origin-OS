@@ -1,0 +1,55 @@
+local boot @= user.onboot
+if typeof(boot) != "array" (
+    terminal.writeLine("onboot is not an array, use onboot reset to reset it")
+    args[1] = "h"
+)
+
+switch args[1] (
+  case ""
+  case "h"
+  case "help"
+    terminal.writeLine("onboot add <file path>")
+    terminal.writeLine("onboot remove <file path>")
+    terminal.writeLine("onboot list")
+    terminal.writeLine("onboot reset")
+    break
+  case "r"
+  case "reset"
+    network "update" "onboot" [
+        "origin/(a) system/system apps/originDE.osl",
+        "origin/(a) system/system apps/originWM.osl",
+        "origin/(a) system/system apps/Desktop.osl",
+        "origin/(a) system/docks/Dock.osl",
+        "origin/(a) system/system apps/Quick_Settings.osl"
+    ]
+    break
+  case "a"
+  case "add"
+    if args[2] == "" (
+      terminal.writeLine("Please enter a file path")
+      break
+    )
+    void boot.append(args[2])
+    network "update" "onboot" boot
+    break
+  case "r"
+  case "remove"
+    if args[2] == "" (
+      terminal.writeLine("Please enter a file path")
+      break
+    )
+    local idx = boot.indexOf(args[2])
+    if idx == 0 (
+        terminal.writeLine("File is not in onboot")
+        break
+    )
+    void boot.delete(idx)
+    network "update" "onboot" boot
+    break
+  case "l"
+  case "list"
+    for i boot.len (
+      terminal.writeLine(boot[i])
+    )
+    break
+)
