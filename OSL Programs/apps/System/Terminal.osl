@@ -304,9 +304,11 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
       void terminal.lines.append(terminal.user_start() ++ inputs.main)
       if inputs.main == "clear" (
         terminal.lines = []
-      ) else if terminal.input_message == null (
-        terminal_worker.cmd = inputs.main
+      ) else (
         terminal.show_input = false
+      )
+      if terminal.input_message == null (
+        terminal_worker.cmd = inputs.main
       )
       inputs.main = ""
       cursor_pos = 1
