@@ -1,0 +1,2 @@
+window.create("/(a) system/system apps/originDE.osl")
+terminal.writeLine("originDE is running")
