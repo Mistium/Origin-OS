@@ -1,0 +1,17 @@
+switch args[1] (
+  case "s"
+  case "soft"
+  default
+    eval "vm.runtime.greenFlag()"
+    break
+  case "h"
+  case "hard"
+    indexedDB "delete" "application_cache"
+    indexedDB "delete" "last_repo_source"
+    indexedDB "delete" "user_wallpaper"
+    indexedDB "delete" "user_wallpaper_blur"
+    indexedDB "delete" "user_wallpaper_url"
+    eval "sessionStorage.clear()"
+    eval "vm.runtime.greenFlag()"
+    break
+)
