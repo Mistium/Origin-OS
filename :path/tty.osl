@@ -1,0 +1,12 @@
+local wins @= Windows()
+
+for i wins.len (
+  local cur @= wins[i].window
+  if cur.id != window.id (
+    window "kill" cur.id
+  )
+)
+
+terminal.writeLine("tty is running")
+
+tty = true
