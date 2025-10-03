@@ -1,0 +1,25 @@
+permission "request" "display"
+
+switch args[1] (
+  case "s"
+  case "set"
+    if roturlink.enabled (
+        roturlink.send({cmd: "brightness_set", val: args[2]})
+        terminal.writeLine("Updated device 'roturLink'")
+    ) else if args[2] <= 100 and args[2] >= 0 (
+        display "brightness" "set" args[2]
+        terminal.writeLine("Updated device 'originDM'")
+    ) else (
+        terminal.writeLine("Invalid brightness value")
+    )
+    break
+  case "g"
+  case "get"
+    display "brightness" "get"
+    terminal.writeLine(data)
+    break
+  case "m"
+  case "max"
+    terminal.writeLine(100)
+    break
+)
