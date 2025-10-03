@@ -99,7 +99,6 @@ def getUuid(path) (
     local path = "origin/(a) system/user applications/" ++ path.trim(5,-1)
   )
   local uuid = open(path, ["uuid"])[1]
-  log path uuid
   file "close"
   return uuid
 )

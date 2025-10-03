@@ -120,7 +120,13 @@ inputs.main = null
 last = []
 last_index = 0
 
-window.setDragbox([2,2,0,0],[-2,-2,0,0])
+// handle if created by the onboot and we are the only window
+boolean tty = window.parent.id == -1 and Windows().len == 1
+if tty (
+  window.setDragbox([2,2,0,0],[2,2,0,0])
+) else (
+  window.setDragbox([2,2,0,0],[-2,-2,0,0])
+)
 
 taking_input = false
 ots_i = 1
@@ -194,14 +200,26 @@ terminal_worker @= worker({
   )
 })
 
-mainloop:
-load_theme
+if tty (
+  window.resize(screensize_x, screensize_y)
+  window.goto(0,0)
+  window.show()
+)
 
-glass:frame window.left window.top window.right window.bottom
-c window_colour
-pen "opacity" 60
-icon "w 999 dot 0 0" 100
-frame "clear"
+mainloop:
+
+if tty (
+  window_colour = "#000000ff"
+  prim = "#333"
+  txtc = "#ffffff"
+) else (
+  load_theme
+  glass:frame window.left window.top window.right window.bottom
+    c window_colour
+    pen "opacity" 60
+    icon "w 999 dot 0 0" 100
+  frame "clear"
+)
 
 c prim
 frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
@@ -306,9 +324,9 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
         terminal.lines = []
       ) else (
         terminal.show_input = false
-      )
-      if terminal.input_message == null (
-        terminal_worker.cmd = inputs.main
+        if terminal.input_message == null (
+          terminal_worker.cmd = inputs.main
+        )
       )
       inputs.main = ""
       cursor_pos = 1
@@ -323,4 +341,6 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
   )
 )
 
-import "win-buttons"
+if !tty (
+  import "win-buttons"
+)
