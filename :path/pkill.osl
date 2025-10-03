@@ -1,0 +1,20 @@
+local pattern @= args[1].strip()
+
+if pattern == "" (
+  terminal.writeLine("pkill: not enough arguments")
+)
+
+array wins @= Windows()
+boolean matched = false
+
+for i wins.len (
+  local cur @= wins[i].window
+  local name @= cur.title.toLower()
+  if name.contains(pattern.toLower()) (
+    void cur.close()
+    matched = true
+  )
+)
+if !matched (
+  terminal.writeLine("pkill: no process matched " ++ pattern)
+)
