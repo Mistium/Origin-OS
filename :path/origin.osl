@@ -1,0 +1,15 @@
+local wins @= Windows()
+
+for i wins.len (
+  void wins[i].window.close()
+)
+
+local onboot @= [
+    "origin/(a) system/system apps/originWM.osl",
+    "origin/(a) system/system apps/Desktop.osl",
+    "origin/(a) system/docks/Dock.osl",
+    "origin/(a) system/system apps/Quick_Settings.osl"
+]
+for i onboot.len (
+  window.create(onboot[i])
+)
