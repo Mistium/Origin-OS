@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-10-03T21:32:32.797Z",
-  "totalScripts": 54,
+  "lastUpdated": "2025-10-03T21:38:27.714Z",
+  "totalScripts": 55,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -535,22 +535,32 @@
     "origin.osl": {
       "name": "origin.osl",
       "firstAdded": "2025-10-03T21:32:32.787Z",
-      "lastModifiedUnix": 1759527143650,
-      "lastModified": "2025-10-03T21:32:23.650Z",
+      "lastModifiedUnix": 1759527179607,
+      "lastModified": "2025-10-03T21:32:59.607Z",
+      "changeCount": 1,
+      "size": 336,
+      "hash": "b989b08337f5cfddab62ec22474d42d5",
+      "status": "active"
+    },
+    "wallpaperctl.osl": {
+      "name": "wallpaperctl.osl",
+      "firstAdded": "2025-10-03T21:38:27.713Z",
+      "lastModifiedUnix": 1759527458144,
+      "lastModified": "2025-10-03T21:37:38.144Z",
       "changeCount": 0,
-      "size": 150,
-      "hash": "c0f79d0f85c7fcf8da6d254ea376c0a0",
+      "size": 509,
+      "hash": "e888a988837e57f92a588776efd6dc1d",
       "status": "active"
     }
   },
-  "totalActiveScripts": 54,
+  "totalActiveScripts": 55,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
       "changeCount": 13
     },
-    "totalChanges": 145,
-    "averageChangesPerScript": 2.69
+    "totalChanges": 146,
+    "averageChangesPerScript": 2.65
   }
 }
