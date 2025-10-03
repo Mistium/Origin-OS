@@ -1,0 +1,23 @@
+
+local bg @= "origin.wallpaper".eval()
+
+switch args[1] (
+    case "s"
+    case "set"
+        bg.next = args[2]
+        network "update" "wallpaper" bg.next
+        break
+    case "g"
+    case "get"
+        terminal.writeLine(bg.next)
+        break
+    case "m"
+    case "mode"
+        if !["fill","stretch","fit","center"].contains(args[2]) (
+            terminal.writeLine("Invalid mode")
+            break
+        )
+        bg.mode = args[2]
+        network "update" "wallpaper_mode" bg.mode
+        break
+)
