@@ -122,11 +122,6 @@ last_index = 0
 
 // handle if created by the onboot and we are the only window
 boolean tty = Windows().len == 1
-if tty (
-  window.setDragbox([2,2,0,0],[2,2,0,0])
-) else (
-  window.setDragbox([2,2,0,0],[-2,-2,0,0])
-)
 
 taking_input = false
 ots_i = 1
@@ -200,19 +195,18 @@ terminal_worker @= worker({
   )
 })
 
-if tty (
-  window.resize(screensize_x, screensize_y)
-  window.goto(0,0)
-  window.show()
-)
-
 mainloop:
 
 if tty (
+  window.setDragbox([2,2,0,0],[2,2,0,0])
+  window.resize(screensize_x, screensize_y)
+  window.goto(0,0)
+  window.show()
   window_colour = "#000000ff"
   prim = "#333"
   txtc = "#ffffff"
 ) else (
+  window.setDragbox([2,2,0,0],[-2,-2,0,0])
   load_theme
   glass:frame window.left window.top window.right window.bottom
     c window_colour
