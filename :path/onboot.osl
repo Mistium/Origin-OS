@@ -10,6 +10,7 @@ switch args[1] (
   case "help"
     terminal.writeLine("onboot add <file path>")
     terminal.writeLine("onboot remove <file path>")
+    terminal.writeLine("onboot move <file path> <index>")
     terminal.writeLine("onboot list")
     terminal.writeLine("onboot reset")
     break
@@ -44,6 +45,30 @@ switch args[1] (
         break
     )
     void boot.delete(idx)
+    network "update" "onboot" boot
+    break
+  case "m"
+  case "move"
+    if args[2] == "" (
+      terminal.writeLine("Please enter a file path")
+      break
+    )
+    local idx = boot.indexOf(args[2])
+    if idx == 0 (
+        terminal.writeLine("File is not in onboot")
+        break
+    )
+    void boot.delete(idx)
+    local idx2 = args[3].toNum()
+    if idx2 <= 0 (
+      terminal.writeLine("Index must be a positive number")
+      break
+    )
+    if idx2 > boot.len (
+      terminal.writeLine("Index is out of range")
+      break
+    )
+    void boot.insert(idx2, args[2])
     network "update" "onboot" boot
     break
   case "l"
