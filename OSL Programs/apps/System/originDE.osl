@@ -1,0 +1,114 @@
+// the wallpaper renderer for originOS
+
+save "desktop@system" "set_directory"
+permission "request" "javascript"
+
+// make the window impossible to drag
+window.setDragbox([5,5,0,0],[5,5,0,0])
+
+window.hide()
+
+def redrawAll() (
+    window.goto(0,0)
+    window.resize(screensize_x,screensize_y)
+    window.callRender()
+)
+
+window "responsive" true
+
+window.no_desktop = true
+
+last_mode = ""
+
+mainloop:
+
+window.resize(screensize_x,screensize_y)
+window.goto(0,0)
+
+object origin @= "window.origin".eval()
+// the global origin object
+object osl @= "window.osl".eval()
+// the global osl object
+
+// handle wallpaper redrawing
+array queue @= origin.renderer.queue
+
+boolean any_fullscreen = origin.windows.snapping.contains("0,0")
+
+local bg @= origin.wallpaper
+number last_transparency = round(bg.transparency)
+bg.transparency_target = any_fullscreen ? 100 0
+bg.transparency += (bg.transparency_target - bg.transparency) / 10
+
+if round(bg.transparency) != last_transparency or bg.mode != last_mode (
+  redrawAll()
+  last_mode = bg.mode
+)
+
+if bg.current != bg.next (
+  image bg.next "load" "wallpaper"
+  bg.current = bg.next
+)
+
+if queue.len > 0 or bg.current != bg.next (
+    stretch [100,100]
+    direction 90
+    goto 0 0
+
+    bg.width = "wallpaper".imageinfo("width")
+    bg.height = "wallpaper".imageinfo("height")
+
+    width_ratio = screensize_x / bg.width
+    height_ratio = screensize_y / bg.height
+
+    width = null
+    height = null
+    switch bg.mode.toLower() (
+        case ""
+        case "fill"
+            if width_ratio < height_ratio (
+                osl.background_width = screensize_y * bg.width / bg.height
+                osl.background_height = screensize_y
+                height = screensize_y
+            ) else (
+                osl.background_width = screensize_x
+                osl.background_height = screensize_x * bg.height / bg.width
+                width = screensize_x
+            )
+            break
+        case "stretch"
+            osl.background_width = screensize_x
+            osl.background_height = screensize_y
+            width = screensize_x
+            height = screensize_y
+            break
+        case "center"
+            osl.background_width = bg.width
+            osl.background_height = bg.height
+            break
+    )
+
+    number mul = origin.desktop.multiplier or 0
+    c user.theme.background ?? "#000"
+    pen "size" screensize_x + screensize_y
+    effect "clear"
+    effect "transparency" bg.transparency
+    if round(mul * 10) / 10 === mul (
+        origin.renderer.queue_total_frame_calls = queue.len
+        origin.renderer.last @= queue.trim(1, -1)
+        goto 0 0
+        for i queue.len (
+            local cur @= queue[i]
+            frame cur[1] - 30 cur[2] + 30 cur[3] + 30 cur[4] - 30 (
+                image "wallpaper" width height
+            )
+        )
+    )
+    effect "clear"
+    origin.renderer.queue = []
+    bg.redrawn = true
+) else (
+    origin.renderer.queue = []
+    origin.renderer.last = []
+    bg.redrawn = false
+)
