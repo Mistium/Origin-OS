@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2025-10-02T00:31:29.723Z",
-  "totalScripts": 47,
+  "lastUpdated": "2025-10-03T02:24:21.038Z",
+  "totalScripts": 48,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -471,9 +471,19 @@
       "hash": "2d459a23cbd2dd8bf99db5fc73732f68",
       "status": "active",
       "lastModifiedUnix": 1759214789045
+    },
+    "brightnessctl.osl": {
+      "name": "brightnessctl.osl",
+      "firstAdded": "2025-10-03T02:24:21.025Z",
+      "lastModifiedUnix": 1759458195576,
+      "lastModified": "2025-10-03T02:23:15.576Z",
+      "changeCount": 0,
+      "size": 607,
+      "hash": "8f57f4ff83df6b5f07ac5cf4c10ac6f1",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 47,
+  "totalActiveScripts": 48,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
@@ -481,6 +491,6 @@
       "changeCount": 13
     },
     "totalChanges": 141,
-    "averageChangesPerScript": 3
+    "averageChangesPerScript": 2.94
   }
 }
