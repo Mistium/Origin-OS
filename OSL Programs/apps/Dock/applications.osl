@@ -24,8 +24,8 @@ def conditions() (
 
 def main() (
   local x = x_position
-  change_x self.width / 2
-  square self.width height 30 1 0 1
+  change_x self.width.toNum() / 2
+  square self.width.toNum() height 30 1 0 1
   if mouse_touching (
     cursor self.cursor
   )

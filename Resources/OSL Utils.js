@@ -1335,21 +1335,28 @@ class OSLUtils {
       }
 
       if (node.type === "inl") {
-        let params = (node?.left?.parameters ?? []).map(p => p.data).join(",");
-        if (node.left?.type === "var") params = node.left.data;
+        let params = (node?.left?.parameters ?? []).map(p => p.data)
+        let paramStr = params.join(',');
+        if (node.left?.type === "var") paramStr = node.left.data;
         const right = node.right;
         if (typeof right.data === "string" && !right.data.trim().startsWith("(\n") && node.left) {
-          params = node.left.source.replace(/^\(|\)$/gi, "").trim();
+          paramStr = node.left.source.replace(/^\(|\)$/gi, "").trim();
           right.data = `(\nreturn ${right.source}\n)`;
         }
+
+        const accepts = params.map(v => v.split(" ")[0])
+        const paramNames = params.map(v => v.split(" ")[1])
+        
         return {
           type: "fnc", num: this.tkn.fnc,
           data: "function",
           parameters: [
             {
               type: "str", num: this.tkn.str,
-              data: params,
-              source: params
+              data: paramStr,
+              accepts: accepts,
+              params: paramNames,
+              source: paramStr
             },
             this.generateAST({ CODE: right.data, START: 0 })[0],
             {
@@ -1417,8 +1424,8 @@ class OSLUtils {
         const params = second.parameters?.map(p => {
           const typePrefix = p.set_type ? `${p.set_type} ` : "";
           return typePrefix + p.data;
-        }).join(",") || "";
-        paramSpec = params;
+        });
+        paramSpec = params.join(",");
 
         if (ast[2]?.type === "var") {
           returnType = ast[2].data;
@@ -1426,6 +1433,9 @@ class OSLUtils {
         } else {
           funcBody = ast[2];
         }
+
+        const accepts = params.map(v => v.split(" ")[0])
+        const paramNames = params.map(v => v.split(" ")[1])
 
         const funcNode = {
           type: "fnc", num: this.tkn.fnc,
@@ -1435,7 +1445,9 @@ class OSLUtils {
             {
               type: "str", num: this.tkn.str,
               data: paramSpec,
-              source: paramSpec
+              source: paramSpec,
+              accepts,
+              paramNames,
             },
             funcBody,
             {
@@ -1545,6 +1557,7 @@ class OSLUtils {
           if (val.success) {
             cur.right = {
               ...cur.right,
+              otype: cur.right.type,
               bysl: val.code,
               type: "bsl",
               num: this.tkn.bsl,
@@ -1560,6 +1573,7 @@ class OSLUtils {
         if (val.success) {
           ast[i] = {
             ...ast[i],
+            otype: ast[i].type,
             bysl: val.code,
             type: "bsl",
             num: this.tkn.bsl,
@@ -2251,6 +2265,15 @@ class OSLUtils {
           }
           
           if (token.type === 'asi' && token.right?.type === 'fnc' && Array.isArray(token.right.parameters)) {
+            const right = token.right
+            if (right.data === "function") {
+              // handle assigned function
+              const paramNode = right.parameters[0];
+              for (let i = 0; i < paramNode.paramNames.length; i++) {
+                const param = paramNode.paramNames[i];
+                variableTypeMap[param] = paramNode.accepts[i];
+              }
+            }
             for (const param of token.right.parameters) {
               if (param?.type === 'blk' && Array.isArray(param.data)) {
                 processASTNodes(param.data);
@@ -2392,6 +2415,7 @@ class OSLUtils {
           }
           break;
 
+        case 'bsl':
         case 'opr':
         case 'cmp':
         case 'log':
@@ -3537,17 +3561,7 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: `
-def test() (
-  local a = 10
-  local hi = a / 10
-
-  log hi == 1
-
-  return hi
-)
-
-log test()`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Files.osl", "utf-8")
+      CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/examples/mandelbrot.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));

@@ -1,5 +1,5 @@
 log window.ast
-def calculate(x, y) (
+def calculate(number x, number y) (
   local cx = x - 50 - (gw / 2) / 150
   local cy = y - (gh / 2) / 150
   local zx = 0
