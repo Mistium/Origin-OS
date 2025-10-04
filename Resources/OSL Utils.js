@@ -1544,11 +1544,11 @@ class OSLUtils {
           const val = this.generateBysl(cur.right)
           if (val.success) {
             cur.right = {
+              ...cur.right,
               bysl: val.code,
               type: "bsl",
               num: this.tkn.bsl,
               source: cur.right.source,
-              ...cur.right
             }
           }
         }
@@ -1559,11 +1559,11 @@ class OSLUtils {
         const val = this.generateBysl(cur)
         if (val.success) {
           ast[i] = {
+            ...ast[i],
             bysl: val.code,
             type: "bsl",
             num: this.tkn.bsl,
             source: cur.source,
-            ...ast[i]
           }
         }
       }
@@ -3541,6 +3541,8 @@ if (typeof Scratch !== "undefined") {
 def test() (
   local a = 10
   local hi = a / 10
+
+  log hi == 1
 
   return hi
 )
