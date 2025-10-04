@@ -1,0 +1,71 @@
+log window.ast
+def calculate(x, y) (
+  local cx = x - 50 - (gw / 2) / 150
+  local cy = y - (gh / 2) / 150
+  local zx = 0
+  local zy = 0
+  local i = 0
+  local maxI = 100
+
+  while i < maxI and (zx ^ 2) + (zy ^ 2) <= 4 (
+    number xtemp = (zx ^ 2) - (zy ^ 2) + cx
+    zy = 2 * zx * zy + cy
+    zx = xtemp
+    i ++
+  )
+  
+  if i === maxI (
+    return ''
+  ) else (
+    number shade = i % 255
+    string r = shade.toBase(10, 16).padStart("0",2)
+    string g = (shade * 2 % 255).toBase(10, 16).padStart("0",2)
+    string b = (shade * 5 % 255).toBase(10, 16).padStart("0",2)
+    return 'w 20 c #' ++ r ++ g ++ b ++ ' dot 0 0'
+  )
+)
+
+def renderPixel() (
+  grid[yi][xi] = calculate(xi, yi)
+  xi ++
+  if xi > gw (
+    xi = 1
+    yi ++
+    if yi > gh (
+      xi = -1
+      say performance - start
+      window.close()
+    )
+  )
+)
+
+start = performance
+window.resize(1000,500)
+
+xi = 1
+yi = 1
+
+gw = 20
+gh = 200
+
+grid = []
+line = gh.newArray().fill('')
+loop gw (
+  void grid.append(line.clone())
+)
+
+mainloop:
+
+if xi > 0 (
+  loop gw * 3 (
+    renderPixel()
+  )
+)
+
+goto 0 0
+// icongrid 2 2 gh gw grid
+
+loc 2 2 20 -20
+text xi ++ "," ++ yi 10 : c#fff
+
+import 'win-buttons'
