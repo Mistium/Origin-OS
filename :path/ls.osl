@@ -2,7 +2,7 @@ files = open(terminal.pwd ++ ".folder")
 
 files @= files.map(f -> (open(f, ["name", "type"]).join("")))
 
-if args.contains("-a").not() (
+if !args.contains("-a") (
   files @= files.filter(v -> (v[1] != ":"))
 )
 
@@ -17,7 +17,7 @@ void files.map((v) -> (
   )
 ))
 
-local cols = floor(window.width / 10 / (maxLen + 2))
+local cols = floor(window.width - 30 / 10 / (maxLen + 2))
 if cols < 1 (
   cols = 1
 )

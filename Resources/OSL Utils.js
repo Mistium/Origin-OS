@@ -567,6 +567,9 @@ class OSLUtils {
           stepAst(node.left)
           stepAst(node.right)
           break
+        case "evl":
+          stepAst(node.data)
+          break
       }
     }
 
@@ -1344,8 +1347,14 @@ class OSLUtils {
           right.data = `(\nreturn ${right.source}\n)`;
         }
 
-        const accepts = params.map(v => v.split(" ")[0])
-        const paramNames = params.map(v => v.split(" ")[1])
+        const paramNames = []
+        const accepts = params.map(v => {
+          const parts = v.split(" ")
+          const len = parts.length
+          paramNames.push(parts[len - 1])
+          if (len > 1) return parts[0]
+          return 'any'
+        })
         
         return {
           type: "fnc", num: this.tkn.fnc,
@@ -1434,8 +1443,14 @@ class OSLUtils {
           funcBody = ast[2];
         }
 
-        const accepts = params.map(v => v.split(" ")[0])
-        const paramNames = params.map(v => v.split(" ")[1])
+        const paramNames = []
+        const accepts = params.map(v => {
+          const parts = v.split(" ")
+          const len = parts.length
+          paramNames.push(parts[len - 1])
+          if (len > 1) return parts[0]
+          return 'any'
+        })
 
         const funcNode = {
           type: "fnc", num: this.tkn.fnc,
@@ -2269,8 +2284,23 @@ class OSLUtils {
             if (right.data === "function") {
               // handle assigned function
               const paramNode = right.parameters[0];
-              for (let i = 0; i < paramNode.paramNames.length; i++) {
-                const param = paramNode.paramNames[i];
+              const originalNames = paramNode.paramNames;
+              let paramNames = [];
+              if (originalNames) {
+                paramNames = originalNames;
+              } else {
+                const accepts = paramNode.data.split(",").map(v => {
+                  const parts = v.split(" ")
+                  const len = parts.length
+                  paramNames.push(parts[len - 1])
+                  if (len > 1) return parts[0]
+                  return 'any'
+                })
+                paramNode.accepts = accepts;
+                paramNode.paramNames = paramNames;
+              }
+              for (let i = 0; i < paramNames.length; i++) {
+                const param = paramNames[i];
                 variableTypeMap[param] = paramNode.accepts[i];
               }
             }
@@ -2287,6 +2317,10 @@ class OSLUtils {
                 processASTNodes(param.data);
               }
             }
+          }
+
+          if (token.type === 'evl' && typeof token.data === 'object') {
+            processASTNodes([token.data]);
           }
 
           if (token.type === 'blk' && Array.isArray(token.data)) {
@@ -2316,7 +2350,11 @@ class OSLUtils {
       switch (typedNode.type) {
         case 'var':
           const vName = normalizeVarName(typedNode.data);
-          const varType = scope[vName] || variableTypeMap[vName];
+          const scope_type = scope[vName];
+          if (scope_type) {
+            typedNode.local = true;
+          }
+          const varType = scope_type || variableTypeMap[vName];
           if (varType) {
             typedNode.inferredType = varType;
             typedNode.quickReturn = varType !== "object" && varType !== "any" && varType !== "null";
@@ -2328,6 +2366,8 @@ class OSLUtils {
             performance: 'number',
             data: 'any',
             mouse_touching: 'boolean',
+            mouse_x: 'number',
+            mouse_y: 'number',
             onclick: 'boolean',
             clicked: 'boolean',
             inputs: 'object',
@@ -2407,6 +2447,11 @@ class OSLUtils {
 
         case 'raw':
           typedNode.inferredType = typeof typedNode.data === 'boolean' ? 'boolean' : 'any';
+          break;
+        
+        case 'evl':
+          typedNode.data = applyTypesToNode(typedNode.data, scope);
+          typedNode.inferredType = typedNode.data.inferredType;
           break;
 
         case 'unk':
@@ -3561,7 +3606,7 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/examples/mandelbrot.osl", "utf-8")
+      CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));
