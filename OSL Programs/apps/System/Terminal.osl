@@ -37,10 +37,18 @@ def evalCmd(cmd) (
       tokens[i] = cur.trim(2, -2).replace("\\", "")
     )
     if cur[1] == "(" and cur[-1] == ")" (
-      terminal.lines = []
-      evalCmd(cur.trim(2, -2))
-      if terminal.lines.len > 0 (
-        tokens[i] @= terminal.lines.join("\n")
+      local ret @= evalCmd(cur.trim(2, -2))
+      for j ret.len (
+        if typeof(ret[j]) == "array" (
+          local line = []
+          for h ret[j].len / 2 (
+            void line.append(ret[j][h * 2])
+          )
+          ret[j] = line.join(" ")
+        )
+      )
+      if ret.len > 0 (
+        tokens[i] @= ret.join("\n")
       ) else (
         tokens[i] = null
       )
@@ -49,7 +57,7 @@ def evalCmd(cmd) (
   terminal.lines = []
   void fn.apply(terminal_worker, [tokens])
   local out @= terminal.lines
-  terminal.lines = lines
+  terminal.lines @= lines
   return out
 )
 
