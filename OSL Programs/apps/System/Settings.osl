@@ -313,7 +313,106 @@ def "system" (
       )
       break
     case "Keybinds"
-      
+      local keybinds @= "origin.keyboard.keybinds".eval()
+      local keys = keybinds.getKeys()
+      keybind_display ??= keys[1]
+      keybind_selected ??= null
+      goto 0 frame.top + scroll_y - 30
+      for i keys.len (
+        local cur = keys[i]
+        set_x 0
+        square w 30 10 : c#prim
+        if mouse_touching (
+          if onclick (
+            keybind_display = cur
+          )
+          square w 30 15 : c#seco
+          square w 30 10 : c#prim
+        )
+        set_x w / -2 + 10
+        text cur ++ " (" ++ keybinds[cur].len ++ " binds)" 9 : c#txtc
+        set_x w / 2 - 20
+        icon keybind_display == cur ? "down" "right" 0.6
+        change_y -50
+        if keybind_display == cur (
+          local binds @= keybinds[cur].getKeys()
+          local height = binds.len * 30
+
+          change_y height / -2 + 15
+          page_len += height
+          set_x 0
+          change_y height / 2 - 15
+          local w2 = w - 20
+          for j binds.len (
+            local cur2 = binds[j]
+            set_x 0
+            square w2 30 10 : c#prim
+            if mouse_touching (
+              square w2 30 15 : c#seco
+              square w2 30 10 : c#prim
+            )
+            set_x w2 / -2 + 10
+            text cur2 9 : c#txtc
+            set_x w2 / 2 - 20
+            if keybind_selected == cur2 (
+              icon "close" 0.6 : tooltip#"Stop editing"
+              if onclick (
+                keybind_selected = null
+              )
+              change_x -30
+              icon "save" 0.6 : tooltip#"Save keybind"
+              if onclick (
+                keybinds[cur][cur2] = inputs.bind.join("\n")
+                save "keybinds.json" "set" keybinds.JsonFormat()
+              )
+              change_y -85
+              set_x 0
+              square w2 100 10 : c#prim
+              textbox w2 100 "bind" 0 {
+                line_numbers: {
+                  bg_colour: prim
+                },
+                sel_colour: seco,
+                text_colour: txtc,
+              }
+              change_y -35
+              page_len += 320
+            ) else (
+              icon "edit" 0.6 : tooltip#"Edit keybind"
+              if onclick (
+                keybind_selected = cur2
+                inputs.bind = keybinds[cur][cur2].split("\n")
+              )
+              change_x -30
+              icon "bin" 0.6 : tooltip#"Delete keybind"
+              if onclick (
+                void keybinds[cur].delete(cur2)
+                save "keybinds.json" "set" keybinds.JsonFormat()
+              )
+            )
+            change_y -50
+          )
+          change_y -10
+          set_x 0
+          square w2 30 10 : c#prim
+          change_x w2 / -2 + 10
+          text "Click to add a keybind" 9 : c#txtc
+          if onclick (
+            local name = "What key?".ask()
+            if binds.contains(name) (
+              say "Key already exists"
+            ) else (
+              keybinds[cur][name] = ""
+              keybind_selected = name
+              inputs.bind = [""]
+              save "keybinds.json" "set" keybinds.JsonFormat()
+            )
+          )
+          change_y -60
+          page_len += binds.len * 50
+        )
+        page_len += 50
+      )
       break
     case "Time"
       goto 0 frame.top - 40 + scroll_y

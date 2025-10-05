@@ -11,6 +11,13 @@ open = 0
 window "responsive" true
 window "hide"
 
+local board @= "origin.keyboard".eval()
+data = open("~/application data/settings/keybinds.json")
+if data.len != 0 (
+  data.JsonParse()
+  board.keybinds = data
+)
+
 window.no_desktop = true
 window.pinned = true
 // pin to the top to stop other windows from overlapping
