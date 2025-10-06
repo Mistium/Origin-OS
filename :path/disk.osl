@@ -1,4 +1,7 @@
-terminal.writeLine("Used        |   " ++ formatFileSize(user.used_size))
-terminal.writeLine("Total       |   " ++ formatFileSize(user.max_size))
-terminal.writeLine("Capacity    |   " ++ floor(user.used_size / user.max_size * 100) ++ "%")
+number used_size = user.used_size.toNum()
+number max_size = user.max_size.toNum()
+
+terminal.writeLine("Used        |   " ++ formatFileSize(used_size))
+terminal.writeLine("Total       |   " ++ formatFileSize(max_size))
+terminal.writeLine("Capacity    |   " ++ floor(used_size / max_size * 100) ++ "%")
 terminal.writeLine("Files       |   " ++ "window.origin?.files?.index?.value?.length".eval() ?? "Unknown")

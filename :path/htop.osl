@@ -1,5 +1,8 @@
 local wins = "origin.windows".eval()
 switch args[1] (
+  case "-h"
+    terminal.writeLine("htop [-h] [-l] [-g <window id>] [-r]")
+    return
   case "-l"
     terminal.writeLine(wins.names.len)
     return
@@ -8,5 +11,8 @@ switch args[1] (
     return
   case "-r"
     terminal.writeLine("window.osl_get_windows()".eval().JsonParse())
+    return
+  default
+    terminal.writeLine("htop: invalid argument, use -h for help")
     return
 )

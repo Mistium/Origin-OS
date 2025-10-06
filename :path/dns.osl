@@ -15,6 +15,25 @@ if args.len == 0 (
   terminal.writeLine("dns: not enough arguments")
 )
 
+if args[1] == "-h" (
+  terminal.writeLine("Usage:")
+  terminal.writeLine("  dns <ipv4|ipv6|domain>          Perform forward or reverse DNS lookup")
+  terminal.writeLine("  dns <record> <domain>           Query a specific DNS record type")
+  terminal.writeLine("")
+  terminal.writeLine("Examples:")
+  terminal.writeLine("  dns mistium.com                 → Show A and AAAA records for mistium.com")
+  terminal.writeLine("  dns 8.8.8.8                     → Show PTR (reverse DNS) for IPv4")
+  terminal.writeLine("  dns 2606:4700:4700::1111        → Show PTR (reverse DNS) for IPv6")
+  terminal.writeLine("  dns AAAA mistium.com            → Query AAAA (IPv6) records only")
+  terminal.writeLine("  dns MX example.com              → Query mail exchange records")
+  terminal.writeLine("  dns TXT example.com             → Query text records")
+  terminal.writeLine("")
+  terminal.writeLine("Supported record types:")
+  terminal.writeLine("  A, AAAA, MX, TXT, CNAME, NS, PTR, SOA, SRV")
+  return
+)
+
+
 if args.len == 1 (
   if args[1].count(":") >= 2 (
     url = "https://dns.google/resolve?name=" ++ reverse(args[1]) ++ "&type=PTR"
