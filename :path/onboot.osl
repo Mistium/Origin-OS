@@ -1,12 +1,12 @@
 local boot @= user.onboot
 if typeof(boot) != "array" (
     terminal.writeLine("onboot is not an array, use onboot reset to reset it")
-    args[1] = "h"
+    args[1] = "-h"
 )
 
 switch args[1] (
   case ""
-  case "h"
+  case "-h"
   case "help"
     terminal.writeLine("onboot add <file path>")
     terminal.writeLine("onboot remove <file path>")
@@ -14,6 +14,7 @@ switch args[1] (
     terminal.writeLine("onboot list")
     terminal.writeLine("onboot reset")
     break
+  case "-r"
   case "r"
   case "reset"
     network "update" "onboot" [
@@ -23,7 +24,7 @@ switch args[1] (
         "origin/(a) system/system apps/Quick_Settings.osl"
     ]
     break
-  case "a"
+  case "-a"
   case "add"
     if args[2] == "" (
       terminal.writeLine("Please enter a file path")
@@ -32,7 +33,7 @@ switch args[1] (
     void boot.append(args[2])
     network "update" "onboot" boot
     break
-  case "r"
+  case "-d"
   case "remove"
     if args[2] == "" (
       terminal.writeLine("Please enter a file path")
@@ -46,7 +47,7 @@ switch args[1] (
     void boot.delete(idx)
     network "update" "onboot" boot
     break
-  case "m"
+  case "-m"
   case "move"
     if args[2] == "" (
       terminal.writeLine("Please enter a file path")
@@ -70,7 +71,7 @@ switch args[1] (
     void boot.insert(idx2, args[2])
     network "update" "onboot" boot
     break
-  case "l"
+  case "-l"
   case "list"
     for i boot.len (
       terminal.writeLine(boot[i])
