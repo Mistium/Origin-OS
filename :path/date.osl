@@ -1,6 +1,11 @@
 local flag = args[1]
 
 switch flag (
+  case "-h"
+    // help
+    terminal.writeLine("Usage: date [-u] [-I]")
+    break
+
   case "-u"
     // UTC time string (like `date -u`)
     terminal.writeLine("origin.time.date.toUTCString()".eval())

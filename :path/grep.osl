@@ -1,9 +1,9 @@
 local flags = args.filter(v -> v[1] == "-")
 args = args.filter(v -> v[1] != "-")
 
-local exp = args[1]
-local inp = args[2]
-local chk = inp
+local exp = args[1].toStr()
+local inp = args[2].toStr()
+local chk = inp.toStr()
 
 local flag_v = flags.contains("-v")
 local flag_n = flags.contains("-n")
