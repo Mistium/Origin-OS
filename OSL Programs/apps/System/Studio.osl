@@ -15,11 +15,20 @@ state = {
   folder_open: true,
   folder_sidebar: false,
   open_folders: [],
-  folder_list_len: 0
+  folder_list_len: 0,
+  linked_windows_view: false,
+  linked_windows_scroll: [0,0],
+  linked_windows_height: 0,
+  linked_windows: []
 }
 
 number right = 0
 number right_smooth = 0
+
+number bottom = 0
+number bottom_smooth = 0
+
+inputs.linked_windows = []
 
 class pages (
   def home() (
@@ -521,11 +530,18 @@ def "draw_buttons" (
     window "maximise"
   )
   
-  change_x -35
-  square 20 20 10 : c#window_colour
+  change_x -50
+  square 50 20 10 : c#window_colour
+  change_x 15
   icon "w 4 square 0 0 10 10 w 10 line 5 7 5 -7" 0.6 : c#c_text
   if onclick (
-    state.folder_sidebar = state.folder_sidebar.not()
+    state.folder_sidebar = !state.folder_sidebar
+  )
+
+  change_x -30
+  icon "w 4 square 0 0 10 10 w 10 line -5 -7 5 -7" 0.6 : c#c_text
+  if onclick (
+    state.linked_windows_view = !state.linked_windows_view
   )
 )
 
@@ -677,18 +693,24 @@ def sidebarButtons(file_uuid, input_name) (
   )
   
   change_x h
-  if [".osl",".oasm",".py",".js",".bf",".owf",".ots"].contains(file_type) (
+  if [".osl",".js",".bf",".owf"].contains(file_type) (
     icon "play" s
     square 30 30 12 1 1
     if onclick (
       local code = inputs[input_name].join("\n")
-      switch share_type (
-        case ".py"
-          py code
-          script_output = data
-          break
+      switch file_type (
         case ".js"
-          script_output = code.eval()
+          local parts = code.eval().split("\n")
+          for i parts.len (
+            void inputs.linked_windows.append(parts[i])
+          )
+          break
+        case ".osl"
+          window.create(file_uuid, {
+            get_obj: true
+          })
+          // track the window and the total number of logs
+          void state.linked_windows.append({ total_logs: 0, context: data })
           break
         default
           file "open" file_uuid "onlyaccess"
@@ -906,6 +928,13 @@ if state.folder_sidebar (
 right_smooth += right_target - right_smooth / 5
 right = w.right + right_smooth
 
+bottom_target = 5
+if state.linked_windows_view (
+  bottom_target += 150
+)
+bottom_smooth += bottom_target - bottom_smooth / 5
+bottom = w.bottom + bottom_smooth
+
 window.dragbox = [[2,2,0,0],[-2,2,-100,-40]]
 frame w.left + 5 w.top right w.top - 40 (
   local sections = split_tabs.len
@@ -958,7 +987,7 @@ if current_tab_target == 0 (
 )
 
 // top level area for the editor itself
-frame window.left + 5 window.top - 40 right window.bottom + 5 (
+frame window.left + 5 window.top - 40 right bottom (
   local sections = split_tabs.len
   if current_split_target != 0 (
     sections += 1
@@ -990,6 +1019,74 @@ frame window.left + 5 window.top - 40 right window.bottom + 5 (
   )
   if current_split_target != 0 (
     split_tabs.delete(current_split_target)
+  )
+)
+
+if state.linked_windows_view or bottom_smooth > 10 (
+  c c_prim
+  frame window.left + 5 bottom - 5 right window.bottom + 5 (
+    goto 0 0
+    square frame.width - 10 frame.height - 10 10 : c#window_colour
+    if state.linked_windows.len == 0 and inputs.linked_windows.len == 0 (
+      centext "No linked windows, run an osl app to see logs here" 9 : c#c_text
+    ) else (
+      local lscroll @= state.linked_windows_scroll
+      if mouse_touching (
+        lscroll[2] -= scroll.y.velocity
+        lscroll[2] = lscroll[2].clamp(0, state.linked_windows_height)
+      )
+      window "responsive" true
+      for i state.linked_windows.len (
+        local cur @= state.linked_windows[i]
+        local win @= cur.context.window
+        local logs @= win.logs
+        if cur.total_logs < logs.len (
+          for j logs.len - cur.total_logs (
+            local log @= logs[cur.total_logs + j]
+            local idx @= log.index(": ")
+            log @= log.trim(idx + 2, -1)
+            void inputs.linked_windows.append(log)
+          )
+          cur.total_logs = logs.len
+        )
+        if win.dead (
+          void state.linked_windows.delete(i)
+          i --
+        )
+      )
+      loc 2 -2 10 20 - lscroll[2]
+      local x = x_position
+      local i = inputs.linked_windows.len
+      local w = frame.width / 10 - 5
+      local h = 0
+      loop i (
+        local cur @= inputs.linked_windows[i]
+        local parts = cur.wrapText(w).split("\n")
+        local j = parts.len
+        loop j (
+          set_x x
+          text parts[j] 10 : c#c_text
+          change_y 23
+          h += 23
+          if y_position > frame.top + 20 (
+            break
+          )
+          j --
+        )
+        change_y 10
+        h += 10
+        i --
+      )
+      state.linked_windows_height = h
+      loc -2 999 -15 0
+      square 20 frame.height - 10 10 : c#c_prim
+      change_y frame.height / 2 - 20
+      icon "close" 0.6 : c#c_text tooltip#"Clear logs"
+      if onclick (
+        inputs.linked_windows = []
+        state.linked_windows_scroll = [0,0]
+      )
+    )
   )
 )
 
