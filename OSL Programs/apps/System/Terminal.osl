@@ -129,7 +129,7 @@ last = []
 last_index = 0
 
 // handle if created by the onboot and we are the only window
-boolean tty = Windows().len == 1
+boolean tty = Windows().len <= 1
 
 taking_input = false
 ots_i = 1
