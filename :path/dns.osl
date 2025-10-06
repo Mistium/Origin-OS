@@ -1,0 +1,49 @@
+def reverse(ip) (
+  url = "https://apps.mistium.com/cors?url=https://dns.google/query?name=" + ip.replace(":","%3A")
+  content = url.httpGet().replaceFirst("<!DOCTYPE html>\n<html lang="en"> <head> <title>Query:&nbsp;","").split(" ")[1]
+  return content
+)
+
+def checkipv4(ip) (
+  def checkipv4octet(data) (
+    return data <= 255 and data >= 0
+  )
+  return ip.split(".").every(checkipv4octet)
+)
+
+if args.len == 0 (
+  terminal.writeLine("dns: not enough arguments")
+)
+
+if args.len == 1 (
+  if args[1].count(":") >= 2 (
+    url = "https://dns.google/resolve?name=" ++ reverse(args[1]) ++ "&type=PTR"
+    response = url.httpGet()
+    for i response.Answer.len (
+      terminal.writeLine(response.Answer[i].data)
+    )
+  ) else if checkipv4(args[1]) (
+    url = "https://dns.google/resolve?name=" ++ reverse(args[1]) ++ "&type=PTR"
+    response = url.httpGet()
+    for i response.Answer.len (
+      terminal.writeLine(response.Answer[i].data)
+    )
+  ) else (
+    url = "https://dns.google/resolve?name=" ++ args[1] ++ "&type=A"
+    response = url.httpGet()
+    for i response.Answer.len (
+      terminal.writeLine(response.Answer[i].data)
+    )
+    url = "https://dns.google/resolve?name=" ++ args[1] ++ "&type=AAAA"
+    response = url.httpGet()
+    for i response.Answer.len (
+      terminal.writeLine(response.Answer[i].data)
+    )
+  )
+) else (
+  url = "https://dns.google/resolve?name=" ++ args[2] ++ "&type=" ++ args[1]
+  response = url.httpGet()
+  for i response.Answer.len (
+    terminal.writeLine(response.Answer[i].data)
+  )
+)
