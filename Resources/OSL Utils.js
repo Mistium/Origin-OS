@@ -600,6 +600,7 @@ class OSLUtils {
             out.push(size, types[cur.data], memMap.get(cur.left), memMap.get(cur.right))
             break
           case "mtd":
+            if (bysl_types[cur?.type] === undefined) throw new Error(`'${cur.type}' is unsupported by bysl`)
             out.push(size, types.var, cur?.data?.[0].data, 0)
             const data = cur.data
             for (let j = 1; j < data.length; j++) {
@@ -3606,7 +3607,7 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+      CODE: `log Windows().len < 1`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));
