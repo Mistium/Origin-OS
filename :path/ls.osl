@@ -1,13 +1,13 @@
-files = open(terminal.pwd ++ ".folder")
+local files = open(terminal.pwd ++ ".folder")
 
-files @= files.map(f -> (open(f, ["name", "type"]).join("")))
+files @= files.map(f -> open(f, ["name", "type"]).join(""))
 
 if !args.contains("-a") (
-  files @= files.filter(v -> (v[1] != ":"))
+  files @= files.filter(v -> v[1] != ":")
 )
 
 local maxLen = 0
-void files.map((v) -> (
+void files.map(v -> (
   local name = v
   if name.endsWith(".folder") (
     name = name.trim(1, -8) ++ "/"
@@ -15,6 +15,7 @@ void files.map((v) -> (
   if name.len > maxLen (
     maxLen = name.len
   )
+  return v
 ))
 
 local cols = floor(window.width - 30 / 10 / (maxLen + 2))
@@ -24,7 +25,7 @@ if cols < 1 (
 
 array line = []
 local i = 0
-void files.map((v) -> (
+void files.map(v -> (
   local ov = v
   local color = txtc
 
