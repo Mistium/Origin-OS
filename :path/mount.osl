@@ -27,6 +27,6 @@ parts = path.split("/")
 
 local url = args[2]
 file "goto_dir" parts.trim(1, -2).join("/")
-local name = parts[-1] ++ ".mount"
+local name = args[1] ++ ".mount"
 file "set_file" name url
 terminal.writeLine("Mounted, reboot for changes to come into effect")
