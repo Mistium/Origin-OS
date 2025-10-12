@@ -1,6 +1,10 @@
 // Developer: @Mistium
 // Description: This app shows quick info about your device like the connection, file syncing progress and more in the future
 
+if on_mobile (
+  window "stop"
+)
+
 import "window_tools" as "wt"
 
 permission "request" "terminal"
