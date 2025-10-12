@@ -7,6 +7,7 @@ permission "request" "windows"
 
 save "Dock@System" "set_directory"
 open = 0
+y = -100
 
 window "responsive" true
 window "hide"
@@ -18,11 +19,145 @@ if data.len != 0 (
   board.keybinds = data
 )
 
+if on_mobile (
+  y = 0
+  window.resize(screensize_x, screensize_y)
+  window.goto(0, 0)
+  array wins @= Windows()
+  log window.id
+  for i wins.len (
+    if wins[i].id == window.id (
+      continue
+    )
+    window "kill" wins[i].id
+  )
+)
+
+state = {
+  app_drawer: {
+    open: false,
+    target_y: -1000000,
+    y: -1000000,
+  }
+}
+
+desktop @= () -> (
+  for bg segment_classes.len (
+    local cur @= segment_classes[bg]
+    if cur.enabled == false (
+      continue
+    )
+    local w = max(0, cur.width.toNum())
+    dock_width += w + 30
+    cur.width = w
+    change_x w / 2
+    square w height 20 0 1
+    run[bg] = cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w
+    if run[bg] (
+      square w height 20
+    )
+    change_x w / 2 + 30
+  )
+  
+  for i segment_classes.len (
+    local cur @= segment_classes[i]
+    if cur.enabled == false (
+      continue
+    )
+    local w = cur.width
+    c dock_colour
+    if run[i] (
+      local w2 = w / 2 + 10
+      local h2 = height / 2 + 10
+      goto x + (w / 2) y
+      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2
+        effect "transparency" 70
+        goto frame.x * -1 frame.y * -1
+    
+        image "wallpaper_blur" background_width background_height
+        effect "clear"
+      frame "clear"
+      goto x y
+      void cur.main()
+      run[i] = false
+    )
+    x += w + 30
+  )
+)
+
+mobile @= () -> (
+  window.callRender()
+  goto 0 window.bottom + 20
+  square frame.width 40 0 1 : c#window_colour
+  icon "origin-logo" 1 : c#icon_colour
+  if onclick (
+    state.app_drawer.target_y = window.top - 40
+  )
+  set_x frame.right - 100
+  icon "multitasking" 1
+  set_x frame.left + 100
+  icon "search" 1
+
+  if state.app_drawer.y > window.bottom + 10 or state.app_drawer.target_y > window.bottom + 10 (
+    state.app_drawer.y += state.app_drawer.target_y - state.app_drawer.y / 4
+    goto 0 window.bottom + state.app_drawer.y
+    square frame.width - 40 frame.height - 40 40 1 : c#window_colour
+    change frame.width / 2 - 30 frame.height / 2 - 30
+    icon "close" 0.9 : c#icon_colour
+    if onclick (
+      state.app_drawer.target_y = window.bottom
+    )
+    set_x -20
+    square frame.width - 100 0 40 : c#prim
+    change_x frame.left + 50
+    icon "search" 0.9 : c#icon_colour
+    change_x 20
+    text "Search..." 10
+
+    set_x 0
+    change_y -60
+    local apps = open(user_folder ++ "/dock.folder")
+    for i apps.len (
+      local app = apps[i]
+      file "open" app "onlyaccess"
+      local name = fileGet(2)
+      local type = fileGet(1)
+      set_x 0
+      square frame.width - 60 10 40 : c#prim
+      change_x frame.left + 40
+      file "render" 1.5
+      change_x 30
+      text name 10 : c#icon_colour
+      if clicked (
+        file "start"
+        state.app_drawer.target_y = window.bottom
+      )
+      change_y -60
+    )
+  )
+
+  goto frame.left + 10 frame.top - 20
+  local fmt = time.formatted
+  text fmt.hour ++ ":" ++ fmt.minute 15 : c#icon_colour
+
+  local wins @= Windows()
+  for i wins.len (
+    local cur @= wins[i].window
+    if cur.id == window.id (
+      continue
+    )
+    cur.resize(screensize_x, screensize_y - 50)
+    cur.goto(0, 25)
+  )
+)
+
 window.no_desktop = true
-window.pinned = true
+// window.pinned = true
 // pin to the top to stop other windows from overlapping
 
-window "y" screensize_y / -2 + 35
+if !on_mobile (
+  window "y" screensize_y / -2 + 35
+)
 
 segments = user.origin_dock
 if typeof(segments) != "array" (
@@ -77,8 +212,7 @@ for syscount segments.len (
 dock_width_temp = dock_width
 
 // Parameter setup
-dock_x = dock_width.round() / -2
-y = -100
+dock_x = round(dock_width) / -2
 dock_y_target = 0
 height = 36
 
@@ -104,11 +238,8 @@ run = (1 to segment_classes.len).fill(false)
 mainloop:
 dock_colour = user.theme.background
 icon_colour = user.theme.text
+prim = user.theme.primary
 
-if segments != user.origin_dock (
-  segments = user.origin_dock
-  window.callRender()
-)
 if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour
   window.callRender()
@@ -117,16 +248,18 @@ movefileloc file_loc
 if mouse_down.not() (
   canclick = true
 )
-window.resize(screensize_x, 70)
-window.y = screensize_y / -2 + 35
-y += dock_y_target - round(y) * delta_time * 3
-if y > 0 (
-  y = 0
+if !on_mobile (
+  window.resize(screensize_x, 70)
+  window.y = screensize_y / -2 + 35
+  y += dock_y_target - round(y) * delta_time * 3
+  if y > 0 (
+    y = 0
+  )
+  if round(y) != round(dock_y_target) (
+    window.callRender()
+  )
 )
 
-if round(y) != round(dock_y_target) (
-  window.callRender()
-)
 if y > -80 (
   width = 0
   local x = dock_width / -2 + 15
@@ -135,46 +268,10 @@ if y > -80 (
   goto x y
   c dock_colour
   local hovering = null
-  for bg segment_classes.len (
-    local cur @= segment_classes[bg]
-    if cur.enabled == false (
-      continue
-    )
-    local w = max(0, cur.width.toNum())
-    dock_width += w + 30
-    cur.width = w
-    change_x w / 2
-    square w height 20 0 1
-    run[bg] = cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w
-    if run[bg] (
-      square w height 20
-    )
-    change_x w / 2 + 30
-  )
-  
-  for i segment_classes.len (
-    local cur @= segment_classes[i]
-    if cur.enabled == false (
-      continue
-    )
-    local w = cur.width
-    c dock_colour
-    if run[i] (
-      local w2 = w / 2 + 10
-      local h2 = height / 2 + 10
-      goto x + (w / 2) y
-      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2
-        effect "transparency" 70
-        goto frame.x * -1 frame.y * -1
-    
-        image "wallpaper_blur" background_width background_height
-        effect "clear"
-      frame "clear"
-      goto x y
-      void cur.main()
-      run[i] = false
-    )
-    x += w + 30
+  if on_mobile (
+    mobile()
+  ) else (
+    desktop()
   )
 
   if dock_width != dock_width_temp (
@@ -185,6 +282,10 @@ if y > -80 (
     dock_changed_w = false
   )
   dock_x = dock_width / -2
+)
+if segments != user.origin_dock (
+  segments = user.origin_dock
+  window.callRender()
 )
 if open != 0 and mouse_down.not() (
   local wins @= windows()
