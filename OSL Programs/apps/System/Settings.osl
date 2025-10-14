@@ -1292,7 +1292,7 @@ def "permissions" (
         can = false
         void my_perms.delete(perm)
         file "open" "~/application data/permissions.json" "onlyaccess"
-        file "set" 4 perms
+        file "set" 4 my_perms
         file "close"
       )
       icon "minus" 0.8 : c#txtc
