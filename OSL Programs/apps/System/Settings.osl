@@ -960,13 +960,13 @@ def "account" (
       if onclick (
         if user["sys.currency"] >= 10 (
           local url = "Paste the url of an image to use as your banner".ask()
-          if url.startsWith("https://") (
-            network "update" "banner" url
-          ) else if url == "" (
+          network "getsync_asurl" url
+          // invalid url, likely 404 or html data, needs to be an image
+          if data.startsWith("data:text/html") (
             say "Banner purchase aborted"
-          ) else (
-            say "Url must start with https"
+            return
           )
+          network "update" "banner" data
         ) else (
           say "You do not have enough credits for this"
         )
@@ -982,26 +982,16 @@ def "account" (
     centext "You have " ++ user["sys.currency"] ++ " credits" 10
     
     change_y -60
-    if user["sys.banners"].len == 0 (
-      centext "No previous banners" 10
-    ) else (
-      centext "Previous 5 banners, switch to these for free" 10
-    )
+    centext "Current banner:" 10
     change_y 100
 
-    banners = user["sys.banners"]
+    banners @= [user["sys.banner"]]
     y = y_position - (100 + (w / 6)) - 20
     
     each banner banners (
       goto 0 y
       square w w / 3 10 : c#prim
       image banner w w / 3
-      change w / 2 - 30 w / 6 - 30
-      square 30 30 15 : c#prim
-      if onclick (
-        network "update" "banner" banner
-      )
-      icon "tick" 0.8 : c#txtc
       y -= w / 3 + 20
     )
     page_len = (w / 3 + 20) * banners.len + 250
@@ -1119,6 +1109,7 @@ def "account" (
     icon "cutcircle 0 0 10 0 90" 1 : c#txtc
     direction 90
   ) else (
+    square pfp_s pfp_s 10 0 1
     if mouse_touching (
       if mouse_ondown and timer - upload_time > 1 and current_pfp == "" (
         current_pfp = "Enter A Url".ask()
@@ -1675,6 +1666,7 @@ pfp = "https://avatars.rotur.dev/" ++ username ++ "?radius=30"
 supporterData = null
 
 slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
+upload_time = timer
 
 mainloop:
 networking()
