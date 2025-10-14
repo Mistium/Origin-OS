@@ -1290,7 +1290,7 @@ def "permissions" (
       square 20 20 10 : c#seco tooltip#"Remove"
       if onclick and can (
         can = false
-        void my_perms.delete(perms)
+        void my_perms.delete(perm)
         file "open" "~/application data/permissions.json" "onlyaccess"
         file "set" 4 perms
         file "close"
