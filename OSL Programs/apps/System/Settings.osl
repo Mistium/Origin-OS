@@ -602,14 +602,12 @@ def "appearance" (
           current_wallpaper = "Enter a url for your wallpaper here".ask()
         )
         loc 2 2 50 y
-        text "Click To Add Wallpaper Url In Clipboard" 10 : c#txtc
+        text "Click To Add Custom Wallpaper" 10 : c#txtc
       )
-      loc 2 2 25 y
+      loc 2 2 27 y
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      if wallpapers.contains(current_wallpaper).not() (
+      if !wallpapers.contains(current_wallpaper) (
         if current_wallpaper.imageinfo("loaded") (
-          wallpapers.insert(1,current_wallpaper)
-          save "wallpapers.json" "set" wallpapers
           current_wallpaper = ""
         )
         if current_wallpaper != "" (
@@ -621,70 +619,76 @@ def "appearance" (
         current_wallpaper = ""
         say "Failed to load wallpaper"
       )
-      wallpaper_data = "Total:" + wallpapers.len
-      loc -2 2 -15 - (wallpaper_data.len * 10) y
-      text wallpaper_data 10
-      y -= 152
-      loc 4 2 -2.5 y
-      w = frame.width / 2 - 30
-      square w 230 15 : c#prim
-      image "wallpaper" w 200 : chy#-10
-      y2 = y + 50
-      systemvars "getvar" "SYSTEM // Background Mode"
-      back_mode = data
-      
-      modes = ["Fill","Center","Fit","Stretch"]
-      for i 4 (
-        loc -4 2 0 y2
-        cur = modes[i]
-        square w 30 15 : c#prim
-        if mouse_touching or cur == back_mode (
-          square w 30 15 : c#seco
-          square w 30 10 : c#prim
+
+      y -= 50
+      loc 9999 2 0 y
+      square w 30 15 : c#prim
+      loc 2 2 27 y
+      icon "image" 0.7 : c#txtc
+      text "Wallpaper Cover Mode" 10 : c#txtc chx#30
+
+      w = frame.width / 2 - 25
+      y -= 50
+      array categories @= wallpaper_categories.getKeys()
+      for i categories.len (
+        object category @= wallpaper_categories[categories[i]]
+        array wallpapers @= category.values
+        loc 2 2 20 y
+        text categories[i] 10 : c#txtc
+        loc -2 2 -20 y
+        if wallpapers.len > 2 (
+          rigtext category.open ? "Show Less" "Show More" 10 : c#txtc
           if onclick (
-            terminal "system wallpapermode" + cur
-            network "update" "wallpaper_mode" cur
+            category.open = !category.open
           )
         )
-        change_x w / -2 + 10
-        text cur 10 : c#txtc
-        y2 -= 50
-      )
-      loc 2 2 20 y + 105
-      text "Current Wallpaper" 10 : c#txtc
-      loc 9999 2 20 y + 105
-      text "Wallpaper Mode" 10
-      y -= 8
-      for count wallpapers.len (
-        if count % 2 == 1 (
-          y -= 230
-        )
-        if count % 2 == 1 "loc 4 2 0 y" else "loc -4 2 0 y"
-        square w 200 15 : c#prim
-        cur = wallpapers[count]
-        image cur w 200
-        change_x -40
-        square 20 20 20 : c#prim
-        if mouse_touching (
-          if clicked.not() "square 20 20 23"
-          if onclick (
+        y += 100
+        for count wallpapers.len (
+          if count % 2 == 1 (
+            if !category.open and count > 1 (
+              break
+            )
+            y -= 230
+          )
+          loc count % 2 == 1 ? 4 -4 2 0 y
+          square w 200 15 : c#prim
+          string cur = wallpapers[count]
+          if onclick and mouse_y < frame.top (
             terminal "system wallpaper" + cur
-            network "update" "wallpaper" cur
           )
+          image cur w 200
         )
-        icon "tick" 0.7 : c#txtc
-        change_x 80
-        square 20 20 20 : c#prim
-        if mouse_touching (
-          if !clicked "square 20 20 23"
-          if onclick (
-            wallpapers.delete(count)
-            save "wallpapers.json" "set" wallpapers
-          )
-        )
-        icon "bin" 0.7 : c#txtc
+        y -= 150
       )
-      page_len = ceil(wallpapers.len / 2) * 230 + 310
+
+      if typeof(user.wallpaper_mode) != "string" (
+        network "update" "wallpaper_mode" "Fill"
+      )
+      array modes = ["Fill","Center","Fit","Stretch"]
+      local mode = (user.wallpaper_mode ?? "Fill").toStr().toTitle()
+      log mode modes modes.index(mode)
+      inputs.dropdowns ??= {}
+      inputs.dropdowns.fillmode ??= {
+        open: false,
+        idx: modes.index(mode),
+        value: mode
+      }
+      log inputs.dropdowns
+
+      loc -2 2 -115 -80 + scroll_y
+      dropdown 200 25 10 {
+        id: "fillmode",
+        options: modes,
+        max_height: 300
+      } : c#window_colour
+
+      local fillmode @= inputs.dropdowns.fillmode.value
+      if fillmode != null and fillmode != user.wallpaper_mode (
+        terminal "system wallpapermode" + fillmode
+        network "update" "wallpaper_mode" fillmode
+      )
+
+      page_len = -y + scroll_y
       break
     case "Dock"
       if new_transmit (
@@ -1626,20 +1630,43 @@ if "wallpapers.json".saveExists() (
 ) else (
   wallpapers = []
 )
-if wallpapers.len < 1 or wallpapers.istype("Array").not() (
-  wallpapers = [
-    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Veil.jpeg",
-    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Dawn.png",
-    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Rift.png",
-    "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Wallpapers/originOS%20Flow.png",
-    "https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg",
-    "https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg",
-    "https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg",
-    "https://images.pexels.com/photos/7919/pexels-photo.jpg",
-    "https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg"
-  ]
-  save "wallpapers.json" "set" wallpapers
-)
+
+wallpaper_categories = {
+  origin: {
+    open: false,
+    values: [
+      "https://origin.mistium.com/Wallpapers/originOS%20Veil.jpeg",
+      "https://origin.mistium.com/Wallpapers/originOS%20Dawn.jpeg",
+      "https://origin.mistium.com/Wallpapers/originOS%20Rift.png",
+      "https://origin.mistium.com/Wallpapers/originOS%20Flow.png",
+    ]
+  },
+  nature: {
+    open: false,
+    values: [
+      "https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg",
+      "https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg",
+      "https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg",
+      "https://images.pexels.com/photos/7919/pexels-photo.jpg"
+    ]
+  },
+  city: {
+    open: false,
+    values: [
+      "https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg",
+      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/cyberpunk-scene.jpg"
+    ]
+  },
+  anime: {
+    open: false,
+    values: [
+      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/asleep.jpg",
+      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/miku-and-stars.jpg",
+      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/miku.jpeg",
+      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/warm-and-cozy.png",
+    ]
+  }
+}
 current_wallpaper = ""
 
 themes = {
