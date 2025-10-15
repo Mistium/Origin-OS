@@ -102,11 +102,9 @@ def "system" (
   local w = frame.width - 25
   switch subcategory (
     case "none"
-      option "About" "info"
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
-      option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
       option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
       option "Time" "alarm-clock"
       option "Gamepads" "controller"
@@ -119,18 +117,6 @@ def "system" (
       text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
       
       goto 0 window.top - 100 + scroll_y
-      if roturlink.enabled (
-        local before_brightness = slider_brightness
-        centext "Brightness" 10 : c#txtc
-        slider w 20 "brightness" : c#prim chy#-30
-        if round(before_brightness * 100) != round(slider_brightness * 100) (
-          roturlink.send({
-            "cmd":"brightness_set",
-            "val":round(slider_brightness * 100)
-          })
-        )
-        change_y -50
-      )
       
       display "invert" "get"
       c #txtc
@@ -138,6 +124,24 @@ def "system" (
         display "invert" "get"
         inp = 100 - data
         display "invert" "set" inp
+      )
+
+      change_y -50
+      display "saturation" "get"
+      c #txtc
+      setting_toggle "Black & White" w data === 0 def(val) -> (
+        display "saturation" "get"
+        inp = 100 - data
+        display "saturation" "set" inp
+      )
+
+      change_y -50
+      display "contrast" "get"
+      c #txtc
+      setting_toggle "Increase Contrast" w data === 110 def(val) -> (
+        display "contrast" "get"
+        inp = data == 110 ? 100 110
+        display "contrast" "set" inp
       )
       break
     case "Media"
@@ -258,59 +262,6 @@ def "system" (
         icon "bin" 0.8 : c#txtc
       )
       page_len = boot_apps.len + 2 * 60
-      break
-    case "Storage"
-      y = -160 + 75 + scroll_y
-      loc 2 2 80 y
-      image pfp 100 100
-      text "(Network)" + username 15 : chx#80 chy#20 c#txtc
-      change_x 20
-      square 120 20 10 : c#prim chx#100
-      if mouse_touching (
-        cursor "pointer"
-        if onclick (
-          http "newtab" "https://patreon.com/mistium"
-        )
-      )
-      image "https://origin.mistium.com/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
-      
-      loc 2 2 160 y
-      text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
-      loc 999 2 125 / 2 y - 35
-      c prim
-      bar frame_width - 200 20 10 user.used_size / user.max_size seco
-      page_len = 460
-  
-      if total_files == 0 (
-        loop 100 (
-          file "open" current[1] "onlyaccess"
-          dat = fileGet(4).toStr()
-          file = dat.len + "bytes"
-          file = " " * (15 - file.len) + file + "-" + fileGet(2)
-          file.append(fileGet(1))
-          files.append(file)
-          current.delete(1)
-          if fileGet(1) == ".folder" (
-            current ++= fileGet(4)
-          )
-          total_files = files.len
-          file_data = files.sort().reverse().trim(1,20)
-        )
-
-        goto frame.left + 30 frame.top + scroll_y - 200
-        direction (timer * 100).sin() * 360
-        icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
-        direction 90
-        text files.len + "Files Processed" 10 : chx#30
-      ) else (
-        loc 2 2 20 -200 + scroll_y
-        text "Biggest Files" 9 : c#txtc
-        for i file_data.len (
-          loc 2 2 20 i * -30 - 200 + scroll_y
-          text file_data[i] 9
-        )
-        page_len = file_data.len * 30 + 200
-      )
       break
     case "Keybinds"
       local keybinds @= "origin.keyboard.keybinds".eval()
@@ -588,7 +539,6 @@ def "appearance" (
       option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
       option "Windows" "maximise"
       option "Colours" "w 3 cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
-      option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
       option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
       break
     case "Background"
@@ -877,27 +827,6 @@ def "appearance" (
       
       page_len = 380 + (themes.len * 50)      
       break
-    case "File Types"
-      for count ftkeys.len (
-        y = count * -60 + scroll_y + 30
-        
-        loc 999 2 0 y
-        square frame.width - 20 40 10 : c#prim
-        if mouse_touching (
-          square frame.width - 20 40 10 : c#seco
-          square frame.width - 20 40 5 : c#prim
-        )
-        
-        loc 2 2 30 y
-        square 40 40 10 : c#seco
-        square 40 40 5 : c#prim
-        
-        ftv @= ftvalues[count]
-        icon ftv[1] 1 : c#txtc
-        text ftv[2] + "(" ++ ftkeys[count] ++ ")" 9 : chx#35 : c#txtc
-      )
-      page_len = count * 60
-      break
     case "mouse"
       loc 2 2 10 -20
       text "Scroll Wheel Speed" 12 : c#txtc
@@ -929,6 +858,93 @@ def "appearance" (
       break
   )
   frame "clear"
+)
+
+def "files" (
+
+  local w = frame.width - 100
+  page_len = 500
+
+  switch subcategory (
+    case "none"
+      option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
+      option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
+      break
+    case "File Types"
+      for count ftkeys.len (
+        y = count * -60 + scroll_y + 30
+        
+        loc 999 2 0 y
+        square frame.width - 20 40 10 : c#prim
+        if mouse_touching (
+          square frame.width - 20 40 10 : c#seco
+          square frame.width - 20 40 5 : c#prim
+        )
+        
+        loc 2 2 30 y
+        square 40 40 10 : c#seco
+        square 40 40 5 : c#prim
+        
+        ftv @= ftvalues[count]
+        icon ftv[1] 1 : c#txtc
+        text ftv[2] + "(" ++ ftkeys[count] ++ ")" 9 : chx#35 : c#txtc
+      )
+      page_len = count * 60
+      break
+    case "Storage"
+      y = -160 + 75 + scroll_y
+      loc 2 2 80 y
+      image pfp 100 100
+      text "(Network)" + username 15 : chx#80 chy#20 c#txtc
+      change_x 20
+      square 120 20 10 : c#prim chx#100
+      if mouse_touching (
+        cursor "pointer"
+        if onclick (
+          http "newtab" "https://patreon.com/mistium"
+        )
+      )
+      image "https://origin.mistium.com/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
+      
+      loc 2 2 160 y
+      text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
+      loc 999 2 125 / 2 y - 35
+      c prim
+      bar frame_width - 200 20 10 user.used_size / user.max_size seco
+      page_len = 460
+  
+      if total_files == 0 (
+        loop 100 (
+          file "open" current[1] "onlyaccess"
+          dat = fileGet(4).toStr()
+          file = dat.len + "bytes"
+          file = " " * (15 - file.len) + file + "-" + fileGet(2)
+          file.append(fileGet(1))
+          files.append(file)
+          current.delete(1)
+          if fileGet(1) == ".folder" (
+            current ++= fileGet(4)
+          )
+          total_files = files.len
+          file_data = files.sort().reverse().trim(1,20)
+        )
+
+        goto frame.left + 30 frame.top + scroll_y - 200
+        direction (timer * 100).sin() * 360
+        icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
+        direction 90
+        text files.len + "Files Processed" 10 : chx#30
+      ) else (
+        loc 2 2 20 -200 + scroll_y
+        text "Biggest Files" 9 : c#txtc
+        for i file_data.len (
+          loc 2 2 20 i * -30 - 200 + scroll_y
+          text file_data[i] 9
+        )
+        page_len = file_data.len * 30 + 200
+      )
+      break
+  )
 )
 
 def "account" (
@@ -1444,6 +1460,9 @@ def "credits" (
     
     loc -4 2 -2.5 -95 + scroll_y
     square w 150 20 : c#prim
+    if onclick (
+      http "newtab" "https://turbowarp.org"
+    )
     x = x_position
     change w / -2 + 30 40
     image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
@@ -1492,6 +1511,9 @@ def "credits" (
       if mouse_touching (
         square w 40 15 : c#seco
         square w 40 10 1 : c#prim
+        if onclick (
+          http "newtab" "https://github.com/" ++ cur.login
+        )
       )
       loc 2 2 30 y
       image cur.avatar_url 40 40
@@ -1585,6 +1607,22 @@ def networking() (
     )
     new_network_data = false
   )
+)
+
+def "about" (
+  local w = frame.width - 25
+  set_x frame.left + 20
+  set_y frame.top - 20
+  text "originOS v" ++ origin.version ++ "\n" 10 : c#txtc
+
+  set_x frame.left + 20
+  change_y -30
+  local info = "originOS is a scratch-based desktop environment that runs the OSL programming language. It is designed to be a lightweight, customizable, and secure desktop experience."
+  text info.wrapText(w / 10 - 4) 10 : c#txtc
+
+  set_x frame.left + 20
+  change_y -60
+  text "Developed with <3 by Mistium" 10 : c#txtc
 )
 
 if passed_data == "" (
@@ -1726,16 +1764,17 @@ change_y -70
 DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
 DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
+DrawCategory "Files" "file"
 if roturlink.enabled (
   DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
 )
-
 
 change_y -25
 // DrawCategory "Apps" "grid-apps"
 DrawCategory "Permissions" "key"
 
 change_y -25
+DrawCategory "About" "info"
 DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
 
 loc 2 2 25 -25
@@ -1777,6 +1816,9 @@ switch category (
   case "Style"
     appearance
     break
+  case "Files"
+    files
+    break
   case "Account"
     account
     break
@@ -1785,6 +1827,9 @@ switch category (
     break
   case "Apps"
     apps
+    break
+  case "About"
+    about
     break
   case "credits"
     credits
