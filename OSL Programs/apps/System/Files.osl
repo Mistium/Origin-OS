@@ -741,8 +741,8 @@ mainloop:
     frame "clear"
     loc 999 2 100 -70
   ) else (
-    loc 999 2 20 -70
-    w += 170
+    loc 999 2 40 -70
+    w += 120
   )
   square w - 330 25 15 : c#prim
   input w - 350 25 "path" null 10 txtc
@@ -750,9 +750,10 @@ mainloop:
     navigate inputs.path
   )
   
-  if sideshow.not() (
-    loc 2 2 45 -70
-    square 70 25 15 1 : c#prim
+  // draw the back forward and up button bg
+  if !sideshow (
+    loc 2 2 65 -70
+    square 110 25 15 1 : c#prim
   )
   loc -2 2 -30 -70
   square 25 25 15 : c#prim
