@@ -105,9 +105,7 @@ def "system" (
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
-      option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
       option "Time" "alarm-clock"
-      option "Gamepads" "controller"
       break
     case "About"
       info
@@ -263,108 +261,6 @@ def "system" (
       )
       page_len = boot_apps.len + 2 * 60
       break
-    case "Keybinds"
-      local keybinds @= "origin.keyboard.keybinds".eval()
-      local keys = keybinds.getKeys()
-      keybind_display ??= keys[1]
-      keybind_selected ??= null
-      goto 0 frame.top + scroll_y - 30
-      for i keys.len (
-        local cur = keys[i]
-        set_x 0
-        square w 30 10 : c#prim
-        if mouse_touching (
-          if onclick (
-            keybind_display = cur
-          )
-          square w 30 15 : c#seco
-          square w 30 10 : c#prim
-        )
-        set_x w / -2 + 10
-        text cur ++ " (" ++ keybinds[cur].len ++ " binds)" 9 : c#txtc
-        set_x w / 2 - 20
-        icon keybind_display == cur ? "down" "right" 0.6
-        change_y -50
-        if keybind_display == cur (
-          local binds @= keybinds[cur].getKeys()
-          local height = binds.len * 30
-
-          change_y height / -2 + 15
-          page_len += height
-          set_x 0
-          change_y height / 2 - 15
-          local w2 = w - 20
-          for j binds.len (
-            local cur2 = binds[j]
-            set_x 0
-            square w2 30 10 : c#prim
-            if mouse_touching (
-              square w2 30 15 : c#seco
-              square w2 30 10 : c#prim
-            )
-            set_x w2 / -2 + 10
-            text cur2 9 : c#txtc
-            set_x w2 / 2 - 20
-            if keybind_selected == cur2 (
-              icon "close" 0.6 : tooltip#"Stop editing"
-              if onclick (
-                keybind_selected = null
-              )
-              change_x -30
-              icon "save" 0.6 : tooltip#"Save keybind"
-              if onclick (
-                keybinds[cur][cur2] = inputs.bind.join("\n")
-                save "keybinds.json" "set" keybinds.JsonFormat()
-              )
-              change_y -85
-              set_x 0
-              square w2 100 10 : c#prim
-              textbox w2 100 "bind" 0 {
-                line_numbers: {
-                  bg_colour: prim
-                },
-                sel_colour: seco,
-                text_colour: txtc,
-              }
-              change_y -35
-              page_len += 320
-            ) else (
-              icon "edit" 0.6 : tooltip#"Edit keybind"
-              if onclick (
-                keybind_selected = cur2
-                inputs.bind = keybinds[cur][cur2].split("\n")
-              )
-              change_x -30
-              icon "bin" 0.6 : tooltip#"Delete keybind"
-              if onclick (
-                void keybinds[cur].delete(cur2)
-                save "keybinds.json" "set" keybinds.JsonFormat()
-              )
-            )
-            change_y -50
-          )
-          change_y -10
-          set_x 0
-          square w2 30 10 : c#prim
-          change_x w2 / -2 + 10
-          text "Click to add a keybind" 9 : c#txtc
-          if onclick (
-            local name = "What key?".ask()
-            if binds.contains(name) (
-              say "Key already exists"
-            ) else (
-              keybinds[cur][name] = ""
-              keybind_selected = name
-              inputs.bind = [""]
-              save "keybinds.json" "set" keybinds.JsonFormat()
-            )
-          )
-          change_y -60
-          page_len += binds.len * 50
-        )
-        page_len += 50
-      )
-      break
     case "Time"
       goto 0 frame.top - 40 + scroll_y
       centext timestamp.timestamp("convert-time") ++ "." ++ timestamp.toStr().right(3) 20 : c#txtc
@@ -387,43 +283,6 @@ def "system" (
         local current_format = user.timeformat
         current_format.hours = current_format.hours == "24h" ? "12h" "24h"
         network "update" "timeformat" current_format
-      )
-      break
-    case "Gamepads"
-      local gamepads = getGamepads()
-      
-      loc 2 2 10 -20 + scroll_y
-      text "Total: " ++ gamepads.len ++ "/4" 10 : c#txtc
-      
-      y = y_position + 70
-      for i gamepads.len (
-        y -= 170
-        local cur @= gamepads[i]
-        goto 0 y
-        square w 150 10 : c#prim
-        set_x frame.left + 20 : chy#60
-        text cur.id 10 : c#txtc
-        goto frame.left + 30 y + 20
-        for j cur.axes.len (
-          local x = x_position
-          square 0 0 30 : c#seco
-          change cur.axes[j].x * 10 cur.axes[j].y * 10
-          square 0 0 5 : c#txtc
-          goto x + 40 y + 20
-        )
-        goto frame.left + 30 y - 20
-        for j cur.buttons.len (
-          local x = x_position
-          if cur.buttons[j]["pressed"] (
-            square 0 0 34 : c#txtc
-          )
-          square 0 0 30 : c#seco
-          centext j 10 : c#txtc
-          change_x 40
-          if x_position > frame.right - 20 (
-            set_x frame.left + 30 : chy#-40
-          )
-        )
       )
       break
   )
@@ -539,7 +398,6 @@ def "appearance" (
       option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
       option "Windows" "maximise"
       option "Colours" "w 3 cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
-      option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
       break
     case "Background"
       y = -30 + scroll_y
@@ -827,35 +685,6 @@ def "appearance" (
       
       page_len = 380 + (themes.len * 50)      
       break
-    case "mouse"
-      loc 2 2 10 -20
-      text "Scroll Wheel Speed" 12 : c#txtc
-      terminal "get scrollspeed"
-      data = data.toNum()
-      flipped = false
-      if data < 0 (
-        data *= -1
-        flipped = true
-      )
-      slider_scrollsp = data.clamp(1,10)
-      loc 2 2 10 -90
-      text "Scrolling " ++ (round(slider_scrollsp * 10) / 10) ++ "x speed" 9 : c#txtc
-      slider_scrollsp = slider_scrollsp - 1 / 9
-      loc 999 2 0 -60
-      slider w 25 "scrollsp" 10 : c#prim
-      slider_scrollsp = slider_scrollsp * 9 + 1
-      change_y -90
-      setting_toggle "Invert Scroll Direction" w flipped def() -> (
-        flipped = flipped.not()
-      )
-      if flipped (
-        slider_scrollsp *= -1
-      )
-      terminal "system scrollspeed" + slider_scrollsp
-      if slider_scrollsp != user.scrollspeed and mouse_down.not() (
-        network "update" "scrollspeed" slider_scrollsp
-      )
-      break
   )
   frame "clear"
 )
@@ -1001,18 +830,21 @@ def "account" (
     change_y -20
     centext "You have " ++ user["sys.currency"] ++ " credits" 10
     
-    change_y -60
-    centext "Current banner:" 10
-    change_y 100
+    array banners = []
+    if user["sys.banner"] == null (
+      change_y -60
+      centext "Current banner:" 10
+      change_y 100
 
-    banners @= [user["sys.banner"]]
-    y = y_position - (100 + (w / 6)) - 20
-    
-    each banner banners (
-      goto 0 y
-      square w w / 3 10 : c#prim
-      image banner w w / 3
-      y -= w / 3 + 20
+      banners @= [user["sys.banner"]]
+      y = y_position - (100 + (w / 6)) - 20
+      
+      each banner banners (
+        goto 0 y
+        square w w / 3 10 : c#prim
+        image banner w w / 3
+        y -= w / 3 + 20
+      )
     )
     page_len = (w / 3 + 20) * banners.len + 250
     return
@@ -1418,9 +1250,183 @@ def "bluetooth_page" (
   page_len = devices.len + 1 * 50
 )
 
-def "info" (
-  loc 2 2 0 0
-  text "originOS v" ++ origin.version 10 : c#txtc
+def "inputs" (
+  local w = frame.width - 25
+  switch subcategory (
+    case "none"
+      option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
+      option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
+      option "Gamepads" "controller"
+      break
+    case "Mouse"
+      loc 2 2 10 -20
+      text "Scroll Wheel Speed" 12 : c#txtc
+      terminal "get scrollspeed"
+      data = data.toNum()
+      flipped = false
+      if data < 0 (
+        data *= -1
+        flipped = true
+      )
+      slider_scrollsp = data.clamp(1,10)
+      loc 2 2 10 -90
+      text "Scrolling " ++ (round(slider_scrollsp * 10) / 10) ++ "x speed" 9 : c#txtc
+      slider_scrollsp = slider_scrollsp - 1 / 9
+      loc 999 2 0 -60
+      slider w 25 "scrollsp" 10 : c#prim
+      slider_scrollsp = slider_scrollsp * 9 + 1
+      change_y -90
+      setting_toggle "Invert Scroll Direction" w flipped def() -> (
+        flipped = flipped.not()
+      )
+      if flipped (
+        slider_scrollsp *= -1
+      )
+      terminal "system scrollspeed" + slider_scrollsp
+      if slider_scrollsp != user.scrollspeed and mouse_down.not() (
+        network "update" "scrollspeed" slider_scrollsp
+      )
+      break
+    case "Keybinds"
+      local keybinds @= "origin.keyboard.keybinds".eval()
+      local keys = keybinds.getKeys()
+      keybind_display ??= keys[1]
+      keybind_selected ??= null
+      goto 0 frame.top + scroll_y - 30
+      for i keys.len (
+        local cur = keys[i]
+        set_x 0
+        square w 30 10 : c#prim
+        if mouse_touching (
+          if onclick (
+            keybind_display = cur
+          )
+          square w 30 15 : c#seco
+          square w 30 10 : c#prim
+        )
+        set_x w / -2 + 10
+        text cur ++ " (" ++ keybinds[cur].len ++ " binds)" 9 : c#txtc
+        set_x w / 2 - 20
+        icon keybind_display == cur ? "down" "right" 0.6
+        change_y -50
+        if keybind_display == cur (
+          local binds @= keybinds[cur].getKeys()
+          local height = binds.len * 30
+
+          change_y height / -2 + 15
+          page_len += height
+          set_x 0
+          change_y height / 2 - 15
+          local w2 = w - 20
+          for j binds.len (
+            local cur2 = binds[j]
+            set_x 0
+            square w2 30 10 : c#prim
+            if mouse_touching (
+              square w2 30 15 : c#seco
+              square w2 30 10 : c#prim
+            )
+            set_x w2 / -2 + 10
+            text cur2 9 : c#txtc
+            set_x w2 / 2 - 20
+            if keybind_selected == cur2 (
+              icon "close" 0.6 : tooltip#"Stop editing"
+              if onclick (
+                keybind_selected = null
+              )
+              change_x -30
+              icon "save" 0.6 : tooltip#"Save keybind"
+              if onclick (
+                keybinds[cur][cur2] = inputs.bind.join("\n")
+                save "keybinds.json" "set" keybinds.JsonFormat()
+              )
+              change_y -85
+              set_x 0
+              square w2 100 10 : c#prim
+              textbox w2 100 "bind" 0 {
+                line_numbers: {
+                  bg_colour: prim
+                },
+                sel_colour: seco,
+                text_colour: txtc,
+              }
+              change_y -35
+              page_len += 320
+            ) else (
+              icon "edit" 0.6 : tooltip#"Edit keybind"
+              if onclick (
+                keybind_selected = cur2
+                inputs.bind = keybinds[cur][cur2].split("\n")
+              )
+              change_x -30
+              icon "bin" 0.6 : tooltip#"Delete keybind"
+              if onclick (
+                void keybinds[cur].delete(cur2)
+                save "keybinds.json" "set" keybinds.JsonFormat()
+              )
+            )
+            change_y -50
+          )
+          change_y -10
+          set_x 0
+          square w2 30 10 : c#prim
+          change_x w2 / -2 + 10
+          text "Click to add a keybind" 9 : c#txtc
+          if onclick (
+            local name = "What key?".ask()
+            if binds.contains(name) (
+              say "Key already exists"
+            ) else (
+              keybinds[cur][name] = ""
+              keybind_selected = name
+              inputs.bind = [""]
+              save "keybinds.json" "set" keybinds.JsonFormat()
+            )
+          )
+          change_y -60
+          page_len += binds.len * 50
+        )
+        page_len += 50
+      )
+      break
+    case "Gamepads"
+      local gamepads = getGamepads()
+      
+      loc 2 2 10 -20 + scroll_y
+      text "Total: " ++ gamepads.len ++ "/4" 10 : c#txtc
+      
+      y = y_position + 70
+      for i gamepads.len (
+        y -= 170
+        local cur @= gamepads[i]
+        goto 0 y
+        square w 150 10 : c#prim
+        set_x frame.left + 20 : chy#60
+        text cur.id 10 : c#txtc
+        goto frame.left + 30 y + 20
+        for j cur.axes.len (
+          local x = x_position
+          square 0 0 30 : c#seco
+          change cur.axes[j].x * 10 cur.axes[j].y * 10
+          square 0 0 5 : c#txtc
+          goto x + 40 y + 20
+        )
+        goto frame.left + 30 y - 20
+        for j cur.buttons.len (
+          local x = x_position
+          if cur.buttons[j]["pressed"] (
+            square 0 0 34 : c#txtc
+          )
+          square 0 0 30 : c#seco
+          centext j 10 : c#txtc
+          change_x 40
+          if x_position > frame.right - 20 (
+            set_x frame.left + 30 : chy#-40
+          )
+        )
+      )
+      break
+  )
 )
 
 
@@ -1765,6 +1771,7 @@ DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -
 DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
 DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
 DrawCategory "Files" "file"
+DrawCategory "Inputs" "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0"
 if roturlink.enabled (
   DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
 )
@@ -1818,6 +1825,9 @@ switch category (
     break
   case "Files"
     files
+    break
+  case "Inputs"
+    inputs
     break
   case "Account"
     account
