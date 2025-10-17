@@ -19,20 +19,22 @@ if camera_width == 0 (
   )
 )
 goto 0 0
-temp = window_width - 150 / "camera".imageinfo("width") * 100
-temp2 = window_height / "camera".imageinfo("height") * 100
+temp = window_width / camera_width * 100 + 0
+temp2 = window_height / camera_height * 100 + 20
 if temp2 > temp (
-  stretch [].append(temp).append(temp)
+  stretch [temp, temp]
 ) else (
-  stretch [].append(temp2).append(temp2)
+  stretch [temp2, temp2]
 )
-image "camera"
+change_x -50
+camera "draw"
 
 loc -2 999 -40 0
 square 0 0 55 : c#global_accent
 if clicked and can (
   can = false
   camera "get" "image"
+  log data
   file "download" "image at" + timestamp.timestamp("convert-full") ++ ".png" null data user_folder ++ "/Pictures"
   say "image saved to pictures folder"
 )
@@ -55,5 +57,7 @@ if hasback (
   square 0 0 50 : c#prim
   icon "reload" 0.6 : c#txtc
 )
-if mouse_down.not "can = true"
+if !mouse_down (
+  can = true
+)
 import "win-buttons"
