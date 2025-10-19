@@ -31,5 +31,7 @@ This project is licensed under the AGPL 3.0 License – see the [LICENSE](https:
 ## Community
 
 [Join our Discord](https://discord.com/invite/ReyzwPx2g9)
+
 [Star the repo](https://github.com/Mistium/Origin-OS)
+
 [Support on Patreon](https://www.patreon.com/c/mistium)
