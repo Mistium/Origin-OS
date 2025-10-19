@@ -1,12 +1,13 @@
-# originOS Veil
+<img width="1440" height="480" alt="image" src="https://github.com/user-attachments/assets/648e5ad8-8101-44c2-9e47-864ed8476ff1" />
 
-The Most Advanced Gui Based ScratchOS<br>
-  
+
 ## About
 
 originOS is a fully-featured, customisable, web-based desktop environment created for programming and developing with OSL (Origin Scripting Language).
 
 Actively developed for over 3 years, originOS is built to be both powerful and easy to use, making it the most advanced GUI-based ScratchOS project.
+
+<img width="1600" height="1000" alt="image" src="https://github.com/user-attachments/assets/d096f6e5-e4b6-4997-9dac-445953c2f440" />
 
 ## Features
 
@@ -21,17 +22,11 @@ Actively developed for over 3 years, originOS is built to be both powerful and e
 
 ## Links
 
-[Try origin here](https://origin.mistium.com)<br>
-[Find documentation for osl here](https://osl.mistium.com)
+[Use originOS](https://origin.mistium.com)<br>
+[Learn OSL](https://osl.mistium.com)<br>
+[Join our Discord](https://discord.com/invite/ReyzwPx2g9)<br>
+[Support Me!](https://www.patreon.com/c/mistium)
 
 ## License
 
 This project is licensed under the AGPL 3.0 License – see the [LICENSE](https://github.com/Mistium/Origin-OS/blob/main/LICENSE) file for details.
-
-## Community
-
-[Join our Discord](https://discord.com/invite/ReyzwPx2g9)
-
-[Star the repo](https://github.com/Mistium/Origin-OS)
-
-[Support on Patreon](https://www.patreon.com/c/mistium)
