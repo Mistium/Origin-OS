@@ -103,6 +103,14 @@ def getUuid(path) (
   return uuid
 )
 
+def generateQuickApp(path) (
+  local uuid = getUuid(path)
+  local fn @= def() -> (
+    window.create(self.uuid)
+  )
+  return {"> " ++ uuid: fn.bind({uuid})}
+)
+
 desktop_rightclick = [
   "> " ++ getUuid("~/desktop.folder"),
   "-",
@@ -110,10 +118,10 @@ desktop_rightclick = [
     window.create(getUuid("sys/Settings.osl"), "Style/Background")
   )},
   ["Quick Apps",
-    "> " ++ getUuid("sys/Files.osl"),
-    "> " ++ getUuid("sys/Settings.osl"),
-    "> " ++ getUuid("sys/Activity.osl"),
-    "> " ++ getUuid("/(a) system/system apps/Terminal.osl"),
+    generateQuickApp("sys/Files.osl"),
+    generateQuickApp("sys/Settings.osl"),
+    generateQuickApp("sys/Activity.osl"),
+    generateQuickApp("/(a) system/system apps/Terminal.osl"),
   ],
   "-",
   ["New",
