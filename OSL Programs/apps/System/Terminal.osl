@@ -347,8 +347,10 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
       void last.append(inputs.main)
       last_index = last.len + 1
       void terminal.lines.append(terminal.user_start() ++ inputs.main)
-      if aliases.contains(inputs.main) (
-        inpus.main = aliases[inputs.main]
+      array parts = inputs.main.oslTokenise()
+      if aliases.contains(parts[1]) (
+        parts[1] = aliases[parts[1]]
+        inputs.main = parts.join(" ")
       )
       if inputs.main == "clear" (
         terminal.lines = []
