@@ -7,7 +7,8 @@ local name = args[1]
 
 local aliases @= open("~/:path/aliases.json")
 if typeof(aliases) != "object" (
-  aliases = {}
+  terminal.writeLine("Alias does not exist")
+  return
 )
 
 if aliases.getKeys().contains(name) (

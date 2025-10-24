@@ -16,6 +16,11 @@ if cmd.len == 0 (
   return
 )
 
+file "exists" "~/:path/aliases.json"
+if !exists (
+  file "goto_dir" "~/:path"
+  file "set_file" "aliases.json" "{}"
+)
 local aliases @= open("~/:path/aliases.json")
 if typeof(aliases) != "object" (
   aliases = {}
