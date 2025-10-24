@@ -1186,7 +1186,7 @@ class OSLUtils {
               key = this.generateAST({ CODE: key, START: 0 })[0]
             } else {
               let temp_key = this.evalToken(key);
-              if (temp_key.num !== this.tkn.str) key = JSON.stringify(key)
+              if (temp_key.num === this.tkn.var || temp_key.num === this.tkn.num) key = JSON.stringify(key)
               key = this.generateAST({ CODE: key, START: 0 })[0]
             }
             if (value === undefined) output.push([key, null]);
@@ -3607,14 +3607,7 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: `arr = 1 to 10
-      obj = {key:"value"}
-      def func() (
-        return self.key
-      )
-      log obj::func
-log arr[1..3]
-square 10 10 : c#lol`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+      CODE: `obj = {"> " ++ func(): "lmao", key: "value", "key": "value"}`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));
