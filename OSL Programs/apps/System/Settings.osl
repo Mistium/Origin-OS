@@ -993,7 +993,8 @@ def "account" (
   if current_pfp != "" (
     image current_pfp 0 0
     if current_pfp.imageinfo("loaded") (
-      network "update" "pfp" current_pfp
+      network "getsync_asurl" current_pfp
+      network "update" "pfp" data
       current_pfp = ""
     )
     if timer - upload_time > 5 (
