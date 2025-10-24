@@ -18,6 +18,28 @@ number cursor_pos = 1
 
 path = path.scripts.getValues()
 
+file "exists" "~/:path/history.txt"
+if exists (
+  file "open" "~/:path/history.txt" "onlyaccess"
+  last @= fileGet(4).split("\n")
+  file "close"
+) else (
+  file "goto_dir" "~/:path"
+  file "set_file" "history.txt" ""
+)
+
+file "exists" "~/:path/aliases.json"
+if exists (
+  file "open" "~/:path/aliases.json" "onlyaccess"
+  aliases = fileGet(4).JsonParse()
+  if typeof(aliases) != "object" (
+    aliases = {}
+  )
+  file "close"
+) else (
+  aliases = {}
+)
+
 def evalCmd(cmd) (
   local tokens = cmd.oslTokenise()
   local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
@@ -319,9 +341,15 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
     )
     cursor_pos.clamp(1,inputs.main.len + 1)
     if "enter".onKeyDown() (
+      file "open" "~/:path/history.txt" "onlyaccess"
+      file "append" inputs.main ++ "\n"
+      file "close"
       void last.append(inputs.main)
       last_index = last.len + 1
       void terminal.lines.append(terminal.user_start() ++ inputs.main)
+      if aliases.contains(inputs.main) (
+        inpus.main = aliases[inputs.main]
+      )
       if inputs.main == "clear" (
         terminal.lines = []
       ) else (
