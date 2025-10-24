@@ -1,0 +1,33 @@
+if args.len < 2 (
+  say "Usage: alias <name> <command>"
+  return
+)
+
+local name = args[1]
+local cmd = args[2]
+
+if name.len == 0 (
+  terminal.writeLine("Name cannot be empty")
+  return
+)
+
+if cmd.len == 0 (
+  terminal.writeLine("Command cannot be empty")
+  return
+)
+
+local aliases @= open("~/:path/aliases.json")
+if typeof(aliases) != "object" (
+  aliases = {}
+)
+
+if aliases.getKeys().contains(name) (
+  terminal.writeLine("Alias already exists")
+  return
+)
+
+aliases[name] = cmd
+
+file "open" "~/:path/aliases.json" "onlyaccess"
+file "set" 4 aliases.JsonFormat()
+file "close"

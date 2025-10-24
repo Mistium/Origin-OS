@@ -1,0 +1,22 @@
+if args.len < 1 (
+  say "Usage: unalias <name>"
+  return
+)
+
+local name = args[1]
+
+local aliases @= open("~/:path/aliases.json")
+if typeof(aliases) != "object" (
+  aliases = {}
+)
+
+if aliases.getKeys().contains(name) (
+  aliases.delete(name)
+) else (
+  terminal.writeLine("Alias does not exist")
+  return
+)
+
+file "open" "~/:path/aliases.json" "onlyaccess"
+file "set" 4 aliases.JsonFormat()
+file "close"
