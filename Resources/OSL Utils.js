@@ -203,14 +203,14 @@ function insertQuotes(OSL, quotes) {
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
-    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "b+", "b-", "b/", "b*", "b^"]
-    this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in", "notIn"]
+    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "|>", "to", "::"]
+    this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<="]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
     this.unary = ["typeof", "new"]
     this.listVariable = "";
     this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[(?=[^\]])|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
-    this.lineTokeniserRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g;
+    this.lineTokeniserRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|::|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g;
     // Pre-compile line ending normalization regex
     this.lineEndingRegex = /\r\n/g;
     this.macLineEndingRegex = /\r/g;
@@ -3607,7 +3607,14 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: `log Windows().len < 1`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+      CODE: `arr = 1 to 10
+      obj = {key:"value"}
+      def func() (
+        return self.key
+      )
+      log obj::func
+log arr[1..3]
+square 10 10 : c#lol`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));
