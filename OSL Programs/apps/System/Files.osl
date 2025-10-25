@@ -811,7 +811,8 @@ mainloop:
     file_open = selected_files[1]
     file "open" file_open "onlyaccess"
     file "get" 13
-    if "System" in data (
+    // needs to be in parens for 6.0.7
+    if ("System" in data) (
       files_buttons = ["Open","Copy","Info"]
     ) else (
       files_buttons = ["Open","Edit","Copy","Rename","Bin","Info"]
