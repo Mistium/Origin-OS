@@ -204,7 +204,7 @@ class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
     this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "|>", "to", "::"]
-    this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<="]
+    this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", "^^"]
     this.unary = ["typeof", "new"]
