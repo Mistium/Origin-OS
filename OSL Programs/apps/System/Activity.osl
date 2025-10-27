@@ -231,8 +231,8 @@ if timer - last_timer > next_update and !paused (
   last_timer = timer
   dt = delta_time
   getWindowsData()
-  number cpu_usage = roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit))
-  cpu_percent = round(cpu_usage * 100).clamp(1,100)
+  number cpu_usage = roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)
+  cpu_percent = round(cpu_usage).clamp(1,100)
   delta = cpu_percent ++ "%"
 )
 if current_tab == "Performance" (
