@@ -1088,7 +1088,7 @@ def "account" (
   )
   set_x username_x + 5
   change_y -25
-  text user.system + "Account" 10
+  text user.system + "Account" 10 : c#txtc
   
   local bio_data = inputs.bio.join("\n")
   
