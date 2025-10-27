@@ -945,7 +945,7 @@ frame w.left + 5 w.top right w.top - 40 (
     tabs @= cur.tabs
     current_tab_split = i
     current_tab = cur.cur
-    frame frame.left + x frame.top frame.left + fw + x frame.bottom - 20 [cur.tab_width + 150,0] "split_" ++ i (
+    frame frame.left + x frame.top frame.left + fw + x frame.bottom - 20 [cur.tab_width.toNum() + 150,0] "split_" ++ i (
       draw_tabs
     )
     cur.tab_width = tab_width
