@@ -49,6 +49,38 @@ def "setting_input" "id, default_txt, w, callback" (
   input w - 10 25 id null 10
 )
 
+def parseUserAgent(string ua) string (
+  string browser = "Unknown Browser"
+  string os = "Unknown OS"
+
+  if ua.contains("Firefox") (
+    browser = "Firefox"
+  ) else if ua.contains("Chrome") (
+    browser = "Chrome"
+  ) else if ua.contains("Safari") (
+    browser = "Safari"
+  ) else if ua.contains("Edg") (
+    browser = "Edge"
+  ) else if ua.contains("Opera") (
+    browser = "Opera"
+  )
+
+
+  if ua.contains("Windows") (
+    os = "Windows"
+  ) else if ua.contains("Mac") (
+    os = "macOS"
+  ) else if ua.contains("Linux") (
+    os = "Linux"
+  ) else if ua.contains("Android") (
+    os = "Android"
+  ) else if ua.contains("like Mac") (
+    os = "iOS"
+  )
+
+  return browser ++ " on " ++ os
+)
+
 def "appopt" "optname,opticn,icnsize" (
   loc 999 2 0 y
   square frame_width - 25 30 10 1 : c#prim
@@ -875,7 +907,7 @@ def "account" (
   )
   
   if subcategory == "Subscriptions" (
-    page_len = -40
+    page_len = 0
     if typeof(subscriptions) != "array" (
       goto 0 frame.top - 60 + scroll_y
       centext "Fetching Subscriptions" 10 : c#txtc
@@ -913,6 +945,35 @@ def "account" (
         change_y -120
         page_len += 120
       )
+    )
+    return
+  )
+
+  if subcategory == "Logins" (
+    page_len = 0
+    goto 0 frame.top - 60 + scroll_y
+    array logins @= user["sys.logins"]
+    logins.sortBy("timestamp")
+    logins.reverse()
+
+    if logins.len == 0 (
+      centext "You have no logins" 10 : c#txtc
+    )
+    
+    for i logins.len (
+      object cur @= logins[i]
+      x = x_position
+      y = y_position
+      square w 100 10 : c#prim
+      change w / -2 + 10 30
+      text "Login " ++ cur.timestamp.timestamp("to-relative") ++ " from " ++ cur.country ++ "\n" 10 : c#txtc
+      text "Origin: " ++ cur.origin ++ "\n" 10
+      text parseUserAgent(cur.userAgent) ++ "\n" 10
+      goto x + (w / 2) - 50 y
+      image "https://proxy.mistium.com?url=" ++ encodeURIComponent("https://favicon.is/" ++ cur.origin) 50 50
+      goto x y
+      change_y -120
+      page_len += 120
     )
     return
   )
@@ -1061,8 +1122,8 @@ def "account" (
   )
   
   set_x 0 : chy#-50
-  setting_do "File System Backups" w def() -> (
-    subcategory = "Backups"
+  setting_do "Recent Logins" w def() -> (
+    subcategory = "Logins"
   )
   
   set_x 0 : chy#-50
