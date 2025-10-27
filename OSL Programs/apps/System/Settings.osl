@@ -363,14 +363,15 @@ def "network_page" (
     setting_do networks.len + (networks.len == 1 ? "Network" "Networks") w def() -> ()
     change_y -10
     
-    each cur networks (
+    for i networks.len (
+      local cur @= networks[i]
       set_x 0 : chy#-50
       setting_do cur.ssid w (val) -> (
         // implement network switching
       ) cur
       
       set_x w / 2 - 20
-      connection = round(cur.signal_strength.clamp(0, 75) / 25)
+      local connection = round(cur.signal_strength.clamp(0, 75) / 25)
    
       icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
       c txtc
