@@ -1,0 +1,227 @@
+// this application handles alerts and permission popups
+
+permission "request" "file admin"
+permission "request" "windows"
+permission "request" "rotur token"
+permission "request" "notifications"
+
+if passed_data == "" or typeof(passed_data) != "object" (
+  window.close()
+)
+
+window.show()
+
+popup_data @= passed_data.clone()
+
+type = popup_data["type"]
+
+window.resize(400, type == "permission" ? 450 220)
+window.setResizable(false)
+
+key_data = ""
+if type == "buy_key" or type == "cancel_key" (
+  key_data = ("https://api.rotur.dev/keys/get/" ++ popup_data.id).httpGet().JsonParse()
+)
+log key_data
+if typeof(key_data) != "object" (
+  window.close()
+)
+
+width = window.width
+height = window.height
+
+txtc = user.theme.text
+prim = user.theme.primary
+
+window.colour = user.theme.background
+
+def quitThisApp() (
+  c #e03838
+  set_x 0
+  change_y -50
+  square 380 30 15
+  if mouse_touching (
+    cursor "pointer"
+    if onclick (
+      window "kill" window.parent.id
+    )
+    c txtc
+  ) else (
+    c prim
+    square 380 30 10
+    c txtc
+  )
+  centext "Quit This App And Stop Dialogues" 9
+)
+
+def acceptDeny(string left, string right) (
+  set_x 100
+  c global_accent
+  square 180 30 15
+  if mouse_touching (
+    cursor "pointer"
+    if onclick (
+      return right
+    )
+    c prim
+  ) else (
+    c prim
+    square 180 30 10
+    c txtc
+  )
+  centext right 10
+  set_x -100
+  c global_accent
+  square 180 30 15
+  if mouse_touching (
+    cursor "pointer"
+    if onclick (
+      return left
+    )
+    c prim
+  ) else (
+    c prim
+    square 180 30 10
+    c txtc
+  )
+  centext left 10
+  return null
+)
+
+def parentSays(string thing) (
+  goto -185 height / 2 - 15
+  array data @= open(window.parent.file_uuid, ["name"])
+  string name = data[1]
+  file "render" 1
+  file "close"
+  change_x 20
+  text name ++ " " ++ thing ++ "..." 10 : c#txtc
+)
+
+def say() (
+  parentSays("says")
+  
+  goto -190 50
+  text popup_data.message.wrapText(38).trim(1, 114) 10
+  
+  c global_accent
+  goto 0 -35
+  square 380 30 15
+  if mouse_touching (
+    cursor "pointer"
+    if onclick (
+      window.close()
+    )
+    c prim
+  ) else (
+    c prim
+    square 380 30 10
+    c txtc
+  )
+  centext "Ok" 10
+  
+  quitThisApp()
+)
+
+def transfer() (
+  parentSays("wants to transfer")
+  
+  goto -190 50
+  text "Total: " ++ popup_data.amt ++ " Credits" 14 : c#txtc
+  set_x -190
+  change_y -30
+  text "Send to: " ++ popup_data.to 10
+  
+  change_y -50
+  local click = acceptDeny("Cancel", "Send")
+  if click == "Cancel" (
+    window.close()
+  )
+  if click == "Send" (
+    window.hide()
+    local url = "https://api.rotur.dev/me/transfer?auth=" ++ roturToken()
+    void url.http("POST", {
+      "to": popup_data.to,
+      "amount": popup_data.amt,
+      "note": ""
+    }, {})
+    window.close()
+  )
+  
+  quitThisApp()
+)
+
+def buy_key() (
+  parentSays("wants to")
+  
+  goto -190 50
+  text "Buy: " ++ (key_data.name ?? key_data.id) 14 : c#txtc
+  set_x -190
+  change_y -30
+  text "By " ++ key_data.creator ++ " for " ++ key_data.price ++ " credit" ++ (key_data.price == 1 ? "" "s") 10
+  
+  change_y -50
+  local click = acceptDeny("Cancel", "Buy")
+  if click == "Cancel" (
+    window.close()
+  )
+  if click == "Buy" (
+    window.hide()
+    local url = "https://api.rotur.dev/keys/buy/" ++ popup_data.id ++ "?auth=" ++ roturToken()
+    local json @= url.httpGet().JsonParse()
+    if typeof(json) != "object" (
+      notify "Invalid api response"
+    )
+    notify json.message ?? json.error
+    window.close()
+  )
+  
+  quitThisApp()
+)
+
+def cancel_key() (
+  parentSays("wants to")
+  
+  goto -190 50
+  text "Cancel: " ++ (key_data.name ?? key_data.id) 14 : c#txtc
+  set_x -190
+  change_y -30
+  text "Are you sure?" 10
+  
+  change_y -50
+  local click = acceptDeny("Cancel", "Confirm")
+  if click == "Cancel" (
+    window.close()
+  )
+  if click == "Confirm" (
+    window.hide()
+    local url = "https://api.rotur.dev/keys/cancel/" ++ popup_data.id ++ "?auth=" ++ roturToken()
+    local json @= url.httpGet().JsonParse()
+    if typeof(json) != "object" (
+      notify "Invalid api response"
+    )
+    notify json.message ?? json.error
+    window.close()
+  )
+  
+  quitThisApp()
+)
+
+mainloop:
+
+switch type (
+  case "say"
+    say()
+    break
+  case "transfer"
+    transfer()
+    break
+  case "buy_key"
+    buy_key()
+    break
+  case "cancel_key"
+    cancel_key()
+    break
+)
+
+window.show()
