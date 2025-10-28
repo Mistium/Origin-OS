@@ -21,10 +21,9 @@ window.setResizable(false)
 key_data = ""
 if type == "buy_key" or type == "cancel_key" (
   key_data = ("https://api.rotur.dev/keys/get/" ++ popup_data.id).httpGet().JsonParse()
-)
-log key_data
-if typeof(key_data) != "object" (
-  window.close()
+  if typeof(key_data) != "object" (
+    window.close()
+  )
 )
 
 width = window.width
