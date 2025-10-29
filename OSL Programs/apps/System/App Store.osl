@@ -5,8 +5,7 @@ permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "save admin"
 permission "request" "account"
-
-stats = "https://apps.mistium.com/stats".httpGet().JsonParse()
+permission "request" "rotur token"
 
 window "dimensions" 750 800
 save "appstore@system" "set_directory"
@@ -36,7 +35,7 @@ def appCard(name) (
   local y = y_position
   square w - 30 h - 30 20 : c#prim
   if onclick (
-    void ("https://apps.mistium.com/info?appname=" ++ name).getAsync()
+    void ("https://apps.rotur.dev/apps/info/" ++ name).getAsync()
     navigate("app",name)
   )
   
@@ -56,7 +55,7 @@ def appCard(name) (
     
   goto x y
   change w / 2 - 20 20
-  rigtext formatFileSize(all_json[name].script.scriptSize) 10
+  rigtext formatFileSize(all_json[name].scripts.osl.size) 10
   goto x y
 )
 
@@ -73,21 +72,22 @@ mainloop:
 load_theme
 
 if home_json == null (
-  data = "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/home.json".getAsync()
+  data = "https://apps.rotur.dev/apps/featured".getAsync()
   if data != "loading" (
     home_json = data
   )
 )
 if all_json == null (
-  data = "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/all-info.json".getAsync()
+  data = "https://apps.rotur.dev/apps/all".getAsync()
   if data != "loading" (
-    all_json = data
+    all_json @= data.apps
     supported_json = all_json.getValues()
       .filter(v -> (v.supports.contains("originOS")))
       .sortBy("genre")
       
+    log supported_json
     categories = supported_json
-      .map(v -> (v.genre.toLower()))
+      .map(v -> (v.genre.toStr().toLower()))
       
     out = {}
     for i supported_json.len (
@@ -287,7 +287,11 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       square 80 30 10 0 1
       if onclick (
         if msg == "Install" or msg == "Update" (
-          terminal "app install \"" ++ cur.title ++ "\""
+          file "goto_dir" "~/Applications"
+          file "set_file" cur.title ++ ".osl" ("https://apps.rotur.dev/apps/download/" ++ page_data ++ "/osl?auth=" ++ roturToken()).httpGet()
+          file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
+          file "set" 11 cur.icon
+          file "close"
         
           say "Installed to " ++ username ++ "/Applications"
         
@@ -297,6 +301,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         if msg == "Launch" (
           file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
           file "start"
+          file "close"
         )
       )
       
@@ -309,7 +314,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       )
       
       change -45 -35
-      centext formatFileSize(cur.script.scriptSize) 10
+      centext formatFileSize(cur.scripts.osl.size) 10
       
       set_y frame.top - 70 + scroll_y
       
@@ -325,7 +330,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         square window.width 330 10 : c#prim
         set_x cur.screenshot_x * frame.width / -1
         for i cur.screenshots.len (
-          image "https://raw.githubusercontent.com/RoturTW/apps/refs/heads/main/all/" ++ page_data ++ "/screenshots/" ++ encodeURIComponent(cur.screenshots[i]) null 300
+          image "https://apps.rotur.dev/apps/screenshots/" ++ page_data ++ "/" ++ encodeURIComponent(cur.screenshots[i]) null 300
           change_x frame.width
         )
         set_x cur.screenshots.len - 1 * -10
@@ -358,7 +363,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       square frame.width 90 10 : c#prim
       
       set_x frame.left + 10 : chy#35
-      text "Views:" + (stats.views[page_data] ?? 0) ++ ", Downloads:" + (stats.downloads[page_data] ?? 0) 10 : c#txtc
+      text "Views:" + (cur.views ?? 0) ++ ", Downloads:" + (cur.downloads ?? 0) 10 : c#txtc
       
       set_x frame.left + 10 : chy#-23
       if cur.permissions.len == 0 (
@@ -371,7 +376,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       text "Version: " ++ cur.version 10
       
       set_x frame.left + 10 : chy#-23
-      text "Last Edited: " ++ cur.script.lastModified.timestamp("to-relative") 10
+      text "Price: " ++ cur.price 10
       page_len += 120
       break
   )
