@@ -1,0 +1,138 @@
+{
+  "manifest": {
+    "name": "wat",
+    "version": "1",
+    "extensions": [
+      ".wasm",
+      ".wat"
+    ]
+  },
+  "parser": {
+    "type": "regex",
+    "data": "(?:(?<!\\\\)\"(?:[^\"\\\\]|\\\\.)*\")|(?:(?<!\\\\)'(?:[^'\\\\]|\\\\.)*')|[^\\s\\w(),\\[\\]{}:]{1,}|[^\\W]+|[^\\w ]|\\s+"
+  },
+  "overrides": {
+    "origin.numbers": "#aa68bc",
+    "origin.strings": "#85c975",
+    "origin.functions": "#98c379"
+  },
+  "categories": {
+    "types": {
+      "color": "#52aeb9",
+      "tokens": [
+        "i32",
+        "i64",
+        "f32",
+        "f64",
+        "v128",
+        "externtype"
+      ]
+    },
+    "keywords": {
+      "color": "#e08a00",
+      "tokens": [
+        "module",
+        "func",
+        "export",
+        "import",
+        "result",
+        "param",
+        "memory",
+        "global",
+        "local",
+        "mut",
+        "set",
+        "get",
+        "tee",
+        "call"
+      ]
+    },
+    "memoryOps": {
+      "color": "#e08a00",
+      "tokens": [
+        "copy",
+        "fill",
+        "grow",
+        "load",
+        "load8_s",
+        "load8_u",
+        "load16_s",
+        "load16_u",
+        "load32_s",
+        "load32_u",
+        "size",
+        "store",
+        "store8",
+        "store16",
+        "store32"
+      ]
+    },
+    "numeric": {
+      "color": "#e08a00",
+      "tokens": [
+        "abs",
+        "add",
+        "and",
+        "ceil",
+        "const",
+        "convert_i32_s",
+        "convert_i32_u",
+        "convert_i64_s",
+        "convert_i64_u",
+        "copysign",
+        "clz",
+        "ctz",
+        "demote_f64",
+        "div_s",
+        "div_u",
+        "div",
+        "eq",
+        "eqz",
+        "extend_i32_s",
+        "extend_i32_u",
+        "floor",
+        "ge_s",
+        "ge_u",
+        "ge",
+        "gt_s",
+        "gt_u",
+        "gt",
+        "rotl",
+        "shl",
+        "le_s",
+        "le_u",
+        "le",
+        "lt_s",
+        "lt_u",
+        "lt",
+        "max",
+        "min",
+        "mul",
+        "nearest",
+        "neg",
+        "ne",
+        "or",
+        "popcnt",
+        "promote_f32",
+        "reinterpret_f32",
+        "reinterpret_f64",
+        "reinterpret_i32",
+        "reinterpret_i64",
+        "rem_s",
+        "rem_u",
+        "rotr",
+        "shr_s",
+        "shr_u",
+        "sqrt",
+        "sub",
+        "trunc",
+        "trunc_f32_s",
+        "trunc_f32_u",
+        "trunc_f64_s",
+        "trunc_f64_u",
+        "wrap_i64",
+        "xor"
+      ]
+    }
+  }
+}
