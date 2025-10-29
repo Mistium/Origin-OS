@@ -16,6 +16,8 @@ osl_icn = "w 3 c #ebda6e square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 con
 owf_icn = "w 3 c #644ea7 square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 cont 0 10 w 17 dot 0 0 c #302552 w 3 line 10 0 0 -10 cont -10 0 cont 10 0 w 15.8 c #5e547d dot 0 0 c #d3cce8 icn origin-logo 0.5"
 ots_icn = "c #1c452a w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #1b8f44 w 1.5 line 0 -4 4 -4 line -4 3 -1 0 cont -4 -3"
 
+icon_wasm = "c #654ff0 w 4 line -8 -8 -8 8 cont -5 8 cutcircle 0 8 4.5 18 90 line 5 8 8 8 cont 8 -8 cont -8 -8 w 6 line -5.5 -7 -5.5 7 line 5.5 -7 5.5 7 line 0 -6 0 2 w 1.75 c #fff line 7 -7 6 -1 cont 4 -1 cont 3 -7 line 4 -5.5 6 -5.5 line 1 -1 0 -7 cont -1.5 -7 cont -2.5 -1 cont -4 -7 cont -5.5 -7 cont -6. -1"
+
 missing_icn = "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #325775 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5"
 exe_icn = "w 3 c #797774 square 0 -.4 9 7.25 w 2 c #fff square 0 -1 9 6.5 w 2.7 line -8.65 5.5 8.65 5.5 w 5 square 0 -1 6 4 line -2 -1 2 -1 w .3 c #c4c4c4 square 8.5 7.6 .2 .2 dot 8.5 7.6 square 7 7.6 .2 .2 dot 7 7.6 square 5.5 7.6 .2 .2 dot 5.5 7.6 w 1 c #0b7acb square 0 -.75 3.5 5.5 w 2 square 0 -.75 2.75 4.4 w 5 line 0 -2.5 0 1 w .3 c #979697 line -9 5 -5 5 line -9 3.7 -5 3.7 line -9 2.4 -5 2.4 line -9 1.1 -5 1.1 line -9 -.2 -5 -.2 line -9 -1.5 -5 -1.5 line -9 -2.8 -5 -2.8 line -9 -4.1 -5 -4.1 line 9 5 5 5 line 9 3.7 5 3.7 line 9 2.4 5 2.4 line 9 1.1 5 1.1 line 9 -.2 5 -.2"
 
@@ -69,6 +71,9 @@ file "install_type" "css" css_icn "CSS File" ["Origin/(A) System/User Applicatio
 file "install_type" "osl" osl_icn "Origin Script" ["Origin/(A) System/System Apps/Process_Opener.osl","Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "orsl" osl_icn "Origin Script" ["Origin/(A) System/System Apps/Process_Opener.osl","Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "owf" owf_icn "Origin Website" ["Origin/(A) System/User Applications/Summit.osl"]
+
+file "install_type" "wasm" icon_wasm "WebAssembly" []
+file "install_type" "wat" icon_wasm "WebAssembly Text" []
 
 // media
 file "install_type" "png" graphics_icn "PNG Image" ["Origin/(A) System/User Applications/Previewer.osl"]
