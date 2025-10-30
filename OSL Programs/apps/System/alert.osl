@@ -9,6 +9,8 @@ if passed_data == "" or typeof(passed_data) != "object" (
   window.close()
 )
 
+window "responsive" true
+
 window.show()
 
 popup_data @= passed_data.clone()
@@ -221,6 +223,11 @@ switch type (
   case "cancel_key"
     cancel_key()
     break
+)
+
+// close if not the top window
+if window_id_index != 1 (
+  window.close()
 )
 
 window.show()
