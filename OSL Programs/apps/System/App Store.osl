@@ -30,7 +30,7 @@ page_history = [{
 }]
 
 def appCard(name) (
-  name = name.toLower()
+  local name = name.toStr().toLower()
   local x = x_position
   local y = y_position
   square w - 30 h - 30 20 : c#prim
