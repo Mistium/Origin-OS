@@ -1094,12 +1094,25 @@ def "account" (
   local bio_data = inputs.bio.join("\n")
   
   goto w / -2 frame.top - (w / 3) - 70 + scroll_y
-  text "Bio (" ++ bio_data.len ++ "/200)" 10 : c#txtc
+  local bio_maxSize = 200
+  local user_maxSize = user.max_size.toNum()
+  if user_maxSize > 10_000_000 (
+    bio_maxSize = 1000
+  )
+  // this is enforced on the server too lol, this is just a display for it
+  c txtc
+  if bio_data.len > bio_maxSize (
+    c #fc3f3f
+  )
+  text "Bio (" ++ bio_data.len ++ "/" ++ bio_maxSize ++ ")" 10
   
   if bio_data != user.bio (
     set_x w / 2 - 10
     icon "save" 0.7
     if onclick (
+      if bio_data.len > bio_maxSize (
+        say "Bio too long"
+      )
       network "update" "bio" inputs.bio.join("\n").strip()
     )
   )
