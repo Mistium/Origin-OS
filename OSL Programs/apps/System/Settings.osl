@@ -1534,7 +1534,7 @@ def "credits" (
     )
     x = x_position
     change w / -2 + 30 40
-    image "https://raw.githubusercontent.com/Mistium/Origin-OS/main/Resources/turbowarp_logo.png" 50 50
+    image "https://origin.mistium.com/Resources/turbowarp_logo.png" 50 50
     change_x 30
     text "TurboWarp" 16 : c#txtc
     change -200 -45
@@ -1686,12 +1686,31 @@ def "about" (
 
   set_x frame.left + 20
   change_y -30
-  local info = "originOS is a scratch-based desktop environment that runs the OSL programming language. It is designed to be a lightweight, customizable, and secure desktop experience."
+  local info = "originOS is a scratch-based desktop environment that runs the OSL programming language. It is designed to be a powerful, customizable, and secure desktop experience."
   text info.wrapText(w / 10 - 4) 10 : c#txtc
 
   set_x frame.left + 20
   change_y -60
   text "Developed with <3 by Mistium" 10 : c#txtc
+
+  set_x frame.left + 20
+  change_y -90
+  text "Support me!" 10 : c#txtc
+  
+  set_x frame.left + 70
+  change_y -40
+  square 100 20 10 : c#prim
+  if onclick (
+    http "newtab" "https://patreon.com/mistium"
+  )
+  centext "Patreon" 10 : c#txtc
+
+  change_y -40
+  square 100 20 10 : c#prim
+  if onclick (
+    http "newtab" "https://ko-fi.com/mistium"
+  )
+  centext "Ko-Fi" 10 : c#txtc
 )
 
 if passed_data == "" (

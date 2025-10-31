@@ -81,6 +81,12 @@ before = [
   },
   {
     type: "inf",
+    name: "Support me on ko-fi!",
+    icon: "icn favorites-full 1",
+    link: "https://ko-fi.com/mistium"
+  },
+  {
+    type: "inf",
     name: "Used " ++ formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size),
     icon: "icn file 0.9"
   },
@@ -129,7 +135,7 @@ square width 30 10
 glass:frame window.left window.top window.right window.bottom
 frame "clear"
 
-frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 total - 0.5 * 40 (
+frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 total * 40 (
   total = apps.len
   goto 0 frame.top - 20 + frame.scroll
   each item apps (
