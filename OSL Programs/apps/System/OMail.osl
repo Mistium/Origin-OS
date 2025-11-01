@@ -90,7 +90,7 @@ for i filters.len (
     current_rmail = 0
   )
   set_x window.left + 30
-  c current_filter === filters[i].func ? txtc seco
+  c current_filter === filters[i].func ? global_accent txtc
   icon filters[i].icon 0.8
   text filters[i].text 10 : chx#20
   change_y -40
