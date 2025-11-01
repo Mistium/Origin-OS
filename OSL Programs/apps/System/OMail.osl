@@ -210,7 +210,7 @@ goto 0 window.top - 22
 square window.width 43 0 : c#window_colour
 
 loc 2 2 10 -22
-text "Rotur Mail" 10 : c#txtc
+text "Rotur Mail (" ++ username ++ "@rmail.rotur.dev)" 10 : c#txtc
 
 if current_rmail.toNum() > 0 (
   goto 240 window.bottom + 30
