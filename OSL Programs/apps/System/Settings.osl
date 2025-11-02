@@ -1626,12 +1626,12 @@ def "credits" (
       loc 2 2 115 -30 + scroll_y
       square 200 25 10 : c#prim hover_c#seco
       if onclick (
-        http "newtab" "https://www.patreon.com/user?u=51594743"
+        http "newtab" "https://ko-fi.com/mistium"
       )
-      centext "My Patreon" 10 : c#txtc chx#-17.5
-      icon "open" .6 : chx#("My Patreon".len * 5 + 17.5)
+      centext "Support me!" 10 : c#txtc chx#-17.5
+      icon "open" .6 : chx#("Support me!".len * 5 + 17.5)
       loc 2 2 15 -70 + scroll_y
-      text "Patreon Supporters:" 10 : c#txtc
+      text "Members:" 10 : c#txtc
       
       supporters @= {
         "OriginPro": supporterData
