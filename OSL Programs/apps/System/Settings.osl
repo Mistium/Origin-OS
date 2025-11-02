@@ -759,14 +759,14 @@ def "files" (
       image pfp 100 100
       text "(Network)" + username 15 : chx#80 chy#20 c#txtc
       change_x 20
-      square 120 20 10 : c#prim chx#100
+      square 200 20 10 : c#prim chx#100
       if mouse_touching (
         cursor "pointer"
         if onclick (
-          http "newtab" "https://patreon.com/mistium"
+          http "newtab" "https://ko-fi.com/mistium/tiers"
         )
       )
-      image "https://origin.mistium.com/OSL%20Programs/assets/Settings/originOS%20patreon%20badge.png" null 25
+      centext "Upgrade to Premium" 9 : c#txtc
       
       loc 2 2 160 y
       text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
@@ -1087,16 +1087,20 @@ def "account" (
       change_x 30
     )
   )
-  set_x username_x + 5
+  set_x username_x
   change_y -25
   text user.system + "Account" 10 : c#txtc
+
+  set_x username_x
+  change_y -25
+  text "Subscription:" + (user["sys.subscription"].tier ?? "Free") 10 : c#txtc
   
   local bio_data = inputs.bio.join("\n")
   
   goto w / -2 frame.top - (w / 3) - 70 + scroll_y
   local bio_maxSize = 200
-  local user_maxSize = user.max_size.toNum()
-  if user_maxSize > 10_000_000 (
+  local tier = user["sys.subscription"].tier ?? "Free"
+  if tier != "Free" and tier != "Supporter" (
     bio_maxSize = 1000
   )
   // this is enforced on the server too lol, this is just a display for it
@@ -1709,21 +1713,20 @@ def "about" (
   set_x frame.left + 20
   change_y -90
   text "Support me!" 10 : c#txtc
-  
-  set_x frame.left + 70
-  change_y -40
-  square 100 20 10 : c#prim
-  if onclick (
-    http "newtab" "https://patreon.com/mistium"
-  )
-  centext "Patreon" 10 : c#txtc
 
   change_y -40
-  square 100 20 10 : c#prim
+  square 200 20 10 : c#seco
   if onclick (
-    http "newtab" "https://ko-fi.com/mistium"
+    http "newtab" "https://ko-fi.com/mistium/tip"
   )
-  centext "Ko-Fi" 10 : c#txtc
+  centext "Buy me a monster :3" 9 : c#txtc
+
+  change_y -40
+  square 200 20 10 : c#seco
+  if onclick (
+    http "newtab" "https://ko-fi.com/mistium/tiers"
+  )
+  centext "Upgrade to Premium" 9 : c#txtc
 )
 
 if passed_data == "" (
