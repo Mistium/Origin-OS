@@ -75,12 +75,6 @@ before = [
   },
   {
     type: "inf",
-    name: "Support me on patreon!",
-    icon: "icn favorites-full 1",
-    link: "https://patreon.com/mistium"
-  },
-  {
-    type: "inf",
     name: "Support me on ko-fi!",
     icon: "icn favorites-full 1",
     link: "https://ko-fi.com/mistium"
