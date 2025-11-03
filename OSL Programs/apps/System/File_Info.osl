@@ -30,6 +30,7 @@ uuid = file[14].toStr()
 number size = file.JsonStringify().len
 
 inputs.icon = icon.split("\n")
+icon_changed = false
 
 file_config = data
 tabs @= [
@@ -248,10 +249,11 @@ mainloop:
         text "Edit this file's icn" 10 : c#txtc
         
         file "open" passed_data "onlyaccess"
-        if fileGet(11) != inputs.icon.join(" ") (
-          loc -2 2 -30 -180
+        if icon_changed (
+          goto window.right - 40 y
           icon "save" 0.7
           if onclick (
+            icon_changed = false
             file "set" 11 inputs.icon.join(" ")
           )
         )
@@ -268,6 +270,11 @@ mainloop:
           text_colour: txtc,
           bg_colour: window_colour
         }
+        if inputs.selected.id == "icon" (
+          if inputs.selected.changed (
+            icon_changed = true
+          )
+        )
         
         goto window.right - 120 y
         square 200 200 10 : c#window_colour
