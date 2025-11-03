@@ -1642,7 +1642,10 @@ def "credits" (
           .map(u -> u.username),
         "Supporter": supporterData
           .filter(u -> u.subscription == "Supporter")
-          .map(u -> u.username)
+          .map(u -> u.username),
+        "OriginPlus": supporterData
+          .filter(u -> u.subscription == "originPlus")
+          .map(u -> u.username),
       }
   
       local height = 0
