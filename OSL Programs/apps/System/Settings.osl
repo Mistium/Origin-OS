@@ -981,7 +981,7 @@ def "account" (
   )
   
   if subcategory == "Privacy" (
-    page_len = 500
+    page_len = 550
     setting_toggle "Private Account?" w user.private def() -> (
       network "update" "private" user.private.not()
     )
@@ -1065,28 +1065,29 @@ def "account" (
       say "Failed to load pfp, try a different   website or try again"
     )
   )
-  local all_badges = System().badges ?? {}
-  if all_badges.istype("object") (
-    user_badges = user["sys.badges"]
-    local w2 = user_badges.len * 30
-    local username_w = uname.len * 15
-    local x = pos[1] + username_w + 15 + w2
-    if x < frame.right - 50 (
-      pos[1] += username_w + 0
-    ) else (
-      pos[1] -= 15
-      pos[2] -= 30
+  local user_badges @= user["sys.badges"]
+  if typeof(user_badges) != "array" (
+    user_badges = []
+  )
+  local w2 = user_badges.len * 30
+  local username_w = uname.len * 15
+  local x = pos[1] + username_w + 15 + w2
+  if x < frame.right - 50 (
+    pos[1] += username_w + 0
+  ) else (
+    pos[1] -= 15
+    pos[2] -= 30
+  )
+  goto pos[1] + (w2 * .5) + 15 pos[2]
+  square w2 - 5 25 10 : c#prim
+  goto pos[1] + 30 pos[2]
+  for i user_badges.len (
+    local badge @= user_badges[i]
+    icon badge.icon 1.2 : tooltip#badge.name
+    if onclick (
+      say badge.description
     )
-    goto pos[1] + (w2 * .5) + 15 pos[2]
-    square w2 - 5 25 10 : c#prim
-    goto pos[1] + 30 pos[2]
-    each badge user_badges (
-      icon all_badges[badge].icon 1.2 : tooltip#badge
-      if onclick (
-        say all_badges[badge].description
-      )
-      change_x 30
-    )
+    change_x 30
   )
   set_x username_x
   change_y -25
@@ -1133,7 +1134,12 @@ def "account" (
   
   set_x 0 : chy#-100
   setting_do "Change Password" w def() -> (
-    network "update" "password" "Enter Your New Password".ask().hashMD5()
+    local data = "Enter Your New Password".ask()
+    if data == null or data == "" (
+      say "Cancelled"
+      return
+    )
+    network "update" "password" data.hashMD5()
   )
   
   change_y -20
