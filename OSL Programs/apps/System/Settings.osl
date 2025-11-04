@@ -1094,6 +1094,9 @@ def "account" (
   set_x username_x
   change_y -25
   text "Subscription:" + (user["sys.subscription"].tier ?? "Free") 10 : c#txtc
+  if onclick (
+    category = "Upgrade"
+  )
   
   local bio_data = inputs.bio.join("\n")
   
@@ -1723,13 +1726,86 @@ def "about" (
     http "newtab" "https://ko-fi.com/mistium/tip"
   )
   centext "Buy me a monster :3" 9 : c#txtc
+)
 
+def "upgrade" (
+  local w = frame.width - 25
+  number left = frame.left + 20
+  set_x left
+  set_y frame.top - 20 + frame.scroll
+  y = y_position + 20
+
+  if subcategory == "Lite" (
+    text "Lite - 15 credits per month" 10 : c#txtc
+
+    array features = [
+      "Storage Boost (5mb -> 10mb)",
+      "Your name in the originOS settings app's supporters tab",
+      "Bio templating",
+    ]
+
+    set_x left
+    change_y -30
+    text "Features" 10 : c#txtc
+    change_y -30
+    for i features.len (
+      set_x left
+      change_y -20
+      text ("- " ++ features[i]).wrapText(w / 10 - 4) 10 : c#txtc
+      change_y -10
+    )
+
+    key_id = "4f229157f0c40f5a98cbf28efd39cfe8"
+
+    set_x left + 100
+    change_y -50
+    square 200 20 10 : c#seco
+    if onclick (
+      rotur "key_buy" key_id
+    )
+    centext "Subscribe" 10 : c#txtc
+
+    return
+  )
+
+
+  local info = "Hey! You can gain benefits (like more storage space, higher quality profile pictures and more customisation) by upgrading to Premium. Check out the different tiers and their features."
+  text info.wrapText(w / 10 - 4) 10 : c#txtc
+
+  set_x left
+  change_y -60
+  text "Credit Tiers" 12 : c#txtc
+
+  set_x left
   change_y -40
+  text "Lite - 15 credits per month" 10 : c#txtc
+  change_y -30
+  set_x left + 100
+  square 200 20 10 : c#seco
+  if onclick (
+    subcategory = "Lite"
+  )
+  centext "Learn more" 10 : c#txtc
+  
+  set_x left
+  change_y -70
+  text "Premium Tiers" 12 : c#txtc
+  set_x left
+  change_y -40
+  text "Plus, Drive, and Pro are available through Ko-Fi!" 10 : c#txtc
+  change_y -30
+  set_x left
+  info = "To make sure your support is properly linked, please use the same email for both your originOS and Ko-Fi accounts, or link your Ko-Fi account to Discord and connect your Discord to Rotur."
+  text info.wrapText(w / 9 - 4) 9 : c#txtc
+  change_y -30
+  set_x left + 100
   square 200 20 10 : c#seco
   if onclick (
     http "newtab" "https://ko-fi.com/mistium/tiers"
   )
-  centext "Upgrade to Premium" 9 : c#txtc
+  centext "View on Ko-Fi" 10 : c#txtc
+
+  page_len = y - y_position + 20
 )
 
 if passed_data == "" (
@@ -1840,6 +1916,8 @@ supporterData = null
 slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 upload_time = timer
 
+sidebar_height = 0
+
 mainloop:
 networking()
 
@@ -1850,43 +1928,49 @@ icon "w 99999 dot 0 0" 10
 pen "opacity" 0
 frame "clear"
 
+frame window.left window.top window.left + 225 window.bottom sidebar_height (
+  sidebar_height = 25
+  loc 2 2 107 -25 + frame.scroll
+  y = y_position
+  if category == "Account" (
+    square 190 30 15 : c#seco
+    square 190 30 10 : c#prim
+  ) else (
+    square 190 30 15 0 1
+  )
 
-loc 2 2 105 -25
-if category == "Account" (
-  square 190 30 15 : c#seco
-  square 190 30 10 : c#prim
-) else (
-  square 190 30 15 0 1
+  if onclick (
+    category = "Account"
+    subcategory = "none"
+  )
+  icon icn_code 0.8 : c#txtc chx#-80
+  text user.username.trimText(13) 10 : chx#30
+
+  loc 2 2 27 -25 + frame.scroll
+  image pfp 35 35
+
+  set_x frame.left + 27
+  change_y -70
+  DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
+  DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
+  DrawCategory "Files" "file"
+  DrawCategory "Inputs" "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0"
+  if roturlink.enabled (
+    DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
+    DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
+  )
+
+  change_y -25
+  // DrawCategory "Apps" "grid-apps"
+  DrawCategory "Permissions" "key"
+
+  change_y -25
+  DrawCategory "About" "info"
+  DrawCategory "Upgrade" "up"
+  DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
+
+  sidebar_height = y - y_position
 )
-
-if onclick (
-  category = "Account"
-  subcategory = "none"
-)
-icon icn_code 0.8 : c#txtc chx#-80
-text user.username.trimText(13) 10 : chx#30
-
-set_x window.left + 25
-change_y -70
-DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
-DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-DrawCategory "Files" "file"
-DrawCategory "Inputs" "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0"
-if roturlink.enabled (
-  DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
-  DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
-)
-
-change_y -25
-// DrawCategory "Apps" "grid-apps"
-DrawCategory "Permissions" "key"
-
-change_y -25
-DrawCategory "About" "info"
-DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
-
-loc 2 2 25 -25
-image pfp 35 35
 
 loc 2 2 232 -25
 if subcategory == "none" (
@@ -1941,6 +2025,9 @@ switch category (
     break
   case "About"
     about
+    break
+  case "upgrade"
+    upgrade
     break
   case "credits"
     credits
