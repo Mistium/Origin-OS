@@ -492,12 +492,15 @@ def "appearance" (
             y -= 230
           )
           loc count % 2 == 1 ? 4 -4 2 0 y
+          if y_position < frame.bottom - 120 (
+            continue
+          )
           square w 200 15 : c#prim
           string cur = wallpapers[count]
           if onclick and mouse_y < frame.top (
-            terminal "system wallpaper" + cur
+            terminal "system wallpaper" + wallpaper_provider ++ "static/" ++ cur
           )
-          image cur w 200
+          image wallpaper_provider ++ "preview/" ++ cur w 200
         )
         y -= 150
       )
@@ -507,14 +510,12 @@ def "appearance" (
       )
       array modes = ["Fill","Center","Fit","Stretch"]
       local mode = (user.wallpaper_mode ?? "Fill").toStr().toTitle()
-      log mode modes modes.index(mode)
       inputs.dropdowns ??= {}
       inputs.dropdowns.fillmode ??= {
         open: false,
         idx: modes.index(mode),
         value: mode
       }
-      log inputs.dropdowns
 
       loc -2 2 -115 -80 + scroll_y
       dropdown 200 25 10 {
@@ -1852,39 +1853,41 @@ if "wallpapers.json".saveExists() (
   wallpapers = []
 )
 
+wallpaper_provider = "https://wallpapers.mistium.com/"
+
 wallpaper_categories = {
   origin: {
     open: false,
     values: [
-      "https://origin.mistium.com/Wallpapers/originOS%20Veil.jpeg",
-      "https://origin.mistium.com/Wallpapers/originOS%20Dawn.jpeg",
-      "https://origin.mistium.com/Wallpapers/originOS%20Rift.png",
-      "https://origin.mistium.com/Wallpapers/originOS%20Flow.png",
+      "originOS-Veil.jpeg",
+      "originOS-Dawn.jpeg",
+      "originOS-Rift.png",
+      "originOS-Flow.png",
     ]
   },
   nature: {
     open: false,
     values: [
-      "https://images.pexels.com/photos/589810/pexels-photo-589810.jpeg",
-      "https://images.pexels.com/photos/1612351/pexels-photo-1612351.jpeg",
-      "https://images.pexels.com/photos/640781/pexels-photo-640781.jpeg",
-      "https://images.pexels.com/photos/7919/pexels-photo.jpg"
+      "autumn.jpeg",
+      "lake.png",
+      "mountains.png",
+      "fog.png"
     ]
   },
   city: {
     open: false,
     values: [
-      "https://images.pexels.com/photos/1366957/pexels-photo-1366957.jpeg",
-      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/cyberpunk-scene.jpg"
+      "night-city.png",
+      "cyberpunk-scene.png"
     ]
   },
   anime: {
     open: false,
     values: [
-      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/asleep.jpg",
-      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/miku-and-stars.jpg",
-      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/miku.jpeg",
-      "https://raw.githubusercontent.com/Mistium/wallpapers/refs/heads/main/warm-and-cozy.png",
+      "asleep.png",
+      "miku-and-stars.png",
+      "miku.png",
+      "warm-and-cozy.png",
     ]
   }
 }
