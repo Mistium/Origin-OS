@@ -1637,17 +1637,17 @@ def "credits" (
       text "Members:" 10 : c#txtc
       
       supporters @= {
-        "OriginPro": supporterData
-          .filter(u -> u.subscription == "originPro")
+        "Pro": supporterData
+          .filter(u -> u.subscription == "Pro")
           .map(u -> u.username),
-        "OriginDrive": supporterData
-          .filter(u -> u.subscription == "originDrive")
+        "Drive": supporterData
+          .filter(u -> u.subscription == "Drive")
           .map(u -> u.username),
-        "Supporter": supporterData
-          .filter(u -> u.subscription == "Supporter")
+        "Plus": supporterData
+          .filter(u -> u.subscription == "Plus")
           .map(u -> u.username),
-        "OriginPlus": supporterData
-          .filter(u -> u.subscription == "originPlus")
+        "Lite": supporterData
+          .filter(u -> u.subscription == "Lite")
           .map(u -> u.username),
       }
   
