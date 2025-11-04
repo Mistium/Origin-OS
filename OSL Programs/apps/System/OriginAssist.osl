@@ -27,7 +27,7 @@ clicking = false
 last_clicking = false
 
 terminal "get filepaths"
-files_paths = data
+files_paths @= "window.origin.files.index.value".eval()
 search = []
 
 def searchFiles(term) (

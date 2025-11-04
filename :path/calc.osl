@@ -1,6 +1,6 @@
-if args.len != 3 {
+if args.len != 3 (
     terminal.writeLine("Invalid number of arguments. Expected 3, got " + args.len)
-}
+)
 local left = args[1]
 local right = args[3]
 
