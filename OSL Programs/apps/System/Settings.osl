@@ -759,14 +759,14 @@ def "files" (
       image pfp 100 100
       text "(Network)" + username 15 : chx#80 chy#20 c#txtc
       change_x 20
-      square 200 20 10 : c#prim chx#100
+      square 150 20 10 : c#seco chx#70
       if mouse_touching (
         cursor "pointer"
         if onclick (
-          http "newtab" "https://ko-fi.com/mistium/tiers"
+          category = "Upgrade"
         )
       )
-      centext "Upgrade to Premium" 9 : c#txtc
+      centext "Upgrade Storage" 9 : c#txtc
       
       loc 2 2 160 y
       text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
