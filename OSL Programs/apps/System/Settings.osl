@@ -811,6 +811,7 @@ def "files" (
 )
 
 def "account" (
+  local tier = user["sys.subscription"].tier ?? "Free"
   local w = frame.width - 100
   page_len = 500
   
@@ -1027,7 +1028,14 @@ def "account" (
     square pfp_s pfp_s 10 0 1
     if mouse_touching (
       if mouse_ondown and timer - upload_time > 1 and current_pfp == "" (
-        current_pfp = "Enter A Url".ask()
+        file @= askFile(null, "dataURL")
+        if file.name.endsWith(".gif") and tier != "Max" and tier != "Pro" (
+          say "Upgrade to Pro or Max to have animated avatars"
+          // this is validated server-side too lol, this is just to tell the user
+          return
+        )
+        current_pfp = file.data
+        log current_pfp
         upload_time = timer
       )
       change_y 20
@@ -1095,7 +1103,7 @@ def "account" (
 
   set_x username_x
   change_y -25
-  text "Subscription:" + (user["sys.subscription"].tier ?? "Free") 10 : c#txtc
+  text "Subscription:" + tier 10 : c#txtc
   if onclick (
     category = "Upgrade"
   )
@@ -1104,7 +1112,6 @@ def "account" (
   
   goto w / -2 frame.top - (w / 3) - 70 + scroll_y
   local bio_maxSize = 200
-  local tier = user["sys.subscription"].tier ?? "Free"
   if tier != "Free" and tier != "Supporter" (
     bio_maxSize = 1000
   )
