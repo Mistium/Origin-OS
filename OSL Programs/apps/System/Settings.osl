@@ -834,6 +834,7 @@ def "account" (
   )
   
   if subcategory == "banners" (
+    local premium = ["Pro", "Max"].contains(tier)
     page_len = 0
     goto 0 frame.top - 110 + scroll_y
     square w 200 10 : c#prim
@@ -842,15 +843,18 @@ def "account" (
     if mouse_touching (
       cursor "pointer"
       if onclick (
-        if user["sys.currency"] >= 10 (
-          local url = "Paste the url of an image to use as your banner".ask()
-          network "getsync_asurl" url
-          // invalid url, likely 404 or html data, needs to be an image
-          if data.startsWith("data:text/html") (
-            say "Banner purchase aborted"
+        if premium or user["sys.currency"] >= 10 (
+          file @= askFile(null, "dataURL")
+          if file.name.endsWith(".gif") and !premium (
+            say "Upgrade to Pro to have animated avatars"
+            // this is validated server-side too lol, this is just to tell the user
             return
           )
-          network "update" "banner" data
+          if file.name == "" (
+            say "Please select a file"
+          ) else (
+            network "update" "banner" file.data
+          )
         ) else (
           say "You do not have enough credits for this"
         )
@@ -861,12 +865,18 @@ def "account" (
     change_y 50
     centext "Add New Banner" 10
     change_y -100
-    centext "Cost: 10 credits" 10
-    change_y -20
-    centext "You have " ++ user["sys.currency"] ++ " credits" 10
+    if premium (
+      centext "Cost: Free" 10
+      change_y -20
+      centext "(for pro subscribers)" 10
+    ) else (
+      centext "Cost: 10 credits" 10
+      change_y -20
+      centext "You have " ++ user["sys.currency"] ++ " credits" 10
+    )
     
     array banners = []
-    if user["sys.banner"] == null (
+    if user["sys.banner"].toStr() != "" (
       change_y -60
       centext "Current banner:" 10
       change_y 100
@@ -1029,14 +1039,16 @@ def "account" (
     if mouse_touching (
       if mouse_ondown and timer - upload_time > 1 and current_pfp == "" (
         file @= askFile(null, "dataURL")
-        if file.name.endsWith(".gif") and tier != "Max" and tier != "Pro" (
-          say "Upgrade to Pro or Max to have animated avatars"
+        if file.name.endsWith(".gif") and !["Drive", "Pro", "Max"].contains(tier) (
+          say "Upgrade to Drive or higher to have animated avatars"
           // this is validated server-side too lol, this is just to tell the user
           return
         )
-        current_pfp = file.data
-        log current_pfp
-        upload_time = timer
+        if file.name == "" (
+          say "Please select a file"
+        ) else (
+          current_pfp = file.data
+        )
       )
       change_y 20
       square 25 25 12 : c#seco
@@ -1064,8 +1076,7 @@ def "account" (
   if current_pfp != "" (
     image current_pfp 0 0
     if current_pfp.imageinfo("loaded") (
-      network "getsync_asurl" current_pfp
-      network "update" "pfp" data
+      network "update" "pfp" current_pfp
       current_pfp = ""
     )
     if timer - upload_time > 5 (
@@ -1112,8 +1123,18 @@ def "account" (
   
   goto w / -2 frame.top - (w / 3) - 70 + scroll_y
   local bio_maxSize = 200
-  if tier != "Free" and tier != "Supporter" (
-    bio_maxSize = 1000
+  switch tier (
+    case "Free"
+    case "Lite"
+    case "Plus"
+      bio_maxSize = 200
+      break
+    case "Drive"
+      bio_maxSize = 500
+      break
+    case "Pro"
+      bio_maxSize = 1000
+      break
   )
   // this is enforced on the server too lol, this is just a display for it
   c txtc
