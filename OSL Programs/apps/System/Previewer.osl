@@ -2,32 +2,23 @@ import "window_tools"
 
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
-  file "get" 2
-  name = data
-  file "get" 1
-  if [".gif",".mp4"].contains(data) (
-    type = "video"
-  ) else 
-    type = "image"
+  fileName = fileGet(2)
+  fileType = fileGet(1)
+  if [".mp4", ".mov"].contains(fileType) (
+    mode = "video"
+  ) else (
+    mode = "image"
   )
-  name.append(data)
-  file "get" 4
-  uri = data.str
-  if type == "image" (
-    image "load" uri passed_data.str
-    w = passed_data.imageinfo("width")
-    h = passed_data.imageinfo("height")
-  )
-  if type == "video" (
-    video "load" uri passed_data.str
-    w = passed_data.videoinfo("width")
-    h = passed_data.videoinfo("height")
+  fileName ++= fileType
+  data = fileGet(4)
+  if mode == "video" (
+    video "load" data "video"
   )
 ) else (
   say "you need to open a file with this app"
-  window "stop"
+  window.close()
 )
-window "show"
+window.show()
 
 mainloop:
 load_theme
@@ -42,18 +33,32 @@ if temp2 > temp (
   stretch "x" temp2
   stretch "y" temp2
 )
-if type == "image" (
-  image passed_data.toStr() 
+if mode == "image" (
+  w = data.imageinfo("width")
+  h = data.imageinfo("height")
+  image data
 )
-if type == "video" (
-  video passed_data.toStr() temp temp
+if mode == "video" (
+  w = "video".videoinfo("width")
+  h = "video".videoinfo("height")
+  video "video"
+  loc 2 -2 20 20
+  square 20 20 10 : c#prim
+  playing = "video".videoinfo("playing")
+  icon playing ? "pause" "play" 0.7 : c#txtc
+  if clicked (
+    if playing (
+      video "video" "pause"
+    ) else (
+      video "video" "play"
+    )
+  )
 )
 loc 2 2 10 -20
-text `${name} ${w}x${h}` 10 : c#txtc
+text `${fileName} ${w}x${h}` 10 : c#txtc
 loc -2 2 -20 -20
 square 20 20 10 : c#prim
 icon "close" 0.7 : c#txtc
 if clicked (
-  image "clear" uri
-  window "stop"
+  window.close()
 )

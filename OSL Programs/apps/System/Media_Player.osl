@@ -40,14 +40,14 @@ if playing (
 if onclick (
   playing.not
 )
-progress = ("media".soundinfo("current_time").int / "media".soundinfo("duration").int).int
+progress = ("media".soundinfo("current_time") / "media".soundinfo("duration")).toNum()
 loc 9999 -2 20 20
 w = window.width - 60
 square w 20 10 : c#seco
 offset = window.left + 50
 if clicked (
   progress = (mouse_x - (x_position + offset - 20) / w).clamp(0,w)
-  sound "media" "start" progress * "media".soundinfo("duration").int
+  sound "media" "start" progress * "media".soundinfo("duration").toNum()
 )
 set_x offset + (progress * w / 2)
 square w * progress 20 5 : c#prim
