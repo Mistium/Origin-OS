@@ -500,7 +500,7 @@ def "render_files_grid" (
     ) else (
       count ++
     )
-  )   
+  )
 )
 def "draw_file" (
   current_file = files[count]
@@ -557,7 +557,7 @@ def "draw_file" (
       square fileshw filesh 15 0 1
     )
   )
-  if use_file_obj.not() (
+  if !use_file_obj (
     rightclick "file" selected_files
   )
   
@@ -565,7 +565,7 @@ def "draw_file" (
     // add or remove a single file from selection
     if "control".isKeyDown() (
       if selected_files.contains(file_id) (
-        selected_files.delete(file_id)
+        void selected_files.delete(file_id)
       ) else (
         void selected_files.append(file_id)
       )
@@ -574,7 +574,7 @@ def "draw_file" (
       temp = files.index(selected_files.last())
       if temp < count (
         temp ++
-        selected_files += files.trim(temp,count)
+        selected_files ++= files.trim(temp,count)
       ) else (
         temp --
         selected_files ++= files.trim(count,temp)
@@ -625,6 +625,8 @@ def "draw_file" (
       )
       files_selected_id = 0
     )
+  ) else if onclick and drag_id != 0 (
+    drag_id = 0
   )
   if current_display_type == "list" (
     loc 2 2 25 draw_y
