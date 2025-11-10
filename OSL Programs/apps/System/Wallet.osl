@@ -48,6 +48,14 @@ def "transfer_button" "w, name" (
   centext message 8 : c#txtc
 )
 
+array transactions = user["sys.transactions"]
+array new_totals @= transactions.getKeys("new_total")
+  .filter(v -> v != null)
+  .reverse()
+
+number min_total = min(...new_totals)
+number max_total = max(...new_totals) - min_total
+
 mainloop:
 load_theme
 
@@ -100,12 +108,6 @@ loc 2 2 100 -210
 centext "Credits" 10
 
 loc 2 2 100 -280
-array new_totals @= transactions.getKeys("new_total")
-  .filter(v -> v != null)
-  .reverse()
-
-number min_total = min(...new_totals)
-number max_total = max(...new_totals) - min_total
 square 180 100 10 : c#prim
 pen "size" 5
 graph 180 100 new_totals.map(v -> (v - min_total) / max_total) : c#txtc
