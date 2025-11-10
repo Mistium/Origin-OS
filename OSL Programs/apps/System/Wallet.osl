@@ -94,19 +94,34 @@ text "My Wallet (" ++ menu ++ ")" 10 : c#txtc
 loc 2 2 100 -100
 icon rotur_icn 4
 
-loc 2 2 100 - (balance.len * 10) -180
-text balance 20
-loc 2 2 65 -210
-text "Credits" 10
+loc 2 2 100 -180
+centext balance 20
+loc 2 2 100 -210
+centext "Credits" 10
+
+loc 2 2 100 -280
+array new_totals @= transactions.getKeys("new_total")
+  .filter(v -> v != null)
+  .reverse()
+
+number min_total = min(...new_totals)
+number max_total = max(...new_totals) - min_total
+square 180 100 10 : c#prim
+pen "size" 5
+graph 180 100 new_totals.map(v -> (v - min_total) / max_total) : c#txtc
 
 loc 2 -2 30 30
 square 0 0 40 : c#window_colour hover_c#prim tooltip#"My Past Transactions"
-if onclick (;menu = "transfers";)
+if onclick (
+  menu = "transfers"
+)
 icon "list" 0.8 : c#txtc
 
 change_x 50
 square 0 0 40 : c#window_colour hover_c#prim tooltip#"Transfer Credits"
-if onclick (;menu = "send";)
+if onclick (
+  menu = "send"
+)
 change -2 -2
 icon "send" 0.8 : c#txtc
 
@@ -115,7 +130,7 @@ square 0 0 40 : c#window_colour hover_c#prim tooltip#"Claim Daily Credit"
 if onclick (
   token = roturToken()
   promise.new(def() -> (
-    response = ("https://social.rotur.dev/claim_daily?auth=" ++ token).httpGet()
+    response = ("https://api.rotur.dev/claim_daily?auth=" ++ token).httpGet()
     token = null
     say response.message ?? response.error
   ))
@@ -182,7 +197,7 @@ switch menu (
           y -= 35
         
           loc 999 2 0 y
-          square frame_width - 20 20 10 : c#prim
+          square frame_width - 20 20 10 : c#prim tooltip#(txt.note ?? "No Note")
           
           c txtc
           if typeof(txt) == "string" (
@@ -202,6 +217,9 @@ switch menu (
                 break
               case "tax"
                 text "You got " ++ txt.amount ++ " from " ++ txt.user ++ "'s taxes" 10
+                break
+              case "escrow_out"
+                text "You sent " ++ txt.amount ++ " to devfund petition #" ++ txt.petition_id 10
                 break
             )
             text txt.time.timestamp("to-relative") 10 : chx#10
