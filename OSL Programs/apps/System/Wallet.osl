@@ -48,7 +48,13 @@ def "transfer_button" "w, name" (
   centext message 8 : c#txtc
 )
 
-array transactions = user["sys.transactions"]
+local transactions = user["sys.transactions"]
+if typeof(transactions) != "array" or transactions.len == 0 (
+  transactions = [{
+    "type": "label",
+    "text": "You have no transactions"
+  }]
+)
 array new_totals @= transactions.getKeys("new_total")
   .filter(v -> v != null)
   .reverse()
@@ -208,6 +214,9 @@ switch menu (
           ) else (
             loc 2 2 10 y
             switch txt["type"] (
+              case "label"
+                text txt.text 10
+                break
               case "gamble"
                 text "You " ++ txt.note + txt.amount + "credits gambling" 10
                 break
