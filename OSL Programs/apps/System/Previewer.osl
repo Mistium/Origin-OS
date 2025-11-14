@@ -1,5 +1,6 @@
 import "window_tools"
 
+window_info = false
 if passed_data != "" (
   file "open" passed_data "onlyaccess"
   fileName = fileGet(2)
@@ -16,11 +17,20 @@ if passed_data != "" (
   )
 ) else (
   say "you need to open a file with this app"
-  window.close()
+  window_info = true
 )
 window.show()
 
 mainloop:
+if window_info (
+  window.hide()
+  window.resize(0,0)
+  // close if we are the top window
+  if window_id_index == 1 (
+    window.close()
+  )
+)
+
 load_theme
 
 goto 0 -25
