@@ -17,6 +17,7 @@ inputs.main = ""
 number cursor_pos = 1
 
 path = path.scripts.getValues()
+last = []
 
 file "exists" "~/:path/history.txt"
 if exists (
@@ -147,7 +148,6 @@ if typeof(passed_data) == "object" (
 
 canenter = true
 inputs.main = null
-last = []
 last_index = 0
 
 // handle if created by the onboot and we are the only window
