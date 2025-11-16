@@ -1030,34 +1030,29 @@ def "account" (
   local pfp_s = w / 3 - 30
   change_x w / -2 + (pfp_s / 2) + 15
   image pfp pfp_s pfp_s
-  if current_pfp != "" (
-    direction timer * 300
-    icon "cutcircle 0 0 10 0 90" 1 : c#txtc
-    direction 90
-  ) else (
-    square pfp_s pfp_s 10 0 1
-    if mouse_touching (
-      if mouse_ondown and timer - upload_time > 1 and current_pfp == "" (
-        file @= askFile(null, "dataURL")
-        if file.name.endsWith(".gif") and !["Drive", "Pro", "Max"].contains(tier) (
-          say "Upgrade to Drive or higher to have animated avatars"
-          // this is validated server-side too lol, this is just to tell the user
-          return
-        )
-        if file.name == "" (
-          say "Please select a file"
-        ) else (
-          current_pfp = file.data
-        )
+  square pfp_s pfp_s 10 0 1
+  if mouse_touching (
+    if mouse_ondown and timer - upload_time > 1 (
+      file @= askFile(null, "dataURL")
+      if file.name.endsWith(".gif") and !["Drive", "Pro", "Max"].contains(tier) (
+        say "Upgrade to Drive or higher to have animated avatars"
+        // this is validated server-side too lol, this is just to tell the user
+        return
       )
-      change_y 20
-      square 25 25 12 : c#seco
-      icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      
-      square 81 10 20 : chy#-40 c#seco
-      centext "Change PFP" 9 : c#txtc
-      change_y 20
+      if file.name == "" (
+        say "Please select a file"
+      ) else (
+        upload_time = timer
+        network "update" "pfp" file.data
+      )
     )
+    change_y 20
+    square 25 25 12 : c#seco
+    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
+    
+    square 81 10 20 : chy#-40 c#seco
+    centext "Change PFP" 9 : c#txtc
+    change_y 20
   )
   
   local pos = [x_position + (pfp_s / 2) + 30, y_position + 15]
@@ -1073,17 +1068,6 @@ def "account" (
     subcategory = "Banners"
   )
   
-  if current_pfp != "" (
-    image current_pfp 0 0
-    if current_pfp.imageinfo("loaded") (
-      network "update" "pfp" current_pfp
-      current_pfp = ""
-    )
-    if timer - upload_time > 5 (
-      current_pfp = ""
-      say "Failed to load pfp, try a different   website or try again"
-    )
-  )
   local user_badges @= user["sys.badges"]
   if typeof(user_badges) != "array" (
     user_badges = []
@@ -1879,7 +1863,6 @@ accent_select = ""
 tier = null
 network_drive = "none"
 gotosubcategory = ""
-current_pfp = ""
 github_data = "Loading"
 if "wallpapers.json".saveExists() (
   wallpapers = "wallpapers.json".saveGet()
