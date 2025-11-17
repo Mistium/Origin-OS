@@ -174,21 +174,19 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
         )
       )
       change_x 40
-      all_badges = System().badges ?? {}
-      if all_badges.istype("object") (
-        badges = cur.badges
+      if loaded (
+        array badges @= cur.badges
         local w2 = badges.len * 30
-        each badge badges (
-          icon all_badges[badge].icon 1.2 : tooltip#badge
+        for i badges.len (
+          local badge = badges[i]
+          icon badge.icon 1.2 : tooltip#badge.name
           if onclick (
-            say all_badges[badge].description
+            say badge.description
           )
           change_x 30
         )
-      )
-      c txtc
-      set_x 0 : chy#-50
-      if loaded (
+        c txtc
+        set_x 0 : chy#-50
         centext "Joined rotur" + cur.created.timestamp("to-relative") 10
         change_y -30
         centext cur.system + "account" 10
