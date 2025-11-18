@@ -41,6 +41,22 @@ def extractUsername(name) (
   )
 )
 
+pinned_friends @= user["origin_fav_friends"] ?? []
+if typeof(pinned_friends) != "array" (
+  pinned_friends = []
+)
+
+def organiseFriends() (
+  array friends @= user["sys.friends"]
+    .filter(v -> !pinned_friends.contains(v))
+  
+  return pinned_friends ++ friends
+)
+
+list @= organiseFriends()
+
+lh = 0
+
 mainloop:
 load_theme
 
@@ -51,8 +67,6 @@ try (
 ) catch (
   online @= network.online ?? []
 )
-
-list = page == "Friends" ? user["sys.friends"] user["sys.requests"]
 
 glass:frame window.left window.top window.left + 305 window.bottom; frame "clear"
 
@@ -67,31 +81,77 @@ if onclick (
 length = list.len
 c seco
 
-frame window.left window.top - 50 window.left + 305 window.bottom + 60 length * 45 (
+if page == "Friends" (
+  height = length * 45 + (pinned_friends.len > 0 ? 40 0) + 40
+) else (
+  height = length * 45
+)
+
+frame window.left window.top - 50 window.left + 305 window.bottom + 60 height (
   if length == 0 (
     loc 2 2 10 -20
     text "No" + page 10 : c#txtc
   ) else (
+    number total_pinned = pinned_friends.len
     local w = frame.width - 25
-    count = round(scroll_y / 45)
-    y = scroll_y + (count + 0.5 * -40)
-    loop ceil(frame.height / 45).clamp(1,length) (
+    count = 0
+    y = scroll_y + (count + 0.5 * -40) - 10
+    if total_pinned > 0 (
+      loc 999 2 0 y + 15
+      centext "Pinned Friends (" ++ total_pinned ++ ")" 10 : c#txtc
+      y -= 20
+    )
+    loop list.len (
       count ++
+      if count > list.len (
+        break
+      )
+      if count == total_pinned + 1 (
+        y -= 20
+        loc 999 2 0 y + 15
+        centext "All Friends (" ++ (list.len - total_pinned) ++ ")" 10 : c#txtc
+        y -= 20
+      )
       loc 999 2 0 y
+      if y_position > frame.top + 20 (
+        y -= 45
+        continue
+      )
       square w 25 15 : c#window_colour
       if mouse_touching (
         square w 25 15 : c#prim
+        clicked_bg = onclick
+        set_x w / 2 - 12.5
+        boolean pinned = pinned_friends.contains(list[count])
+        icon pinned ? "pin-full" "pin" 0.7 : c#txtc
         if onclick (
+          if pinned (
+            void pinned_friends
+              .delete(list[count])
+          ) else (
+            void pinned_friends
+              .append(list[count])
+          )
+          if page == "Friends" (
+            list @= organiseFriends()
+          )
+          network "update" "origin_fav_friends" pinned_friends
+        )
+        if clicked_bg and !onclick (
           selected_user = list[count]
           show_save_note = false
         )
       )
-      change_x w / -2 + 12.5
+      set_x w / -2 + 12.5
       image "https://avatars.rotur.dev/" ++ list[count] ++ "?radius=40px" 30 30
       change_x 30
       icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #555 w 10 dot 0 0" 1.3
       text list[count] 10 : c#txtc chx#15
       y -= 45
+      lh += 45
+      if y_position < frame.bottom - 20 (
+        break
+      )
     )
   )
 )
@@ -102,6 +162,7 @@ loc 2 -2 79 30
 square 130 30 10 : c#prim hover_c#seco
 if onclick (
   page = "Friends"
+  list @= organiseFriends()
   selected_user = ""
 )
 centext "Friends" 9 : c#txtc
@@ -110,6 +171,7 @@ loc 2 -2 225 30
 square 130 30 10 : c#prim hover_c#seco
 if onclick (
   page = "Requests"
+  lost @= user["sys.requests"]
   selected_user = ""
 )
 centext "Requests" 9 : c#txtc
