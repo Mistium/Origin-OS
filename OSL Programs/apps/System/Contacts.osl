@@ -9,6 +9,9 @@ permission "request" "rotur token"
 
 page = "Friends"
 selected_user = ""
+if passed_data != "" (
+  selected_user = passed_data
+)
 sending = false
 calling = ""
 

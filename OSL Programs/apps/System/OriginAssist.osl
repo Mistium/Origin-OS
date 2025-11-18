@@ -1,4 +1,5 @@
 import "window_tools" as "wt"
+import as "glass" from "packages"
 
 permission "request" "terminal"
 permission "request" "file admin"
@@ -11,7 +12,7 @@ window "dimensions" w 200
 window "responsive" true
 
 y = 300
-y_target = -200
+y_target = -100
 
 ai_response = ""
 ai_response_get = null
@@ -31,7 +32,17 @@ files_paths @= "window.origin.files.index.value".eval()
 search = []
 
 def searchFiles(term) (
-  return files_paths.search(term).trim(1,10).map(v -> (v.item))
+  array paths @= files_paths.search(term)
+    .map(v -> v.item)
+
+  for i paths.len (
+    file "exists" paths[i]
+    if !exists (
+      paths.delete(i)
+    )
+  )
+
+  return paths
 )
 
 frames = 0
@@ -39,6 +50,8 @@ frames = 0
 window.resize(w,h)
 
 started = timestamp
+
+friends = []
 
 mainloop:
 
@@ -67,7 +80,7 @@ w2 = w - 35
 goto 0 0
 square window.width window.height 0 0 1
 
-if (mouse_ondown and clicked.not() or (window.id != focused_application_id)) and timestamp - started > 1000 (
+if (mouse_ondown and !clicked or (window.id != focused_application_id)) and timestamp - started > 1000 (
   y_target = 500
   w_target = 10
 )
@@ -76,8 +89,15 @@ c global_accent
 square w2 window.height - 35 30
 c prim
 square w2 window.height - 35 25
+frame window.left window.top window.right window.bottom (
+  effect "transparency" 50
+  goto frame.x * -1 frame.y * -1
+  
+  image "wallpaper_blur" background_width background_height
+  effect "clear"
+)
 
-change_y window.height / 2 - 37
+set_y window.top - 37.5
 square w - 35 40 25 : c#window_colour
 change_x 20
 input w - 90 25 "main" "Ask rotur anything, and search your files" 0 txtc
@@ -110,25 +130,61 @@ if inputs.main != inputprev (
     ai_response = []
     prompt = ""
   ) else (
-    prompt = inputs.main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
-    search = searchFiles(inputs.main).trim(1,10)
+    prompt @= inputs.main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
+    friends @= user["sys.friends"].filter(v -> v.contains(inputs.main)).trim(1,5)
+    search @= searchFiles(inputs.main).trim(1,10)
   )
 )
 
+goto 0 window.top - h - 15
+
 if ai_response.len > 0 (
   ai_current = ai_response.trim(1, timer - ai_time * 50)
-  goto 0 window.top - 90 - (ai_current.len * 10.5)
-  square w2 ai_current.len * 21 25 : c#window_colour
-
   goto window.left + 15 window.top - 95
   text ai_current.join("\n") 9 : c#txtc
   h += ai_current.len * 21 + 35
+  change_y -15
+)
+
+if friends.len > 0 and inputs.main != "" (
+  h2 = friends.len * 35
+  set_x window.left + 15
+  text "Friends" 9 : c#txtc
+  h += 15
+
+  goto 0 window.top - h - (friends.len * 17.5) - 15
+  
+  change w2 / -2 + 15 h2 / 2 - 15
+  x = x_position
+  for i friends.len (
+    set_x 0
+    square w2 25 15 0 1
+    if mouse_touching (
+      if onclick (
+        window.create("/(a) system/user applications/contacts.osl", {
+          passed_data: friends[i]
+        })
+      )
+      square w2 25 15 : c#global_accent
+      square w2 25 10 : c#window_colour
+    )
+    set_x x
+    image "https://avatars.rotur.dev/" ++ friends[i] ++ "?radius=40px" 30 30
+    text friends[i] 9 : c#txtc chx#20
+    change_y -35
+  )
+  
+  h += h2 + 35
+  change_y -15
 )
 
 if search.len > 0 (
   h2 = search.len * 35
+  set_x window.left + 15
+  text "Files" 9 : c#txtc
+  h += 15
+
   goto 0 window.top - h - (search.len * 17.5) - 15
-  square w2 h2 25 : c#window_colour
   
   change w2 / -2 + 10 h2 / 2 - 15
   x = x_position
@@ -147,7 +203,11 @@ if search.len > 0 (
     )
     set_x x
     file "render" 1
-    text fileGet(2) ++ fileGet(1) 9 : c#txtc chx#20
+    string type = fileGet(1)
+    if type == ".folder" (
+      type = ""
+    )
+    text fileGet(2) ++ type 9 : c#txtc chx#20
     change_y -35
   )
   
