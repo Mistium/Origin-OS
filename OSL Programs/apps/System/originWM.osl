@@ -7,9 +7,14 @@ def checkCollision(x2,y2,w,h) (
   return abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2
 )
 
-if origin.version < 600 (
+// use the builtin version api
+version = origin.version
+capabilities = {}
+if version < 600 (
   window.close()
 )
+// can we programatically open the right click menu?
+capabilities.open_rightclick = version <= 610
 
 origin @= "window.origin".eval()
 // get the origin global object
@@ -236,6 +241,42 @@ def handleMove() (
     return
   )
   state.cursor = "grab"
+  if mouse_right (
+    if capabilities.open_rightclick (
+      goto mouse_x mouse_y
+      open_rightclick [
+        ["Move Desktop",
+          "Desktop 1",
+          "Desktop 2",
+          "Desktop 3",
+          "Desktop 4",
+          "Desktop 5",
+        ],
+        {"Show App in Files": def(win) -> (
+          window.create("/(a) system/user applications/Files.osl", {
+            passed_data: win.file.uuid
+          })
+        )},
+        {"Application Info": def(win) -> (
+          log win
+          window.create("/(a) system/system apps/Files_Info.osl", {
+            passed_data: win.file.uuid
+          })
+        )},
+        "-",
+        {"Fullscreen Window": def(win) -> (
+          // these dont work on other windows yet, they work in current context
+          // win.fullscreen()
+        )},
+        {"Minimise Window": def(win) -> (
+          // win.minimise()
+        )},
+        {"Close Window": def(win) -> (
+          win.close()
+        )}
+      ] top
+    )
+  )
   if mouse_ondown (
     state.dragDiag = null
     state.dragEdge = null

@@ -16,7 +16,9 @@ sending = false
 calling = ""
 
 show_save_note = false
+send_file_mode = false
 user_data = {}
+pickers = []
 
 window.resize(1000,600)
 
@@ -60,6 +62,14 @@ lh = 0
 mainloop:
 load_theme
 
+if new_transmit (
+  if pickers.contains(transmit_source) (
+    file "open" transmit_data
+    log file
+  )
+  new_transmit = false
+)
+
 tier = user["sys.subscription"].tier ?? "Free"
 
 try (
@@ -96,7 +106,7 @@ frame window.left window.top - 50 window.left + 305 window.bottom + 60 height (
     local w = frame.width - 25
     count = 0
     y = scroll_y + (count + 0.5 * -40) - 10
-    if total_pinned > 0 (
+    if total_pinned > 0 and page == "Friends" (
       loc 999 2 0 y + 15
       centext "Pinned Friends (" ++ total_pinned ++ ")" 10 : c#txtc
       y -= 20
@@ -109,7 +119,7 @@ frame window.left window.top - 50 window.left + 305 window.bottom + 60 height (
       if count == total_pinned + 1 (
         y -= 20
         loc 999 2 0 y + 15
-        centext "All Friends (" ++ (list.len - total_pinned) ++ ")" 10 : c#txtc
+        centext "All " ++ page ++ " (" ++ (list.len - total_pinned) ++ ")" 10 : c#txtc
         y -= 20
       )
       loc 999 2 0 y
@@ -171,7 +181,7 @@ loc 2 -2 225 30
 square 130 30 10 : c#prim hover_c#seco
 if onclick (
   page = "Requests"
-  lost @= user["sys.requests"]
+  list @= user["sys.requests"]
   selected_user = ""
 )
 centext "Requests" 9 : c#txtc
@@ -345,7 +355,12 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
         selected_user = ""
       )
       
-      change_x 110
+      // change_x 145
+      // con_button 100 30 "Send File" def() -> (
+      //   send_file_mode = true
+      //   file "pick"
+      //   void pickers.append(data)
+      // )
     )
   )
 )
