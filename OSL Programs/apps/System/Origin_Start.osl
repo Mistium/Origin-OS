@@ -204,4 +204,4 @@ if window_id_index != 1 (
   window.close()
 )
 
-window.y = screensize_y - window.height / -2 + 90
+window.y = screensize_y - window.height / -2 + "origin.windows.area.bottom".eval().toNum() + 20

@@ -506,8 +506,8 @@ def "draw_file" (
   current_file = files[count]
   if mouse_touching and (file_dropped == 0 nor mouse_down) (
     file "open" file_dropped "onlyaccess"
-    file "open" fileGet(3) ++ ".folder"
-    new @= file[4] ?? []
+    file "open" fileGet(3) ++ ".folder" "onlyaccess"
+    new @= fileGet(4) ?? []
     void new.delete(file_dropped)
     void new.append(file_dropped)
     file "set" 4 new

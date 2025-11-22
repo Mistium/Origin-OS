@@ -49,6 +49,50 @@ def "setting_input" "id, default_txt, w, callback" (
   input w - 10 25 id null 10
 )
 
+def hasTierOrHigher(string tier) bool (
+  string user_tier = (user["sys.subscription"].tier ?? "free").toLower()
+
+  switch tier (
+    case "free"
+      return true
+    case "lite"
+      if user_tier == "lite" (
+        return true
+      )
+    case "plus"
+      if user_tier == "plus" (
+        return true
+      )
+    case "drive"
+      if user_tier == "drive" (
+        return true
+      )
+    case "pro"
+      if user_tier == "pro" (
+        return true
+      )
+    case "max"
+      return true
+  )
+  return false
+)
+
+def "setting_tier_banner" "tier" (
+  if hasTierOrHigher(tier) (
+    return
+  )
+  local x = x_position
+  square w 30 10 : c#prim
+  local cl = onclick
+  change_x w / -2 + 5
+  text "You need a " + tier + " subscription to use this feature" 10 : c#txtc
+  set_x x
+  if onclick (
+    category = "Upgrade"
+    subcategory = ""
+  )
+)
+
 def parseUserAgent(string ua) string (
   string browser = "Unknown Browser"
   string os = "Unknown OS"
@@ -1019,6 +1063,57 @@ def "account" (
     )
     return
   )
+
+  if subcategory == "Blocked Ips" (
+    local w = frame.width - 25
+    set_x 0
+    blocked_ips @= user["blocked_ips"]
+    if typeof(blocked_ips) != "array" (
+      blocked_ips = []
+    )
+    set_x 0
+    centext "Block IPs from logging into your account!" 10 : c#txtc
+    change_y -30
+    network "get_me"
+    centext "Your ip is " ++ network_data.ip 10 : c#txtc
+    change_y -50
+    setting_do "Block IP" w def() -> (
+      local ip = "Enter an ip".ask().strip()
+      if ip == "" (
+        say "Please enter an ip"
+        return
+      )
+      if blocked_ips.contains(ip) (
+        say "Ip already blocked"
+      ) else (
+        void blocked_ips.append(ip)
+      )
+      network "update" "blocked_ips" blocked_ips
+      return
+    )
+    change_y -60
+    if blocked_ips.len == 0 (
+      set_x 0
+      centext "No blocked ips" 10 : c#txtc
+      return
+    )
+
+    for i blocked_ips.len (
+      local cur = blocked_ips[i]
+      set_x 0
+      square w 30 10 : c#prim
+      set_x w / -2 + 10
+      text cur 10 : c#txtc
+      set_x w / 2 - 20
+      icon "bin" 0.6 : c#txtc
+      if clicked (
+        void blocked_ips.delete(cur)
+        network "update" "blocked_ips" blocked_ips
+      )
+      set_x 0 : chy#-50
+    )
+    return
+  )
   
   goto 0 frame.top - (w / 6) - 10 + scroll_y
   square w w / 3 10 : c#prim
@@ -1117,6 +1212,7 @@ def "account" (
       bio_maxSize = 500
       break
     case "Pro"
+    case "Max"
       bio_maxSize = 1000
       break
   )
@@ -1164,6 +1260,11 @@ def "account" (
   set_x 0 : chy#-50
   setting_do "Recent Logins" w def() -> (
     subcategory = "Logins"
+  )
+
+  set_x 0 : chy#-50
+  setting_do "Blocked Ips" w def() -> (
+    subcategory = "Blocked Ips"
   )
   
   set_x 0 : chy#-50
