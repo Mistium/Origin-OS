@@ -26,16 +26,49 @@ def "setting_toggle" "txt, w, state, callback" (
   set_x x
 )
 
-def "setting_do" "txt, w, callback, inp" (
+def "setting_msg" "txt, w" (
+  local x = x_position
+  square w 30 10 : c#prim
+  change_x w / -2 + 5
+  text txt 10 : c#txtc
+  set_x x
+)
+
+def "setting_do" "txt, icn, w, callback, inp" (
   local x = x_position
   square w 30 10 : c#prim
   local cl = onclick
-  change_x w / -2 + 5
+  change_x w / -2
+  if icn != null (
+    change_x 20
+    icon icn 0.8 : c#txtc
+    change_x 25
+  )
+  change_x 5
   text txt 10 : c#txtc
   set_x x
   if cl (
     void callback(inp ?? "")
   )
+)
+
+def "setting_option" "name, icn_code, w" (
+  local x = x_position
+  square w 30 10 0 1
+  if mouse_touching (
+    square w 30 15 : c#seco
+    square w 30 10 : c#prim
+    if onclick (
+      gotosubcategory = name
+    )
+  ) else (
+    square w 30 15 1 : c#prim
+  )
+  change_x w / -2 + 20
+  icn_code ??= name
+  icon icn_code 0.8 : c#txtc
+  text name 10 : chx#30
+  page_len += 50
 )
 
 def "setting_input" "id, default_txt, w, callback" (
@@ -138,8 +171,9 @@ def "DrawCategory" "setting,icn_code" (
   temp = x_position
   change_x 80
   if category == setting (
-    square 190 30 15 : c#seco
-    square 190 30 10 : c#prim
+    set_x frame.left
+    square 0 20 5 : c#txtc
+    set_x temp + 80
   ) else (
     square 190 30 15 0 1
   )
@@ -150,10 +184,10 @@ def "DrawCategory" "setting,icn_code" (
   icon icn_code 0.8 : c#txtc chx#-80
   change_x 25
   text setting 10
-  goto temp y_position - 50
+  goto temp y_position - 40
 )
 
-def "option" "name,icn_code" (
+def "option" "name, icn_code" (
   loc 999 2 0 y
   local w = frame.width - 100
   square w 30 10 0 1
@@ -182,9 +216,10 @@ def "system" (
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
       option "Time" "alarm-clock"
+      option "About" "info"
       break
     case "About"
-      info
+      about
       break
     case "Display"
       loc 2 2 10 -20 + scroll_y
@@ -395,22 +430,22 @@ def "network_page" (
   
   if roturlink.enabled (
     change_y -100
-    setting_do "Connected to " ++ roturlink.wifi.ssid w () -> ()
+    setting_msg "Connected to " ++ roturlink.wifi.ssid w
     change_y -50
-    setting_do "Signal Strength: " ++ roturlink.wifi.signal_strength w () -> ()
+    setting_msg "Signal Strength: " ++ roturlink.wifi.signal_strength w
     
     change_y -70
     local networks @= roturlink.wifi.scan
       .sortBy("signal_strength")
       .reverse()
     
-    setting_do networks.len + (networks.len == 1 ? "Network" "Networks") w def() -> ()
+    setting_msg networks.len + (networks.len == 1 ? "Network" "Networks") w
     change_y -10
     
     for i networks.len (
       local cur @= networks[i]
       set_x 0 : chy#-50
-      setting_do cur.ssid w (val) -> (
+      setting_do cur.ssid null w (val) -> (
         // implement network switching
       ) cur
       
@@ -866,7 +901,7 @@ def "account" (
     each this.backup user["sys.backups"] (
       if backup.isType("object") (
         page_len += 50
-        setting_do backup.name + "(" ++ (backup.size / 1000).round() ++ "kb)" w def(id) -> (
+        setting_do backup.name + "(" ++ round(backup.size / 1000) ++ "kb)" null w def(id) -> (
           if "Restore this backup?".confirm() (
             network "server" "restore_backup" id
           )
@@ -945,7 +980,7 @@ def "account" (
     if links.contains("github") and github_data == "Loading" (
       github_data = ("https://api.github.com/user/" ++ links.github.id).getAsync()
     )
-    setting_do "Github: " ++ (links.contains("github") ? github_data.login "Click To Link") w def() -> (
+    setting_do "Github: " ++ (links.contains("github") ? github_data.login "Click To Link") null w def() -> (
       network "server" "link" {
         service: "github",
         username: "What is your github username?".ask()
@@ -956,7 +991,7 @@ def "account" (
     goto 0 frame.top + scroll_y + 25
     
     set_x 0 : chy#-50
-    setting_do "Change Email (" ++ user.email ++ ")" w def() -> (
+    setting_do "Change Email (" ++ user.email ++ ")" "edit" w def() -> (
       network "update" "email" "Enter Your New Email".ask()
     )
     
@@ -1077,7 +1112,7 @@ def "account" (
     network "get_me"
     centext "Your ip is " ++ network_data.ip 10 : c#txtc
     change_y -50
-    setting_do "Block IP" w def() -> (
+    setting_do "Block IP" "plus" w def() -> (
       local ip = "Enter an ip".ask().strip()
       if ip == "" (
         say "Please enter an ip"
@@ -1241,7 +1276,7 @@ def "account" (
   }
   
   set_x 0 : chy#-100
-  setting_do "Change Password" w def() -> (
+  setting_do "Change Password" "edit" w def() -> (
     local data = "Enter Your New Password".ask()
     if data == null or data == "" (
       say "Cancelled"
@@ -1253,39 +1288,29 @@ def "account" (
   change_y -20
   
   set_x 0 : chy#-50
-  setting_do "Privacy" w def() -> (
-    subcategory = "Privacy"
-  )
-  
-  set_x 0 : chy#-50
-  setting_do "Recent Logins" w def() -> (
-    subcategory = "Logins"
-  )
+  setting_option "Privacy" "key" w
 
   set_x 0 : chy#-50
-  setting_do "Blocked Ips" w def() -> (
-    subcategory = "Blocked Ips"
-  )
+  setting_option "Recent Logins" "list" w
+
+  set_x 0 : chy#-50
+  setting_option "Blocked Ips" "w 4 line 8 8 -8 -8 line -8 8 8 -8" w
   
   set_x 0 : chy#-50
-  setting_do "Connections" w def() -> (
-    subcategory = "Connections"
-  )
+  setting_option "Connections" "link" w
   
   set_x 0 : chy#-70
-  setting_do "Subscriptions" w def() -> (
-    subcategory = "Subscriptions"
-  )
+  setting_option "Subscriptions" "scale 1.1 w 2 ellipse 0 0 10 0.45 100 ellipse 0 0 10 0.45 160 ellipse 0 0 10 0.45 220" w
   
   change_y -20
 
   set_x 0 : chy#-50
-  setting_do "Logout" w def() -> (
+  setting_do "Logout" "log-out" w def() -> (
     eval "localStorage.setItem('origin_login', '')"
     terminal "shutdown"
   )
   
-  page_len += 70
+  page_len -= 120
 )
 
 def "apps" (
@@ -1430,12 +1455,12 @@ def "bluetooth_page" (
     .reverse()
   
   inputs.bluetooth = roturlink.bluetooth.enabled
-  setting_do devices.len ++ " Devices" w def() -> ()
+  setting_msg devices.len ++ " Devices" w
   change_y -10
   
   each device devices (
     set_x 0 : chy#-50
-    setting_do device.name w changePage
+    setting_msg device.name w changePage
     
     set_x w / 2 - 20
     connection = round((device.rssi + 100).clamp(0, 100) / 25)
@@ -1801,6 +1826,23 @@ def "credits" (
   )
 )
 
+def "connectivity" (
+  local w = frame.width - 25
+
+  switch subcategory (
+    case "none"
+      option "Wi-Fi" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
+      option "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
+      break
+    case "Wi-Fi"
+      network_page
+      break
+    case "Bluetooth"
+      bluetooth_page
+      break
+  )
+)
+
 def networking() (
   if new_network_data (
     if packet.username != "sys-rotur" (
@@ -2052,18 +2094,20 @@ frame "clear"
 frame window.left window.top window.left + 225 window.bottom sidebar_height (
   sidebar_height = 25
   loc 2 2 107 -25 + frame.scroll
+  temp = x_position
   y = y_position
   if category == "Account" (
-    square 190 30 15 : c#seco
-    square 190 30 10 : c#prim
+    set_x frame.left
+    square 0 20 5 : c#txtc
+    set_x temp
   ) else (
     square 190 30 15 0 1
+    if onclick (
+      category = "Account"
+      subcategory = "none"
+    )
   )
 
-  if onclick (
-    category = "Account"
-    subcategory = "none"
-  )
   icon icn_code 0.8 : c#txtc chx#-80
   text user.username.trimText(13) 10 : chx#30
 
@@ -2074,19 +2118,17 @@ frame window.left window.top window.left + 225 window.bottom sidebar_height (
   change_y -70
   DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
   DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-  DrawCategory "Files" "file"
-  DrawCategory "Inputs" "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0"
+  DrawCategory "Controls" "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0"
   if roturlink.enabled (
-    DrawCategory "Network" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
-    DrawCategory "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
+    DrawCategory "Connection" "link"
   )
 
   change_y -25
   // DrawCategory "Apps" "grid-apps"
-  DrawCategory "Permissions" "key"
+  DrawCategory "Storage" "file"
+  DrawCategory "Permissions" "permissions"
 
   change_y -25
-  DrawCategory "About" "info"
   DrawCategory "Upgrade" "up"
   DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
 
@@ -2095,20 +2137,17 @@ frame window.left window.top window.left + 225 window.bottom sidebar_height (
 
 loc 2 2 232 -25
 if subcategory == "none" (
-  text category 10 : c#txtc
+  set_x 105
+  centext category 10 : c#txtc
 ) else (
   change_x 10
-  square 20 20 15 0 1
-  if mouse_touching (
-    square 20 20 15 : c#seco
-    square 20 20 10 : c#prim
-  )
   icon "left-arrow" 0.6 : c#txtc
+  square 20 20 15 0 1
   if clicked (
     subcategory = "none"
   )
-  change_x 30
-  text subcategory 10
+  set_x 105
+  centext subcategory 10
 )
 c seco
 frame window.left + 215 window.top - 47 window.right window.bottom page_len
@@ -2120,19 +2159,16 @@ switch category (
   case "System"
     system
     break
-  case "Network"
-    network_page
-    break
-  case "Bluetooth"
-    bluetooth_page
+  case "Connection"
+    connectivity
     break
   case "Style"
     appearance
     break
-  case "Files"
+  case "Storage"
     files
     break
-  case "Inputs"
+  case "Controls"
     inputs
     break
   case "Account"
@@ -2143,9 +2179,6 @@ switch category (
     break
   case "Apps"
     apps
-    break
-  case "About"
-    about
     break
   case "upgrade"
     upgrade
