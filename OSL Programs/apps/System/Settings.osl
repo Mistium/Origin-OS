@@ -1109,8 +1109,7 @@ def "account" (
     set_x 0
     centext "Block IPs from logging into your account!" 10 : c#txtc
     change_y -30
-    network "get_me"
-    centext "Your ip is " ++ network_data.ip 10 : c#txtc
+    centext "Your ip is " ++ network.ip 10 : c#txtc
     change_y -50
     setting_do "Block IP" "plus" w def() -> (
       local ip = "Enter an ip".ask().strip()
