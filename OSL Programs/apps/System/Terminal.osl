@@ -103,7 +103,7 @@ class terminal (
   )
   
   def write(data) (
-    self.lines[self.lines.len] += data
+    self.lines[self.lines.len] ++= data
   )
   
   def clear() (
