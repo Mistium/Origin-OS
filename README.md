@@ -7,7 +7,7 @@ originOS is a fully-featured, customisable, web-based desktop environment create
 
 Actively developed for over 3 years, originOS is built to be both powerful and easy to use, making it the most advanced GUI-based ScratchOS project.
 
-<img width="1600" height="1000" alt="image" src="https://github.com/user-attachments/assets/d096f6e5-e4b6-4997-9dac-445953c2f440" />
+<img width="1600" height="1000" alt="image" src="https://github.com/user-attachments/assets/397270ca-1345-453b-a559-04b762f11685" />
 
 ## Features
 
