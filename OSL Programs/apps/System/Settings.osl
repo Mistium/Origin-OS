@@ -1041,7 +1041,7 @@ def "account" (
     return
   )
 
-  if subcategory == "Logins" (
+  if subcategory == "Recent Logins" (
     page_len = 0
     goto 0 frame.top - 60 + scroll_y
     array logins @= user["sys.logins"]
@@ -1111,7 +1111,7 @@ def "account" (
     change_y -30
     centext "Your ip is " ++ network.ip 10 : c#txtc
     change_y -50
-    setting_do "Block IP" "plus" w def() -> (
+    setting_do "Block IP" "add" w def() -> (
       local ip = "Enter an ip".ask().strip()
       if ip == "" (
         say "Please enter an ip"
