@@ -3,7 +3,7 @@ pwd[1] = ""
 local odir = pwd
 void pwd.append(args[1])
 
-zip_name = args[1]
+string zip_name = args[1]
 void args.shift()
 
 local collected = []
@@ -35,20 +35,20 @@ terminal.writeLine("zipping")
 zip "new" zip_id
 while collected.len > 0 (
   local first @= collected.shift()
-  local d @= open(first, ["name", "type", "data", "location"])
+  array d @= open(first, ["name", "type", "data", "location"])
   terminal.lines[terminal.lines.len] = d[4] ++ "/" ++ d[1] ++ d[2]
   d[4] = d[4].toLower().split("/").trim(odir.len + 1, -1)
   // remove "origin" from path
-  zip "goto" "/" ++ d[4].join("/")
+  string path = "/" ++ d[4].join("/")
   if d[2] == ".folder" (
-    zip "new_directory" d[1].toLower()
+    zip "new_directory" path ++ d[1].toLower()
     collected ++= d[3].JsonParse()
   ) else (
-    local name = d.trim(1,2).join("")
+    local name = path ++ d.trim(1,2).join("")
     zip "write" name d[3]
   )
 )
-zip "export" "string"
+zip "export_zip"
 file "goto_dir" parseFilePath(odir.join("/"))
 file "set_file" zip_name data
 zip "remove"
