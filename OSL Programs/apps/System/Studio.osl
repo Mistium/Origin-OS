@@ -395,12 +395,17 @@ def getOHF(string type) (
   if load_save (
     return (type ++ ".ohf").saveGet()
   ) else (
-    local OHF = ("https://origin.mistium.com/Other/OHF/" ++ type.toUpper() ++ ".ohf").httpGet()
-    if OHF == "404: Not Found" and (type ++ ".ohf").saveExists() (
-      return (type ++ ".ohf").saveGet()
+    local OHF = requests.get("https://origin.mistium.com/Other/OHF/" ++ type.toUpper() ++ ".ohf")
+    if OHF.status != 200 (
+      return null
+    )
+    string name = type ++ ".ohf"
+    if name.saveExists() (
+      return name.saveGet()
     ) else (
-      save type ++ ".ohf" "set" OHF
-      return OHF
+      local parsed = OHF.body.JsonParse()
+      save name "set" parsed
+      return parsed
     )
   )
 )
