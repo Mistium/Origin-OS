@@ -206,7 +206,7 @@ class OSLUtils {
     this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "|>", "to", "::"]
     this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
-    this.bitwise = ["|", "&", "<<", ">>", "^^"]
+    this.bitwise = ["|", "&", "<<", ">>", ">>>", "<<<", "^^"]
     this.unary = ["typeof", "new"]
     this.listVariable = "";
     this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[(?=[^\]])|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
@@ -321,6 +321,8 @@ class OSLUtils {
       ">>": 36,
       "^^": 37,
       "raw": 38,
+      ">>>": 39,
+      "<<<": 40,
     }
 
     if (typeof window !== "undefined") {
@@ -535,7 +537,7 @@ class OSLUtils {
           arguments: {
             BITWISE: {
               type: Scratch.ArgumentType.STRING,
-              defaultValue: '["|", "&", "<<", ">>", "^^"]',
+              defaultValue: '["|", "&", "<<", ">>", ">>>", "<<<", "^^"]',
             },
           },
         },
@@ -2975,6 +2977,8 @@ class OSLUtils {
       case '&':
       case '<<':
       case '>>':
+      case '>>>':
+      case '<<<':
       case '^^': {
         return 'number';
       }
