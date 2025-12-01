@@ -14,7 +14,7 @@ if version < 600 (
   window.close()
 )
 // can we programatically open the right click menu?
-capabilities.open_rightclick = version <= 610
+capabilities.open_rightclick = version >= 610
 
 origin @= "window.origin".eval()
 // get the origin global object
