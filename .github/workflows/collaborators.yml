@@ -2,25 +2,36 @@ name: Fetch Contributors
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # Runs daily at midnight
-  workflow_dispatch:  # Allows manual triggering
+    - cron: "0 0 * * *"
+  workflow_dispatch:
 
 jobs:
   fetch-contributors:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-        
-      - name: Fetch contributors
+
+      - name: Fetch contributors (excluding actions-user)
         run: |
-          curl -s https://api.github.com/repos/Mistium/Origin-OS/contributors > contributors.json
-        
+          curl -s https://api.github.com/repos/Mistium/Origin-OS/contributors \
+          | jq 'map(select(.login != "actions-user"))' > new_contributors.json
+
+      - name: Replace file only if contents changed
+        run: |
+          if ! cmp -s new_contributors.json contributors.json; then
+            echo "Contributors list changed, updating..."
+            mv new_contributors.json contributors.json
+          else
+            echo "No changes in contributors.json"
+            rm new_contributors.json
+          fi
+
       - name: Commit changes if any
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
           git add contributors.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Update contributors list"
+          git diff --staged --quiet || git commit -m "Update contributors list"
           git push
