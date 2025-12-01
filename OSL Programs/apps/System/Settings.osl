@@ -1991,8 +1991,8 @@ file_data = ""
 total_files = 0
 contributors = "https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/main/contributors.json"
   .httpGet()
-  .JsonClean()
-  .filter(v -> (v["type"] == "User"))
+  .JsonParse()
+  .filter(v -> v["type"] == "User")
 
 c_names @= contributors.getKeys("username")
 c_imgs @= contributors.getKeys("avatar_url")
