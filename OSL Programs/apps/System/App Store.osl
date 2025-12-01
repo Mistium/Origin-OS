@@ -29,6 +29,19 @@ page_history = [{
   page: "home"
 }]
 
+def installApp(cur, page_data) (
+  file "goto_dir" "~/Applications"
+  local data = ("https://apps.rotur.dev/apps/download/" ++ cur.title ++ "/osl?auth=" ++ roturToken()).httpGet()
+  if data.ok == false (
+    say data.error
+    return
+  )
+  file "set_file" cur.title ++ ".osl" data
+  file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
+  file "set" 11 cur.icon
+  file "close"
+)
+
 def appCard(name) (
   local name = name.toStr().toLower()
   local x = x_position
@@ -66,6 +79,13 @@ def navigate(p, d) (
     page,
     page_data
   })
+)
+
+my_apps @= requests.get("https://apps.rotur.dev/apps/owned?auth=" ++ roturToken())
+if my_apps.status != 200 (
+  my_apps @= []
+) else (
+  my_apps @= my_apps.body.ownedApps
 )
 
 mainloop:
@@ -267,9 +287,6 @@ frame window.left window.top - 45 window.right window.bottom page_len (
             .contains(cur.author.toLower())))
           .map(v -> (v.title)))
       )
-      
-      loc -2 2 -90 -45 + scroll_y
-      square 110 30 10 : c#prim
 
       file "exists" parseFilePath("~/Applications/" ++ cur.title ++ ".osl")
       if exists (
@@ -278,39 +295,48 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         ) else (
           msg = "Update"
         )
+      ) else if cur.price > 0 and !my_apps.contains(cur.title.toLower()) (
+        msg = "Buy (" ++ cur.price ++ " rc)"
       ) else (
         msg = "Install"
       )
-      
-      centext msg 10 : c#txtc chx#-15
-      
-      square 80 30 10 0 1
+
+      loc -2 2 -40 -45 + scroll_y
+      square msg.len * 10 + 40 30 10 : c#prim chx#(msg.len * -5)
       if onclick (
-        if msg == "Install" or msg == "Update" (
-          file "goto_dir" "~/Applications"
-          file "set_file" cur.title ++ ".osl" ("https://apps.rotur.dev/apps/download/" ++ page_data ++ "/osl?auth=" ++ roturToken()).httpGet()
+        if msg == "Launch" (
           file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
-          file "set" 11 cur.icon
+          file "start"
           file "close"
-        
+        ) else if !msg.startsWith("Buy ") or "Are you sure you want to buy this app?".confirm() (
+          installApp(cur, page_data)
           say "Installed to " ++ username ++ "/Applications"
         
           save_data[cur.title] = cur.version
           save "installed.json" "set" save_data
         )
-        if msg == "Launch" (
-          file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
-          file "start"
-          file "close"
-        )
       )
+      centext msg 10 : c#txtc chx#-15
       
-      change_x 45
+      change_x msg.len * 5 + 10
       square 0 20 2 : c#global_accent
       icon "down" 0.5 : chx#15 c#txtc
       square 20 30 0 0 1
       if onclick (
-        say "Not implemented rn"
+        change -20 -20
+        open_rightclick [
+          {"Reinstall": def(v) -> (
+            installApp(v.cur, v.page_data)
+            say "Reinstalled " ++ v.cur.title
+          )},
+          {"Uninstall": def(v) -> (
+            file "goto_dir" "~/Applications"
+            file "open" v.cur.title ++ ".osl" "onlyaccess"
+            file "delete"
+            file "close"
+            say "Uninstalled " ++ v.cur.title
+          )},
+        ] {cur, page_data}
       )
       
       change -45 -35
