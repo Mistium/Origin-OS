@@ -59,6 +59,9 @@ list @= organiseFriends()
 
 lh = 0
 
+friends_length = user["sys.friends"].len
+requests_length = user["sys.requests"].len
+
 mainloop:
 load_theme
 
@@ -165,6 +168,14 @@ frame window.left window.top - 50 window.left + 305 window.bottom + 60 height (
     )
   )
 )
+
+if friends_length != user["sys.friends"].len and page == "Friends" (
+  list @= organiseFriends()
+)
+if requests_length != user["sys.requests"].len and page == "Requests" (
+  list @= user["sys.requests"]
+)
+
 loc 2 -2 152 30
 square 280 35 15 : c#window_colour
 
@@ -197,7 +208,11 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       loc 9999 2 0 -120
       square w 30 12 : c#prim hover_c#seco
       if onclick (
-        network "server" "friend_request" inputs.username
+        say "Sending request..."
+        requests.postAsync("https://api.rotur.dev/friends/request/" ++ inputs.username ++ "?auth=" ++ roturToken())
+          .then((resp) -> (
+            say resp.body.message ?? resp.body.error
+          ))
         selected_user = ""
         sending = false
       )
@@ -213,7 +228,11 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       loc 9999 2 0 -65
       square w 30 12 : c#global_accent
       if onclick (
-        network "server" "friend_accept" selected_user
+        say "Accepting request..."
+        requests.postAsync("https://api.rotur.dev/friends/accept/" ++ selected_user ++ "?auth=" ++ roturToken())
+          .then((resp) -> (
+            say resp.body.message ?? resp.body.error
+          ))
         selected_user = ""
       )
       square w 30 9 : c#prim hover_c#seco
@@ -223,7 +242,11 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
       loc 9999 2 0 -120
       square w 30 12 : c#prim hover_c#seco
       if onclick (
-        network "server" "friend_decline" selected_user
+        say "Declining request..."
+        requests.postAsync("https://api.rotur.dev/friends/reject/" ++ selected_user ++ "?auth=" ++ roturToken())
+          .then((resp) -> (
+            say resp.body.message ?? resp.body.error
+          ))
         selected_user = ""
       )
       text "Decline Request" 10 : c#txtc chx#-70
@@ -351,7 +374,11 @@ frame window.left + 305 window.top - 50 window.right window.bottom (
 
       change_x 180
       con_button 150 30 "Remove Friend" def() -> (
-        network "server" "friend_remove" selected_user
+        say "Removing friend..."
+        requests.postAsync("https://api.rotur.dev/friends/remove/" ++ selected_user ++ "?auth=" ++ roturToken())
+          .then((resp) -> (
+            say resp.body.message ?? resp.body.error
+          ))
         selected_user = ""
       )
       
