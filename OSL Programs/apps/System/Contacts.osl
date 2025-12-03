@@ -9,8 +9,12 @@ permission "request" "rotur token"
 
 page = "Friends"
 selected_user = ""
+window.resize(1000,600)
+
 if passed_data != "" (
   selected_user = passed_data
+  page = "Profile"
+  window.resize(400, 600)
 )
 sending = false
 calling = ""
@@ -20,11 +24,45 @@ send_file_mode = false
 user_data = {}
 pickers = []
 
-window.resize(1000,600)
-
 notes @= user["sys.notes"] ?? {}
 if typeof(notes) != "object" (
   notes = {}
+)
+
+class friends (
+  def remove(user) (
+    say "Removing friend..."
+    void requests.postAsync("https://api.rotur.dev/friends/remove/" ++ user ++ "?auth=" ++ roturToken())
+      .then((resp) -> (
+        say resp.body.message ?? resp.body.error
+      ))
+  )
+)
+
+class requests (
+  def reject(user) (
+    say "Rejecting request..."
+    void requests.postAsync("https://api.rotur.dev/friends/reject/" ++ user ++ "?auth=" ++ roturToken())
+      .then((resp) -> (
+        say resp.body.message ?? resp.body.error
+      ))
+  )
+
+  def accept(user) (
+    say "Accepting request..."
+    void requests.postAsync("https://api.rotur.dev/friends/accept/" ++ user ++ "?auth=" ++ roturToken())
+      .then((resp) -> (
+        say resp.body.message ?? resp.body.error
+      ))
+  )
+
+  def send(user) (
+    say "Sending friend request..."
+    requests.postAsync("https://api.rotur.dev/friends/request/" ++ user ++ "?auth=" ++ roturToken())
+      .then((resp) -> (
+        say resp.body.message ?? resp.body.error
+      ))
+  )
 )
 
 def "con_button" "t, i, callback" (
@@ -82,6 +120,9 @@ requests_length = user["sys.requests"].len
 mainloop:
 load_theme
 
+friends_arr @= user["sys.friends"]
+requests_arr @= user["sys.requests"]
+
 if new_transmit (
   if pickers.contains(transmit_source) (
     file "open" transmit_data
@@ -92,130 +133,153 @@ if new_transmit (
 
 tier = user["sys.subscription"].tier ?? "Free"
 
-try (
-  online @= network.online.deDupe().filter(v -> v != null)
-) catch (
-  online @= network.online ?? []
-)
+if page != "Profile" (
+  try (
+    online @= network.online.deDupe().filter(v -> v != null)
+  ) catch (
+    online @= network.online ?? []
+  )
 
-glass:frame window.left window.top window.left + 305 window.bottom; frame "clear"
+  glass:frame window.left window.top window.left + 305 window.bottom; frame "clear"
 
-loc 2 2 10 -20
-text page 10 : c#txtc
-loc 2 2 280 -20
-icon "add" 0.5
-if onclick (
-  sending = true
-  selected_user = ""
-)
-length = list.len
-c seco
+  loc 2 2 10 -20
+  text page 10 : c#txtc
+  loc 2 2 280 -20
+  icon "add" 0.5
+  if onclick (
+    sending = true
+    selected_user = ""
+  )
+  length = list.len
+  c seco
 
-if page == "Friends" (
-  height = length * 45 + (pinned_friends.len > 0 ? 40 0) + 40
-) else (
-  height = length * 45
-)
-
-frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "sidebar" (
-  if length == 0 (
-    loc 2 2 10 -20
-    text "No" + page 10 : c#txtc
+  if page == "Friends" (
+    height = length * 45 + (pinned_friends.len > 0 ? 40 0) + 40
   ) else (
-    number total_pinned = pinned_friends.len
-    local w = frame.width - 25
-    count = 0
-    y = frame.scroll + (count + 0.5 * -40) - 10
-    if total_pinned > 0 and page == "Friends" (
-      loc 999 2 0 y + 15
-      centext "Pinned Friends (" ++ total_pinned ++ ")" 10 : c#txtc
-      y -= 20
-    )
-    loop list.len (
-      count ++
-      if count > list.len (
-        break
-      )
-      if count == total_pinned + 1 (
-        y -= 20
+    height = length * 45
+  )
+
+  frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "sidebar" (
+    if length == 0 (
+      loc 2 2 10 -20
+      text "No" + page 10 : c#txtc
+    ) else (
+      number total_pinned = pinned_friends.len
+      local w = frame.width - 25
+      count = 0
+      y = frame.scroll + (count + 0.5 * -40) - 10
+      if total_pinned > 0 and page == "Friends" (
         loc 999 2 0 y + 15
-        centext "All " ++ page ++ " (" ++ (list.len - total_pinned) ++ ")" 10 : c#txtc
+        centext "Pinned Friends (" ++ total_pinned ++ ")" 10 : c#txtc
         y -= 20
       )
-      loc 999 2 0 y
-      if y_position > frame.top + 20 (
-        y -= 45
-        continue
-      )
-      square w 25 15 : c#window_colour
-      if mouse_touching (
-        square w 25 15 : c#prim
-        clicked_bg = onclick
-        set_x w / 2 - 12.5
-        boolean pinned = pinned_friends.contains(list[count])
-        icon pinned ? "pin-full" "pin" 0.7 : c#txtc
-        if onclick (
-          if pinned (
-            void pinned_friends
-              .delete(list[count])
-          ) else (
-            void pinned_friends
-              .append(list[count])
-          )
+      loop list.len (
+        count ++
+        if count > list.len (
+          break
+        )
+        if count == total_pinned + 1 (
+          y -= 20
+          loc 999 2 0 y + 15
+          centext "All " ++ page ++ " (" ++ (list.len - total_pinned) ++ ")" 10 : c#txtc
+          y -= 20
+        )
+        loc 999 2 0 y
+        if y_position > frame.top + 20 (
+          y -= 45
+          continue
+        )
+        square w 25 15 : c#window_colour
+        if mouse_touching (
+          square w 25 15 : c#prim
+          clicked_bg = onclick
+          set_x w / 2 - 12.5
           if page == "Friends" (
-            list @= organiseFriends()
+            boolean pinned = pinned_friends.contains(list[count])
+            icon pinned ? "pin-full" "pin" 0.7 : c#txtc
+            if onclick (
+              if pinned (
+                void pinned_friends
+                  .delete(list[count])
+              ) else (
+                void pinned_friends
+                  .append(list[count])
+              )
+              if page == "Friends" (
+                list @= organiseFriends()
+              )
+              network "update" "origin_fav_friends" pinned_friends
+            )
+          ) else if page == "Requests" (
+            square 25 25 10 0 1
+            if mouse_touching (
+              cursor "pointer"
+              square 25 25 10 : c#seco
+              if onclick (
+                requests.reject(selected_user)
+              )
+            )
+            icon "close" 0.6 : c#txtc
+            
+            square 25 25 10 0 1 : chx#-40
+            if mouse_touching (
+              cursor "pointer"
+              square 25 25 10 : c#seco
+              if onclick (
+                requests.accept(selected_user)
+              )
+            )
+            icon "tick" 0.6 : c#txtc
           )
-          network "update" "origin_fav_friends" pinned_friends
+          if clicked_bg and !onclick (
+            selected_user = list[count]
+            show_save_note = false
+          )
         )
-        if clicked_bg and !onclick (
-          selected_user = list[count]
-          show_save_note = false
+        set_x w / -2 + 12.5
+        image "https://avatars.rotur.dev/" ++ list[count] ++ "?radius=40px" 30 30
+        change_x 30
+        icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #555 w 10 dot 0 0" 1.3
+        text list[count] 10 : c#txtc chx#15
+        y -= 45
+        lh += 45
+        if y_position < frame.bottom - 20 (
+          break
         )
-      )
-      set_x w / -2 + 12.5
-      image "https://avatars.rotur.dev/" ++ list[count] ++ "?radius=40px" 30 30
-      change_x 30
-      icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #555 w 10 dot 0 0" 1.3
-      text list[count] 10 : c#txtc chx#15
-      y -= 45
-      lh += 45
-      if y_position < frame.bottom - 20 (
-        break
       )
     )
   )
-)
 
-if friends_length != user["sys.friends"].len and page == "Friends" (
-  list @= organiseFriends()
-)
-if requests_length != user["sys.requests"].len and page == "Requests" (
-  list @= user["sys.requests"]
-)
+  if friends_length != friends_arr.len and page == "Friends" (
+    list @= organiseFriends()
+  )
+  if requests_length != requests_arr.len and page == "Requests" (
+    list @= requests_arr
+  )
 
-loc 2 -2 152 30
-square 280 35 15 : c#window_colour
+  loc 2 -2 152 30
+  square 280 35 15 : c#window_colour
 
-loc 2 -2 79 30
-square 130 30 10 : c#prim hover_c#seco
-if onclick (
-  page = "Friends"
-  list @= organiseFriends()
-  selected_user = ""
+  loc 2 -2 79 30
+  square 130 30 10 : c#prim hover_c#seco
+  if onclick (
+    page = "Friends"
+    list @= organiseFriends()
+    selected_user = ""
+  )
+  centext "Friends" 9 : c#txtc
+
+  loc 2 -2 225 30
+  square 130 30 10 : c#prim hover_c#seco
+  if onclick (
+    page = "Requests"
+    list @= requests_arr
+    selected_user = ""
+  )
+  centext "Requests" 9 : c#txtc
 )
-centext "Friends" 9 : c#txtc
-
-loc 2 -2 225 30
-square 130 30 10 : c#prim hover_c#seco
-if onclick (
-  page = "Requests"
-  list @= user["sys.requests"]
-  selected_user = ""
-)
-centext "Requests" 9 : c#txtc
-
 c prim
-frame window.left + 305 window.top - 50 window.right window.bottom page_len "page" (
+frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right window.bottom page_len "page" (
   page_len = 0
   local w = frame_width - 35
   if selected_user == "" (
@@ -228,11 +292,7 @@ frame window.left + 305 window.top - 50 window.right window.bottom page_len "pag
       square w 30 12 : c#prim hover_c#seco
       if onclick (
         say "Sending request..."
-        requests.postAsync("https://api.rotur.dev/friends/request/" ++ inputs.username ++ "?auth=" ++ roturToken())
-          .then((resp) -> (
-            say resp.body.message ?? resp.body.error
-          ))
-        selected_user = ""
+        requests.send(inputs.username)
         sending = false
       )
       text "Send Request" 10 : c#txtc chx#-60
@@ -242,102 +302,73 @@ frame window.left + 305 window.top - 50 window.right window.bottom page_len "pag
     )
   ) else (
     local w = frame_width - 35
-    if page == "Requests" (
-
-      loc 9999 2 0 -65
-      square w 30 12 : c#global_accent
-      if onclick (
-        say "Accepting request..."
-        requests.postAsync("https://api.rotur.dev/friends/accept/" ++ selected_user ++ "?auth=" ++ roturToken())
-          .then((resp) -> (
-            say resp.body.message ?? resp.body.error
-          ))
-        selected_user = ""
-      )
-      square w 30 9 : c#prim hover_c#seco
-      text "Accept Request" 10 : c#txtc chx#-65
-
-
-      loc 9999 2 0 -120
-      square w 30 12 : c#prim hover_c#seco
-      if onclick (
-        say "Declining request..."
-        requests.postAsync("https://api.rotur.dev/friends/reject/" ++ selected_user ++ "?auth=" ++ roturToken())
-          .then((resp) -> (
-            say resp.body.message ?? resp.body.error
-          ))
-        selected_user = ""
-      )
-      text "Decline Request" 10 : c#txtc chx#-70
+    local loaded = true
+    if typeof(user_data[selected_user]) != "object" (
+      loaded = false
+      user_data[selected_user] = ("https://api.rotur.dev/profile?include_posts=0&name=" ++ selected_user).getAsync()
     )
-    if page == "Friends" (
     
-      local loaded = true
-      if typeof(user_data[selected_user]) != "object" (
-        loaded = false
-        user_data[selected_user] = ("https://api.rotur.dev/profile?include_posts=0&name=" ++ selected_user).getAsync()
-      )
-      
-      local cur = user_data[selected_user]
-    
-      string banner_url = "https://avatars.rotur.dev/.banners/" ++ selected_user
-      if !banner_url.imageinfo("loaded") (
-        image banner_url 0
-      )
-      if banner_url.imageinfo("width") > 10 (
-        goto 0 frame.top - (frame.width / 6) + frame.scroll
-        image banner_url frame.width
-        set_x frame.left + 60
-        change_y frame.width / -6
-        page_len += frame.width / 3
-      ) else (
-        goto frame.left + 60 frame.top - 120 + frame.scroll
-        page_len += 120
-      )
-      image "https://avatars.rotur.dev/" ++ selected_user ++ "?radius=30px" 100
-    
-      text selected_user 10 : c#txtc chx#60 chy#-20
-      change_x 40
-      if loaded (
-        array badges @= cur.badges
-        local w2 = badges.len * 30
-        for i badges.len (
-          local badge = badges[i]
-          icon badge.icon 1.2 : tooltip#badge.name
-          if onclick (
-            say badge.description
-          )
-          change_x 30
+    local cur = user_data[selected_user]
+  
+    string banner_url = "https://avatars.rotur.dev/.banners/" ++ selected_user
+    if !banner_url.imageinfo("loaded") (
+      image banner_url 0
+    )
+    if banner_url.imageinfo("width") > 10 (
+      goto 0 frame.top - (frame.width / 6) + frame.scroll
+      image banner_url frame.width
+      set_x frame.left + 60
+      change_y frame.width / -6
+      page_len += frame.width / 3
+    ) else (
+      goto frame.left + 60 frame.top - 120 + frame.scroll
+      page_len += 120
+    )
+    image "https://avatars.rotur.dev/" ++ selected_user ++ "?radius=30px" 100
+  
+    text selected_user 10 : c#txtc chx#60 chy#-20
+    change_x 40
+    if loaded (
+      array badges @= cur.badges
+      local w2 = badges.len * 30
+      for i badges.len (
+        local badge = badges[i]
+        icon badge.icon 1.2 : tooltip#badge.name
+        if onclick (
+          say badge.description
         )
-        change_y -20
-        page_len += 40
+        change_x 30
+      )
+      change_y -20
+      page_len += 40
 
+      seperator
+
+      number left = frame.left + 10
+      set_x left : chy#-35
+      text "Joined " ++ toReadableTime(cur.created) ++ "\n" 10 : c#txtc
+      text cur.system + "account\n" 10
+      local followers = cur.followers
+      text followers + "Follower" ++ (followers == 1 ? "" "s") 10
+      page_len += 100
+
+      if cur.bio.len > 0 (
         seperator
 
-        number left = frame.left + 10
         set_x left : chy#-35
-        text "Joined " ++ toReadableTime(cur.created) ++ "\n" 10 : c#txtc
-        text cur.system + "account\n" 10
-        local followers = cur.followers
-        text followers + "Follower" ++ (followers == 1 ? "" "s") 10
-        page_len += 100
+        string bio = cur.bio.wrapText(frame.width / 10 - 5)
+        text bio 10 : c#txtc
+        page_len += bio.split("\n").len * 23 + 30
+      )
 
-        if cur.bio.len > 0 (
-          seperator
+      seperator
 
-          set_x left : chy#-35
-          string bio = cur.bio.wrapText(frame.width / 10 - 5)
-          text bio 10 : c#txtc
-          page_len += bio.split("\n").len * 23 + 30
-        )
-
-        seperator
-
-        set_x frame.left + 80 : chy#-70
-        con_button "Copy Username" "copy" def() -> (
-          clipboard "set" selected_user
-          say "Copied username to clipboard"
-        )
+      set_x frame.left + 80 : chy#-70
+      con_button "Copy Username" "copy" def() -> (
+        clipboard "set" selected_user
+        say "Copied username to clipboard"
+      )
+      if friends_arr.contains(selected_user) (
         con_button "Call" "phone" def() -> (
           rotur "call" selected_user "request"
           calling = selected_user
@@ -347,75 +378,88 @@ frame window.left + 305 window.top - 50 window.right window.bottom page_len "pag
           if !"Are you sure you want to remove this friend?".confirm() (
             return
           )
-          say "Removing friend..."
-          requests.postAsync("https://api.rotur.dev/friends/remove/" ++ selected_user ++ "?auth=" ++ roturToken())
-            .then((resp) -> (
-              say resp.body.message ?? resp.body.error
-            ))
+          friends.remove(selected_user)
           selected_user = ""
         )
-        con_button "Make Transfer" "rotur" def() -> (
-          window.create("Wallet", {
-            passed_data: {
-              mode: "transfer",
-              user: selected_user
-            }
-          })
+      ) else if requests_arr.contains(selected_user) (
+        con_button "Add Friend" "tick" def() -> (
+          say "Accepting request..."
+          requests.accept(selected_user)
+          selected_user = ""
         )
-        page_len += 70
-        set_x 0 : chy#-90
-        page_len += 90
-        if tier != "Free" and tier != "Lite" (
-          square frame.width - 30 50 10 : c#prim
-          inputs.notes @= (notes[selected_user] ?? "").split("\n")
-          textbox frame.width - 30 50 "notes" 0 {
-            line_numbers: {
-              bg_colour: prim
-            },
-            sel_colour: seco,
-            text_colour: txtc
-          }
-          if inputs.selected.id == "notes" (
-            if inputs.selected.changed (
-              notes[selected_user] @= inputs.notes.join("\n")
-              show_save_note = true
-            )
-          )
-          if show_save_note (
-            change 240 80
-            icon "save" 0.6 : c#txtc
-            if onclick (
-              string url = "https://api.rotur.dev/me/note/" ++ selected_user ++ "?auth=" ++ roturToken() ++ "&note=" ++ encodeURIComponent(inputs.notes.join("\n"))
-              resp @= url.http("POST", {}, {})
-              if resp.error != null (
-                say resp.error
-                return
-              )
-            )
-          )
-          change_y -30
-          page_len += 30
-        ) else (
-          centext "Upgrade to Plus or higher to add synced notes" 10
+        con_button "Reject" "close" def() -> (
+          say "Rejecting request..."
+          requests.reject(selected_user)
+          selected_user = ""
+        )
+      ) else (
+        con_button "Add Friend" "add" def() -> (
+          say "Sending friend request..."
+          requests.send(selected_user)
+          selected_user = ""
         )
       )
-  
-      if calling == selected_user (
-        if timestamp - call_time > 10000 (
-          say "Call has timed out."
-          calling = ""
+      con_button "Make Transfer" "rotur" def() -> (
+        window.create("Wallet", {
+          passed_data: {
+            mode: "transfer",
+            user: selected_user
+          }
+        })
+      )
+      page_len += 70
+      set_x 0 : chy#-90
+      page_len += 90
+      if tier != "Free" and tier != "Lite" (
+        square frame.width - 30 50 10 : c#prim
+        inputs.notes @= (notes[selected_user] ?? "").split("\n")
+        textbox frame.width - 30 50 "notes" 0 {
+          line_numbers: {
+            bg_colour: prim
+          },
+          sel_colour: seco,
+          text_colour: txtc
+        }
+        if inputs.selected.id == "notes" (
+          if inputs.selected.changed (
+            notes[selected_user] @= inputs.notes.join("\n")
+            show_save_note = true
+          )
         )
-
-        goto frame.left + 10 frame.top - 20
-        text "Ringing this user..." 10
-        direction timestamp / 5
-        icon "sync" 0.6
-        direction 90
-
-        terminal "rvoice peer"
-        if terminal_output[1] != "" (
-          calling = ""
+        if show_save_note (
+          change 240 80
+          icon "save" 0.6 : c#txtc
+          if onclick (
+            string url = "https://api.rotur.dev/me/note/" ++ selected_user ++ "?auth=" ++ roturToken() ++ "&note=" ++ encodeURIComponent(inputs.notes.join("\n"))
+            resp @= url.http("POST", {}, {})
+            if resp.error != null (
+              say resp.error
+              return
+            )
+          )
         )
+        change_y -30
+        page_len += 30
+      ) else (
+        centext "Upgrade to Plus or higher to add synced notes" 10
+      )
+    )
+
+    if calling == selected_user (
+      if timestamp - call_time > 10000 (
+        say "Call has timed out."
+        calling = ""
+      )
+
+      goto frame.left + 10 frame.top - 20
+      text "Ringing this user..." 10
+      direction timestamp / 5
+      icon "sync" 0.6
+      direction 90
+
+      terminal "rvoice peer"
+      if terminal_output[1] != "" (
+        calling = ""
       )
     )
   )
