@@ -232,6 +232,12 @@ switch menu (
               case "escrow_out"
                 text "You sent " ++ txt.amount ++ " to devfund petition #" ++ txt.petition_id 10
                 break
+              case "key_sale"
+                text txt.key_name ++ " sold for " ++ txt.amount ++ " credits" 10
+                break
+              case "key_buy"
+                text txt.key_name ++ " bought for " ++ txt.amount ++ " credits" 10
+                break
             )
             text txt.time.timestamp("to-relative") 10 : chx#10
           )
