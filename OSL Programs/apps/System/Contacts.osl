@@ -286,16 +286,15 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
     if sending (
       loc 9999 2 0 -65
       square w 30 12 : c#prim
-      input w - 10 30 "username" "Enter The Username To Request" txtc
+      input w - 10 30 "username" "Enter Username" txtc
       
       loc 9999 2 0 -120
       square w 30 12 : c#prim hover_c#seco
       if onclick (
-        say "Sending request..."
-        requests.send(inputs.username)
+        selected_user = inputs.username
         sending = false
       )
-      text "Send Request" 10 : c#txtc chx#-60
+      text "View Profile" 10 : c#txtc chx#-60
     ) else (
       goto 0 20
       centext "Select a user" 10 : c#txtc
