@@ -360,87 +360,89 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
         page_len += bio.split("\n").len * 23 + 30
       )
 
-      seperator
+      if !cur["sys.banned"] (
+        seperator
 
-      set_x frame.left + 80 : chy#-70
-      con_button "Copy Username" "copy" def() -> (
-        clipboard "set" selected_user
-        say "Copied username to clipboard"
-      )
-      if friends_arr.contains(selected_user) (
-        con_button "Call" "phone" def() -> (
-          rotur "call" selected_user "request"
-          calling = selected_user
-          call_time = timestamp
+        set_x frame.left + 80 : chy#-70
+        con_button "Copy Username" "copy" def() -> (
+          clipboard "set" selected_user
+          say "Copied username to clipboard"
         )
-        con_button "Remove Friend" "close" def() -> (
-          if !"Are you sure you want to remove this friend?".confirm() (
-            return
+        if friends_arr.contains(selected_user) (
+          con_button "Call" "phone" def() -> (
+            rotur "call" selected_user "request"
+            calling = selected_user
+            call_time = timestamp
           )
-          friends.remove(selected_user)
-          selected_user = ""
-        )
-      ) else if requests_arr.contains(selected_user) (
-        con_button "Add Friend" "tick" def() -> (
-          say "Accepting request..."
-          requests.accept(selected_user)
-          selected_user = ""
-        )
-        con_button "Reject" "close" def() -> (
-          say "Rejecting request..."
-          requests.reject(selected_user)
-          selected_user = ""
-        )
-      ) else (
-        con_button "Add Friend" "add" def() -> (
-          say "Sending friend request..."
-          requests.send(selected_user)
-          selected_user = ""
-        )
-      )
-      con_button "Make Transfer" "rotur" def() -> (
-        window.create("Wallet", {
-          passed_data: {
-            mode: "transfer",
-            user: selected_user
-          }
-        })
-      )
-      page_len += 70
-      set_x 0 : chy#-90
-      page_len += 90
-      if tier != "Free" and tier != "Lite" (
-        square frame.width - 30 50 10 : c#prim
-        inputs.notes @= (notes[selected_user] ?? "").split("\n")
-        textbox frame.width - 30 50 "notes" 0 {
-          line_numbers: {
-            bg_colour: prim
-          },
-          sel_colour: seco,
-          text_colour: txtc
-        }
-        if inputs.selected.id == "notes" (
-          if inputs.selected.changed (
-            notes[selected_user] @= inputs.notes.join("\n")
-            show_save_note = true
-          )
-        )
-        if show_save_note (
-          change 240 80
-          icon "save" 0.6 : c#txtc
-          if onclick (
-            string url = "https://api.rotur.dev/me/note/" ++ selected_user ++ "?auth=" ++ roturToken() ++ "&note=" ++ encodeURIComponent(inputs.notes.join("\n"))
-            resp @= url.http("POST", {}, {})
-            if resp.error != null (
-              say resp.error
+          con_button "Remove Friend" "close" def() -> (
+            if !"Are you sure you want to remove this friend?".confirm() (
               return
             )
+            friends.remove(selected_user)
+            selected_user = ""
+          )
+        ) else if requests_arr.contains(selected_user) (
+          con_button "Add Friend" "tick" def() -> (
+            say "Accepting request..."
+            requests.accept(selected_user)
+            selected_user = ""
+          )
+          con_button "Reject" "close" def() -> (
+            say "Rejecting request..."
+            requests.reject(selected_user)
+            selected_user = ""
+          )
+        ) else (
+          con_button "Add Friend" "add" def() -> (
+            say "Sending friend request..."
+            requests.send(selected_user)
+            selected_user = ""
           )
         )
-        change_y -30
-        page_len += 30
-      ) else (
-        centext "Upgrade to Plus or higher to add synced notes" 10
+        con_button "Make Transfer" "rotur" def() -> (
+          window.create("Wallet", {
+            passed_data: {
+              mode: "transfer",
+              user: selected_user
+            }
+          })
+        )
+        page_len += 70
+        set_x 0 : chy#-90
+        page_len += 90
+        if tier != "Free" and tier != "Lite" (
+          square frame.width - 30 50 10 : c#prim
+          inputs.notes @= (notes[selected_user] ?? "").split("\n")
+          textbox frame.width - 30 50 "notes" 0 {
+            line_numbers: {
+              bg_colour: prim
+            },
+            sel_colour: seco,
+            text_colour: txtc
+          }
+          if inputs.selected.id == "notes" (
+            if inputs.selected.changed (
+              notes[selected_user] @= inputs.notes.join("\n")
+              show_save_note = true
+            )
+          )
+          if show_save_note (
+            change 240 80
+            icon "save" 0.6 : c#txtc
+            if onclick (
+              string url = "https://api.rotur.dev/me/note/" ++ selected_user ++ "?auth=" ++ roturToken() ++ "&note=" ++ encodeURIComponent(inputs.notes.join("\n"))
+              resp @= url.http("POST", {}, {})
+              if resp.error != null (
+                say resp.error
+                return
+              )
+            )
+          )
+          change_y -30
+          page_len += 30
+        ) else (
+          centext "Upgrade to Plus or higher to add synced notes" 10
+        )
       )
     )
 
