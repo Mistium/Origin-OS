@@ -328,15 +328,17 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
     text selected_user 10 : c#txtc chx#60 chy#-20
     change_x 40
     if loaded (
-      array badges @= cur.badges
-      local w2 = badges.len * 30
-      for i badges.len (
-        local badge = badges[i]
-        icon badge.icon 1.2 : tooltip#badge.name
-        if onclick (
-          say badge.description
+      if typeof(cur.badges) == "array" (
+        array badges @= cur.badges ?? []
+        local w2 = badges.len * 30
+        for i badges.len (
+          local badge = badges[i]
+          icon badge.icon 1.2 : tooltip#badge.name
+          if onclick (
+            say badge.description
+          )
+          change_x 30
         )
-        change_x 30
       )
       change_y -20
       page_len += 40
@@ -345,7 +347,7 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
 
       number left = frame.left + 10
       set_x left : chy#-35
-      text "Joined " ++ toReadableTime(cur.created) ++ "\n" 10 : c#txtc
+      text "Joined " ++ toReadableTime(cur.created ?? 0) ++ "\n" 10 : c#txtc
       text cur.system + "account\n" 10
       local followers = cur.followers
       text followers + "Follower" ++ (followers == 1 ? "" "s") 10
@@ -355,12 +357,12 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
         seperator
 
         set_x left : chy#-35
-        string bio = cur.bio.wrapText(frame.width / 10 - 5)
+        string bio = (cur.bio ?? "").wrapText(frame.width / 10 - 5)
         text bio 10 : c#txtc
         page_len += bio.split("\n").len * 23 + 30
       )
 
-      if !cur["sys.banned"] (
+      if !cur["sys.banned"] and cur.created != null (
         seperator
 
         set_x frame.left + 80 : chy#-70
