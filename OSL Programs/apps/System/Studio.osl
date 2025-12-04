@@ -892,7 +892,11 @@ if new_transmit (
 )
 
 if file_dropped != 0 (
-  local name @= open(file_dropped, ["name", "type"])
+  local name @= open(file_dropped, ["name", "type", "data"])
+  if name[2] == ".shortcut" (
+    local name @= open(name[3], ["name", "type", "uuid"])
+    file_dropped = name[3]
+  )
   if name[2] == ".folder" and current_tab_target == "folder_sidebar" (
     state.folder = open(file_dropped, ["uuid"])[1]
     state.folder_open = true
