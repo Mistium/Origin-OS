@@ -296,7 +296,8 @@ if current_tab == "Render Info" (
     )
 
     // handle right clicking
-    object win @= windows_list[count].window
+    object win_top @= windows_list[count] ?? {}
+    object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
     rightclick_menu[1] = "> " ++ win.file.uuid
     rightclick rightclick_menu win
 
