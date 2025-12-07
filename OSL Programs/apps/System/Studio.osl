@@ -915,7 +915,7 @@ if file_dropped != 0 (
     tabs @= cur.tabs
     insert_tab current_tab_target {
       type: "file",
-      name: name.join(""),
+      name: name.trim(1,-2).join(""),
       id: ouidNew(),
       data: open(file_dropped).toStr().split("\n"),
       uuid: file_dropped,
