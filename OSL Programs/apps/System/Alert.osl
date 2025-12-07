@@ -45,6 +45,7 @@ def quitThisApp() (
     cursor "pointer"
     if onclick (
       window "kill" window.parent.id
+      window.close()
     )
     c txtc
   ) else (
@@ -152,6 +153,20 @@ def transfer() (
   quitThisApp()
 )
 
+def choose() (
+  parentSays("wants you to choose")
+  
+  goto -190 50
+  text popup_data.msg.wrapText(window.width / 10 - 5) 10 : c#txtc
+  
+  goto 0 -35
+  local click = acceptDeny(popup_data.left, popup_data.right)
+  if click != null (
+    transmit click window.parent.id
+  )
+  quitThisApp()
+)
+
 def buy_key() (
   parentSays("wants to")
   
@@ -213,6 +228,9 @@ mainloop:
 switch type (
   case "say"
     say()
+    break
+  case "choose"
+    choose()
     break
   case "transfer"
     transfer()
