@@ -1,10 +1,10 @@
 switch args[1] ?? "" (
   case "-h"
   case "help"
-    terminal.writeLine("reboot -s | soft")
+    terminal.writeLine("reboot -c | clear")
     terminal.writeLine("  hard: reboot and clear the cache, can be")
     terminal.writeLine("        useful to try if apps are having issues")
-    terminal.writeLine("reboot -h | hard")
+    terminal.writeLine("reboot -s | soft")
     terminal.writeLine("  soft: reboot without clearing the cache")
     break
   case ""
@@ -12,14 +12,15 @@ switch args[1] ?? "" (
   case "soft"
     eval "vm.runtime.greenFlag()"
     break
-  case "-h"
-  case "hard"
+  case "-c"
+  case "clear"
     indexedDB "delete" "application_cache"
     indexedDB "delete" "last_repo_source"
     indexedDB "delete" "user_wallpaper"
     indexedDB "delete" "user_wallpaper_blur"
     indexedDB "delete" "user_wallpaper_url"
     eval "sessionStorage.clear()"
+    eval "localStorage.clear()"
     eval "vm.runtime.greenFlag()"
     break
   default
