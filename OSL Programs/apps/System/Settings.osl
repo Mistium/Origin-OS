@@ -2089,7 +2089,7 @@ icon "w 99999 dot 0 0" 10
 pen "opacity" 0
 frame "clear"
 
-frame window.left window.top window.left + 225 window.bottom sidebar_height "cache@sidebar" (
+frame window.left window.top window.left + 225 window.bottom sidebar_height "sidebar" (
   sidebar_height = 25
   loc 2 2 107 -25 + frame.scroll
   temp = x_position

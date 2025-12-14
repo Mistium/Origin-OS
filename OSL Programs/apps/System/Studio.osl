@@ -95,7 +95,7 @@ class pages (
     text "Create New File" 8 : chx#20
 
     c c_prim
-    frame 10 frame.top - 40 frame.right - 10 frame.bottom recent_2.len * 55 "cache@" (
+    frame 10 frame.top - 40 frame.right - 10 frame.bottom recent_2.len * 55 "" (
       w = frame_width - 20
       for count recent_2.len (
         y = count * -55 + 30 + scroll_y
@@ -1104,7 +1104,7 @@ if state.linked_windows_view or bottom_smooth > 10 (
 
 if state.folder_sidebar or right_smooth < -10 (
   c c_prim
-  frame right + 5 window.top - 40 window.right - 5 window.bottom + 5 state.folder_list_len "cache@folders" (
+  frame right + 5 window.top - 40 window.right - 5 window.bottom + 5 state.folder_list_len "folders" (
     goto 0 0
     square frame.width - 10 frame.height - 10 10 : c#window_colour
     if file_dragging and mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
