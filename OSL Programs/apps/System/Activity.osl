@@ -238,7 +238,7 @@ if timer - last_timer > next_update and !paused (
 if current_tab == "Performance" (
   window "responsive" true
   goto 25 -25
-  graph window_width - 50 frame_height - 50 graph
+  graph window_width - 50 frame.height - 50 graph
 )
 if current_tab == "Network" (
   info = [
@@ -278,38 +278,39 @@ if current_tab == "Render Info" (
   y = y_position
   loc -2 -2 0 0
   c prim
-  frame x y x_position y_position windows_names.len * 40
-  y = scroll_y - 20
-  tot = 0
-  w = frame_width - 20
-  for count windows_names.len (
-    loc 999 2 0 y
-    square w 25 10 : c#prim
-    if mouse_touching (
-      square w 25 10 : c#seco
-      if onclick (
-        window.create(window.file.uuid, {
-          passed_data: windows_ids[count],
-          child: true
-        })
+  frame x y x_position y_position windows_names.len * 40 (
+    y = scroll_y - 20
+    tot = 0
+    w = frame_width - 20
+    for count windows_names.len (
+      loc 999 2 0 y
+      square w 25 10 : c#prim
+      if mouse_touching (
+        square w 25 10 : c#seco
+        if onclick (
+          window.create(window.file.uuid, {
+            passed_data: windows_ids[count],
+            child: true
+          })
+        )
       )
+
+      // handle right clicking
+      object win_top @= windows_list[count] ?? {}
+      object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
+      rightclick_menu[1] = "> " ++ win.file.uuid
+      rightclick rightclick_menu win
+
+      file "open" win.file.uuid "onlyaccess"
+      loc 2 2 25 y
+      file "render" 1 : c#txtc
+      text fileGet(2) 7 : c#txtc chx#20
+      loc -2 2 -15 y
+      d = windows_drawtimes[count][1]
+      tot += d
+      rigtext d.toStr() ++ "ms" 7
+      y -= 40
     )
-
-    // handle right clicking
-    object win_top @= windows_list[count] ?? {}
-    object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
-    rightclick_menu[1] = "> " ++ win.file.uuid
-    rightclick rightclick_menu win
-
-    file "open" win.file.uuid "onlyaccess"
-    loc 2 2 25 y
-    file "render" 1 : c#txtc
-    text fileGet(2) 7 : c#txtc chx#20
-    loc -2 2 -15 y
-    d = windows_drawtimes[count][1]
-    tot += d
-    rigtext d.toStr() ++ "ms" 7
-    y -= 40
   )
 )
 if current_tab == "Disk" (
@@ -329,4 +330,3 @@ if current_tab == "Disk" (
 if mouse_down.not() (
   can = true
 )
-frame "clear"

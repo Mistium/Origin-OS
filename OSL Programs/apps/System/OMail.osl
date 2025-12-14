@@ -102,8 +102,8 @@ square 250 h 15
 x = x_position
 c prim
 cur_mail @= all_mail.filter(current_filter)
-frame x - 130 window.top - 55 x + 130 window.bottom + 15 cur_mail.len * 85 "mail" (
-  set_y frame.top + frame.scroll - 47.5
+frame x - 130 window.top - 60 x + 130 window.bottom + 15 cur_mail.len * 85 "cache@mail" (
+  set_y frame.top + frame.scroll - 43.5
   local y2 = y_position
   if cur_mail.len == 0 (
     goto 0 y2
@@ -150,7 +150,7 @@ x = x_position
 cur @= all_mail[current_rmail]
 c prim
 local l = x - (w / 2)
-frame l window.top - 60 x + (w / 2) window.bottom + 15 (
+frame l window.top - 60 x + (w / 2) window.bottom + 15 0 "cache@contents" (
   if current_rmail == "new" (
     goto 0 frame.top - 28
     square frame.width - 20 22 10 : c#prim
