@@ -771,7 +771,7 @@ mainloop:
   square w - 250 40 0 : c#prim
   if sideshow (
     pen "opacity" 0
-    frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "cache@sidebar" (
+    frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "sidebar" (
       y = -17 + frame.scroll
       folder "Favorites"
       each fav favorites (
