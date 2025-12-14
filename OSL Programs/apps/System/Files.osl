@@ -364,74 +364,75 @@ def "render_files" (
     temp_y += 20
   )
   
-  frame temp_x temp_y temp_x2 temp_y2 scroll_height : c#prim
-  current_folder_uuid = ""
-  window.drop_location = null
-  if inputs.path == "origin" (
-    files @= open("/")
-  ) else if inputs.path.startsWith("/dev") and roturlink.enabled (
-    path_base = inputs.path.split("/",3).join("/")
-    local drive @= roturlink.drives
-      .filter(v -> (v.device_node == path_base))[1]
-    if path_base != inputs.path (
-      local spl = inputs.path.split("/")
-        .trim(4,-1)
-        .join("/")
-      local path = drive.name ++ "/" ++ spl
-      files @= local_dirs[path]
-      if files == null (
-        local_dirs[path] = "requesting"
-        local pr @= promise.new(def() -> (
-          // the local roturLink endpoint for reading the fs
-          local resp @= ("http://127.0.0.1:5001/fs/list/Volumes/" ++ self.path).httpGet().JsonParse()
-          local_dirs[self.path] = resp.contents.filter(v -> (v.name.startsWith(".").not()))
-        ))
-        pr.worker.path = path
-        files = []
+  c prim
+  frame temp_x temp_y temp_x2 temp_y2 scroll_height "files" (
+    current_folder_uuid = ""
+    window.drop_location = null
+    if inputs.path == "origin" (
+      files @= open("/")
+    ) else if inputs.path.startsWith("/dev") and roturlink.enabled (
+      path_base = inputs.path.split("/",3).join("/")
+      local drive @= roturlink.drives
+        .filter(v -> (v.device_node == path_base))[1]
+      if path_base != inputs.path (
+        local spl = inputs.path.split("/")
+          .trim(4,-1)
+          .join("/")
+        local path = drive.name ++ "/" ++ spl
+        files @= local_dirs[path]
+        if files == null (
+          local_dirs[path] = "requesting"
+          local pr @= promise.new(def() -> (
+            // the local roturLink endpoint for reading the fs
+            local resp @= ("http://127.0.0.1:5001/fs/list/Volumes/" ++ self.path).httpGet().JsonParse()
+            local_dirs[self.path] = resp.contents.filter(v -> (v.name.startsWith(".").not()))
+          ))
+          pr.worker.path = path
+          files = []
+        )
+        if files == "requesting" (
+          files = []
+        )
+      ) else (
+        files @= drive.files.filter(v -> (v.name.startsWith(".").not()))
       )
-      if files == "requesting" (
-        files = []
-      )
+      files @= sort_local_files(files)
     ) else (
-      files @= drive.files.filter(v -> (v.name.startsWith(".").not()))
-    )
-    files @= sort_local_files(files)
-  ) else (
-    file "exists" inputs.path ++ ".folder"
-    if exists (
-      file "open" inputs.path ++ ".folder" "onlyaccess"
-      current_folder_uuid = fileGet(14)
-      data = (fileGet(4) ?? "").JsonParse()
+      file "exists" inputs.path ++ ".folder"
+      if exists (
+        file "open" inputs.path ++ ".folder" "onlyaccess"
+        current_folder_uuid = fileGet(14)
+        data = (fileGet(4) ?? "").JsonParse()
 
-      window.drop_location = inputs.path
-      if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
-        current_folder_update = data
-        files = sort_files(data)
-        
-        temp_sorting_mode = sorting_mode + sorting_direction
+        window.drop_location = inputs.path
+        if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
+          current_folder_update = data
+          files = sort_files(data)
+          
+          temp_sorting_mode = sorting_mode + sorting_direction
+        )
+        goto 0 0
+        square frame.width frame.height 10 0 1
+        rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [current_folder_uuid]
+      ) else (
+        files = []
       )
-      goto 0 0
-      square frame.width frame.height 10 0 1
-      rightclick ["New Folder Inside","New File","Edit Folder Contents","-","Info"] [current_folder_uuid]
-    ) else (
-      files = []
+    )
+    if current_display_type == "list" (
+      render_files_list
+    ) else if current_display_type == "grid" (
+      render_files_grid
+    )
+    if selected_files.len == 1 (
+      local idx = files.index(selected_files[1])
+      if "arrowup".onKeyDown() and idx > 1 (
+        selected_files = [files[idx - 1]]
+      )
+      if "arrowdown".onKeyDown() and idx < len (
+        selected_files = [files[idx + 1]]
+      )
     )
   )
-  if current_display_type == "list" (
-    render_files_list
-  ) else if current_display_type == "grid" (
-    render_files_grid
-  )
-  if selected_files.len == 1 (
-    local idx = files.index(selected_files[1])
-    if "arrowup".onKeyDown() and idx > 1 (
-      selected_files = [files[idx - 1]]
-    )
-    if "arrowdown".onKeyDown() and idx < len (
-      selected_files = [files[idx + 1]]
-    )
-  )
-  frame "clear"
 )
 def "render_files_list" (
   len = files.len
@@ -770,7 +771,7 @@ mainloop:
   square w - 250 40 0 : c#prim
   if sideshow (
     pen "opacity" 0
-    frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "sidebar" (
+    frame window.left window.top - 100 window.left + 260 window.bottom favorites.len * 35 + 180 "cache@sidebar" (
       y = -17 + frame.scroll
       folder "Favorites"
       each fav favorites (

@@ -181,7 +181,7 @@ switch menu (
       local r = window.right - 10
       local tags = transactions.map(v -> (v["type"])).deDupe().prepend("all")
       
-      frame l window.top - 41 r window.top - 81 (
+      frame l window.top - 41 r window.top - 81 0 "cache@tags" (
         loc 2 2 3 -20
         for i tags.len (
           local cur = tags[i]
@@ -202,7 +202,7 @@ switch menu (
       if cur_tag != "all" (
         filtered @= transactions.filter(v -> (v["type"] == cur_tag))
       )
-      frame l window.top - 81 r window.bottom + 10 filtered.len * 35 - 5 (
+      frame l window.top - 81 r window.bottom + 10 filtered.len * 35 - 5 "cache@transactions" (
         y = scroll_y + 15
         for i filtered.len (
           txt @= filtered[i]

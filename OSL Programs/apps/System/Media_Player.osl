@@ -38,7 +38,7 @@ if playing (
   sound "media" "pause"
 )
 if onclick (
-  playing.not
+  playing.not()
 )
 progress = ("media".soundinfo("current_time") / "media".soundinfo("duration")).toNum()
 loc 9999 -2 20 20

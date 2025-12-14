@@ -246,7 +246,7 @@ if tty (
 )
 
 c prim
-frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 (
+frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "cache@main" (
   c txtc
   loops = terminal.lines.len
   count = floor(scroll_y / 20).clamp(0,loops)

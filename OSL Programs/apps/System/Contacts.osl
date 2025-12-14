@@ -159,7 +159,7 @@ if page != "Profile" (
     height = length * 45
   )
 
-  frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "sidebar" (
+  frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "cache@sidebar" (
     if length == 0 (
       loc 2 2 10 -20
       text "No" + page 10 : c#txtc
@@ -362,7 +362,9 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
         page_len += bio.split("\n").len * 23 + 30
       )
 
-      if !cur["sys.banned"] and cur.created != null (
+      log cur
+
+      if cur["sys.banned"] != true and cur.created != null (
         seperator
 
         set_x frame.left + 80 : chy#-70

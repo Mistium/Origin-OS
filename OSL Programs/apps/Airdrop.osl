@@ -1,133 +1,114 @@
-network "set_app_id" "origin_airdropper"
-window "show"
-window "set_dragbox" [[2,2,60,0],[-2,2,0,-50]]
+import "window_tools" as "wt"
 
-selected_file = 0
-recieved_data = 0
-mode = "recieve"
-recieved = false
+permission "request" "rotur token"
+
+window.resize(700, 450)
+
+string api = "https://beam.rotur.dev/api/"
+array online = []
+object me = {}
+
+object designations = {}
+
+def parseUserAgent(string ua) string (
+  string browser = "Unknown Browser"
+  string os = "Unknown OS"
+
+  if ua.contains("Firefox") (
+    browser = "Firefox"
+  ) else if ua.contains("Chrome") (
+    browser = "Chrome"
+  ) else if ua.contains("Safari") (
+    browser = "Safari"
+  ) else if ua.contains("Edg") (
+    browser = "Edge"
+  ) else if ua.contains("Opera") (
+    browser = "Opera"
+  )
+
+
+  if ua.contains("Windows") (
+    os = "Windows"
+  ) else if ua.contains("Mac") (
+    os = "macOS"
+  ) else if ua.contains("Linux") (
+    os = "Linux"
+  ) else if ua.contains("Android") (
+    os = "Android"
+  ) else if ua.contains("like Mac") (
+    os = "iOS"
+  )
+
+  return browser ++ " on " ++ os
+)
+
+void requests.getAsync("https://api.rotur.dev/systems")
+  .then((resp) -> (
+    array systems @= resp.body.getValues()
+    for i systems.len (
+      object cur @= systems[i]
+      designations[cur.designation] ??= {
+        name: cur.name,
+        icon: cur.icon
+      }
+    )
+  ))
+
+def getOnline() (
+  if timestamp - 5_000 < lastFetched (
+    return
+  )
+  lastFetched = timestamp
+  void requests.getAsync(api ++ "available", {
+    "headers": { "Authorization": roturToken() }
+  }).then((resp) -> (
+    online @= resp.body.connections
+      .sortBy("user")
+    
+    // get our connection for the current session
+    me @= online.filter(v -> v.username == network.username)[1]
+    
+    array same_network @= online
+      .filter(v -> v.same_network and v.username != network.username)
+
+    array same_user @= online
+      .filter(v -> v.user == username and !v.same_network)
+
+    array other @= online
+      .filter(v -> v.user != username and !v.same_network)
+
+    online @= same_network ++ same_user ++ other
+  ))
+)
+
+lastFetched = 0
+getOnline()
+lastFetched = timestamp
 
 mainloop:
-if new_transmit (
-  selected_file = transmit_data
-  file "open" selected_file "onlyaccess"
-  new_transmit = false
-)
-// file picker recieve transmitted data
+wt:load_theme
 
-if new_network_data (
-  if recieved_data == 0 (
-    recieved_data = network_data
-    size = recieved_data.str.len + "bytes"
-    recieved_name = recieved_data.[2] ++ recieved_data.[1]
-    recieved_from = network_data_from
-    recieved = true
-  )
-  new_network_data = false
-)
+getOnline()
 
-loc 2 999 30 0
-square 60 window_height 10 : c#222
+goto 0 window.top - 20
+square frame.width 30 10 : c#prim
+set_x frame.left + 10
+text "roturBeam @" ++ me.username ++ " (" ++ me.device ++ ")" 10 : c#txtc
 
-
-loc 2 999 30 30
-if mode == "send" "change_y -60"
-if mode != "sent" "square 30 30 25 : c#global_accent"
-
-loc 2 999 30 30
-square 30 30 20 : c#333 hover_c#444
-if clicked (
-  mode = "recieve"
-)
-change_y -60
-square 30 30 20 : c#333 hover_c#444
-if clicked (
-  mode = "send"
-)
-
-c #fff
-loc 2 999 30 30
-icon "download" 0.7
-change_y -60
-icon "upload" 0.7
-
-if mode == "send" (
-  c #fff
-  if selected_file == 0 (
-    loc 2 2 80 -20
-    text "Send Mode" 10
-  
-    loc 999 -2 0 70
-    square 30 30 25 : c#global_accent
-    if clicked and can (
-      can = false
-      file "pick"
-    )
-    square 30 30 20 : c#333
-    icon "file" 0.7 : c#fff
-  ) else (
-    loc 2 2 80 -20
-    text "File Selected" 10
-  
-    goto 0 40
-    square 500 30 10 : c#222
-    input 480 25 "reciever"
-    // ^ input for name of recipient
-  
-    goto 0 -40
-  
-    square 500 30 10 : c#222 hover_c#333
-    if clicked and can (
-      can = false
-      file "open" selected_file
-      network "send" file input_reciever
-      selected_file = 0
-      mode = "sent"
-    )
-    change_x -240
-    text "Send file" 10 : c#fff
-    // ^ button for sending the file
-  )
-)
-if mode == "recieve" (
-  loc 2 2 80 -20
-  text "Recieve Mode" 10 : c#fff
-  if recieved (
-    goto recieved_name.len * -8 + 20 50
-    text recieved_name 16
-    goto size.len * -5 + 20 -10
-    text size 10 : c#aaa
-    goto 20 -70
-    square 300 30 20 : c#333 hover_c#444
-    if clicked (
-      recieved = false
-      file "download" recieved_name null recieved_data.[4]
-      recieved_data = 0
-    )
-    goto -120 -70
-    text "Move To /Downloads" 10 : c#fff
-    goto 20 -130
-    square 300 30 20 : c#333 hover_c#444
-    if clicked (
-      recieved = false
-      recieved_data = 0
-    )
-    goto -120 -130
-    text "Discard File" 10 : c#fff
-    loc 2 -2 80 20
-    text "Recieved From: " + recieved_from 10 : c#fff
+goto frame.left + 100 frame.top - 150
+for i online.len (
+  object cur @= online[i]
+  square 170 170 10 : c#prim tooltip#cur.username
+  image "https://avatars.rotur.dev/" ++ cur.user ++ "?radius=128" 100 100 : chy#30
+  centext cur.user 10 : c#txtc chy#-70
+  local designation @= designations[cur.username.split("-", 1)[1]] ?? {}
+  change_y -30
+  centext designation.name 8 : c#txtc
+  change 200 70
+  if x_position > frame.right - 100 (
+    set_x frame.left + 100
+    change_y -100
   )
 )
 
-if mode == "sent" (
-  loc 2 2 80 -20
-  text "Sent file" 10
-)
-
-if mouse_down.not "can = true"
-loc 2 2 30 -30
-square 30 30 20 : c#333 hover_c#444
-if clicked (
-  window "stop"
-)
-icon "close" 0.7 : c#fff
+import "win-buttons"
