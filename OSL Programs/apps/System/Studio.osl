@@ -28,6 +28,8 @@ number right_smooth = 0
 number bottom = 0
 number bottom_smooth = 0
 
+boolean uses_mouse = ["Windows", "Linux"].contains(system_os)
+
 inputs.linked_windows = []
 
 class pages (
@@ -769,7 +771,7 @@ def sidebarButtons(file_uuid, input_name) (
           )
         )
         if frame.interactable (
-          icn.zoom += system_os == "Windows" ? scroll_velocity / -100 scroll_velocity / 10
+          icn.zoom += uses_mouse ? scroll_velocity / -100 scroll_velocity / 10
         )
         goto self.icn.display
         c c_seco
