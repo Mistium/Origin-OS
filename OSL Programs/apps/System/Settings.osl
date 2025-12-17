@@ -714,6 +714,12 @@ def "appearance" (
         theme.show_outline = theme.show_outline == false
         network "update" "theme" theme
       )
+      change_y -50
+      setting_toggle "Use true blur (may cause performance issues)" w user.theme.use_true_blur != false def() -> (
+        local theme = user.theme
+        theme.use_true_blur = theme.use_true_blur == false
+        network "update" "theme" theme
+      )
       break
     case "Colours"
       if typeof(theme_select) != "object" (

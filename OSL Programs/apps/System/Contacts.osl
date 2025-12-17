@@ -126,7 +126,6 @@ requests_arr @= user["sys.requests"]
 if new_transmit (
   if pickers.contains(transmit_source) (
     file "open" transmit_data
-    log file
   )
   new_transmit = false
 )
@@ -361,8 +360,6 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
         text bio 10 : c#txtc
         page_len += bio.split("\n").len * 23 + 30
       )
-
-      log cur
 
       if cur["sys.banned"] != true and cur.created != null (
         seperator

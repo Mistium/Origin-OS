@@ -33,8 +33,11 @@ def positionWindow() (
 
 positionWindow()
 
+cur_frame = 0
+
 mainloop:
 wt:load_theme
+cur_frame ++
 
 if winw > winw_target (
   window "refresh_bg"
@@ -50,19 +53,20 @@ window.width = round(winw)
 positionWindow()
 
 square window.width window.height 0 0 1
-if round(winw) !== round(winw_target) or mouse_touching or bg_redrawn or (timer - last > 0.5) (
+triggered_mouse = mouse_touching
+if round(winw) !== round(winw_target) or triggered_mouse or (cur_frame % 30) == 0 (
   winw_target = winw_start
   last = timer
   w2 = window.width
   h2 = window.height
   square w2 - 25 h2 - 25 20 : c#window_colour
-  frame x_position + w2 y_position + h2 x_position - w2 y_position - h2
+  frame x_position + w2 y_position + h2 x_position - w2 y_position - h2 (
     effect "transparency" 70
     goto frame.x * -1 frame.y * -1
 
     image "wallpaper_blur" background_width background_height
     effect "clear"
-  frame "clear"
+  )
 
   goto window.left + 30 0
   image "https://avatars.rotur.dev/" ++ user.username ++ "?radius=40" 42 42
@@ -82,4 +86,10 @@ if round(winw) !== round(winw_target) or mouse_touching or bg_redrawn or (timer 
 
   winw_target += 20
   text desktops.current + 1 9 : chx#-40
+  if !triggered_mouse (
+    window.callRender()
+  )
+) else (
+  goto -window.x -window.y
+  image "@cacheSkin"
 )

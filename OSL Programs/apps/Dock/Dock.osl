@@ -6,7 +6,7 @@ permission "request" "terminal"
 permission "request" "windows"
 
 save "Dock@System" "set_directory"
-open = 0
+open_path = null
 y = -100
 
 window "responsive" true
@@ -42,6 +42,8 @@ state = {
 }
 
 desktop @= () -> (
+  open_path = null
+  redraw_all = (cur_frame % 60) == 0 or round(y) != round(dock_y_target)
   for bg segment_classes.len (
     local cur @= segment_classes[bg]
     if cur.enabled == false (
@@ -52,7 +54,7 @@ desktop @= () -> (
     cur.width = w
     change_x w / 2
     square w height 20 0 1
-    run[bg] = cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w
+    run[bg] = cur.conditions() == true or mouse_touching or dock_changed_w or redraw_all
     if run[bg] (
       square w height 20
     )
@@ -66,27 +68,32 @@ desktop @= () -> (
     )
     local w = cur.width
     c dock_colour
+    local w2 = w / 2 + 10
+    local h2 = height / 2 + 10
+    goto x + (w / 2) y
     if run[i] (
-      local w2 = w / 2 + 10
-      local h2 = height / 2 + 10
-      goto x + (w / 2) y
-      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2
+      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2 (
         effect "transparency" 70
-        goto frame.x * -1 frame.y * -1
+        goto -frame.x -frame.y
     
         image "wallpaper_blur" background_width background_height
         effect "clear"
-      frame "clear"
+      )
       goto x y
       void cur.main()
       run[i] = false
+    ) else (
+      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2 (
+        goto -frame.x -frame.y
+
+        image "@cacheSkin"
+      )
     )
     x += w + 30
   )
 )
 
 mobile @= () -> (
-  window.callRender()
   goto 0 window.bottom + 20
   square frame.width 40 0 1 : c#window_colour
   icon "origin-logo" 1 : c#icon_colour
@@ -235,14 +242,18 @@ network "update" "timezone" timezone
 
 run = (1 to segment_classes.len).fill(false)
 
+cur_frame = 0
+
 mainloop:
+needs_render = false
+cur_frame ++
 dock_colour = user.theme.background
 icon_colour = user.theme.text
 prim = user.theme.primary
 
 if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour
-  window.callRender()
+  needs_render = true
 )
 movefileloc file_loc
 if mouse_down.not() (
@@ -256,7 +267,7 @@ if !on_mobile (
     y = 0
   )
   if round(y) != round(dock_y_target) (
-    window.callRender()
+    needs_render = true
   )
 )
 
@@ -285,18 +296,22 @@ if y > -80 (
 )
 if segments != user.origin_dock (
   segments = user.origin_dock
-  window.callRender()
+  needs_render = true
 )
-if open != 0 and mouse_down.not() (
+if open_path != null and !mouse_down (
   local wins @= windows()
   local exists = false
   for i wins.len (
-    if wins[i].window.file.path == open (
+    if wins[i].window.file.path == open_path (
       exists = true
     )
   )
-  if exists.not() (
-    window.create(open)
+  if !exists (
+    window.create(open_path)
   )
-  open = 0
+  open_path = null
+)
+
+if needs_render (
+  window.callRender()
 )
