@@ -241,7 +241,7 @@ txtc = user.theme.text
 
 include windowfileloc
 hovered = window_id_index == window_top_index
-doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0
+doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0 or cur_frame % 60 == 0
 
 for j widgets.len (
   local cur @= widgets[j]
