@@ -8,7 +8,7 @@ def conditions() (
 def main() (
   square 60 height 20 1 0 1 : chx#30
   if clicked (
-    open = "Origin/(A) System/Docks/Battery_Info.osl"
+    open_path = "Origin/(A) System/Docks/Battery_Info.osl"
   )
   battery_temp = battery_percent
   square 60 height 20 1

@@ -101,8 +101,18 @@ getWindowsData()
 
 disk_info = []
 
+width = window.width
+height = window.height
+
 mainloop:
 load_theme
+
+window_changed_dimensions = false
+if window.width != width or window.height != height (
+  window_changed_dimensions = true
+  width = window.width
+  height = window.height
+)
 
 loc -2 2 -20 -20
 square 25 25 10 : c#prim
@@ -227,6 +237,7 @@ if onclick (
 )
 icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
 
+updated = false
 if timer - last_timer > next_update and !paused (
   last_timer = timer
   dt = delta_time
@@ -234,98 +245,101 @@ if timer - last_timer > next_update and !paused (
   number cpu_usage = roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)
   cpu_percent = round(cpu_usage).clamp(1,100)
   delta = cpu_percent ++ "%"
+  updated = true
 )
-if current_tab == "Performance" (
-  window "responsive" true
-  goto 25 -25
-  graph window_width - 50 frame.height - 50 graph
-)
-if current_tab == "Network" (
-  info = [
-    "connected   |   " ++ network.connected,
-    "server      |   " ++ network.server,
-    "username    |   " ++ network.username,
-    "",
-    "- Websocket",
-    "upload      |   " ++ formatFileSize(network.upload),
-    "download    |   " ++ formatFileSize(network.download),
-    "total up    |   " ++ formatFileSize(network.uploadTotal),
-    "total down  |   " ++ formatFileSize(network.downloadTotal)
-  ]
-  if roturLink.enabled (
-    net = roturLink.network
-    info ++= [
+switch current_tab (
+  case "Performance"
+    window "responsive" true
+    goto 25 -25
+    graph window_width - 50 frame.height - 50 graph
+    break
+  case "Network"
+    info = [
+      "connected   |   " ++ network.connected,
+      "server      |   " ++ network.server,
+      "username    |   " ++ network.username,
       "",
-      "- Packets",
-      "received    |   " ++ net.packets_received,
-      "sent        |   " ++ net.packets_sent,
-      "",
-      "- Data",
-      "received    |   " ++ formatFileSize(net.received),
-      "sent        |   " ++ formatFileSize(net.sent)
+      "- Websocket",
+      "upload      |   " ++ formatFileSize(network.upload),
+      "download    |   " ++ formatFileSize(network.download),
+      "total up    |   " ++ formatFileSize(network.uploadTotal),
+      "total down  |   " ++ formatFileSize(network.downloadTotal)
     ]
-  )
-  loc 2 2 60 -60
-  text info.join("\n") 10 : c#txtc
-)
-if current_tab == "Render Info" (
-  // get an object of {window_id: {worker_id: worker_object, ...}, ...}
-  object workers @= "window.origin.workers".eval()
-
-  window "responsive" false
-  loc 2 2 50 -45
-  x = x_position
-  y = y_position
-  loc -2 -2 0 0
-  c prim
-  frame x y x_position y_position windows_names.len * 40 (
-    y = scroll_y - 20
-    tot = 0
-    w = frame_width - 20
-    for count windows_names.len (
-      loc 999 2 0 y
-      square w 25 10 : c#prim
-      if mouse_touching (
-        square w 25 10 : c#seco
-        if onclick (
-          window.create(window.file.uuid, {
-            passed_data: windows_ids[count],
-            child: true
-          })
-        )
-      )
-
-      // handle right clicking
-      object win_top @= windows_list[count] ?? {}
-      object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
-      rightclick_menu[1] = "> " ++ win.file.uuid
-      rightclick rightclick_menu win
-
-      file "open" win.file.uuid "onlyaccess"
-      loc 2 2 25 y
-      file "render" 1 : c#txtc
-      text fileGet(2) 7 : c#txtc chx#20
-      loc -2 2 -15 y
-      d = windows_drawtimes[count][1]
-      tot += d
-      rigtext d.toStr() ++ "ms" 7
-      y -= 40
+    if roturLink.enabled (
+      net = roturLink.network
+      info ++= [
+        "",
+        "- Packets",
+        "received    |   " ++ net.packets_received,
+        "sent        |   " ++ net.packets_sent,
+        "",
+        "- Data",
+        "received    |   " ++ formatFileSize(net.received),
+        "sent        |   " ++ formatFileSize(net.sent)
+      ]
     )
-  )
-)
-if current_tab == "Disk" (
-  loc 2 2 60 -60
-  text "- Rotur Cloud\n" 10 : c#txtc
-  text disk_info.join("\n") 10
-  
-  if roturLink.enabled (
-    local disk = roturLink.disk
-    loc 2 2 60 -200
-    text "- Hardware Disk\n" 10
-    text "Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
-    text "Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
-    text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
-  )
+    loc 2 2 60 -60
+    text info.join("\n") 10 : c#txtc
+    break
+  case "Render Info"
+    // get an object of {window_id: {worker_id: worker_object, ...}, ...}
+    object workers @= "window.origin.workers".eval()
+
+    window "responsive" false
+    loc 2 2 50 -45
+    x = x_position
+    y = y_position
+    loc -2 -2 0 0
+    c prim
+    frame x y x_position y_position windows_names.len * 40 (
+      y = scroll_y - 20
+      tot = 0
+      w = frame_width - 20
+      for count windows_names.len (
+        loc 999 2 0 y
+        square w 25 10 : c#prim
+        if mouse_touching (
+          square w 25 10 : c#seco
+          if onclick (
+            window.create(window.file.uuid, {
+              passed_data: windows_ids[count],
+              child: true
+            })
+          )
+        )
+
+        // handle right clicking
+        object win_top @= windows_list[count] ?? {}
+        object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
+        rightclick_menu[1] = "> " ++ win.file.uuid
+        rightclick rightclick_menu win
+
+        file "open" win.file.uuid "onlyaccess"
+        loc 2 2 25 y
+        file "render" 1 : c#txtc
+        text fileGet(2) 7 : c#txtc chx#20
+        loc -2 2 -15 y
+        d = windows_drawtimes[count][1]
+        tot += d
+        rigtext d.toStr() ++ "ms" 7
+        y -= 40
+      )
+    )
+    break
+  case "Disk"
+    loc 2 2 60 -60
+    text "- Rotur Cloud\n" 10 : c#txtc
+    text disk_info.join("\n") 10
+    
+    if roturLink.enabled (
+      local disk = roturLink.disk
+      loc 2 2 60 -200
+      text "- Hardware Disk\n" 10
+      text "Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
+      text "Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
+      text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
+    )
+    break
 )
 if mouse_down.not() (
   can = true

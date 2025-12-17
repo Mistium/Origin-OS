@@ -17,7 +17,7 @@ images = {
 }
 
 window.x = 0
-window.y = -100000
+window.y = screensize_y / -2
 window.resize(0,0)
 window "to_dimensions" 500 600
 window "responsive" true
@@ -39,7 +39,7 @@ each i app apps (
   file "close"
 )
 
-apps = apps.sortBy("name")
+apps @= apps.sortBy("name")
 
 last = ""
 i = 0

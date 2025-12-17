@@ -59,7 +59,7 @@ def "handle_dropped_file" (
 )
 
 def "handle_app_culling" (
-  if mouse_down or app_positions.len == 0 or bg_redrawn (
+  if mouse_down or app_positions.len == 0 (
     desktop_apps = desktop
   ) else (
     loc 2 2 35 -35
@@ -91,7 +91,6 @@ def "render_selection" (
     selection_frame @= frame
     // for later when i want to allow selecting many files
   )
-  window.callRender()
 )
 
 def getUuid(path) (
@@ -229,7 +228,11 @@ def positionWindow() (
 
 positionWindow()
 
+desktop_apps = []
+
+cur_frame = 0
 mainloop:
+cur_frame ++
 
 positionWindow()
 
@@ -237,9 +240,8 @@ back = user.theme.background
 txtc = user.theme.text
 
 include windowfileloc
-nhvr = window_id_index != window_top_index
-cnrn = desktop != data or bg_redrawn
-
+hovered = window_id_index == window_top_index
+doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0
 
 for j widgets.len (
   local cur @= widgets[j]
@@ -248,33 +250,25 @@ for j widgets.len (
   size[1] /= 2
   size[2] /= 2
   loc pos[1] pos[2] pos[3] pos[4]
-  frame x_position - size[1] y_position + size[2] x_position + size[1] y_position - size[2]
+  frame x_position - size[1] y_position + size[2] x_position + size[1] y_position - size[2] (
     void cur.imp.main()
-  frame "clear"
+  )
 )
-if cnrn.not() and nhvr (
-  exit
-)
-desktop @= data
 
-if nhvr.not() (
+desktop @= data
+if hovered (
   if file_dropped != 0 (
     handle_dropped_file
-    window.callRender()
     file_dropped = 0
   )
   if mouse_down and can (
     can = false
     mouse_start_x = mouse_x
     mouse_start_y = mouse_y
-    window.callRender()
   )
   if mouse_down (
     render_selection
   ) else (
-    if can.not() (
-      window.callRender()
-    )
     can = true
   )
   reload_extensions
@@ -283,16 +277,24 @@ if nhvr.not() (
   square screensize_x screensize_y 1 0 1
 
   rightclick desktop_rightclick desktop_uuid
-)
-if data.len == 0 or app_size == 0 (
+) else if cur_frame % 30 != 0 (
+  goto -window.x -window.y
+  image "@cacheSkin"
   exit
 )
 
 handle_app_culling
 
-if desktop_apps.len == 0 (
+if (!doDraw and !hovered) or desktop_apps.len == 0 (
+  goto -window.x -window.y
+  image "@cacheSkin"
   exit
 )
+if !doDraw (
+  goto -window.x -window.y
+  image "@cacheSkin"
+)
+
 for i desktop_apps.len (
   app_id @= desktop_apps[i]
 
@@ -303,7 +305,7 @@ for i desktop_apps.len (
 
   loc 2 2 35 + x -35 + y
   square 30 30 0 0 1
-  if mouse_touching or cnrn (
+  if mouse_touching or doDraw (
     file "render" app_size "interactable"
     rightclick "file" app_id
   )
@@ -314,7 +316,10 @@ for i desktop_apps.len (
     centext data 8 : c#txtc
     name = data
   ) else if name == data (
-    window.callRender()
     name = null
   )
+)
+
+if doDraw (
+  window.callRender()
 )
