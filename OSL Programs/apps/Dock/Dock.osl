@@ -244,12 +244,21 @@ run = (1 to segment_classes.len).fill(false)
 
 cur_frame = 0
 
+previous_wallpaper = user.wallpaper
+
 mainloop:
 needs_render = false
 cur_frame ++
 dock_colour = user.theme.background
 icon_colour = user.theme.text
 prim = user.theme.primary
+
+wallpaper_changed = previous_wallpaper != user.wallpaper
+previous_wallpaper = user.wallpaper
+
+if wallpaper_changed (
+  needs_render = true
+)
 
 if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour

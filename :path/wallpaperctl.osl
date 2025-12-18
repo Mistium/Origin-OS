@@ -20,7 +20,12 @@ switch args[1] (
         bg.mode = args[2]
         network "update" "wallpaper_mode" bg.mode
         break
+    case "h"
+    case "help"
     default
-        terminal.writeLine("Invalid command")
+        terminal.writeLine("Usage: wallpaperctl [s | set] url")
+        terminal.writeLine("Usage: wallpaperctl [g | get]")
+        terminal.writeLine("Usage: wallpaperctl [m | mode] [fill | stretch | fit | center]")
+        terminal.writeLine("Usage: wallpaperctl [h | help]")
         break
 )
