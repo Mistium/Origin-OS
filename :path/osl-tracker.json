@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2025-11-25T17:46:47.815Z",
+  "lastUpdated": "2025-12-18T00:41:53.697Z",
   "totalScripts": 59,
   "scripts": {
     "calc.osl": {
@@ -115,12 +115,12 @@
     "help.osl": {
       "name": "help.osl",
       "firstAdded": "2025-07-20T23:43:22.365Z",
-      "lastModified": "2025-08-26T15:28:27.843Z",
-      "changeCount": 3,
+      "lastModified": "2025-11-30T14:56:53.036Z",
+      "changeCount": 4,
       "size": 236,
       "hash": "1b6d615d22224279c2326156f17f8469",
       "status": "active",
-      "lastModifiedUnix": 1756222107843
+      "lastModifiedUnix": 1764514613036
     },
     "htop.osl": {
       "name": "htop.osl",
@@ -135,12 +135,12 @@
     "info.osl": {
       "name": "info.osl",
       "firstAdded": "2025-07-20T23:43:22.367Z",
-      "lastModified": "2025-10-02T00:31:27.026Z",
-      "changeCount": 9,
+      "lastModified": "2025-11-30T14:57:03.561Z",
+      "changeCount": 10,
       "size": 1294,
       "hash": "9ed5b7138692f39215beb1ab9b10f125",
       "status": "active",
-      "lastModifiedUnix": 1759365087026
+      "lastModifiedUnix": 1764514623561
     },
     "length.osl": {
       "name": "length.osl",
@@ -415,12 +415,12 @@
     "durl.osl": {
       "name": "durl.osl",
       "firstAdded": "2025-09-30T00:25:05.949Z",
-      "lastModified": "2025-09-30T00:24:22.212Z",
-      "changeCount": 1,
+      "lastModified": "2025-11-30T14:56:59.125Z",
+      "changeCount": 2,
       "size": 354,
       "hash": "540441de64226af81437f55a04ee230d",
       "status": "active",
-      "lastModifiedUnix": 1759191862212
+      "lastModifiedUnix": 1764514619125
     },
     "mount.osl": {
       "name": "mount.osl",
@@ -475,11 +475,11 @@
     "reboot.osl": {
       "name": "reboot.osl",
       "firstAdded": "2025-10-03T03:10:02.700Z",
-      "lastModifiedUnix": 1759771925608,
-      "lastModified": "2025-10-06T17:32:05.608Z",
-      "changeCount": 1,
-      "size": 833,
-      "hash": "b77382e020108d3fd6e3c106818a2f8a",
+      "lastModifiedUnix": 1765127592485,
+      "lastModified": "2025-12-07T17:13:12.485Z",
+      "changeCount": 2,
+      "size": 867,
+      "hash": "5b2c8e2c5f1e829a63301eaa8830eb9a",
       "status": "active"
     },
     "logout.osl": {
@@ -545,11 +545,11 @@
     "wallpaperctl.osl": {
       "name": "wallpaperctl.osl",
       "firstAdded": "2025-10-03T21:38:27.713Z",
-      "lastModifiedUnix": 1759527765470,
-      "lastModified": "2025-10-03T21:42:45.470Z",
-      "changeCount": 1,
-      "size": 581,
-      "hash": "44ec50db9bb324a28f648459de8f63b7",
+      "lastModifiedUnix": 1766018477471,
+      "lastModified": "2025-12-18T00:41:17.471Z",
+      "changeCount": 2,
+      "size": 842,
+      "hash": "8a25cddfc9eb7afe829d442870bc16f2",
       "status": "active"
     },
     "tty.osl": {
@@ -600,7 +600,7 @@
       "name": "opal.osl",
       "changeCount": 13
     },
-    "totalChanges": 166,
-    "averageChangesPerScript": 2.81
+    "totalChanges": 171,
+    "averageChangesPerScript": 2.9
   }
 }

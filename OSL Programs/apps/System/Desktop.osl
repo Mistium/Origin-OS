@@ -53,13 +53,17 @@ def "reload_extensions" (
 
 def "handle_dropped_file" (
   loc 2 2 35 -35
+  if !file_dropped.fileExists() (
+    warn "Dropped file: " ++ file_dropped ++ " does not exist"
+    return
+  )
   file "open" file_dropped "onlyaccess"
   file "set" "6" round(x_position - mouse_x / -70) * 70
   file "set" "7" round(y_position - mouse_y / -70) * 70
 )
 
 def "handle_app_culling" (
-  if mouse_down or app_positions.len == 0 (
+  if mouse_down or app_positions.len == 0 or sequenced_refresh (
     desktop_apps = desktop
   ) else (
     loc 2 2 35 -35
@@ -218,12 +222,15 @@ def positionWindow() (
   // set window parameters
   window.drop_location = windowfileloc
 
-  local width = screensize_x - (area.left + area.right)
-  local height = screensize_y - (area.top + area.bottom)
+  number width = round(screensize_x - (area.left + area.right))
+  number height = round(screensize_y - (area.top + area.bottom))
 
-  window.goto(area.left - area.right / 2, area.bottom - area.top / 2)
-  window.width = width
-  window.height = height
+  window.goto(round(area.left - area.right / 2), round(area.bottom - area.top / 2))
+  if window.width != width or window.height != height (
+    window.width = width
+    window.height = height
+    window_changed_dimensions = true
+  )
 )
 
 positionWindow()
@@ -231,6 +238,8 @@ positionWindow()
 desktop_apps = []
 
 cur_frame = 0
+window_changed_dimensions = false
+previous_wallpaper = user.wallpaper
 mainloop:
 cur_frame ++
 
@@ -239,9 +248,16 @@ positionWindow()
 back = user.theme.background
 txtc = user.theme.text
 
+wallpaper_changed = previous_wallpaper != user.wallpaper
+previous_wallpaper = user.wallpaper
+
 include windowfileloc
 hovered = window_id_index == window_top_index
-doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0 or cur_frame % 60 == 0
+
+// if this is true, it forces the window to redraw and not cache
+sequenced_refresh = cur_frame % 60 == 0 or wallpaper_changed or window_changed_dimensions
+
+doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0 or cur_frame % 30 == 0 or sequenced_refresh
 
 for j widgets.len (
   local cur @= widgets[j]
@@ -277,7 +293,7 @@ if hovered (
   square screensize_x screensize_y 1 0 1
 
   rightclick desktop_rightclick desktop_uuid
-) else if cur_frame % 30 != 0 (
+) else if !sequenced_refresh (
   goto -window.x -window.y
   image "@cacheSkin"
   exit
@@ -285,7 +301,7 @@ if hovered (
 
 handle_app_culling
 
-if (!doDraw and !hovered) or desktop_apps.len == 0 (
+if (!doDraw and !hovered) or desktop_apps.len == 0 and !sequenced_refresh (
   goto -window.x -window.y
   image "@cacheSkin"
   exit
