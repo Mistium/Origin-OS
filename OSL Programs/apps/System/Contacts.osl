@@ -158,7 +158,7 @@ if page != "Profile" (
     height = length * 45
   )
 
-  frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "sidebar" (
+  frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "cache@sidebar" (
     if length == 0 (
       loc 2 2 10 -20
       text "No" + page 10 : c#txtc

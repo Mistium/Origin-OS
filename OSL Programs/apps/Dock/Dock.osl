@@ -43,7 +43,13 @@ state = {
 
 desktop @= () -> (
   open_path = null
-  redraw_all = (cur_frame % 60) == 0 or round(y) != round(dock_y_target)
+  redraw_all = (cur_frame % 120) == 0 or round(y) != round(dock_y_target)
+  if !redraw_all (
+    goto round(-window.x) round(-window.y)
+
+    image "@cacheSkin"
+    goto x y
+  )
   for bg segment_classes.len (
     local cur @= segment_classes[bg]
     if cur.enabled == false (
@@ -82,12 +88,6 @@ desktop @= () -> (
       goto x y
       void cur.main()
       run[i] = false
-    ) else (
-      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2 (
-        goto -frame.x -frame.y
-
-        image "@cacheSkin"
-      )
     )
     x += w + 30
   )
@@ -282,7 +282,7 @@ if !on_mobile (
 
 if y > -80 (
   width = 0
-  local x = dock_width / -2 + 15
+  local x = round(dock_width / -2 + 15)
   dock_width = 0
 
   goto x y
@@ -319,8 +319,4 @@ if open_path != null and !mouse_down (
     window.create(open_path)
   )
   open_path = null
-)
-
-if needs_render (
-  window.callRender()
 )
