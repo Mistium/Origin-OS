@@ -255,9 +255,9 @@ include windowfileloc
 hovered = window_id_index == window_top_index
 
 // if this is true, it forces the window to redraw and not cache
-sequenced_refresh = cur_frame % 60 == 0 or wallpaper_changed or window_changed_dimensions
+sequenced_refresh = cur_frame % 120 == 0 or wallpaper_changed or window_changed_dimensions
 
-doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0 or cur_frame % 30 == 0 or sequenced_refresh
+doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0 or sequenced_refresh
 
 for j widgets.len (
   local cur @= widgets[j]
