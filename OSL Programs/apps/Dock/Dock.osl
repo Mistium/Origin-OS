@@ -270,7 +270,7 @@ if mouse_down.not() (
 )
 if !on_mobile (
   window.resize(screensize_x, 70)
-  window.y = screensize_y / -2 + 35
+  window.y = round(screensize_y / -2 + 35)
   y += dock_y_target - round(y) * delta_time * 3
   if y > 0 (
     y = 0
