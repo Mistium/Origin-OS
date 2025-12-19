@@ -44,11 +44,8 @@ state = {
 desktop @= () -> (
   open_path = null
   redraw_all = (cur_frame % 120) == 0 or round(y) != round(dock_y_target)
-  if !redraw_all (
-    goto round(-window.x) round(-window.y)
-
-    image "@cacheSkin"
-    goto x y
+  if redraw_all (
+    window.callRender()
   )
   for bg segment_classes.len (
     local cur @= segment_classes[bg]
@@ -60,7 +57,7 @@ desktop @= () -> (
     cur.width = w
     change_x w / 2
     square w height 20 0 1
-    run[bg] = cur.conditions() == true or mouse_touching or dock_changed_w or redraw_all
+    run[bg] = cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w or redraw_all
     if run[bg] (
       square w height 20
     )
