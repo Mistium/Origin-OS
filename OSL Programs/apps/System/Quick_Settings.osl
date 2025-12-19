@@ -33,11 +33,8 @@ def positionWindow() (
 
 positionWindow()
 
-cur_frame = 0
-
 mainloop:
 wt:load_theme
-cur_frame ++
 
 if winw > winw_target (
   window "refresh_bg"
@@ -54,7 +51,7 @@ positionWindow()
 
 square window.width window.height 0 0 1
 triggered_mouse = mouse_touching
-if round(winw) !== round(winw_target) or triggered_mouse or (cur_frame % 30) == 0 (
+if round(winw) !== round(winw_target) or triggered_mouse or bg_redrawn (
   winw_target = winw_start
   last = timer
   w2 = window.width
@@ -86,10 +83,4 @@ if round(winw) !== round(winw_target) or triggered_mouse or (cur_frame % 30) == 
 
   winw_target += 20
   text desktops.current + 1 9 : chx#-40
-  if !triggered_mouse (
-    window.callRender()
-  )
-) else (
-  goto -window.x -window.y
-  image "@cacheSkin"
 )

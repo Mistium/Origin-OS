@@ -95,6 +95,7 @@ def "render_selection" (
     selection_frame @= frame
     // for later when i want to allow selecting many files
   )
+  window.callRender()
 )
 
 def getUuid(path) (
@@ -276,11 +277,13 @@ if hovered (
   if file_dropped != 0 (
     handle_dropped_file
     file_dropped = 0
+    window.callRender()
   )
   if mouse_down and can (
     can = false
     mouse_start_x = mouse_x
     mouse_start_y = mouse_y
+    window.callRender()
   )
   if mouse_down (
     render_selection
@@ -294,21 +297,13 @@ if hovered (
 
   rightclick desktop_rightclick desktop_uuid
 ) else if !sequenced_refresh (
-  goto -window.x -window.y
-  image "@cacheSkin"
   exit
 )
 
 handle_app_culling
 
 if (!doDraw and !hovered) or desktop_apps.len == 0 and !sequenced_refresh (
-  goto -window.x -window.y
-  image "@cacheSkin"
   exit
-)
-if !doDraw (
-  goto -window.x -window.y
-  image "@cacheSkin"
 )
 
 for i desktop_apps.len (
@@ -333,9 +328,6 @@ for i desktop_apps.len (
     name = data
   ) else if name == data (
     name = null
+    window.callRender()
   )
-)
-
-if doDraw (
-  window.callRender()
 )

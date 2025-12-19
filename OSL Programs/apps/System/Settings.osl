@@ -222,10 +222,10 @@ def "system" (
       about
       break
     case "Display"
-      loc 2 2 10 -20 + scroll_y
+      loc 2 2 10 -20 + frame.scroll
       text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
       
-      goto 0 window.top - 100 + scroll_y
+      goto 0 window.top - 100 + frame.scroll
       
       display "invert" "get"
       c #txtc
@@ -267,19 +267,19 @@ def "system" (
           media = "Please Grant Origin Microphone And Camera Permissions"
         )
       )
-      loc 2 2 10 -40 + scroll_y
+      loc 2 2 10 -40 + frame.scroll
       text "System Volume" + round(slider_volume * 100) ++ "%" 10 : c#txtc
-      loc 999 2 0 -90 + scroll_y
+      loc 999 2 0 -90 + frame.scroll
       terminal "system sound get volume"
       slider_volume = data / 100
       slider w 40 "volume" 15 : c#prim
       terminal "system sound set volume " ++ (slider_volume * 100)
       c txtc
-      loc 2 2 10 -160 + scroll_y
+      loc 2 2 10 -160 + frame.scroll
       if media.istype("object") (
         text "Media Devices" 10
         for i keys.len (
-          y = i + 2.5 * -60 + scroll_y
+          y = i + 2.5 * -60 + frame.scroll
           loc 999 2 0 y
           w = frame.width - 25
           square w 40 15 : c#prim
@@ -319,7 +319,7 @@ def "system" (
         new_transmit = false
       )
       w = frame.width - 25
-      y = -30 + scroll_y
+      y = -30 + frame.scroll
       loc 9999 2 0 y
       square w 30 15 : c#prim
       loc 2 2 30 y
@@ -334,7 +334,7 @@ def "system" (
         network "update" "onboot" boot_apps
       )
       text "Reset Boot To Default" 9 : chx#20
-      loc 2 2 20 -70 + scroll_y
+      loc 2 2 20 -70 + frame.scroll
       text "Drop File Here" 9 : c#txtc
       if file_dropped != 0 (
         local dat = open(file_dropped, ["location","name","type"])
@@ -354,7 +354,7 @@ def "system" (
       text "Click here or drop an osl file to add it to your boot" 9 : chx#20
 
       for count boot_apps.len (
-        y = count + 1.5 * -60 + scroll_y
+        y = count + 1.5 * -60 + frame.scroll
         loc 999 2 0 y
         square w 40 15 : c#prim
         loc 2 2 15 y
@@ -373,7 +373,7 @@ def "system" (
       page_len = boot_apps.len + 2 * 60
       break
     case "Time"
-      goto 0 frame.top - 40 + scroll_y
+      goto 0 frame.top - 40 + frame.scroll
       centext timestamp.timestamp("convert-time") ++ "." ++ timestamp.toStr().right(3) 20 : c#txtc
       change_y -50
       centext "Your originOS time is offset by" 10
@@ -415,7 +415,7 @@ def "network_page" (
     )
     return
   )
-  goto 0 window.top - 70 + scroll_y
+  goto 0 window.top - 70 + frame.scroll
 
   icon "network" 4 : c#txtc
   if network.connected (
@@ -512,7 +512,7 @@ def "appearance" (
       option "Colours" "w 3 cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
       break
     case "Background"
-      y = -30 + scroll_y
+      y = -30 + frame.scroll
       w = frame.width - 25
       loc 9999 2 0 y
       square w 30 15 : c#prim
@@ -596,7 +596,7 @@ def "appearance" (
         value: mode
       }
 
-      loc -2 2 -115 -80 + scroll_y
+      loc -2 2 -115 -80 + frame.scroll
       dropdown 200 25 10 {
         id: "fillmode",
         options: modes,
@@ -609,7 +609,7 @@ def "appearance" (
         network "update" "wallpaper_mode" fillmode
       )
 
-      page_len = -y + scroll_y
+      page_len = -y + frame.scroll
       break
     case "Dock"
       if new_transmit (
@@ -620,7 +620,7 @@ def "appearance" (
         new_transmit = false
       )
       w = frame.width - 25
-      y = -30 + scroll_y
+      y = -30 + frame.scroll
       loc 9999 2 0 y
       square w 30 15 : c#prim
       loc 2 2 30 y
@@ -657,7 +657,7 @@ def "appearance" (
       icon "upload" 0.7 : c#txtc
       text "Click here or drop an ode file to add it to your dock" 9 : chx#20
       for count segments.len (
-        y = count + 2 * -50 + scroll_y
+        y = count + 2 * -50 + frame.scroll
         loc 999 2 0 y
         w = frame_width - 25
         square w 30 15 : c#prim
@@ -708,7 +708,7 @@ def "appearance" (
       page_len = segments.len + 2 * 60
       break
     case "windows"
-      goto 0 frame.top + scroll_y - 30
+      goto 0 frame.top + frame.scroll - 30
       setting_toggle "Show Window Outline" w user.theme.show_outline != false def() -> (
         local theme = user.theme
         theme.show_outline = theme.show_outline == false
@@ -727,7 +727,7 @@ def "appearance" (
         theme_select = user.theme
       )
   
-      y = -30 + scroll_y
+      y = -30 + frame.scroll
       colour_selector "Accent Colour" "accent"
 
       y -= 70
@@ -819,7 +819,7 @@ def "files" (
       break
     case "File Types"
       for count ftkeys.len (
-        y = count * -60 + scroll_y + 30
+        y = count * -60 + frame.scroll + 30
         
         loc 999 2 0 y
         square frame.width - 20 40 10 : c#prim
@@ -839,7 +839,7 @@ def "files" (
       page_len = count * 60
       break
     case "Storage"
-      y = -160 + 75 + scroll_y
+      y = -160 + 75 + frame.scroll
       loc 2 2 80 y
       image pfp 100 100
       text "(Network)" + username 15 : chx#80 chy#20 c#txtc
@@ -876,16 +876,16 @@ def "files" (
           file_data = files.sort().reverse().trim(1,20)
         )
 
-        goto frame.left + 30 frame.top + scroll_y - 200
+        goto frame.left + 30 frame.top + frame.scroll - 200
         direction (timer * 100).sin() * 360
         icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
         direction 90
         text files.len + "Files Processed" 10 : chx#30
       ) else (
-        loc 2 2 20 -200 + scroll_y
+        loc 2 2 20 -200 + frame.scroll
         text "Biggest Files" 9 : c#txtc
         for i file_data.len (
-          loc 2 2 20 i * -30 - 200 + scroll_y
+          loc 2 2 20 i * -30 - 200 + frame.scroll
           text file_data[i] 9
         )
         page_len = file_data.len * 30 + 200
@@ -899,7 +899,7 @@ def "account" (
   local w = frame.width - 100
   page_len = 500
   
-  goto 0 frame.top - 50 + scroll_y
+  goto 0 frame.top - 50 + frame.scroll
   
   if subcategory == "backups" (
     page_len = 0
@@ -920,7 +920,7 @@ def "account" (
   if subcategory == "banners" (
     local premium = ["Pro", "Max"].contains(tier)
     page_len = 0
-    goto 0 frame.top - 110 + scroll_y
+    goto 0 frame.top - 110 + frame.scroll
     square w 200 10 : c#prim
     c seco
     square 50 50 20
@@ -993,7 +993,7 @@ def "account" (
     )
     */
     page_len = 50
-    goto 0 frame.top + scroll_y + 25
+    goto 0 frame.top + frame.scroll + 25
     
     set_x 0 : chy#-50
     setting_do "Change Email (" ++ user.email ++ ")" "edit" w def() -> (
@@ -1006,7 +1006,7 @@ def "account" (
   if subcategory == "Subscriptions" (
     page_len = 0
     if typeof(subscriptions) != "array" (
-      goto 0 frame.top - 60 + scroll_y
+      goto 0 frame.top - 60 + frame.scroll
       centext "Fetching Subscriptions" 10 : c#txtc
       
       data = ("https://social.rotur.dev/keys/mine?auth=" ++ roturToken()).getAsync()
@@ -1014,7 +1014,7 @@ def "account" (
         subscriptions = data.filter(v -> (v["type"] == "subscription"))
       )
     ) else (
-      goto 0 frame.top - 60 + scroll_y
+      goto 0 frame.top - 60 + frame.scroll
       if subscriptions.len == 0 (
         centext "You have no subscriptions" 10 : c#txtc
       )
@@ -1048,7 +1048,7 @@ def "account" (
 
   if subcategory == "Recent Logins" (
     page_len = 0
-    goto 0 frame.top - 60 + scroll_y
+    goto 0 frame.top - 60 + frame.scroll
     array logins @= user["sys.logins"]
     logins.sortBy("timestamp")
     logins.reverse()
@@ -1154,7 +1154,7 @@ def "account" (
     return
   )
   
-  goto 0 frame.top - (w / 6) - 10 + scroll_y
+  goto 0 frame.top - (w / 6) - 10 + frame.scroll
   square w w / 3 10 : c#prim
   effect "transparency" 70
   image user.banner ++ "?radius=10" w w / 3
@@ -1196,7 +1196,7 @@ def "account" (
   local uname = user.username.trimText((frame.width - (frame.right + x_position)) / 15 - 5)
   text uname 15 : c#txtc
   
-  loc -2 2 -70 -30 + scroll_y
+  loc -2 2 -70 -30 + frame.scroll
   icon "edit" 0.8
   if onclick (
     subcategory = "Banners"
@@ -1239,7 +1239,7 @@ def "account" (
   
   local bio_data = inputs.bio.join("\n")
   
-  goto w / -2 frame.top - (w / 3) - 70 + scroll_y
+  goto w / -2 frame.top - (w / 3) - 70 + frame.scroll
   local bio_maxSize = 200
   switch tier (
     case "Free"
@@ -1447,7 +1447,7 @@ def "permissions" (
 )
 
 def "bluetooth_page" (
-  goto 0 frame.top - 40 + scroll_y
+  goto 0 frame.top - 40 + frame.scroll
   w = frame.width - 100
   local connection = 0
   local changePage = def() -> (
@@ -1524,7 +1524,7 @@ def "inputs" (
       local keys = keybinds.getKeys()
       keybind_display ??= keys[1]
       keybind_selected ??= null
-      goto 0 frame.top + scroll_y - 30
+      goto 0 frame.top + frame.scroll - 30
       for i keys.len (
         local cur = keys[i]
         set_x 0
@@ -1624,7 +1624,7 @@ def "inputs" (
     case "Gamepads"
       local gamepads = getGamepads()
       
-      loc 2 2 10 -20 + scroll_y
+      loc 2 2 10 -20 + frame.scroll
       text "Total: " ++ gamepads.len ++ "/4" 10 : c#txtc
       
       y = y_position + 70
@@ -1666,7 +1666,7 @@ def "credits" (
   if subcategory == "none" (
     page_len = 290
     w = frame_width / 2 - 50
-    loc 4 2 2.5 -95 + scroll_y
+    loc 4 2 2.5 -95 + frame.scroll
     square w 150 20 : c#prim
     square w 150 15 : c#global_accent
     square w 150 8 : c#prim
@@ -1696,7 +1696,7 @@ def "credits" (
     text "Community >" 9 -100 : c#txtc
 
     
-    loc -4 2 -2.5 -95 + scroll_y
+    loc -4 2 -2.5 -95 + frame.scroll
     square w 150 20 : c#prim
     if onclick (
       http "newtab" "https://turbowarp.org"
@@ -1727,7 +1727,7 @@ def "credits" (
   if subcategory == "Extensions" (
     w = frame_width - 25
     for count extensions.len (
-      y = count - 0.5 * -60 + scroll_y
+      y = count - 0.5 * -60 + frame.scroll
       loc 999 2 0 y
       square w 40 15 1 : c#prim
       if mouse_touching (
@@ -1743,7 +1743,7 @@ def "credits" (
     w = frame_width - 25
     for count contributors.len (
       local cur @= contributors[count]
-      y = count - 0.5 * -60 + scroll_y
+      y = count - 0.5 * -60 + frame.scroll
       loc 999 2 0 y
       square w 40 15 1 : c#prim
       if mouse_touching (
@@ -1775,14 +1775,14 @@ def "credits" (
       direction timer * 720
       icon "sync" .75 : c#txtc
     ) else (
-      loc 2 2 115 -30 + scroll_y
+      loc 2 2 115 -30 + frame.scroll
       square 200 25 10 : c#prim hover_c#seco
       if onclick (
         http "newtab" "https://ko-fi.com/mistium"
       )
       centext "Support me!" 10 : c#txtc chx#-17.5
       icon "open" .6 : chx#("Support me!".len * 5 + 17.5)
-      loc 2 2 15 -70 + scroll_y
+      loc 2 2 15 -70 + frame.scroll
       text "Members:" 10 : c#txtc
       
       supporters @= {
@@ -1810,7 +1810,7 @@ def "credits" (
 
         if category.len > 0 (
           y += 20
-          loc 2 2 15 -85 - y + scroll_y
+          loc 2 2 15 -85 - y + frame.scroll
           text categoryName 11.5 : c#txtc
           y += 20
           
@@ -1818,7 +1818,7 @@ def "credits" (
             local user @= category[useri]
             
             y += 8
-            loc 2 2 25 -85 - y + scroll_y
+            loc 2 2 25 -85 - y + frame.scroll
             image "https://avatars.rotur.dev/" ++ user ++ "?radius=128" 22 : chx#15
             text user 10 : c#txtc chx#16.5
             y += 20
@@ -2154,48 +2154,50 @@ if subcategory == "none" (
   centext subcategory 10
 )
 c seco
-frame window.left + 215 window.top - 47 window.right window.bottom page_len
-page_len = 0
-y = -29 + scroll_y
-startx = x_position
-location = category + subcategory
-switch category (
-  case "System"
-    system
-    break
-  case "Connection"
-    connectivity
-    break
-  case "Style"
-    appearance
-    break
-  case "Storage"
-    files
-    break
-  case "Controls"
-    inputs
-    break
-  case "Account"
-    account
-    break
-  case "Permissions"
-    permissions
-    break
-  case "Apps"
-    apps
-    break
-  case "upgrade"
-    upgrade
-    break
-  case "credits"
-    credits
-    break
+frame window.left + 215 window.top - 47 window.right window.bottom page_len "cache@page" (
+  page_len = 0
+  y = -29 + frame.scroll
+  startx = x_position
+  location = category + subcategory
+  switch category (
+    case "System"
+      system
+      break
+    case "Connection"
+      connectivity
+      break
+    case "Style"
+      appearance
+      break
+    case "Storage"
+      files
+      break
+    case "Controls"
+      inputs
+      break
+    case "Account"
+      account
+      break
+    case "Permissions"
+      permissions
+      break
+    case "Apps"
+      apps
+      break
+    case "upgrade"
+      upgrade
+      break
+    case "credits"
+      credits
+      break
+  )
+
+  if !mouse_down (
+    can = true
+  )
 )
 
-if mouse_down.not "can = True"
-frame "clear"
-
-if gotosubcategory != "" and mouse_down.not (
+if gotosubcategory != "" and !mouse_down (
   subcategory = gotosubcategory
   gotosubcategory = ""
 )
