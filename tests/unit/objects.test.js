@@ -59,6 +59,27 @@ const tests = [
     test()`,
     { expectErrors: ['Type mismatch'] }
   ),
+
+  helper.createTest(
+    'object literal with trailing comma',
+    `def test() number (
+      object o = { a: 1, }
+      return o.a
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'object shorthand property initializer',
+    `def test() string (
+      string a = "x"
+      object o = {a}
+      return o.a
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
 ]
 
 module.exports = { tests }

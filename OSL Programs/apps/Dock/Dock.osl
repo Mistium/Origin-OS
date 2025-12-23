@@ -241,7 +241,7 @@ run = (1 to segment_classes.len).fill(false)
 
 cur_frame = 0
 
-previous_wallpaper = user.wallpaper
+previous_wallpaper = background_url
 
 mainloop:
 needs_render = false
@@ -250,8 +250,8 @@ dock_colour = user.theme.background
 icon_colour = user.theme.text
 prim = user.theme.primary
 
-wallpaper_changed = previous_wallpaper != user.wallpaper
-previous_wallpaper = user.wallpaper
+wallpaper_changed = previous_wallpaper != background_url
+previous_wallpaper = background_url
 
 if wallpaper_changed (
   needs_render = true

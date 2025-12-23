@@ -128,6 +128,15 @@ const tests = [
     pick(10)`,
     { expectErrors: ['Type mismatch returning from function pick: expected object, got number'] }
   ),
+
+  helper.createTest(
+      'unary keyword typeof',
+      `def test() string (
+        return typeof(123)
+      )
+      test()`,
+      { expectNoErrors: true }
+    ),
 ];
 
 module.exports = { tests };

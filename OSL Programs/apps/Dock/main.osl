@@ -6,16 +6,23 @@ def conditions() (
 
 def main() (
   change_x 70
-  icon "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10" 1 : c#icon_colour
+  square 30 30 0 0 1
   if onclick (
     open_path = "Origin/(A) System/System Apps/Origin_Start.osl"
   )
-  icon "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7" 1 : chx#45
+  icon "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10" 1 : c#icon_colour
+
+  change_x 45
+  square 30 30 0 0 1
   if onclick (
     open_path = "Origin/(A) System/System Apps/Desktop_Manager.osl"
   )
-  icon "w 2.5 cutcircle -2 2 8 0 180 line 4 -4 12 -12" 1 : chx#-90
+  icon "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7" 1
+
+  change_x -90
+  square 30 30 0 0 1
   if onclick (
     open_path = "Origin/(A) System/System Apps/originAssist.osl"
   )
+  icon "w 2.5 cutcircle -2 2 8 0 180 line 4 -4 12 -12" 1
 )
