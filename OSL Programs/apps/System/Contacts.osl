@@ -332,7 +332,7 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
         local w2 = badges.len * 30
         for i badges.len (
           local badge = badges[i]
-          icon badge.icon 1.2 : tooltip#badge.name
+          icon badge.icon 1.2 : c#txtc tooltip#badge.name
           if onclick (
             say badge.description
           )

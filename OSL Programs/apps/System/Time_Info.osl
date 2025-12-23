@@ -29,14 +29,25 @@ text `${day} ${day_number} ${month} ${year}` 10
 
 loc 2 2 35 -35
 icon "w 3 cutcircle 0 0 25 0 180" 1
-pen "down"
-temp = minute * 6
-change temp.sin() * 12 temp.cos() * 12
 
 loc 2 2 35 -35
-temp = hour * 12
+pen "down" : w#2
+temp = time.second * 6
+change temp.sin() * 12 temp.cos() * 12
+pen "up"
+
+loc 2 2 35 -35
+pen "down" : w#3
+temp = time.minutes * 6
+change temp.sin() * 12 temp.cos() * 12
+pen "up"
+
+loc 2 2 35 -35
+pen "down"
+temp = (time.hour % 12) * 12 + (time.minutes / 4)
 change temp.sin() * 8 temp.cos() * 8
 pen "up"
+
 
 loc 2 2 70 -20
 text `${hour}:${minute}:${second}` 10

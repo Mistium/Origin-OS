@@ -148,6 +148,77 @@ const tests = [
       return first + second
     )`,
     { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'typed array assignment - number[] ok',
+    `def test() number (
+      number[] xs = [1, 2, 3]
+      return xs.len
+    )`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'typed array assignment - empty literal mismatches (regression coverage)',
+    `def test() number (
+      number[] xs = []
+      return xs.len
+    )
+    test()`,
+    { expectErrors: ['Type mismatch assigning to xs'] }
+  ),
+
+  helper.createTest(
+    'typed array assignment - trailing comma ok',
+    `def test() number (
+      number[] xs = [1, 2, 3,]
+      return xs.len
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'typed array assignment - number[] from mixed array fails',
+    `def test() number (
+      number[] xs = [1, "two", 3]
+      return 0
+    )`,
+    { expectErrors: ['Type mismatch assigning to xs'] }
+  ),
+
+  helper.createTest(
+    'typed array element access inferred type',
+    `def test() number (
+      number[] xs = [10, 20]
+      number v = xs[1]
+      return v
+    )`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'typed array element access wrong target type',
+    `def test() number (
+      number[] xs = [10, 20]
+      string v = xs[1]
+      return 0
+    )`,
+    { expectErrors: ['Type mismatch assigning to v'] }
+  ),
+
+  helper.createTest(
+    'each loop item type from typed array',
+    `def test() number (
+      number[] xs = [1, 2, 3]
+      each i item xs (
+        string s = item
+        log s
+      )
+      return 0
+    )`,
+    { expectErrors: ['Type mismatch assigning to s'] }
   )
 ];
 

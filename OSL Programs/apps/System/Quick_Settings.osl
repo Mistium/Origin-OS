@@ -1,9 +1,8 @@
 // Developer: @Mistium
 // Description: This app shows quick info about your device like the connection, file syncing progress and more in the future
 
-if on_mobile (
-  window "stop"
-)
+// disable quick settings
+window.close()
 
 import "window_tools" as "wt"
 

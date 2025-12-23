@@ -240,7 +240,7 @@ desktop_apps = []
 
 cur_frame = 0
 window_changed_dimensions = false
-previous_wallpaper = user.wallpaper
+previous_wallpaper = background_url
 mainloop:
 cur_frame ++
 
@@ -249,14 +249,18 @@ positionWindow()
 back = user.theme.background
 txtc = user.theme.text
 
-wallpaper_changed = previous_wallpaper != user.wallpaper
-previous_wallpaper = user.wallpaper
+wallpaper_changed = previous_wallpaper != background_url
+previous_wallpaper = background_url
 
 include windowfileloc
 hovered = window_id_index == window_top_index
 
 // if this is true, it forces the window to redraw and not cache
 sequenced_refresh = cur_frame % 120 == 0 or wallpaper_changed or window_changed_dimensions
+
+if wallpaper_changed (
+  window.callRender()
+)
 
 doDraw = desktop.len != data.len or mouse_down or desktop_apps.len > 0 or sequenced_refresh
 

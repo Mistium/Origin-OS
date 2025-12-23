@@ -95,6 +95,78 @@ const tests = [
     )
     log level1()`,
     { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'empty grouping parentheses should error',
+    `def test() number (
+      number x = ()
+      return 0
+    )
+    test()`,
+    {
+      expectNoErrors: true,
+      customAssert: (h) => {
+        const ast = h.generateAST(`def test() number (
+          number x = ()
+          return 0
+        )
+        test()`);
+
+        const findThrowLine = (node) => {
+          if (Array.isArray(node)) {
+            for (const item of node) {
+              const found = findThrowLine(item);
+              if (found) return found;
+            }
+            if (node[0]?.type === 'var' && node[0]?.data === 'throw') return node;
+          } else if (node && typeof node === 'object') {
+            for (const value of Object.values(node)) {
+              const found = findThrowLine(value);
+              if (found) return found;
+            }
+          }
+          return null;
+        };
+
+        const throwLine = findThrowLine(ast);
+        assert.true(!!throwLine, 'Expected parser to generate a throw line for empty parentheses');
+        const msg = String(throwLine?.[2]?.data ?? '');
+        assert.true(msg.includes('Empty parentheses'), `Expected parse error message to mention empty parentheses, got: ${msg}`);
+      }
+    }
+  ),
+
+  helper.createTest(
+    'function call with whitespace-only argument list should not crash',
+    `def id(number x) number (
+      return x
+    )
+    def test() number (
+      return id( )
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'template string with empty interpolation should not crash',
+    `def test() string (
+      string s = \`hi \${} there\`
+      return s
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'template string with whitespace interpolation should not crash',
+    `def test() string (
+      string s = \`hi \${   } there\`
+      return s
+    )
+    test()`,
+    { expectNoErrors: true }
   )
 ];
 
