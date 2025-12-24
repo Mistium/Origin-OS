@@ -394,41 +394,43 @@ class editor (
 class icnPreview (
   def render() (
     local tab @= tabs[current_tab]
-    goto 0 -18
-    square frame.width - 12 frame.height - 49 10 : c#window_colour
+    frame frame.left frame.top - 39 frame.right frame.bottom (
+      goto 0 0
+      square frame.width - 12 frame.height - 12 10 : c#window_colour
 
-    tab.icn_state ??= {
-      display: [0,0],
-      last_display: [0,0],
-      mouse: [0,0],
-      zoom: 1
-    }
+      tab.icn_state ??= {
+        display: [0,0],
+        last_display: [0,0],
+        mouse: [0,0],
+        zoom: 1
+      }
 
-    local icn @= tab.icn_state
-    local lines = []
-    if tab.source_input != null and inputs[tab.source_input] != null (
-      lines @= inputs[tab.source_input]
-    ) else if tab.source_uuid != null (
-      lines = open(tab.source_uuid).split("\n")
-    )
+      local icn @= tab.icn_state
+      local lines = []
+      if tab.source_input != null and inputs[tab.source_input] != null (
+        lines @= inputs[tab.source_input]
+      ) else if tab.source_uuid != null (
+        lines = open(tab.source_uuid).split("\n")
+      )
 
-    if mouse_touching (
-      if mouse_down (
-        icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
-      ) else (
+      if mouse_touching (
+        if mouse_down (
+          icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
+        ) else (
+          icn.last_display = icn.display
+          icn.mouse @= [mouse_x, mouse_y]
+        )
+        icn.zoom += uses_mouse ? scroll_velocity / -100 scroll_velocity / 10
+        icn.zoom = icn.zoom.clamp(0.1, 20)
+      ) else if !mouse_down (
         icn.last_display = icn.display
         icn.mouse @= [mouse_x, mouse_y]
       )
-      icn.zoom += uses_mouse ? scroll_velocity / -100 scroll_velocity / 10
-      icn.zoom = icn.zoom.clamp(0.1, 20)
-    ) else if !mouse_down (
-      icn.last_display = icn.display
-      icn.mouse @= [mouse_x, mouse_y]
-    )
 
-    goto icn.display
-    c c_seco
-    icon "w 0 square 0 0 10 9999 square 0 0 9999 10 w 5 c" + c_text + lines.join(" ") icn.zoom
+      goto icn.display
+      c c_seco
+      icon "w 0 square 0 0 10 9999 square 0 0 9999 10 w 5 c" + c_text + lines.join(" ") icn.zoom
+    )
 
     goto 0 frame.top - 16.5
     square frame.width - 12 20 10 : c#window_colour
@@ -924,7 +926,6 @@ def "draw_tabs" (
     if file (
       change_x -10
       if mouse_touching (
-        window.dragbox = []
         rightclick "file" tab.uuid
       )
       if (mouse_down or mouse_touching) and !tab_dragging and tab_drag_candidate == null (
@@ -944,7 +945,6 @@ def "draw_tabs" (
       change_x 10
     ) else (
       if mouse_touching (
-        window.dragbox = []
         if !tab_dragging and tab_drag_candidate == null and mouse_down and !file_dragging and can_drag_tab (
           tab_drag_candidate = {
             split: current_tab_split,
@@ -1397,7 +1397,7 @@ if file_dragging or tab_dragging (
   current_tab_target = 0
 )
 
-window.dragbox = [[2,2,0,0],[-2,2,-100,-40]]
+window.dragbox = [[1,1,0,0], [1,1,0,0]]
 // entire tabs area
 frame w.left + 5 w.top right w.top - 40 (
   ensureSplitSizes()
@@ -1410,8 +1410,18 @@ frame w.left + 5 w.top right w.top - 40 (
     current_tab_split = i
     current_tab = cur.cur
     local fw = total_w * state.split_sizes[i]
-    frame frame.left + x frame.top frame.left + fw + x frame.bottom - 20 [cur.tab_width.toNum() + 150,0] "split_" ++ i (
+    frame frame.left + x frame.top frame.left + fw + x frame.bottom - 20 [cur.tab_width.toNum() + (i == sections ? 200 100),0] "split_" ++ i (
       draw_tabs
+      if mouse_x > frame.left and mouse_x < frame.right (
+        number frame_left = frame.x - window.x + x_position
+        number frame_right = min(frame.x - window.x + frame.right, window.right - 140)
+        if frame_left < frame_right (
+          window.dragbox = [
+            [9999, 2, frame_left, 0],
+            [9999, 2, frame_right, -40]
+          ]
+        )
+      )
     )
     cur.tab_width = tab_width
     if tabs.len == 0 (
@@ -1550,7 +1560,10 @@ frame window.left + 5 window.top - 40 right bottom (
       local cur @= split_tabs[i]
       tabs @= cur.tabs
       current_tab = cur.cur
-      sidebar.frameInnerRender(tabs[current_tab].func)
+      func @= tabs[current_tab].func
+      if typeof(func) == "function" (
+        sidebar.frameInnerRender(func)
+      )
       cur.cur = current_tab
       cur.tabs @= tabs
     )
