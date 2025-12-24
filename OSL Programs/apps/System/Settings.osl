@@ -516,29 +516,14 @@ def "appearance" (
       w = frame.width - 25
       loc 9999 2 0 y
       square w 30 15 : c#prim
-      if current_wallpaper == "" (
-        if onclick (
-          wallpaper_started = timer
-          current_wallpaper = "Enter a url for your wallpaper here".ask()
-        )
-        loc 2 2 50 y
-        text "Click To Add Custom Wallpaper" 10 : c#txtc
+      if onclick (
+        current_wallpaper = "Enter a url for your wallpaper here".ask()
+        network "update" "wallpaper" current_wallpaper
       )
+      loc 2 2 50 y
+      text "Click To Add Custom Wallpaper" 10 : c#txtc
       loc 2 2 27 y
       icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
-      if !wallpapers.contains(current_wallpaper) (
-        if current_wallpaper.imageinfo("loaded") (
-          current_wallpaper = ""
-        )
-        if current_wallpaper != "" (
-          image current_wallpaper 100 100
-          text "Trying" 10 : c#txtc chx#20
-        )
-      )
-      if timer - wallpaper_started > 10 and current_wallpaper != "" (
-        current_wallpaper = ""
-        say "Failed to load wallpaper"
-      )
 
       y -= 50
       loc 9999 2 0 y
