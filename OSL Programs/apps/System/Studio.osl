@@ -330,7 +330,7 @@ class editor (
       if sel.changed (
         tab.unsaved = true
         tabs[current_tab].data @= inputs[tab.id]
-        if tab["type"] == "file" and tab.name.endsWith(".osl") (
+        if tab["type"] == "file" and tab.name.endsWith(".osl") and false (
           resp @= promise.new(def() -> (
             local ast = osl.generateAST(tab.data.join("\n"))
             self.tab.errors @= osl.getErrorsFromAST(ast)
