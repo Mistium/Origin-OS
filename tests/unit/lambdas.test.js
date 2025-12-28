@@ -138,7 +138,72 @@ const tests = [
       return square("not a number")
     )`,
     { expectErrors: ['Type mismatch: argument 1 of \'square\' expected number, got string'] }
-  )
-];
+  ),
 
+  helper.createTest(
+    'typed parameters: argument type mismatch rejected',
+    `add = def(number a, number b) -> (
+       return a + b
+     )
+
+     number x = add(1, "2")`,
+    { expectErrors: ["Type mismatch: argument 2 of 'add' expected number, got string"] }
+  ),
+
+  helper.createTest(
+    'typed parameters: correct argument types allowed',
+    `add = def(number a, number b) -> (
+       return a + b
+     )
+
+     number x = add(1, 2)`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'typed parameters: missing argument type',
+    `add = def(a, b) -> (
+       return a + b
+     )
+
+     number x = add(1, 2)`,
+    { expectErrors: ["Type mismatch: argument 1 of 'add' expected number, got any"] }
+  ),
+
+  helper.createTest(
+    'typed return: asssignment type mismatch rejected',
+    `add = def(a, b) -> (
+       return "lol"
+     )
+      
+     number x = add(1, 2)`,
+    { expectErrors: ['Return type mismatch'] },
+  ),
+
+  helper.createTest(
+    'object literal with lambda using correct types',
+    `def test() number (
+       object o = {
+         getValue: def() -> (
+           return 10
+         )
+       }
+       return o.getValue()
+     )`,
+      { expectNoErrors: true }
+    ),
+
+    helper.createTest(
+    'object literal with lambda',
+    `def test() number (
+       object o = {
+         getValue: def() -> (
+           return "lol"
+         )
+       }
+       return o.getValue()
+     )`,
+      { expectErrors: ['Type mismatch returning from function o.getValue: expected number, got string'] }
+    ),
+];
 module.exports = { tests };
