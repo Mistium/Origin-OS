@@ -91,6 +91,7 @@ desktop @= () -> (
 )
 
 mobile @= () -> (
+  window.callRender()
   goto 0 window.bottom + 20
   square frame.width 40 0 1 : c#window_colour
   icon "origin-logo" 1 : c#icon_colour
