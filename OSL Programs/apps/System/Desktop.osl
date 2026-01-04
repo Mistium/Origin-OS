@@ -182,7 +182,7 @@ widgets = []
 
 if "widgets.json".saveExists() (
   widgets = "widgets.json".saveGet().JsonClean()
-  if typeof(widget_config) != "array" (
+  if typeof(widgets) != "array" (
     say "Invalid widgets config, must be a valid array"
     widgets = []
   )

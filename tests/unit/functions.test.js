@@ -2,6 +2,15 @@ const helper = require('../helper.js');
 
 const tests = [
   helper.createTest(
+    'function with no argument types',
+    `def add(a, b) number (
+      return a + b
+    )
+    log add()`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
     'simple function with correct return type',
     `def add(number a, number b) number (
       return a + b
@@ -137,6 +146,30 @@ const tests = [
       test()`,
       { expectNoErrors: true }
     ),
+  helper.createTest(
+    'higher-order function accepts compatible lambda',
+    `def apply(function fn, number value) number (
+      return fn(value)
+    )
+    def test() number (
+      return apply((number x) -> (
+        return x * 3
+      ), 7)
+    )`,
+    { expectNoErrors: true }
+  ),
+  helper.createTest(
+    'higher-order function with incompatible lambda param should fail',
+    `def apply(function fn, number value) number (
+      return fn(value)
+    )
+    def test() number (
+      return apply((string s) -> (
+        return s
+      ), 7)
+    )`,
+    { expectErrors: ['Type mismatch'] }
+  ),
 ];
 
 module.exports = { tests };

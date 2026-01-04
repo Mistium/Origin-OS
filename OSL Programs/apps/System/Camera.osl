@@ -2,6 +2,7 @@ import "window_tools"
 
 permission "request" "camera"
 camera_width = 0
+camera_height = 0
 camera "start"
 camera_back = 0
 camera "use_front"
@@ -14,7 +15,7 @@ if camera_width == 0 (
   camera "get" "width"
   if data != "camera is not on" (
     camera_width = data
-    camera "get" height
+    camera "get" "height"
     camera_height = data
   )
 )

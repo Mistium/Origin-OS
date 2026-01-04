@@ -207,7 +207,7 @@ class OSLUtils {
     this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", ">>>", "<<<", "^^"]
-    this.unary = ["typeof", "new"]
+
     this.listVariable = "";
     this.fullASTRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|\/\*[^*]+|[,{\[]\s*[\r\n]\s*[}\]]?|[\r\n]\s*[}\.\]]|;|(?<=[)"\]}a-zA-Z\d])\[(?=[^\]])|(?<=[)\]])\(|([\r\n]|^)\s*\/\/[^\r\n]+|[\r\n]/gm;
     this.lineTokeniserRegex = /("(?:[^"\\]|\\.)*"|`(?:[^`\\]|\\.)*`|'(?:[^'\\]|\\.)*')|(?<=[\]"}\w\)])(?:\+\+|\?\?|::|->|==|!=|<=|>=|[><?+*^%/\-|&])(?=\S)/g;
@@ -250,6 +250,80 @@ class OSLUtils {
     // Track variables and their usage for dead code elimination
     this.variableUsage = new Map();
     this.definedVariables = new Set();
+    // Global variable type map for system-wide builtins
+    this.globalVariableTypes = {
+      'screensize_x': 'number',
+      'screensize_y': 'number',
+      'mouse_x': 'number',
+      'mouse_y': 'number',
+      'mouse_down': 'boolean',
+      'mouse_right': 'boolean',
+      'mouse_middle': 'boolean',
+      'mouse_ondown': 'boolean',
+      'delta_time': 'number',
+      'self': 'object',
+      'user': 'object',
+      'system_os': 'string',
+      'timezone': 'string',
+      'file_dragging': 'boolean',
+      'window': 'object',
+      'window_width': 'number',
+      'window_height': 'number',
+      'window_top_index': 'number',
+      'window_id_index': 'number',
+      'background_url': 'string',
+      'background_width': 'number',
+      'background_height': 'number',
+      'timer': 'number',
+      'timestamp': 'number',
+      'frame_width': 'number',
+      'frame_height': 'number',
+      'frame': 'number',
+      'roturlink': 'object',
+      'global_accent': 'string',
+      'passed_data': 'any',
+      'fps': 'number',
+      'fps_limit': 'number',
+      'x_position': 'number',
+      'y_position': 'number',
+      'requests': 'object', // the global http requests class
+      'promise': 'object', // the global promise class
+      'physics': 'object', // the global physics class
+      'data': 'any', // a legacy variable used for command returns
+      'network_data': 'any',
+      'network_data_from': 'string',
+      'network_data_command': 'string',
+      'packet': 'object',
+      'network': 'object', // the global network class
+      'battery_time_until_full': 'number',
+      'battery_time_until_empty': 'number',
+      'battery_percent': 'number',
+      'battery_charging': 'boolean',
+      'accent_colour': 'string',
+      'window_colour': 'string',
+      'selected_input': 'string',
+      'terminal_output': 'array',
+      'second': 'number',
+      'minute': 'number',
+      'hour': 'number',
+      'day': 'string',
+      'day_number': 'number',
+      'month': 'string',
+      'month_number': 'number',
+      'year': 'number',
+      'scope': 'object',
+      'performance': 'number',
+      'current_colour': 'string',
+      'bg_redrawn': 'boolean',
+      'local_timer': 'number',
+      'loaded_file': 'string',
+      'file_dragging': 'boolean',
+      'direction': 'number',
+      'stretch_x': 'number',
+      'stretch_y': 'number',
+      'window_timer': 'number',
+      'this': 'object',
+    };
 
     this.tkn = {
       str: 0,
@@ -1143,7 +1217,7 @@ class OSLUtils {
               const first = cur.split("\n", 1)[0]
               cur = cur.replace(first + "\n", "").trim()
             }
-            tokens[i] = this.generateAST({ CODE: cur, START: 0 })[0];
+            tokens[i] = this.generateAST({ CODE: cur.split("\n")[0], START: 0 })[0];
           }
 
           if (param) {
@@ -1174,6 +1248,14 @@ class OSLUtils {
               const first = key.split("\n", 1)[0]
               key = key.replace(first + "\n", "").trim()
             }
+            const stripLineTags = (s) => {
+              if (s === undefined || s === null) return s;
+              let out = String(s);
+              out = out.replace(/\/@line(?:\s+\d+)?\s*\n/g, "");
+              out = out.replace(/\/@line(?:\s+\d+)?\s*$/g, "");
+              return out.trim();
+            };
+            value = stripLineTags(value);
             if (value === undefined) {
               let nkey = this.generateAST({ CODE: key, START: 0 })[0]
               if (nkey.num === this.tkn.var) {
@@ -1269,7 +1351,12 @@ class OSLUtils {
       if (handlingMods) {
         const token = { type: "mod", num: this.tkn.mod, data: cur, source: cur };
         const pivot = token.data.indexOf("#") + 1
-        token.data = [token.data.substring(0, pivot - 1), this.evalToken(token.data.substring(pivot))]
+        const raw = token.data.substring(pivot);
+        if (/^[0-9a-fA-F]{3}([0-9a-fA-F]{3})?$/.test(raw)) {
+          token.data = [token.data.substring(0, pivot - 1), { type: "str", num: this.tkn.str, data: raw, source: raw }]
+        } else {
+          token.data = [token.data.substring(0, pivot - 1), this.evalToken(raw)]
+        }
         ast.push(token);
         continue;
       }
@@ -1365,9 +1452,9 @@ class OSLUtils {
           return 'any'
         })
 
-  const leftSrc = typeof node.left?.source === 'string' ? node.left.source.trim() : '';
-  const strictAnyArgs = leftSrc.startsWith('def(') && accepts.some(t => t === 'any');
-        
+        const leftSrc = typeof node.left?.source === 'string' ? node.left.source.trim() : '';
+        const strictAnyArgs = leftSrc.startsWith('def(') && accepts.some(t => t === 'any');
+
         return {
           type: "fnc", num: this.tkn.fnc,
           data: "function",
@@ -1682,19 +1769,38 @@ class OSLUtils {
     if (MAIN) this.inlinableFunctions = {};
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
-    CODE = this.normalizeLineEndings(CODE.trim());
+    CODE = this.normalizeLineEndings(String(CODE).trim());
     CODE = (MAIN ? `/@line ${++line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
-      if (match === "\n") return MAIN ? `\n/@line ${++line}\n` : "\n";
       if (match === ";") return "\n";
-      if (match === "(") return ".call(";
-      if (match === "[") return ".[";
-      if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line++; return match }
-      if (match.startsWith("\n")) { line++; return match.replace(/\n\s*\./, ".") };
-      return match;
+
+      let out = match;
+      const nlCount = (match.match(/\n/g) || []).length;
+
+      if (match === "(") out = ".call(";
+      else if (match === "[") out = ".[";
+      else if (match.startsWith("\n")) out = match.replace(/\n\s*\./, ".");
+      else if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line++; return match }
+
+      if (MAIN) {
+        if (out.includes("\n")) {
+          out = out.replace(/\n/g, () => `\n/@line ${++line}\n`);
+        } else if (nlCount) {
+          line += nlCount;
+        }
+      }
+
+      return out;
     });
     CODE = CODE.split("\n")
     for (let i = CODE.length - 1; i >= 0; i--) {
-      if (CODE[i].trim().startsWith("//")) CODE.splice(i, 1)
+      if (CODE[i].trim().startsWith("//")) {
+        if (CODE[i - 1] && CODE[i - 1].trim().startsWith("/@line")) {
+          CODE.splice(i - 1, 2)
+          i -= 1;
+        } else {
+          CODE.splice(i, 1)
+        }
+      }
     }
     CODE = CODE.join("\n")
     CODE = autoTokenise(CODE, "\n").map(line => {
@@ -1710,16 +1816,20 @@ class OSLUtils {
 
     lines = lines.filter(l => l !== null && l.length > 0);
 
+    let pendingLine = undefined;
     for (let i = 0; i < lines.length; i++) {
       const cur = lines[i]
       if (!cur) continue;
       const type = cur[0]?.type;
       const data = cur[0]?.data;
       if (type === "unk" && data === "/@line") {
-        let next = lines[i + 1];
+        if (cur[1] && cur[1].data !== undefined) pendingLine = cur[1].data;
         lines.splice(i--, 1);
-        if (!next) continue;
-        next[0].line = cur[1].data;
+        continue;
+      }
+      if (pendingLine !== undefined && cur[0]) {
+        cur[0].line = pendingLine;
+        pendingLine = undefined;
       }
     }
 
@@ -1997,14 +2107,7 @@ class OSLUtils {
         const l = node.left;
         if (l) {
           if (node.data === "@=" || node.data === "=") {
-            const lockedVars = [
-              'timer', 'timestamp', 'frame_width', 'frame_height', 'frame_height',
-              'save_directory', 'current_colour', 'performance', 'fps_limit',
-              'infinity', 'timestamp', 'direction', 'this', 'self', 'file_dragging',
-              'mouse_x', 'mouse_y', 'x_position', 'y_position', 'frame',
-              'window_width', 'window_height', 'stretch_x', 'stretch_y', 'window_timer',
-              'local_timer', 'bg_redrawn', 'window_id_index', 'loaded_file', 'scope'
-            ]
+            const lockedVars = Object.keys(this.globalVariableTypes);
             if (!vars.has(l.data) && l.num === t.var &&
               !lockedVars.includes(l.data.toLowerCase()))
               vars.set(l.data, vars.size);
@@ -2156,22 +2259,18 @@ class OSLUtils {
     return hasDefault && allCasesHaveReturns;
   }
 
-  // Check if a case has a return statement before the next case/default
   checkCaseHasReturn(switchData, caseLine) {
     const caseIndex = switchData.indexOf(caseLine);
     if (caseIndex === -1) return false;
 
-    // Look for return statement between this case and the next case/default
     for (let i = caseIndex + 1; i < switchData.length; i++) {
       const line = switchData[i];
       if (!Array.isArray(line) || line.length === 0) continue;
 
-      // Stop if we hit another case or default
       if (line[0]?.type === 'cmd' && (line[0].data === 'case' || line[0].data === 'default')) {
         break;
       }
 
-      // Found a return statement
       if (line[0]?.type === 'cmd' && line[0].data === 'return') {
         return true;
       }
@@ -2181,20 +2280,16 @@ class OSLUtils {
   }
 
   refineTypes(AST) {
-    // Process function inlining and capture type errors that would be lost
     this.pendingTypeErrors = [];
 
     if (!Array.isArray(AST)) return;
 
-    // Initialize functionReturnTypes if not already done
     if (!this.functionReturnTypes) {
       this.functionReturnTypes = {};
     }
 
-    // Process lambda functions first so they're available for type checking
     this.applyTypes(AST);
 
-    // Check function calls before inlining to catch argument type mismatches
     for (const line of AST) {
       if (!Array.isArray(line)) continue;
       this.checkFunctionCallTypes(line);
@@ -2243,7 +2338,6 @@ class OSLUtils {
         }
       }
 
-      // Recursively check child nodes
       if (node.left) traverseNode(node.left);
       if (node.right) traverseNode(node.right);
       if (node.right2) traverseNode(node.right2);
@@ -2295,40 +2389,66 @@ class OSLUtils {
             this.currentFunctionTypes = null;
           }
 
-          if (token.type === 'asi' && token.right?.type === 'fnc' && token.left?.data && token.set_type !== 'function') {
+          if (token.type === 'asi' && token.right?.type === 'fnc' && token.left?.data) {
             this._processFunctionDefinition(token, functionReturnTypes);
           }
           
           if (token.type === 'asi' && token.right?.type === 'fnc' && Array.isArray(token.right.parameters)) {
             const right = token.right
             if (right.data === "function") {
-              // handle assigned function
-              const paramNode = right.parameters[0];
-              const originalNames = paramNode.paramNames;
+              let paramString = right.parameters[0];
+              if (typeof paramString === 'string') {
+                paramString = paramString.replace(/^\s*(?:def\(|function\()/, '')
+                  .replace(/\)\s*$/, '')
+                  .trim();
+              }
+              const originalNames = right.paramNames;
               let paramNames = [];
               if (originalNames) {
                 paramNames = originalNames;
               } else {
-                const accepts = paramNode.data.split(",").map(v => {
+                const partsList = (typeof paramString === 'string' ? paramString : "")
+                  .split(',')
+                  .map(v => v.trim())
+                  .filter(Boolean);
+                const accepts = partsList.map(v => {
                   const parts = v.split(" ")
                   const len = parts.length
                   paramNames.push(parts[len - 1])
                   if (len > 1) return parts[0]
                   return 'any'
                 })
-                paramNode.accepts = accepts;
-                paramNode.paramNames = paramNames;
+                right.accepts = accepts;
+                right.paramNames = paramNames;
               }
               for (let i = 0; i < paramNames.length; i++) {
                 const param = paramNames[i];
-                variableTypeMap[param] = paramNode.accepts[i];
+                variableTypeMap[param] = right.accepts[i];
               }
             }
-            for (const param of token.right.parameters) {
-              if (param?.type === 'blk' && Array.isArray(param.data)) {
-                processASTNodes(param.data);
+            if (token.right.parameters[1]) {
+              const bodyAst = this.generateAST({ CODE: token.right.parameters[1], START: 0 });
+              const prevLVM = this.latestVariableTypeMap;
+              try {
+                this.latestVariableTypeMap = new Proxy({}, { get: () => 'any' });
+                processASTNodes(bodyAst);
+              } finally {
+                this.latestVariableTypeMap = prevLVM;
               }
             }
+            try {
+              if (Array.isArray(right.accepts) && right.accepts.length > 0 && right.accepts.every(a => a === 'any')) {
+                const bodyToken = right.parameters[1];
+                let bodySrc = (bodyToken && (bodyToken.source || bodyToken.data || '')).toString();
+                bodySrc = bodySrc.replace(/\/@line\s*\d+/g, ' ').replace(/\s+/g, ' ');
+                for (let i = 0; i < paramNames.length; i++) {
+                  const pname = paramNames[i];
+                  if (!pname) continue;
+                  const reNum = new RegExp('\\b' + pname + '\\s*[+\\-*/%]');
+                  if (reNum.test(bodySrc)) right.accepts[i] = 'number';
+                }
+              }
+            } catch (e) { }
           }
 
           if (token.type === 'fnc' && Array.isArray(token.parameters)) {
@@ -2367,6 +2487,23 @@ class OSLUtils {
 
       const typedNode = { ...node };
 
+      // First apply types to child nodes so type information propagates
+      if (typedNode.left) {
+        typedNode.left = applyTypesToNode(typedNode.left, scope);
+      }
+      if (typedNode.right) {
+        typedNode.right = applyTypesToNode(typedNode.right, scope);
+      }
+      if (typedNode.right2) {
+        typedNode.right2 = applyTypesToNode(typedNode.right2, scope);
+      }
+      if (typedNode.type !== 'fnc' && Array.isArray(typedNode.parameters)) {
+        typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, scope));
+      }
+      if (Array.isArray(typedNode.data)) {
+        typedNode.data = typedNode.data.map(item => applyTypesToNode(item, scope));
+      }
+
       switch (typedNode.type) {
         case 'var':
           const vName = normalizeVarName(typedNode.data);
@@ -2375,27 +2512,19 @@ class OSLUtils {
             typedNode.local = true;
           }
           const varType = scope_type || variableTypeMap[vName];
+          if (varType === 'object') {
+            const propTypes = variablePropertyTypes[vName];
+            if (propTypes) {
+              typedNode.propertyTypes = propTypes;
+            }
+          }
           if (varType) {
             typedNode.inferredType = varType;
             typedNode.quickReturn = varType !== "object" && varType !== "any" && varType !== "null";
             break
           }
-          const vars = {
-            file_types: 'object',
-            timestamp: 'number',
-            performance: 'number',
-            data: 'any',
-            mouse_touching: 'boolean',
-            mouse_x: 'number',
-            mouse_y: 'number',
-            onclick: 'boolean',
-            clicked: 'boolean',
-            inputs: 'object',
-            username: 'string',
-            user: 'object',
-            window: 'object'
-          }
-          
+          const vars = this.globalVariableTypes;
+
           typedNode.inferredType = vars[vName] || 'any'
           break;
 
@@ -2410,8 +2539,8 @@ class OSLUtils {
           const my_ret = functionReturnTypes[typedNode.data]
           if (typedNode.data !== 'function') {
             if (my_ret) {
-              typedNode.returnType = my_ret.returns;
-              typedNode.paramTypes = my_ret.accepts;
+              typedNode.returnType = node.returns || my_ret.returns;
+              typedNode.paramTypes = node.accepts || my_ret.accepts;
             } else {
               switch (typedNode.data) {
                 case 'typeof':
@@ -2423,6 +2552,31 @@ class OSLUtils {
           } else {
             typedNode.returnType = 'function';
           }
+          if (Array.isArray(typedNode.parameters)) {
+            let paramScope = scope;
+            if (typedNode.data === 'function' && typedNode.parameters[0] && typedNode.parameters[0].type === 'str') {
+              const paramNode = typedNode.parameters[0];
+              const paramString = paramNode.data.trim();
+              const params = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim());
+              const paramNames = [];
+              const accepts = [];
+              for (const param of params) {
+                const parts = param.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                  accepts.push(parts[0]);
+                  paramNames.push(parts[parts.length - 1]);
+                } else {
+                  accepts.push('any');
+                  paramNames.push(param);
+                }
+              }
+              paramScope = { ...scope };
+              for (let i = 0; i < paramNames.length; i++) {
+                paramScope[paramNames[i]] = accepts[i];
+              }
+            }
+            typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, paramScope));
+          }
           break;
         }
 
@@ -2432,7 +2586,7 @@ class OSLUtils {
             const methodName = this._getMethodName(typedNode.data);
             typedNode.baseType = baseType;
             typedNode.methodName = methodName;
-            typedNode.inferredType = this._getMethodReturnType(baseType, methodName);
+            typedNode.inferredType = this._getMethodReturnType(typedNode, baseType, methodName);
           }
           break;
 
@@ -2445,6 +2599,7 @@ class OSLUtils {
           break;
 
         case 'obj':
+          if (typedNode.propertyTypes) break;
           typedNode.inferredType = 'object';
           if (Array.isArray(typedNode.data)) {
             const propTypes = {};
@@ -2468,7 +2623,7 @@ class OSLUtils {
         case 'raw':
           typedNode.inferredType = typeof typedNode.data === 'boolean' ? 'boolean' : 'any';
           break;
-        
+
         case 'evl':
           typedNode.data = applyTypesToNode(typedNode.data, scope);
           typedNode.inferredType = typedNode.data.inferredType;
@@ -2494,25 +2649,9 @@ class OSLUtils {
           break;
       }
 
-      if (typedNode.left) {
-        typedNode.left = applyTypesToNode(typedNode.left, scope);
-      }
-      if (typedNode.right) {
-        typedNode.right = applyTypesToNode(typedNode.right, scope);
-      }
-      if (typedNode.right2) {
-        typedNode.right2 = applyTypesToNode(typedNode.right2, scope);
-      }
-      if (Array.isArray(typedNode.parameters)) {
-        typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, scope));
-      }
-      if (Array.isArray(typedNode.data)) {
-        typedNode.data = typedNode.data.map(item => applyTypesToNode(item, scope));
-      }
-
       if (typedNode.type === 'blk' && Array.isArray(typedNode.data)) {
         const blockScope = { ...scope };
-        
+
         typedNode.data = typedNode.data.map(line => {
           if (Array.isArray(line)) {
             const typedLine = line.map(token => applyTypesToNode(token, blockScope));
@@ -2550,7 +2689,7 @@ class OSLUtils {
       const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
       const varNameRaw = isLocalRmt ? `this.${leftNode.final.data}` : leftNode.data;
       const varName = normalizeVarName(varNameRaw);
-      
+
       if (asiToken.set_type) {
         const declaredType = asiToken.set_type === 'any' ? rightNode.inferredType ?? 'any' : asiToken.set_type;
         leftNode.inferredType = declaredType
@@ -2566,48 +2705,42 @@ class OSLUtils {
           }
         }
       }
-      
+
       if (rightNode?.type === 'fnc' && rightNode.data === 'function' && Array.isArray(rightNode.parameters)) {
         const paramsToken = rightNode.parameters[0];
-        
+
         if (paramsToken?.type === 'str') {
           const accepts = [];
-          
+
           const paramType = paramsToken.data.trim();
-          
+
           const knownTypes = ['number', 'string', 'boolean', 'array', 'object', 'function', 'null'];
           if (knownTypes.includes(paramType)) {
             accepts.push(paramType);
-          } else {
-            if (asiToken.source) {
-              const sourceMatch = asiToken.source.match(/\(([^)]+)\)/);
-              if (sourceMatch) {
-                const paramString = sourceMatch[1].trim();
-                const params = paramString.split(',').map(p => p.trim());
-                
-                for (const param of params) {
-                  const parts = param.trim().split(/\s+/);
-                  if (parts.length >= 2) {
-                    accepts.push(parts[0]);
-                    continue;
-                  }
-                  accepts.push('any');
+          } else if (asiToken.source) {
+            const sourceMatch = asiToken.source.match(/\(([^)]+)\)/);
+            if (sourceMatch) {
+              const paramString = sourceMatch[1].trim();
+              const params = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim());
+
+              for (const param of params) {
+                const parts = param.trim().split(/\s+/);
+                if (parts.length >= 2) {
+                  accepts.push(parts[0]);
+                  continue;
                 }
-              } else {
                 accepts.push('any');
               }
-            } else {
-              accepts.push('any');
             }
           }
-          
+
           const targetFnMap = this.currentFunctionTypes || this.functionReturnTypes || {};
           if (!this.currentFunctionTypes && !this.functionReturnTypes) this.functionReturnTypes = {};
           targetFnMap[varName] = {
             accepts: accepts,
             returns: 'any'
           };
-          
+
           variableTypeMap[varName] = 'function';
           if (varName !== varNameRaw) variableTypeMap[varNameRaw] = 'function';
         }
@@ -2686,7 +2819,7 @@ class OSLUtils {
   _processFunctionDefinition(asiToken, functionReturnTypes) {
     const funcName = asiToken.left?.data;
     const funcNode = asiToken.right;
-    
+
     if (!funcName || !funcNode || funcNode.type !== 'fnc' || funcNode.data !== 'function') {
       return;
     }
@@ -2695,17 +2828,20 @@ class OSLUtils {
     const accepts = [];
 
     if (funcNode.parameters && funcNode.parameters.length >= 1) {
-      const paramString = funcNode.parameters[0]?.data;
+      let paramString = funcNode.parameters[0]?.data;
       if (paramString && typeof paramString === 'string') {
-        const paramPairs = paramString.split(',').map(p => p.trim());
+        paramString = paramString.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
+        const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim());
         for (const pair of paramPairs) {
           const parts = pair.split(/\s+/);
           if (parts.length >= 2) {
-            accepts.push(parts[0]); // Type is first part
+            accepts.push(parts[0]);
           } else {
             accepts.push('any');
           }
         }
+      } else if (Array.isArray(funcNode.accepts) && funcNode.accepts.length > 0) {
+        for (const a of funcNode.accepts) accepts.push(a);
       }
     }
 
@@ -2742,7 +2878,7 @@ class OSLUtils {
 
   _inferTokenType(token, scope = {}, variableTypeMap = {}) {
     if (!token) return 'any';
-    
+
     if (token.inferredType) return token.inferredType;
     if (token.returns) return token.returns;
 
@@ -2751,7 +2887,7 @@ class OSLUtils {
       case 'str': return 'string';
       case 'raw': return typeof token.data === 'boolean' ? 'boolean' : 'any';
       case 'unk': return token.data === null ? 'null' : 'any';
-      case 'arr': 
+      case 'arr':
         if (Array.isArray(token.data)) {
           const elementType = this._inferArrayElementType(token.data);
           return elementType !== 'any' ? `${elementType}[]` : 'array';
@@ -2766,13 +2902,14 @@ class OSLUtils {
         }
         switch (token.data) {
           case 'typeof': return 'string';
+          case 'listFiles': return 'string[]';
         }
         return 'any';
       case 'mtd':
         if (Array.isArray(token.data) && token.data.length >= 2) {
           const baseType = this._inferMethodBaseType(token.data[0], scope, variableTypeMap);
           const methodName = this._getMethodName(token.data);
-          return this._getMethodReturnType(baseType, methodName);
+          return this._getMethodReturnType(token, baseType, methodName);
         }
         return 'any';
       default:
@@ -2786,14 +2923,14 @@ class OSLUtils {
     let commonType = null;
     for (const element of arrayData) {
       let elementType = this._inferTokenType(element);
-      
+
       if (commonType === null) {
         commonType = elementType;
       } else if (commonType !== elementType) {
         return 'any'; // Mixed types
       }
     }
-    
+
     return commonType || 'any';
   }
 
@@ -2855,10 +2992,10 @@ class OSLUtils {
 
   _getMethodName(methodData) {
     if (!Array.isArray(methodData) || methodData.length < 2) return null;
-    
+
     const lastItem = methodData[methodData.length - 1];
     if (lastItem?.data) return lastItem.data;
-    
+
     // Look for method name in any of the segments
     for (const segment of methodData) {
       if (segment?.type === 'fnc' || segment?.type === 'mtv' || segment?.type === 'var') {
@@ -2867,81 +3004,85 @@ class OSLUtils {
         }
       }
     }
-    
+
     return null;
   }
 
-  _getMethodReturnType(baseType, methodName) {
-    const typeMap = {
-      string: {
-        toNum: "number", toUpper: "string", toLower: "string",
-        append: 'string', prepend: 'string',
-        trim: "string", replace: "string", concat: "string", split: "array",
-        contains: "boolean", startsWith: "boolean", endsWith: "boolean",
-        delete: 'string', left: 'string', right: 'string', index: 'number',
-        trimText: 'string', wrapText: 'string'
-      },
-      number: {
-        toNum: "number", round: "number", floor: "number", ceiling: "number",
-        abs: "number", sqrt: "number", sin: "number", cos: "number", tan: "number",
-        asin: "number", acos: "number", atan: "number",
-      },
-      array: {
-        join: "string", append: "array", prepend: 'array', concat: "array", pop: "any",
-        sortBy: 'array', contains: 'boolean', delete: 'array', left: 'array', right: 'array',
-        index: 'number', swap: 'array', insert: 'array'
-      },
-      object: {
-        getKeys: "array", getValues: "array", delete: 'object'
-      },
-      boolean: {}
-    };
+  _getMethodReturnType(node) {
+    let outType = this._inferTokenType(node.data[0]);
+    for (let i = 1; i < node.data.length; i++) {
+      const mtd = node.data[i];
+      const methodName = mtd.data;
 
-    // methods on all data types
-    switch (methodName) {
-      case 'len':
-      case 'toNum':
-        return 'number';
-      case 'toStr':
-        return 'string';
-      case 'not':
-      case 'toBool':
-        return 'boolean';
-    }
+      const typeMap = {
+        string: {
+          toNum: "number", toUpper: "string", toLower: "string",
+          append: 'string', prepend: 'string',
+          trim: "string", replace: "string", concat: "string", split: "array",
+          contains: "boolean", startsWith: "boolean", endsWith: "boolean",
+          delete: 'string', left: 'string', right: 'string', index: 'number',
+          trimText: 'string', wrapText: 'string'
+        },
+        number: {
+          toNum: "number", round: "number", floor: "number", ceiling: "number",
+          abs: "number", sqrt: "number", sin: "number", cos: "number", tan: "number",
+          asin: "number", acos: "number", atan: "number",
+        },
+        array: {
+          join: "string", append: "array", prepend: 'array', concat: "array", pop: "any",
+          sortBy: 'array', contains: 'boolean', delete: 'array', left: 'array', right: 'array',
+          index: 'number', swap: 'array', insert: 'array'
+        },
+        object: {
+          getKeys: "array", getValues: "array", delete: 'object'
+        },
+        boolean: {}
+      };
 
-    const type = typeof baseType;
-
-    // Handle array element access
-    if (methodName === 'item') {
-      // If baseType is typed array string like number[]
-      if (type === 'string' && baseType.endsWith('[]')) {
-        return baseType.slice(0, -2);
+      // methods on all data types
+      switch (methodName) {
+        case 'len':
+        case 'toNum':
+           outType = 'number';
+           continue;
+        case 'toStr':
+           outType = 'string';
+           continue;
+        case 'not':
+        case 'toBool':
+           outType = 'boolean';
+           continue;
       }
-      // If baseType came from an AST node with elementType
-      if (baseType && type === 'object' && baseType.elementType) {
-        return baseType.elementType || 'any';
+
+      // Handle array element access
+      if (methodName === 'item' && mtd.type === 'mtv') {
+        // If baseType is typed array string like number[]
+        if (outType.endsWith('[]')) {
+           outType = outType.slice(0, -2);
+           continue;
+        }
       }
-    }
 
-    // Handle typed array base type
-    if (type === 'string' && baseType.endsWith('[]')) {
-      baseType = 'array';
-    }
-    if (type === 'object' && baseType?.kind === 'array') {
-      baseType = 'array';
-    }
+      if (node.data[0].propertyTypes && methodName) {
+        const t = node.data[0].propertyTypes[methodName];
+        if (t) {
+          outType = t;
+          continue;
+        }
+      }
 
-    // Handle object property access when we know property types
-    if (baseType && type === 'object' && baseType.propertyTypes && methodName) {
-      const t = baseType.propertyTypes[methodName];
-      if (t) return t;
-    }
+      if (typeMap[outType] && typeMap[outType][methodName]) {
+        if (mtd.type === 'var') {
+          outType = 'function';
+          continue
+        }
+        outType = typeMap[outType][methodName];
+        continue
+      }
 
-    if (typeMap[baseType] && typeMap[baseType][methodName]) {
-      return typeMap[baseType][methodName];
+      outType = 'any';
     }
-
-    return 'any';
+    return outType;
   }
 
   _inferOperatorResultType(operator, leftType, rightType) {
@@ -3018,20 +3159,173 @@ class OSLUtils {
       }
     }
 
-    // First apply types to the AST
     const typedAST = this.applyTypes(parsedAST);
-    
-    // Then get type errors using the typed AST
     const errors = this.getTypeErrorsFromAST(typedAST);
-    
-    // Return as JSON string for Scratch compatibility, or array for direct use
     return typeof AST === 'string' ? JSON.stringify(errors) : errors;
   }
 
   getTypeErrorsFromAST(AST) {
     const errors = [];
 
-    // Include any pending errors from function inlining
+    const propagateLineNumbers = (node, lineNo) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        if (node[0] && node[0].line) lineNo = node[0].line;
+        for (const item of node) propagateLineNumbers(item, lineNo);
+        return;
+      }
+      if (typeof node === 'object') {
+        if (node.line === undefined && lineNo !== undefined) node.line = lineNo;
+        if (node.left) propagateLineNumbers(node.left, node.line || lineNo);
+        if (node.right) propagateLineNumbers(node.right, node.line || lineNo);
+        if (node.right2) propagateLineNumbers(node.right2, node.line || lineNo);
+        if (Array.isArray(node.parameters)) node.parameters.forEach(p => propagateLineNumbers(p, node.line || lineNo));
+        if (Array.isArray(node.data)) node.data.forEach(d => propagateLineNumbers(d, node.line || lineNo));
+      }
+    };
+
+    propagateLineNumbers(AST, undefined);
+
+    const collectAssignedFunctionDefs = (node) => {
+      if (!node) return;
+      if (Array.isArray(node)) {
+        for (const n of node) collectAssignedFunctionDefs(n);
+        return;
+      }
+      try {
+        if (node.type === 'asi' && node.right?.type === 'fnc' && node.right.data === 'function' && node.left?.type === 'var') {
+          const name = node.left.data;
+          const fnc = node.right;
+          const sig = this.functionReturnTypes && this.functionReturnTypes[name] ? { ...this.functionReturnTypes[name] } : { accepts: [], returns: 'any' };
+          if (Array.isArray(fnc.accepts) && fnc.accepts.length > 0 && fnc.accepts.every(a => typeof a === 'string' && a && !a.includes('(') && a.trim() !== '')) {
+            sig.accepts = fnc.accepts.slice();
+          } else if (Array.isArray(fnc.parameters) && fnc.parameters[0]) {
+            const raw = typeof fnc.parameters[0] === 'string' ? fnc.parameters[0] : (fnc.parameters[0]?.data || '');
+            if (raw && typeof raw === 'string') {
+              const cleaned = raw.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
+              const parts = cleaned.split(',').map(p => p.trim()).filter(Boolean);
+              const accepts = [];
+              for (const part of parts) {
+                const seg = part.split(/\s+/);
+                if (seg.length >= 2) accepts.push(seg[0]); else accepts.push('any');
+              }
+              sig.accepts = accepts;
+            }
+          }
+          if (fnc.returns) sig.returns = fnc.returns;
+          this.functionReturnTypes = this.functionReturnTypes || {};
+          this.functionReturnTypes[name] = sig;
+        }
+      } catch (e) { }
+      // Recurse children
+      if (node.left) collectAssignedFunctionDefs(node.left);
+      if (node.right) collectAssignedFunctionDefs(node.right);
+      if (node.right2) collectAssignedFunctionDefs(node.right2);
+      if (Array.isArray(node.parameters)) node.parameters.forEach(p => collectAssignedFunctionDefs(p));
+      if (Array.isArray(node.data)) node.data.forEach(d => collectAssignedFunctionDefs(d));
+    };
+
+    collectAssignedFunctionDefs(AST);
+
+    try {
+      const assignedFns = {};
+      const objectPropLambdas = {};
+      for (const line of AST) {
+        if (!Array.isArray(line)) continue;
+        const t = line[0];
+        if (!t) continue;
+        if (t.type === 'asi' && t.left?.type === 'var' && t.right?.type === 'fnc') {
+          const name = t.left.data;
+          assignedFns[name] = t.right;
+        }
+        if (t.type === 'asi' && t.left?.type === 'var' && t.right?.type === 'obj' && Array.isArray(t.right.data)) {
+          const objName = t.left.data;
+          objectPropLambdas[objName] = objectPropLambdas[objName] || {};
+          for (const prop of t.right.data) {
+            if (prop?.type === 'asi' && prop.left?.type === 'var' && prop.right?.type === 'fnc') {
+              objectPropLambdas[objName][prop.left.data] = prop.right;
+            }
+          }
+        }
+      }
+
+      const traverseForEach = (node, parentBlock = null) => {
+        if (!node) return;
+        if (Array.isArray(node)) {
+          for (let i = 0; i < node.length; i++) {
+            const line = node[i];
+            if (!Array.isArray(line)) continue;
+            // detect loop header represented by a 'cmd' token with data 'loop'
+            for (const tok of line) {
+              if (tok?.type === 'cmd' && tok.data === 'loop') {
+                // try to find the EACH_DAT name from the same line's mtd token
+                let maybeDat = null;
+                for (const t of line) {
+                  if (t?.type === 'mtd' && Array.isArray(t.data) && t.data[1]?.data) {
+                    maybeDat = t.data[1].data;
+                    break;
+                  }
+                }
+                // search in the parentBlock (if any) or the current node for an assignment to this.EACH_DAT_xxx
+                let numArr = false;
+                const searchBlock = parentBlock || node;
+                for (const sibling of searchBlock) {
+                  if (!Array.isArray(sibling)) continue;
+                  const st = sibling[0];
+                  if (!st) continue;
+                  if (st.type === 'asi') {
+                    const left = st.left;
+                    if (left && left.type === 'mtd' && Array.isArray(left.data) && left.data[1]?.data === maybeDat) {
+                      const arrNode = st.right;
+                      if (arrNode && arrNode.type === 'arr' && arrNode.elementType === 'number') {
+                        numArr = true;
+                        break;
+                      }
+                    }
+                  }
+                }
+                // descend into the block following the loop header and look for offending assignments
+                const blk = line.find(t => t?.type === 'blk');
+                if (blk && Array.isArray(blk.data)) {
+                  // walk blk.data and when we see `string var = item`, if numArr true, report
+                  const walkBlk = (blkArr) => {
+                    for (const innerLine of blkArr) {
+                      if (!Array.isArray(innerLine)) continue;
+                      for (const n of innerLine) {
+                        if (n?.type === 'asi' && n.set_type === 'string' && n.right?.type === 'var' && n.right.data === 'item') {
+                          if (numArr) {
+                            this.pendingTypeErrors = this.pendingTypeErrors || [];
+                            this.pendingTypeErrors.push({ line: n.line || 0, message: `Type mismatch assigning to ${n.left?.data || 'variable'}` });
+                          }
+                        }
+                        // recurse into nested blocks
+                        if (n?.type === 'blk' && Array.isArray(n.data)) walkBlk(n.data);
+                      }
+                    }
+                  };
+                  walkBlk(blk.data);
+                }
+              }
+            }
+            // recurse into nested structures, passing current node as parentBlock for context
+            for (const tok of line) {
+              if (!tok) continue;
+              if (tok.type === 'blk' && Array.isArray(tok.data)) traverseForEach(tok.data, node);
+              if (Array.isArray(tok.parameters)) traverseForEach(tok.parameters, node);
+              if (Array.isArray(tok.data)) traverseForEach(tok.data, node);
+            }
+          }
+          return;
+        }
+        // objects
+        if (typeof node === 'object') {
+          if (node.parameters) traverseForEach(node.parameters, parentBlock);
+          if (Array.isArray(node.data)) traverseForEach(node.data, parentBlock);
+        }
+      };
+      traverseForEach(AST, null);
+    } catch (e) { }
+
     if (this.inlineTypeErrors) {
       errors.push(...this.inlineTypeErrors);
       this.inlineTypeErrors = [];
@@ -3049,8 +3343,15 @@ class OSLUtils {
     // Shared scope across top-level lines to track variable types between lines
     let globalScope = {};
 
-    // Track object-literal lambdas like `object o = { getValue: def() -> (...) }`
-    const objectLambdaDefs = {};
+    for (const line of AST) {
+      if (!Array.isArray(line)) continue;
+      if (line[0]?.type === 'cmd' && line[0].data === 'class') {
+        const className = line[1]?.data;
+        if (typeof className === 'string' && className) {
+          globalScope[className] = 'object';
+        }
+      }
+    }
 
     const typesCompatible = (expected, actual) => {
       if (!expected || !actual) return true;
@@ -3062,15 +3363,26 @@ class OSLUtils {
 
     const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
 
-    const getTypeFromNode = (node, scope = {}) => {
+    const getTypeFromNode = (node, scope = {}, allowDeclaration = false, defaultLine = 0) => {
       if (!node) return 'any';
       if (node.inferredType && node.inferredType !== 'any') return node.inferredType;
       if (node.returns) return node.returns;
       if (node.type === 'var') {
         const n = normalizeVarName(node.data);
-        if (this.latestVariableTypeMap && this.latestVariableTypeMap[n] === 'any') return 'any';
-        const lvm = (this.latestVariableTypeMap && this.latestVariableTypeMap[n]) || undefined;
-        return scope[n] || lvm || 'any';
+        if (n === 'this') return 'object';
+        if (n === 'self') return scope[n] || 'object';
+        if (n === 'throw') return 'any';
+        const lvm = this.latestVariableTypeMap[n] || undefined;
+        if (lvm === 'any') return 'any';
+        const found = scope[n] || lvm || this.globalVariableTypes?.[n]
+        if (found) return found;
+        if (allowDeclaration) return 'any';
+        const errLine = node.line || defaultLine || 0;
+        const errMsg = `Undefined variable '${n}'`;
+        if (!errors.some(e => e && e.line === errLine && e.message === errMsg)) {
+          errors.push({ line: errLine, message: errMsg });
+        }
+        return 'any';
       }
       if (node.type === 'fnc' && node.data && node.data !== 'function') {
         const sig = this.functionReturnTypes && this.functionReturnTypes[node.data];
@@ -3081,16 +3393,28 @@ class OSLUtils {
         const varMap = this.latestVariableTypeMap || {};
         const baseType = this._inferMethodBaseType({ type: 'mtd', data: node.data }, scope, varMap);
         const methodName = this._getMethodName(node.data);
-        return this._getMethodReturnType(baseType, methodName);
+        return this._getMethodReturnType(node, baseType, methodName);
       }
-      if (['opr','cmp','log','bit'].includes(node.type)) {
-        const lt = getTypeFromNode(node.left, scope);
-        const rt = getTypeFromNode(node.right, scope);
+      if (node.type === 'arr') {
+        if (node.inferredType && node.inferredType !== 'any') return node.inferredType;
+        if (Array.isArray(node.data)) {
+          const el = this._inferArrayElementType(node.data);
+          return el && el !== 'any' ? `${el}[]` : 'array';
+        }
+        return 'array';
+      }
+      if (node.type === 'obj') {
+        if (node.inferredType && node.inferredType !== 'any') return node.inferredType;
+        return 'object';
+      }
+      if (['opr', 'cmp', 'log', 'bit'].includes(node.type)) {
+        const lt = getTypeFromNode(node.left, scope, false, defaultLine);
+        const rt = getTypeFromNode(node.right, scope, false, defaultLine);
         return this._inferOperatorResultType(node.data, lt, rt);
       }
       if (node.type === 'bsl') {
-        const lt = getTypeFromNode(node.left, scope);
-        const rt = getTypeFromNode(node.right, scope);
+        const lt = getTypeFromNode(node.left, scope, false, defaultLine);
+        const rt = getTypeFromNode(node.right, scope, false, defaultLine);
         return this._inferOperatorResultType(node.data, lt, rt);
       }
       return 'any';
@@ -3112,59 +3436,83 @@ class OSLUtils {
       return normalizeVarName(leftNode.data || 'function');
     };
 
-    const resolveObjectLambdaCall = (mtdNode) => {
-      if (!mtdNode || mtdNode.type !== 'mtd' || !Array.isArray(mtdNode.data) || mtdNode.data.length < 2) return null;
-      const base = mtdNode.data[0];
-      const member = mtdNode.data[1];
-      if (base?.type !== 'var') return null;
-      const baseName = normalizeVarName(base.data);
-      const memberName = member?.data;
-      if (!baseName || !memberName) return null;
-      const fnc = objectLambdaDefs[baseName]?.[memberName];
-      if (!fnc) return null;
-      return { name: `${baseName}.${memberName}`, fnc };
-    };
-
-    const walk = (node, lineNum, fnContext, scopeTypes = {}) => {
+    const walk = (node, lineNum, fnContext, scopeTypes = {}, allowDeclaration = false) => {
       if (!node) return;
 
-  if (Array.isArray(node)) {
-        // Handle return statements
+      if (Array.isArray(node)) {
+        // Provide a class-local scope that includes `self` for class bodies
+        if (node.length > 0 && node[0]?.type === 'cmd' && node[0].data === 'class') {
+          const classScope = { ...scopeTypes, self: 'object' };
+          node.forEach(n => {
+            if (n?.type === 'blk') {
+              walk(n, lineNum, fnContext, classScope, false);
+            } else {
+              walk(n, lineNum, fnContext, scopeTypes, false);
+            }
+          });
+          return;
+        }
+        if (node.length >= 1 && node[0]?.type === 'asi' && node[0].right?.type === 'fnc' && node[0].right.data === 'function') {
+          const asi = node[0];
+          const fnc = asi.right;
+          const assignedName = getAssignedLambdaName(asi.left);
+          const retType = fnc.returns || 'any';
+          const inlineCtx = {
+            returns: retType,
+            functionName: assignedName,
+            needsReturnCheck: retType !== 'any' && retType !== 'void',
+            isCommand: fnc.isCommand || false,
+            shadowedTypes: {},
+            validateReturnType: true
+          };
+          const inlineScope = { ...scopeTypes };
+          const accepts = [];
+          if (Array.isArray(fnc.parameters) && fnc.parameters[0] && (typeof fnc.parameters[0] === 'string' || (fnc.parameters[0] && typeof fnc.parameters[0].data === 'string'))) {
+            let rawParams = typeof fnc.parameters[0] === 'string' ? fnc.parameters[0] : fnc.parameters[0].data;
+            rawParams = rawParams.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
+            const paramPairs = rawParams.split(',').map(p => p.trim()).filter(Boolean);
+            for (const pair of paramPairs) {
+              const parts = pair.split(/\s+/);
+              if (parts.length >= 2) {
+                const ptype = parts[0];
+                const pname = parts[parts.length - 1];
+                inlineScope[pname] = ptype;
+                accepts.push(ptype);
+              } else if (pair) {
+                const pname = pair.split(/\s+/).pop();
+                inlineScope[pname] = 'any';
+                accepts.push('any');
+              }
+            }
+          }
+          try {
+            this.functionReturnTypes = this.functionReturnTypes || {};
+            this.functionReturnTypes[assignedName] = this.functionReturnTypes[assignedName] || {};
+            this.functionReturnTypes[assignedName].accepts = accepts;
+            this.functionReturnTypes[assignedName].returns = retType;
+          } catch (e) { }
+          const body = fnc.parameters[1];
+          if (body) {
+            if (body.type === 'blk') {
+              body._checkedInlineFn = true;
+              walk(body, lineNum, inlineCtx, inlineScope, false);
+            } else {
+              walk(body, lineNum, inlineCtx, inlineScope, false);
+            }
+          }
+        }
         if (node.length >= 2 && node[0]?.type === 'cmd' && node[0].data === 'return') {
           if (!fnContext) {
             errors.push({ line: node[0].line || lineNum, message: 'Return statement outside of function' });
           } else {
-            // Check if commands are trying to return values inappropriately
             if (fnContext.isCommand && node.length > 1 && node[1] && !fnContext.inControlFlow) {
               errors.push({ line: node[0].line || lineNum, message: 'Commands cannot return values' });
               return;
             }
 
             const returnValue = node[1];
-            let actualReturnType = getTypeFromNode(returnValue, scopeTypes);
+            let actualReturnType = getTypeFromNode(returnValue, scopeTypes, false, node[0].line || lineNum);
 
-            // If returning an object-literal lambda call, validate the lambda's return type
-            // against the enclosing function's expected return type.
-            if (fnContext.returns && fnContext.returns !== 'any' && fnContext.returns !== 'void') {
-              const resolved = resolveObjectLambdaCall(returnValue);
-              if (resolved) {
-                const innerCtx = {
-                  returns: fnContext.returns,
-                  functionName: resolved.name,
-                  needsReturnCheck: true,
-                  isCommand: false,
-                  validateReturnType: true
-                };
-                const innerScope = {};
-                const body = resolved.fnc?.parameters?.[1];
-                if (body?.type === 'blk') {
-                  body._checkedInlineFn = true;
-                  walk(body, node[0].line || lineNum, innerCtx, innerScope);
-                }
-              }
-            }
-
-            // Fallback: if returning a variable and we have a latest map, use it
             if (actualReturnType === 'any' && returnValue?.type === 'var' && this.latestVariableTypeMap) {
               const rvName = normalizeVarName(returnValue.data);
               if (this.latestVariableTypeMap[rvName]) {
@@ -3172,8 +3520,6 @@ class OSLUtils {
               }
             }
 
-            // If returning a variable that has been shadowed with a different type in inner scopes,
-            // treat it as the shadowed type for stricter checking
             if (fnContext && fnContext.shadowedTypes && returnValue?.type === 'var') {
               const rvName = normalizeVarName(returnValue.data);
               if (fnContext.shadowedTypes[rvName]) {
@@ -3181,13 +3527,11 @@ class OSLUtils {
               }
             }
 
-            // Update function context with inferred return type
             if (fnContext.validateReturnType && fnContext.returns === 'any' && actualReturnType !== 'any') {
               fnContext.returns = actualReturnType;
               fnContext.inferredReturnType = actualReturnType;
             }
 
-            // Check return type compatibility
             if (fnContext.returns && fnContext.returns !== 'any' && fnContext.returns !== 'void') {
               const expectedRet = fnContext.returns;
               const actualRet = actualReturnType;
@@ -3216,15 +3560,15 @@ class OSLUtils {
                 if (loopVar && typeof loopVar === 'string') {
                   newScope[loopVar] = 'number';
                 }
-                
+
                 if (node[3]?.type === 'blk') {
-                  walk(node[3], lineNum, controlFlowContext, newScope);
+                  walk(node[3], lineNum, controlFlowContext, newScope, false);
                 }
-                
+
                 // Walk other nodes
                 for (let i = 0; i < node.length; i++) {
                   if (i !== 3 || node[i]?.type !== 'blk') {
-                    walk(node[i], lineNum, fnContext, scopeTypes);
+                    walk(node[i], lineNum, fnContext, scopeTypes, false);
                   }
                 }
               }
@@ -3242,7 +3586,39 @@ class OSLUtils {
                 }
 
                 if (itemVar && typeof itemVar === 'string') {
-                  const arrayType = getTypeFromNode(arrayExpr);
+                  // Try to derive element type first from the expression node itself
+                  let arrayType = getTypeFromNode(arrayExpr, scopeTypes, false, lineNum);
+                  // If the expression is an array literal node, infer element type directly
+                  try {
+                    if ((arrayExpr && arrayExpr.type === 'arr' && Array.isArray(arrayExpr.data))) {
+                      const el = this._inferArrayElementType(arrayExpr.data);
+                      if (el && el !== 'any') arrayType = `${el}[]`;
+                    }
+                  } catch (e) { }
+
+                  try {
+                    if ((!arrayType || (typeof arrayType === 'string' && !arrayType.endsWith('[]'))) && arrayExpr && arrayExpr.type === 'mtd' && Array.isArray(arrayExpr.data)) {
+                      const maybeDat = arrayExpr.data[1] && arrayExpr.data[1].data;
+                      if (maybeDat && typeof maybeDat === 'string') {
+                        for (const topLine of AST) {
+                          if (!Array.isArray(topLine)) continue;
+                          const tok = topLine[0];
+                          if (!tok) continue;
+                          if (tok.type === 'asi') {
+                            const left = tok.left;
+                            if (left && left.type === 'mtd' && Array.isArray(left.data) && left.data[1]?.data === maybeDat) {
+                              const arrNode = tok.right;
+                              if (arrNode && arrNode.type === 'arr' && arrNode.elementType) {
+                                arrayType = `${arrNode.elementType}[]`;
+                                break;
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }
+                  } catch (e) { }
+
                   if (typeof arrayType === 'string' && arrayType.endsWith('[]')) {
                     newScope[itemVar] = arrayType.slice(0, -2);
                   } else {
@@ -3251,13 +3627,13 @@ class OSLUtils {
                 }
 
                 if (node[4]?.type === 'blk') {
-                  walk(node[4], lineNum, controlFlowContext, newScope);
+                  walk(node[4], lineNum, controlFlowContext, newScope, false);
                 }
 
                 // Walk other nodes
                 for (let i = 0; i < node.length; i++) {
                   if (i !== 4 || node[i]?.type !== 'blk') {
-                    walk(node[i], lineNum, fnContext, scopeTypes);
+                    walk(node[i], lineNum, fnContext, scopeTypes, false);
                   }
                 }
               }
@@ -3265,22 +3641,30 @@ class OSLUtils {
 
             default:
               // Handle other control flow commands
-              node.forEach((n, index) => {
+              node.forEach((n) => {
                 if (n?.type === 'blk') {
-                  walk(n, lineNum, controlFlowContext, scopeTypes);
+                  walk(n, lineNum, controlFlowContext, scopeTypes, false);
                 } else {
-                  walk(n, lineNum, fnContext, scopeTypes);
+                  walk(n, lineNum, fnContext, scopeTypes, false);
                 }
               });
           }
         } else {
           // Regular array processing
-          node.forEach(n => walk(n, lineNum, fnContext, scopeTypes));
+          node.forEach(n => walk(n, lineNum, fnContext, scopeTypes, false));
         }
         return;
       }
 
+      if (typeof node !== 'object') return;
+
       const ln = node.line || lineNum;
+
+      // Validate standalone variable references (e.g. within modifiers like c#dock_colour)
+      if (node.type === 'var') {
+        getTypeFromNode(node, scopeTypes, allowDeclaration, ln);
+        return;
+      }
 
       // Handle inline lambda/function assignments: validate body in its own context and check missing return
       if (node.type === 'asi' && node.right?.type === 'fnc' && node.right.data === 'function') {
@@ -3294,48 +3678,58 @@ class OSLUtils {
           const baseType = node.left.objPath?.[0]?.data;
           const methodName = node.left.final?.data;
           if (baseType && methodName) {
-            expectedLambdaReturn = this._getMethodReturnType(baseType, methodName) || 'any';
+            expectedLambdaReturn = this._getMethodReturnType(node, baseType, methodName) || 'any';
           }
         }
 
         const lambdaCtx = {
           returns: expectedLambdaReturn,
           functionName: lambdaName,
-          needsReturnCheck: true,
+          needsReturnCheck: expectedLambdaReturn !== 'any' && expectedLambdaReturn !== 'void',
           isCommand: false,
           validateReturnType: true
         };
-        const lambdaScope = {};
-        // Extract parameter types
-        if (fnc.parameters && fnc.parameters.length >= 1) {
-          const paramString = fnc.parameters[0]?.data;
+        const lambdaScope = { ...scopeTypes };
+
+        if (fnc.parameters && fnc.parameters.length >= 2) {
+          const paramString = fnc.parameters[0];
           if (typeof paramString === 'string') {
-            const paramPairs = paramString.split(',').map(p => p.trim()).filter(Boolean);
+            const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim()).filter(Boolean);
             for (const pair of paramPairs) {
               const parts = pair.split(/\s+/);
               if (parts.length >= 2) {
                 lambdaScope[parts[1]] = parts[0];
+              } else if (parts.length === 1) {
+                lambdaScope[parts[0]] = 'any';
               }
             }
           }
         }
-        const body = fnc.parameters?.[1];
-        if (body?.type === 'blk') {
-          // Mark to avoid double-traversal under outer context
-          body._checkedInlineFn = true;
-          walk(body, ln, lambdaCtx, lambdaScope);
+
+        if (node.left?.type === 'rmt') {
+          const baseType = node.left.objPath?.[0]?.data;
+          if (baseType && !lambdaScope.self) lambdaScope.self = baseType;
         }
-        // Update function signature for this lambda with inferred return type and accepts
+        const body = fnc.parameters?.[1];
+        if (body) {
+          const bodyAst = this.generateAST({ CODE: body, START: 0 });
+          bodyAst._checkedInlineFn = true;
+          if (Array.isArray(bodyAst)) {
+            bodyAst.forEach(line => walk(line, ln, lambdaCtx, lambdaScope));
+          } else {
+            walk(bodyAst, ln, lambdaCtx, lambdaScope);
+          }
+        }
         const sig = this.functionReturnTypes[lambdaName] || { accepts: [], returns: 'any' };
         if (lambdaCtx.inferredReturnType || (lambdaCtx.returns && lambdaCtx.returns !== 'any')) {
           sig.returns = lambdaCtx.inferredReturnType || lambdaCtx.returns;
         }
-        // Attempt to parse accepts from parameter list when possible
         if (fnc.parameters && fnc.parameters.length >= 1) {
-          const paramString = fnc.parameters[0]?.data;
+          let paramString = typeof fnc.parameters[0] === 'string' ? fnc.parameters[0] : fnc.parameters[0]?.data;
           if (typeof paramString === 'string') {
+            paramString = paramString.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
             const accepts = [];
-            const paramPairs = paramString.split(',').map(p => p.trim()).filter(Boolean);
+            const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim()).filter(Boolean);
             for (const pair of paramPairs) {
               const parts = pair.split(/\s+/);
               if (parts.length >= 2) accepts.push(parts[0]); else accepts.push('any');
@@ -3345,13 +3739,13 @@ class OSLUtils {
         }
         if (fnc.strictAnyArgs) sig.strictAnyArgs = true;
         this.functionReturnTypes[lambdaName] = sig;
-        // Continue; right-node traversal will be skipped below if marked
       }
 
       // Check function calls for type mismatches
       if (node.type === 'fnc' && node.data !== 'function') {
         const params = node.parameters || [];
         let expected = node.paramTypes;
+
         // Fallback to global signature if missing
         const globalSig = this.functionReturnTypes && this.functionReturnTypes[node.data];
         if (!expected && globalSig) {
@@ -3360,7 +3754,7 @@ class OSLUtils {
         if (expected && Array.isArray(expected)) {
           for (let i = 0; i < Math.min(params.length, expected.length); i++) {
             const expectedType = expected[i] || 'any';
-            const actualType = getTypeFromNode(params[i], scopeTypes);
+            const actualType = getTypeFromNode(params[i], scopeTypes, false, ln);
             if (globalSig?.strictAnyArgs && expectedType === 'any' && actualType !== 'any') {
               errors.push({
                 line: ln,
@@ -3380,9 +3774,9 @@ class OSLUtils {
 
       // Check assignment type compatibility
       if (node.type === 'asi') {
-        const leftType = getTypeFromNode(node.left, scopeTypes);
-        const rightType = getTypeFromNode(node.right, scopeTypes);
-        
+        const leftType = getTypeFromNode(node.left, scopeTypes, true, ln);
+        const rightType = getTypeFromNode(node.right, scopeTypes, false, ln);
+
         // Check for explicit type declarations
         if (node.set_type) {
           const expected = node.set_type === 'str' ? 'string' : node.set_type;
@@ -3407,7 +3801,7 @@ class OSLUtils {
         else if (node.left?.type === 'var') {
           const varName = normalizeVarName(node.left.data);
           const existingType = scopeTypes[varName];
-          
+
           if (existingType && existingType !== 'any' && rightType !== 'any' && !typesCompatible(existingType, rightType)) {
             errors.push({
               line: ln,
@@ -3426,51 +3820,158 @@ class OSLUtils {
             // Type declaration takes precedence
             const declaredType = node.set_type === 'str' ? 'string' : node.set_type;
             scopeTypes[varName] = declaredType;
-          } else if (rightType !== 'any' && !scopeTypes[varName]) {
-            // Infer type for first assignment
-            scopeTypes[varName] = rightType;
+          } else if (!scopeTypes[varName]) {
+            scopeTypes[varName] = rightType || 'any';
           }
           // For reassignments, keep the existing type (don't change it)
         }
       }
 
-      // Capture object literal lambdas assigned to variables (e.g. `object o = { getValue: def() -> (...) }`)
-      if (node.type === 'asi' && node.left?.type === 'var' && node.right?.type === 'obj' && Array.isArray(node.right.data)) {
-        const baseName = normalizeVarName(node.left.data);
-        if (!objectLambdaDefs[baseName]) objectLambdaDefs[baseName] = {};
-        for (const [k, v] of node.right.data) {
-          const keyName = k?.type === 'str' ? k.data : null;
-          if (!keyName) continue;
-          if (v?.type === 'fnc' && v.data === 'function') {
-            objectLambdaDefs[baseName][keyName] = v;
+      // Check operator type compatibility
+      if (['opr', 'cmp', 'log', 'bit'].includes(node.type)) {
+        const leftType = node.leftType || getTypeFromNode(node.left, scopeTypes, false, ln);
+        const rightType = node.rightType || getTypeFromNode(node.right, scopeTypes, false, ln);
+
+        if (node.type === 'opr') {
+          // TODO: handle when some type operations become null
+        }
+      }
+
+      if (node.type === 'mod' && Array.isArray(node.data) && node.data.length >= 2) {
+        walk(node.data[1], ln, fnContext, scopeTypes, false);
+      } else if (node.type === 'mtd' && Array.isArray(node.data) && node.data.length >= 1) {
+        walk(node.data[0], ln, fnContext, scopeTypes, false);
+        for (const seg of node.data.slice(1)) {
+          if (seg?.type === 'mtv' && Array.isArray(seg.parameters)) {
+            seg.parameters.forEach(p => {
+              if (p.type === 'fnc' && p.data === '' && Array.isArray(p.parameters)) {
+                const lambdaName = `lambda_${ln}_${Math.random().toString(36).substr(2, 9)}`;
+                const lambdaCtx = {
+                  returns: 'any',
+                  functionName: lambdaName,
+                  needsReturnCheck: false,
+                  isCommand: false,
+                  validateReturnType: false
+                };
+                const lambdaScope = { ...scopeTypes };
+
+                for (const lambdaParam of p.parameters) {
+                  if (lambdaParam.type === 'var') {
+                    const paramName = normalizeVarName(lambdaParam.data);
+                    const paramType = lambdaParam.set_type || lambdaParam.inferredType || 'any';
+                    lambdaScope[paramName] = paramType;
+                  }
+                }
+
+                const body = p.body;
+                if (body) {
+                  if (Array.isArray(body)) {
+                    body.forEach(b => walk(b, ln, lambdaCtx, lambdaScope, false));
+                  } else {
+                    walk(body, ln, lambdaCtx, lambdaScope, false);
+                  }
+                }
+              } else {
+                walk(p, ln, fnContext, scopeTypes, false);
+              }
+            });
           }
         }
       }
 
-      // Check operator type compatibility
-      if (['opr', 'cmp', 'log', 'bit'].includes(node.type)) {
-        const leftType = node.leftType || getTypeFromNode(node.left);
-        const rightType = node.rightType || getTypeFromNode(node.right);
-        
-        // OSL allows many operations on strings, so we're more permissive
-        // Only flag truly invalid operations
-        if (node.type === 'opr') {
-          // Most arithmetic operations are allowed in OSL between different types
-          // The interpreter handles type coercion, so we don't strictly enforce here
-          // Only restrict operations that are genuinely impossible
-        }
+      if (node.left) {
+        const allowDeclLeft = node.type === 'asi';
+        walk(node.left, ln, fnContext, scopeTypes, allowDeclLeft);
       }
-
-      // Recursively walk child nodes
-      if (node.left) walk(node.left, ln, fnContext, scopeTypes);
       if (node.right) {
-        // Avoid re-processing inline function bodies under the outer context
         const skip = node.right?.type === 'fnc' && node.right.data === 'function' && node.right?.parameters?.[1]?._checkedInlineFn;
-        if (!skip) walk(node.right, ln, fnContext, scopeTypes);
+        if (!skip) walk(node.right, ln, fnContext, scopeTypes, false);
       }
-      if (node.right2) walk(node.right2, ln, fnContext, scopeTypes);
+      if (node.right2) walk(node.right2, ln, fnContext, scopeTypes, false);
       if (Array.isArray(node.parameters)) {
-        node.parameters.forEach(param => walk(param, ln, fnContext, scopeTypes));
+        node.parameters.forEach(param => {
+          if (param.type === 'fnc' && param.data === '' && Array.isArray(param.parameters)) {
+            const lambdaName = `lambda_${ln}_${Math.random().toString(36).substr(2, 9)}`;
+            const lambdaCtx = {
+              returns: 'any',
+              functionName: lambdaName,
+              needsReturnCheck: false,
+              isCommand: false,
+              validateReturnType: false
+            };
+            const lambdaScope = { ...scopeTypes };
+
+            // Bind lambda parameters
+            for (const lambdaParam of param.parameters) {
+              if (lambdaParam.type === 'var') {
+                const paramName = normalizeVarName(lambdaParam.data);
+                const paramType = lambdaParam.set_type || lambdaParam.inferredType || 'any';
+                lambdaScope[paramName] = paramType;
+              }
+            }
+
+            const body = param.body;
+            if (body) {
+              if (Array.isArray(body)) {
+                body.forEach(b => walk(b, ln, lambdaCtx, lambdaScope, false));
+              } else {
+                walk(body, ln, lambdaCtx, lambdaScope, false);
+              }
+            }
+          } else {
+            walk(param, ln, fnContext, scopeTypes, false);
+          }
+        });
+      }
+      if (node.type === 'fnc' && typeof node.data === 'string' && this.functionReturnTypes && this.functionReturnTypes[node.data] && Array.isArray(node.parameters)) {
+        const sig = this.functionReturnTypes[node.data];
+        const params = node.parameters;
+        let expectedList = (sig.accepts || []).slice();
+        if (expectedList.length > 0 && expectedList.every(v => v === 'any')) {
+          try {
+            // Check local inline defs first
+            const stack = [...AST];
+            while (stack.length) {
+              const n = stack.pop();
+              if (!n) continue;
+              if (Array.isArray(n)) { n.forEach(x => stack.push(x)); continue; }
+              try {
+                if (n.type === 'asi' && n.left?.type === 'var' && n.left.data === node.data && n.right?.type === 'fnc') {
+                  const fn = n.right;
+                  paramNames = fn.paramNames || [];
+                  const body = fn.parameters && fn.parameters[1];
+                  bodySrc = (body && (body.source || body.data || '')).toString();
+                  break;
+                }
+              } catch (e) { }
+              if (n.left) stack.push(n.left);
+              if (n.right) stack.push(n.right);
+              if (n.right2) stack.push(n.right2);
+              if (Array.isArray(n.parameters)) n.parameters.forEach(p => stack.push(p));
+              if (Array.isArray(n.data)) n.data.forEach(d => stack.push(d));
+            }
+            if (paramNames && paramNames.length > 0 && bodySrc) {
+              // Normalize body source (strip /@line annotations) before heuristics
+              try { bodySrc = bodySrc.replace(/\/@line\s*\d+/g, ' ').replace(/\s+/g, ' '); } catch (e) { }
+              expectedList = paramNames.map(() => 'any');
+              for (let pi = 0; pi < paramNames.length; pi++) {
+                const pname = paramNames[pi];
+                if (!pname) continue;
+                const reNum = new RegExp('\\b' + pname + '\\s*[+\\-*/%]');
+                if (reNum.test(bodySrc)) expectedList[pi] = 'number';
+              }
+            }
+          } catch (e) { }
+        }
+
+        for (let i = 0; i < Math.min(params.length, (expectedList || []).length); i++) {
+          const expected = expectedList[i] || 'any';
+          const actual = getTypeFromNode(params[i], scopeTypes, false, ln);
+          if (!typesCompatible(expected, actual)) {
+            const msg = `Type mismatch: argument ${i + 1} of '${node.data}' expected ${expected}, got ${actual}`;
+            errors.push({ line: node.line || ln || 0, message: msg });
+          }
+        }
       }
 
       // Handle block nodes with proper scoping
@@ -3510,7 +4011,7 @@ class OSLUtils {
               } else if (tok?.type === 'asi' && !tok.set_type && tok.left?.type === 'var') {
                 // Propagate simple assignment type within the block without overriding existing types
                 const vName = normalizeVarName(tok.left.data);
-                const rType = getTypeFromNode(tok.right, blockScope);
+                const rType = getTypeFromNode(tok.right, blockScope, false, ln);
                 if (rType && rType !== 'any' && !blockScope[vName]) blockScope[vName] = rType;
               }
             }
@@ -3529,24 +4030,25 @@ class OSLUtils {
         const fnc = line[0].right;
         const returnType = fnc.returns || 'any';
         const fnName = getAssignedLambdaName(line[0].left);
-        
+
         const ctx = {
           returns: returnType,
           functionName: fnName,
-          needsReturnCheck: true,
+          needsReturnCheck: returnType !== 'any' && returnType !== 'void',
           isCommand: fnc.isCommand || false,
           shadowedTypes: {},
           validateReturnType: true
         };
 
         const initialScope = {};
-        
+
         // Extract parameter types from typed function
         const accepts = [];
         if (fnc.parameters && fnc.parameters.length >= 1) {
-          const paramString = fnc.parameters[0]?.data;
+          let paramString = fnc.parameters[0]?.data;
           if (paramString && typeof paramString === 'string') {
-            const paramPairs = paramString.split(',').map(p => p.trim());
+            paramString = paramString.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
+            const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim());
             paramPairs.forEach(pair => {
               const parts = pair.split(/\s+/);
               if (parts.length >= 2) {
@@ -3555,6 +4057,8 @@ class OSLUtils {
                 initialScope[name] = type;
                 accepts.push(type);
               } else if (pair) {
+                const name = pair.split(/\s+/).pop();
+                initialScope[name] = 'any';
                 accepts.push('any');
               }
             });
@@ -3598,24 +4102,24 @@ class OSLUtils {
         sig.returns = ctx.inferredReturnType || ctx.returns || returnType || 'any';
         if (fnc.strictAnyArgs) sig.strictAnyArgs = true;
         this.functionReturnTypes[fnName] = sig;
-        
+
         continue;
       }
 
       // Handle command definitions
       if (line[0]?.type === 'cmd' && line[0].data === 'def') {
         if (line.length < 4) continue;
-        
+
         const cmdName = line[1]?.data;
         const params = line[2]?.data;
-        
+
         const ctx = {
           returns: 'void',
           functionName: cmdName,
           needsReturnCheck: false,
           isCommand: true
         };
-        
+
         const initialScope = {};
         if (params && typeof params === 'string') {
           const paramPairs = params.split(',').map(p => p.trim());
@@ -3623,7 +4127,11 @@ class OSLUtils {
             const parts = pair.split(/\s+/);
             if (parts.length >= 2) {
               const type = parts[0];
-              initialScope[`ARG${index + 1}`] = type;
+              const name = parts[1];
+              initialScope[name] = type;
+            } else if (parts.length === 1 && parts[0]) {
+              // Untyped command param, e.g. `def "cmd" "param" (...)`
+              initialScope[parts[0]] = 'any';
             }
           });
         }
@@ -3632,20 +4140,20 @@ class OSLUtils {
         if (commandBody?.type === 'blk') {
           walk(commandBody, lineNum, ctx, initialScope);
         }
-        
+
         continue;
       }
 
       // Handle command calls
       if (Array.isArray(line) && line[0]?.type === 'cmd') {
         const cmdName = line[0].data;
+        const params = line.slice(1);
         if (line[0].paramTypes) {
           const expectedTypes = line[0].paramTypes;
-          const params = line.slice(1);
 
           for (let i = 0; i < Math.min(params.length, expectedTypes.length); i++) {
             const expected = expectedTypes[i] || 'any';
-            const actual = getTypeFromNode(params[i]);
+            const actual = getTypeFromNode(params[i], globalScope, false, lineNum);
             if (!typesCompatible(expected, actual)) {
               errors.push({
                 line: lineNum || 0,
@@ -3653,12 +4161,16 @@ class OSLUtils {
               });
             }
           }
+        } else {
+          for (const p of params) {
+            if (p) getTypeFromNode(p, globalScope, false, lineNum);
+          }
         }
       }
 
   // Walk the entire line with a shared global scope across lines
-  globalScope = globalScope || {};
-  walk(line, lineNum, null, globalScope);
+      globalScope = globalScope || {};
+      walk(line, lineNum, null, globalScope);
 
       // Also check for inline lambda missing return in any line (including inside blocks)
       for (const tok of line) {
@@ -3742,7 +4254,7 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: `obj = {"> " ++ func(): "lmao", key: "value", "key": "value"}`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+      f: `obj = {"> " ++ func(): "lmao", key: "value", "key": "value"}`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));

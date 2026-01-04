@@ -43,7 +43,7 @@ def parseUserAgent(string ua) string (
 )
 
 void requests.getAsync("https://api.rotur.dev/systems")
-  .then((resp) -> (
+  .then(resp -> (
     array systems @= resp.body.getValues()
     for i systems.len (
       object cur @= systems[i]

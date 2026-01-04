@@ -8,10 +8,9 @@ accounts = ""
 wrong = "1234567890".hashMD5()
 paged = null
 window "hide"
-current_login = 1
+string current_login = ""
 network_accounts = []
-network_data = []
-current_provider = null
+string current_provider = ""
 
 new_network_data = false
 login_return = ""

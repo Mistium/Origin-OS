@@ -11,15 +11,15 @@ if new_network_data (
 )
 
 terminal "-get.windows"
-windows = windows-names
+windows = windows_names
 terminal "get windowpositions"
 // this is deprecated, windowpositions doesnt exist anymore.
 // i need to update this to work with Windows()
 if data.contains("-1,0") (
   id = data.index("-1,0")
   send_data = {}
-  send_data.key("name") = windows[id]
-  send_data.key("side") = data[id]
+  send_data["name"] = windows[id]
+  send_data["side"] = data[id]
   network "send" send_data linked_to
   terminal "kill " + windows[id]
 )
