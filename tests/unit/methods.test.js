@@ -118,6 +118,27 @@ const tests = [
     )`,
     { expectNoErrors: true }
   )
+  ,
+  helper.createTest(
+    'array.filter with lambda using correct parameter type',
+    `def test() array (
+      number[] xs = [1, 2, 3, 4]
+      return xs.filter((number v) -> (
+        return v > 2
+      ))
+    )`,
+    { expectNoErrors: true }
+  ),
+  helper.createTest(
+    'array.filter with lambda using incorrect parameter type should fail',
+    `def test() array (
+      number[] xs = [1, 2, 3]
+      return xs.filter((string s) -> (
+        return s == "x"
+      ))
+    )`,
+    { expectErrors: ['Type mismatch'] }
+  )
 ];
 
 module.exports = { tests };

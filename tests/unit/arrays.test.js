@@ -53,9 +53,9 @@ const tests = [
 
   helper.createTest(
     'nested arrays',
-    `def test() array (
+    `def test() number (
       array nested = [[1, 2], [3, 4], [5, 6]]
-      return nested[0][1]
+      return nested[1][2]
     )`,
     { expectNoErrors: true }
   ),
@@ -219,6 +219,27 @@ const tests = [
       return 0
     )`,
     { expectErrors: ['Type mismatch assigning to s'] }
+  )
+
+  ,helper.createTest(
+    'array.filter with lambda',
+    `def test() array (
+      string[] xs = ["a", "b", "c"]
+      return xs.filter((string v) -> (
+        return v == "b"
+      ))
+    )`,
+    { expectNoErrors: true }
+  ),
+  helper.createTest(
+    'array.filter with lambda wrong param type should fail',
+    `def test() array (
+      string[] xs = ["a", "b"]
+      return xs.filter((number v) -> (
+        return v > 0
+      ))
+    )`,
+    { expectErrors: ['Type mismatch'] }
   )
 ];
 

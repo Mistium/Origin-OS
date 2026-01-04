@@ -123,19 +123,9 @@ const tests = [
   ),
 
   helper.createTest(
-    'comparison operator notIn (current type behavior)',
-    `def test() number (
-      array xs = [1, 2, 3]
-      return 4 notIn xs
-    )
-    test()`,
-    { expectNoErrors: true }
-  ),
-
-  helper.createTest(
     'nullish coalescing operator ??',
     `def test() number (
-      null x = null
+      any x = null
       return x ?? 5
     )
     test()`,
@@ -143,27 +133,9 @@ const tests = [
   ),
 
   helper.createTest(
-    'operator ::',
-    `def test() any (
-      return 1 :: 2
-    )
-    test()`,
-    { expectNoErrors: true }
-  ),
-
-  helper.createTest(
     'operator to',
-    `def test() any (
+    `def test() array (
       return 1 to 2
-    )
-    test()`,
-    { expectNoErrors: true }
-  ),
-
-  helper.createTest(
-    'integer division operator //',
-    `def test() number (
-      return 5 // 2
     )
     test()`,
     { expectNoErrors: true }

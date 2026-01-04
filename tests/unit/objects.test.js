@@ -80,6 +80,46 @@ const tests = [
     test()`,
     { expectNoErrors: true }
   ),
+
+  helper.createTest(
+    'object literal property access in return statement (valid)',
+    `def test() number (
+      return { a: 1, b: 2 }.a
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'object literal property access in return statement (type mismatch)',
+    `def test() number (
+      return { a: "a", b: "b" }.a
+    )
+    test()`,
+    { expectErrors: ['Type mismatch'] }
+  ),
+  helper.createTest(
+    'object property lambda called with wrong argument type should fail',
+    `def test() number (
+      object o = { getValue: def(number x) number (
+        return x * 2
+      ) }
+      return o.getValue("wrong")
+    )
+    test()`,
+    { expectErrors: ['Type mismatch'] }
+  ),
+  helper.createTest(
+    'object property lambda with correct types allowed',
+    `def test() number (
+      object o = { getValue: def(number x) number (
+        return x * 2
+      ) }
+      return o.getValue(5)
+    )
+    test()`,
+    { expectNoErrors: true }
+  ),
 ]
 
 module.exports = { tests }

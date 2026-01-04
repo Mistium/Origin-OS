@@ -1,6 +1,6 @@
 canclick = false
 operation = ""
-current = ""
+string current = ""
 secondary = ""
 
 def "draw" "x, y, x2, y2, character" (

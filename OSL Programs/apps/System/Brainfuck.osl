@@ -18,6 +18,8 @@ def "reset" (
 
 len = 1
 reset
+temp_height = 0
+txt_height = 0
 mainloop:
 if window.height != temp_height (
   temp_height = window.height

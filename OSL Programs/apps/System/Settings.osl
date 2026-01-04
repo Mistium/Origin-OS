@@ -82,7 +82,7 @@ def "setting_input" "id, default_txt, w, callback" (
   input w - 10 25 id null 10
 )
 
-def hasTierOrHigher(string tier) bool (
+def hasTierOrHigher(string tier) boolean (
   string user_tier = (user["sys.subscription"].tier ?? "free").toLower()
 
   switch tier (
@@ -2069,6 +2069,8 @@ slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 upload_time = timer
 
 sidebar_height = 0
+theme_select = {}
+w = 0
 
 mainloop:
 networking()
@@ -2097,8 +2099,7 @@ frame window.left window.top window.left + 225 window.bottom sidebar_height "cac
     )
   )
 
-  icon icn_code 0.8 : c#txtc chx#-80
-  text user.username.trimText(13) 10 : chx#30
+  text user.username.trimText(13) 10 : chx#-50
 
   loc 2 2 27 -25 + frame.scroll
   image pfp 35 35

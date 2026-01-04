@@ -21,6 +21,7 @@ files = []
 selected_files = []
 drag_id = 0
 local_dirs = {}
+file_open = ""
 
 sorting_mode = "name"
 sorting_dir = "descending"

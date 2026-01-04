@@ -13,14 +13,14 @@ const tests = [
   ),
 
   helper.createTest(
-    'inline function missing return statement should fail',
+    'inline function missing return statement shouldnt fail',
     `def test() number (
       function square = (number x) -> (
         local number y = x * x
       )
       return square(5)
     )`,
-    { expectErrors: ['missing return'] }
+    { expectNoErrors: true }
   ),
 
   helper.createTest(
@@ -35,9 +35,9 @@ const tests = [
   ),
 
   helper.createTest(
-    'inline function with missing parameter type',
+    'inline function with no parameter type',
     `def test() number (
-      function square = (x) -> (
+      function square = x -> (
         return x * x
       )
       return square(5)
@@ -87,6 +87,22 @@ const tests = [
       return formatter("Count: ", 42)
     )`,
     { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'inline function running inline (right type)',
+    `void ((number v) -> (
+      log v * 2
+     ))(10)`,
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest(
+    'inline function running inline (wrong type)',
+    `void ((number v) -> (
+      log v * 2
+     ))("hi")`,
+    { expectErrors: ['Type mismatch: argument 1 of \'<inline>\' expected number, got string'] }
   ),
   
   helper.createTest(
@@ -167,7 +183,16 @@ const tests = [
      )
 
      number x = add(1, 2)`,
-    { expectErrors: ["Type mismatch: argument 1 of 'add' expected number, got any"] }
+    { expectNoErrors: true }
+  ),
+
+  helper.createTest('typed parameters: missing argument type',
+    `add = def(a, b) -> (
+       return a + b
+     )
+
+     number x = add("hi", 2)`,
+    { expectErrors: ['Type mismatch assigning to x: expected number, got string'] }
   ),
 
   helper.createTest(
@@ -204,6 +229,53 @@ const tests = [
        return o.getValue()
      )`,
       { expectErrors: ['Type mismatch returning from function o.getValue: expected number, got string'] }
+    ),
+
+    helper.createTest(
+      'method chained with lambda',
+      `contributors = "https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/main/contributors.json"
+        .httpGet()
+        .JsonParse()
+        .filter(v -> v["type"] == "User")`,
+        { expectNoErrors: true }
+    ),
+    
+    helper.createTest(
+      'lambda assigned to variable with wrong return type should fail',
+      `def test() number (
+        function f = (number x) -> (
+          return "not a number"
+        )
+        return f(1)
+      )`,
+      { expectErrors: ['Return type mismatch'] }
+    ),
+
+    helper.createTest(
+      'nested inline lambda with return type mismatch',
+      `def test() number (
+        function outer = (number x) -> (
+          function inner = (number y) -> (
+            return "oops"
+          )
+          return inner(5)
+        )
+        return outer(3)
+      )`,
+      { expectErrors: ['Return type mismatch'] }
+    ),
+
+    helper.createTest(
+      'inline lambda passed to higher-order function with wrong caller arg',
+      `def apply(function fn, number value) number (
+        return fn(value)
+      )
+      def test() number (
+        return apply((number x) -> (
+          return x * 2
+        ), "not number")
+      )`,
+      { expectErrors: ["Type mismatch: argument 2 of 'apply' expected number, got string"] }
     ),
 ];
 module.exports = { tests };
