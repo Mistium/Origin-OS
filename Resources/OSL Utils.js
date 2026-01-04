@@ -1217,7 +1217,7 @@ class OSLUtils {
               const first = cur.split("\n", 1)[0]
               cur = cur.replace(first + "\n", "").trim()
             }
-            tokens[i] = this.generateAST({ CODE: cur.split("\n")[0], START: 0 })[0];
+            tokens[i] = this.generateAST({ CODE: autoTokenise(cur, "\n")[0], START: 0 })[0];
           }
 
           if (param) {
@@ -4254,7 +4254,12 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      f: `obj = {"> " ++ func(): "lmao", key: "value", "key": "value"}`, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
+      CODE: `obj = [
+        {
+            "key": "value",
+            "key2": 123
+        }
+      ]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));
