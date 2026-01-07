@@ -1255,6 +1255,7 @@ class OSLUtils {
               out = out.replace(/\/@line(?:\s+\d+)?\s*$/g, "");
               return out.trim();
             };
+            key = stripLineTags(key);
             value = stripLineTags(value);
             if (value === undefined) {
               let nkey = this.generateAST({ CODE: key, START: 0 })[0]
@@ -4254,10 +4255,14 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: `obj = [
+      CODE: `
+      key1 = 5
+      key2 = 10
+      obj = [
         {
             "key": "value",
-            "key2": 123
+            key1,
+            key2
         }
       ]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
     });
