@@ -176,7 +176,7 @@ set_x window.left + 28
 icon "search" 0.8 : c#txtc
 
 loc 2 -2 30 30
-image user.pfp 30 30
+image 'https://avatars.rotur.dev/' ++ username ++ '?radius=30' 30 30
 text username 10 : chx#25
 
 loc -2 -2 -30 30
