@@ -42,7 +42,6 @@ state = {
 }
 
 desktop @= () -> (
-  open_path = null
   redraw_all = (cur_frame % 120) == 0 or round(y) != round(dock_y_target)
   if redraw_all (
     window.callRender()
