@@ -707,11 +707,6 @@ def "appearance" (
       )
       break
     case "Colours"
-      if typeof(theme_select) != "object" (
-        window_accent = global_accent
-        theme_select = user.theme
-      )
-  
       y = -30 + frame.scroll
       colour_selector "Accent Colour" "accent"
 
@@ -2069,7 +2064,7 @@ slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
 upload_time = timer
 
 sidebar_height = 0
-theme_select = {}
+theme_select = user.theme ?? themes.dark
 w = 0
 
 mainloop:
