@@ -63,8 +63,11 @@ const wsServer = new WebSocket.Server({
   port: 5002
 });
 
+let start = 0;
+
 wsServer.on('connection', socket => {
   console.log('WS client connected');
+  start = performance.now();
 
   socket.send(JSON.stringify({cmd: 'handshake', mode: 'test'}))
 
@@ -129,6 +132,9 @@ function finish() {
   console.log(`   Passed: ${passed}`);
   console.log(`   Failed: ${failed}`);
   console.log(`   Total: ${tests.size}`);
+
+  const duration = Math.round(performance.now() - start);
+  console.log(`   Time:   ${duration}ms`);
 
   process.exit(failed ? 1 : 0);
 }
