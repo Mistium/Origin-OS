@@ -1582,10 +1582,44 @@ frame window.left + 5 window.top - 40 right bottom (
 )
 
 if state.folder_sidebar or right_smooth < -10 (
-  c c_prim
-  frame right + 5 window.top - 40 window.right - 5 window.bottom + 5 state.folder_list_len "cache@folders" (
+  frame right + 5 window.top - 40 window.right - 5 window.bottom + 5 (
     goto 0 0
     square frame.width - 10 frame.height - 10 10 : c#window_colour
+    if state.is_opal (
+      goto 0 frame.top - 20
+      square frame.width - 10 30 10 : c#c_prim
+      set_x frame.left + 20
+      square 20 20 10 : c#c_seco
+      if onclick (
+        local open_path = state.folder
+        local root_dir = open(open_path, ["location", "name"]).join("/")
+        local path = root_dir ++ "/opal.json"
+        if !path.fileExists() (
+          say "opal.json not found"
+        ) else (
+          opal_json = open(path).JsonParse()
+          script = opal_json.main
+          if script == null (
+            say "No main() function found in opal.json"
+          ) else (
+            open_path = root_dir ++ "/" ++ script
+            if !open_path.fileExists() (
+              say "Script not found"
+            ) else (
+              file "open" open_path "onlyaccess"
+              if fileGet(1) == ".osl" (
+                file "start"
+              )
+              file "close"
+            )
+          )
+        )
+      )
+      icon "play" 0.6 : c#c_text
+    )
+  )
+  c c_prim
+  frame right + 5 window.top - (state.is_opal ? 75 40) window.right - 5 window.bottom + 5 state.folder_list_len "cache@folders" (
     if file_dragging and mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
       square frame.width - 10 frame.height - 10 10 : c#c_prim
       icon "open" 3 : c#c_text
@@ -1624,6 +1658,9 @@ if state.folder_sidebar or right_smooth < -10 (
                 state.folder = uuid
                 state.folder_open = true
                 state.open_folders = []
+                state.is_opal = open(uuid, ["location", "name"])
+                  .join("/").listFolder()
+                  .contains("opal.json")
                 local rf = "recent_folders.json".saveGet() ?? []
                 save "recent_folders.json" "set" rf
                   .delete(uuid)
