@@ -1,0 +1,187 @@
+def printJSON(object obj) (
+    string data = obj.JsonFormat()
+    terminal.writeLine(data)
+)
+
+def printHelp() (
+    terminal.writeLine([
+      "tally v1.0.0",
+      "",
+      "Usage: tally [-c|-d|-a|-h] [filetypes] [--json]",
+      "Count lines of code in the current directory or recursively in all subdirectories.",
+      "",
+      "Options:",
+      "  -c           Count lines of code in the current directory",
+      "  -d           Count lines of code recursively in all subdirectories",
+      "  -a           Count lines of code recursively in all subdirectories, including all files",
+      "  -h           Show help",
+      "  filetypes    Comma-separated file extensions (e.g. osl,go,js)",
+      "  --json       Output results as JSON"
+    ].join("\n"))
+)
+
+local countLinesCurrentDir @= () -> (
+    array files = open(terminal.pwd).JsonParse()
+    if files.len == 0 (
+        return
+    )
+
+    for i files.len (
+        local data = open(files[i], ["type", "name", "location"])
+        if data[1] == '.folder' (
+            continue
+        )
+
+        string path = data[3] ++ "/" ++ data[2] ++ data[1]
+        if !shouldCount(path, allowed) (
+            continue
+        )
+
+        number lines = countLines(path)
+        stats[data[1]] += lines
+    )
+)
+
+local countLinesRecursive @= () -> (
+  array files = open(terminal.pwd).JsonParse()
+  if files.len == 0 (
+    return
+  )
+
+  while files.len > 0 (
+    local cur = files.pop()
+    local data = open(cur, ["type", "name", "location"])
+    if data[1] == '.folder' (
+      void files.append(...open(cur).JsonParse())
+      continue
+    )
+
+    if !shouldCount(data[1]) (
+      continue
+    )
+    
+    string path = data[3] ++ "/" ++ data[2] ++ data[1]
+
+    number lines = countLines(path)
+    stats[data[1]] ??= 0
+    stats[data[1]] += lines
+  )
+)
+
+local shouldCount @= ext -> (
+  if allowAll (
+    return true
+  )
+
+  return allowed[ext] ?? false
+)
+
+def countLines(string filePath) number (
+  string contents = open(filePath).toStr()
+  if contents == "" (
+    return 0
+  )
+
+  return contents.split("\n").len
+)
+
+def printTable(object stats) (
+  array keys = stats.getKeys()
+
+  if keys.len == 0 (
+    terminal.writeLine("No matching files found.")
+    return
+  )
+
+  terminal.writeLine("| Extension | Lines of Code | Percentage |")
+  terminal.writeLine("| --------- | ------------- | ---------- |")
+
+  number total = 0
+  for k keys.len (
+    total += stats[keys[k]].toNum()
+  )
+
+  array sortedStats = []
+  for k keys.len (
+    sortedStats = sortedStats.append([keys[k], stats[keys[k]].toNum()])
+  )
+  for i keys.len (
+    for j keys.len (
+      if sortedStats[j][2] < sortedStats[i][2] (
+        local temp = sortedStats[j]
+        sortedStats[j] = sortedStats[i]
+        sortedStats[i] = temp
+      )
+    )
+  )
+
+  for i sortedStats.len (
+    string extName = sortedStats[i][1].toStr().stripStart(".")
+    
+    if extName == "" (
+      extName = "(no ext)"
+    )
+    
+    string percentage = (round((sortedStats[i][2] / total) * 1000) / 10).toStr()
+    terminal.writeLine("| " ++ extName.padEnd(" ", 9) ++ " | " ++ sortedStats[i][2].padStart(" ", 13) ++ " | " ++ percentage.padStart(" ", 9) ++ "% |")
+  )
+  terminal.writeLine("")
+  terminal.writeLine("Total lines of code: " + total.toStr())
+)
+
+if args.len == 0 (
+  printHelp()
+  return
+)
+
+boolean recursive = false
+boolean outputJSON = false
+boolean allowAll = false
+object allowed = {}
+
+for i args.len (
+  string arg = args[i].toStr()
+  if arg == "-c" (
+    recursive = false
+  ) else if arg == "-d" (
+    recursive = true
+  ) else if arg == "-a" (
+    recursive = true
+    allowAll = true
+  ) else if arg == "-h" (
+    printHelp()
+    return
+  ) else if arg == "--json" (
+    outputJSON = true
+  ) else (
+    array extensions @= arg.split(",")
+    for e extensions.len (
+      string ext = extensions[e].toStr().strip()
+      if ext != "" (
+        if !ext.startsWith(".") (
+          ext = "." ++ ext
+        )
+        allowed[ext] = true
+      )
+    )
+  )
+)
+
+object stats = {}
+
+if recursive (
+  countLinesRecursive()
+) else (
+  countLinesCurrentDir()
+)
+
+if outputJSON (
+  printJSON(stats)
+) else (
+  local keys @= stats.getKeys()
+  for i keys.len (
+    local k = keys[i]
+    stats[k] ??= 0
+  )
+  printTable(stats)
+)
