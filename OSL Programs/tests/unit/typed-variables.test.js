@@ -125,7 +125,33 @@ const tests = [
       log value
     `,
     { expect: [15] }
-  )
+  ),
+
+  helper.createTest(
+    'Any typed variable functions like local variables',
+    `
+    def arrSum(arr) (
+      any out = 0
+      for i arr.len (
+        out += arr[i]
+      )
+      return out
+    )
+
+    log arrsum([1,2,3,4,5])
+    `,
+    { expect: [15] }
+  ),
+
+  helper.createTest(
+    'Any typed variable does affect local variables',
+    `
+    any lol = 10
+    local lol = 20
+    log lol
+    `,
+    { expect: [20] }
+  ),
 ];
 
 module.exports = { tests };
