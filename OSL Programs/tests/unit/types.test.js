@@ -161,6 +161,21 @@ const tests = [
       log x.getType()
     `,
     { expect: ['number'] }
+  ),
+
+  helper.createTest(
+    'lengths of different types',
+    `
+      arr = [1,2,3]
+      str = "hello"
+      obj = {a:1, b:2}
+      nullVal = null
+      log arr.len
+      log str.len
+      log obj.len
+      log nullVal.len
+    `,
+    { expect: [3, 5, 2, 0] }
   )
 ];
 
