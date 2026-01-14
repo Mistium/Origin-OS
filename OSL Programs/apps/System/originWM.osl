@@ -65,21 +65,21 @@ def dragEdge(prop, axis) (
           if cur.desktop == desktop.current and (tile.startsWith("-1,") or tile.startsWith("1,")) (
             if tile[1] == "-" (
               cur.width = split * screen.x - 5
-              cur.x = round(left + (split * screen.x / 2) - 3)
+              cur.x = left + (split * screen.x / 2) - 3
             ) else (
               cur.width = 1 - split * screen.x - 5
-              cur.x = round(right - (1 - split * screen.x / 2) - 3)
+              cur.x = right - (1 - split * screen.x / 2) - 3
             )
             cur.callRender()
           )
         )
       ) else (
         top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
-        top.x = round(state.resize1 + (top.width / state.div))
+        top.x = state.resize1 + (top.width / state.div)
       )
     ) else (
       top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
-      top.y = round(state.resize2 + (top.height / state.div))
+      top.y = state.resize2 + (top.height / state.div)
     )
     top.callRender()
   )
@@ -93,8 +93,8 @@ def dragDiagonal() (
   if mouse_moving (
     top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
     top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
-    top.x = round(state.resize1 + (top.width / state.div1))
-    top.y = round(state.resize2 + (top.height / state.div2))
+    top.x = state.resize1 + (top.width / state.div1)
+    top.y = state.resize2 + (top.height / state.div2)
     
     local w = top.width / 2
     local h = top.height / 2
@@ -147,14 +147,14 @@ def moveWindow() (
         top.target_width = 700
         top.target_height = 450
         
-        top.x = round(mouse_x - (relative_x * top.target_width))
-        top.y = round(mouse_y - (relative_y * top.target_height))
+        top.x = mouse_x - (relative_x * top.target_width)
+        top.y = mouse_y - (relative_y * top.target_height)
 
         state.move.x = top.x
         state.move.y = top.y
       ) else (
-        top.x = round(state.move.x + (mouse_x - state.move.mouse_x))
-        top.y = round(state.move.y + (mouse_y - state.move.mouse_y))
+        top.x = state.move.x + (mouse_x - state.move.mouse_x)
+        top.y = state.move.y + (mouse_y - state.move.mouse_y)
         state.move.x = top.x
         state.move.y = top.y
       )
