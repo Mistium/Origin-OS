@@ -2483,7 +2483,9 @@ class OSLUtils {
       if (!node || typeof node !== 'object') return node;
 
       if (Array.isArray(node)) {
-        return node.map(item => applyTypesToNode(item, scope));
+        for (let i = 0; i < node.length; i ++) {
+          applyTypesToNode(node[i], scope)
+        }
       }
 
       const typedNode = { ...node };
@@ -2502,7 +2504,9 @@ class OSLUtils {
         typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, scope));
       }
       if (Array.isArray(typedNode.data)) {
-        typedNode.data = typedNode.data.map(item => applyTypesToNode(item, scope));
+        for (let i = 0; i < typedNode.data.length; i ++) {
+          typedNode.data[i] = applyTypesToNode(typedNode.data[i], scope)
+        }
       }
 
       switch (typedNode.type) {
