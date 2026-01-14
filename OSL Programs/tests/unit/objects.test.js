@@ -26,6 +26,17 @@ const tests = [
     `,
     { expect: ['Origin', 1.0] }
   ),
+
+  helper.createTest(
+    'Object dynamic key assignment',
+    `
+    obj = {
+      ("dynamic_" ++ "key"): "dynamicValue"
+    }
+    log obj.dynamic_key
+    `,
+    { expect: ['dynamicValue'] }
+  ),
 ];
 
 module.exports = { tests };
