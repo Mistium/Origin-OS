@@ -27,7 +27,7 @@ class OSLTestHelper {
    */
   getTypeErrors(code) {
     const ast = this.generateAST(code);
-    this.utils.refineTypes(ast);
+    this.utils.applyTypes(ast);
     return this.utils.getErrorsFromAstMain({ AST: ast });
   }
 
@@ -80,25 +80,6 @@ class OSLTestHelper {
   compileCode(code) {
     const ast = this.generateAST(code);
     return this.utils.generateBysl(ast);
-  }
-
-  /**
-   * Test function inlining behavior
-   */
-  testInlining(code, expectedInlinedFunctions = []) {
-    const ast = this.generateAST(code);
-    this.utils.refineTypes(ast);
-    
-    // Check if specified functions were inlined
-    const inlinedFunctions = this.utils.inlinableFunctions || {};
-    
-    for (const funcName of expectedInlinedFunctions) {
-      if (!(funcName in inlinedFunctions)) {
-        throw new Error(`Expected function "${funcName}" to be inlined, but it wasn't`);
-      }
-    }
-    
-    return ast;
   }
 
   /**
