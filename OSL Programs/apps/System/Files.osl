@@ -62,7 +62,7 @@ def sort_files(files) (
     local filetype = fileGet(1)
     obj.name = fileGet(2) ++ filetype
   
-    obj.modified = timestamp - fileGet(10)
+    obj.modified = timestamp - fileGet(10).toNum()
     
     local filetype = file_types[filetype][2]
     obj.filetype = filetype == "" ? "Document" filetype
@@ -358,6 +358,7 @@ def "render_files" (
   
   scroll_height = files.len * 45 - 10
   if current_display_type == "grid" (
+    file_size ??= 75
     frame temp_x temp_y temp_x2 temp_y2 (
       local per_line = floor(frame.width / file_size) - 2
     )
@@ -406,6 +407,7 @@ def "render_files" (
         data = (fileGet(4) ?? "").JsonParse()
 
         window.drop_location = inputs.path
+        temp_sorting_mode ??= ""
         if data != current_folder_update or sorting_mode + sorting_direction != temp_sorting_mode (
           current_folder_update = data
           files = sort_files(data)
@@ -493,7 +495,7 @@ def "render_files_grid" (
   goto 0 frame.top
   count = 0
   loop files.len (
-    goto lerp(left, right, count % per_line / per_line) floor(count / (per_line + .0)) * file_size * -1 + offsety
+    goto lerp(left, right, (count % per_line) / per_line) floor(count / (per_line + .0)) * file_size * -1 + offsety
     if y_position - hfs < frame.top and y_position + hfs > frame.bottom (
       filex = x_position
       filey = y_position
@@ -726,6 +728,8 @@ object display_types = {
   }
 }
 string current_display_type = "list"
+string sorting_direction = "ascending"
+any current_folder_update = null
 
 mainloop:
   window_tools:load_theme

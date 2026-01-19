@@ -243,6 +243,9 @@ cur_frame = 0
 
 previous_wallpaper = background_url
 
+tempcol = ""
+dock_changed_w = false
+
 mainloop:
 needs_render = false
 cur_frame ++
@@ -262,7 +265,7 @@ if dock_colour + icon_colour != tempcol (
   needs_render = true
 )
 movefileloc file_loc
-if mouse_down.not() (
+if !mouse_down (
   canclick = true
 )
 if !on_mobile (

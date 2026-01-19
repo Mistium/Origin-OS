@@ -3,7 +3,7 @@
 permission "request" "windows"
 permission "request" "javascript"
 
-def checkCollision(x2,y2,w,h) (
+def checkCollision(number x2, number y2, number w, number h) (
   return abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2
 )
 
@@ -31,10 +31,10 @@ window_area @= origin.windows.area
 
 window "responsive" true
 
-hitbox_size = 13
+number hitbox_size = 13
 
-x2 = hitbox_size * 2
-x25 = hitbox_size / 4
+number x2 = hitbox_size * 2
+number x25 = hitbox_size / 4
 
 def dragEdge(prop, axis) (
   if !mouse_down (
@@ -114,15 +114,15 @@ def moveWindow() (
       local current = desktop.split[desktop.current + 1]
       if mouse_y > win_top - 13 (
         top.tile = "0,-1"
-        top.target_x = round(left + (width / 2))
-        top.target_y = round(bottom + win_top / 2)
+        top.target_x = (left + (width / 2)).toNum()
+        top.target_y = (bottom + win_top / 2).toNum()
         top.target_width = width
         top.target_height = win_top - bottom
       ) else if mouse_x < left + 13 (
         width = current * screen.x
         top.tile = "-1,0"
-        top.target_x = round(left + (width / 2))
-        top.target_y = round(bottom + win_top / 2)
+        top.target_x = (left + (width / 2)).toNum()
+        top.target_y = (bottom + win_top / 2).toNum()
         top.target_width = width
         top.target_height = win_top - bottom
       ) else if mouse_x > right - 13 (
@@ -165,15 +165,21 @@ def moveWindow() (
 )
 
 def handleResize() (
+  number leftEdge = top.left.toNum()
+  number rightEdge = top.right.toNum()
+  number topEdge = top.top.toNum()
+  number bottomEdge = top.bottom.toNum()
+  number height = top.height.toNum()
+  number width = top.width.toNum()
   // left edge
-  if checkCollision(x + top.left, y, hitbox_size, top.height - x25) (
+  if checkCollision(x + leftEdge, y, hitbox_size, topEdge - x25) (
     state.cursor = "ew-resize"
     if mouse_ondown (
       state.changeState("left","width")
     )
   )
   // right edge
-  if checkCollision(x + top.right, y, hitbox_size, top.height - x25) (
+  if checkCollision(x + rightEdge, y, hitbox_size, height - x25) (
     state.cursor = "ew-resize"
     if mouse_ondown (
       state.changeState("right","width")
@@ -182,42 +188,42 @@ def handleResize() (
   
   if top.tile == null (
     // bottom edge
-    if checkCollision(x, y + top.top, top.width - x25, hitbox_size) (
+    if checkCollision(x, y + topEdge, width - x25, hitbox_size) (
       state.cursor = "ns-resize"
       if mouse_ondown (
         state.changeState("top","height")
       )
     )
     // top edge
-    if checkCollision(x, y + top.bottom, top.width - x25, hitbox_size) (
+    if checkCollision(x, y + bottomEdge, width - x25, hitbox_size) (
       state.cursor = "ns-resize"
       if mouse_ondown (
         state.changeState("bottom","height")
       )
     )
     
-    if checkCollision(x + top.right, y + top.top, x2, x2) (
+    if checkCollision(x + rightEdge, y + topEdge, x2, x2) (
       state.cursor = "nesw-resize"
       if mouse_ondown (
         state.changeState("right,top","both")
       )
     )
     
-    if checkCollision(x + top.right, y + top.bottom, x2, x2) (
+    if checkCollision(x + rightEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nwse-resize"
       if mouse_ondown (
         state.changeState("right,bottom","both")
       )
     )
     
-    if checkCollision(x + top.left, y + top.top, x2, x2) (
+    if checkCollision(x + leftEdge, y + topEdge, x2, x2) (
       state.cursor = "nwse-resize"
       if mouse_ondown (
         state.changeState("left,top","both")
       )
     )
     
-    if checkCollision(x + top.left, y + top.bottom, x2, x2) (
+    if checkCollision(x + leftEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nesw-resize"
       if mouse_ondown (
         state.changeState("left,bottom","both")
@@ -296,9 +302,9 @@ def handleTop() (
     wins @= Windows()
     for i wins.len (
       local cur @= wins[i].window
-      x = cur.x
-      y = cur.y
-      local hovering = checkCollision(x, y, cur.width + x2, cur.height + x2)
+      x = cur.x.toNum()
+      y = cur.y.toNum()
+      local hovering = checkCollision(x, y, (cur.width + x2).toNum(), (cur.height + x2).toNum())
       local isntMini = true
       if cur.isMini != null (
         isntMini = cur.isMini().not()
