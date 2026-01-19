@@ -15,6 +15,7 @@ if typeof(path) !== "object" (
 
 inputs.main = ""
 number cursor_pos = 1
+number loops = 0
 
 path = path.scripts.getValues()
 last = []

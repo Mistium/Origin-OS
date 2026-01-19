@@ -16,6 +16,7 @@ memory = roturLink.enabled or "performance.memory !== undefined".eval()
 paused = false
 graph = []
 network_usage = []
+string delta = "0%"
 
 def "tab" "name" (
   c name == current_tab ? seco prim

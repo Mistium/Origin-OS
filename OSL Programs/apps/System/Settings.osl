@@ -268,10 +268,11 @@ def "system" (
         )
       )
       loc 2 2 10 -40 + frame.scroll
+      slider_volume ??= 100
       text "System Volume" + round(slider_volume * 100) ++ "%" 10 : c#txtc
       loc 999 2 0 -90 + frame.scroll
       terminal "system sound get volume"
-      slider_volume = data / 100
+      slider_volume = data.toNum() / 100
       slider w 40 "volume" 15 : c#prim
       terminal "system sound set volume " ++ (slider_volume * 100)
       c txtc
@@ -834,10 +835,12 @@ def "files" (
       centext "Upgrade Storage" 9 : c#txtc
       
       loc 2 2 160 y
-      text formatFileSize(user.used_size) ++ "/" ++ formatFileSize(user.max_size) 10 : c#txtc
+      number used_size = user.used_size.toNum()
+      number max_size = user.max_size.toNum()
+      text formatFileSize(used_size) ++ "/" ++ formatFileSize(max_size) 10 : c#txtc
       loc 999 2 125 / 2 y - 35
       c prim
-      bar frame_width - 200 20 10 user.used_size / user.max_size seco
+      bar frame_width - 200 20 10 used_size / max_size seco
       page_len = 460
   
       if total_files == 0 (
@@ -2047,7 +2050,10 @@ themes = {
   "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3","accent":"#f8e0ff"},
 }
 
-system
+number y = 0
+frame 0 0 0 0 (
+  system
+)
 // file type pages
 ftkeys = file_types.getKeys()
 ftvalues = file_types.getValues()
@@ -2082,9 +2088,10 @@ frame window.left window.top window.left + 225 window.bottom sidebar_height "cac
   loc 2 2 107 -25 + frame.scroll
   temp = x_position
   y = y_position
+  c txtc
   if category == "Account" (
     set_x frame.left
-    square 0 20 5 : c#txtc
+    square 0 20 5
     set_x temp
   ) else (
     square 190 30 15 0 1
