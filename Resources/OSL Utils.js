@@ -167,7 +167,7 @@ function randomString(length) {
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
-    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "|>", "to", "::"]
+    this.operators = ["+", "++", "-", "*", "/", "//", "%", "??", "^", "|>", "to", "is", "::"]
     this.comparisons = ["!=", "==", "!==", "===", ">", "<", "!>", "!<", ">=", "<=", "in"]
     this.logic = ["and", "or", "nor", "xor", "xnor", "nand"]
     this.bitwise = ["|", "&", "<<", ">>", ">>>", "<<<", "^^"]
@@ -211,6 +211,9 @@ class OSLUtils {
       loopUnrolling: true
     };
 
+    this.scopes = [];
+    this.scope = null;
+
     // Track variables and their usage for dead code elimination
     this.variableUsage = new Map();
     this.definedVariables = new Set();
@@ -225,6 +228,9 @@ class OSLUtils {
       'mouse_middle': 'boolean',
       'mouse_ondown': 'boolean',
       'delta_time': 'number',
+      'onclick': 'boolean',
+      'clicked': 'boolean',
+      'mouse_touching': 'boolean',
       'self': 'object',
       'user': 'object',
       'system_os': 'string',
@@ -696,6 +702,7 @@ class OSLUtils {
   evalToken(cur, param) {
     const out = this.stringToToken(cur, param)
     out.source = out.type === "blk" ? "[ast BLK]" : cur;
+    out.inferredType ??= "any";
     return out
   }
 
@@ -703,28 +710,36 @@ class OSLUtils {
     let start = cur[0]
     const tkn = this.tkn;
     if (cur === "/@line") return { type: "unk", num: tkn.unk, data: "/@line" }
-    if (!isNaN(+`${cur}`.replaceAll("_", ""))) return { type: "num", num: tkn.num, data: +`${cur}`.replaceAll("_", "") }
-    else if (cur === "true" || cur === "false") return { type: "raw", num: tkn.raw, data: cur === "true" }
+    if (!isNaN(+`${cur}`.replaceAll("_", ""))) return { type: "num", num: tkn.num, data: +`${cur}`.replaceAll("_", ""), inferredType: "number" }
+    else if (cur === "true" || cur === "false") return { type: "raw", num: tkn.raw, data: cur === "true", inferredType: "boolean" }
     else if (this.operators.indexOf(cur) !== -1) return { type: "opr", num: tkn.opr, data: cur }
     else if (cur === "++") return { type: "opr", num: tkn.opr, data: "++" }
     else if (cur === "--") return { type: "unk", num: tkn.unk, data: "--" }
-    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", num: tkn.cmp, data: cur }
+    else if (this.comparisons.indexOf(cur) !== -1) return { type: "cmp", num: tkn.cmp, data: cur, inferredType: "boolean" }
     else if (cur.endsWith("=")) return { type: "asi", num: tkn.asi, data: cur }
-    else if (start + cur[cur.length - 1] === '""') return { type: "str", num: tkn.str, data: destr(cur) }
-    else if (start + cur[cur.length - 1] === "''") return { type: "str", num: tkn.str, data: destr(cur, "'") }
+    else if (start + cur[cur.length - 1] === '""') return { type: "str", num: tkn.str, data: destr(cur), inferredType: "string" }
+    else if (start + cur[cur.length - 1] === "''") return { type: "str", num: tkn.str, data: destr(cur, "'"), inferredType: "string" }
     else if (start + cur[cur.length - 1] === "``") {
       return {
-        type: "tsr", num: this.tkn.tsr, data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
+        type: "tsr", num: this.tkn.tsr, inferredType: "string", data: parseTemplate(destr(cur, "`")).filter(v => v !== "").map(v => {
           if (v.startsWith("${")) return this.generateAST({ CODE: v.slice(2, -1), START: 0 })[0]
-          else return { type: "str", num: tkn.str, data: v }
+          else return { type: "str", num: tkn.str, data: v, inferredType: "string" }
         })
       }
     }
     else if (cur === "?") return { type: "qst", num: tkn.qst, data: cur }
-    else if (this.logic.indexOf(cur) !== -1) return { type: "log", num: tkn.log, data: cur }
+    else if (this.logic.indexOf(cur) !== -1) return { type: "log", num: tkn.log, data: cur, inferredType: "boolean" }
     else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", num: tkn.bit, data: cur }
     else if (cur.startsWith("...")) return { type: "spr", num: tkn.spr, data: this.evalToken(cur.substring(3)) }
-    else if (["!", "-", "+"].includes(start) && cur.length > 1) return { type: "ury", num: tkn.ury, data: start, right: this.evalToken(cur.slice(1)) };
+    else if (["!", "-", "~"].includes(start) && cur.length > 1) {
+      const obj = { type: "ury", num: tkn.ury, data: start, right: this.evalToken(cur.slice(1)) };
+      switch (start) {
+        case "!": obj.inferredType = "boolean"; break;
+        case "-": obj.inferredType = "number"; break;
+        case "~": obj.inferredType = "number"; break;
+      }
+      return obj;
+    }
     else if (autoTokenise(cur, ".").length > 1) {
       let method = autoTokenise(cur, ".")
       method = method.map((input, index) => this.evalToken(input, index > 0))
@@ -735,7 +750,7 @@ class OSLUtils {
         if (start === "[") {
           if (cur == "[]") {
             if (param) return { type: "mtv", num: this.tkn.mtv, data: "item", parameters: [] };
-            else return { type: "arr", num: this.tkn.arr, data: [] };
+            else return { type: "arr", num: this.tkn.arr, data: [], inferredType: "array" };
           }
 
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",");
@@ -761,12 +776,12 @@ class OSLUtils {
             }
             return obj;
           }
-          const arr = { type: "arr", num: this.tkn.arr, data: tokens };
+          const arr = { type: "arr", num: this.tkn.arr, data: tokens, inferredType: "array" };
           arr.isStatic = tokens.every(token => this.isStaticToken(token));
           if (arr.isStatic) arr.static = tokens.map(token => token.data);
           return arr;
         } else if (cur[0] === "{") {
-          if (cur == "{}") return { type: "obj", num: this.tkn.obj, data: [] }
+          if (cur == "{}") return { type: "obj", num: this.tkn.obj, data: [], inferredType: "object" };
 
           let output = [];
           let tokens = autoTokenise(cur.substring(1, cur.length - 1), ",")
@@ -807,18 +822,36 @@ class OSLUtils {
             if (value === undefined) output.push([key, null]);
             else output.push([key, this.generateAST({ CODE: ("" + value).trim(), START: 0 })[0]]);
           }
-          return { type: "obj", num: this.tkn.obj, data: output };
+          return { type: "obj", num: this.tkn.obj, data: output, inferredType: "object" };
         }
       } catch (e) {
         console.error(e)
         return { type: "unk", num: this.tkn.unk, data: cur }
       }
     }
-    else if (cur === "null") return { type: "unk", num: this.tkn.unk, data: null }
-    else if (["if", "else", "as", "to", "from"].includes(cur)) return { type: "cmd", num: this.tkn.cmd, data: cur }
-    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) return { type: "var", num: this.tkn.var, data: cur }
+    else if (cur === "null") return { type: "unk", num: this.tkn.unk, data: null, inferredType: "null" }
+    else if (["if", "else", "as", "to", "from", "extends"].includes(cur)) return { type: "cmd", num: this.tkn.cmd, data: cur }
+    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) {
+      const varData = this.getVariableData(cur);
+      const inferredType = varData?.type || 'any';
+      const token = {
+        type: "var", num: this.tkn.var, data: cur, inferredType,
+        quickReturn: inferredType !== "any" && inferredType !== "object",
+        // scopes: this.scopes
+      }
+      if (false && varData?.value !== undefined) {
+        token.isConstant = true;
+        token.value = varData.value;
+      }
+      return token;
+    }
     else if (cur === "->") return { type: "inl", num: this.tkn.inl, data: "->" }
-    else if (cur.startsWith("(\n") && cur.endsWith(")")) return { type: "blk", num: this.tkn.blk, data: this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false }) }
+    else if (cur.startsWith("(\n") && cur.endsWith(")")) {
+      this.enterScope();
+      const ast = this.generateFullAST({ CODE: cur.substring(2, cur.length - 1).trim(), START: 0, MAIN: false })
+      this.exitScope();
+      return { type: "blk", num: this.tkn.blk, data: ast }
+    }
     else if (cur.startsWith("(") && cur.endsWith(")")) {
       let end = this.findMatchingParentheses(cur, 0);
       if (end === -1) return { type: "unk", num: this.tkn.unk, data: cur, parse_error: "Unmatched parentheses" };
@@ -861,6 +894,90 @@ class OSLUtils {
     return newAst;
   }
 
+  enterScope() {
+    if (this.scopeDisabled) return;
+    this.scopes.push(Object.create(null));
+    this.scope = this.scopes[this.scopes.length - 1];
+  }
+
+  clearScope() {
+    this.scopes = [Object.create(null)];
+    this.scope = this.scopes[0];
+    this.scopeDisabled = false;
+  }
+
+  enableScopes() {
+    if (this.scopeDisabled) {
+      this.scopes = [Object.create(null)];
+      this.scope = this.scopes[0];
+      this.scopeDisabled = false;
+    }
+  }
+
+  disableScopes() {
+    this.scopes = [];
+    this.scope = null;
+    this.scopeDisabled = true;
+  }
+
+  exitScope() {
+    if (this.scopeDisabled) return;
+    this.scopes.pop();
+    this.scope = this.scopes[this.scopes.length - 1] || Object.create(null);
+  }
+
+  setVariableType(varName, varType, stronglyTyped = false, value = undefined) {
+    if (this.scopeDisabled) return;
+    for (let i = this.scopes.length - 1; i >= 0; i--) {
+      const scope = this.scopes[i];
+      if (varName in scope && scope[varName] !== varType) {
+        const curStronglyTyped = scope[varName]?.stronglyTyped;
+        if (curStronglyTyped === true && stronglyTyped === false) {
+          // cannot override strongly typed variable
+          // TODO: add proper type error checking into ast
+          stronglyTyped = true;
+          continue;
+        }
+        scope[varName] = {
+          type: "any",
+          stronglyTyped: curStronglyTyped
+        };
+      }
+    }
+    if (this.scope) {
+      this.scope[varName] = {
+        type: varType,
+        stronglyTyped
+      };
+      if (value !== undefined) {
+        this.scope[varName].value = value;
+      }
+    }
+  }
+
+  getVariableType(varName) {
+    if (this.scopeDisabled) return 'any';
+    for (let i = this.scopes.length - 1; i >= 0; i--) {
+      if (this.scopes[i][varName]) {
+        return this.scopes[i][varName]?.type;
+      }
+    }
+    return this.globalVariableTypes[varName]?.type || 'any';
+  }
+
+  getVariableData(varName) {
+    if (this.scopeDisabled) return null;
+    for (let i = this.scopes.length - 1; i >= 0; i--) {
+      if (this.scopes[i][varName]) {
+        return this.scopes[i][varName];
+      }
+    }
+  }
+
+  isTypeReferencable(type) {
+    return !["null", "number", "string", "boolean"].includes(type);
+  }
+
   generateAST({ CODE, START, MAIN }) {
     CODE = CODE + "";
     // Normalize line endings to handle Windows/Mac differences
@@ -870,6 +987,16 @@ class OSLUtils {
     // tokenise and handle lambda and inline funcs
     let ast = []
     let tokens = this.tokeniseLineOSL(CODE)
+    switch (tokens[0]) {
+      case "for":
+        this.setVariableType(tokens[1], "number");
+        break
+      case "switch":
+        this.disableScopes();
+        break
+      case "def":
+        
+    }
     for (let i = 0; i < tokens.length; i++) {
       const cur = tokens[i].trim()
       if (cur === "->") {
@@ -902,12 +1029,15 @@ class OSLUtils {
     // join together nodes that should be a single node
     const types = ["opr", "cmp", "qst", "bit", "log", "inl"];
     for (let type of types) {
-      for (let i = START ?? (["asi", "inl"].includes(type) ? 1 : 2); i < ast.length; i++) {
+      for (let i = START ?? (["inl"].includes(type) ? 1 : 2); i < ast.length; i++) {
         const cur = ast[i];
         let prev = ast[i - 1];
         let next = ast[i + 1];
 
         if (cur?.type === type) {
+          if (type === "opr") {
+            cur.inferredType = this._inferOperatorResultType(cur.data, prev.inferredType, next.inferredType);
+          }
           if (type === "qst") {
             cur.left = prev;
             cur.right = next;
@@ -976,6 +1106,13 @@ class OSLUtils {
           return 'any'
         })
 
+        this.enterScope();
+        for (let i = 0; i < paramNames.length; i++) {
+          this.setVariableType(paramNames[i], accepts[i], accepts[i] !== 'any');
+        }
+        const fnBody = this.generateAST({ CODE: right.data, START: 0 })[0]
+        this.exitScope();
+
         const leftSrc = typeof node.left?.source === 'string' ? node.left.source.trim() : '';
         const strictAnyArgs = leftSrc.startsWith('def(') && accepts.some(t => t === 'any');
 
@@ -991,7 +1128,7 @@ class OSLUtils {
               params: paramNames,
               source: paramStr
             },
-            this.generateAST({ CODE: right.data, START: 0 })[0],
+            fnBody,
             {
               type: "unk", num: this.tkn.unk,
               data: node.source.startsWith("def(") ? false : true
@@ -1007,25 +1144,71 @@ class OSLUtils {
           }
         return node;
       }
-      if (node.type === "opr" && node.left && node.right) {
-        node.right = evalASTNode(node.right);
+      if (node.left && node.right) {
+        let result;
+        switch (node.type) {
+          case "opr":
+            node.right = evalASTNode(node.right);
 
-        // If both operands are numbers, evaluate the operation
-        if (node.left.type === "num" && node.right.type === "num" && ["+", "-", "/", "*", "%", "^"].includes(node.data)) {
-          let result;
-          switch (node.data) {
-            case "^": result = +Math.pow(+node.left.data, +node.right.data); break;
-            case "+": result = +node.left.data + +node.right.data; break;
-            case "-": result = +node.left.data - +node.right.data; break;
-            case "*": result = +node.left.data * +node.right.data; break;
-            case "/": result = +node.left.data / +node.right.data; break;
-            case "%": result = +node.left.data % +node.right.data; break;
-          }
-          if (result) return {
-            type: "num", num: this.tkn.num,
-            data: +result,
-            source: result.toString()
-          };
+            // If both operands are numbers, evaluate the operation
+            if (node.left.type === "num" && node.right.type === "num" && ["+", "-", "/", "*", "%", "^"].includes(node.data)) {
+              switch (node.data) {
+                case "^": result = +Math.pow(+node.left.data, +node.right.data); break;
+                case "+": result = +node.left.data + +node.right.data; break;
+                case "-": result = +node.left.data - +node.right.data; break;
+                case "*": result = +node.left.data * +node.right.data; break;
+                case "/": result = +node.left.data / +node.right.data; break;
+                case "%": result = +node.left.data % +node.right.data; break;
+              }
+              if (result) return {
+                type: "num", num: this.tkn.num,
+                data: +result,
+                source: result.toString(),
+                inferredType: "number"
+              };
+            } else if (node.data === "is") {
+              if (node.right.num === this.tkn.str) {
+                const right = node.right.data;
+                const left = node.left?.inferredType;
+                if (right === "any") result = true;
+                else if (left === right) result = true;
+                else if (left === "any" || typeof left !== "string") break;
+                else result = false;
+              }
+              if (result !== undefined) return {
+                type: "raw", num: this.tkn.raw,
+                data: result,
+                source: result.toString(),
+                inferredType: "boolean"
+              };
+            }
+            break;
+          case "cmp":
+            node.right = evalASTNode(node.right);
+
+            if (this.isStaticToken(node.left) && this.isStaticToken(node.right)) {
+              switch (node.data) {
+                case "===":
+                  if (node.left.inferredType !== node.right.inferredType) result = false;
+                case "==": {
+                    if (node.left.data === node.right.data) result = true;
+                  break;
+                }
+                case "!==":
+                  if (node.left.inferredType !== node.right.inferredType) result = true;
+                case "!=": {
+                    if (node.left.data === node.right.data) result = false;
+                  break;
+                }
+              }
+            }
+            if (result !== undefined) return {
+              type: "raw", num: this.tkn.raw,
+              data: result,
+              source: result.toString(),
+              inferredType: "boolean"
+            }
+            break;
         }
       }
       return node;
@@ -1106,7 +1289,8 @@ class OSLUtils {
             data: funcName,
             source: funcName
           },
-          right: funcNode
+          right: funcNode,
+          inferredType: "function"
         });
 
         paramSpec = `${paramSpec}`.trim();
@@ -1149,7 +1333,7 @@ class OSLUtils {
 
         ast.unshift(
           first,
-          { type: "asi", num: this.tkn.asi, data: "=??", source: start }
+          { type: "asi", num: this.tkn.asi, data: "=??", source: start, inferredType: first.inferredType ?? "any" }
         );
       }
     }
@@ -1161,6 +1345,13 @@ class OSLUtils {
       let next = ast[i + 1];
 
       if (cur?.type === "asi") {
+        if ((cur.data === "=" || cur.data === "@=" || cur.data === "=??") && prev.type === "var") {
+          cur.inferredType = next.inferredType ?? "any";
+          this.setVariableType(prev.data, cur.inferredType, false, this.isStaticToken(next) ? next : undefined);
+          if (!this.isTypeReferencable(cur.inferredType) && cur.data === "=") {
+            cur.data = "@=";
+          }
+        }
         if (ast[0].data === "local") {
           prev = this.generateAST({ CODE: "this." + prev.source, START: 0 })[0];
           ast.splice(0, 1);
@@ -1168,6 +1359,10 @@ class OSLUtils {
         }
         if (ast.length > 1 && i > 1) {
           cur.set_type = String(ast?.[i - 2]?.data ?? "").toLowerCase();
+          if (cur.data === "=" || cur.data === "@=") {
+            cur.inferredType = cur.set_type ?? "any";
+            this.setVariableType(prev.source, cur.inferredType, true, this.isStaticToken(next) ? next : undefined);
+          }
           ast.splice(i - 2, 1);
           i -= 1;
         }
@@ -1204,6 +1399,11 @@ class OSLUtils {
         }
 
         cur.source = start;
+      }
+      if (next?.type !== "asi") {
+        if (cur.value !== undefined) {
+          ast[i] = cur.value;
+        }
       }
       if (["opr", "cmp", "log", "bit"].includes(cur?.type) && cur.bysl === undefined) {
         const val = this.generateBysl(cur)
@@ -1249,32 +1449,45 @@ class OSLUtils {
       ast[0].source = CODE.split("\n", 1)[0];
     }
 
-    if (ast[0].type === "cmd" &&
-      ast[0].data === "switch"
-    ) {
-      if (ast[2]?.type === "blk") {
-        let cases = { type: "array", all: [] }
-        const blk = ast[2]?.data ?? []
-        for (let i = 0; i < blk.length; i++) {
-          const cur = blk[i];
-          if (cur[0].data === "case") cases.all.push([cur[1], i])
-          if (cur[0].data === "default") cases.default = i
-        }
-        if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
-          const newCases = {}
-          cases.all.map(v => {
-            if ((v[0]?.data ?? null) !== null) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
-          })
-          cases.type = "object"
-          cases.all = newCases;
-        }
-        ast[0].cases = cases
+    const isCmd = ast[0].type === "cmd"
+    if (isCmd) {
+      switch (ast[0].data) {
+        case "switch":
+          this.enableScopes();
+          if (ast[2]?.type === "blk") {
+            let cases = { type: "array", all: [] }
+            const blk = ast[2]?.data ?? []
+            for (let i = 0; i < blk.length; i++) {
+              const cur = blk[i];
+              if (cur[0].data === "case") cases.all.push([cur[1], i])
+              if (cur[0].data === "default") cases.default = i
+            }
+            if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
+              const newCases = {}
+              cases.all.map(v => {
+                if ((v[0]?.data ?? null) !== null) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
+              })
+              cases.type = "object"
+              cases.all = newCases;
+            }
+            ast[0].cases = cases
+          }
+          break;
+        case "if":
+          if (this.isStaticToken(ast[1])) {
+            if (ast[1].data === true) {
+              ast = ast.slice(0, 3);
+            } else if (ast.length > 3) {
+              ast[1].data = true;
+              ast.splice(2, 2)
+            }
+          }
       }
-    }
 
-    if (ast[0].type === "cmd" && ast.every(v => ["str", "cmd", "num", "raw"].includes(v.type))) {
-      ast[0].isStatic = true;
-      ast[0].full = ast.map(v => v.data);
+      if (ast.every(v => ["str", "cmd", "num", "raw"].includes(v.type))) {
+        ast[0].isStatic = true;
+        ast[0].full = ast.map(v => v.data);
+      }
     }
     if (ast[0].type === "asi" && this.isStaticToken(ast[0].right)) {
       ast[0].right.staticAssignment = true;
@@ -1288,7 +1501,9 @@ class OSLUtils {
   }
 
   generateFullAST({ CODE, MAIN = true }) {
-    if (MAIN) this.inlinableFunctions = {};
+    if (MAIN) {
+      this.inlinableFunctions = {};
+    }
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
     CODE = this.normalizeLineEndings(String(CODE).trim());
@@ -1411,14 +1626,35 @@ class OSLUtils {
           }
         }
       }
-      if (type === "cmd" && data === "def") {
-        if (cur.length < 3) {
-          lines[i] = this.generateError(cur[0], "Incomplete function definition. Expected: def name(param1, param2) ( ... )");
-          continue;
-        }
-        if (cur[cur.length - 1].type !== "blk") {
-          lines[i] = this.generateError(cur[0], "Function body missing. Add a block: ( ... )");
-          continue;
+      if (type === "cmd") {
+        switch (data) {
+          case "def":
+            if (cur.length < 3) {
+              lines[i] = this.generateError(cur[0], "Incomplete function definition. Expected: def name(param1, param2) ( ... )");
+              continue;
+            }
+            if (cur[cur.length - 1].type !== "blk") {
+              lines[i] = this.generateError(cur[0], "Function body missing. Add a block: ( ... )");
+              continue;
+            }
+            break;
+          case "if":
+            if (cur.length < 3) {
+              lines[i] = this.generateError(cur[0], "Incomplete if statement. Expected: if condition ( ... )");
+              continue;
+            }
+            if (cur[2].type !== "blk") {
+              lines[i] = this.generateError(cur[0], "If body missing. Add a block: ( ... )");
+              continue;
+            }
+            if (this.isStaticToken(cur[1])) {
+              if (cur[1].data === true) {
+                lines.splice(i, 1, ...cur[2].data);
+              } else if (cur.length === 3) {
+                lines.splice(i, 1);
+              }
+            }
+            break;
         }
       }
       if (['loop', 'if', 'while', 'until', 'for'].includes(data)) {
@@ -1454,7 +1690,7 @@ class OSLUtils {
         }
       }
     }
-    return this.applyTypes(lines);
+    return lines;
   }
 
   tokenise({ CODE }) {
@@ -2334,12 +2570,13 @@ class OSLUtils {
     switch (operator) {
       case '+': {
         if (leftType === 'array' || rightType === 'array') return 'array';
-        if (leftType === 'string' || rightType === 'string') return 'string';
         if (leftType === 'number' && rightType === 'number') return 'number';
+        if (leftType === 'string' || rightType === 'string') return 'string';
         return 'any';
       }
       case '-': {
         if (leftType === 'number' && rightType === 'number') return 'number';
+        if (leftType === 'string' && rightType === 'string') return 'string';
         return 'any';
       }
       case '*': {
@@ -2354,10 +2591,12 @@ class OSLUtils {
         return 'any';
       }
       case '++': {
-        if (leftType === 'string' || rightType === 'string') return 'string';
+        if (leftType === 'object' && (rightType === 'object' || rightType === 'array')) return 'object';
+        if ((leftType === 'object' || leftType === 'array') && rightType === 'object') return 'object';
         if (leftType === 'array' && rightType === 'array') return 'array';
-        return 'any';
+        return 'string';
       }
+      case 'is':
       case '==':
       case '!=':
       case '>':
@@ -2384,6 +2623,12 @@ class OSLUtils {
       case '<<<':
       case '^^': {
         return 'number';
+      }
+      case "::": {
+        return 'function';
+      }
+      case "to": {
+        return 'array';
       }
       default:
         return 'any';
@@ -3499,16 +3744,10 @@ if (typeof Scratch !== "undefined") {
     }
 
     const result = utils.generateFullAST({
-      CODE: `
-      key1 = 5
-      key2 = 10
-      obj = [
-        {
-            "key": "value",
-            key1,
-            key2
-        }
-      ]`, f: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/Activity.osl", "utf-8")
+      f: `
+      log "hello" is "string" is "boolean"
+      
+      `, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
     });
 
     fs.writeFileSync("lol.json", formatByslJson(result));
