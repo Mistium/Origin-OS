@@ -1,7 +1,23 @@
 if (args[1] ?? "") === "" (
     window.create("studio")
+    terminal.writeLine("Opening studio...")
     return
 )
+local path = args[1].toStr()
+if !path.contains("/") (
+  path @= "./" ++ path
+)
+if path.startsWith("./") (
+  path @= path.replaceFirst(".", terminal.pwd)
+)
+if path.startsWith("origin/") (
+  path @= path.replaceFirst("origin/","/")
+)
+path @= parseFilePath(path)
+if !path.fileExists() (
+  terminal.writeLine("File not found: " + path)
+  return
+)
 window.create("studio", {
-    passed_data: args[1]
+    passed_data: path
 })

@@ -1,5 +1,5 @@
 {
-  "lastUpdated": "2026-01-11T20:36:20.874Z",
+  "lastUpdated": "2026-01-20T21:27:52.115Z",
   "totalScripts": 60,
   "scripts": {
     "calc.osl": {
@@ -385,12 +385,12 @@
     "studio.osl": {
       "name": "studio.osl",
       "firstAdded": "2025-08-18T21:22:42.076Z",
-      "lastModified": "2025-08-26T15:28:27.849Z",
-      "changeCount": 1,
-      "size": 122,
-      "hash": "a7d2043e3b1817caec407cc6830921b8",
+      "lastModified": "2026-01-20T21:01:33.844Z",
+      "changeCount": 2,
+      "size": 506,
+      "hash": "10048e92006dba23252a3c4d88ba915f",
       "status": "active",
-      "lastModifiedUnix": 1756222107849
+      "lastModifiedUnix": 1768942893844
     },
     "kill.osl": {
       "name": "kill.osl",
@@ -610,7 +610,7 @@
       "name": "opal.osl",
       "changeCount": 13
     },
-    "totalChanges": 172,
-    "averageChangesPerScript": 2.87
+    "totalChanges": 173,
+    "averageChangesPerScript": 2.88
   }
 }

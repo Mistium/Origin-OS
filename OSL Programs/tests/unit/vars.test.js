@@ -23,7 +23,15 @@ const tests = [
       log b
     `,
     { expect: [5] }
-  )
+  ),
+
+  helper.createTest(
+    'Undefined variable',
+    `
+      log variable
+    `,
+    { expect: [null] }
+  ),
 ];
 
 module.exports = { tests };
