@@ -355,7 +355,7 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
       )
       if inputs.main == "clear" (
         terminal.lines = []
-      ) else (
+      ) else if inputs.main.len > 0 (
         terminal.show_input = false
         if terminal.input_message == null (
           terminal_worker.cmd = inputs.main
