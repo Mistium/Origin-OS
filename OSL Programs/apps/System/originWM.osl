@@ -252,15 +252,21 @@ def handleResize() (
 
 def handleMove() (
   drag @= top.dragbox[1]
+  if typeof(drag) != "array" (
+    return
+  )
   goto x y
-  change top.width / -drag[1] + drag[3] top.height / drag[2] + drag[4]
+  change top.width / -drag[1].toNum() + drag[3].toNum() top.height / drag[2].toNum() + drag[4].toNum()
   if mouse_x < x_position or mouse_y > y_position (
     return
   )
 
   drag @= top.dragbox[2]
+  if typeof(drag) != "array" (
+    return
+  )
   goto x y
-  change top.width / -drag[1] + drag[3] top.height / drag[2] + drag[4]
+  change top.width / -drag[1].toNum() + drag[3].toNum() top.height / drag[2].toNum() + drag[4].toNum()
   if mouse_x > x_position or mouse_y < y_position (
     return
   )
@@ -282,7 +288,6 @@ def handleMove() (
           })
         )},
         {"Application Info": def(win) -> (
-          log win
           window.create("/(a) system/system apps/Files_Info.osl", {
             passed_data: win.file.uuid
           })

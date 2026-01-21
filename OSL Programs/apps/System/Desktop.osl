@@ -314,8 +314,8 @@ for i desktop_apps.len (
   app_id @= desktop_apps[i]
 
   file "open" app_id "onlyaccess"
-  x = round(fileGet(6) / 70) * 70
-  y = round(fileGet(7) / 70) * 70
+  x = round(fileGet(6).toNum() / 70) * 70
+  y = round(fileGet(7).toNum() / 70) * 70
   app_positions[y][x] = app_id
 
   loc 2 2 35 + x -35 + y
@@ -325,7 +325,7 @@ for i desktop_apps.len (
     rightclick "file" app_id
   )
 
-  data = fileGet(2)
+  data = fileGet(2).toStr()
   if mouse_touching (
     square data.len * 8 5 15 : c#back chy#-35
     centext data 8 : c#txtc
