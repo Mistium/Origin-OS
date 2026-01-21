@@ -171,15 +171,29 @@ def handleResize() (
   number bottomEdge = top.bottom.toNum()
   number height = top.height.toNum()
   number width = top.width.toNum()
+
+  object resizable = {}
+  if typeof(top.resizable) == "object" (
+    resizable = top.resizable
+  )
+  if top.resizable == false (
+    resizable = {
+      left: false,
+      right: false,
+      top: false,
+      bottom: false
+    }
+  )
+
   // left edge
-  if checkCollision(x + leftEdge, y, hitbox_size, topEdge - x25) (
+  if resizable.left != false and checkCollision(x + leftEdge, y, hitbox_size, topEdge - x25) (
     state.cursor = "ew-resize"
     if mouse_ondown (
       state.changeState("left","width")
     )
   )
   // right edge
-  if checkCollision(x + rightEdge, y, hitbox_size, height - x25) (
+  if resizable.right != false and checkCollision(x + rightEdge, y, hitbox_size, height - x25) (
     state.cursor = "ew-resize"
     if mouse_ondown (
       state.changeState("right","width")
@@ -187,43 +201,47 @@ def handleResize() (
   )
   
   if top.tile == null (
-    // bottom edge
-    if checkCollision(x, y + topEdge, width - x25, hitbox_size) (
+    // top edge
+    if resizable.top != false and checkCollision(x, y + topEdge, width - x25, hitbox_size) (
       state.cursor = "ns-resize"
       if mouse_ondown (
         state.changeState("top","height")
       )
     )
-    // top edge
-    if checkCollision(x, y + bottomEdge, width - x25, hitbox_size) (
+    // bottom edge
+    if resizable.bottom != false and checkCollision(x, y + bottomEdge, width - x25, hitbox_size) (
       state.cursor = "ns-resize"
       if mouse_ondown (
         state.changeState("bottom","height")
       )
     )
     
-    if checkCollision(x + rightEdge, y + topEdge, x2, x2) (
+    // top right
+    if resizable.right != false and resizable.top != false and checkCollision(x + rightEdge, y + topEdge, x2, x2) (
       state.cursor = "nesw-resize"
       if mouse_ondown (
         state.changeState("right,top","both")
       )
     )
     
-    if checkCollision(x + rightEdge, y + bottomEdge, x2, x2) (
+    // bottom right
+    if resizable.right != false and resizable.bottom != false and checkCollision(x + rightEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nwse-resize"
       if mouse_ondown (
         state.changeState("right,bottom","both")
       )
     )
     
-    if checkCollision(x + leftEdge, y + topEdge, x2, x2) (
+    // top left
+    if resizable.left != false and resizable.top != false and checkCollision(x + leftEdge, y + topEdge, x2, x2) (
       state.cursor = "nwse-resize"
       if mouse_ondown (
         state.changeState("left,top","both")
       )
     )
     
-    if checkCollision(x + leftEdge, y + bottomEdge, x2, x2) (
+    // bottom left
+    if resizable.left != false and resizable.bottom != false and checkCollision(x + leftEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nesw-resize"
       if mouse_ondown (
         state.changeState("left,bottom","both")
