@@ -290,7 +290,9 @@ def "render_tabs" (
       square 20 20 0 0 1
       if onclick (
         tabs.delete(count)
-        if count > 1 "current_tab --"
+        if count > 1 (
+          current_tab --
+        )
         refresh
       )
       icon "close" 0.5
@@ -300,7 +302,7 @@ def "render_tabs" (
   loc 2 2 count * width2 - temp + 22 -22.5
   square 25 25 15 : c#prim
   touching_pointer
-  if tabs.len < 10 "c txtc" else "c seco"
+  c tabs.len < 10 ? txtc seco
   icon "add" 0.55
   if onclick and tabs.len < 10 (
     tab_data = {
@@ -737,7 +739,9 @@ mainloop:
   if tabs.len == 0 or typeof(tabs) != "array" (
     setup_tabs
   )
-  if mouse_down.not() "can = true"
+  if mouse_down.not() (
+    can = true
+  )
   w = window_width
   sideshow = w > 700
   if sideshow (
@@ -799,7 +803,9 @@ mainloop:
     square 8 36 0 : c#prim
   )
   loc 2 2 20 -118
-  if sideshow "change 250"
+  if sideshow (
+    change 250
+  )
   icon "file" 0.7 : c#txtc
   touching_pointer
   if onclick (

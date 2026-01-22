@@ -96,11 +96,6 @@ while true (
   local cursor_num = cursor_pos[1].clamp(1, line.len + 1) - 1
   switch mode (
     case "normal"
-      if "i".onKeyDown() (
-        mode = "insert"
-        letter_mode = ""
-        break
-      )
       if "p".onKeyDown() (
         line @= line.insert(cursor_pos[1] - 1, paste_buffer)
         textf[line_num] = line
@@ -109,13 +104,44 @@ while true (
       )
       for i keys.len (
         local key @= keys[i]
-        if digits.contains(key) (
+        if digits.contains(key) and (key != "0" or move_buffer.len > 0) (
           move_buffer ++= key
           move_buffer.toNum()
           continue
         )
         if letter_mode == "" (
           switch key (
+            case "0"
+              cursor_pos = [0, cursor_pos[2]]
+              move_buffer = ""
+              continue
+            case "$"
+              cursor_pos = [line.len, cursor_pos[2]]
+              move_buffer = ""
+              continue
+            case "I"
+              cursor_pos[1] = 0
+            case "i"
+              mode = "insert"
+              letter_mode = ""
+              mode = "insert"
+              continue
+            case "o"
+              textf.insert(cursor_pos[2] + 1, "")
+              cursor_pos[1] = 0
+              cursor_pos[2] += 1
+              move_buffer = ""
+              mode = "insert"
+              continue
+            case "O"
+              textf.insert(cursor_pos[2] - 1, "")
+              cursor_pos[1] = 0
+              move_buffer = ""
+              mode = "insert"
+              continue
+            case "D"
+              textf[line_num] = textf[line_num].trim(1, cursor_pos[1] - 1)
+              continue
             case "g"
               if shift_down (
                 cursor_pos = [textf[-1].len, textf.len]
