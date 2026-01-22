@@ -1036,7 +1036,7 @@ class OSLUtils {
 
         if (cur?.type === type) {
           if (type === "opr") {
-            cur.inferredType = this._inferOperatorResultType(cur.data, prev.inferredType, next.inferredType);
+            cur.inferredType = this._inferOperatorResultType(cur.data, prev?.inferredType, next?.inferredType);
           }
           if (type === "qst") {
             cur.left = prev;
@@ -1136,14 +1136,6 @@ class OSLUtils {
           ]
         }
       }
-      if (node.type === "mtd") {
-        if (node.data.length !== 2) return node;
-        if (["str", "num"].includes(node.data[0].type))
-          switch (node.data[1].data) {
-            case "len": return this.evalToken(node.data[0].data.length);
-          }
-        return node;
-      }
       if (node.left && node.right) {
         let result;
         switch (node.type) {
@@ -1166,47 +1158,6 @@ class OSLUtils {
                 source: result.toString(),
                 inferredType: "number"
               };
-            } else if (node.data === "is") {
-              if (node.right.num === this.tkn.str) {
-                const right = node.right.data;
-                const left = node.left?.inferredType;
-                if (right === "any") result = true;
-                else if (left === right) result = true;
-                else if (left === "any" || typeof left !== "string") break;
-                else result = false;
-              }
-              if (result !== undefined) return {
-                type: "raw", num: this.tkn.raw,
-                data: result,
-                source: result.toString(),
-                inferredType: "boolean"
-              };
-            }
-            break;
-          case "cmp":
-            node.right = evalASTNode(node.right);
-
-            if (this.isStaticToken(node.left) && this.isStaticToken(node.right)) {
-              switch (node.data) {
-                case "===":
-                  if (node.left.inferredType !== node.right.inferredType) result = false;
-                case "==": {
-                    if (node.left.data === node.right.data) result = true;
-                  break;
-                }
-                case "!==":
-                  if (node.left.inferredType !== node.right.inferredType) result = true;
-                case "!=": {
-                    if (node.left.data === node.right.data) result = false;
-                  break;
-                }
-              }
-            }
-            if (result !== undefined) return {
-              type: "raw", num: this.tkn.raw,
-              data: result,
-              source: result.toString(),
-              inferredType: "boolean"
             }
             break;
         }
