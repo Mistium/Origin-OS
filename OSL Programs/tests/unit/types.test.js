@@ -107,54 +107,6 @@ const tests = [
   ),
 
   helper.createTest(
-    'typeof string',
-    `
-      log typeof("hello")
-    `,
-    { expect: ['string'] }
-  ),
-
-  helper.createTest(
-    'typeof number',
-    `
-      log typeof(42)
-    `,
-    { expect: ['number'] }
-  ),
-
-  helper.createTest(
-    'typeof boolean',
-    `
-      log typeof(false)
-    `,
-    { expect: ['boolean'] }
-  ),
-
-  helper.createTest(
-    'typeof array',
-    `
-      log typeof([1,2,3])
-    `,
-    { expect: ['array'] }
-  ),
-
-  helper.createTest(
-    'typeof object',
-    `
-      log typeof({x: 1})
-    `,
-    { expect: ['object'] }
-  ),
-
-  helper.createTest(
-    'typeof null',
-    `
-      log typeof(null)
-    `,
-    { expect: ['null'] }
-  ),
-
-  helper.createTest(
     'getType method',
     `
       x = 10

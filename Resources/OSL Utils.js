@@ -1465,7 +1465,7 @@ class OSLUtils {
             if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
               const newCases = {}
               cases.all.map(v => {
-                if ((v[0]?.data ?? null) !== null) newCases[String(v[0]?.data ?? "").toLowerCase()] = v[1]
+                if ((v[0]?.data ?? null) !== null) newCases[v[0]?.data ?? ""] = v[1]
               })
               cases.type = "object"
               cases.all = newCases;

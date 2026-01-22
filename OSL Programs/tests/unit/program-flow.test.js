@@ -92,6 +92,23 @@ const tests = [
       `,
       { expect: ["one","two","other"] }
     ),
+    helper.createTest(
+      'Switch case is case sensitive',
+      `val = "One"
+       switch val (
+         case "one"
+           log "one"
+           break
+         case "One"
+           log "One"
+           break
+         default
+           log "other"
+           break
+       )
+      `,
+      { expect: ["One"] }
+    )
 ];
 
 module.exports = { tests };
