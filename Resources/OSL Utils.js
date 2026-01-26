@@ -1458,8 +1458,22 @@ class OSLUtils {
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
     CODE = this.normalizeLineEndings(String(CODE).trim());
-    CODE = (MAIN ? `/@line ${++line}\n` : "") + CODE.replace(this.fullASTRegex, (match) => {
-      if (match === ";") return "\n";
+    let result = MAIN ? `/@line ${++line}\n` : "";
+    let lastIndex = 0;
+
+    this.fullASTRegex.lastIndex = 0;
+
+    for (let m; (m = this.fullASTRegex.exec(CODE)); ) {
+      const match = m[0];
+      const index = m.index;
+
+      result += CODE.slice(lastIndex, index);
+      lastIndex = index + match.length;
+
+      if (match === ";") {
+        result += "\n";
+        continue;
+      }
 
       let out = match;
       const nlCount = (match.match(/\n/g) || []).length;
@@ -1467,7 +1481,11 @@ class OSLUtils {
       if (match === "(") out = ".call(";
       else if (match === "[") out = ".[";
       else if (match.startsWith("\n")) out = match.replace(/\n\s*\./, ".");
-      else if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) { line++; return match }
+      else if ([",", "{", "}", "[", "]"].includes(match.trim()[0])) {
+        line++;
+        result += match;
+        continue;
+      }
 
       if (MAIN) {
         if (out.includes("\n")) {
@@ -1477,8 +1495,12 @@ class OSLUtils {
         }
       }
 
-      return out;
-    });
+      result += out;
+    }
+
+    result += CODE.slice(lastIndex);
+    CODE = result;
+
     CODE = CODE.split("\n")
     for (let i = CODE.length - 1; i >= 0; i--) {
       if (CODE[i].trim().startsWith("//")) {
