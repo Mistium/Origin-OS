@@ -25,14 +25,23 @@ def "draw" "x, y, x2, y2, character" (
     )
   )
   if clicked or "enter".onKeyDown() and character == "=" (
-    current.toNum()
-    secondary.toNum()
-    if operation == "+" "current += secondary"
-    if operation == "-" "current -= secondary"
-    if operation == "x" "current *= secondary"
-    if operation == "÷" "current /= secondary"
-    current.toStr()
-    secondary = 0
+    number out = current.toNum()
+    switch operation (
+      case "+"
+        out += secondary.toNum()
+        break
+      case "-"
+        out -= secondary.toNum()
+        break
+      case "x"
+        out *= secondary.toNum()
+        break
+      case "÷"
+        out /= secondary.toNum()
+        break
+    )
+    current = out.toStr()
+    secondary = ""
     operation = ""
   )
   change -10 -5
@@ -62,7 +71,7 @@ loc 999 2 0 -22.5
 square 265 30 10 1 : c#ctb
 
 loc 999 2 0 -72.5
-square 265 40 10 : c#cca
+square 265 40 10 : c#ctb
 
 loc 2 2 20 -22.5
 text "Calculator" 9 : c#ct
