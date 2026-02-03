@@ -8,9 +8,9 @@ text "View Your Clipboard Unicode Details!" 10
 
 c #333
 frame window."left" window."top" - 40 window."right" window."bottom" clipboard.len * 20
-count = scroll_y // 20
+count = round(scroll_y / 20)
 start = 0
-loop window_height // 20 - 2 (
+loop round(window_height / 20) - 2 (
   count ++
   start ++
   y = start * -20

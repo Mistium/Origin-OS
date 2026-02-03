@@ -68,7 +68,7 @@ if discord.wsHasnew() (
       content = msg.d.author.username + "says:" + content
       send_message assistant.gptSend(content) channel
     )
-    if content.startsWith("!term ") and sent_from == owner) (
+    if content.startsWith("!term ") and sent_from == owner (
       num = content.len - 6
       terminal content.right(num)
       send_message "```" ++ terminal_output.join("%0A") ++ "```" channel
