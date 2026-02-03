@@ -164,6 +164,590 @@ function randomString(length) {
   return result;
 }
 
+const VAR_REGEX = /^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/;
+
+class OSLLinter {
+  constructor() {
+    this.validKeywords = new Set([
+      'def', 'if', 'else', 'for', 'while', 'class', 'switch', 
+      'case', 'default', 'return', 'break', 'continue', 
+      'try', 'catch', 'import', 'permission', 'save', 'file', 
+      'window', 'network', 'each', 'until', 'loop', 'local', 
+      'endef', 'defer', 'mainloop', 'void', 'and', 'or', 'not',
+      'in', 'nor', 'xor', 'xnor', 'nand'
+    ]);
+    
+    this.validOperators = new Set([
+      '=', '@=', '+=', '-=', '*=', '/=', '++', '--', 
+      '+', '-', '*', '/', '//', '%', '^', '==', '!=', 
+      '>', '<', '>=', '<=', '::', '??', '|>', 
+      '|', '&', '<<', '>>', '>>>', '<<<', '?', ':',
+      '&&=', '||=', '%=', '<<=', '>>=', '>>>=', '!', '->'
+    ]);
+    
+    this.validTypes = new Set([
+      'number', 'string', 'array', 'object', 'boolean', 'void', 'local'
+    ]);
+  }
+
+  tokeniseCode(codeStr) {
+    const code = `${codeStr}`;
+    const tokens = [];
+    
+    try {
+      let i = 0;
+      let currentLine = 0;
+      let currentLineStart = 0;
+      
+      while (i < code.length) {
+        const char = code[i];
+        
+        if (char === ' ' || char === '\t' || char === '\r') {
+          i++;
+          continue;
+        }
+        
+        if (char === '\n') {
+          const start = i - currentLineStart;
+          tokens.push({ type: 'newline', value: '\n', line: currentLine, start, end: start + 1 });
+          currentLine++;
+          currentLineStart = i + 1;
+          i++;
+          continue;
+        }
+        
+        const start = i - currentLineStart;
+        
+        if (char === '/' && code[i + 1] === '/') {
+          let comment = '//';
+          i += 2;
+          while (i < code.length && code[i] !== '\n') {
+            comment += code[i];
+            i++;
+          }
+          tokens.push({ type: 'comment', value: comment, line: currentLine, start, end: start + comment.length });
+          continue;
+        }
+        
+        if (char === '/' && code[i + 1] === '*') {
+          let comment = '/*';
+          i += 2;
+          let commentLine = currentLine;
+          while (i < code.length && !(code[i] === '*' && code[i + 1] === '/')) {
+            if (code[i] === '\n') {
+              commentLine++;
+              currentLine++;
+              currentLineStart = i + 1;
+            }
+            comment += code[i];
+            i++;
+          }
+          if (i < code.length) {
+            comment += '*/';
+            i += 2;
+          }
+          tokens.push({ type: 'comment', value: comment, line: commentLine, start, end: i - currentLineStart });
+          continue;
+        }
+        
+        if (char === '"') {
+          const line = currentLine;
+          let str = '"';
+          i++;
+          while (i < code.length) {
+            if (code[i] === '\\' && i + 1 < code.length) {
+              str += code[i] + code[i + 1];
+              i += 2;
+              continue;
+            }
+            if (code[i] === '"') {
+              str += '"';
+              i++;
+              break;
+            }
+            if (code[i] === '\n') {
+              break;
+            }
+            str += code[i];
+            i++;
+          }
+          if (str[str.length - 1] !== '"') {
+            tokens.push({ type: 'string', value: str, line: line, start, end: i - currentLineStart });
+            currentLine++;
+            currentLineStart = i;
+            continue;
+          } else {
+            tokens.push({ type: 'string', value: str, line: line, start, end: i - currentLineStart });
+            continue;
+          }
+        }
+        
+        if (char === "'") {
+          const line = currentLine;
+          let str = "'";
+          i++;
+          while (i < code.length) {
+            if (code[i] === '\\' && i + 1 < code.length) {
+              str += code[i] + code[i + 1];
+              i += 2;
+              continue;
+            }
+            if (code[i] === "'") {
+              str += "'";
+              i++;
+              break;
+            }
+            if (code[i] === '\n') {
+              break;
+            }
+            str += code[i];
+            i++;
+          }
+          if (str[str.length - 1] !== "'") {
+            tokens.push({ type: 'string', value: str, line: line, start, end: i - currentLineStart });
+            currentLine++;
+            currentLineStart = i;
+            continue;
+          } else {
+            tokens.push({ type: 'string', value: str, line: line, start, end: i - currentLineStart });
+            continue;
+          }
+        }
+        
+        if (char === '`') {
+          const line = currentLine;
+          let template = '`';
+          i++;
+          let inExpression = false;
+          let exprDepth = 0;
+          
+          while (i < code.length) {
+            if (code[i] === '\\' && i + 1 < code.length) {
+              template += code[i] + code[i + 1];
+              i += 2;
+              continue;
+            }
+            if (code[i] === '`' && !inExpression) {
+              template += '`';
+              i++;
+              break;
+            }
+            if (code[i] === '$' && code[i + 1] === '{' && !inExpression) {
+              template += '${';
+              i += 2;
+              inExpression = true;
+              exprDepth = 1;
+              continue;
+            }
+            if (code[i] === '}' && inExpression) {
+              exprDepth--;
+              template += code[i];
+              i++;
+              if (exprDepth === 0) {
+                inExpression = false;
+              }
+              continue;
+            }
+            if (inExpression) {
+              if (code[i] === '{') exprDepth++;
+              if (code[i] === '}') exprDepth--;
+              template += code[i];
+              i++;
+              continue;
+            }
+            if (code[i] === '\n') {
+              break;
+            }
+            template += code[i];
+            i++;
+          }
+          if (template[template.length - 1] !== '`') {
+            tokens.push({ type: 'template', value: template, line: line, start, end: i - currentLineStart });
+            currentLine++;
+            currentLineStart = i;
+            continue;
+          } else {
+            tokens.push({ type: 'template', value: template, line: line, start, end: i - currentLineStart });
+            continue;
+          }
+        }
+        
+        if (/[0-9]/.test(char) || (char === '-' && i + 1 < code.length && /[0-9]/.test(code[i + 1]))) {
+          let num = '';
+          while (i < code.length && (/[0-9_\.]/.test(code[i]) || (num === '' && code[i] === '-'))) {
+            num += code[i];
+            i++;
+          }
+          tokens.push({ type: 'number', value: num, line: currentLine, start, end: i - currentLineStart });
+          continue;
+        }
+        
+        if (/[a-zA-Z_]/.test(char)) {
+          let ident = '';
+          while (i < code.length && /[a-zA-Z0-9_]/.test(code[i])) {
+            ident += code[i];
+            i++;
+          }
+          const tokenType = this.validKeywords.has(ident) ? 'keyword' : 'identifier';
+          tokens.push({ type: tokenType, value: ident, line: currentLine, start, end: i - currentLineStart });
+          continue;
+        }
+         
+        const twoCharOp = code.slice(i, i + 2);
+        const threeCharOp = code.slice(i, i + 3);
+        const fourCharOp = code.slice(i, i + 4);
+        
+        if (this.validOperators.has(fourCharOp)) {
+          tokens.push({ type: 'operator', value: fourCharOp, line: currentLine, start, end: i - currentLineStart + 4 });
+          i += 4;
+        } else if (this.validOperators.has(threeCharOp)) {
+          tokens.push({ type: 'operator', value: threeCharOp, line: currentLine, start, end: i - currentLineStart + 3 });
+          i += 3;
+        } else if (this.validOperators.has(twoCharOp)) {
+          tokens.push({ type: 'operator', value: twoCharOp, line: currentLine, start, end: i - currentLineStart + 2 });
+          i += 2;
+        } else if (this.validOperators.has(char)) {
+          tokens.push({ type: 'operator', value: char, line: currentLine, start, end: i - currentLineStart + 1 });
+          i++;
+        } else if (char === '.' || char === ',' || char === ':' || char === ';') {
+          tokens.push({ type: 'punctuation', value: char, line: currentLine, start, end: i - currentLineStart + 1 });
+          i++;
+        } else if (['(', ')', '[', ']', '{', '}'].includes(char)) {
+          tokens.push({ type: 'bracket', value: char, line: currentLine, start, end: i - currentLineStart + 1 });
+          i++;
+        } else {
+          tokens.push({ type: 'unknown', value: char, line: currentLine, start, end: i - currentLineStart + 1 });
+          i++;
+        }
+      }
+      
+      return tokens;
+    } catch (e) {
+      console.error("Tokenization error:", e);
+      return [];
+    }
+  }
+
+  validateStrings(tokens) {
+    const errors = [];
+    
+    for (const token of tokens) {
+      if (token.type === 'string') {
+        if (token.value.length < 2) {
+          errors.push({
+            message: `Unclosed string literal - missing closing quote`,
+            line: token.line + 1,
+            tokenIndex: tokens.indexOf(token),
+            highlightStart: token.start,
+            highlightEnd: token.start + 1
+          });
+        } else {
+          const firstChar = token.value[0];
+          const lastChar = token.value[token.value.length - 1];
+          
+          if ((firstChar === '"' && lastChar !== '"') || 
+              (firstChar === "'" && lastChar !== "'")) {
+            errors.push({
+              message: `Unclosed string literal - missing closing ${firstChar}`,
+              line: token.line + 1,
+              tokenIndex: tokens.indexOf(token),
+              highlightStart: token.start,
+              highlightEnd: token.start + 1
+            });
+          }
+        }
+      } else if (token.type === 'template') {
+        if (token.value.length < 2 || token.value[0] !== '`' || token.value[token.value.length - 1] !== '`') {
+          errors.push({
+            message: `Unclosed template literal - missing closing \``,
+            line: token.line + 1,
+            tokenIndex: tokens.indexOf(token),
+            highlightStart: token.start,
+            highlightEnd: token.start + 1
+          });
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateComments(tokens) {
+    const errors = [];
+    
+    for (const token of tokens) {
+      if (token.type === 'comment') {
+        if (token.value.startsWith('/*') && !token.value.endsWith('*/')) {
+          errors.push(`Line ${token.line + 1}: Unclosed multi-line comment - missing */`);
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateBrackets(tokens) {
+    const errors = [];
+    const stack = [];
+    const pairs = { '(': ')', '[': ']', '{': '}' };
+    
+    for (const token of tokens) {
+      if (token.type === 'bracket') {
+        if (['(', '[', '{'].includes(token.value)) {
+          stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: tokens.indexOf(token) });
+        } else {
+          if (stack.length === 0) {
+            errors.push(`Line ${token.line + 1}: Unexpected closing '${token.value}' with no matching opening bracket`);
+          } else {
+            const last = stack.pop();
+            if (pairs[last.bracket] !== token.value) {
+              errors.push(`Line ${token.line + 1}: Mismatched brackets - expected '${pairs[last.bracket]}' to match '${last.bracket}' from line ${last.line}, got '${token.value}'`);
+            }
+          }
+        }
+      }
+    }
+    
+    for (const item of stack) {
+      errors.push({
+        message: `Unclosed '${item.bracket}' - missing closing '${pairs[item.bracket]}'`,
+        line: item.line,
+        tokenIndex: item.tokenIndex,
+        highlightStart: item.start,
+        highlightEnd: item.start + 1
+      });
+    }
+    
+    return errors;
+  }
+
+  validateVariableNames(tokens) {
+    const errors = [];
+    const varRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
+    
+    for (const token of tokens) {
+      if (token.type === 'identifier') {
+        if (!varRegex.test(token.value)) {
+          if (/[0-9]/.test(token.value[0])) {
+            errors.push(`Line ${token.line + 1}: Invalid identifier '${token.value}' - must start with letter or underscore, not a number`);
+          } else if (/[^a-zA-Z0-9_]/.test(token.value)) {
+            errors.push(`Line ${token.line + 1}: Invalid identifier '${token.value}' - contains invalid characters`);
+          } else {
+            errors.push(`Line ${token.line + 1}: Invalid identifier '${token.value}' - must start with letter or underscore and contain only letters, numbers, and underscores`);
+          }
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateOperators(tokens) {
+    const errors = [];
+    
+    for (const token of tokens) {
+      if (token.type === 'unknown') {
+        const validOps = Array.from(this.validOperators).sort().join(', ');
+        if (!this.validOperators.has(token.value) && token.value.match(/^[+\-*/%^&=|<>!?:]+$/)) {
+          errors.push(`Line ${token.line + 1}: Unknown operator '${token.value}' - valid operators: ${validOps}`);
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateTypes(tokens) {
+    const errors = [];
+    const validTypeList = Array.from(this.validTypes).sort().join(', ');
+    
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      
+      if (token.type === 'identifier' && this.validTypes.has(token.value)) {
+        const prevToken = tokens[i - 1];
+        const nextToken = tokens[i + 1];
+        
+        if (nextToken && nextToken.type === 'identifier') {
+          continue;
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateStatements(tokens) {
+    const errors = [];
+    const statementStack = [];
+    
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      
+      if (token.type === 'keyword') {
+        switch (token.value) {
+          case 'def':
+            const nextToken = tokens[i + 1];
+            const thirdToken = tokens[i + 2];
+            
+            if (nextToken && nextToken.type === 'identifier') {
+              statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
+              break;
+            }
+            
+            if (nextToken && nextToken.type === 'string') {
+              statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
+              break;
+            }
+            
+            if (nextToken && nextToken.type === 'bracket' && nextToken.value === '(') {
+              if (thirdToken && thirdToken.type === 'bracket' && thirdToken.value === ')') {
+                const fourthToken = tokens[i + 3];
+                if (fourthToken && fourthToken.type === 'operator' && fourthToken.value === '->') {
+                  const fifthToken = tokens[i + 4];
+                  if (!fifthToken || fifthToken.type !== 'bracket' || fifthToken.value !== '(') {
+                    errors.push(`Line ${token.line}: Invalid function definition - 'def()' followed by '->' without function body. Expected: def name(params) (body) or def "name" "params" (body)`);
+                  } else {
+                    const sixthToken = tokens[i + 5];
+                    if (sixthToken && sixthToken.type === 'keyword' && sixthToken.value === 'return') {
+                      if (fifthToken.line === sixthToken.line) {
+                        errors.push(`Line ${token.line}: Invalid arrow function syntax - 'def() -> (return ...)' is invalid. Return must be on a new line. Use: def() -> (\n  return ...\n) or: () -> "result"`);
+                      }
+                    }
+                  }
+                }
+              }
+            }
+            
+            statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
+            break;
+            
+          case 'if':
+            statementStack.push({ type: 'if', line: token.line + 1, parenDepth: 0, hasElse: false });
+            break;
+            
+          case 'else':
+            const ifContext = statementStack.slice().reverse().find(t => t.type === 'if');
+            if (!ifContext) {
+              errors.push(`Line ${token.line + 1}: Unexpected 'else' without matching 'if'`);
+            } else {
+              ifContext.hasElse = true;
+              const ifIdx = statementStack.findIndex(t => t === ifContext);
+              if (ifIdx !== -1) {
+                statementStack.splice(ifIdx, 1);
+              }
+            }
+            break;
+            
+          case 'while':
+          case 'for':
+          case 'each':
+          case 'loop':
+            statementStack.push({ type: token.value, line: token.line + 1, parenDepth: 0 });
+            break;
+            
+          case 'switch':
+            statementStack.push({ type: 'switch', line: token.line + 1, parenDepth: 0 });
+            break;
+            
+          case 'case':
+          case 'default':
+            const switchContext = statementStack.find(t => t.type === 'switch');
+            if (!switchContext) {
+              errors.push(`Line ${token.line + 1}: '${token.value}' keyword can only be used inside switch statement`);
+            }
+            break;
+            
+          case 'return':
+            const funcContext = statementStack.slice().reverse().find(t => t.type === 'def');
+            if (!funcContext) {
+              errors.push(`Line ${token.line + 1}: 'return' statement can only be used inside a function`);
+            }
+            break;
+            
+          case 'break':
+          case 'continue':
+            const loopContext = statementStack.slice().reverse().find(t => 
+              ['for', 'while', 'each', 'loop', 'switch'].includes(t.type)
+            );
+            if (!loopContext) {
+              errors.push(`Line ${token.line + 1}: '${token.value}' statement can only be used inside loops or switch`);
+            }
+            break;
+        }
+      }
+      
+      if (token.type === 'bracket' && token.value === '(' && statementStack.length > 0) {
+        statementStack[statementStack.length - 1].parenDepth++;
+      }
+      
+      if (token.type === 'bracket' && token.value === ')' && statementStack.length > 0) {
+        const topCtx = statementStack[statementStack.length - 1];
+        if (topCtx && topCtx.parenDepth > 0) {
+          topCtx.parenDepth--;
+        } else if (topCtx && topCtx.parenDepth === 1 && topCtx.type === 'if') {
+          topCtx.parenDepth--;
+        } else if (topCtx) {
+          statementStack.pop();
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateFunctionSyntax(tokens) {
+    const errors = [];
+    
+    // Remove all function syntax validation related to arrow operators
+    // The -> operator is valid in OSL and should not be checked
+    
+    return errors;
+  }
+
+  lintSyntax(codeStr, silent = true) {
+    const errors = [];
+    if (!silent) console.log("Starting OSL syntax check...\n");
+    
+    const startTime = Date.now();
+    
+    const tokens = this.tokeniseCode(codeStr);
+    const tokenTime = Date.now() - startTime;
+    
+    if (!silent) {
+      console.log(`Tokenized in ${tokenTime}ms`);
+      console.log(`Found ${tokens.length} tokens\n`);
+    }
+    
+    errors.push(...this.validateStrings(tokens));
+    errors.push(...this.validateComments(tokens));
+    errors.push(...this.validateBrackets(tokens));
+    errors.push(...this.validateVariableNames(tokens));
+    errors.push(...this.validateOperators(tokens));
+    errors.push(...this.validateTypes(tokens));
+    errors.push(...this.validateStatements(tokens));
+    errors.push(...this.validateFunctionSyntax(tokens));
+    
+    const totalTime = Date.now() - startTime;
+    
+    if (!silent) {
+      if (errors.length === 0) {
+        console.log(`✓ No syntax errors found (checked in ${totalTime}ms)`);
+      } else {
+        console.log(`✗ Found ${errors.length} syntax error(s):\n`);
+        errors.forEach((err, idx) => {
+          if (typeof err === 'object' && err.message) {
+            console.log(`  ${idx + 1}. ${err.message}`);
+          } else {
+            console.log(`  ${idx + 1}. ${err}`);
+          }
+        });
+      }
+    }
+    
+    return { tokens, errors, timing: { tokenization: tokenTime, total: totalTime } };
+  }
+}
 class OSLUtils {
   constructor() {
     this.regex = /"[^"]+"|{[^}]+}|\[[^\]]+\]|[^."(]*\((?:(?:"[^"]+")*[^.]+)*|\d[\d.]+\d|[^." ]+/g;
@@ -213,6 +797,8 @@ class OSLUtils {
 
     this.scopes = [];
     this.scope = null;
+
+    this.linter = new OSLLinter();
 
     // Track variables and their usage for dead code elimination
     this.variableUsage = new Map();
@@ -455,6 +1041,18 @@ class OSLUtils {
             },
           },
         },
+        {
+          opcode: "lintSyntax",
+          blockType: Scratch.BlockType.REPORTER,
+          text: "Lint Syntax [CODE]",
+          arguments: {
+            CODE: {
+              type: Scratch.ArgumentType.STRING,
+              defaultValue: 'log "hello"',
+            },
+          },
+        },
+        "---",
         {
           opcode: "setOperators",
           blockType: Scratch.BlockType.COMMAND,
@@ -831,7 +1429,7 @@ class OSLUtils {
     }
     else if (cur === "null") return { type: "unk", num: this.tkn.unk, data: null, inferredType: "null" }
     else if (["if", "else", "as", "to", "from", "extends"].includes(cur)) return { type: "cmd", num: this.tkn.cmd, data: cur }
-    else if (cur.match(/^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/)) {
+    else if (cur.match(VAR_REGEX)) {
       const varData = this.getVariableData(cur);
       const inferredType = varData?.type || 'any';
       const token = {
@@ -1811,6 +2409,11 @@ class OSLUtils {
     }
 
     return false;
+  }
+
+  lintSyntax(codeStr) {
+    let tokens = this.linter.tokeniseCode(codeStr);
+    return this.linter.lintSyntax(tokens, true);
   }
 
   applyTypes(AST) {
@@ -3716,13 +4319,12 @@ if (typeof Scratch !== "undefined") {
       return JSON.stringify(obj);
     }
 
+    const code = fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+
     const result = utils.generateFullAST({
-      f: `
-      log "hello" is "string" is "boolean"
-      
-      `, CODE: fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+       CODE: code
     });
 
-    fs.writeFileSync("lol.json", formatByslJson(result));
+    fs.writeFileSync("lol.json", JSON.stringify(utils.lintSyntax(code), null, 2));
   }
 }
