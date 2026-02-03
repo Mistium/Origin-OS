@@ -70,6 +70,7 @@ if loaded (
     loc -2 2 count * -30 -92
     image "https://raw.githubusercontent.com/Mistium/DiscordBadges/main/" ++ badges.[count] ++ ".png" 25
   )
+)
 if loaded (
   loc 2 2 25 -145
   c #fff

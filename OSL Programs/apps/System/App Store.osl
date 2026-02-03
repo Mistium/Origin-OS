@@ -9,9 +9,9 @@ permission "request" "rotur token"
 
 window "dimensions" 750 800
 save "appstore@system" "set_directory"
-if "installed.json".saveExists().not() (
+if !"installed.json".saveExists() (
   save "installed.json" "set" {}
-) else if "installed.json".saveGet().isType("object").not() (
+) else if typeof("installed.json".saveGet()) == "object" (
   save "installed.json" "set" {}
 )
 
@@ -29,17 +29,25 @@ page_history = [{
   page: "home"
 }]
 
-def installApp(cur, page_data) (
+array say_queue = []
+def say(message) (
+  say_queue.append(message)
+)
+
+def installApp(cur, page_data, message) (
   file "goto_dir" "~/Applications"
-  local data = ("https://apps.rotur.dev/apps/download/" ++ cur.title ++ "/osl?auth=" ++ roturToken()).httpGet()
-  if data.ok == false (
-    say data.error
-    return
-  )
-  file "set_file" cur.title ++ ".osl" data
-  file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
-  file "set" 11 cur.icon
-  file "close"
+  void requests.getAsync("https://apps.rotur.dev/apps/download/" ++ cur.title ++ "/osl?auth=" ++ roturToken())
+    .then(resp -> (
+      if resp.body.ok == false (
+        say(resp.body.error)
+        return
+      )
+      file "set_file" cur.title ++ ".osl" resp.body
+      file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
+      file "set" 11 cur.icon
+      file "close"
+      say(message)
+    ))
 )
 
 def appCard(name) (
@@ -311,8 +319,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
           file "start"
           file "close"
         ) else if !msg.startsWith("Buy ") or "Are you sure you want to buy this app?".confirm() (
-          installApp(cur, page_data)
-          say "Installed to " ++ username ++ "/Applications"
+          installApp(cur, page_data, "Installed to " ++ username ++ "/Applications")
 
           save_data[cur.title] = cur.version
           save "installed.json" "set" save_data
@@ -329,8 +336,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         change -20 -20
         open_rightclick [
           {"Reinstall": def(v) -> (
-            installApp(v.cur, v.page_data)
-            say "Reinstalled " ++ v.cur.title
+            installApp(v.cur, v.page_data, "Reinstalled " ++ v.cur.title)
           )},
           {"Uninstall": def(v) -> (
             file "goto_dir" "~/Applications"
@@ -409,6 +415,10 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       page_len += 120
       break
   )
+)
+
+if say_queue.len > 0 (
+  say say_queue.pop()
 )
 
 import "win-buttons"
