@@ -85,7 +85,7 @@ const tests = [
 
       test()
     `,
-    { expect: [{ key: "1234" }] }
+    { expect: [ ["1234"] ] }
   ),
 
   helper.createTest(

@@ -20,19 +20,16 @@ def main() (
 
   local is12h = user.timeformat.hours == "12h"
   local hour = time.hour
-  local time = ""
+  local time = hour.toStr().padStart("0", 2)
 
   if is12h (
     if hour > 12 (
       time = (hour - 12)
         .toStr()
         .padStart("0", 2)
-    )
-    if hour < 1 (
+    ) else if hour < 1 (
       time = "12"
     )
-  ) else (
-    time = hour.toStr().padStart("0", 2)
   )
 
   time ++= ":" ++ minute
