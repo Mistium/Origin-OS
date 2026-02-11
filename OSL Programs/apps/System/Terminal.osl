@@ -44,7 +44,9 @@ if exists (
 
 def evalCmd(cmd) (
   local tokens = cmd.oslTokenise()
-  local path = parseFilePath("~/:path/" ++ tokens[1] ++ ".osl")
+  string first = tokens[1]
+  string path = first.startsWith("./") ? (terminal.pwd.replaceFirst("origin/", "/") ++ "/" ++ first.trim(3, -1)) ("~/:path/" ++ first ++ ".osl")
+  path = parseFilePath(path)
   file "exists" path
   local data = open(path)
   if data == null or !exists (
