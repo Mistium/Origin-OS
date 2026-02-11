@@ -201,7 +201,7 @@ while true (
         ins = ins.toUpper()
       )
       line @= line.insert(cursor_pos[1] - 1, ins)
-      line_num.clamp(1, textf.len)
+      line_num = line_num.clamp(1, textf.len)
       textf[line_num] = line
       cursor_pos[1] = cursor_num + ins.len + 1
       cursor_pos[2] = line_num
