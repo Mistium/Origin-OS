@@ -316,61 +316,92 @@ class OSLLinter {
         }
         
         if (char === '`') {
+          const templateOpenStart = i - currentLineStart;
+          tokens.push({ type: 'template_open', value: '`', line: currentLine, start: templateOpenStart, end: templateOpenStart + 1 });
+          
           const line = currentLine;
-          let template = '`';
           i++;
-          let inExpression = false;
-          let exprDepth = 0;
+          let currentSegment = '';
+          let segmentStart = i - currentLineStart - 1;
           
           while (i < code.length) {
             if (code[i] === '\\' && i + 1 < code.length) {
-              template += code[i] + code[i + 1];
+              currentSegment += code[i] + code[i + 1];
               i += 2;
               continue;
             }
-            if (code[i] === '`' && !inExpression) {
-              template += '`';
+            if (code[i] === '`') {
+              if (currentSegment.length > 0) {
+                tokens.push({ type: 'template_string', value: currentSegment, line: currentLine, start: segmentStart, end: segmentStart + currentSegment.length });
+              }
+              tokens.push({ type: 'template_close', value: '`', line: currentLine, start: i - currentLineStart, end: i - currentLineStart + 1 });
               i++;
               break;
             }
-            if (code[i] === '$' && code[i + 1] === '{' && !inExpression) {
-              template += '${';
-              i += 2;
-              inExpression = true;
-              exprDepth = 1;
-              continue;
-            }
-            if (code[i] === '}' && inExpression) {
-              exprDepth--;
-              template += code[i];
-              i++;
-              if (exprDepth === 0) {
-                inExpression = false;
+            if (code[i] === '$' && i + 1 < code.length && code[i + 1] === '{') {
+              if (currentSegment.length > 0) {
+                tokens.push({ type: 'template_string', value: currentSegment, line: currentLine, start: segmentStart, end: segmentStart + currentSegment.length });
               }
-              continue;
-            }
-            if (inExpression) {
-              if (code[i] === '{') exprDepth++;
-              if (code[i] === '}') exprDepth--;
-              template += code[i];
-              i++;
+              const exprOpenStart = i - currentLineStart;
+              tokens.push({ type: 'template_expr_open', value: '${', line: currentLine, start: exprOpenStart, end: exprOpenStart + 2 });
+              i += 2;
+              
+              let depth = 1;
+              const exprStart = i - currentLineStart;
+              const originalI = i;
+              let foundEnd = false;
+              
+              while (i < code.length && depth > 0) {
+                if (code[i] === '{') depth++;
+                if (code[i] === '}') depth--;
+                if (depth === 0) {
+                  foundEnd = true;
+                  break;
+                }
+                i++;
+              }
+              
+              if (foundEnd) {
+                const exprCode = code.slice(originalI, i);
+                if (exprCode.trim().length > 0) {
+                  const exprTokens = this.tokeniseCode(exprCode);
+                  for (const exprToken of exprTokens) {
+                    exprToken.line = currentLine;
+                    exprToken.start += exprStart;
+                    exprToken.end += exprStart;
+                    if (exprToken.type !== 'unknown' || exprToken.value.trim() !== '') {
+                      tokens.push(exprToken);
+                    }
+                  }
+                }
+                const exprCloseStart = i - currentLineStart;
+                tokens.push({ type: 'template_expr_close', value: '}', line: currentLine, start: exprCloseStart, end: exprCloseStart + 1 });
+                i++;
+              } else {
+                i = code.length;
+              }
+              
+              currentSegment = '';
+              segmentStart = i - currentLineStart;
               continue;
             }
             if (code[i] === '\n') {
-              break;
+              if (currentSegment.length > 0) {
+                tokens.push({ type: 'template_string', value: currentSegment, line: currentLine, start: segmentStart, end: segmentStart + currentSegment.length });
+              }
+              tokens.push({ type: 'newline', value: '\n', line: currentLine, start: i - currentLineStart, end: i - currentLineStart + 1 });
+              currentLine++;
+              currentLineStart = i + 1;
+              i++;
+              currentSegment = '';
+              segmentStart = i - currentLineStart;
+              continue;
             }
-            template += code[i];
+            currentSegment += code[i];
             i++;
           }
-          if (template[template.length - 1] !== '`') {
-            tokens.push({ type: 'template', value: template, line: line, start, end: i - currentLineStart });
-            currentLine++;
-            currentLineStart = i;
-            continue;
-          } else {
-            tokens.push({ type: 'template', value: template, line: line, start, end: i - currentLineStart });
-            continue;
-          }
+          
+          continue;
         }
         
         if (/[0-9]/.test(char) || (char === '-' && i + 1 < code.length && /[0-9]/.test(code[i + 1]))) {
@@ -446,7 +477,7 @@ class OSLLinter {
           const firstChar = token.value[0];
           const lastChar = token.value[token.value.length - 1];
           
-          if ((firstChar === '"' && lastChar !== '"') || 
+          if ((firstChar === '"' && lastChar !== '"') ||
               (firstChar === "'" && lastChar !== "'")) {
             errors.push({
               message: `Unclosed string literal - missing closing ${firstChar}`,
@@ -457,16 +488,47 @@ class OSLLinter {
             });
           }
         }
-      } else if (token.type === 'template') {
-        if (token.value.length < 2 || token.value[0] !== '`' || token.value[token.value.length - 1] !== '`') {
+      }
+    }
+    
+    const templateStack = [];
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
+      
+      if (token.type === 'template_open') {
+        templateStack.push('`');
+      }
+      
+      if (token.type === 'template_close') {
+        if (templateStack.length === 0) {
           errors.push({
-            message: `Unclosed template literal - missing closing \``,
+            message: `Unexpected closing template literal \` - no matching opening`,
             line: token.line + 1,
-            tokenIndex: tokens.indexOf(token),
+            tokenIndex: i,
             highlightStart: token.start,
-            highlightEnd: token.start + 1
+            highlightEnd: token.end
           });
+        } else {
+          templateStack.pop();
         }
+      }
+      
+      if (token.type === 'template_expr_close') {
+        if (templateStack.length === 0 || templateStack[templateStack.length - 1] !== '${') {
+          errors.push({
+            message: `Unexpected closing } in template literal - no matching \${`,
+            line: token.line + 1,
+            tokenIndex: i,
+            highlightStart: token.start,
+            highlightEnd: token.end
+          });
+        } else {
+          templateStack.pop();
+        }
+      }
+      
+      if (token.type === 'template_expr_open') {
+        templateStack.push('${');
       }
     }
     
@@ -498,21 +560,40 @@ class OSLLinter {
     const errors = [];
     const stack = [];
     const pairs = { '(': ')', '[': ']', '{': '}' };
+    let inTemplateExpr = false;
+    let templateExprDepth = 0;
     
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
+      
+      if (token.type === 'template_expr_open') {
+        templateExprDepth++;
+        inTemplateExpr = true;
+      }
+      
+      if (token.type === 'template_expr_close') {
+        templateExprDepth--;
+        if (templateExprDepth === 0) {
+          inTemplateExpr = false;
+        }
+      }
+      
       if (token.type === 'bracket') {
         if (['(', '[', '{'].includes(token.value)) {
-          stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: i });
+          if (!inTemplateExpr) {
+            stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: i });
+          }
         } else {
           if (stack.length === 0) {
-            errors.push({
-              message: `Unexpected closing '${token.value}' with no matching opening bracket`,
-              line: token.line + 1,
-              tokenIndex: i,
-              highlightStart: token.start,
-              highlightEnd: token.end
-            });
+            if (!inTemplateExpr) {
+              errors.push({
+                message: `Unexpected closing '${token.value}' with no matching opening bracket`,
+                line: token.line + 1,
+                tokenIndex: i,
+                highlightStart: token.start,
+                highlightEnd: token.end
+              });
+            }
           } else {
             const last = stack.pop();
             if (pairs[last.bracket] !== token.value) {
@@ -586,6 +667,42 @@ class OSLLinter {
             tokenIndex: i,
             highlightStart: token.start,
             highlightEnd: token.end
+          });
+        }
+      }
+    }
+    
+    return errors;
+  }
+
+  validateAdjacentOperators(tokens) {
+    const errors = [];
+    
+    for (let i = 0; i < tokens.length - 1; i++) {
+      const token = tokens[i];
+      const nextToken = tokens[i + 1];
+      
+      if (token.type === 'operator' && nextToken.type === 'operator') {
+        const combined = token.value + nextToken.value;
+        
+        const explicitlyAllowed = new Set(['++', '--', '::']);
+        
+        const isValidCombined = this.validOperators.has(combined);
+        const isAssignment = (combined[combined.length - 1] === '=');
+        const isOperatorPlusEquals = (token.value !== '=' && nextToken.value === '=');
+        
+        const isAllowed = explicitlyAllowed.has(combined) ||
+                         isValidCombined ||
+                         isAssignment ||
+                         isOperatorPlusEquals;
+        
+        if (!isAllowed) {
+          errors.push({
+            message: `Invalid adjacent operators '${token.value}${nextToken.value}' - operators cannot be adjacent unless forming a valid operator (e.g., '++', '--', '::') or an assignment operator (e.g., '+=', '&=')`,
+            line: token.line + 1,
+            tokenIndex: i,
+            highlightStart: token.start,
+            highlightEnd: nextToken.end
           });
         }
       }
@@ -843,6 +960,7 @@ class OSLLinter {
     errors.push(...this.validateBrackets(tokens));
     errors.push(...this.validateVariableNames(tokens));
     errors.push(...this.validateOperators(tokens));
+    errors.push(...this.validateAdjacentOperators(tokens));
     errors.push(...this.validateTypes(tokens));
     errors.push(...this.validateStatements(tokens));
     errors.push(...this.validateFunctionSyntax(tokens));
@@ -4246,8 +4364,7 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = `void def() -> (log "hi"
-    )`
+    const code = 'log 10 =! 10'
 
     const result = utils.lintSyntax({CODE: code});
 
