@@ -2271,8 +2271,7 @@ class OSLUtils {
   }
 
   lintSyntax(codeStr) {
-    let tokens = this.linter.tokeniseCode(codeStr);
-    return this.linter.lintSyntax(tokens, true);
+    return this.linter.lintSyntax(codeStr, true);
   }
 
   applyTypes(AST) {
@@ -4127,12 +4126,10 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
+    const code = `lol = 10 + (`
 
-    const result = utils.generateFullAST({
-       CODE: code
-    });
+    const result = utils.lintSyntax(code);
 
-    fs.writeFileSync("lol.json", result)
+    fs.writeFileSync("lol.json", JSON.stringify(result, null, 2));
   }
 }
