@@ -614,13 +614,14 @@ class OSLLinter {
             if (depth === 0) {
               const nextToken = tokens[j + 1];
               if (nextToken && nextToken.type === 'bracket' && nextToken.value === '(') {
-                if (tokens[j].line === nextToken.line) {
+                const tokenAfterOpen = tokens[j + 2];
+                if (tokenAfterOpen && tokenAfterOpen.type !== 'newline') {
                   errors.push({
-                    message: `'${keywordVal}' statement body must be on a new line - expected newline before '('`,
+                    message: `'${keywordVal}' statement body must be on a new line - expected newline after '('`,
                     line: nextToken.line + 1,
-                    tokenIndex: j + 1,
-                    highlightStart: nextToken.start,
-                    highlightEnd: nextToken.end
+                    tokenIndex: j + 2,
+                    highlightStart: tokenAfterOpen.start,
+                    highlightEnd: tokenAfterOpen.end
                   });
                 }
               }
@@ -4252,7 +4253,8 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = `if (true) (log "hi")`
+    const code = `if (true) (log "hi"
+    )`
 
     const result = utils.lintSyntax({CODE: code});
 
