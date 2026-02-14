@@ -648,22 +648,16 @@ class OSLLinter {
       }
     };
 
-    const validateDefBody = (defIdx, closingParenIdx, arrowIdx) => {
-      let bodyIdx = -1;
-      if (arrowIdx !== -1) {
-        bodyIdx = arrowIdx + 1;
-      } else {
-        bodyIdx = closingParenIdx + 1;
-      }
-
-      const bodyToken = tokens[bodyIdx];
+    const validateDefBody = (defIdx) => {
+      const bodyToken = tokens[defIdx];
+      console.log(bodyToken)
       if (bodyToken && bodyToken.type === 'bracket' && bodyToken.value === '(') {
-        const prevToken = arrowIdx !== -1 ? tokens[arrowIdx] : tokens[closingParenIdx];
-        if (prevToken && bodyToken.line === prevToken.line) {
+        const nextToken = tokens[defIdx + 1];
+        if (nextToken && nextToken.type !== 'newline') {
           errors.push({
-            message: `Function definition body must be on a new line - expected newline before '('`,
+            message: `Function definition body must be on a new line - expected newline after '('`,
             line: bodyToken.line + 1,
-            tokenIndex: bodyIdx,
+            tokenIndex: defIdx,
             highlightStart: bodyToken.start,
             highlightEnd: bodyToken.end
           });
@@ -681,13 +675,13 @@ class OSLLinter {
               if (tokens[i + 2]?.type === 'bracket' && tokens[i + 2].value === '(') {
                 if (tokens[i + 3]?.type === 'bracket' && tokens[i + 3].value === ')') {
                   const hasArrow = tokens[i + 4]?.type === 'operator' && tokens[i + 4].value === '->';
-                  validateDefBody(i, i + 3, hasArrow ? i + 4 : -1);
+                  validateDefBody(i + 4 + (hasArrow ? 1 : 0));
                 }
               }
             } else if (tokens[i + 1]?.type === 'bracket' && tokens[i + 1].value === '(') {
               if (tokens[i + 2]?.type === 'bracket' && tokens[i + 2].value === ')') {
                 const hasArrow = tokens[i + 3]?.type === 'operator' && tokens[i + 3].value === '->';
-                validateDefBody(i, i + 2, hasArrow ? i + 3 : -1);
+                validateDefBody(i + 3 + (hasArrow ? 1 : 0));
               }
             }
             statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
@@ -4253,7 +4247,7 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = `if (true) (log "hi"
+    const code = `void def() -> (log "hi"
     )`
 
     const result = utils.lintSyntax({CODE: code});
