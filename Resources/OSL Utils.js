@@ -2270,8 +2270,8 @@ class OSLUtils {
     return false;
   }
 
-  lintSyntax(codeStr) {
-    return this.linter.lintSyntax(codeStr, true);
+  lintSyntax({CODE}) {
+    return this.linter.lintSyntax(CODE, true);
   }
 
   applyTypes(AST) {
