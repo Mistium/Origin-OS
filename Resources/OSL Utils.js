@@ -650,7 +650,6 @@ class OSLLinter {
 
     const validateDefBody = (defIdx) => {
       const bodyToken = tokens[defIdx];
-      console.log(bodyToken)
       if (bodyToken && bodyToken.type === 'bracket' && bodyToken.value === '(') {
         const nextToken = tokens[defIdx + 1];
         if (nextToken && nextToken.type !== 'newline') {
