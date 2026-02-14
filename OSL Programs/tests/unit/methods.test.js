@@ -85,6 +85,33 @@ const tests = [
   ),
 
   helper.createTest(
+    'Array concat method',
+    `
+      arr = [1,2,3]
+      log arr.concat([4,5,6])
+    `,
+    { expect: [ [1,2,3,4,5,6] ] }
+  ),
+
+  helper.createTest(
+    'string index method',
+    `
+      msg = "hello"
+      log msg.index("l")
+    `,
+    { expect: [3] }
+  ),
+
+  helper.createTest(
+    'array index method',
+    `
+      arr = [1,2,3]
+      log arr.index(2)
+    `,
+    { expect: [2] }
+  ),
+
+  helper.createTest(
     '.sin() method',
     createGlobalMethodTest('sin', numberValues),
     {
