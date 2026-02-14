@@ -174,15 +174,16 @@ class OSLLinter {
       'try', 'catch', 'import', 'permission', 'save', 'file', 
       'window', 'network', 'each', 'until', 'loop', 'local', 
       'endef', 'defer', 'mainloop', 'void', 'and', 'or', 'not',
-      'in', 'nor', 'xor', 'xnor', 'nand'
+      'in', 'to', 'is', 'nor', 'xor', 'xnor', 'nand'
     ]);
     
     this.validOperators = new Set([
-      '=', '@=', '+=', '-=', '*=', '/=', '++', '--', 
-      '+', '-', '*', '/', '//', '%', '^', '==', '!=', 
-      '>', '<', '>=', '<=', '::', '??', '|>', 
+      '=', '@=', '+=', '-=', '*=', '/=', '++', '--',
+      '+', '-', '*', '/', '//', '%', '^', '==', '!=',
+      '>', '<', '>=', '<=', '::', '??', '|>',
       '|', '&', '<<', '>>', '>>>', '<<<', '?', ':',
-      '&&=', '||=', '%=', '<<=', '>>=', '>>>=', '!', '->'
+      '&&=', '||=', '%=', '<<=', '>>=', '>>>=', '!', '->',
+      'in', 'to', 'is'
     ]);
     
     this.validTypes = new Set([
@@ -475,10 +476,17 @@ class OSLLinter {
   validateComments(tokens) {
     const errors = [];
     
-    for (const token of tokens) {
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
       if (token.type === 'comment') {
         if (token.value.startsWith('/*') && !token.value.endsWith('*/')) {
-          errors.push(`Line ${token.line + 1}: Unclosed multi-line comment - missing */`);
+          errors.push({
+            message: `Unclosed multi-line comment - missing */`,
+            line: token.line + 1,
+            tokenIndex: i,
+            highlightStart: token.start,
+            highlightEnd: token.end
+          });
         }
       }
     }
@@ -491,17 +499,30 @@ class OSLLinter {
     const stack = [];
     const pairs = { '(': ')', '[': ']', '{': '}' };
     
-    for (const token of tokens) {
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
       if (token.type === 'bracket') {
         if (['(', '[', '{'].includes(token.value)) {
-          stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: tokens.indexOf(token) });
+          stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: i });
         } else {
           if (stack.length === 0) {
-            errors.push(`Line ${token.line + 1}: Unexpected closing '${token.value}' with no matching opening bracket`);
+            errors.push({
+              message: `Unexpected closing '${token.value}' with no matching opening bracket`,
+              line: token.line + 1,
+              tokenIndex: i,
+              highlightStart: token.start,
+              highlightEnd: token.end
+            });
           } else {
             const last = stack.pop();
             if (pairs[last.bracket] !== token.value) {
-              errors.push(`Line ${token.line + 1}: Mismatched brackets - expected '${pairs[last.bracket]}' to match '${last.bracket}' from line ${last.line}, got '${token.value}'`);
+              errors.push({
+                message: `Mismatched brackets - expected '${pairs[last.bracket]}' to match '${last.bracket}' from line ${last.line}, got '${token.value}'`,
+                line: token.line + 1,
+                tokenIndex: i,
+                highlightStart: token.start,
+                highlightEnd: token.end
+              });
             }
           }
         }
@@ -525,16 +546,25 @@ class OSLLinter {
     const errors = [];
     const varRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
     
-    for (const token of tokens) {
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
       if (token.type === 'identifier') {
         if (!varRegex.test(token.value)) {
+          let message;
           if (/[0-9]/.test(token.value[0])) {
-            errors.push(`Line ${token.line + 1}: Invalid identifier '${token.value}' - must start with letter or underscore, not a number`);
+            message = `Invalid identifier '${token.value}' - must start with letter or underscore, not a number`;
           } else if (/[^a-zA-Z0-9_]/.test(token.value)) {
-            errors.push(`Line ${token.line + 1}: Invalid identifier '${token.value}' - contains invalid characters`);
+            message = `Invalid identifier '${token.value}' - contains invalid characters`;
           } else {
-            errors.push(`Line ${token.line + 1}: Invalid identifier '${token.value}' - must start with letter or underscore and contain only letters, numbers, and underscores`);
+            message = `Invalid identifier '${token.value}' - must start with letter or underscore and contain only letters, numbers, and underscores`;
           }
+          errors.push({
+            message,
+            line: token.line + 1,
+            tokenIndex: i,
+            highlightStart: token.start,
+            highlightEnd: token.end
+          });
         }
       }
     }
@@ -545,11 +575,18 @@ class OSLLinter {
   validateOperators(tokens) {
     const errors = [];
     
-    for (const token of tokens) {
+    for (let i = 0; i < tokens.length; i++) {
+      const token = tokens[i];
       if (token.type === 'unknown') {
         const validOps = Array.from(this.validOperators).sort().join(', ');
         if (!this.validOperators.has(token.value) && token.value.match(/^[+\-*/%^&=|<>!?:]+$/)) {
-          errors.push(`Line ${token.line + 1}: Unknown operator '${token.value}' - valid operators: ${validOps}`);
+          errors.push({
+            message: `Unknown operator '${token.value}' - valid operators: ${validOps}`,
+            line: token.line + 1,
+            tokenIndex: i,
+            highlightStart: token.start,
+            highlightEnd: token.end
+          });
         }
       }
     }
@@ -559,21 +596,7 @@ class OSLLinter {
 
   validateTypes(tokens) {
     const errors = [];
-    const validTypeList = Array.from(this.validTypes).sort().join(', ');
-    
-    for (let i = 0; i < tokens.length; i++) {
-      const token = tokens[i];
-      
-      if (token.type === 'identifier' && this.validTypes.has(token.value)) {
-        const prevToken = tokens[i - 1];
-        const nextToken = tokens[i + 1];
-        
-        if (nextToken && nextToken.type === 'identifier') {
-          continue;
-        }
-      }
-    }
-    
+
     return errors;
   }
 
@@ -606,12 +629,24 @@ class OSLLinter {
                 if (fourthToken && fourthToken.type === 'operator' && fourthToken.value === '->') {
                   const fifthToken = tokens[i + 4];
                   if (!fifthToken || fifthToken.type !== 'bracket' || fifthToken.value !== '(') {
-                    errors.push(`Line ${token.line}: Invalid function definition - 'def()' followed by '->' without function body. Expected: def name(params) (body) or def "name" "params" (body)`);
+                    errors.push({
+                      message: `Invalid function definition - 'def()' followed by '->' without function body. Expected: def name(params) (body) or def "name" "params" (body)`,
+                      line: token.line + 1,
+                      tokenIndex: i,
+                      highlightStart: token.start,
+                      highlightEnd: token.end
+                    });
                   } else {
                     const sixthToken = tokens[i + 5];
                     if (sixthToken && sixthToken.type === 'keyword' && sixthToken.value === 'return') {
                       if (fifthToken.line === sixthToken.line) {
-                        errors.push(`Line ${token.line}: Invalid arrow function syntax - 'def() -> (return ...)' is invalid. Return must be on a new line. Use: def() -> (\n  return ...\n) or: () -> "result"`);
+                        errors.push({
+                          message: `Invalid arrow function syntax - 'def() -> (return ...)' is invalid. Return must be on a new line. Use: def() -> (\n  return ...\n) or: () -> "result"`,
+                          line: token.line + 1,
+                          tokenIndex: i,
+                          highlightStart: token.start,
+                          highlightEnd: token.end
+                        });
                       }
                     }
                   }
@@ -629,7 +664,13 @@ class OSLLinter {
           case 'else':
             const ifContext = statementStack.slice().reverse().find(t => t.type === 'if');
             if (!ifContext) {
-              errors.push(`Line ${token.line + 1}: Unexpected 'else' without matching 'if'`);
+              errors.push({
+                message: `Unexpected 'else' without matching 'if'`,
+                line: token.line + 1,
+                tokenIndex: i,
+                highlightStart: token.start,
+                highlightEnd: token.end
+              });
             } else {
               ifContext.hasElse = true;
               const ifIdx = statementStack.findIndex(t => t === ifContext);
@@ -654,14 +695,26 @@ class OSLLinter {
           case 'default':
             const switchContext = statementStack.find(t => t.type === 'switch');
             if (!switchContext) {
-              errors.push(`Line ${token.line + 1}: '${token.value}' keyword can only be used inside switch statement`);
+              errors.push({
+                message: `'${token.value}' keyword can only be used inside switch statement`,
+                line: token.line + 1,
+                tokenIndex: i,
+                highlightStart: token.start,
+                highlightEnd: token.end
+              });
             }
             break;
             
           case 'return':
             const funcContext = statementStack.slice().reverse().find(t => t.type === 'def');
             if (!funcContext) {
-              errors.push(`Line ${token.line + 1}: 'return' statement can only be used inside a function`);
+              errors.push({
+                message: `'return' statement can only be used inside a function`,
+                line: token.line + 1,
+                tokenIndex: i,
+                highlightStart: token.start,
+                highlightEnd: token.end
+              });
             }
             break;
             
@@ -671,7 +724,13 @@ class OSLLinter {
               ['for', 'while', 'each', 'loop', 'switch'].includes(t.type)
             );
             if (!loopContext) {
-              errors.push(`Line ${token.line + 1}: '${token.value}' statement can only be used inside loops or switch`);
+              errors.push({
+                message: `'${token.value}' statement can only be used inside loops or switch`,
+                line: token.line + 1,
+                tokenIndex: i,
+                highlightStart: token.start,
+                highlightEnd: token.end
+              });
             }
             break;
         }
@@ -698,10 +757,7 @@ class OSLLinter {
 
   validateFunctionSyntax(tokens) {
     const errors = [];
-    
-    // Remove all function syntax validation related to arrow operators
-    // The -> operator is valid in OSL and should not be checked
-    
+  
     return errors;
   }
 
@@ -3031,6 +3087,7 @@ class OSLUtils {
         return 'string';
       }
       case 'is':
+      case 'in':
       case '==':
       case '!=':
       case '>':
@@ -4126,9 +4183,9 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = `lol = 10 + (`
+    const code = `lol = 10 to 1`
 
-    const result = utils.lintSyntax(code);
+    const result = utils.lintSyntax({CODE: code});
 
     fs.writeFileSync("lol.json", JSON.stringify(result, null, 2));
   }
