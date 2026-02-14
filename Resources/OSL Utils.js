@@ -911,53 +911,8 @@ class OSLUtils {
       bsl: 26
     }
 
-    this.byslTypes = {
-      tot: 0,
-      var: 1,
-      num: 2,
-      "+": 3,
-      "-": 4,
-      "*": 5,
-      "/": 6,
-      prp: 7, // get object prop
-      ">": 8,
-      "<": 9,
-      "==": 10,
-      "!=": 11,
-      and: 12,
-      or: 13,
-      unk: 14,
-      str: 15,
-      "%": 16,
-      "^": 17,
-      "//": 18,
-      "??": 19,
-      "++": 20,
-      ">=": 21,
-      "<=": 22,
-      "!>": 23,
-      "!<": 24,
-      "===": 25,
-      "!==": 26,
-      in: 27,
-      notIn: 28,
-      nor: 29,
-      xor: 30,
-      xnor: 31,
-      nand: 32,
-      "|": 33,
-      "&": 34,
-      "<<": 35,
-      ">>": 36,
-      "^^": 37,
-      "raw": 38,
-      ">>>": 39,
-      "<<<": 40,
-    }
-
     if (typeof window !== "undefined") {
       window.osl_tkn = this.tkn;
-      window.bysl_types = this.byslTypes;
     }
   }
 
@@ -1098,75 +1053,6 @@ class OSLUtils {
         },
       ],
     };
-  }
-
-  // generate the bytecode
-  generateBysl(ast) {
-    const memMap = new Map()
-    const queue = [];
-    const types = this.byslTypes
-
-    function stepAst(node) {
-      queue.push(node)
-      switch (node?.type) {
-        case "opr": case "cmp": case "log": case "bit":
-          stepAst(node.left)
-          stepAst(node.right)
-          break
-        case "evl":
-          stepAst(node.data)
-          break
-      }
-    }
-
-    stepAst(ast)
-
-    // reverse so we can process the nodes in reverse
-    queue.reverse()
-    let out = []
-    try {
-      // only ever push to "out"
-      // this means V8 can keep all the memory sequential and fast
-      for (let i = 0, l = queue.length; i < l; i++) {
-        const cur = queue[i]
-        const size = memMap.size
-        // we always set memory so having this outside the switch is more efficient
-        memMap.set(cur, size)
-        // store the size of the map for each node, allowing the memory location to be specific to the node itself
-        // references allow this to work because the queue is full of references, *not values*
-        switch (cur?.type) {
-          case "var":
-            out.push(size, types.var, cur.data, 0)
-            break
-          case "num": case "unk": case "str": case "raw":
-            out.push(size, types[cur.type], cur.data, 0)
-            break
-          case "opr": case "cmp": case "log": case "bit":
-            if (types[cur.data] === undefined) throw new Error(`'${cur.data}' is unsupported by bysl`)
-            out.push(size, types[cur.data], memMap.get(cur.left), memMap.get(cur.right))
-            break
-          case "mtd":
-            if (bysl_types[cur?.type] === undefined) throw new Error(`'${cur.type}' is unsupported by bysl`)
-            out.push(size, types.var, cur?.data?.[0].data, 0)
-            const data = cur.data
-            for (let j = 1; j < data.length; j++) {
-              const cur2 = data[j]
-              if (cur2.type !== "var") throw new Error(`'${cur2.data}' in mtd must be a var`)
-              out.push(size, types.prp, memMap.get(cur), cur2.data)
-            }
-            break
-          default:
-            throw new Error(`Unsupported node for bysl: '${JSON.stringify(cur)}'`)
-        }
-      }
-
-      // let the interpreter know how much memory is nessecary for this bysl
-      // bad for memory but might be the best way here
-      out.unshift(0, types.tot, memMap.size, 0)
-      return { success: true, code: out }
-    } catch(e) {
-      return { success: false, code: out } // catch when it fails to generate
-    }
   }
 
   // Normalize line endings using pre-compiled regex for better performance
@@ -1933,38 +1819,11 @@ class OSLUtils {
           };
         }
 
-        if (["opr", "cmp", "log", "bit"].includes(cur?.right?.type) && cur.right.bysl === undefined) {
-          const val = this.generateBysl(cur.right)
-          if (val.success) {
-            cur.right = {
-              ...cur.right,
-              otype: cur.right.type,
-              bysl: val.code,
-              type: "bsl",
-              num: this.tkn.bsl,
-              source: cur.right.source,
-            }
-          }
-        }
-
         cur.source = start;
       }
       if (next?.type !== "asi") {
         if (cur.value !== undefined) {
           ast[i] = cur.value;
-        }
-      }
-      if (["opr", "cmp", "log", "bit"].includes(cur?.type) && cur.bysl === undefined) {
-        const val = this.generateBysl(cur)
-        if (val.success) {
-          ast[i] = {
-            ...ast[i],
-            otype: ast[i].type,
-            bysl: val.code,
-            type: "bsl",
-            num: this.tkn.bsl,
-            source: cur.source,
-          }
         }
       }
     }
@@ -4268,63 +4127,12 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    function formatByslJson(obj, indent = 0) {
-      const spaces = '  '.repeat(indent);
-
-      if (Array.isArray(obj)) {
-        if (obj.length > 0 && obj.every(item => typeof item === 'number' || typeof item === 'string' || Array.isArray(item))) {
-          let isByslArray = false;
-          if (obj.length >= 4) {
-            const firstFew = obj.slice(0, 8);
-            const hasNumbers = firstFew.some(item => typeof item === 'number');
-            isByslArray = hasNumbers && obj.length % 4 !== 1;
-          }
-
-          if (isByslArray && obj.length > 8) {
-            let result = '[\n';
-            for (let i = 0; i < obj.length; i += 4) {
-              const chunk = obj.slice(i, i + 4);
-              const formattedChunk = chunk.map(item =>
-                typeof item === 'string' ? JSON.stringify(item) : String(item)
-              ).join(', ');
-              result += `${spaces}  ${formattedChunk}`;
-              if (i + 4 < obj.length) result += ',';
-              result += '\n';
-            }
-            result += `${spaces}]`;
-            return result;
-          }
-        }
-
-        if (obj.length === 0) return '[]';
-        const items = obj.map(item => formatByslJson(item, indent + 1));
-        if (items.every(item => item.length < 50) && items.length <= 3) {
-          return `[${items.join(', ')}]`;
-        }
-        return `[\n${items.map(item => `${spaces}  ${item}`).join(',\n')}\n${spaces}]`;
-      }
-
-      if (obj && typeof obj === 'object' && obj.constructor === Object) {
-        const keys = Object.keys(obj);
-        if (keys.length === 0) return '{}';
-
-        const items = keys.map(key => {
-          const value = formatByslJson(obj[key], indent + 1);
-          return `${JSON.stringify(key)}: ${value}`;
-        });
-
-        return `{\n${items.map(item => `${spaces}  ${item}`).join(',\n')}\n${spaces}}`;
-      }
-
-      return JSON.stringify(obj);
-    }
-
     const code = fs.readFileSync("/Users/sophie/Origin-OS/OSL Programs/apps/System/originWM.osl", "utf-8")
 
     const result = utils.generateFullAST({
        CODE: code
     });
 
-    fs.writeFileSync("lol.json", JSON.stringify(utils.lintSyntax(code), null, 2));
+    fs.writeFileSync("lol.json", result)
   }
 }
