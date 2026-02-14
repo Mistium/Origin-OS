@@ -682,7 +682,7 @@ class OSLLinter {
       const token = tokens[i];
       const nextToken = tokens[i + 1];
       
-      if (token.type === 'operator' && nextToken.type === 'operator') {
+      if (token.type === 'operator' && nextToken.type === 'operator' && !['-', '!'].includes(nextToken.value)) {
         const combined = token.value + nextToken.value;
         
         const explicitlyAllowed = new Set(['++', '--', '::']);
