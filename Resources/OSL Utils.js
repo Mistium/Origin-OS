@@ -603,61 +603,126 @@ class OSLLinter {
   validateStatements(tokens) {
     const errors = [];
     const statementStack = [];
-    
+
+    const checkBodyAfterClosingParen = (keywordVal, tokens, startIndex) => {
+      let depth = 0;
+      for (let j = startIndex; j < tokens.length; j++) {
+        if (tokens[j].type === 'bracket') {
+          if (tokens[j].value === '(') depth++;
+          else if (tokens[j].value === ')') {
+            depth--;
+            if (depth === 0) {
+              const nextToken = tokens[j + 1];
+              if (nextToken && nextToken.type === 'bracket' && nextToken.value === '(') {
+                if (tokens[j].line === nextToken.line) {
+                  errors.push({
+                    message: `'${keywordVal}' statement body must be on a new line - expected newline before '('`,
+                    line: nextToken.line + 1,
+                    tokenIndex: j + 1,
+                    highlightStart: nextToken.start,
+                    highlightEnd: nextToken.end
+                  });
+                }
+              }
+              return;
+            }
+          }
+        }
+      }
+    };
+
+    const checkBodyAfterToken = (keywordVal, tokens, startIndex) => {
+      const nextToken = tokens[startIndex];
+      if (nextToken && nextToken.type === 'bracket' && nextToken.value === '(') {
+        const keywordToken = tokens[startIndex - 1];
+        if (keywordToken && nextToken.line === keywordToken.line) {
+          errors.push({
+            message: `'${keywordVal}' statement body must be on a new line - expected newline before '('`,
+            line: nextToken.line + 1,
+            tokenIndex: startIndex,
+            highlightStart: nextToken.start,
+            highlightEnd: nextToken.end
+          });
+        }
+      }
+    };
+
+    const validateDefBody = (defIdx, closingParenIdx, arrowIdx) => {
+      let bodyIdx = -1;
+      if (arrowIdx !== -1) {
+        bodyIdx = arrowIdx + 1;
+      } else {
+        bodyIdx = closingParenIdx + 1;
+      }
+
+      const bodyToken = tokens[bodyIdx];
+      if (bodyToken && bodyToken.type === 'bracket' && bodyToken.value === '(') {
+        const prevToken = arrowIdx !== -1 ? tokens[arrowIdx] : tokens[closingParenIdx];
+        if (prevToken && bodyToken.line === prevToken.line) {
+          errors.push({
+            message: `Function definition body must be on a new line - expected newline before '('`,
+            line: bodyToken.line + 1,
+            tokenIndex: bodyIdx,
+            highlightStart: bodyToken.start,
+            highlightEnd: bodyToken.end
+          });
+        }
+      }
+    };
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
-      
+
       if (token.type === 'keyword') {
         switch (token.value) {
           case 'def':
-            const nextToken = tokens[i + 1];
-            const thirdToken = tokens[i + 2];
-            
-            if (nextToken && nextToken.type === 'identifier') {
-              statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
-              break;
+            if (tokens[i + 1]?.type === 'identifier') {
+              if (tokens[i + 2]?.type === 'bracket' && tokens[i + 2].value === '(') {
+                if (tokens[i + 3]?.type === 'bracket' && tokens[i + 3].value === ')') {
+                  const hasArrow = tokens[i + 4]?.type === 'operator' && tokens[i + 4].value === '->';
+                  validateDefBody(i, i + 3, hasArrow ? i + 4 : -1);
+                }
+              }
+            } else if (tokens[i + 1]?.type === 'bracket' && tokens[i + 1].value === '(') {
+              if (tokens[i + 2]?.type === 'bracket' && tokens[i + 2].value === ')') {
+                const hasArrow = tokens[i + 3]?.type === 'operator' && tokens[i + 3].value === '->';
+                validateDefBody(i, i + 2, hasArrow ? i + 3 : -1);
+              }
             }
+            statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
+            break;
+
+          case 'if':
+            checkBodyAfterClosingParen('if', tokens, i + 1);
+            statementStack.push({ type: 'if', line: token.line + 1, parenDepth: 0, hasElse: false });
+            break;
             
-            if (nextToken && nextToken.type === 'string') {
-              statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
-              break;
-            }
-            
-            if (nextToken && nextToken.type === 'bracket' && nextToken.value === '(') {
-              if (thirdToken && thirdToken.type === 'bracket' && thirdToken.value === ')') {
-                const fourthToken = tokens[i + 3];
-                if (fourthToken && fourthToken.type === 'operator' && fourthToken.value === '->') {
-                  const fifthToken = tokens[i + 4];
-                  if (!fifthToken || fifthToken.type !== 'bracket' || fifthToken.value !== '(') {
-                    errors.push({
-                      message: `Invalid function definition - 'def()' followed by '->' without function body. Expected: def name(params) (body) or def "name" "params" (body)`,
-                      line: token.line + 1,
-                      tokenIndex: i,
-                      highlightStart: token.start,
-                      highlightEnd: token.end
-                    });
-                  } else {
-                    const sixthToken = tokens[i + 5];
-                    if (sixthToken && sixthToken.type === 'keyword' && sixthToken.value === 'return') {
-                      if (fifthToken.line === sixthToken.line) {
+          case 'if':
+            let bodyParenPos = -1;
+            let depth = 0;
+            for (let j = i + 1; j < tokens.length; j++) {
+              if (tokens[j].type === 'bracket') {
+                if (tokens[j].value === '(') {
+                  depth++;
+                } else if (tokens[j].value === ')') {
+                  depth--;
+                  if (depth === 0) {
+                    if (tokens[j + 1] && tokens[j + 1].type === 'bracket' && tokens[j + 1].value === '(') {
+                      if (tokens[j].line === tokens[j + 1].line) {
                         errors.push({
-                          message: `Invalid arrow function syntax - 'def() -> (return ...)' is invalid. Return must be on a new line. Use: def() -> (\n  return ...\n) or: () -> "result"`,
-                          line: token.line + 1,
-                          tokenIndex: i,
-                          highlightStart: token.start,
-                          highlightEnd: token.end
+                          message: `'${token.value}' statement body must be on a new line - expected newline before '('`,
+                          line: tokens[j + 1].line + 1,
+                          tokenIndex: j + 1,
+                          highlightStart: tokens[j + 1].start,
+                          highlightEnd: tokens[j + 1].end
                         });
                       }
                     }
+                    break;
                   }
                 }
               }
             }
-            
-            statementStack.push({ type: 'def', line: token.line + 1, parenDepth: 0, hasElse: false });
-            break;
-            
-          case 'if':
             statementStack.push({ type: 'if', line: token.line + 1, parenDepth: 0, hasElse: false });
             break;
             
@@ -674,19 +739,23 @@ class OSLLinter {
             } else {
               ifContext.hasElse = true;
               const ifIdx = statementStack.findIndex(t => t === ifContext);
-              if (ifIdx !== -1) {
-                statementStack.splice(ifIdx, 1);
-              }
+              if (ifIdx !== -1) statementStack.splice(ifIdx, 1);
             }
             break;
-            
+
           case 'while':
+          case 'until':
           case 'for':
           case 'each':
-          case 'loop':
+            checkBodyAfterClosingParen(token.value, tokens, i + 1);
             statementStack.push({ type: token.value, line: token.line + 1, parenDepth: 0 });
             break;
-            
+
+          case 'loop':
+            checkBodyAfterToken('loop', tokens, i + 1);
+            statementStack.push({ type: token.value, line: token.line + 1, parenDepth: 0 });
+            break;
+
           case 'switch':
             statementStack.push({ type: 'switch', line: token.line + 1, parenDepth: 0 });
             break;
@@ -717,13 +786,13 @@ class OSLLinter {
               });
             }
             break;
-            
+
           case 'break':
           case 'continue':
-            const loopContext = statementStack.slice().reverse().find(t => 
+            const isValidContext = statementStack.slice().reverse().find(t =>
               ['for', 'while', 'each', 'loop', 'switch'].includes(t.type)
             );
-            if (!loopContext) {
+            if (!isValidContext) {
               errors.push({
                 message: `'${token.value}' statement can only be used inside loops or switch`,
                 line: token.line + 1,
@@ -735,11 +804,11 @@ class OSLLinter {
             break;
         }
       }
-      
+
       if (token.type === 'bracket' && token.value === '(' && statementStack.length > 0) {
         statementStack[statementStack.length - 1].parenDepth++;
       }
-      
+
       if (token.type === 'bracket' && token.value === ')' && statementStack.length > 0) {
         const topCtx = statementStack[statementStack.length - 1];
         if (topCtx && topCtx.parenDepth > 0) {
@@ -751,7 +820,7 @@ class OSLLinter {
         }
       }
     }
-    
+
     return errors;
   }
 
@@ -4183,7 +4252,7 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = `lol = 10 to 1`
+    const code = `if (true) (log "hi")`
 
     const result = utils.lintSyntax({CODE: code});
 
