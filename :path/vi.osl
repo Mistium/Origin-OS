@@ -90,10 +90,10 @@ while true (
       move_buffer = original_buffer
     )
   )
-  local line_num = cursor_pos[2]
+  local line_num = cursor_pos[2].toNum()
     .clamp(1, textf.len)
   local line = textf[line_num]
-  local cursor_num = cursor_pos[1].clamp(1, line.len + 1) - 1
+  local cursor_num = cursor_pos[1].toNum().clamp(1, line.len + 1) - 1
   switch mode (
     case "normal"
       if "p".onKeyDown() (

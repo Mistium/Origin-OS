@@ -8,4 +8,7 @@ switch args[1] (
     case "-w"
         terminal.writeLine(args[2].match("/\b./gm").len)
         return
+    default
+        terminal.writeLine("Usage: wc [-c] [-m] [-w] file")
+        return
 )
