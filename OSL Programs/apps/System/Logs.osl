@@ -17,10 +17,10 @@ if clicked (
 c #222
 frame window.left + 40 window.top window.right window.bottom data.len * 20 (
   c #fff
-  count = round(scroll_y / 20) - 1
+  count = round(frame.scroll / 20) - 1
   loop round(frame_height / 20) + 2 (
     count ++
-    loc 2 2 10 count * -20 + scroll_y
+    loc 2 2 10 count * -20 + frame.scroll
     text data[count].toStr() 10
   )
 )

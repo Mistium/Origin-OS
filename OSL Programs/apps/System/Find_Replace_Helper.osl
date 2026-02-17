@@ -68,7 +68,7 @@ loc 2 2 360 -50
 text "Results:" ++ list.len ++ " - Checked:" ++ i 10 : c#txtc
 c prim
 frame window.left + 350 window.top - 70 window.right window.bottom list.len * 40 "list"
-y = scroll_ylist - 20
+y = frame.scrolllist - 20
 w = frame.width - 25
 each item list (
   loc 9999 2 0 y

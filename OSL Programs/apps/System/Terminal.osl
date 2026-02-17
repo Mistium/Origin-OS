@@ -252,7 +252,7 @@ c prim
 frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "cache@main" (
   c txtc
   loops = terminal.lines.len
-  count = floor(scroll_y / 20).clamp(0,loops)
+  count = floor(frame.scroll / 20).clamp(0,loops)
   loop round(frame.height / 20 + 3).clamp(0,loops) (
     count ++
     y = count * -20 + frame.scroll + 5
@@ -289,7 +289,7 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
 
   local user_start = terminal.user_start()
   if terminal.show_input (
-    loc 2 2 10 loops * -20 + scroll_y - 15
+    loc 2 2 10 loops * -20 + frame.scroll - 15
     text user_start 10 : c#txtc
     inputs.main ??= ""
     if "control".isKeyDown() or "meta".isKeyDown() (

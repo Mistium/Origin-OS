@@ -442,7 +442,7 @@ def "render_files" (
 def "render_files_list" (
   len = files.len
   if len > 0 (
-    count = floor(scroll_y / 45)
+    count = floor(frame.scroll / 45)
     num = frame.height / 45 + 1
     
     if count + num > (len - 1) (
@@ -452,7 +452,7 @@ def "render_files_list" (
     w = frame.width - 20
     loop num (
       count ++
-      draw_y = 25 + scroll_y - (45 * count)
+      draw_y = 25 + frame.scroll - (45 * count)
       loc 999 2 0 draw_y
       square w 30 15 0 1
       draw_file
@@ -493,7 +493,7 @@ def "render_files_grid" (
   local per_line = floor(frame.width / file_size) - 2
   local left = file_size / 2 + frame.left
   local right = file_size / 2 + frame.right
-  local offsety = file_size / -2 + frame.top + scroll_y
+  local offsety = file_size / -2 + frame.top + frame.scroll
   goto 0 frame.top
   count = 0
   loop files.len (

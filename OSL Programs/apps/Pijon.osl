@@ -47,7 +47,7 @@ c #fff
 count = 0
 loop online.len (
   count ++
-  loc 2 2 10 count * -20 + scroll_yusers
+  loc 2 2 10 count * -20 + frame.scrollusers
   current = online[count]
   if current_target == current "change_x 10"
   text current 8
@@ -83,7 +83,7 @@ if "enter".pressed.not and mouse_down.not "can = true"
 c_msgs = messages.key(current_target)
 c #333
 frame window."left" + 240 window."top" - 40 window."right" window."bottom" + 40 c_msgs.len * 40
-count = scroll_y.divide(40).round
+count = frame.scroll.divide(40).round
 start = c_msgs.len - count
 loop frame_height.divide(40).round (
   count ++
@@ -91,7 +91,7 @@ loop frame_height.divide(40).round (
     frame "clear"
     exit
   )
-  loc 2 2 30 10 - ( count * 40 ) + scroll_y
+  loc 2 2 30 10 - ( count * 40 ) + frame.scroll
   current = c_msgs[count]
   image current_pfp 30
   text current[1].toStr() + ": " + current[2] 9 : c#fff chx#30

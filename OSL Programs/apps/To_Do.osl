@@ -33,7 +33,7 @@ if tasks.len == 0 (
 count = 0
 loop tasks.len (
   count ++
-  loc 999 2 0 count - 0.5 * -50 + scroll_y + 5
+  loc 999 2 0 count - 0.5 * -50 + frame.scroll + 5
   square frame_width - 20 30 10 : c#222
   change_x frame_width / 2 - 20
   icon "bin" 0.8 : c#fff hover_size#1.1 cursor#pointer

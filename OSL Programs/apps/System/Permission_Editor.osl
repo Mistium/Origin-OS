@@ -58,7 +58,7 @@ frame x y x_position y_position apps.len * 45 - 25
 count = 0
 loop apps.len (
   count ++
-  y = count * -45 + scroll_y + 25
+  y = count * -45 + frame.scroll + 25
   loc 999 2 0 y
   if count == current_app "c #444" else "c #222"
   square frame_width - 20 30 10 1

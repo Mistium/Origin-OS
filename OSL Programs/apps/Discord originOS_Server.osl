@@ -8,7 +8,7 @@ i = 0
 loop members.len (
   i += 1
   current = members.[i]
-  y = i * -50 + scroll_y
+  y = i * -50 + frame.scroll
   loc 999 2 0 y
   square window_width - 30 30 10 1 : c#222
   loc 2 2 30 y

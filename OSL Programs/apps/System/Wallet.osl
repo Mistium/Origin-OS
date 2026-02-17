@@ -203,7 +203,7 @@ switch menu (
         filtered @= transactions.filter(v -> (v["type"] == cur_tag))
       )
       frame l window.top - 81 r window.bottom + 10 filtered.len * 35 - 5 "cache@transactions" (
-        y = scroll_y + 15
+        y = frame.scroll + 15
         for i filtered.len (
           txt @= filtered[i]
           y -= 35

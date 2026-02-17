@@ -293,7 +293,7 @@ switch current_tab (
     loc -2 -2 0 0
     c prim
     frame x y x_position y_position windows_names.len * 40 (
-      y = scroll_y - 20
+      y = frame.scroll - 20
       tot = 0
       w = frame_width - 20
       for count windows_names.len (

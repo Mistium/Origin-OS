@@ -77,7 +77,7 @@ frame -630 100 0 -100 keys.len * 33
 count = 0
 loop keys.len (
 count += 1
-y = count * -33 + scroll_y + 10
+y = count * -33 + frame.scroll + 10
 loc 2 2 160 y
 c #222
 square frame_width - 30 20 10 1

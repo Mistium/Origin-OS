@@ -68,7 +68,7 @@ if loaded.not (
   count = 0
   loop json.len (
     count += 1
-    y = count * -40 + 20 + scroll_y
+    y = count * -40 + 20 + frame.scroll
     loc 999 2 0 y
     square frame_width - 20 25 10 : c#222
     
