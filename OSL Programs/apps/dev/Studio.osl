@@ -83,7 +83,7 @@ class pages (
     frame 10 frame.top - 40 frame.right - 10 frame.bottom recent_2.len * 55
       w = frame_width - 20
       for count recent_2.len (
-        y = count * -55 + 30 + scroll_y
+        y = count * -55 + 30 + frame.scroll
         loc 999 2 0 y
         square w 30 10 : c#c_prim cursor#pointer
         cur = recent_2[count].toStr()

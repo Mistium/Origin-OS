@@ -25,8 +25,8 @@ if clicked and can (
 )
 icon "notifications" 1 : c#fff
 frame window.left window.top window.right window.bottom notifications.len * 60
-if scroll_y != sy (
-  sy = scroll_y
+if frame.scroll != sy (
+  sy = frame.scroll
   window "redraw_bg"
 )
 count = 0

@@ -55,12 +55,12 @@ def "render_tracks" "tracks"
   if tracks == "all" (
     tracks = song_keys
   )
-  loc 2 2 0 -30 + scroll_y
+  loc 2 2 0 -30 + frame.scroll
   w = frame_width - 20
-  count = (scroll_y / 50).round
+  count = (frame.scroll / 50).round
   loop ((frame_height / 50).round + 1).clamp(0,tracks.len) (
     count ++
-    y = count * -50 + 20 + scroll_y
+    y = count * -50 + 20 + frame.scroll
     loc 999 2 0 y
     key = tracks[count]
     song = song_data[key]
@@ -80,12 +80,12 @@ def "render_tracks" "tracks"
 endef
 
 def "render_playlists" "playlist_data"
-  loc 2 2 0 -30 + scroll_y
+  loc 2 2 0 -30 + frame.scroll
   w = frame_width - 20
-  count = (scroll_y / 50).round
+  count = (frame.scroll / 50).round
   loop ((frame_height / 50).round + 1).clamp(0,playlist_data.len) (
     count ++
-    y = count * -50 + 20 + scroll_y
+    y = count * -50 + 20 + frame.scroll
     loc 999 2 0 y
     cur = playlist_data[count]
     if cur != null (

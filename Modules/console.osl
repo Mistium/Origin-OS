@@ -27,12 +27,12 @@ def run_ui() (
   c this.prim
   frame frame.left frame.top - 40 frame.right frame.bottom self.console.len * 20 "console_main" (
     c this.txt
-    count = round(scroll_yconsole_main / 20)
-    loc 2 2 10 -20 + (scroll_yconsole_main % 20)
+    count = round(frame.scrollconsole_main / 20)
+    loc 2 2 10 -20 + (frame.scrollconsole_main % 20)
     x = frame.left + 10
     loop floor(frame.height / 20) (
       count ++
-      loc 2 2 10 scroll_yconsole_main - (20 * count)
+      loc 2 2 10 frame.scrollconsole_main - (20 * count)
       text self.console[count] 10
     )
   )

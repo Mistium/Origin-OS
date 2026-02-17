@@ -174,7 +174,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       break
     case "home"
       h = w / 16 * 9
-      goto 0 frame.top - (h / 2) + scroll_y - 10
+      goto 0 frame.top - (h / 2) + frame.scroll - 10
       square w - 30 h - 30 20 : c#prim
       image home_json.featured.image w - 30 h - 30
       change_y h - 30 / -2 - 65
@@ -232,7 +232,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       )
       break
     case "categories"
-      goto 0 frame.top + scroll_y - 50
+      goto 0 frame.top + frame.scroll - 50
       local category_keys = categories.getKeys()
       for i categories.len (
         local cur = category_keys[i]
@@ -249,7 +249,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       )
       break
     case "search"
-      goto 0 frame.top + scroll_y - 50
+      goto 0 frame.top + frame.scroll - 50
       c prim
       square frame.width - 100 30 10
       input frame.width - 110 30 "search" "Search for an app"
@@ -266,7 +266,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       break
     case "applist"
       h = 100
-      goto 0 frame.top + scroll_y - 70
+      goto 0 frame.top + frame.scroll - 70
       if page_data.len == 0 (
         centext "Looking Kinda Empty" 10 : c#txtc
       )
@@ -282,7 +282,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
     
       cur @= all_json[page_data]
       page_len += 60
-      loc 2 2 50 -50 + scroll_y
+      loc 2 2 50 -50 + frame.scroll
       icon cur.icon 3 : c#txtc
       text cur.title ++ "\n" 15 : c#txtc chx#40 chy#12
       text "By" + cur.author 10 : chy#5
@@ -309,7 +309,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         msg = "Install"
       )
 
-      loc -2 2 -40 -45 + scroll_y
+      loc -2 2 -40 -45 + frame.scroll
       square msg.len * 10 + 40 30 10 : c#prim chx#(msg.len * -5)
       change_x -15
       square msg.len * 10 30 0 0 1
@@ -351,7 +351,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       change -45 -35
       centext formatFileSize(cur.scripts.osl.size) 10
       
-      set_y frame.top - 70 + scroll_y
+      set_y frame.top - 70 + frame.scroll
       
       if cur.screenshots.len > 0 (
         cur.screenshot ??= 1

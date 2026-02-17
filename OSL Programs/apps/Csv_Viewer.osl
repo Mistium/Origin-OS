@@ -53,7 +53,7 @@ if clicked and can (
 c #333
 frame window."left" window."top" - 50 window."right" window."bottom" table.len - 1 * 20
 each "i" "item" table (
-  loc 2 2 20 -20 - ( i - 1 * 20 ) + scroll_y
+  loc 2 2 20 -20 - ( i - 1 * 20 ) + frame.scroll
   each "i2" "item2" item (
     text item2.padEnd(15," ") ++ "|" 10 : c#fff
   )

@@ -81,7 +81,7 @@ frame ww / -2 + sidebar_width + 10 wh / 2 - 50 ww / 2 wh / -2 len
 if page == "APPSTORE// store" (
   page_name = "Store"
   x = 0
-  y = -75 + scroll_y
+  y = -75 + frame.scroll
   len = 140
   per_line = 1
   count = 0
@@ -129,7 +129,7 @@ if app_page (
     count = 0
     loop versions.len (
       count += 1
-      loc 999 2 0 -270 - ( scroll_y * 30 )
+      loc 999 2 0 -270 - ( frame.scroll * 30 )
       square w - 10 60 10 1 : c#111
     )
   )

@@ -219,9 +219,9 @@ def "page_frame" "left, top, right, bottom, url" (
   square w h 10
 
   frame left top right bottom tabs[idx].page_len tabs[idx].id (
-    scroll_y = frame.scroll
+    frame.scroll = frame.scroll
     draw_page url page_type idx
-    scroll_y = 0
+    frame.scroll = 0
   )
 )
 
