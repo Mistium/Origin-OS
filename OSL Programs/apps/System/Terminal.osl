@@ -3,7 +3,6 @@ import "window_tools"
 
 permission "request" "terminal"
 permission "request" "file admin"
-save "system@terminal" "set_directory"
 network "set_app_id" "terminal@system"
 
 // fetch the path tracker file
