@@ -28,14 +28,6 @@ def "tab" "name" (
   text name 8 : c#txtc
 )
 
-def arrSum(arr) (
-  local out = 0
-  for i arr.len (
-    out += arr[i]
-  )
-  return out
-)
-
 rightclick_menu = [
   "Unknown",
   "-",
@@ -81,6 +73,15 @@ def getWindowsData() (
       draw: windows_drawtimes[i]
     })
    )
+   windows_total_time = windows_draw_main.sum()
+   number system_time = max(0, floor(((delta_time * 1000) - windows_total_time) * 10) / 10)
+   vals.append({
+     name: "System",
+     time: system_time,
+     id: -1,
+     draw: [system_time]
+   })
+   windows_list.append(vals[-1])
    
    vals @= vals.sortBy("time").reverse()
    windows_list @= windows_list.sortBy("time").reverse()
@@ -96,7 +97,7 @@ last_timer = timer
 next_update = 0.5
 high = 0
 low = 250
-graph = 1000.newArray()
+graph = (1 to 1000).fill(null)
 
 getWindowsData()
 
@@ -185,7 +186,7 @@ if activity_info (
 
 wwm = window_width - 50 / 100
 whm = window_height / 300
-if paused.not() (
+if !paused (
   // only add to the fps usage graph when not paused
   // fixes: https://discord.com/channels/1147362734300725298/1336340461555552319
   usage = (fps / fps_limit).clamp(0,1)
@@ -206,8 +207,8 @@ loc 2 2 23 - (high.len * 5) -70
 text high 10
 loc 2 2 12 -90
 text "high" 7
-loc 2 2 23 - (low.round().len * 5) -120
-text low.round() 10
+loc 2 2 23 - (round(low).len * 5) -120
+text round(low) 10
 loc 2 2 13.5 -140
 text "low" 7
 loc 2 2 23 - (delta.len * 5) -170
@@ -243,7 +244,7 @@ if timer - last_timer > next_update and !paused (
   last_timer = timer
   dt = delta_time
   getWindowsData()
-  number cpu_usage = roturLink.cpu.percent ?? (arrSum(windows_draw_main) / (1000 / fps_limit) * 100)
+  number cpu_usage = roturLink.cpu.percent ?? (windows_total_time / (1000 / fps_limit) * 100)
   cpu_percent = round(cpu_usage).clamp(1,100)
   delta = cpu_percent ++ "%"
   updated = true
@@ -310,6 +311,16 @@ switch current_tab (
         )
 
         // handle right clicking
+        if windows_ids[count] == -1 (
+          loc 2 2 25 y
+          icon "origin-logo" 0.7 : c#txtc
+          text "System" 7 : chx#20 c#txtc
+          loc -2 2 -15 y
+          d = windows_drawtimes[count][1]
+          rigtext d.toStr() ++ "ms" 7
+          y -= 40
+          continue
+        )
         object win_top @= windows_list[count] ?? {}
         object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
         rightclick_menu[1] = "> " ++ win.file.uuid
