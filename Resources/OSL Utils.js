@@ -698,7 +698,7 @@ class OSLLinter {
         
         if (!isAllowed) {
           errors.push({
-            message: `Invalid adjacent operators '${token.value}${nextToken.value}' - operators cannot be adjacent unless forming a valid operator (e.g., '++', '--', '::') or an assignment operator (e.g., '+=', '&=')`,
+            message: `Invalid adjacent operators '${token.value}${nextToken.value}' - operators cannot be adjacent without a valid combined form or assignment`,
             line: token.line + 1,
             tokenIndex: i,
             highlightStart: token.start,
@@ -4364,7 +4364,7 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = 'log 10 =! 10'
+    const code = 'state.folder_sidebar = !state.folder_sidebar'
 
     const result = utils.lintSyntax({CODE: code});
 
