@@ -2151,7 +2151,7 @@ class OSLUtils {
     }
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
-    CODE = this.normalizeLineEndings(String(CODE).trim());
+    CODE = this.normalizeLineEndings(String(CODE));
     let result = MAIN ? `/@line ${++line}\n` : "";
     let lastIndex = 0;
 
@@ -4366,7 +4366,7 @@ if (typeof Scratch !== "undefined") {
 
     const code = 'state.folder_sidebar = !state.folder_sidebar'
 
-    const result = utils.lintSyntax({CODE: code});
+    const result = utils.generateFullAST({CODE: code});
 
     fs.writeFileSync("lol.json", JSON.stringify(result, null, 2));
   }
