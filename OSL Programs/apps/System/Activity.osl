@@ -94,7 +94,7 @@ def getWindowsData() (
 
 created_time = timer
 last_timer = timer
-next_update = 0.5
+next_update = 2
 high = 0
 low = 250
 graph = (1 to 1000).fill(null)

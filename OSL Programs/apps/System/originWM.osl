@@ -70,16 +70,19 @@ def dragEdge(prop, axis) (
               cur.width = 1 - split * screen.x - 5
               cur.x = right - (1 - split * screen.x / 2) - 3
             )
+            cur.target_x = null
             cur.callRender()
           )
         )
       ) else (
         top.width = abs(state.resize1 - mouse_x).clamp(top.min_width, 999999)
         top.x = state.resize1 + (top.width / state.div)
+        top.target_x = null
       )
     ) else (
       top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
       top.y = state.resize2 + (top.height / state.div)
+      top.target_y = null
     )
     top.callRender()
   )
@@ -95,6 +98,8 @@ def dragDiagonal() (
     top.height = abs(state.resize2 - mouse_y).clamp(top.min_height, 999999)
     top.x = state.resize1 + (top.width / state.div1)
     top.y = state.resize2 + (top.height / state.div2)
+    top.target_x = null
+    top.target_y = null
     
     local w = top.width / 2
     local h = top.height / 2
@@ -158,6 +163,8 @@ def moveWindow() (
         state.move.x = top.x
         state.move.y = top.y
       )
+      top.target_x = null
+      top.target_y = null
       state.move.mouse_x = mouse_x
       state.move.mouse_y = mouse_y
       top.callRender()
