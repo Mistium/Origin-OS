@@ -314,7 +314,7 @@ class editor (
       ohf: tab.ohf
     }
     local sel @= inputs.selected
-    local err @= tab.errors.sortBy("line")
+    local err @= (tab.errors ?? []).sortBy("line")
     local data @= inputs[tab.id]
     local offset @= data.len.len * 8 + 30
     for i err.len (
@@ -322,7 +322,7 @@ class editor (
       if err[i - 1].line == cur.line (
         continue
       )
-      goto frame.left + (data[cur.line].len * 10 + offset) frame.top - 50 - (cur.line - 1 * 23) + tab.scroll.y
+      goto frame.left + (data[cur.line].len * 10 + offset) frame.top - 48 - (cur.line - 1 * 23) + tab.scroll.y
       text cur.message 10 : c#f66
     )
     if sel.id == tab.id (
@@ -330,12 +330,8 @@ class editor (
       if sel.changed (
         tab.unsaved = true
         tabs[current_tab].data @= inputs[tab.id]
-        if tab["type"] == "file" and tab.name.endsWith(".osl") and false (
-          resp @= promise.new(def() -> (
-            local ast = osl.generateAST(tab.data.join("\n"))
-            self.tab.errors @= osl.getErrorsFromAST(ast)
-          ))
-          resp.worker.tab @= tab
+        if tab["type"] == "file" and tab.name.endsWith(".osl") and "lintSyntax" in osl (
+          tab.errors @= osl.lintSyntax(tab.data.join("\n")).errors
         )
       )
     )

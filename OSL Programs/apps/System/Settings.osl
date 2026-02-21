@@ -2172,10 +2172,10 @@ frame window.left + 215 window.top - 47 window.right window.bottom page_len "cac
     case "Apps"
       apps
       break
-    case "upgrade"
+    case "Upgrade"
       upgrade
       break
-    case "credits"
+    case "Credits"
       credits
       break
   )
