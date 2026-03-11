@@ -278,7 +278,7 @@ def "system" (
       terminal "system sound set volume " ++ (slider_volume * 100)
       c txtc
       loc 2 2 10 -160 + frame.scroll
-      if media.isType("object") (
+      if typeof(media) == "object"  (
         text "Media Devices" 10
         for i keys.len (
           y = i + 2.5 * -60 + frame.scroll
@@ -888,7 +888,7 @@ def "account" (
   if subcategory == "backups" (
     page_len = 0
     each this.backup user["sys.backups"] (
-      if backup.isType("object") (
+      if typeof(backup) == "object"  (
         page_len += 50
         setting_do backup.name + "(" ++ round(backup.size / 1000) ++ "kb)" null w def(id) -> (
           if "Restore this backup?".confirm() (
