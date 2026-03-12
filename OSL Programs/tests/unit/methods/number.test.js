@@ -1,23 +1,4 @@
-const helper = require('../helper.js');
-
-const anyValues = [
-  3.7,
-  "hello",
-  [],
-  {},
-  null,
-  true,
-  false,
-  "true",
-  "false",
-  0,
-  1,
-  -1,
-  -0.1,
-  0.1,
-  0.5,
-  "0.5"
-]
+const helper = require('../../helper.js');
 
 const numberValues = [
   0,
@@ -44,7 +25,7 @@ const numberValues = [
   -360,
 
   1e6,
-]
+];
 
 function toPlainString(n) {
   if (!Number.isFinite(n)) return String(n);
@@ -63,57 +44,20 @@ function toPlainString(n) {
   return int + frac + '0'.repeat(e - frac.length);
 }
 
-const createGlobalMethodTest = (name, values) => {
+const createNumberMethodTest = (name) => {
   const out = [];
-  const args = values.map(v => typeof v === 'number' ? toPlainString(v) : JSON.stringify(v));
-
-  for (let i = 0; i < args.length; i++) {
-    out.push(`log (${args[i]}).${name}()`);
+  for (const v of numberValues) {
+    out.push(`log (${toPlainString(v)}).${name}()`);
   }
-
-  return out.join("\n");
+  return out.join('\n');
 };
 
 const tests = [
-  helper.createTest(
-    'String concat method',
-    `
-      msg = "hello "
-      log msg.concat("world")
-    `,
-    { expect: ['hello world'] }
-  ),
-
-  helper.createTest(
-    'Array concat method',
-    `
-      arr = [1,2,3]
-      log arr.concat([4,5,6])
-    `,
-    { expect: [ [1,2,3,4,5,6] ] }
-  ),
-
-  helper.createTest(
-    'string index method',
-    `
-      msg = "hello"
-      log msg.index("l")
-    `,
-    { expect: [3] }
-  ),
-
-  helper.createTest(
-    'array index method',
-    `
-      arr = [1,2,3]
-      log arr.index(2)
-    `,
-    { expect: [2] }
-  ),
+  // --- Trigonometric methods ---
 
   helper.createTest(
     '.sin() method',
-    createGlobalMethodTest('sin', numberValues),
+    createNumberMethodTest('sin'),
     {
       expect: [
         0, 1.7e-9,
@@ -132,7 +76,7 @@ const tests = [
 
   helper.createTest(
     '.cos() method',
-    createGlobalMethodTest('cos', numberValues),
+    createNumberMethodTest('cos'),
     {
       expect: [
         1, 1,
@@ -151,7 +95,7 @@ const tests = [
 
   helper.createTest(
     '.tan() method',
-    createGlobalMethodTest('tan', numberValues),
+    createNumberMethodTest('tan'),
     {
       expect: [
         0, 1.7e-9,
@@ -170,7 +114,7 @@ const tests = [
 
   helper.createTest(
     '.asin() method',
-    createGlobalMethodTest('asin', numberValues),
+    createNumberMethodTest('asin'),
     {
       expect: [
         0, 0.000005729577951308242,
@@ -189,7 +133,7 @@ const tests = [
 
   helper.createTest(
     '.acos() method',
-    createGlobalMethodTest('acos', numberValues),
+    createNumberMethodTest('acos'),
     {
       expect: [
         90, 89.99999427042206,
@@ -208,7 +152,7 @@ const tests = [
 
   helper.createTest(
     '.atan() method',
-    createGlobalMethodTest('atan', numberValues),
+    createNumberMethodTest('atan'),
     {
       expect: [
         0, 0.000005729577951308213,
@@ -225,9 +169,11 @@ const tests = [
     }
   ),
 
+  // --- Math methods ---
+
   helper.createTest(
     '.chr() method',
-    createGlobalMethodTest('chr', numberValues),
+    createNumberMethodTest('chr'),
     {
       expect: [
         '\x00', '\x00', '￿', '\x00',
@@ -241,7 +187,7 @@ const tests = [
 
   helper.createTest(
     '.isPrime() method',
-    createGlobalMethodTest('isPrime', numberValues),
+    createNumberMethodTest('isPrime'),
     {
       expect: [
         false, false, false, false,
@@ -255,7 +201,7 @@ const tests = [
 
   helper.createTest(
     '.sign() method',
-    createGlobalMethodTest('sign', numberValues),
+    createNumberMethodTest('sign'),
     {
       expect: [
         '+', '+', '-', '+', '+',
@@ -268,7 +214,7 @@ const tests = [
 
   helper.createTest(
     '.sqrt() method',
-    createGlobalMethodTest('sqrt', numberValues),
+    createNumberMethodTest('sqrt'),
     {
       expect: [
         0, 0.00031622776601683794,
@@ -287,7 +233,7 @@ const tests = [
 
   helper.createTest(
     '.round() method',
-    createGlobalMethodTest('round', numberValues),
+    createNumberMethodTest('round'),
     {
       expect: [
         0, 0, -1, 0,
@@ -300,8 +246,21 @@ const tests = [
   ),
 
   helper.createTest(
+    '.round() with precision argument',
+    `
+      log (3.14159).round(2)
+      log (3.14159).round(4)
+      log (1.005).round(2)
+      log (100.0).round(2)
+    `,
+    // 1.005 cannot be represented exactly in IEEE 754 — 1.005 * 100 = 100.49999...
+    // so it floors to 1, not 1.01. This is expected floating-point behaviour.
+    { expect: [3.14, 3.1416, 1, 100] }
+  ),
+
+  helper.createTest(
     '.floor() method',
-    createGlobalMethodTest('floor', numberValues),
+    createNumberMethodTest('floor'),
     {
       expect: [
         0, 0, -1, 0,
@@ -315,7 +274,7 @@ const tests = [
 
   helper.createTest(
     '.ceiling() method',
-    createGlobalMethodTest('ceiling', numberValues),
+    createNumberMethodTest('ceiling'),
     {
       expect: [
         0, 1, -1, 1,
@@ -329,7 +288,7 @@ const tests = [
 
   helper.createTest(
     '.abs() method',
-    createGlobalMethodTest('abs', numberValues),
+    createNumberMethodTest('abs'),
     {
       expect: [
         0, 1e-7, 1,
@@ -344,58 +303,68 @@ const tests = [
   ),
 
   helper.createTest(
-    '.toStr() method',
-    createGlobalMethodTest('toStr', anyValues),
-    {
-      expect: [
-        '3.7', 'hello', '[]',
-        '{}', 'null', 'true',
-        'false', 'true', 'false',
-        '0', '1', '-1',
-        '-0.1', '0.1', '0.5',
-        '0.5'
-      ]
-    }
+    '.invabs() method',
+    `
+      log (5).invabs()
+      log (-5).invabs()
+      log (0).invabs()
+    `,
+    { expect: [-5, -5, 0] }
   ),
 
   helper.createTest(
-    '.toNum() method',
-    createGlobalMethodTest('toNum', anyValues),
-    {
-      expect: [
-        3.7, 0, 0, 0, 0,
-        1, 0, 1, 0, 0,
-        1, -1, -0.1, 0.1, 0.5,
-        0.5
-      ]
-    }
+    '.log() method (base 10)',
+    `
+      log (1).log()
+      log (10).log()
+      log (100).log()
+      log (1000).log()
+    `,
+    // Math.log(1000)/Math.LN10 has floating-point imprecision at 1000.
+    { expect: [0, 1, 2, 2.9999999999999996] }
   ),
 
   helper.createTest(
-    'toInt() method',
-    createGlobalMethodTest('toInt', anyValues),
-    {
-      expect: [
-        3, 0, 0, 0, 0, 1,
-        0, 1, 0, 0, 1, -1,
-        0, 0, 0, 0
-      ]
-    }
+    '.ln() method (natural log)',
+    `
+      log (1).ln()
+    `,
+    // ln(1) = 0; ln(e) ≈ 1 but e isn't a literal, so just pin ln(1)
+    { expect: [0] }
   ),
 
   helper.createTest(
-    '.toBool() method',
-    createGlobalMethodTest('toBool', anyValues),
-    {
-      expect: [
-        false, false, false,
-        false, false, true,
-        false, true, false,
-        false, false, false,
-        false, false, false,
-        false
-      ]
-    }
+    '.clamp() method',
+    `
+      log (5).clamp(1, 10)
+      log (0).clamp(1, 10)
+      log (15).clamp(1, 10)
+      log (-5).clamp(-10, -1)
+      log (5).clamp(10, 1)
+    `,
+    { expect: [5, 1, 10, -5, 5] }
+  ),
+
+  helper.createTest(
+    '.chance() boundary values',
+    `
+      log (0).chance()
+      log (100).chance()
+    `,
+    { expect: [false, true] }
+  ),
+
+  // --- Type-prototype number methods ---
+
+  helper.createTest(
+    'Number prototype method',
+    `
+      Number.double = def() -> (
+        return self * 2
+      )
+      log 5.double()
+    `,
+    { expect: [10] }
   ),
 ];
 

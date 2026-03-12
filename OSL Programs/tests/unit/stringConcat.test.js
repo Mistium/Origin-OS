@@ -65,8 +65,23 @@ const tests = [
       str3 = str3 + "world"
       log str3
     `,
-    { expect: ["helloworld", "helloworld", "hello world"] }
-  )
+    { expect: ['helloworld', 'helloworld', 'hello world'] }
+  ),
+
+  helper.createTest(
+    'Concatenating boolean with +',
+    `
+      log "flag is" + true
+      log "flag is" + false
+    `,
+    { expect: ['flag is true', 'flag is false'] }
+  ),
+
+  helper.createTest(
+    'Concatenating null with +',
+    `log "value is" + null`,
+    { expect: ['value is null'] }
+  ),
 ];
 
 module.exports = { tests };

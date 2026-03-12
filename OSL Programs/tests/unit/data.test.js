@@ -103,7 +103,65 @@ const tests = [
       log obj.nested.value
     `,
     { expect: [2, 42] }
-  )
+  ),
+
+  // --- Object property syntax ---
+
+  helper.createTest(
+    'Object property shorthand',
+    `
+      val = 10
+      obj = {
+        key: "value",
+        val
+      }
+      log obj.key
+      log obj.val
+    `,
+    { expect: ['value', 10] }
+  ),
+
+  helper.createTest(
+    'Object property assignment on empty object',
+    `
+      obj = {}
+      obj.name = "Origin"
+      obj.version = 1.0
+      log obj.name
+      log obj.version
+    `,
+    { expect: ['Origin', 1.0] }
+  ),
+
+  helper.createTest(
+    'Object dynamic key assignment',
+    `
+      obj = {
+        ("dynamic_" ++ "key"): "dynamicValue"
+      }
+      log obj.dynamic_key
+    `,
+    { expect: ['dynamicValue'] }
+  ),
+
+  helper.createTest(
+    'Object bracket notation access',
+    `
+      obj = { name: "Alice", score: 99 }
+      key = "score"
+      log obj[key]
+    `,
+    { expect: [99] }
+  ),
+
+  helper.createTest(
+    'Nested array access in object',
+    `
+      obj = { tags: ["a", "b", "c"] }
+      log obj.tags[2]
+    `,
+    { expect: ['b'] }
+  ),
 ];
 
 module.exports = { tests };
