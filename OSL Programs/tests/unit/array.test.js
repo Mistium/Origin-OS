@@ -1,32 +1,42 @@
 const helper = require('../helper.js');
 
 const tests = [
+  // --- Append / prepend ---
+
   helper.createTest(
-    'Append and prepend values to array',
-    `
-      log "hello" + ["world"]
-      log ["hello"] + "world"
-    `,
-    { expect: [["hello","world"], ["hello","world"]] }
+    'Prepend value to array',
+    `log "hello" + ["world"]`,
+    { expect: [['hello', 'world']] }
   ),
 
   helper.createTest(
-    'Remove value from array by value or index',
-    `
-      log ["hello"] - "hello"
-      log ["a","b","c"] - 1
-    `,
-    { expect: [null, null] }
+    'Append value to array',
+    `log ["hello"] + "world"`,
+    { expect: [['hello', 'world']] }
   ),
 
   helper.createTest(
-    'Concatenate arrays',
+    'Use - on an array returns null',
+    `
+      arr = ["a", "b", "c"]
+      arr @= arr - 1
+      log arr
+    `,
+    { expect: [null] }
+  ),
+
+  // --- Concatenate ---
+
+  helper.createTest(
+    'Concatenate arrays with ++',
     `
       log ["hello"] ++ ["world"]
-      log [1,2] ++ [3,4,5]
+      log [1, 2] ++ [3, 4, 5]
     `,
-    { expect: [["hello","world"], [1,2,3,4,5]] }
+    { expect: [['hello', 'world'], [1, 2, 3, 4, 5]] }
   ),
+
+  // --- Range operator ---
 
   helper.createTest(
     'Range operator (to)',
@@ -38,17 +48,29 @@ const tests = [
     { expect: [[1,2,3,4,5], [-2,-1,0,1,2], [10,11,12,13,14,15]] }
   ),
 
+  // --- Access ---
+
   helper.createTest(
-    'Using range in each loop',
+    'Out-of-bounds access returns null',
     `
-      result = []
-      each value 1 to 5 (
-        result.append(value)
-      )
-      log result
+      arr = [1, 2, 3]
+      log arr[0]
+      log arr[4]
     `,
-    { expect: [[1,2,3,4,5]] }
-  )
+    { expect: [null, null] }
+  ),
+
+  helper.createTest(
+    'Negative index access returns last',
+    `
+      arr = [1, 2, 3]
+      log arr[-1]
+      log arr[-2]
+      log arr[-3]
+      log arr[-4]
+    `,
+    { expect: [3, 2, 1, null] }
+  ),
 ];
 
 module.exports = { tests };

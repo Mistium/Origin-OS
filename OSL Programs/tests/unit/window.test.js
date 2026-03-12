@@ -1,64 +1,67 @@
 const helper = require('../helper.js');
 
 const tests = [
-    helper.createTest(
-        'window "goto"',
-        `
-        window "goto" 100 100
-        log window.x
-        log window.y
-        
-        window "goto" 200 200
-        log window.x
-        log window.y
+  helper.createTest(
+    'window goto command and method',
+    `
+      window "goto" 100 100
+      log window.x
+      log window.y
 
-        window.goto(100, 100)
-        log window.x
-        log window.y
+      window "goto" 200 200
+      log window.x
+      log window.y
 
-        window.goto(200, 200)
-        log window.x
-        log window.y
-        `,
-        { expect: [100, 100, 200, 200, 100, 100, 200, 200] }
-    ),
-    helper.createTest(
-        'window "dimensions"',
-        `
-        window "dimensions" 100 100
-        log window.width
-        log window.height
+      window.goto(100, 100)
+      log window.x
+      log window.y
 
-        window "dimensions" 200 200
-        log window.width
-        log window.height
+      window.goto(200, 200)
+      log window.x
+      log window.y
+    `,
+    { expect: [100, 100, 200, 200, 100, 100, 200, 200] }
+  ),
 
-        window.resize(100, 100)
-        log window.width
-        log window.height
+  helper.createTest(
+    'window dimensions command and method',
+    `
+      window "dimensions" 100 100
+      log window.width
+      log window.height
 
-        window.resize(200, 200)
-        log window.width
-        log window.height
-        `,
-        { expect: [100, 100, 200, 200, 100, 100, 200, 200] }
-    ),
+      window "dimensions" 200 200
+      log window.width
+      log window.height
 
-    helper.createTest(
-        "window show/hide",
-        `
-        window "show"
-        log window.shown
+      window.resize(100, 100)
+      log window.width
+      log window.height
 
-        window "hide"
-        log window.shown
+      window.resize(200, 200)
+      log window.width
+      log window.height
+    `,
+    { expect: [100, 100, 200, 200, 100, 100, 200, 200] }
+  ),
 
-        window.show()
-        log window.shown
+  helper.createTest(
+    'window show and hide',
+    `
+      window "show"
+      log window.shown
 
-        window.hide()
-        log window.shown
-        `,
-        { expect: [true, false, true, false] }
-    )
-]
+      window "hide"
+      log window.shown
+
+      window.show()
+      log window.shown
+
+      window.hide()
+      log window.shown
+    `,
+    { expect: [true, false, true, false] }
+  ),
+];
+
+module.exports = { tests };
