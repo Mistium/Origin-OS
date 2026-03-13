@@ -19,7 +19,7 @@
     "type": "User",
     "user_view_type": "public",
     "site_admin": false,
-    "contributions": 4854
+    "contributions": 4856
   },
   {
     "login": "RattusDong",
@@ -198,6 +198,28 @@
     "contributions": 6
   },
   {
+    "login": "antiviiris",
+    "id": 223917583,
+    "node_id": "U_kgDODVi2Dw",
+    "avatar_url": "https://avatars.githubusercontent.com/u/223917583?v=4",
+    "gravatar_id": "",
+    "url": "https://api.github.com/users/antiviiris",
+    "html_url": "https://github.com/antiviiris",
+    "followers_url": "https://api.github.com/users/antiviiris/followers",
+    "following_url": "https://api.github.com/users/antiviiris/following{/other_user}",
+    "gists_url": "https://api.github.com/users/antiviiris/gists{/gist_id}",
+    "starred_url": "https://api.github.com/users/antiviiris/starred{/owner}{/repo}",
+    "subscriptions_url": "https://api.github.com/users/antiviiris/subscriptions",
+    "organizations_url": "https://api.github.com/users/antiviiris/orgs",
+    "repos_url": "https://api.github.com/users/antiviiris/repos",
+    "events_url": "https://api.github.com/users/antiviiris/events{/privacy}",
+    "received_events_url": "https://api.github.com/users/antiviiris/received_events",
+    "type": "User",
+    "user_view_type": "public",
+    "site_admin": false,
+    "contributions": 5
+  },
+  {
     "login": "NexusKitten",
     "id": 127152751,
     "node_id": "U_kgDOB5Qybw",
@@ -218,28 +240,6 @@
     "user_view_type": "public",
     "site_admin": false,
     "contributions": 4
-  },
-  {
-    "login": "antiviiris",
-    "id": 223917583,
-    "node_id": "U_kgDODVi2Dw",
-    "avatar_url": "https://avatars.githubusercontent.com/u/223917583?v=4",
-    "gravatar_id": "",
-    "url": "https://api.github.com/users/antiviiris",
-    "html_url": "https://github.com/antiviiris",
-    "followers_url": "https://api.github.com/users/antiviiris/followers",
-    "following_url": "https://api.github.com/users/antiviiris/following{/other_user}",
-    "gists_url": "https://api.github.com/users/antiviiris/gists{/gist_id}",
-    "starred_url": "https://api.github.com/users/antiviiris/starred{/owner}{/repo}",
-    "subscriptions_url": "https://api.github.com/users/antiviiris/subscriptions",
-    "organizations_url": "https://api.github.com/users/antiviiris/orgs",
-    "repos_url": "https://api.github.com/users/antiviiris/repos",
-    "events_url": "https://api.github.com/users/antiviiris/events{/privacy}",
-    "received_events_url": "https://api.github.com/users/antiviiris/received_events",
-    "type": "User",
-    "user_view_type": "public",
-    "site_admin": false,
-    "contributions": 2
   },
   {
     "login": "Dighoster9797",
