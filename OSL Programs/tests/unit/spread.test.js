@@ -44,7 +44,16 @@ const tests = [
       log [...arr.map(x -> x * 2), 4, 5]
     `,
     { expect: [[2,4,6,4,5]] }
-  )
+  ),
+
+  helper.createTest(
+    'Spread operator with function params',
+    `
+      arr = [1,7,3]
+      log max(...arr, 4, 5)
+    `,
+    { expect: [7] }
+  ),
 ];
 
 module.exports = { tests };
