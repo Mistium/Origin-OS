@@ -145,7 +145,7 @@ if activity_info (
   loc 2 2 20 -20
   text name 10 : c#txtc
   loc 2 2 20 -50
-  text dt.round() + "fps" 15
+  text round(dt ?? 0) + "fps" 15
   if timer - created_time > 1 (
     loc 2 2 90 -100
     square 140 25 10 : c#prim hover_c#seco
@@ -165,7 +165,7 @@ if activity_info (
     dt = delta_time
     windows_list @= Windows()
     current = windows_list.getKeys("id").index(page)
-    drawtimes @= windows_list[current].render.JsonParse()
+    drawtimes @= (windows_list[current].render ?? "[]").JsonParse()
     name = windows_list[current].name
     dt = (1000 / (drawtimes[1] + 0.01)).clamp(1,1000)
     pr = drawtimes[2]
