@@ -86,7 +86,7 @@ const tests = [
   helper.createTest(
     'Lambda used as argument to function',
     `
-      apply = (fn, val) -> (fn(val))
+      apply = (fn, val) -> fn(val)
       double = x -> (x * 2)
       log apply(double, 7)
     `,
