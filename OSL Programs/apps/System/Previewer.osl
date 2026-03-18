@@ -21,6 +21,18 @@ if passed_data != "" (
 )
 window.show()
 
+def stretch() (
+  temp = window.width - 50 / w * 100
+  temp2 = window.height - 50 / h * 100
+  if temp2 > temp (
+    stretch "x" temp
+    stretch "y" temp
+  ) else (
+    stretch "x" temp2
+    stretch "y" temp2
+  )
+)
+
 mainloop:
 if window_info (
   window.hide()
@@ -34,23 +46,17 @@ if window_info (
 load_theme
 
 goto 0 -25
-temp = window.width - 50 / w * 100
-temp2 = window.height - 50 / h * 100
-if temp2 > temp (
-  stretch "x" temp
-  stretch "y" temp
-) else (
-  stretch "x" temp2
-  stretch "y" temp2
-)
+
 if mode == "image" (
   w = data.imageinfo("width")
   h = data.imageinfo("height")
+  stretch()
   image data
 )
 if mode == "video" (
   w = "video".videoinfo("width")
   h = "video".videoinfo("height")
+  stretch()
   video "video"
   loc 2 -2 20 20
   square 20 20 10 : c#prim
