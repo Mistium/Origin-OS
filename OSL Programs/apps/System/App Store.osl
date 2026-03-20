@@ -68,7 +68,7 @@ def appCard(name) (
   change_y 20
   local txt_w = w / 10 - (img_w * 1)
   text name.trimText(txt_w - 17) + "\n" 10 : c#txtc
-  text all_json[name].description
+  text (all_json[name].description ?? "")
     .wrapText(txt_w - 2)
     .split("\n")
     .trim(1,2)
@@ -257,7 +257,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       page_len += 100
       local apps = all_json.getValues()
       for i apps.len (
-        if apps[i].title.contains(inputs.search) or apps[i].description.contains(inputs.search) (
+        if apps[i].title.contains(inputs.search) or (apps[i].description ?? "").contains(inputs.search) (
           appCard(apps[i].title)
           change_y -100
           page_len += 100
@@ -384,7 +384,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
           change_x 20
         )
       )
-      descr = cur.description.wrapText(frame.width / 10 - 3)
+      descr = (cur.description ?? "").wrapText(frame.width / 10 - 3)
       lines = descr.split("\n").len
       set_x 0
       change_y lines * -11.5 - 30
