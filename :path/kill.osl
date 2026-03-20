@@ -5,6 +5,10 @@ if args[1].startsWith("%") (
     terminal.writeLine("kill: job " ++ jobId ++ " not found")
     return
   )
+  if job.worker.kill == null (
+    terminal.writeLine("kill: job " ++ jobId ++ " is missing kill method")
+    return
+  )
   job.worker.kill()
   terminal.removeJob(jobId)
   terminal.writeLine("[" ++ jobId ++ "] Killed")
