@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-03-20T00:18:33.144Z",
-  "totalScripts": 63,
+  "lastUpdated": "2026-03-20T01:51:34.742Z",
+  "totalScripts": 64,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -155,12 +155,12 @@
     "ls.osl": {
       "name": "ls.osl",
       "firstAdded": "2025-07-20T23:43:22.368Z",
-      "lastModified": "2025-10-07T22:27:50.995Z",
-      "changeCount": 8,
-      "size": 890,
-      "hash": "15db44869ce9cb1a6f42a84d02e3772e",
+      "lastModified": "2026-03-20T01:16:31.836Z",
+      "changeCount": 9,
+      "size": 1382,
+      "hash": "82d45861d16d5351b64d41321f99de6c",
       "status": "active",
-      "lastModifiedUnix": 1759876070995
+      "lastModifiedUnix": 1773969391836
     },
     "me.osl": {
       "name": "me.osl",
@@ -625,22 +625,32 @@
     "jobs.osl": {
       "name": "jobs.osl",
       "firstAdded": "2026-03-20T00:10:08.587Z",
-      "lastModifiedUnix": 1773965254775,
-      "lastModified": "2026-03-20T00:07:34.775Z",
+      "lastModifiedUnix": 1773968036699,
+      "lastModified": "2026-03-20T00:53:56.699Z",
+      "changeCount": 1,
+      "size": 317,
+      "hash": "c14ca898833f02cf91a21f46400761ed",
+      "status": "active"
+    },
+    "sleep.osl": {
+      "name": "sleep.osl",
+      "firstAdded": "2026-03-20T01:51:34.736Z",
+      "lastModifiedUnix": 1773968094807,
+      "lastModified": "2026-03-20T00:54:54.807Z",
       "changeCount": 0,
-      "size": 224,
-      "hash": "7d63ee0b877f486ad7211549b6308fb7",
+      "size": 116,
+      "hash": "d14c2dca74b09ee5921a5569120cea6a",
       "status": "active"
     }
   },
-  "totalActiveScripts": 63,
+  "totalActiveScripts": 64,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
       "changeCount": 15
     },
-    "totalChanges": 296,
-    "averageChangesPerScript": 4.7
+    "totalChanges": 298,
+    "averageChangesPerScript": 4.66
   }
 }
