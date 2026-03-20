@@ -419,22 +419,31 @@ if path.len > 0 (
   terminal.writeLine("Checking for updates...")
 )
 
-terminal_worker @= worker({
-  cmd: null,
-  isThread: true,
-  cache: {},
-  evalCmd,
-  onframe: def() -> (
-    if cmd != null (
-      terminal.show_input = false
-      self.evalCmd(cmd)
-      terminal.show_input = true
-      self.cmd = null
+def startWorker() (
+  terminal_worker @= worker({
+    cmd: null,
+    isThread: true,
+    cache: {},
+    evalCmd,
+    onframe: def() -> (
+      if cmd != null (
+        terminal.show_input = false
+        self.evalCmd(cmd)
+        terminal.show_input = true
+        self.cmd = null
+      )
     )
-  )
-})
+  })
+)
+
+startWorker()
 
 mainloop:
+
+if terminal_worker.alive == false (
+  terminal.show_input = true
+  startWorker()
+)
 
 if tty (
   window.setDragbox([2,2,0,0],[2,2,0,0])
