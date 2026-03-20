@@ -213,30 +213,37 @@ def evalCmd(cmd) (
 )
 
 def runBackground(cmd) (
+  local jobId = null
   local jobWorker @= worker({
     isThread: true,
-    cmd: cmd,
+    command: cmd,
+    done: false,
     onframe: def() -> (
-      if cmd != null (
-        local result = evalCmd(cmd)
+      if command != null (
+        local result = evalCmd(command)
         for i result.len (
           terminal.writeLine(result[i])
         )
-        self.cmd = null
+        command = null
+        self.done = true
       )
     )
   })
-  local jobId = terminal.addJob(cmd, jobWorker)
+  jobId = terminal.addJob(cmd, jobWorker)
   terminal.writeLine("[" ++ jobId ++ "] " ++ cmd)
 )
 
 def checkJobs() (
+  local toRemove = []
   for i terminal.jobs.len (
     local job = terminal.jobs[i]
-    if job.worker.dead (
+    if job.worker.done or job.worker.dead (
       terminal.writeLine("[" ++ job.id ++ "] Done: " ++ job.name)
-      terminal.removeJob(job.id)
+      void toRemove.append(job.id)
     )
+  )
+  for j toRemove.len (
+    terminal.removeJob(toRemove[j])
   )
 )
 
@@ -296,9 +303,17 @@ class terminal (
       void self.lines.append(data)
     )
   )
-  
+
   def write(data) (
-    self.lines[self.lines.len] ++= data
+    if data.contains("\n") (
+      local parts = data.split("\n")
+      for i parts.len - 1 (
+        void self.lines.append(parts[i])
+      )
+      self.lines[self.lines.len] ++= parts[parts.len]
+    ) else (
+      self.lines[self.lines.len] ++= data
+    )
   )
   
   def clear() (
