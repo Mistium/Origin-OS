@@ -1,5 +1,79 @@
 local targetPath = terminal.pwd
-if typeof(args[1]) == "string" and args[1] != "-a" and !args[1].startsWith("-") (
+string first = args[1].toStr()
+if first != "-a" and !first.startsWith("-") (
+  targetPath = terminal.resolvePath(args[1])
+  if !targetPath.endsWith(".folder") (
+    targetPath ++= ".folder"
+  )
+) else if targetPath == terminal.pwd (
+  targetPath ++= ".folder"
+)
+
+local flags = args.filter(v -> v[1] == "-")
+args = args.filter(v -> v[1] != "-")
+
+file "exists" targetPath
+if !exists (
+  terminal.writeLine("ls: cannot access '" ++ args[1] ++ "': No such file or directory")
+  return
+)
+
+local files = open(targetPath)
+
+files @= files.map(f -> open(f, ["name", "type"]).join(""))
+
+if !flags.contains("-a") (
+  files @= files.filter(v -> v[1] != ":")
+)
+
+local maxLen = 0
+void files.map(v -> (
+  local name = v
+  if name.endsWith(".folder") (
+    name = name.trim(1, -8) ++ "/"
+  )
+  if name.len > maxLen (
+    maxLen = name.len
+  )
+  return v
+))
+
+local cols = floor(window.width - 30 / 10 / (maxLen + 2))
+if cols < 1 (
+  cols = 1
+)
+
+array line = []
+local i = 0
+void files.map(v -> (
+  local ov = v
+  local color = txtc
+
+  if ov.endsWith(".folder") (
+    ov = ov.trim(1, -8) ++ "/"
+    color = global_accent
+  )
+  if ov[1] == ":" (
+    color = "#aaa"
+  )
+
+  local padded = ov.padStart(" ", maxLen + 2)
+
+  void line.append(color, padded)
+
+  i += 1
+  if i % cols == 0 (
+    terminal.writeLine(line)
+    line = []
+  )
+))
+
+if i % cols != 0 (
+  terminal.writeLine(line)
+)
+local targetPath = terminal.pwd
+string first = args[1].toStr()
+if first != "-a" and !first.startsWith("-") (
   targetPath = terminal.resolvePath(args[1])
   if !targetPath.endsWith(".folder") (
     targetPath ++= ".folder"
