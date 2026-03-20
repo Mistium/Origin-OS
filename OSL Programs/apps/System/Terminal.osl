@@ -170,12 +170,12 @@ def evalSingle(tokens, input) (
       )
     )
   )
-  terminal.lines = []
+  terminal.lines @= lines
+  number len = terminal.lines.len
   terminal.stdin = input
   void fn.apply(terminal_worker, [tokens])
   terminal.stdin = null
-  local out @= terminal.lines
-  terminal.lines @= lines
+  local out @= terminal.lines.trim(len + 1, -1)
   return out
 )
 
@@ -218,14 +218,13 @@ def runBackground(cmd) (
     isThread: true,
     command: cmd,
     done: false,
-    onframe: def() -> (
+    evalCmd,
+    oncreate: def() -> (
       if command != null (
-        local result = evalCmd(command)
-        for i result.len (
-          terminal.writeLine(result[i])
-        )
-        command = null
+        self.evalCmd(command)
         self.done = true
+        self.command = null
+        self.kill()
       )
     )
   })
@@ -237,7 +236,7 @@ def checkJobs() (
   local toRemove = []
   for i terminal.jobs.len (
     local job = terminal.jobs[i]
-    if job.worker.done or job.worker.dead (
+    if job.worker.done or job.worker.alive == false (
       terminal.writeLine("[" ++ job.id ++ "] Done: " ++ job.name)
       void toRemove.append(job.id)
     )
@@ -376,7 +375,7 @@ if path.len > 0 (
 
   path_worker @= worker({
     isThread: true,
-    onframe: def() -> (
+    oncreate: def() -> (
       local updates = []
       for i path.len (
         local cur = path[i]
@@ -428,7 +427,7 @@ terminal_worker @= worker({
   onframe: def() -> (
     if cmd != null (
       terminal.show_input = false
-      terminal.lines ++= self.evalCmd(cmd)
+      self.evalCmd(cmd)
       terminal.show_input = true
       self.cmd = null
     )

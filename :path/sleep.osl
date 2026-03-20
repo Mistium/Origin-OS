@@ -1,0 +1,5 @@
+local seconds = (args[1].toNum() ?? 1) * 1000
+local start = timestamp
+while timestamp - start < seconds (
+  defer
+)
