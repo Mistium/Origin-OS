@@ -1,0 +1,41 @@
+local src = args[1]
+local dst = args[2]
+
+if src == null or dst == null (
+  terminal.writeLine("cp: missing file operand")
+  terminal.writeLine("Usage: cp <source> <destination>")
+  return
+)
+
+local srcPath = terminal.resolvePath(src)
+if !src.contains(".") (
+  srcPath ++= ".folder"
+)
+
+file "exists" srcPath
+if !exists (
+  terminal.writeLine("cp: cannot stat '" ++ src ++ "': No such file or directory")
+  return
+)
+
+local dstPath = terminal.resolvePath(dst)
+local isDstDir = false
+
+if !dst.contains(".") (
+  dstPath ++= ".folder"
+  isDstDir = true
+)
+
+file "exists" dstPath
+if exists (
+  isDstDir = true
+)
+
+if isDstDir (
+  local name = srcPath.split("/")[-1]
+  dstPath = dstPath.trim(1, -8) ++ "/" ++ name
+)
+
+local content = open(srcPath)
+file "set_file" dstPath content
+terminal.writeLine("copied '" ++ src ++ "' to '" ++ dst ++ "'")

@@ -1,5 +1,5 @@
 local targetPath = terminal.pwd
-if args.len > 0 and args[1] != "-a" and !args[1].startsWith("-") (
+if typeof(args[1]) == "string" and args[1] != "-a" and !args[1].startsWith("-") (
   targetPath = terminal.resolvePath(args[1])
   if !targetPath.endsWith(".folder") (
     targetPath ++= ".folder"

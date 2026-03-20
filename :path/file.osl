@@ -1,0 +1,67 @@
+local target = args[1]
+
+if target == null (
+  terminal.writeLine("file: missing operand")
+  return
+)
+
+local filePath = terminal.resolvePath(target)
+file "exists" filePath
+
+if !exists (
+  terminal.writeLine("file: cannot open '" ++ target ++ "': No such file or directory")
+  return
+)
+
+local data = open(filePath, ["type"])
+local fileType = data[1]
+
+if fileType == ".folder" (
+  terminal.writeLine(target ++ ": directory")
+  return
+)
+
+local content = open(filePath)
+local lines = content.split("\n")
+local lineCount = lines.len
+local maxLineLen = 0
+
+for i lines.len (
+  if lines[i].len > maxLineLen (
+    maxLineLen = lines[i].len
+  )
+)
+
+local hasBinary = false
+local hasNonASCII = false
+
+for i content.len (
+  local c = content[i].toNum()
+  if c != null (
+    if c == 0 (
+      hasBinary = true
+    )
+    if c > 127 (
+      hasNonASCII = true
+    )
+  )
+)
+
+local desc = filePath
+if hasBinary (
+  desc = "binary data"
+) else if hasNonASCII (
+  desc = "Unicode text, UTF-8 text"
+) else (
+  desc = "ASCII text"
+)
+
+if maxLineLen > 500 (
+  desc ++= ", with very long lines (" ++ maxLineLen ++ ")"
+) else if maxLineLen > 100 (
+  desc ++= ", with long lines (" ++ maxLineLen ++ ")"
+)
+
+desc ++= " (" ++ lineCount ++ " lines)"
+
+terminal.writeLine(target ++ ": " ++ desc)

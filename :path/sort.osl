@@ -1,0 +1,48 @@
+local input = null
+local filePath = null
+
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if args.len > 0 (
+  local target = args[args.len]
+  if !target.startsWith("-") (
+    filePath = terminal.resolvePath(target)
+    file "exists" filePath
+    if exists (
+      input = open(filePath)
+    ) else (
+      terminal.writeLine("sort: cannot read '" ++ target ++ "': No such file or directory")
+      return
+    )
+  )
+)
+
+if input == null (
+  terminal.writeLine("sort: missing operand")
+  return
+)
+
+local flags = args.filter(v -> v[1] == "-")
+local lines = input.split("\n")
+
+if flags.contains("-r") (
+  lines = lines.reverse()
+) else (
+  lines @= lines.sort()
+)
+
+if flags.contains("-u") (
+  local unique = []
+  local prev = null
+  for i lines.len (
+    if i == 1 or lines[i] != prev (
+      void unique.append(lines[i])
+    )
+    prev = lines[i]
+  )
+  lines = unique
+)
+
+for i lines.len (
+  terminal.writeLine(lines[i])
+)

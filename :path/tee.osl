@@ -1,0 +1,42 @@
+local input = null
+
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if args.len > 0 (
+  local target = args[args.len]
+  if !target.startsWith("-") (
+    local filePath = terminal.resolvePath(target)
+    file "exists" filePath
+    if exists (
+      input = open(filePath)
+    )
+  )
+)
+
+if input == null (
+  terminal.writeLine("tee: missing operand")
+  return
+)
+
+local flags = args.filter(v -> v[1] == "-")
+local files = args.filter(v -> v[1] != "-")
+local append = flags.contains("-a")
+
+for i input.split("\n").len (
+  local line = input.split("\n")[i]
+  terminal.writeLine(line)
+)
+
+for f files.len (
+  local filePath = terminal.resolvePath(files[f])
+  local content = input
+  if append (
+    file "exists" filePath
+    if exists (
+      file "open" filePath "onlyaccess"
+      content = fileGet(4) ++ "\n" ++ content
+      file "close"
+    )
+  )
+  file "set_file" filePath content
+)

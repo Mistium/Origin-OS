@@ -1,19 +1,45 @@
-local input = terminal.stdin ?? args[2]
-switch args[1] (
-  case "-c"
-    terminal.writeLine(input.len)
-    return
-  case "-m"
-    terminal.writeLine(input.match("/[\s\S]/gu").len)
-    return
-  case "-w"
-    terminal.writeLine(input.match("/\b./gm").len)
-    return
-  default
-    if terminal.stdin != null (
-      terminal.writeLine(terminal.stdin.match("/\b./gm").len ++ " words")
+local input = null
+local filePath = null
+
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if args.len > 0 (
+  local target = args[args.len]
+  if !target.startsWith("-") (
+    filePath = terminal.resolvePath(target)
+    file "exists" filePath
+    if exists (
+      input = open(filePath)
     ) else (
-      terminal.writeLine("Usage: wc [-c] [-m] [-w] text")
+      terminal.writeLine("wc: " ++ target ++ ": No such file or directory")
+      return
     )
-    return
+  )
+)
+
+if input == null (
+  terminal.writeLine("wc: missing operand")
+  return
+)
+
+local lines = input.split("\n")
+local lineCount = lines.len
+local wordCount = 0
+local charCount = input.len
+
+for i lines.len (
+  local words = lines[i].split(" ").filter(w -> w.len > 0)
+  wordCount += words.len
+)
+
+local flags = args.filter(v -> v[1] == "-")
+
+if flags.contains("-l") (
+  terminal.writeLine(lineCount)
+) else if flags.contains("-w") (
+  terminal.writeLine(wordCount)
+) else if flags.contains("-c") (
+  terminal.writeLine(charCount)
+) else (
+  terminal.writeLine("  " ++ lineCount ++ "  " ++ wordCount ++ "  " ++ charCount ++ " " ++ (filePath ?? "stdin"))
 )

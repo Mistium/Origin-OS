@@ -1,0 +1,28 @@
+local file = null
+local numLines = null
+
+for i args.len (
+  if args[i].toNum() != null (
+    numLines = args[i].toNum()
+  )
+)
+
+file "open" "~/:path/history.txt" "onlyaccess"
+local history = fileGet(4).split("\n").filter(v -> v.len > 0)
+file "close"
+
+if numLines == null (
+  for i history.len (
+    terminal.writeLine("  " ++ (i + 1) ++ "  " ++ history[i])
+  )
+) else (
+  local start = history.len - numLines
+  if start < 1 (
+    start = 1
+  )
+  for i history.len (
+    if i >= start (
+      terminal.writeLine("  " ++ (i + 1) ++ "  " ++ history[i])
+    )
+  )
+)
