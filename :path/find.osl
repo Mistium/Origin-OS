@@ -1,0 +1,81 @@
+local searchPath = terminal.pwd
+local namePattern = null
+local typeFilter = null
+
+for i args.len (
+    local arg = args[i]
+    if arg == "." or i == 1 (
+        if arg != "." (
+            searchPath = terminal.resolvePath(arg)
+        )
+    ) else if arg.startsWith("-name") (
+        namePattern = args[i + 1]
+    ) else if arg.startsWith("-type") (
+        typeFilter = args[i + 1]
+    )
+)
+
+local results = []
+local startUuid = open(searchPath ++ ".folder", "uuid")[1]
+local stack = [[startUuid, 1]]
+
+while stack.len > 0 (
+    local current @= stack.pop()
+    local uuid = current[1]
+    local depth = current[2]
+
+    if depth > 50 (
+        continue
+    )
+    
+    file "exists" uuid
+    if !exists (
+        continue
+    )
+
+    local items = open(uuid)
+    for j items.len (
+        local itemUuid = items[j]
+        local itemData = open(itemUuid, ["name", "type"])
+        local itemName = itemData[1] ++ itemData[2]
+        local isDir = itemData[2] == ".folder"
+
+        local match = true
+        if namePattern != null (
+            local pattern = namePattern
+            if pattern[1] == "*" and pattern[-1] == "*" (
+                match = itemName.contains(pattern.trim(2, -2))
+            ) else if pattern[1] == "*" (
+                match = itemName.endsWith(pattern.trim(2, -1))
+            ) else if pattern[-1] == "*" (
+                match = itemName.startsWith(pattern.trim(1, -2))
+            ) else (
+                match = itemName == pattern
+            )
+        )
+        if typeFilter != null (
+            if typeFilter == "d" and !isDir (
+                match = false
+            ) else if typeFilter == "f" and isDir (
+                match = false
+            )
+        )
+
+        if match (
+            void results.append(itemUuid)
+        )
+
+        if isDir (
+            void stack.append([itemUuid, depth + 1])
+        )
+    )
+)
+
+for r results.len (
+    array data = open(results[r], ["location", "name", "type"])
+    string path = data[1] ++ "/" ++ data[2] ++ data[3]
+    if path.startsWith(searchPath) (
+        path = path.replaceFirst(searchPath, ".")
+    )
+    terminal.writeLine(path)
+)

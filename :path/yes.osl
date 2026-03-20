@@ -1,0 +1,9 @@
+local output = "y"
+if args.len > 0 (
+  output = args.join(" ")
+)
+
+while true (
+  terminal.writeLine(output)
+  defer
+)

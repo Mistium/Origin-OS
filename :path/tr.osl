@@ -1,0 +1,40 @@
+local input = null
+
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if args.len > 0 (
+  local target = args[args.len]
+  if !target.startsWith("-") (
+    local filePath = terminal.resolvePath(target)
+    file "exists" filePath
+    if exists (
+      input = open(filePath)
+    )
+  )
+)
+
+if input == null (
+  terminal.writeLine("tr: missing operand")
+  return
+)
+
+local set1 = args[1]
+local set2 = args[2]
+
+if set1 == null (
+  terminal.writeLine("tr: missing operand")
+  return
+)
+
+local result = ""
+for i input.len (
+  local c = input[i]
+  local idx = set1.index(c)
+  if idx != null and set2 != null (
+    result ++= set2[idx] ?? c
+  ) else (
+    result ++= c
+  )
+)
+
+terminal.writeLine(result)

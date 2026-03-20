@@ -1,0 +1,27 @@
+local cmd = args[1]
+
+if cmd == null (
+  terminal.writeLine("type: missing argument")
+  return
+)
+
+if aliases.contains(cmd) (
+  terminal.writeLine(cmd ++ " is an alias for '" ++ aliases[cmd] ++ "'")
+  return
+)
+
+local scriptPath = "~/:path/" ++ cmd ++ ".osl"
+scriptPath = parseFilePath(scriptPath)
+file "exists" scriptPath
+if exists (
+  terminal.writeLine(cmd ++ " is a shell command (" ++ scriptPath ++ ")")
+  return
+)
+
+local builtins = ["jobs", "fg", "bg", "clear", "history", "export", "unset", "source"]
+if builtins.contains(cmd) (
+  terminal.writeLine(cmd ++ " is a shell builtin")
+  return
+)
+
+terminal.writeLine("type: " ++ cmd ++ ": not found")

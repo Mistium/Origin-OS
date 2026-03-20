@@ -1,0 +1,53 @@
+local input = null
+
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if args.len > 0 (
+  local target = args[args.len]
+  if !target.startsWith("-") (
+    local filePath = terminal.resolvePath(target)
+    file "exists" filePath
+    if exists (
+      input = open(filePath)
+    ) else (
+      terminal.writeLine("uniq: " ++ target ++ ": No such file or directory")
+      return
+    )
+  )
+)
+
+if input == null (
+  terminal.writeLine("uniq: missing operand")
+  return
+)
+
+local flags = args.filter(v -> v[1] == "-")
+local lines = input.split("\n")
+local unique = []
+local prev = null
+
+for i lines.len (
+  local line = lines[i]
+  if flags.contains("-c") (
+    if i == 1 or line != prev (
+      void unique.append({line: line, count: 1})
+    ) else (
+      unique[unique.len].count += 1
+    )
+  ) else (
+    if i == 1 or line != prev (
+      void unique.append(line)
+    )
+  )
+  prev = line
+)
+
+if flags.contains("-c") (
+  for j unique.len (
+    terminal.writeLine("      " ++ unique[j].count ++ " " ++ unique[j].line)
+  )
+) else (
+  for j unique.len (
+    terminal.writeLine(unique[j])
+  )
+)

@@ -1,7 +1,42 @@
-local input = terminal.stdin ?? args[2]
-local count = args[1] ?? 10
-local lines = input.split("\n").trim(-count + 1, -1)
+local input = null
+local count = 10
+local filePath = null
 
-void lines.map(v -> (
-  terminal.writeLine(v)
-))
+for i args.len (
+  if args[i].startsWith("-n") (
+    count = args[i].trim(3, -1).toNum() ?? args[i + 1].toNum() ?? 10
+  ) else if args[i].toNum() != null (
+    count = args[i].toNum()
+  ) else if !args[i].startsWith("-") (
+    filePath = terminal.resolvePath(args[i])
+  )
+)
+
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if filePath != null (
+  file "exists" filePath
+  if exists (
+    input = open(filePath)
+  ) else (
+    terminal.writeLine("tail: cannot open '" ++ args[args.len] ++ "': No such file or directory")
+    return
+  )
+)
+
+if input == null (
+  terminal.writeLine("tail: missing operand")
+  return
+)
+
+local lines = input.split("\n")
+local start = lines.len - count + 1
+if start < 1 (
+  start = 1
+)
+
+for i lines.len (
+  if i >= start (
+    terminal.writeLine(lines[i])
+  )
+)
