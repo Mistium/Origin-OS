@@ -1,11 +1,8 @@
-local pwd = terminal.pwd.split("/")
-pwd[1] = ""
-if !args[1].contains(".") (
-  args[1] ++= ".folder"
+local target = args[1]
+if !target.contains(".") (
+  target ++= ".folder"
 )
-pwd.append(args[1])
-
-local dir = parseFilePath(pwd.join("/"))
+local dir = terminal.resolvePath(target)
 file "exists" dir
 if exists (
   file "open" dir "onlyaccess"

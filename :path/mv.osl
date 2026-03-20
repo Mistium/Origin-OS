@@ -1,16 +1,16 @@
-local opwd = terminal.pwd.split("/")
-opwd[1] = ""
-if !args[1].contains(".") (
-  args[1] ++= ".folder"
+local target1 = args[1]
+if !target1.contains(".") (
+  target1 ++= ".folder"
 )
-pwd = opwd
-void pwd.append(args[1])
-
-local dir = parseFilePath(pwd.join("/"))
+local dir = terminal.resolvePath(target1)
 file "exists" dir
 if exists (
   file "open" dir "onlyaccess"
-  local dir2 = parseFilePath(opwd.append(args[2]).join("/"))
+  local target2 = args[2]
+  if !target2.contains(".") (
+    target2 ++= ".folder"
+  )
+  local dir2 = terminal.resolvePath(target2)
   local name = fileGet(2)
   local type = fileGet(1)
   if dir2.contains(".") (

@@ -1,14 +1,19 @@
+local input = terminal.stdin ?? args[2]
 switch args[1] (
-    case "-c"
-        terminal.writeLine(args[2].len)
-        return
-    case "-m"
-        terminal.writeLine(args[2].match("/[\s\S]/gu").len)
-        return
-    case "-w"
-        terminal.writeLine(args[2].match("/\b./gm").len)
-        return
-    default
-        terminal.writeLine("Usage: wc [-c] [-m] [-w] file")
-        return
+  case "-c"
+    terminal.writeLine(input.len)
+    return
+  case "-m"
+    terminal.writeLine(input.match("/[\s\S]/gu").len)
+    return
+  case "-w"
+    terminal.writeLine(input.match("/\b./gm").len)
+    return
+  default
+    if terminal.stdin != null (
+      terminal.writeLine(terminal.stdin.match("/\b./gm").len ++ " words")
+    ) else (
+      terminal.writeLine("Usage: wc [-c] [-m] [-w] text")
+    )
+    return
 )

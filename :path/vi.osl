@@ -27,10 +27,7 @@ array digits = [
 ].map(v -> v.toStr())
 
 local edit_file @= (name) -> (
-  array pwd = terminal.pwd.split("/")
-  pwd[1] = ""
-  pwd.append(name)
-  string dir = parseFilePath(pwd.join("/"))
+  string dir = terminal.resolvePath(name)
   file "exists" dir
   if exists (
     file_name = open(dir, ["name", "type"]).join("")

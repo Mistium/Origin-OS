@@ -1,20 +1,14 @@
-local pwd = terminal.pwd.split("/")
-pwd[1] = ""
-local odir = pwd
-void pwd.append(args[1])
-
 string zip_name = args[1]
 void args.shift()
 
 local collected = []
 
 for i args.len (
-  local dir = odir
-  if !args.contains(".") (
-    args[i] ++= ".folder"
+  local target = args[i]
+  if !target.contains(".") (
+    target ++= ".folder"
   )
-  void dir.append(args[i])
-  local cdir = parseFilePath(dir.join("/"))
+  local cdir = terminal.resolvePath(target)
   file "exists" cdir
   if exists (
     terminal.writeLine("Collecting: " ++ args[i])
@@ -29,7 +23,7 @@ for i args.len (
   )
 )
 
-local dir = parseFilePath(pwd.join("/"))
+local dir = terminal.resolvePath(zip_name)
 local zip_id = ouidNew()
 terminal.writeLine("zipping")
 zip "new" zip_id
@@ -37,8 +31,8 @@ while collected.len > 0 (
   local first @= collected.shift()
   array d @= open(first, ["name", "type", "data", "location"])
   terminal.lines[terminal.lines.len] = d[4] ++ "/" ++ d[1] ++ d[2]
-  d[4] = d[4].toLower().split("/").trim(odir.len + 1, -1)
-  // remove "origin" from path
+  local base = terminal.resolvePath("")
+  d[4] = d[4].toLower().split("/").trim(base.split("/").len + 1, -1)
   string path = "/" ++ d[4].join("/")
   if d[2] == ".folder" (
     zip "new_directory" path ++ d[1].toLower()
@@ -49,6 +43,7 @@ while collected.len > 0 (
   )
 )
 zip "export_zip"
-file "goto_dir" parseFilePath(odir.join("/"))
-file "set_file" zip_name data
+file "open" dir "onlyaccess"
+file "set" 4 data
+file "close"
 zip "remove"
