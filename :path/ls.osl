@@ -1,16 +1,12 @@
 local targetPath = terminal.pwd
 string first = args[1].toStr()
-if first != "-a" and !first.startsWith("-") (
+
+if !first.startsWith("-") (
   targetPath = terminal.resolvePath(args[1])
-  if !targetPath.endsWith(".folder") (
-    targetPath ++= ".folder"
-  )
-) else if targetPath == terminal.pwd (
+)
+if !targetPath.endsWith(".folder") (
   targetPath ++= ".folder"
 )
-
-local flags = args.filter(v -> v[1] == "-")
-args = args.filter(v -> v[1] != "-")
 
 file "exists" targetPath
 if !exists (
@@ -18,27 +14,17 @@ if !exists (
   return
 )
 
+local getAll = args.contains("-a")
+
 local files = open(targetPath)
+  .map(f -> open(f, ["name", "type"]).join(""))
+  .filter(v -> getAll or v[1] != ":")
 
-files @= files.map(f -> open(f, ["name", "type"]).join(""))
+local maxLen = files
+  .map(v -> (v.endsWith(".folder") ? (v.len - 8) v.len) + 4)
+  .max()
 
-if !flags.contains("-a") (
-  files @= files.filter(v -> v[1] != ":")
-)
-
-local maxLen = 0
-void files.map(v -> (
-  local name = v
-  if name.endsWith(".folder") (
-    name = name.trim(1, -8) ++ "/"
-  )
-  if name.len > maxLen (
-    maxLen = name.len
-  )
-  return v
-))
-
-local cols = floor(window.width - 30 / 10 / (maxLen + 2))
+local cols = floor((window.width - 30) / 10 / (maxLen + 2))
 if cols < 1 (
   cols = 1
 )
@@ -57,11 +43,10 @@ void files.map(v -> (
     color = "#aaa"
   )
 
-  local padded = ov.padStart(" ", maxLen + 2)
-
+  local padded = ov.padEnd(" ", maxLen)
   void line.append(color, padded)
 
-  i += 1
+  i ++
   if i % cols == 0 (
     terminal.writeLine(line)
     line = []
