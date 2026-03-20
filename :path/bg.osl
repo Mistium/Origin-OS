@@ -1,0 +1,18 @@
+if args.len == 0 (
+  if terminal.jobs.len == 0 (
+    terminal.writeLine("bg: no current job")
+    return
+  )
+  local job = terminal.jobs[terminal.jobs.len]
+  job.status = "running"
+  terminal.writeLine("[" ++ job.id ++ "] " ++ job.name ++ " &")
+) else (
+  local id = args[1].toNum()
+  local job = terminal.getJob(id)
+  if job == null (
+    terminal.writeLine("bg: job " ++ id ++ " not found")
+    return
+  )
+  job.status = "running"
+  terminal.writeLine("[" ++ job.id ++ "] " ++ job.name ++ " &")
+)

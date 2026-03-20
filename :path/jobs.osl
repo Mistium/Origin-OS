@@ -1,0 +1,8 @@
+if terminal.jobs.len == 0 (
+  terminal.writeLine("No active jobs")
+) else (
+  for i terminal.jobs.len (
+    local job = terminal.jobs[i]
+    terminal.writeLine("[" ++ job.id ++ "] " ++ job.status ++ " - " ++ job.name)
+  )
+)

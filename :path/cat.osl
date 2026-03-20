@@ -1,13 +1,17 @@
-local pwd = terminal.pwd.split("/")
-pwd[1] = ""
-pwd.append(args[1])
-
-local dir = parseFilePath(pwd.join("/"))
-file "exists" dir
-if exists (
-  void open(dir).split("\n").map(v -> (
+if terminal.stdin != null (
+  void terminal.stdin.split("\n").map(v -> (
     terminal.writeLine(v)
   ))
+) else if args.len > 0 (
+  local dir = terminal.resolvePath(args[1])
+  file "exists" dir
+  if exists (
+    void open(dir).split("\n").map(v -> (
+      terminal.writeLine(v)
+    ))
+  ) else (
+    terminal.writeLine("Unknown target file: " ++ args[1])
+  )
 ) else (
-  terminal.writeLine("Unknown target file: " ++ args[1])
+  terminal.writeLine("cat: missing file operand")
 )

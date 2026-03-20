@@ -1,5 +1,7 @@
-local lines = args[2].split("\n", args[1])
+local input = terminal.stdin ?? args[2]
+local count = args[1] ?? 10
+local lines = input.split("\n", count)
 
 void lines.map(v -> (
-    terminal.writeLine(v)
+  terminal.writeLine(v)
 ))

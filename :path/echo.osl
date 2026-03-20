@@ -1,4 +1,8 @@
 // OSL Echo Command - outputs text to terminal
-void args.map(v -> (
-  terminal.writeLine(v)
-))
+if terminal.stdin != null (
+  terminal.writeLine(terminal.stdin)
+) else (
+  void args.map(v -> (
+    terminal.writeLine(v)
+  ))
+)

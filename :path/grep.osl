@@ -2,7 +2,15 @@ local flags = args.filter(v -> v[1] == "-")
 args = args.filter(v -> v[1] != "-")
 
 local exp = args[1].toStr()
-local inp = args[2].toStr()
+local inp = null
+if terminal.stdin != null (
+  inp = terminal.stdin
+) else if args.len > 1 (
+  inp = args[2].toStr()
+) else (
+  terminal.writeLine("grep: missing pattern or input")
+)
+
 local chk = inp.toStr()
 
 local flag_v = flags.contains("-v")
