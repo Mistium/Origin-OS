@@ -27,7 +27,6 @@ user_obj = user.JsonStringify()
 clicking = false
 last_clicking = false
 
-terminal "get filepaths"
 files_paths @= "window.origin.files.index.value".eval()
 search = []
 

@@ -2,10 +2,13 @@ import as "window_tools"
 import as "glass" from "packages"
 
 permission "request" "file admin"
+permission "request" "terminal"
 
 file "use_type" "folder"
 
 save "files@system" "set_directory"
+
+files_paths @= "window.origin.files.index.value".eval()
 
 window.resize(1000,600)
 window.show()
@@ -51,6 +54,16 @@ def "touching_pointer" (
   )
 )
 
+def searchFiles(term) (
+  if term == "" (
+    return []
+  )
+  array paths @= files_paths.search(term)
+    .map(v -> v.item)
+
+  return paths
+)
+
 def sort_files(files) (
   new_files = []
   each i file files (
@@ -75,7 +88,7 @@ def sort_files(files) (
   )
   return new_files
   	.sortBy(sorting_mode.toLower(), sorting_direction)
-	.getKeys("uuid")
+	  .getKeys("uuid")
 )
 
 def sort_local_files(files) (
@@ -106,7 +119,9 @@ def sort_local_files(files) (
 
 def "refresh" (
   cur = tabs[current_tab]
-  inputs.path = cur.history[cur.position].url
+  if cur.type != "search" (
+    inputs.path = cur.history[cur.position].url
+  )
 )
 
 def "setup_tabs" (
@@ -281,10 +296,18 @@ def "render_tabs" (
     )
     loc 2 2 count - 1 * width2 - temp + 20 -22.5
     icon cur.icon 0.8 : c#txtc
-    if cur.url == user_folder (
-      cur.title = username
+    if cur.type == "search" (
+      if cur.title == "" (
+        text "Search" 8 : c#txtc chx#20
+      ) else (
+        text cur.title 8 : c#txtc chx#20
+      )
+    ) else (
+      if cur.url == user_folder (
+        cur.title = username
+      )
+      text cur.title 8 : c#txtc chx#20
     )
-    text cur.title 8 : c#txtc chx#20
     if tabs.len > 1 (
       loc 2 2 count * width2 - temp - 20 -22.5
       square 20 20 0 0 1
@@ -343,7 +366,20 @@ def "sorting_option" "sort_name" (
   )
 )
 
+last_search_query = ""
+
 def "render_files" (
+  cur_tab_type = tabs[current_tab].type ?? "folder"
+  
+  if cur_tab_type == "search" (
+    search_query = tabs[current_tab].history[tabs[current_tab].position].search_query ?? ""
+    if search_query != last_search_query (
+      last_search_query = search_query
+      cached_search_results @= searchFiles(search_query)
+    )
+    files = cached_search_results ?? []
+  )
+  
   if window.width > 700 (
     loc 2 2 260 -160
   ) else (
@@ -757,9 +793,31 @@ mainloop:
     w += 120
   )
   square w - 330 25 15 : c#prim
-  input w - 350 25 "path" null 10 txtc
-  if "enter".onKeyDown() and selected_input == "path" (
-    navigate inputs.path
+
+  cur_tab_type = tabs[current_tab].type ?? "folder"
+  if cur_tab_type == "search" (
+    input w - 350 25 "search_input" "Search files..." 10 txtc
+    
+    cur_search_query = tabs[current_tab].history[tabs[current_tab].position].search_query ?? ""
+    if inputs.search_input != cur_search_query (
+      tabs[current_tab].history[tabs[current_tab].position].search_query = inputs.search_input ?? ""
+      if inputs.search_input != "" and inputs.search_input != null (
+        search_tab_data = {
+          "type": "search",
+          "title": inputs.search_input,
+          "icon": "search",
+          "search_query": inputs.search_input
+        }
+        pos = tabs[current_tab].position + 1
+        tabs[current_tab].position = pos
+        tabs[current_tab].history = tabs[current_tab].history.trim(1, pos - 1).append(search_tab_data)
+      )
+    )
+  ) else (
+    input w - 350 25 "path" null 10 txtc
+    if "enter".onKeyDown() and selected_input == "path" (
+      navigate inputs.path
+    )
   )
   
   // draw the back forward and up button bg
@@ -771,6 +829,24 @@ mainloop:
   square 25 25 15 : c#prim
   icon "search" 0.8 : c#txtc
   touching_pointer
+  if onclick and tabs.len < 10 (
+    search_tab_data = {
+      "type": "search",
+      "title": "Search",
+      "icon": "search",
+      "search_query": ""
+    }
+
+    search_tab = {
+      "history": [search_tab_data],
+      "position": 1,
+      "input": "",
+      "type": "search"
+    }
+
+    void tabs.append(search_tab)
+    current_tab = tabs.len
+  )
   loc 999 -2 0 12
   if sideshow (
     change_x 126
@@ -989,9 +1065,9 @@ mainloop:
     c seco
   )
   icon "up-arrow" 0.8
-  
+
   render_files
-  
+
   if mouse_down.not() (
     can = true
   )
