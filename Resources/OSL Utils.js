@@ -682,7 +682,7 @@ class OSLLinter {
       const token = tokens[i];
       const nextToken = tokens[i + 1];
       
-      if (token.type === 'operator' && nextToken.type === 'operator' && !['-', '!'].includes(nextToken.value)) {
+      if (token.type === 'operator' && nextToken.type === 'operator' && !['-', '!', '?', '~'].includes(nextToken.value)) {
         const combined = token.value + nextToken.value;
         
         const explicitlyAllowed = new Set(['++', '--', '::']);
@@ -4364,9 +4364,25 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = 'state.folder_sidebar = !state.folder_sidebar'
+    const code = `def funcThatMightError() (
+  if random(1, 2) == 1 (
+    throw "error" "lmao so goob"
+  )
+  return "lmao"
+)
 
-    const result = utils.generateFullAST({CODE: code});
+result test @= ?funcThatMightError()
+if test.isOk() (
+  log test.unwrap()
+  // "lmao"
+) else (
+  log test.unwrapErr()
+  // "lmao so goob"
+)`
+
+    console.log(code)
+
+    const result = utils.lintSyntax({CODE: code}).errors;
 
     fs.writeFileSync("lol.json", JSON.stringify(result, null, 2));
   }
