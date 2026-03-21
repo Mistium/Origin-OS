@@ -1452,7 +1452,7 @@ class OSLUtils {
     else if (this.logic.indexOf(cur) !== -1) return { type: "log", num: tkn.log, data: cur, inferredType: "boolean" }
     else if (this.bitwise.indexOf(cur) !== -1) return { type: "bit", num: tkn.bit, data: cur }
     else if (cur.startsWith("...")) return { type: "spr", num: tkn.spr, data: this.evalToken(cur.substring(3)) }
-    else if (["!", "-", "~"].includes(start) && cur.length > 1) {
+    else if (["!", "-", "~", "?"].includes(start) && cur.length > 1) {
       const obj = { type: "ury", num: tkn.ury, data: start, right: this.evalToken(cur.slice(1)) };
       switch (start) {
         case "!": obj.inferredType = "boolean"; break;
