@@ -12,7 +12,7 @@ icons = {
 }
 
 images = {
-  discord: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAAV1BMVEVHcExYZfJYZfJYZfJYZfJYZfJYZfJYZfJYZfJYZfJYZfL///9YZfJWY/K6wPNlcPBaZ/GlrfLw8fpueu/KzvT4+PyvtvLr7vp5hO/W2fadpPLi5fiDjPDIsOONAAAAC3RSTlMAjvbiFlksrAfPwLOHjIYAAAGQSURBVDjLlZVbgoMgDEUFta0KAargc//rHCSR0ql2mPtF6SEkIYlFkaqqWVtyIXjZsroqrnRjjYcO8YbdLrBS/FJ5gj7qDyyg9eOdqxgXp+LszdXqLi51r/K4lHww8VXs8LPm30FeU15ivFJKrXGptf8RY8cssYipzQxGih32i01FlKUGpTKz7boRYBgAxq6zs1EyMRkjcd2HjHiZrBoyOD0/wedEJpsqhqyhOxHoGDj7YjAxyYr22sNdjv5ui5JCXs/BlQIvC3RRbjbsDwsEF56wDGHDbgjyglw0yPnzBvMiFZKGnCRQ4+4ihex9rsfeLxY8S3Hj1VLNV+CMTnIM5ojF72q8Wh9nKZoS0xPMdOF5IURlwSAXjIf0sBQ8EYEMnzBaTBGbgP4JQ1FQLqyDlVi7grNHxkJR0N3KjSHP/bY4ALdsfcj86FSsXCxcKaa9WGHvgKC9mkaYhIyFe/Sg1JOBPvaJ7MFMWiat8GoubyZtPh1bhporu13zB0D2SMkfUvljL3+Q5o/mfwz7Pz4fP4PIPgIHRSAHAAAAAElFTkSuQmCC",
+  originChats: "https://avatars.githubusercontent.com/u/260782748?s=200&v=4",
   github: "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACgAAAAoCAMAAAC7IEhfAAAASFBMVEVHcEwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABJhibTAAAAF3RSTlMA/CbnCVr20zYbyOCDQnRN7am1Eo9onMfsFAwAAAGmSURBVDjLhZVZoqQgDEWZZ0Sc2P9Om0kUC17npwo5huQmRAA6I8id5jjM6RABc0PLphkM0SDT24ImmLhw6AxfYoBJ88EyauSXsyoMTdmeo3jMBYhpx61hauuLdH9wkXRNFZ7WfPs5Xm9lp+pEfFoxF2XkWcJoSUwehXQs7fkiPs0Sa5k18oZaISyNf/IDnTPKYe5FGLWPirDzZ7M4DPwvMLkkW81NDMta9dgIEDVXJUegrAXDAizlZObGnVLSDnABvvke2h2ZByXasMx6dCn7HKzhUWpkVZQVlF/oZqCtwH9B14PhnIFn7csaYzhm4FHrcWc9LnWUR91ZVx2ZneTCbh1rZSaK33rHyty1hmZAEgNbrfM7aQmvn8mArsrl85L0F/UxFn1Y2dwSaQ/dLi2tHc4tWVLUTPvabdJr9hoDWRMan2ALrl5P87qNjD63UO1yg+8+ty+H9Rbmex2j2KlZbIsRPbectyxtfKg+OT8gtv3s4adACP16XPsplZRgGD+n3KD+NKAoxcdfUInxxP2Ag4mbnMZK6AbGqaMPMf0qnE8Jz/6r8A81VTjr43PLzQAAAABJRU5ErkJggg=="
 }
 
@@ -63,9 +63,9 @@ before = [
   },
   {
     type: "inf",
-    name: "Join The originOS Discord Server",
-    icon: "image " ++ images.discord ++ " 25",
-    link: "http://discord.gg/ReyzwPx2g9"
+    name: "Chat with the community",
+    icon: "image " ++ images.originChats ++ " 25",
+    link: "https://originchats.mistium.com"
   },
   {
     type: "inf",
