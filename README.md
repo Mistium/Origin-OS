@@ -24,7 +24,7 @@ Actively developed for over 3 years, originOS is built to be both powerful and e
 
 [Use originOS](https://origin.mistium.com)<br>
 [Learn OSL](https://osl.mistium.com)<br>
-[Join our Discord](https://discord.com/invite/ReyzwPx2g9)<br>
+[Chat with the community](https://originchats.mistium.com)<br>
 [Support Me!](https://ko-fi.com/mistium/tip)
 
 ## License
