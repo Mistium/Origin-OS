@@ -104,7 +104,7 @@ def say() (
   parentSays("says")
   
   goto -190 50
-  text popup_data.message.wrapText(38).trim(1, 114) 10
+  text popup_data.message.toStr().wrapText(38).trim(1, 114) 10
   
   c global_accent
   goto 0 -35
