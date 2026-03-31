@@ -1,0 +1,5 @@
+result tryEval @= ?(args[1].eval())
+
+any val @= tryEval.isOk() ? tryEval.unwrap() tryEval.unwrapErr()
+
+terminal.writeLine(val)

@@ -55,7 +55,6 @@ def dragEdge(prop, axis) (
         local left = screen.x / -2 + max(0, window_area.left)
         local right = screen.x / 2 - max(0, window_area.right)
 
-        local wins @= Windows()
         for i wins.len (
           local cur @= wins[i].window
           local tile = cur.tile
@@ -329,7 +328,6 @@ def handleMove() (
 def handleTop() (
   local nodragging = state.dragEdge == null and state.dragDiag == null and state.move == null
   if nodragging and !file_dragging (
-    wins @= Windows()
     for i wins.len (
       local cur @= wins[i].window
       x = cur.x.toNum()
@@ -418,9 +416,13 @@ state = {
   )
 }
 
+array wins = []
+
 window.resize(0,0)
 
 mainloop:
+
+wins @= Windows()
 
 handleKeybinds(origin.keyboard.keybinds)
 

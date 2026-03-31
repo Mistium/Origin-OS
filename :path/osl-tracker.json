@@ -1,6 +1,6 @@
 {
-  "lastUpdated": "2026-03-20T18:40:20.263Z",
-  "totalScripts": 77,
+  "lastUpdated": "2026-03-31T18:19:31.208Z",
+  "totalScripts": 78,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
@@ -771,9 +771,19 @@
       "size": 118,
       "hash": "472735ca6e7b2b4ff8b73ee673b153c8",
       "status": "active"
+    },
+    "jseval.osl": {
+      "name": "jseval.osl",
+      "firstAdded": "2026-03-31T18:19:31.184Z",
+      "lastModifiedUnix": 1774906424496,
+      "lastModified": "2026-03-30T21:33:44.496Z",
+      "changeCount": 0,
+      "size": 126,
+      "hash": "07601233af324c024dedb1e3881bb51f",
+      "status": "active"
     }
   },
-  "totalActiveScripts": 77,
+  "totalActiveScripts": 78,
   "totalRemovedScripts": 0,
   "statistics": {
     "mostChangedScript": {
@@ -781,6 +791,6 @@
       "changeCount": 15
     },
     "totalChanges": 306,
-    "averageChangesPerScript": 3.97
+    "averageChangesPerScript": 3.92
   }
 }
