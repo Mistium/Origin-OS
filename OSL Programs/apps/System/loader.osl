@@ -5,6 +5,9 @@ if data.len != 0 (
 )
 
 local apps @= "origin.apps".eval()
+if typeof(apps) != "object" (
+    eval "origin.apps = {}"
+)
 data = open("~/application data/settings/default_apps.json")
 local original_defaults @= {
   "File Explorer": "/(a) system/user applications/Files.osl",
