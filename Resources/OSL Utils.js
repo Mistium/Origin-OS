@@ -169,14 +169,14 @@ const VAR_REGEX = /^(!+)?[a-zA-Z_][a-zA-Z0-9_]*$/;
 class OSLLinter {
   constructor() {
     this.validKeywords = new Set([
-      'def', 'if', 'else', 'for', 'while', 'class', 'switch', 
-      'case', 'default', 'return', 'break', 'continue', 
-      'try', 'catch', 'import', 'permission', 'save', 'file', 
-      'window', 'network', 'each', 'until', 'loop', 'local', 
+      'def', 'if', 'else', 'for', 'while', 'class', 'switch',
+      'case', 'default', 'return', 'break', 'continue',
+      'try', 'catch', 'import', 'permission', 'save', 'file',
+      'window', 'network', 'each', 'until', 'loop', 'local',
       'endef', 'defer', 'mainloop', 'void', 'and', 'or', 'not',
       'in', 'to', 'is', 'nor', 'xor', 'xnor', 'nand'
     ]);
-    
+
     this.validOperators = new Set([
       '=', '@=', '+=', '-=', '*=', '/=', '++', '--',
       '+', '-', '*', '/', '//', '%', '^', '^^', '==', '!=',
@@ -185,7 +185,7 @@ class OSLLinter {
       '&&=', '||=', '%=', '<<=', '>>=', '>>>=', '!', '->',
       'in', 'to', 'is'
     ]);
-    
+
     this.validTypes = new Set([
       'number', 'string', 'array', 'object', 'boolean', 'void', 'local'
     ]);
@@ -194,20 +194,20 @@ class OSLLinter {
   tokeniseCode(codeStr) {
     const code = `${codeStr}`;
     const tokens = [];
-    
+
     try {
       let i = 0;
       let currentLine = 0;
       let currentLineStart = 0;
-      
+
       while (i < code.length) {
         const char = code[i];
-        
+
         if (char === ' ' || char === '\t' || char === '\r') {
           i++;
           continue;
         }
-        
+
         if (char === '\n') {
           const start = i - currentLineStart;
           tokens.push({ type: 'newline', value: '\n', line: currentLine, start, end: start + 1 });
@@ -216,9 +216,9 @@ class OSLLinter {
           i++;
           continue;
         }
-        
+
         const start = i - currentLineStart;
-        
+
         if (char === '/' && code[i + 1] === '/') {
           let comment = '//';
           i += 2;
@@ -229,7 +229,7 @@ class OSLLinter {
           tokens.push({ type: 'comment', value: comment, line: currentLine, start, end: start + comment.length });
           continue;
         }
-        
+
         if (char === '/' && code[i + 1] === '*') {
           let comment = '/*';
           i += 2;
@@ -250,7 +250,7 @@ class OSLLinter {
           tokens.push({ type: 'comment', value: comment, line: commentLine, start, end: i - currentLineStart });
           continue;
         }
-        
+
         if (char === '"') {
           const line = currentLine;
           let str = '"';
@@ -282,7 +282,7 @@ class OSLLinter {
             continue;
           }
         }
-        
+
         if (char === "'") {
           const line = currentLine;
           let str = "'";
@@ -314,16 +314,16 @@ class OSLLinter {
             continue;
           }
         }
-        
+
         if (char === '`') {
           const templateOpenStart = i - currentLineStart;
           tokens.push({ type: 'template_open', value: '`', line: currentLine, start: templateOpenStart, end: templateOpenStart + 1 });
-          
+
           const line = currentLine;
           i++;
           let currentSegment = '';
           let segmentStart = i - currentLineStart - 1;
-          
+
           while (i < code.length) {
             if (code[i] === '\\' && i + 1 < code.length) {
               currentSegment += code[i] + code[i + 1];
@@ -345,12 +345,12 @@ class OSLLinter {
               const exprOpenStart = i - currentLineStart;
               tokens.push({ type: 'template_expr_open', value: '${', line: currentLine, start: exprOpenStart, end: exprOpenStart + 2 });
               i += 2;
-              
+
               let depth = 1;
               const exprStart = i - currentLineStart;
               const originalI = i;
               let foundEnd = false;
-              
+
               while (i < code.length && depth > 0) {
                 if (code[i] === '{') depth++;
                 if (code[i] === '}') depth--;
@@ -360,7 +360,7 @@ class OSLLinter {
                 }
                 i++;
               }
-              
+
               if (foundEnd) {
                 const exprCode = code.slice(originalI, i);
                 if (exprCode.trim().length > 0) {
@@ -380,7 +380,7 @@ class OSLLinter {
               } else {
                 i = code.length;
               }
-              
+
               currentSegment = '';
               segmentStart = i - currentLineStart;
               continue;
@@ -400,10 +400,10 @@ class OSLLinter {
             currentSegment += code[i];
             i++;
           }
-          
+
           continue;
         }
-        
+
         if (/[0-9]/.test(char) || (char === '-' && i + 1 < code.length && /[0-9]/.test(code[i + 1]))) {
           let num = '';
           while (i < code.length && (/[0-9_\.]/.test(code[i]) || (num === '' && code[i] === '-'))) {
@@ -413,7 +413,7 @@ class OSLLinter {
           tokens.push({ type: 'number', value: num, line: currentLine, start, end: i - currentLineStart });
           continue;
         }
-        
+
         if (/[a-zA-Z_]/.test(char)) {
           let ident = '';
           while (i < code.length && /[a-zA-Z0-9_]/.test(code[i])) {
@@ -424,11 +424,11 @@ class OSLLinter {
           tokens.push({ type: tokenType, value: ident, line: currentLine, start, end: i - currentLineStart });
           continue;
         }
-         
+
         const twoCharOp = code.slice(i, i + 2);
         const threeCharOp = code.slice(i, i + 3);
         const fourCharOp = code.slice(i, i + 4);
-        
+
         if (this.validOperators.has(fourCharOp)) {
           tokens.push({ type: 'operator', value: fourCharOp, line: currentLine, start, end: i - currentLineStart + 4 });
           i += 4;
@@ -452,7 +452,7 @@ class OSLLinter {
           i++;
         }
       }
-      
+
       return tokens;
     } catch (e) {
       console.error("Tokenization error:", e);
@@ -462,7 +462,7 @@ class OSLLinter {
 
   validateStrings(tokens) {
     const errors = [];
-    
+
     for (const token of tokens) {
       if (token.type === 'string') {
         if (token.value.length < 2) {
@@ -476,9 +476,9 @@ class OSLLinter {
         } else {
           const firstChar = token.value[0];
           const lastChar = token.value[token.value.length - 1];
-          
+
           if ((firstChar === '"' && lastChar !== '"') ||
-              (firstChar === "'" && lastChar !== "'")) {
+            (firstChar === "'" && lastChar !== "'")) {
             errors.push({
               message: `Unclosed string literal - missing closing ${firstChar}`,
               line: token.line + 1,
@@ -490,15 +490,15 @@ class OSLLinter {
         }
       }
     }
-    
+
     const templateStack = [];
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
-      
+
       if (token.type === 'template_open') {
         templateStack.push('`');
       }
-      
+
       if (token.type === 'template_close') {
         if (templateStack.length === 0) {
           errors.push({
@@ -512,7 +512,7 @@ class OSLLinter {
           templateStack.pop();
         }
       }
-      
+
       if (token.type === 'template_expr_close') {
         if (templateStack.length === 0 || templateStack[templateStack.length - 1] !== '${') {
           errors.push({
@@ -526,18 +526,18 @@ class OSLLinter {
           templateStack.pop();
         }
       }
-      
+
       if (token.type === 'template_expr_open') {
         templateStack.push('${');
       }
     }
-    
+
     return errors;
   }
 
   validateComments(tokens) {
     const errors = [];
-    
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
       if (token.type === 'comment') {
@@ -552,7 +552,7 @@ class OSLLinter {
         }
       }
     }
-    
+
     return errors;
   }
 
@@ -562,22 +562,22 @@ class OSLLinter {
     const pairs = { '(': ')', '[': ']', '{': '}' };
     let inTemplateExpr = false;
     let templateExprDepth = 0;
-    
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
-      
+
       if (token.type === 'template_expr_open') {
         templateExprDepth++;
         inTemplateExpr = true;
       }
-      
+
       if (token.type === 'template_expr_close') {
         templateExprDepth--;
         if (templateExprDepth === 0) {
           inTemplateExpr = false;
         }
       }
-      
+
       if (token.type === 'bracket') {
         if (['(', '[', '{'].includes(token.value)) {
           if (!inTemplateExpr) {
@@ -609,7 +609,7 @@ class OSLLinter {
         }
       }
     }
-    
+
     for (const item of stack) {
       errors.push({
         message: `Unclosed '${item.bracket}' - missing closing '${pairs[item.bracket]}'`,
@@ -619,14 +619,14 @@ class OSLLinter {
         highlightEnd: item.start + 1
       });
     }
-    
+
     return errors;
   }
 
   validateVariableNames(tokens) {
     const errors = [];
     const varRegex = /^[a-zA-Z_][a-zA-Z0-9_]*$/;
-    
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
       if (token.type === 'identifier') {
@@ -649,13 +649,13 @@ class OSLLinter {
         }
       }
     }
-    
+
     return errors;
   }
 
   validateOperators(tokens) {
     const errors = [];
-    
+
     for (let i = 0; i < tokens.length; i++) {
       const token = tokens[i];
       if (token.type === 'unknown') {
@@ -671,31 +671,31 @@ class OSLLinter {
         }
       }
     }
-    
+
     return errors;
   }
 
   validateAdjacentOperators(tokens) {
     const errors = [];
-    
+
     for (let i = 0; i < tokens.length - 1; i++) {
       const token = tokens[i];
       const nextToken = tokens[i + 1];
-      
+
       if (token.type === 'operator' && nextToken.type === 'operator' && !['-', '!', '?', '~'].includes(nextToken.value)) {
         const combined = token.value + nextToken.value;
-        
+
         const explicitlyAllowed = new Set(['++', '--', '::']);
-        
+
         const isValidCombined = this.validOperators.has(combined);
         const isAssignment = (combined[combined.length - 1] === '=');
         const isOperatorPlusEquals = (token.value !== '=' && nextToken.value === '=');
-        
+
         const isAllowed = explicitlyAllowed.has(combined) ||
-                         isValidCombined ||
-                         isAssignment ||
-                         isOperatorPlusEquals;
-        
+          isValidCombined ||
+          isAssignment ||
+          isOperatorPlusEquals;
+
         if (!isAllowed) {
           errors.push({
             message: `Invalid adjacent operators '${token.value}${nextToken.value}' - operators cannot be adjacent without a valid combined form or assignment`,
@@ -707,7 +707,7 @@ class OSLLinter {
         }
       }
     }
-    
+
     return errors;
   }
 
@@ -747,6 +747,73 @@ class OSLLinter {
           }
         }
       }
+    };
+
+const checkBodyBlockOnSameLine = (keywordVal, tokens, startIndex) => {
+        let depth = 0;
+        let foundOpenedCondition = false;
+        for (let j = startIndex; j < tokens.length; j++) {
+            const tok = tokens[j];
+            if (tok.type === 'bracket') {
+                if (tok.value === '(') {
+                    if (!foundOpenedCondition) {
+                        foundOpenedCondition = true;
+                    }
+                    depth++;
+                } else if (tok.value === ')') {
+                    if (!foundOpenedCondition) {
+                        foundOpenedCondition = true;
+                    }
+                    depth--;
+                    if (depth === 0) {
+                        const nextToken = tokens[j + 1];
+                        if (nextToken && nextToken.type === 'newline') {
+                            const tokenAfterNewline = tokens[j + 2];
+                            if (tokenAfterNewline && tokenAfterNewline.type === 'bracket' && tokenAfterNewline.value === '(') {
+                                errors.push({
+                                    message: `'${keywordVal}' statement body opening '(' must be on the same line as the condition`,
+                                    line: tokenAfterNewline.line + 1,
+                                    tokenIndex: j + 2,
+                                    highlightStart: tokenAfterNewline.start,
+                                    highlightEnd: tokenAfterNewline.end
+                                });
+                            }
+                        }
+                        return;
+                    }
+                }
+            } else if (tok.type === 'newline' && !foundOpenedCondition) {
+                const tokenAfterNewline = tokens[j + 1];
+                if (tokenAfterNewline && tokenAfterNewline.type === 'bracket' && tokenAfterNewline.value === '(') {
+                    errors.push({
+                        message: `'${keywordVal}' statement body opening '(' must be on the same line as the condition`,
+                        line: tokenAfterNewline.line + 1,
+                        tokenIndex: j + 1,
+                        highlightStart: tokenAfterNewline.start,
+                        highlightEnd: tokenAfterNewline.end
+                    });
+                }
+                return;
+            }
+        }
+    };
+
+    const checkOpeningParenNotAtStartOfLine = (tokens) => {
+        for (let i = 0; i < tokens.length; i++) {
+            const tok = tokens[i];
+            if (tok.type === 'bracket' && tok.value === '(') {
+                const prevToken = tokens[i - 1];
+                if (prevToken && prevToken.type === 'newline') {
+                    errors.push({
+                        message: `Opening '(' must not be at the start of a line`,
+                        line: tok.line + 1,
+                        tokenIndex: i,
+                        highlightStart: tok.start,
+                        highlightEnd: tok.end
+                    });
+                }
+            }
+        }
     };
 
     const checkBodyAfterToken = (keywordVal, tokens, startIndex) => {
@@ -805,38 +872,10 @@ class OSLLinter {
 
           case 'if':
             checkBodyAfterClosingParen('if', tokens, i + 1);
+            checkBodyBlockOnSameLine('if', tokens, i + 1);
             statementStack.push({ type: 'if', line: token.line + 1, parenDepth: 0, hasElse: false });
             break;
-            
-          case 'if':
-            let bodyParenPos = -1;
-            let depth = 0;
-            for (let j = i + 1; j < tokens.length; j++) {
-              if (tokens[j].type === 'bracket') {
-                if (tokens[j].value === '(') {
-                  depth++;
-                } else if (tokens[j].value === ')') {
-                  depth--;
-                  if (depth === 0) {
-                    if (tokens[j + 1] && tokens[j + 1].type === 'bracket' && tokens[j + 1].value === '(') {
-                      if (tokens[j].line === tokens[j + 1].line) {
-                        errors.push({
-                          message: `'${token.value}' statement body must be on a new line - expected newline before '('`,
-                          line: tokens[j + 1].line + 1,
-                          tokenIndex: j + 1,
-                          highlightStart: tokens[j + 1].start,
-                          highlightEnd: tokens[j + 1].end
-                        });
-                      }
-                    }
-                    break;
-                  }
-                }
-              }
-            }
-            statementStack.push({ type: 'if', line: token.line + 1, parenDepth: 0, hasElse: false });
-            break;
-            
+
           case 'else':
             const ifContext = statementStack.slice().reverse().find(t => t.type === 'if');
             if (!ifContext) {
@@ -859,6 +898,7 @@ class OSLLinter {
           case 'for':
           case 'each':
             checkBodyAfterClosingParen(token.value, tokens, i + 1);
+            checkBodyBlockOnSameLine(token.value, tokens, i + 1);
             statementStack.push({ type: token.value, line: token.line + 1, parenDepth: 0 });
             break;
 
@@ -870,7 +910,7 @@ class OSLLinter {
           case 'switch':
             statementStack.push({ type: 'switch', line: token.line + 1, parenDepth: 0 });
             break;
-            
+
           case 'case':
           case 'default':
             const switchContext = statementStack.find(t => t.type === 'switch');
@@ -884,7 +924,7 @@ class OSLLinter {
               });
             }
             break;
-            
+
           case 'return':
             const funcContext = statementStack.slice().reverse().find(t => t.type === 'def');
             if (!funcContext) {
@@ -932,29 +972,31 @@ class OSLLinter {
       }
     }
 
+    checkOpeningParenNotAtStartOfLine(tokens);
+
     return errors;
   }
 
   validateFunctionSyntax(tokens) {
     const errors = [];
-  
+
     return errors;
   }
 
   lintSyntax(codeStr, silent = true) {
     const errors = [];
     if (!silent) console.log("Starting OSL syntax check...\n");
-    
+
     const startTime = Date.now();
-    
+
     const tokens = this.tokeniseCode(codeStr);
     const tokenTime = Date.now() - startTime;
-    
+
     if (!silent) {
       console.log(`Tokenized in ${tokenTime}ms`);
       console.log(`Found ${tokens.length} tokens\n`);
     }
-    
+
     errors.push(...this.validateStrings(tokens));
     errors.push(...this.validateComments(tokens));
     errors.push(...this.validateBrackets(tokens));
@@ -964,9 +1006,9 @@ class OSLLinter {
     errors.push(...this.validateTypes(tokens));
     errors.push(...this.validateStatements(tokens));
     errors.push(...this.validateFunctionSyntax(tokens));
-    
+
     const totalTime = Date.now() - startTime;
-    
+
     if (!silent) {
       if (errors.length === 0) {
         console.log(`✓ No syntax errors found (checked in ${totalTime}ms)`);
@@ -981,7 +1023,7 @@ class OSLLinter {
         });
       }
     }
-    
+
     return { tokens, errors, timing: { tokenization: tokenTime, total: totalTime } };
   }
 }
@@ -1716,7 +1758,7 @@ class OSLUtils {
         this.disableScopes();
         break
       case "def":
-        
+
     }
     for (let i = 0; i < tokens.length; i++) {
       const cur = tokens[i].trim()
@@ -2157,7 +2199,7 @@ class OSLUtils {
 
     this.fullASTRegex.lastIndex = 0;
 
-    for (let m; (m = this.fullASTRegex.exec(CODE)); ) {
+    for (let m; (m = this.fullASTRegex.exec(CODE));) {
       const match = m[0];
       const index = m.index;
 
@@ -2507,7 +2549,7 @@ class OSLUtils {
     return false;
   }
 
-  lintSyntax({CODE}) {
+  lintSyntax({ CODE }) {
     return this.linter.lintSyntax(CODE, true);
   }
 
@@ -2539,7 +2581,7 @@ class OSLUtils {
           if (token.type === 'asi' && token.right?.type === 'fnc' && token.left?.data) {
             this._processFunctionDefinition(token, functionReturnTypes);
           }
-          
+
           if (token.type === 'asi' && token.right?.type === 'fnc' && Array.isArray(token.right.parameters)) {
             const right = token.right
             if (right.data === "function") {
@@ -2629,7 +2671,7 @@ class OSLUtils {
       if (!node || typeof node !== 'object') return node;
 
       if (Array.isArray(node)) {
-        for (let i = 0; i < node.length; i ++) {
+        for (let i = 0; i < node.length; i++) {
           applyTypesToNode(node[i], scope)
         }
         return node;
@@ -2651,7 +2693,7 @@ class OSLUtils {
         typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, scope));
       }
       if (Array.isArray(typedNode.data)) {
-        for (let i = 0; i < typedNode.data.length; i ++) {
+        for (let i = 0; i < typedNode.data.length; i++) {
           typedNode.data[i] = applyTypesToNode(typedNode.data[i], scope)
         }
       }
@@ -3195,23 +3237,23 @@ class OSLUtils {
       switch (methodName) {
         case 'len':
         case 'toNum':
-           outType = 'number';
-           continue;
+          outType = 'number';
+          continue;
         case 'toStr':
-           outType = 'string';
-           continue;
+          outType = 'string';
+          continue;
         case 'not':
         case 'toBool':
-           outType = 'boolean';
-           continue;
+          outType = 'boolean';
+          continue;
       }
 
       // Handle array element access
       if (methodName === 'item' && mtd.type === 'mtv') {
         // If baseType is typed array string like number[]
         if (outType.endsWith('[]')) {
-           outType = outType.slice(0, -2);
-           continue;
+          outType = outType.slice(0, -2);
+          continue;
         }
       }
 
@@ -4330,7 +4372,7 @@ class OSLUtils {
         }
       }
 
-  // Walk the entire line with a shared global scope across lines
+      // Walk the entire line with a shared global scope across lines
       globalScope = globalScope || {};
       walk(line, lineNum, null, globalScope);
 
@@ -4364,25 +4406,12 @@ if (typeof Scratch !== "undefined") {
     let utils = new OSLUtils();
     const fs = require("fs");
 
-    const code = `def funcThatMightError() (
-  if random(1, 2) == 1 (
-    throw "error" "lmao so goob"
-  )
-  return "lmao"
-)
+    const code = `if true
+    (
+      log true
+    )`
 
-result test @= ?funcThatMightError()
-if test.isOk() (
-  log test.unwrap()
-  // "lmao"
-) else (
-  log test.unwrapErr()
-  // "lmao so goob"
-)`
-
-    console.log(code)
-
-    const result = utils.lintSyntax({CODE: code}).errors;
+    const result = utils.lintSyntax({ CODE: code });
 
     fs.writeFileSync("lol.json", JSON.stringify(result, null, 2));
   }
