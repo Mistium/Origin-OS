@@ -749,71 +749,71 @@ class OSLLinter {
       }
     };
 
-const checkBodyBlockOnSameLine = (keywordVal, tokens, startIndex) => {
-        let depth = 0;
-        let foundOpenedCondition = false;
-        for (let j = startIndex; j < tokens.length; j++) {
-            const tok = tokens[j];
-            if (tok.type === 'bracket') {
-                if (tok.value === '(') {
-                    if (!foundOpenedCondition) {
-                        foundOpenedCondition = true;
-                    }
-                    depth++;
-                } else if (tok.value === ')') {
-                    if (!foundOpenedCondition) {
-                        foundOpenedCondition = true;
-                    }
-                    depth--;
-                    if (depth === 0) {
-                        const nextToken = tokens[j + 1];
-                        if (nextToken && nextToken.type === 'newline') {
-                            const tokenAfterNewline = tokens[j + 2];
-                            if (tokenAfterNewline && tokenAfterNewline.type === 'bracket' && tokenAfterNewline.value === '(') {
-                                errors.push({
-                                    message: `'${keywordVal}' statement body opening '(' must be on the same line as the condition`,
-                                    line: tokenAfterNewline.line + 1,
-                                    tokenIndex: j + 2,
-                                    highlightStart: tokenAfterNewline.start,
-                                    highlightEnd: tokenAfterNewline.end
-                                });
-                            }
-                        }
-                        return;
-                    }
-                }
-            } else if (tok.type === 'newline' && !foundOpenedCondition) {
-                const tokenAfterNewline = tokens[j + 1];
-                if (tokenAfterNewline && tokenAfterNewline.type === 'bracket' && tokenAfterNewline.value === '(') {
-                    errors.push({
-                        message: `'${keywordVal}' statement body opening '(' must be on the same line as the condition`,
-                        line: tokenAfterNewline.line + 1,
-                        tokenIndex: j + 1,
-                        highlightStart: tokenAfterNewline.start,
-                        highlightEnd: tokenAfterNewline.end
-                    });
-                }
-                return;
+    const checkBodyBlockOnSameLine = (keywordVal, tokens, startIndex) => {
+      let depth = 0;
+      let foundOpenedCondition = false;
+      for (let j = startIndex; j < tokens.length; j++) {
+        const tok = tokens[j];
+        if (tok.type === 'bracket') {
+          if (tok.value === '(') {
+            if (!foundOpenedCondition) {
+              foundOpenedCondition = true;
             }
+            depth++;
+          } else if (tok.value === ')') {
+            if (!foundOpenedCondition) {
+              foundOpenedCondition = true;
+            }
+            depth--;
+            if (depth === 0) {
+              const nextToken = tokens[j + 1];
+              if (nextToken && nextToken.type === 'newline') {
+                const tokenAfterNewline = tokens[j + 2];
+                if (tokenAfterNewline && tokenAfterNewline.type === 'bracket' && tokenAfterNewline.value === '(') {
+                  errors.push({
+                    message: `'${keywordVal}' statement body opening '(' must be on the same line as the condition`,
+                    line: tokenAfterNewline.line + 1,
+                    tokenIndex: j + 2,
+                    highlightStart: tokenAfterNewline.start,
+                    highlightEnd: tokenAfterNewline.end
+                  });
+                }
+              }
+              return;
+            }
+          }
+        } else if (tok.type === 'newline' && !foundOpenedCondition) {
+          const tokenAfterNewline = tokens[j + 1];
+          if (tokenAfterNewline && tokenAfterNewline.type === 'bracket' && tokenAfterNewline.value === '(') {
+            errors.push({
+              message: `'${keywordVal}' statement body opening '(' must be on the same line as the condition`,
+              line: tokenAfterNewline.line + 1,
+              tokenIndex: j + 1,
+              highlightStart: tokenAfterNewline.start,
+              highlightEnd: tokenAfterNewline.end
+            });
+          }
+          return;
         }
+      }
     };
 
     const checkOpeningParenNotAtStartOfLine = (tokens) => {
-        for (let i = 0; i < tokens.length; i++) {
-            const tok = tokens[i];
-            if (tok.type === 'bracket' && tok.value === '(') {
-                const prevToken = tokens[i - 1];
-                if (prevToken && prevToken.type === 'newline') {
-                    errors.push({
-                        message: `Opening '(' must not be at the start of a line`,
-                        line: tok.line + 1,
-                        tokenIndex: i,
-                        highlightStart: tok.start,
-                        highlightEnd: tok.end
-                    });
-                }
-            }
+      for (let i = 0; i < tokens.length; i++) {
+        const tok = tokens[i];
+        if (tok.type === 'bracket' && tok.value === '(') {
+          const prevToken = tokens[i - 1];
+          if (prevToken && prevToken.type === 'newline') {
+            errors.push({
+              message: `Opening '(' must not be at the start of a line`,
+              line: tok.line + 1,
+              tokenIndex: i,
+              highlightStart: tok.start,
+              highlightEnd: tok.end
+            });
+          }
         }
+      }
     };
 
     const checkBodyAfterToken = (keywordVal, tokens, startIndex) => {
