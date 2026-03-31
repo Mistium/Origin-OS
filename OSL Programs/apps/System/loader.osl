@@ -1,0 +1,18 @@
+local board @= "origin.keyboard".eval()
+data = open("~/application data/settings/keybinds.json")
+if data.len != 0 (
+  board.keybinds = data.JsonParse()
+)
+
+local apps @= "origin.apps".eval()
+data = open("~/application data/settings/default_apps.json")
+if data.len != 0 (
+  apps.defaults @= {
+    original: {
+      "File Explorer": "/(a) system/user applications/Files.osl",
+      "Text Editor": "/(a) system/user applications/Studio.osl",
+      "Terminal": "/(a) system/system apps/Terminal.osl"
+    },
+    current: data.JsonParse()
+  }
+)

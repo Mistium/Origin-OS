@@ -12,13 +12,6 @@ y = -100
 window "responsive" true
 window "hide"
 
-local board @= "origin.keyboard".eval()
-data = open("~/application data/settings/keybinds.json")
-if data.len != 0 (
-  data.JsonParse()
-  board.keybinds = data
-)
-
 if on_mobile (
   y = 0
   window.resize(screensize_x, screensize_y)

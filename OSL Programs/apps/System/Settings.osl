@@ -379,8 +379,8 @@ def "system" (
       loc 9999 2 0 y
       square w 30 15 : c#prim
       if onclick (
-        default_apps = _DEFAULT_APPS
-        save "default_apps.json" "set" default_apps
+        app_defaults.current = app_defaults.original
+        save "default_apps.json" "set" app_defaults.current
       )
       loc 2 2 30 y
       icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
@@ -391,6 +391,7 @@ def "system" (
       icon "upload" 0.7 : c#txtc
       text "Drop an app onto the app type that you want to replace" 10 : chx#20
 
+      local default_apps @= app_defaults.current
 
       local categories = default_apps.getKeys()
       for i categories.len (
@@ -2050,30 +2051,21 @@ if "wallpapers.json".saveExists() (
   wallpapers = []
 )
 
-_DEFAULT_APPS = {
-  "File Explorer": "/(a) system/user applications/Files.osl",
-  "Text Editor": "/(a) system/user applications/Studio.osl",
-  "Terminal": "/(a) system/system apps/Terminal.osl"
-}
+app_defaults @= "origin.apps.defaults".eval()
 
 def populateDefaultApps() (
-  array keys = default_apps.getKeys()
-  array default_keys = _DEFAULT_APPS.getKeys()
+  local default_apps @= app_defaults.original
+  array default_keys = default_apps.getKeys()
+
+  local original_apps @= app_defaults.original
+  array original_keys = original_apps.getKeys()
+
   for i default_keys.len (
-    if !keys.contains(default_keys[i]) (
-      default_apps[default_keys[i]] = _DEFAULT_APPS[default_keys[i]]
+    if !default_apps.contains(default_keys[i]) (
+      default_apps[default_keys[i]] = original_apps[default_keys[i]]
     )
   )
   save "default_apps.json" "set" default_apps
-)
-
-if "default_apps.json".saveExists() (
-  default_apps = "default_apps.json".saveGet()
-) else (
-  default_apps = {}
-)
-if typeof(default_apps) != "object" (
-  default_apps = {}
 )
 
 populateDefaultApps()
