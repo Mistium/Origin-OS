@@ -110,12 +110,11 @@ if all_json == null (
   if data != "loading" (
     all_json @= data.apps
     supported_json = all_json.getValues()
-      .filter(v -> (v.supports.contains("originOS")))
+      .filter(v -> v.supports.contains("originOS"))
       .sortBy("genre")
-      
-    log supported_json
+    
     categories = supported_json
-      .map(v -> (v.genre.toStr().toLower()))
+      .map(v -> v.genre.toStr().toLower())
       
     out = {}
     for i supported_json.len (
@@ -198,8 +197,8 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       if onclick (
         save_data = "installed.json".saveGet().JsonParse()
         navigate("applist", supported_json
-          .filter(v -> (v.version != save_data[v.title] and save_data.contains(v.title)))
-          .map(v -> (v.title)))
+          .filter(v -> v.title in save_data and v.version != save_data[v.title])
+          .map(v -> v.title))
       )
       local y = y_position
       set_x w / -2 + 40
@@ -288,12 +287,12 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       text "By" + cur.author 10 : chy#5
       if onclick (
         navigate("applist", supported_json
-          .filter(v -> (v.author
+          .filter(v -> v.author
             .toLower()
             .replace(" ","")
             .split(",")
-            .contains(cur.author.toLower())))
-          .map(v -> (v.title)))
+            .contains(cur.author.toLower()))
+          .map(v -> v.title))
       )
 
       file "exists" parseFilePath("~/Applications/" ++ cur.title ++ ".osl")

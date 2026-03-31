@@ -216,6 +216,7 @@ def "system" (
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
       option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
       option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
+      option "Default Apps" "w 2.4 square -7.5 7.5 5 5 square 7.5 7.5 5 5 square -7.5 -7.5 5 5 cutcircle 7.5 -7.5 5 0 180"
       option "Time" "alarm-clock"
       option "About" "info"
       break
@@ -320,12 +321,9 @@ def "system" (
         network "update" "onboot" boot_apps
         new_transmit = false
       )
-      w = frame.width - 25
       y = -30 + frame.scroll
       loc 9999 2 0 y
       square w 30 15 : c#prim
-      loc 2 2 30 y
-      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
       if onclick (
         boot_apps = [
           "origin/(a) system/system apps/originWM.osl",
@@ -335,6 +333,8 @@ def "system" (
         ]
         network "update" "onboot" boot_apps
       )
+      loc 2 2 30 y
+      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
       text "Reset Boot To Default" 9 : chx#20
       loc 2 2 20 -70 + frame.scroll
       text "Drop File Here" 9 : c#txtc
@@ -373,6 +373,55 @@ def "system" (
         icon "bin" 0.8 : c#txtc
       )
       page_len = boot_apps.len + 2 * 60
+      break
+    case "Default Apps"
+      y = -30 + frame.scroll
+      loc 9999 2 0 y
+      square w 30 15 : c#prim
+      if onclick (
+        default_apps = _DEFAULT_APPS
+        save "default_apps.json" "set" default_apps
+      )
+      loc 2 2 30 y
+      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
+      text "Reset Apps To Default" 9 : chx#20
+      loc 9999 2 0 y - 50
+      square w 30 15 : c#prim
+      loc 2 2 30 y - 50
+      icon "upload" 0.7 : c#txtc
+      text "Drop an app onto the app type that you want to replace" 10 : chx#20
+
+
+      local categories = default_apps.getKeys()
+      for i categories.len (
+        local cur = categories[i]
+        y = i + 1 * -80 + frame.scroll
+        loc 999 2 0 y
+        c prim
+        local focused = false
+        if mouse_y > y_position - 40 and mouse_y < y_position + 40 and mouse_x > frame.left and mouse_x < frame.right (
+          focused = true
+        )
+        if focused (
+          if file_dropped != 0 (
+            local parts = open(file_dropped, ["location","name","type"])
+            default_apps[cur] = parts[1] ++ "/" ++ parts[2] ++ parts[3]
+            save "default_apps.json" "set" default_apps
+            file_dropped = 0
+          )
+          if file_dragging (
+            c seco
+          )
+        )
+        square w 60 15
+        loc 2 2 30 y + 15
+        text cur 9 : c#txtc
+        loc 2 2 40 y - 12
+        file "open" default_apps[cur] "onlyaccess"
+        file "render" 1.2
+        text default_apps[cur] 9 : c#txtc chx#25
+        change_y -50
+      )
       break
     case "Time"
       goto 0 frame.top - 40 + frame.scroll
@@ -2000,6 +2049,34 @@ if "wallpapers.json".saveExists() (
 ) else (
   wallpapers = []
 )
+
+_DEFAULT_APPS = {
+  "File Explorer": "/(a) system/user applications/Files.osl",
+  "Text Editor": "/(a) system/user applications/Studio.osl",
+  "Terminal": "/(a) system/system apps/Terminal.osl"
+}
+
+def populateDefaultApps() (
+  array keys = default_apps.getKeys()
+  array default_keys = _DEFAULT_APPS.getKeys()
+  for i default_keys.len (
+    if !keys.contains(default_keys[i]) (
+      default_apps[default_keys[i]] = _DEFAULT_APPS[default_keys[i]]
+    )
+  )
+  save "default_apps.json" "set" default_apps
+)
+
+if "default_apps.json".saveExists() (
+  default_apps = "default_apps.json".saveGet()
+) else (
+  default_apps = {}
+)
+if typeof(default_apps) != "object" (
+  default_apps = {}
+)
+
+populateDefaultApps()
 
 wallpaper_provider = "https://wallpapers.mistium.com/"
 
