@@ -6,13 +6,26 @@ if data.len != 0 (
 
 local apps @= "origin.apps".eval()
 data = open("~/application data/settings/default_apps.json")
+local original_defaults @= {
+  "File Explorer": "/(a) system/user applications/Files.osl",
+  "Text Editor": "/(a) system/user applications/Studio.osl",
+  "Terminal": "/(a) system/system apps/Terminal.osl"
+}
+
+local current_defaults = {}
 if data.len != 0 (
-  apps.defaults @= {
-    original: {
-      "File Explorer": "/(a) system/user applications/Files.osl",
-      "Text Editor": "/(a) system/user applications/Studio.osl",
-      "Terminal": "/(a) system/system apps/Terminal.osl"
-    },
-    current: data.JsonParse()
-  }
+  current_defaults @= data.JsonParse()
+  if typeof(current_defaults) != "object" (
+    current_defaults = {}
+  )
+  local original_keys = original_defaults.getKeys()
+  for i original_keys.len (
+    if !current_defaults.contains(original_keys[i]) (
+      current_defaults[original_keys[i]] = original_defaults[original_keys[i]]
+    )
+  )
 )
+apps.defaults @= {
+  original: original_defaults,
+  current: current_defaults
+}
