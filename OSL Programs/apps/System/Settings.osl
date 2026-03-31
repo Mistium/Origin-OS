@@ -406,8 +406,15 @@ def "system" (
         if focused (
           if file_dropped != 0 (
             local parts = open(file_dropped, ["location","name","type"])
-            default_apps[cur] = parts[1] ++ "/" ++ parts[2] ++ parts[3]
-            save "default_apps.json" "set" default_apps
+            if parts[3] == ".shortcut" (
+              parts = open(open(file_dropped), ["location","name","type"])
+            )
+            if parts[3] == ".osl" (
+              default_apps[cur] = parts[1] ++ "/" ++ parts[2] ++ parts[3]
+              save "default_apps.json" "set" default_apps
+            ) else (
+              say "Invalid file type, select a .osl file"
+            )
             file_dropped = 0
           )
           if file_dragging (
