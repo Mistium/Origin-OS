@@ -913,6 +913,8 @@ class OSLLinter {
 
           case 'case':
           case 'default':
+            const prevToken = tokens[i - 1];
+            if (prevToken && prevToken.type === 'punctuation' && prevToken.value === '.') break;
             const switchContext = statementStack.find(t => t.type === 'switch');
             if (!switchContext) {
               errors.push({
