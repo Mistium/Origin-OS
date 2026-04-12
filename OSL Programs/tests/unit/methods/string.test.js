@@ -156,7 +156,7 @@ const tests = [
       log "a,b,c".split(",")
       log "hello world".split(" ")
     `,
-    { expect: [['a','b','c'], ['hello','world']] }
+    { expect: [['a', 'b', 'c'], ['hello', 'world']] }
   ),
 
   helper.createTest(
@@ -187,11 +187,97 @@ const tests = [
   helper.createTest(
     'String atob and btoa',
     `
-      encoded = "hello".btoa()
-      log encoded
-      log encoded.atob()
+    encoded = "hello".btoa()
+    log encoded
+    log encoded.atob()
     `,
     { expect: ['aGVsbG8=', 'hello'] }
+  ),
+
+  helper.createTest(
+    'String encodeHex and decodeHex',
+    `
+    log "ABC".encodeHex()
+    log "414243".decodeHex()
+    `,
+    { expect: ['414243', 'ABC'] }
+  ),
+
+  helper.createTest(
+    'String encodeBin and decodeBin',
+    `
+    log "AB".encodeBin()
+    log "1000001 1000010".decodeBin()
+    `,
+    { expect: ['1000001 1000010', 'AB'] }
+  ),
+
+  helper.createTest(
+    'String toMixed',
+    `
+    log "hello".toMixed()
+    `,
+    { expect: ['HeLlO'] }
+  ),
+
+  helper.createTest(
+    'String trimText',
+    `
+    log "hello world".trimText(8)
+    log "hello world".trimText(20)
+    log "short".trimText(5, "...")
+    `,
+    { expect: ['hello ..', 'hello world', 'short'] }
+  ),
+
+  helper.createTest(
+    'String toArr',
+    `
+    log "hello".toArr()
+    `,
+    { expect: [['h', 'e', 'l', 'l', 'o']] }
+  ),
+
+  helper.createTest(
+    'String containsAny',
+    `
+    log "hello world".containsAny("world", "foo")
+    log "hello world".containsAny("bar", "baz")
+    `,
+    { expect: [true, false] }
+  ),
+
+  helper.createTest(
+    'String hashMD5',
+    `
+    log "hello".hashMD5()
+    `,
+    { expect: ['5d41402abc4b2a76b9719d911017c592'] }
+  ),
+
+  helper.createTest(
+    'String hashSHA1',
+    `
+    log "hello".hashSHA1()
+    `,
+    { expect: ['aaf4c61ddcc5e8a2dabede0f3b482cd9aea9434d'] }
+  ),
+
+  helper.createTest(
+    'String hashSHA256',
+    `
+    log "hello".hashSHA256()
+    `,
+    { expect: ['2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824'] }
+  ),
+
+  helper.createTest(
+    'String hashSHA512',
+    `
+    hash = "hello".hashSHA512()
+    log hash.len
+    `,
+    { expect: [128] }
   ),
 
   // --- Type-prototype string methods ---

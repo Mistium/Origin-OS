@@ -151,7 +151,37 @@ const tests = [
       say "hello world from osl"
     `,
     { expect: ['hello world from osl'] }
-  )
+  ),
+
+  helper.createTest(
+    'Continue is used to skip to next iteration',
+    `
+    x = 0
+    loop 3 (
+      x ++
+      if x == 2 (
+        continue
+      )
+      log x
+    )
+    `,
+    { expect: [1, 3] }
+  ),
+
+  helper.createTest(
+    'Break is used to exit loop',
+    `
+    x = 0
+    loop 3 (
+      x ++
+      if x > 2 (
+        break
+      )
+      log x
+    )
+    `,
+    { expect: [1, 2] }
+  ),
 ];
 
 module.exports = { tests };

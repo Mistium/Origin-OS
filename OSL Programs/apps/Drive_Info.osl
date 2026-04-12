@@ -5,7 +5,7 @@ permission "request" "kernel"
 
 systemvars "getlist" "Files"
 files = data
-total_files = data.len // 14
+total_files = round(data.len / 14)
 pointer = files.index("Origin/(C) Users") - 1
 name = files.[pointer]
 size = files.join(" ").len
