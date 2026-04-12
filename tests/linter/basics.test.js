@@ -94,25 +94,26 @@ const tests = [
   },
 
   {
-    name: 'loop statement with body on same line should error',
+    name: 'loop statement with body on same line should pass',
     run: () => {
       const code = 'loop 10 (';
       const result = lintCode(code);
-      assert.true(result.errors.length > 0, 'Expected lint error for body on same line');
-      assert.true(
-        hasError(result.errors, 'must be on a new line'),
-        'Expected error about body being on new line'
-      );
+      const errors = result.errors.filter(e => !e.message.includes('Unclosed'));
+      assert.equals(errors.length, 0, 'Expected no lint errors (except unclosed bracket)');
     }
   },
 
   {
-    name: 'loop statement with body on new line should pass',
+    name: 'loop statement with body on new line should error',
     run: () => {
       const code = 'loop 10\n(';
       const result = lintCode(code);
       const errors = result.errors.filter(e => !e.message.includes('Unclosed'));
-      assert.equals(errors.length, 0, 'Expected no lint errors (except unclosed bracket)');
+      assert.true(result.errors.length > 0, 'Expected lint error for newline before (');
+      assert.true(
+        hasError(result.errors, 'must be on the same line'),
+        'Expected error about body being on same line'
+      );
     }
   },
 
