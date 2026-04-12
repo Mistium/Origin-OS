@@ -96,7 +96,7 @@ if url.startsWith("https://api.github.com/repos") (
     )
   )
 
-  count = frame.scroll // 35
+  count = round(frame.scroll / 35)
   len = names.len
   loop (frame_height / 35).round.clamp(0,len) (
     count ++

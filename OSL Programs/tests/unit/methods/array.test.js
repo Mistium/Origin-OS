@@ -9,7 +9,7 @@ const tests = [
       arr = [1,2,3]
       log arr.concat([4,5,6])
     `,
-    { expect: [[1,2,3,4,5,6]] }
+    { expect: [[1, 2, 3, 4, 5, 6]] }
   ),
 
   helper.createTest(
@@ -59,14 +59,14 @@ const tests = [
     'Array sort ascending',
     `arr = [3,1,2]
     log arr.sort()`,
-    { expect: [[1,2,3]] }
+    { expect: [[1, 2, 3]] }
   ),
 
   helper.createTest(
     'Array sort descending',
     `arr = [3,1,2]
     log arr.sort().reverse()`,
-    { expect: [[3,2,1]] }
+    { expect: [[3, 2, 1]] }
   ),
 
   helper.createTest(
@@ -74,7 +74,7 @@ const tests = [
     `arr = [1,2,3]
     void arr.swap(1,3)
     log arr`,
-    { expect: [[3,2,1]] }
+    { expect: [[3, 2, 1]] }
   ),
 
   helper.createTest(
@@ -100,21 +100,21 @@ const tests = [
     'Array trim',
     `arr = [1,2,3,4,5]
     log arr.trim(2,4)`,
-    { expect: [[2,3,4]] }
+    { expect: [[2, 3, 4]] }
   ),
 
   helper.createTest(
     'Array map',
     `arr = [1,2,3]
     log arr.map(x -> x * 2)`,
-    { expect: [[2,4,6]] }
+    { expect: [[2, 4, 6]] }
   ),
 
   helper.createTest(
     'Array fill',
     `arr = (1 to 3).fill("hi")
     log arr`,
-    { expect: [['hi','hi','hi']] }
+    { expect: [['hi', 'hi', 'hi']] }
   ),
 
   helper.createTest(
@@ -134,7 +134,7 @@ const tests = [
       log arr.left(2)
       log arr.right(2)
     `,
-    { expect: [[1,2], [4,5]] }
+    { expect: [[1, 2], [4, 5]] }
   ),
 
   helper.createTest(
@@ -143,7 +143,7 @@ const tests = [
       arr = [1,2,2,3,1,4]
       log arr.deDupe()
     `,
-    { expect: [[1,2,3,4]] }
+    { expect: [[1, 2, 3, 4]] }
   ),
 
   helper.createTest(
@@ -154,7 +154,7 @@ const tests = [
       void arr.prepend(1)
       log arr
     `,
-    { expect: [[1,2,3,4]] }
+    { expect: [[1, 2, 3, 4]] }
   ),
 
   helper.createTest(
@@ -164,7 +164,7 @@ const tests = [
       void arr.insert(2, 2)
       log arr
     `,
-    { expect: [[1,2,3,4]] }
+    { expect: [[1, 2, 3, 4]] }
   ),
 
   helper.createTest(
@@ -195,6 +195,104 @@ const tests = [
     { expect: [24] }
   ),
 
+  helper.createTest(
+    'Array sortBy ascending',
+    `
+    arr = [
+      {name: "bob", age: 30},
+      {name: "alice", age: 25}
+    ]
+    log arr.sortBy("age").getKeys("name")
+    `,
+    { expect: [['alice', 'bob']] }
+  ),
+
+  helper.createTest(
+    'Array sortBy descending',
+    `
+    arr = [
+      {name: "bob", age: 30},
+      {name: "alice", age: 25}
+    ]
+    log arr.sortBy("age", "descending").getKeys("name")
+    `,
+    { expect: [['bob', 'alice']] }
+  ),
+
+  helper.createTest(
+    'Array reverse',
+    `
+    log [1,2,3].reverse()
+    `,
+    { expect: [[3, 2, 1]] }
+  ),
+
+  helper.createTest(
+    'Array toSet',
+    `
+    s @= [1,2,2,3,3,3].toSet()
+    log s.contains(1)
+    log s.contains(2)
+    log s.contains(3)
+    `,
+    { expect: [true, true, true] }
+  ),
+
+  helper.createTest(
+    'Array getKeys',
+    `
+    arr = [{name: "alice"}, {name: "bob"}]
+    log arr.getKeys("name")
+    `,
+    { expect: [['alice', 'bob']] }
+  ),
+
+  helper.createTest(
+    'Array getKeys with missing key returns null',
+    `
+    arr = [{name: "alice"}, {age: 20}]
+    log arr.getKeys("name")
+    `,
+    { expect: [['alice', null]] }
+  ),
+
+  helper.createTest(
+    'Array containsAny',
+    `
+    log [1,2,3].containsAny(2, 5)
+    log [1,2,3].containsAny(10, 20)
+    `,
+    { expect: [true, false] }
+  ),
+
+  helper.createTest(
+    'Array toEntriesObj',
+    `
+    log [["a", 1], ["b", 2]].toEntriesObj()
+    `,
+    { expect: [{ a: 1, b: 2 }] }
+  ),
+
+  helper.createTest(
+    'Array toEntriesObj with invalid entries',
+    `
+    log [["a", 1], "invalid"].toEntriesObj()
+    `,
+    { expect: [{}] }
+  ),
+
+  helper.createTest(
+    'Array clone',
+    `
+    arr = [1,2,3]
+    cloned = arr.clone()
+    void cloned.append(4)
+    log arr
+    log cloned
+    `,
+    { expect: [[1, 2, 3], [1, 2, 3, 4]] }
+  ),
+
   // --- Type-prototype array methods ---
 
   helper.createTest(
@@ -220,7 +318,7 @@ const tests = [
       )
       log [1,2,3].double()
     `,
-    { expect: [[2,4,6]] }
+    { expect: [[2, 4, 6]] }
   ),
 ];
 
