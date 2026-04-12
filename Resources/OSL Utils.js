@@ -798,28 +798,6 @@ class OSLLinter {
       }
     };
 
-    const checkBodyAfterToken = (keywordVal, tokens, startIndex) => {
-      let j = startIndex;
-      while (j < tokens.length) {
-        const tok = tokens[j];
-        if (tok.type === 'bracket' && tok.value === '(') {
-          const keywordToken = tokens[startIndex - 1];
-          if (keywordToken && tok.line === keywordToken.line) {
-            errors.push({
-              message: `'${keywordVal}' statement body must be on a new line - expected newline before '('`,
-              line: tok.line + 1,
-              tokenIndex: j,
-              highlightStart: tok.start,
-              highlightEnd: tok.end
-            });
-          }
-          return;
-        }
-        if (tok.type === 'newline') return;
-        j++;
-      }
-    };
-
     const validateDefBody = (defIdx) => {
       const bodyToken = tokens[defIdx];
       if (bodyToken && bodyToken.type === 'bracket' && bodyToken.value === '(') {
@@ -884,14 +862,10 @@ class OSLLinter {
           case 'while':
           case 'until':
           case 'for':
+          case 'loop':
           case 'each':
             checkBodyAfterClosingParen(token.value, tokens, i + 1);
             checkBodyBlockOnSameLine(token.value, tokens, i + 1);
-            statementStack.push({ type: token.value, line: token.line + 1, parenDepth: 0 });
-            break;
-
-          case 'loop':
-            checkBodyAfterToken('loop', tokens, i + 1);
             statementStack.push({ type: token.value, line: token.line + 1, parenDepth: 0 });
             break;
 
