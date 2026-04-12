@@ -798,37 +798,25 @@ class OSLLinter {
       }
     };
 
-    const checkOpeningParenNotAtStartOfLine = (tokens) => {
-      for (let i = 0; i < tokens.length; i++) {
-        const tok = tokens[i];
+    const checkBodyAfterToken = (keywordVal, tokens, startIndex) => {
+      let j = startIndex;
+      while (j < tokens.length) {
+        const tok = tokens[j];
         if (tok.type === 'bracket' && tok.value === '(') {
-          const prevToken = tokens[i - 1];
-          if (prevToken && prevToken.type === 'newline') {
+          const keywordToken = tokens[startIndex - 1];
+          if (keywordToken && tok.line === keywordToken.line) {
             errors.push({
-              message: `Opening '(' must not be at the start of a line`,
+              message: `'${keywordVal}' statement body must be on a new line - expected newline before '('`,
               line: tok.line + 1,
-              tokenIndex: i,
+              tokenIndex: j,
               highlightStart: tok.start,
               highlightEnd: tok.end
             });
           }
+          return;
         }
-      }
-    };
-
-    const checkBodyAfterToken = (keywordVal, tokens, startIndex) => {
-      const nextToken = tokens[startIndex];
-      if (nextToken && nextToken.type === 'bracket' && nextToken.value === '(') {
-        const keywordToken = tokens[startIndex - 1];
-        if (keywordToken && nextToken.line === keywordToken.line) {
-          errors.push({
-            message: `'${keywordVal}' statement body must be on a new line - expected newline before '('`,
-            line: nextToken.line + 1,
-            tokenIndex: startIndex,
-            highlightStart: nextToken.start,
-            highlightEnd: nextToken.end
-          });
-        }
+        if (tok.type === 'newline') return;
+        j++;
       }
     };
 
@@ -973,8 +961,6 @@ class OSLLinter {
         }
       }
     }
-
-    checkOpeningParenNotAtStartOfLine(tokens);
 
     return errors;
   }

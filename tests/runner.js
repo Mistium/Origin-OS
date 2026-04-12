@@ -43,7 +43,7 @@ class TestRunner {
     
     this.log('\n🧪 OSL Test Suite\n', 'bright');
     
-    const testDirs = ['unit', 'integration'];
+    const testDirs = ['unit', 'integration', 'linter'];
     
     for (const dir of testDirs) {
       const dirPath = path.join(__dirname, dir);
