@@ -180,7 +180,7 @@ class pages (
         square frame.width - 30 30 10 : c#c_prim
         if onclick (
           sharing_tab = ""
-          tabs = tabs.filter(v -> !v.startsWith("^ "))
+          tabs @= tabs.filter(v -> !v.startsWith("^ "))
           joinEditSession(invites[invite].val.room)
           local file_data = invites[invite].val.file_data
           save_name = "temp_" ++ file_data[14] ++ ".lvsh"
@@ -865,6 +865,9 @@ def "add_tab" "data" (
 def "insert_tab" "index, data" (
   if data.id == null (
     data.id = ouidNew()
+  )
+  if tabs == null (
+    tabs = []
   )
   tabs.insert(index, data)
   change_focus = true

@@ -1561,7 +1561,7 @@ def "inputs" (
       )
       break
     case "Keybinds"
-      local keybinds @= "origin.keyboard.keybinds".eval()
+      local keybinds @= "origin.keyboard?.keybinds".eval()
       local keys = keybinds.getKeys()
       keybind_display ??= keys[1]
       keybind_selected ??= null
@@ -2058,7 +2058,7 @@ if "wallpapers.json".saveExists() (
   wallpapers = []
 )
 
-app_defaults @= "origin.apps.defaults".eval()
+app_defaults @= "origin.apps?.defaults".eval()
 
 def populateDefaultApps() (
   local default_apps @= app_defaults.original
