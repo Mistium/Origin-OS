@@ -96,7 +96,7 @@ const tests = [
   helper.createTest(
     'Lambda inside lambda',
     `
-      outer = x -> (y -> (x + y))
+      outer = x -> x::(y -> self + y)
       add5 = outer(5)
       log add5(3)
     `,

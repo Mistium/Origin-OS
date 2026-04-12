@@ -3,8 +3,8 @@
 permission "request" "windows"
 permission "request" "javascript"
 
-def checkCollision(number x2, number y2, number w, number h) (
-  return abs(mouse_x - x2) < w / 2 and abs(mouse_y - y2) < h / 2
+def checkCollision(number x, number y, number w, number h) (
+  return abs(mouse_x - x) < w / 2 and abs(mouse_y - y) < h / 2
 )
 
 // use the builtin version api
