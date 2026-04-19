@@ -2058,7 +2058,7 @@ if "wallpapers.json".saveExists() (
   wallpapers = []
 )
 
-app_defaults @= "origin.apps?.defaults ?? {}".eval()
+app_defaults @= "origin.apps?.defaults ?? {original: {}, modified: {}}".eval()
 
 def populateDefaultApps() (
   local default_apps @= app_defaults.original
