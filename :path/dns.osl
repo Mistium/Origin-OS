@@ -167,6 +167,10 @@ if args.len == 1 (
   if args[1].toUpper() in ["A","AAAA","CNAME","MX","TXT","NS","SOA","PTR","SRV","CAA","DNSKEY","DS","TLSA","HTTPS","SVCB","SSHFP","NAPTR","SPF","CERT","DNAME"] (
     url = "https://dns.google/resolve?name=" ++ args[2] ++ "&type=" ++ args[1].toUpper()
     response = url.httpGet()
+    if response.Answer == null (
+      terminal.writeLine("The record does not exist.")
+      break
+    )
     for i response.Answer.len (
       if args[1].toUpper() == "TXT" (
         terminal.writeLine('"' ++ response.Answer[i].data ++ '"')
