@@ -256,7 +256,9 @@ include windowfileloc
 hovered = window_id_index == window_top_index
 
 // if this is true, it forces the window to redraw and not cache
-sequenced_refresh = cur_frame % 120 == 0 or wallpaper_changed or window_changed_dimensions
+// with the DOM renderer the OSL runtime diffs elements, so always draw (never cache/exit)
+local dom = "window.origin.domRender".eval() == true
+sequenced_refresh = dom or cur_frame % 120 == 0 or wallpaper_changed or window_changed_dimensions
 
 if wallpaper_changed (
   window.callRender()

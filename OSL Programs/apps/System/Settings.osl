@@ -751,7 +751,7 @@ def "appearance" (
       )
       page_len = segments.len + 2 * 60
       break
-    case "windows"
+    case "Windows"
       goto 0 frame.top + frame.scroll - 30
       setting_toggle "Show Window Outline" w user.theme.show_outline != false def() -> (
         local theme = user.theme
