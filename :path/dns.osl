@@ -1,16 +1,112 @@
 def reverse(ip) (
-  url = "https://apps.mistium.com/cors?url=https://dns.google/query?name=" + ip.replace(":","%3A")
-  content = url.httpGet().replaceFirst("<!DOCTYPE html>\n<html lang="en"> <head> <title>Query:&nbsp;","").split(" ")[1]
-  return content
-)
-
-def checkipv4(ip) (
-  def checkipv4octet(data) (
-    return data <= 255 and data >= 0
+  if ip.contains(":") (
+    url = "https://dns.google/resolve?name=" ++ v6ptr(ip) ++ "&type=PTR"
+  ) else (
+    url = "https://dns.google/resolve?name=" ++ ip ++ ".in-addr.arpa&type=PTR"
   )
-  return ip.split(".").every(checkipv4octet)
+  content = url.httpGet()["Answer"][1]["data"]
+  terminal.writeLine(content)
 )
 
+def checkipv4(string ip) boolean (
+  array octets = ip.split(".")
+  if octets.len != 4 (
+    return false
+  )
+  for i octets.len (
+    string octet_str = octets[i].toStr()
+    if octet_str == "" (
+      return false
+    )
+    for j octet_str.len (
+      if !"0123456789".contains(octet_str[j]) (
+        return false
+      )
+    )
+    octet = octet_str.toInt()
+    if octet < 0 or octet > 255 (
+      return false
+    )
+  )
+  return true
+)
+
+def checkipv6(string ip) boolean (
+  string tempip = ip.replace("::", ":EMPTY:")
+  array octets = tempip.split(":")
+  boolean fail = false
+  boolean once = false
+  if ip.contains("::") (
+    if octets.len > 8 (
+      fail = true
+    )
+  ) else (
+    if octets.len != 8 (
+      fail = true
+    )
+  )
+  for i octets.len (
+    octet = octets[i]
+    if octet == "EMPTY" (
+      if once == false ( // As per RFC 4291 Section 2.2.2, the '::' can only appear once in an address.
+        once = true
+        continue
+      ) else (
+        fail = true
+      )
+    )
+    if octet == "" (
+      continue
+    )
+    if octet.len > 4 (
+      fail = true
+    )
+    for i octet.len (
+       if not ("abcdef0123456789".contains(octet[i].toLower())) (
+         fail = true
+       )
+    )
+  ) 
+  if fail == false (
+    return true
+  ) else (
+    return false
+  )
+)
+ 
+def v6ptr(string ip) string (
+  if ip.startsWith("::") (
+    ip = "0" ++ ip
+  )
+  if ip.endsWith("::") (
+    ip = ip ++ "0"
+  )
+  string tempip = ip.replace("::", ":EMPTY:")
+  array octets = tempip.split(":")
+  missing = 9 - octets.len
+  string full_hex = ""
+  for i octets.len (
+    string octet = octets[i].toStr()
+    if octet == "EMPTY" (
+      for j missing (
+        full_hex = full_hex ++ "0000"
+      )
+    ) else (
+      while octet.len < 4 (
+        octet = "0" ++ octet
+      )
+      full_hex = full_hex ++ octet
+    )
+  )
+  string ptr = ""
+  for i full_hex.len (
+    rev_index = full_hex.len - i + 1
+    ptr = ptr ++ full_hex[rev_index].toLower() ++ "."
+  )
+  ptr = ptr ++ "ip6.arpa."
+  return ptr
+)
+  
 if args.len == 0 (
   terminal.writeLine("dns: not enough arguments")
 )
@@ -28,41 +124,57 @@ if args[1] == "-h" (
   terminal.writeLine("  dns MX example.com              → Query mail exchange records")
   terminal.writeLine("  dns TXT example.com             → Query text records")
   terminal.writeLine("")
-  terminal.writeLine("Supported record types:")
-  terminal.writeLine("  A, AAAA, MX, TXT, CNAME, NS, PTR, SOA, SRV")
+  terminal.writeLine("All DNS record types supported.")
   return
 )
 
 
 if args.len == 1 (
-  if args[1].count(":") >= 2 (
-    url = "https://dns.google/resolve?name=" ++ reverse(args[1]) ++ "&type=PTR"
-    response = url.httpGet()
-    for i response.Answer.len (
-      terminal.writeLine(response.Answer[i].data)
+  if args[1].contains(":") (
+    if checkipv6(args[1]) (
+      reverse(args[1])
+    ) else (
+      terminal.writeLine("Invalid IPv6")
     )
-  ) else if checkipv4(args[1]) (
-    url = "https://dns.google/resolve?name=" ++ reverse(args[1]) ++ "&type=PTR"
-    response = url.httpGet()
-    for i response.Answer.len (
-      terminal.writeLine(response.Answer[i].data)
+  ) else if args[1].split(".").len == 4 (
+    if checkipv4(args[1]) (
+      reverse(args[1])
+    ) else (
+      terminal.writeLine("Invalid IPv4")
     )
   ) else (
     url = "https://dns.google/resolve?name=" ++ args[1] ++ "&type=A"
-    response = url.httpGet()
-    for i response.Answer.len (
-      terminal.writeLine(response.Answer[i].data)
+    responsea = url.httpGet()
+    for i responsea.Answer.len (
+      terminal.writeLine(responsea.Answer[i].data)
     )
     url = "https://dns.google/resolve?name=" ++ args[1] ++ "&type=AAAA"
-    response = url.httpGet()
-    for i response.Answer.len (
-      terminal.writeLine(response.Answer[i].data)
+    responseaaaa = url.httpGet()
+    if responsea.Answer.len + responseaaaa.Answer.len == 0 (
+      terminal.writeLine("No records found.")
+      return
+    ) else if responsea.Answer.len == 0 (
+      terminal.writeLine("No A record found.")
+    )
+    for i responseaaaa.Answer.len (
+      terminal.writeLine(responseaaaa.Answer[i].data)
+    )
+    if responseaaaa.Answer.len == 0 (
+      terminal.writeLine("No AAAA record found.")
     )
   )
 ) else (
-  url = "https://dns.google/resolve?name=" ++ args[2] ++ "&type=" ++ args[1]
-  response = url.httpGet()
-  for i response.Answer.len (
-    terminal.writeLine(response.Answer[i].data)
+  if args[1].toUpper() in ["A","AAAA","CNAME","MX","TXT","NS","SOA","PTR","SRV","CAA","DNSKEY","DS","TLSA","HTTPS","SVCB","SSHFP","NAPTR","SPF","CERT","DNAME"] (
+    url = "https://dns.google/resolve?name=" ++ args[2] ++ "&type=" ++ args[1].toUpper()
+    response = url.httpGet()
+    for i response.Answer.len (
+      if args[1].toUpper() == "TXT" (
+        terminal.writeLine('"' ++ response.Answer[i].data ++ '"')
+      ) else (
+        terminal.writeLine(response.Answer[i].data)
+      )
+    )
+  ) else (
+    terminal.writeLine("Invalid RR Type")
   )
 )
