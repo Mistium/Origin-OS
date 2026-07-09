@@ -102,32 +102,36 @@ total = apps.len
 
 input "focus" "search"
 
+transparent = {
+  opacity: 0.5,
+}
+
 mainloop:
 wt:load_theme
 
-width = window.width - 30
-height = window.height - 30
+width = window.width - 20
+height = window.height - 20
 
 goto 0 0
-c window_colour
-square width height 30
-if mouse_down and clicked.not() (
+square width height 45 0 1
+if mouse_down and !clicked (
   window.close()
 )
 
-c prim
 goto 0 0
-square width height 10
+style transparent
+square width height 15 : c#window_colour
 
 goto 0 window.top - 30
-c seco
+c prim
+style transparent
 square width 30 10
 
 goto 0 window.bottom + 30
+style transparent
 square width 30 10
 
-glass:frame window.left window.top window.right window.bottom
-frame "clear"
+window.setGlass(100, "15px")
 
 frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 total * 40 (
   total = apps.len
@@ -140,7 +144,7 @@ frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 tota
     set_x 0
     square width 25 10 0 1
     if mouse_touching (
-      
+
     )
     set_x frame.left + 20
     if item["type"] == "app" (

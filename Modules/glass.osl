@@ -2,7 +2,7 @@ def "frame" "this.left, this.top, this.right, this.bottom, this.contentheight, t
   frame this.left this.top this.right this.bottom this.contentheight this.id
   effect "transparency" 50
   goto frame.x * -1 frame.y * -1
-  
+
   image "wallpaper_blur" background_width background_height
   effect "clear"
 )

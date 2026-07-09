@@ -78,8 +78,7 @@ goto window.right - (w / 2) - 20 y
 square w h 25 : c#seco
 square w h 20 : c#prim
 
-glass:frame window.left window.top window.right window.bottom
-frame "clear"
+window.setGlass(100, "15px")
 
 loc 2 2 100 -70
 for i filters.len (
@@ -124,7 +123,7 @@ frame x - 130 window.top - 60 x + 130 window.bottom + 15 cur_mail.len * 85 "cach
     )
     local r_from = cur.from
     local r_to = cur.recipient
-    
+
     all_mail[cur.index].external = r_to == username ? r_from r_to
     set_x frame.left + 27 : chy#15
 
@@ -157,7 +156,7 @@ frame l window.top - 60 x + (w / 2) window.bottom + 15 0 "cache@contents" (
     change_x -25
     input frame.width - 80 25 "recipient" "Type the username of the person to send this too"
     inputs.recipient = inputs.recipient.trim(0,20)
-  
+
     goto frame.right - 25 frame.top - 28
     icon "send" 0.8 : c#txtc
     if mouse_touching (
@@ -172,12 +171,12 @@ frame l window.top - 60 x + (w / 2) window.bottom + 15 0 "cache@contents" (
         say "Sending"
       )
     )
-    
+
     goto 0 frame.top - 72
     square frame.width - 20 22 10 : c#prim
     input frame.width - 30 25 "title" "Type the title of the omail here"
     inputs.title = inputs.title.trim(0,50)
-    
+
     goto 0 -43
     c prim
     textbox frame.width - 20 frame.height - 120 "send_body" 10 {
@@ -191,13 +190,13 @@ frame l window.top - 60 x + (w / 2) window.bottom + 15 0 "cache@contents" (
       image "https://avatars.rotur.dev/" ++ cur.external ++ "?radius=30" 40 40
     )
     text cur.external 10 : c#txtc chx#30
-  
+
     local msg = cur.from == username ? "Sent" "Recieved"
     loc -2 2 -20 - (msg.len * 10) -20
     text msg 10
-  
+
     inputs.body = cur.body.wrapText(frame.width / 10 - 3).split("\n")
-  
+
     goto 0 -10
     c prim
     textbox frame.width frame.height - 100 "body" 10 {

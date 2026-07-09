@@ -1,28 +1,49 @@
 local targetPath = terminal.pwd
-string first = args[1].toStr()
+local flags = args.filter(v -> v.startsWith("-"))
+local paths = args.filter(v -> !v.startsWith("-"))
 
-if !first.startsWith("-") (
-  targetPath = terminal.resolvePath(args[1])
-)
-if !targetPath.endsWith(".folder") (
-  targetPath ++= ".folder"
+if paths.len > 0 (
+  targetPath = terminal.resolvePath(paths[1])
 )
 
-file "exists" targetPath
+local folderPath = targetPath
+if folderPath.endsWith(".folder") (
+  folderPath = folderPath.trim(1, -8)
+)
+
+file "exists" folderPath ++ ".folder"
 if !exists (
-  terminal.writeLine("ls: cannot access '" ++ args[1] ++ "': No such file or directory")
+  local requested = paths.len > 0 ? paths[1] folderPath
+  terminal.writeLine("ls: cannot access '" ++ requested ++ "': No such file or directory")
   return
 )
 
-local getAll = args.contains("-a")
+local getAll = flags.contains("-a")
+local entries = listFiles(folderPath)
+array files = []
 
-local files = open(targetPath)
-  .map(f -> open(f, ["name", "type"]).join(""))
-  .filter(v -> getAll or v[1] != ":")
+for i entries.len (
+  local name = entries[i]
+  if getAll or name[1] != ":" (
+    void files.append(name)
+  )
+)
 
-local maxLen = files
-  .map(v -> (v.endsWith(".folder") ? (v.len - 8) v.len) + 4)
-  .max()
+if files.len == 0 (
+  return
+)
+
+local maxLen = 0
+for i files.len (
+  local name = files[i]
+  if name.endsWith(".folder") (
+    name = name.trim(1, -8) ++ "/"
+  )
+  if name.len > maxLen (
+    maxLen = name.len
+  )
+)
+maxLen += 4
 
 local cols = floor((window.width - 30) / 10 / (maxLen + 2))
 if cols < 1 (
@@ -30,29 +51,29 @@ if cols < 1 (
 )
 
 array line = []
-local i = 0
-void files.map(v -> (
-  local ov = v
+local column = 0
+for i files.len (
+  local name = files[i]
   local color = txtc
 
-  if ov.endsWith(".folder") (
-    ov = ov.trim(1, -8) ++ "/"
+  if name.endsWith(".folder") (
+    name = name.trim(1, -8) ++ "/"
     color = global_accent
   )
-  if ov[1] == ":" (
+  if name[1] == ":" (
     color = "#aaa"
   )
 
-  local padded = ov.padEnd(" ", maxLen)
-  void line.append(color, padded)
+  void line.append(color, name.padEnd(" ", maxLen))
+  column += 1
 
-  i ++
-  if i % cols == 0 (
+  if column == cols (
     terminal.writeLine(line)
     line = []
+    column = 0
   )
-))
+)
 
-if i % cols != 0 (
+if line.len > 0 (
   terminal.writeLine(line)
 )

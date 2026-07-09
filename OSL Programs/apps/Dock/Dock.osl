@@ -35,11 +35,6 @@ state = {
 }
 
 desktop @= () -> (
-  local dom = "window.origin.domRender".eval() == true
-  redraw_all = dom or (cur_frame % 120) == 0 or round(y) != round(dock_y_target)
-  if redraw_all (
-    window.callRender()
-  )
   for bg segment_classes.len (
     local cur @= segment_classes[bg]
     if cur.enabled == false (
@@ -49,14 +44,14 @@ desktop @= () -> (
     dock_width += w + 30
     cur.width = w
     change_x w / 2
-    square w height 20 0 1
-    run[bg] = dom or cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w or redraw_all
-    if run[bg] (
-      square w height 20
-    )
+    style {
+        bgBlur: "5px",
+        bg: current_colour.trim(1, 7) ++ "99"
+    }
+    square w height 20
     change_x w / 2 + 30
   )
-  
+
   for i segment_classes.len (
     local cur @= segment_classes[i]
     if cur.enabled == false (
@@ -66,19 +61,8 @@ desktop @= () -> (
     c dock_colour
     local w2 = w / 2 + 10
     local h2 = height / 2 + 10
-    goto x + (w / 2) y
-    if run[i] (
-      frame x_position + w2 y_position + h2 x_position - w2 y_position - h2 (
-        effect "transparency" 70
-        goto -frame.x -frame.y
-    
-        image "wallpaper_blur" background_width background_height
-        effect "clear"
-      )
-      goto x y
-      void cur.main()
-      run[i] = false
-    )
+    goto x y
+    void cur.main()
     x += w + 30
   )
 )
@@ -230,8 +214,6 @@ file_loc = user_folder ++ "/Dock"
 
 network "update" "hostOS" system_os
 network "update" "timezone" timezone
-
-run = (1 to segment_classes.len).fill(false)
 
 cur_frame = 0
 

@@ -106,7 +106,7 @@ if typeof(pinned_friends) != "array" (
 def organiseFriends() (
   array friends @= user["sys.friends"]
     .filter(v -> !pinned_friends.contains(v))
-  
+
   return pinned_friends ++ friends
 )
 
@@ -139,7 +139,9 @@ if page != "Profile" (
     online @= network.online ?? []
   )
 
-  glass:frame window.left window.top window.left + 305 window.bottom; frame "clear"
+  window.setGlass(100, "15px")
+  goto 210 0
+  square window.width - 200 window.height + 10 10 : c#window_colour
 
   loc 2 2 10 -20
   text page 10 : c#txtc
@@ -219,7 +221,7 @@ if page != "Profile" (
               )
             )
             icon "close" 0.6 : c#txtc
-            
+
             square 25 25 10 0 1 : chx#-40
             if mouse_touching (
               cursor "pointer"
@@ -286,7 +288,7 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
       loc 9999 2 0 -65
       square w 30 12 : c#prim
       input w - 10 30 "username" "Enter Username" txtc
-      
+
       loc 9999 2 0 -120
       square w 30 12 : c#prim hover_c#seco
       if onclick (
@@ -305,9 +307,9 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
       loaded = false
       user_data[selected_user] = ("https://api.rotur.dev/profile?include_posts=0&name=" ++ selected_user).getAsync()
     )
-    
+
     local cur = user_data[selected_user]
-  
+
     string banner_url = "https://avatars.rotur.dev/.banners/" ++ selected_user
     if !banner_url.imageinfo("loaded") (
       image banner_url 0
@@ -323,7 +325,7 @@ frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right win
       page_len += 120
     )
     image "https://avatars.rotur.dev/" ++ selected_user ++ "?radius=30px" 100
-  
+
     text selected_user 10 : c#txtc chx#60 chy#-20
     change_x 40
     if loaded (
