@@ -1,0 +1,125 @@
+// Unix-style stat — OFSF record metadata (path or uuid)
+if args.len == 0 (
+  terminal.writeLine("usage: stat <path|uuid>")
+  return
+)
+
+local target = args[1]
+local resolved = terminal.resolvePath(target)
+local ok = false
+
+// Try path, path.folder, then raw uuid / argument
+try (
+  file "open" resolved "onlyaccess"
+  ok = true
+) catch e (
+  ok = false
+)
+
+if !ok (
+  try (
+    file "open" (resolved ++ ".folder") "onlyaccess"
+    ok = true
+    resolved = resolved ++ ".folder"
+  ) catch e2 (
+    ok = false
+  )
+)
+
+if !ok (
+  try (
+    file "open" target "onlyaccess"
+    ok = true
+    resolved = target
+  ) catch e3 (
+    ok = false
+  )
+)
+
+if !ok (
+  terminal.writeLine("stat: cannot stat '" ++ target ++ "': No such file or directory")
+  return
+)
+
+// entryLabels: type name location data data2 x y id created edited icon size permissions uuid
+local typ = fileGet(1)
+local name = fileGet(2)
+local location = fileGet(3)
+local dataField = fileGet(4)
+local data2 = fileGet(5)
+local x = fileGet(6)
+local y = fileGet(7)
+local id = fileGet(8)
+local created = fileGet(9)
+local edited = fileGet(10)
+local icon = fileGet(11)
+local size = fileGet(12)
+local perms = fileGet(13)
+local uuid = fileGet(14)
+file "close"
+
+local fullName = name ++ typ
+local path = location ++ "/" ++ name ++ typ
+local dataPreview = dataField
+
+if typ == ".folder" (
+  fullName = name ++ "/"
+  path = location ++ "/" ++ name
+  try (
+    local kids = ("" ++ dataField).JsonParse()
+    if typeof(kids) == "array" (
+      dataPreview = kids.len ++ " children"
+    ) else (
+      dataPreview = "(folder)"
+    )
+  ) catch e (
+    dataPreview = "(folder)"
+  )
+) else (
+  local raw = "" ++ dataField
+  if raw.len > 80 (
+    dataPreview = raw.trim(1, 80) ++ "..."
+  )
+)
+
+local createdS = "" ++ created
+local editedS = "" ++ edited
+try (
+  eval ("globalThis.__statC = (function(){ try { const n = +" ++ ("" ++ created).JsonStringify() ++ "; return n ? new Date(n).toISOString() : String(n) } catch(e) { return " ++ ("" ++ created).JsonStringify() ++ " } })()")
+  eval ("globalThis.__statE = (function(){ try { const n = +" ++ ("" ++ edited).JsonStringify() ++ "; return n ? new Date(n).toISOString() : String(n) } catch(e) { return " ++ ("" ++ edited).JsonStringify() ++ " } })()")
+  createdS = __statC
+  editedS = __statE
+) catch e (
+  // keep raw timestamps
+)
+
+local permsS = perms
+try (
+  if typeof(perms) == "array" or typeof(perms) == "object" (
+    permsS = perms.JsonStringify()
+  )
+) catch e (
+  permsS = "" ++ perms
+)
+
+terminal.writeLine("  File: " ++ fullName)
+terminal.writeLine("  Path: " ++ path)
+terminal.writeLine("  UUID: " ++ uuid)
+terminal.writeLine("    ID: " ++ id)
+terminal.writeLine("  Type: " ++ typ)
+terminal.writeLine("  Size: " ++ size)
+terminal.writeLine("  Data: " ++ dataPreview)
+terminal.writeLine("Access: " ++ permsS)
+terminal.writeLine("Create: " ++ createdS)
+terminal.writeLine("Modify: " ++ editedS)
+if icon != null and ("" ++ icon).len > 0 (
+  local ic = "" ++ icon
+  if ic.len > 60 (
+    ic = ic.trim(1, 60) ++ "..."
+  )
+  terminal.writeLine("  Icon: " ++ ic)
+)
+if data2 != null and data2 != 0 and data2 != "" (
+  terminal.writeLine(" Data2: " ++ data2)
+)
+terminal.writeLine("   Pos: " ++ x ++ ", " ++ y)

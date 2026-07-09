@@ -5,6 +5,7 @@ summit = {
   pages: {
     current: [],
     loaded: {},
+    loading: {},
   },
   tabs: {
     current: [],
@@ -12,9 +13,17 @@ summit = {
     queue: []
   },
   system_url: "https://web.rotur.dev/",
-  tlds: "https://web.rotur.dev/tlds.json".httpGet().JsonParse(),
-  redirect_url: null
+  tlds: {},
+  search_url: "https://lite.duckduckgo.com/lite/?q=",
+  home_url: "web://search.web",
+  redirect_url: null,
+  last_active: null
 }
+
+local tlds_resp = requests.get("https://web.rotur.dev/tlds.json")
+if tlds_resp != null and tlds_resp.success and typeof(tlds_resp.body) == "object" (
+  summit.tlds @= tlds_resp.body
+)
 
 page_len = 0
 tab_info = null
@@ -33,7 +42,8 @@ class sandbox (
       "network ",
       "file ",
       "run ",
-      "permission "
+      "permission ",
+      "iframe "
     ]
 
     for i OSL.len (
@@ -52,20 +62,95 @@ permission "request" "file admin"
 
 window "dimensions" 1000 600
 
-def "add_tab" "url" (
-  if url.contains("://").not() (
-    url = "web://" ++ url
+def resolve_url(url) (
+  url = ("" ++ url).strip()
+  if url == "" (
+    return summit.home_url
   )
+  if url.contains("://") (
+    return url
+  )
+  if !url.contains(" ") and url.contains(".") (
+    local tld = url.split("/")[1].split(".").last()
+    if summit.tlds[tld] != null (
+      return "web://" ++ url
+    )
+    return "https://" ++ url
+  )
+  return summit.search_url ++ encodeURIComponent(url)
+)
 
+def error_page(title, message, detail) (
+  return {
+    data: [],
+    onload: true,
+    vars: {},
+    fetch_url: "",
+    error: true,
+    error_title: title,
+    error_message: message,
+    error_detail: detail ?? ""
+  }
+)
+
+def draw_error_page(page) (
+  goto 0 40
+  centext (page.error_title ?? "Error") 16 : c#txtc
+  change_y -28
+  centext (page.error_message ?? "") 11 : c#txtc
+  local detail = ("" ++ (page.error_detail ?? "")).replace("/@line", "").strip()
+  if detail != "" (
+    local lines = detail.wrapText(42).split("\n")
+    for i lines.len (
+      local line = ("" ++ lines[i]).replace("/@line", "").strip()
+      if line != "" (
+        change_y -16
+        centext line 9 : c#txtc
+      )
+    )
+  )
+  page_len = 160
+)
+
+def "add_tab" "url" (
   local obj = {
     "title": "Loading",
     "position": 1,
     "icon": "refresh",
     "id": ouidNew(),
-    "history": [url]
+    "nav": 0,
+    "history": [resolve_url(url)]
   }
 
   void summit.tabs.queue.append(obj)
+)
+
+def active_tab() (
+  if summit.tabs.current.len == 0 (
+    return null
+  )
+  local tabs @= summit.tabs.all
+  local idx = tabs.getKeys("id").index(summit.tabs.current[1])
+  if idx == 0 (
+    return null
+  )
+  return tabs[idx]
+)
+
+def "navigate" "url" (
+  local resolved = resolve_url(url)
+  local tab @= active_tab()
+  if tab == null (
+    add_tab resolved
+    return
+  )
+  if tab.position < tab.history.len (
+    tab.history @= tab.history.trim(1, tab.position)
+  )
+  void tab.history.append(resolved)
+  tab.position = tab.history.len
+  tab.nav = 0
+  inputs.main = resolved
 )
 
 def "redirect" "url" (
@@ -87,7 +172,7 @@ def "draw_page" "url, page_type, tab_id" (
 
   local loaded_pages @= summit.pages.loaded
 
-  if loaded_pages.contains(url) (
+  if loaded_pages[url] != null (
     local page @= loaded_pages[url]
     local data @= page.data
 
@@ -100,36 +185,48 @@ def "draw_page" "url, page_type, tab_id" (
       icon: "network"
     }
 
-    switch page_type (
-      case "osl"
-        try (
-          page.vars @= sandbox.run(page.fn, page.vars)
+    if page.error (
+      void draw_error_page(page)
+      current_tab_name @= {
+        title: page.error_title ?? "Error",
+        icon: "network"
+      }
+    ) else (
+      switch page_type (
+        case "osl"
+          try (
+            page.vars @= sandbox.run(page.fn, page.vars)
 
-          if tab_info != null (
-            current_tab_name @= tab_info
+            if tab_info != null (
+              current_tab_name @= tab_info
+            )
+          ) catch e (
+            loaded_pages[url] @= error_page("Page error", "" ++ e, url)
+            void draw_error_page(loaded_pages[url])
+            current_tab_name @= {
+              title: "Page error",
+              icon: "network"
+            }
           )
-        ) catch e (
-          say "Page Error: " + url
-          void tab.delete(tab_id)
-        )
-        break
-      case "png"
-      case "jpg"
-        image page.fetch_url 500
-        current_tab_name @= {
-          "title": url.split("/")[-1],
-          "icon": "image" + page.fetch_url + "20"
-        }
-        break
-      default
-        goto 0 0
-        inputs[url] @= data
-        textbox frame.width frame.height url
-        break
+          break
+        case "png"
+        case "jpg"
+          image page.fetch_url 500
+          current_tab_name @= {
+            "title": url.split("/")[-1],
+            "icon": "image" + page.fetch_url + "20"
+          }
+          break
+        default
+          goto 0 0
+          inputs[url] @= data
+          textbox frame.width frame.height url
+          break
+      )
     )
     local tabs @= summit.tabs.all
     if summit.redirect_url != null (
-      if summit.redirect_url.split("/")[-1].contains(".").not() or summit.redirect_url.endsWith(".web") (
+      if !summit.redirect_url.split("/")[-1].contains(".") or summit.redirect_url.endsWith(".web") (
         summit.redirect_url ++= "/index.osl"
       )
       tabs[tab_id].url = summit.redirect_url
@@ -154,11 +251,43 @@ def "page_frame" "left, top, right, bottom, url" (
 
   local idx = tabs.getKeys("id").index(url)
 
+  if idx == 0 (
+    return
+  )
+
   local tab @= tabs[idx]
 
   local url = tab.history[tab.position]
 
   local page_protocol = url.split("://")[1]
+
+  local w = abs(right - left)
+  local h = abs(top - bottom)
+
+  local x = left + (w / 2)
+  local y = bottom + (h / 2)
+  goto x y
+  c window_colour
+  square w h 10
+
+  if page_protocol == "http" or page_protocol == "https" (
+    local iw = w - 6
+    local ih = h - 6
+    iframe url x y iw ih tab.nav
+    local info = data
+    local domain = url.split("://")[2].split("/")[1]
+    tab.title = domain
+    if info != null and info.title != null and info.title != "" (
+      local t = ("" ++ info.title).strip()
+      local tl = t.toLower()
+      if !tl.startsWith("404") and !tl.startsWith("403") and !tl.startsWith("500") and !tl.startsWith("502") and !tl.startsWith("503") and !tl.contains("not found") and !tl.contains("unavailable") (
+        tab.title = t
+      )
+    )
+    tab.icon = "image" + ("https://proxy.mistium.com?url=" ++ encodeURIComponent("https://favicon.is/" ++ domain)) + "20"
+    tab.page_len = 0
+    return
+  )
 
   local page_type = "text"
 
@@ -176,7 +305,7 @@ def "page_frame" "left, top, right, bottom, url" (
     local url = url.trim(7,-1)
     if url.endsWith(".osl") (
       local page_type = "osl"
-    ) else if url.contains("/").not() (
+    ) else if !url.contains("/") (
       local page_type = "osl"
       local url ++= "/index.osl"
     ) else (
@@ -184,43 +313,83 @@ def "page_frame" "left, top, right, bottom, url" (
     )
   )
 
-  if summit.pages.loaded[url] == null (
+  if summit.pages.loaded[url] == null and summit.pages.loading[url] != true (
     local fetch_url = ""
     if page_protocol == "web" (
       local parts = url.split("/")
       local current_tld = parts[1].split(".").last()
-      fetch_url = "https://" ++ summit.tlds[current_tld] ++ url
-      local data = fetch_url.getAsync()
+      local host = summit.tlds[current_tld]
+      if host == null or host == "" (
+        summit.pages.loaded[url] @= error_page("Can't resolve", "Unknown or unloaded TLD: ." ++ current_tld, "web://" ++ url)
+      ) else (
+        local page_key = url
+        fetch_url = "https://" ++ host ++ url
+        summit.pages.loading[page_key] = true
+        void requests.getAsync(fetch_url).then(resp -> (
+          if resp.success != true (
+            local detail = fetch_url
+            if typeof(resp.body) == "object" (
+              detail = fetch_url ++ "\n" ++ (resp.body.error ?? resp.body.JsonStringify())
+            ) else if resp.body != null and resp.body != "" (
+              detail = fetch_url ++ "\n" ++ (("" ++ resp.body).trimText(200))
+            )
+            local status_txt = ""
+            if resp.status != null and resp.status != 0 (
+              status_txt = " (" ++ resp.status ++ ")"
+            )
+            summit.pages.loaded[page_key] @= error_page("Can't fetch page", "Request failed" ++ status_txt, detail)
+            summit.pages.loading[page_key] = false
+            return
+          )
+          local body = resp.body
+          if typeof(body) != "string" (
+            body = body.JsonStringify()
+          )
+          if body == null or body == "" (
+            summit.pages.loaded[page_key] @= error_page("Empty response", "The server returned no content", fetch_url)
+            summit.pages.loading[page_key] = false
+            return
+          )
+          summit.pages.loaded[page_key] @= {
+            data: body.split("\n"),
+            onload: true,
+            vars: {},
+            fetch_url
+          }
+          if fetch_url.endsWith(".osl") or page_key.endsWith(".osl") or fetch_url.endsWith(".owf") (
+            summit.pages.loaded[page_key].fn @= function("data", sandbox.sanitiseOSL(body.split("\n")).join("\n"))
+          )
+          summit.pages.loading[page_key] = false
+        ))
+      )
     ) else if page_protocol == "local" (
-      local data = open(url, ["path","name","type","data"])
-      fetch_url = data[1] ++ "/" ++ data[2] ++ data[3]
-      data = data[4]
-    )
-    if data != "Loading" (
-      summit.pages.loaded[url] @= {
-        data: data.split("\n"),
-        onload: true,
-        vars: {},
-        fetch_url
-      }
-      if fetch_url.endsWith(".osl") or url.endsWith(".osl") or fetch_url.endsWith(".owf") (
-        summit.pages.loaded[url].fn @= function("data", sandbox.sanitiseOSL(data.split("\n")).join("\n"))
+      local file_data = open(url, ["path","name","type","data"])
+      if file_data == null (
+        summit.pages.loaded[url] @= error_page("Can't open file", "File not found or inaccessible", url)
+      ) else (
+        fetch_url = file_data[1] ++ "/" ++ file_data[2] ++ file_data[3]
+        local content = "" ++ file_data[4]
+        summit.pages.loaded[url] @= {
+          data: content.split("\n"),
+          onload: true,
+          vars: {},
+          fetch_url
+        }
+        if fetch_url.endsWith(".osl") or url.endsWith(".osl") or fetch_url.endsWith(".owf") (
+          summit.pages.loaded[url].fn @= function("data", sandbox.sanitiseOSL(content.split("\n")).join("\n"))
+        )
       )
     )
   )
 
-  local w = abs(right - left)
-  local h = abs(top - bottom)
-
-  local x = left + (w / 2)
-  local y = bottom + (h / 2)
-  goto x y
-  c window_colour
-  square w h 10
-
-  frame left top right bottom tabs[idx].page_len tabs[idx].id (
+  frame left top right bottom tab.page_len tab.id (
     frame.scroll = frame.scroll
-    draw_page url page_type idx
+    if summit.pages.loaded[url] != null (
+      draw_page url page_type idx
+    ) else if summit.pages.loading[url] == true (
+      goto 0 0
+      text "Loading..." 14 : c#txtc
+    )
     frame.scroll = 0
   )
 )
@@ -228,10 +397,8 @@ def "page_frame" "left, top, right, bottom, url" (
 if passed_data != "" (
   add_tab "local://" ++ passed_data
 ) else (
-  add_tab "web://search.web"
+  add_tab summit.home_url
 )
-
-summit.tabs.current @= [tabs[1].id]
 
 summit.sidebar = {
   width: 300,
@@ -247,13 +414,41 @@ summit.sidebar = {
     {
       icn:  "left-arrow",
       func: def() -> (
-
+        local tab @= active_tab()
+        if tab != null (
+          if tab.position > 1 (
+            tab.position --
+            inputs.main = tab.history[tab.position]
+          )
+        )
       )
     },
     {
       icn:  "right-arrow",
       func: def() -> (
-
+        local tab @= active_tab()
+        if tab != null (
+          if tab.position < tab.history.len (
+            tab.position ++
+            inputs.main = tab.history[tab.position]
+          )
+        )
+      )
+    },
+    {
+      icn:  "refresh",
+      func: def() -> (
+        local tab @= active_tab()
+        if tab != null (
+          tab.nav ++
+          summit.pages.loaded = {}
+        )
+      )
+    },
+    {
+      icn:  "plus",
+      func: def() -> (
+        add_tab summit.home_url
       )
     }
   ],
@@ -289,10 +484,9 @@ summit.sidebar.main = def() -> (
     goto 0 frame.top - 65
     c prim
     square frame.width - 40 30 10
-    input frame.width - 50 25 "main" "Enter A URL"
+    input frame.width - 50 25 "main" "Search or enter a URL"
     if "enter".onKeyDown() and selected_input == "main" (
-      opentab inputs.main
-      inputs.main = ""
+      navigate inputs.main
     )
 
     if self.x > -280 (
@@ -367,15 +561,37 @@ window.setGlass(100, "15px")
 
 void summit.sidebar.main()
 
-local left = summit.sidebar.edge + 10
-local right = window.right - 10
-local w = right - left
-
 for i summit.tabs.queue.len (
   local new_tab @= summit.tabs.queue.shift()
   void summit.tabs.all.append(new_tab)
   summit.tabs.current @= [new_tab.id]
 )
+
+local ids = summit.tabs.all.getKeys("id")
+local kept = []
+for i summit.tabs.current.len (
+  if ids.contains(summit.tabs.current[i]) (
+    void kept.append(summit.tabs.current[i])
+  )
+)
+if kept.len == 0 and summit.tabs.all.len > 0 (
+  kept = [summit.tabs.all.last().id]
+)
+summit.tabs.current = kept
+
+if summit.tabs.current.len > 0 (
+  if summit.last_active != summit.tabs.current[1] (
+    summit.last_active = summit.tabs.current[1]
+    local tab @= active_tab()
+    if tab != null (
+      inputs.main = tab.history[tab.position]
+    )
+  )
+)
+
+local left = summit.sidebar.edge + 10
+local right = window.right - 10
+local w = right - left
 
 local tab_count = summit.tabs.current.len
 if tab_count == 0 (

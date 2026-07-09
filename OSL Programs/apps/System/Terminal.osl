@@ -5,41 +5,54 @@ permission "request" "terminal"
 permission "request" "file admin"
 network "set_app_id" "terminal@system"
 
-// fetch the path tracker file
+// fetch the path tracker file (non-fatal)
 path_url = "https://origin.mistium.com/%3Apath/"
-path = (path_url ++ "osl-tracker.json").httpGet()
-if typeof(path) !== "object" (
+path = {}
+try (
+  path = (path_url ++ "osl-tracker.json").httpGet()
+  if typeof(path) !== "object" (
+    path = {}
+  )
+) catch e (
   path = {}
 )
 
 inputs.main = ""
 number cursor_pos = 1
-number loops = 0
+// line count for the frame (never name this "loops" — clashes with frame/loop machinery)
+number term_n = 0
 
 window.show()
 
 path = path.scripts.getValues()
 last = []
+aliases = {}
 
-file "exists" "~/:path/history.txt"
-if exists (
-  file "open" "~/:path/history.txt" "onlyaccess"
-  last @= fileGet(4).split("\n")
-  file "close"
-) else (
-  file "goto_dir" "~/:path"
-  file "set_file" "history.txt" ""
+// origin = drive; home = origin/(c) users/<user>. Prefer system user_folder for cwd.
+string home_path = "" ++ (user_folder ?? "")
+if home_path == "" (
+  home_path = "origin/(c) users/" ++ ("" ++ username).toLower()
 )
 
-file "exists" "~/:path/aliases.json"
-if exists (
-  file "open" "~/:path/aliases.json" "onlyaccess"
-  aliases = fileGet(4).JsonParse()
-  if typeof(aliases) != "object" (
-    aliases = {}
+// Optional shell history / aliases — never fatal
+try (
+  file "exists" "~/:path/history.txt"
+  if exists (
+    file "open" "~/:path/history.txt" "onlyaccess"
+    last @= fileGet(4).split("\n")
+    file "close"
   )
-  file "close"
-) else (
+  file "exists" "~/:path/aliases.json"
+  if exists (
+    file "open" "~/:path/aliases.json" "onlyaccess"
+    aliases = fileGet(4).JsonParse()
+    if typeof(aliases) != "object" (
+      aliases = {}
+    )
+    file "close"
+  )
+) catch e (
+  last = []
   aliases = {}
 )
 
@@ -132,12 +145,275 @@ def parseShellOperators(tokens) (
   return segments
 )
 
+// Resolve paths on the origin drive.
+//   origin / / /origin  → drive root
+//   /foo                → origin/foo  (leading / = on origin drive)
+//   origin/foo          → origin/foo
+//   ~/foo               → origin/(c) users/<user>/foo
+//   else                → relative to terminal cwd
+def ofsfPath(target) (
+  local t = ("" ++ (target ?? "origin")).strip()
+  if t == "" or t == "/" or t == "origin" or t == "origin/" or t == "." (
+    return "origin"
+  )
+  if t.startsWith("origin/") or t.startsWith("origin\\") (
+    return parseFilePath(t)
+  )
+  if t.startsWith("/") (
+    // absolute on the origin drive
+    return parseFilePath(t)
+  )
+  if t.startsWith("~/") or t == "~" (
+    return parseFilePath(t)
+  )
+  // relative to terminal cwd (usually origin or home on that drive)
+  return parseFilePath(("" ++ terminal.pwd) ++ "/" ++ t)
+)
+
+def ofsfHelp() (
+  terminal.writeLine("ofsf - low-level OFSF tools")
+  terminal.writeLine("  drive: origin   home: origin/(c) users/<user>")
+  terminal.writeLine("  ofsf status          path counts")
+  terminal.writeLine("  ofsf ls [path]       list folder (default: origin)")
+  terminal.writeLine("  ofsf stat <path>     record details (path|uuid|id)")
+  terminal.writeLine("  ofsf cat <path>      print file data")
+  terminal.writeLine("  ofsf write <path> <text>   create/overwrite file")
+  terminal.writeLine("  ofsf mkdir <path>    create folder (and parents)")
+  terminal.writeLine("  ofsf rm <path>       delete file/folder")
+  terminal.writeLine("  ofsf paths [filter]  search path index")
+  terminal.writeLine("  ofsf reindex         rebuild path/uuid indexes")
+  terminal.writeLine("  ofsf ensure-home     create origin/(c) users/<user>")
+  terminal.writeLine("  ofsf cleanup         run duplicate cleanup")
+  terminal.writeLine("  ofsf set <path> <field> <v>  set record field")
+  terminal.writeLine("  logout               clear session and reboot")
+)
+
+def ofsfStatus() (
+  eval "globalThis.__ofsf = (function(){ const p = (window.files && window.files.paths) || {}; const u = ('' + (osl.username || '')).toLowerCase(); const home = 'origin/(c) users/' + u; return { paths: Object.keys(p).length, home: home, homeOk: !!p[home + '.folder'], driveOk: !!p['origin.folder'] }; })()"
+  terminal.writeLine("drive: origin")
+  terminal.writeLine("paths: " ++ __ofsf.paths)
+  terminal.writeLine("home:  " ++ __ofsf.home)
+  terminal.writeLine("pwd:   " ++ terminal.pwd)
+)
+
+def doLogout() (
+  terminal.writeLine("logging out...")
+  eval "try{localStorage.setItem('origin_login','');localStorage.removeItem('origin_login')}catch(e){}"
+  eval "setTimeout(function(){try{vm.runtime.greenFlag()}catch(e){}},50)"
+  return ["logging out..."]
+)
+
+def ofsfCmd(args) (
+  if args.len == 0 (
+    ofsfHelp()
+    return []
+  )
+  local sub = args[1]
+  if sub == "help" or sub == "-h" or sub == "--help" (
+    ofsfHelp()
+    return []
+  )
+  if sub == "status" (
+    ofsfStatus()
+    return []
+  )
+  if sub == "logout" (
+    return doLogout()
+  )
+  if sub == "ensure-home" or sub == "ensure_home" (
+    file_error = ""
+    try (
+      file "ensure_home"
+      if file_error != null and file_error != "" (
+        terminal.writeLine("ensure-home failed: " ++ file_error)
+        file_error = ""
+      ) else (
+        home_path = "" ++ (data ?? ("origin/(c) users/" ++ ("" ++ username).toLower()))
+        user_folder = home_path
+        terminal.pwd = home_path
+        terminal.writeLine("home: " ++ home_path)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "reindex" (
+    file_error = ""
+    try (
+      file "reindex"
+      terminal.writeLine("reindexed paths: " ++ data)
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "cleanup" (
+    file_error = ""
+    try (
+      file "cleanup"
+      terminal.writeLine("cleanup removed dups: " ++ data)
+      ofsfStatus()
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "paths" (
+    local filter = args.len > 1 ? args[2] : ""
+    eval ("globalThis.__ofsfPaths = (function(){ const p = window.files && window.files.paths ? Object.keys(window.files.paths).sort() : []; const f = " ++ filter.JsonStringify() ++ "; return f ? p.filter(x => x.indexOf(f.toLowerCase()) !== -1) : p.slice(0, 200); })()")
+    for i __ofsfPaths.len (
+      terminal.writeLine(__ofsfPaths[i])
+    )
+    if __ofsfPaths.len == 0 (
+      terminal.writeLine("(no paths" ++ (filter != "" ? " matching filter" : "") ++ ")")
+    )
+    return []
+  )
+  if sub == "ls" (
+    local target = args.len > 1 ? args[2] : "origin"
+    local p = ofsfPath(target)
+    eval ("globalThis.__ofsfLs = (function(){ let p = " ++ p.JsonStringify() ++ "; p = String(p || 'origin').toLowerCase().replace(/\\/+$/,''); if (p === '' || p === '/') p = 'origin'; let key = p; if (!key.endsWith('.folder') && key.indexOf('.') === -1) key = key + '.folder'; const paths = (window.files && window.files.paths) || {}; let id = paths[key]; if (id == null && paths[p]) id = paths[p]; if (id == null) return {err: 'not found: ' + key, out: []}; const stage = vm.runtime.getTargetForStage(); const files = Object.values(stage.variables).find(v => v.name === 'Files'); if (!files) return {err: 'Files list missing', out: []}; const F = files.value; const N = 14; const b = (id - 1) * N; const typ = F[b]; const raw = F[b + 3]; let kids = []; try { kids = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []); } catch(e) { return {err: 'bad folder data at ' + key, out: []}; } if (typ !== '.folder') return {err: 'not a folder: ' + key, out: [], path: key}; if (!Array.isArray(kids)) return {err: 'folder data not array', out: []}; const uu = (window.files && window.files.uuids) || {}; const out = []; for (let i = 0; i < kids.length; i++) { const k = kids[i]; const ix = uu[k]; if (ix == null) { out.push('?  ' + k); continue; } const bb = (ix - 1) * N; const t = F[bb] || '?'; const n = F[bb + 1] || ''; out.push(String(t).padEnd(10) + ' ' + n + (t === '.folder' ? '/' : t)); } return {out: out, path: key, n: out.length}; })()")
+    if __ofsfLs == null (
+      terminal.writeLine("ls failed: no result")
+    ) else if __ofsfLs.err (
+      terminal.writeLine(__ofsfLs.err)
+    ) else (
+      terminal.writeLine(__ofsfLs.path ++ "  (" ++ __ofsfLs.n ++ ")")
+      if __ofsfLs.out.len == 0 (
+        terminal.writeLine("(empty)")
+      ) else (
+        for i __ofsfLs.out.len (
+          terminal.writeLine(__ofsfLs.out[i])
+        )
+      )
+    )
+    return []
+  )
+  if sub == "stat" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf stat <path|uuid|id>")
+      return []
+    )
+    local target = ofsfPath(args[2])
+    eval ("globalThis.__ofsfStat = (function(){ let t = " ++ target.JsonStringify() ++ "; const stage = vm.runtime.getTargetForStage(); const files = Object.values(stage.variables).find(v => v.name === 'Files'); if (!files) return {err:'Files list missing'}; const F = files.value; const N = 14; let id = null; if (/^\\d+$/.test(String(t))) id = +t; else if (window.files && window.files.uuids && window.files.uuids[t] != null) id = window.files.uuids[t]; else { let p = String(t).toLowerCase(); if (p === '/' || p === '') p = 'origin'; if (!p.startsWith('origin')) { if (p.startsWith('/')) p = 'origin' + p; else if (p.startsWith('~/')) p = String(osl.user_folder||'').toLowerCase() + p.slice(1); } const paths = (window.files && window.files.paths) || {}; id = paths[p] || paths[p + (p.endsWith('.folder')?'':'.folder')]; } if (id == null || id < 1) return {err:'not found: ' + t}; const b = (id-1)*N; const labels = (origin.files && origin.files.entryLabels) || ['type','name','location','data','data2','x','y','id','created','edited','icon','size','permissions','uuid']; const o = {id: id}; for (let i=0;i<labels.length;i++) { let v = F[b+i]; if (i===3 && String(v).length > 120) v = String(v).slice(0,120) + '...'; o[labels[i]] = v; } return o; })()")
+    if __ofsfStat.err (
+      terminal.writeLine(__ofsfStat.err)
+    ) else (
+      terminal.writeLine(__ofsfStat.JsonStringify())
+    )
+    return []
+  )
+  if sub == "cat" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf cat <path>")
+      return []
+    )
+    local cp = ofsfPath(args[2])
+    try (
+      file "get_file" cp
+      if typeof(data) == "object" (
+        terminal.writeLine(data.JsonStringify())
+      ) else (
+        terminal.writeLine("" ++ data)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "write" (
+    if args.len < 3 (
+      terminal.writeLine("usage: ofsf write <path> <text...>")
+      return []
+    )
+    local body = args.trim(3, -1).join(" ")
+    local wp = ofsfPath(args[2])
+    try (
+      file "set_file" wp body
+      if file_error != null and file_error != "" (
+        terminal.writeLine("write failed: " ++ file_error)
+        file_error = ""
+      ) else (
+        terminal.writeLine("wrote " ++ wp)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "mkdir" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf mkdir <path>")
+      return []
+    )
+    local p = ofsfPath(args[2])
+    if p.endsWith(".folder").not() (
+      p = p ++ ".folder"
+    )
+    try (
+      file "set_file" p []
+      if file_error != null and file_error != "" (
+        terminal.writeLine("mkdir failed: " ++ file_error)
+        file_error = ""
+      ) else (
+        terminal.writeLine("mkdir " ++ p)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "rm" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf rm <path>")
+      return []
+    )
+    local rp = ofsfPath(args[2])
+    try (
+      file "open" rp "onlyaccess"
+      file "delete"
+      terminal.writeLine("deleted " ++ rp)
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "set" (
+    if args.len < 4 (
+      terminal.writeLine("usage: ofsf set <path> <field> <value>")
+      return []
+    )
+    local sp = ofsfPath(args[2])
+    try (
+      file "open" sp "onlyaccess"
+      file "set" args[3] args.trim(4, -1).join(" ")
+      file "close"
+      terminal.writeLine("set " ++ args[3] ++ " on " ++ sp)
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  terminal.writeLine("unknown ofsf subcommand: " ++ sub)
+  ofsfHelp()
+  return []
+)
+
 def evalSingle(tokens, input) (
   if tokens.len == 0 (
     return []
   )
   try (
     string first = tokens[1]
+    // Builtins that work even when OFSF / :path is broken
+    if first == "logout" (
+      return doLogout()
+    )
+    if first == "ofsf" (
+      void tokens.shift()
+      return ofsfCmd(tokens)
+    )
     string path = first.startsWith("./") ? (terminal.pwd.replaceFirst("origin/", "/") ++ "/" ++ first.trim(3, -1)) ("~/:path/" ++ first ++ ".osl")
     path = parseFilePath(path)
     file "exists" path
@@ -264,7 +540,8 @@ class terminal (
   waiting = false
   show_input = true
   input_message = null
-  pwd = user_folder
+  // Start in home (user_folder) when set; otherwise origin drive root
+  pwd = home_path != "" ? home_path "origin"
   stdin = null
   jobs = []
   next_job_id = 1
@@ -306,25 +583,55 @@ class terminal (
   )
 
   def writeLine(data) (
-    if data.contains("\n") (
-      local parts = data.split("\n")
+    // Preserve color lines: ls writes [color, text, color, text, ...] arrays
+    if typeof(data) == "array" (
+      void self.lines.append(data)
+        return
+    )
+    local s = "" ++ (data ?? "")
+    if s.contains("\n") (
+      local parts = s.split("\n")
       for i parts.len (
-        void self.lines.append(parts[i])
+        void self.lines.append("" ++ parts[i])
       )
     ) else (
-      void self.lines.append(data)
+      void self.lines.append(s)
     )
   )
 
   def write(data) (
-    if data.contains("\n") (
-      local parts = data.split("\n")
-      for i parts.len - 1 (
-        void self.lines.append(parts[i])
+    if typeof(data) == "array" (
+      // append color segments onto the current line buffer as a new colored line
+      if self.lines.len == 0 or typeof(self.lines[self.lines.len]) != "array" (
+        void self.lines.append(data)
+      ) else (
+        local cur @= self.lines[self.lines.len]
+        for i data.len (
+          void cur.append(data[i])
+        )
+        self.lines[self.lines.len] @= cur
       )
-      self.lines[self.lines.len] ++= parts[parts.len]
+        return
+    )
+    local s = "" ++ (data ?? "")
+    if s.contains("\n") (
+      local parts = s.split("\n")
+      for i parts.len - 1 (
+        void self.lines.append("" ++ parts[i])
+      )
+      if self.lines.len == 0 (
+        void self.lines.append("" ++ parts[parts.len])
+      ) else if typeof(self.lines[self.lines.len]) == "array" (
+        void self.lines.append("" ++ parts[parts.len])
+      ) else (
+        self.lines[self.lines.len] ++= ("" ++ parts[parts.len])
+      )
+    ) else if self.lines.len == 0 (
+      void self.lines.append(s)
+    ) else if typeof(self.lines[self.lines.len]) == "array" (
+      void self.lines.append(s)
     ) else (
-      self.lines[self.lines.len] ++= data
+      self.lines[self.lines.len] ++= s
     )
   )
 
@@ -347,8 +654,10 @@ class terminal (
       return self.input_message ++ ": "
     )
     local pos = self.pwd
-    if pos == user_folder (
+    if pos == home_path or pos == user_folder (
       pos = "~"
+    ) else if pos == "origin" or pos == "origin/" (
+      pos = "/"
     ) else (
       pos = pos.split("/")[-1]
     )
@@ -378,58 +687,57 @@ boolean tty = Windows().len <= 1
 taking_input = false
 ots_i = 1
 
-if path.len > 0 (
-  path_folder = parseFilePath("~/:path.folder")
-  file "exists" path_folder
-  if exists.not() (
-    file "goto_dir" user_folder
-    file "set_file" ":path.folder" []
+if path.len > 0 and home_path != "" (
+  try (
+    path_worker @= worker({
+      isThread: true,
+      oncreate: def() -> (
+        try (
+          local updates = []
+          for i path.len (
+            local cur = path[i]
+            local cmd_path = parseFilePath("~/:path/" ++ cur.name)
+            file "exists" cmd_path
+            if exists (
+              if cur.status == "removed" (
+                file "open" cmd_path "onlyaccess"
+                file "delete"
+                continue
+              )
+              local data = open(cmd_path, ["edited"])
+              if data[1] != cur.lastModifiedUnix (
+                void updates.append(cur)
+              )
+            ) else if cur.status != "removed" (
+              void updates.append(cur)
+            )
+          )
+          if updates.len > 0 (
+            terminal.writeLine("Updates found for the following scripts:")
+            for i updates.len (
+              terminal.writeLine("- " ++ updates[i].name)
+            )
+            if terminal.input("Update them? (y/n)") == "y" (
+              file "goto_dir" "~/:path"
+              for i updates.len (
+                local cur = updates[i]
+                file "set_file" cur.name (path_url ++ cur.name).httpGet()
+                file "open" cur.name "onlyaccess"
+                file "set" "edited" cur.lastModifiedUnix
+                terminal.writeLine("Updated " ++ cur.name)
+              )
+            )
+          )
+        ) catch e (
+          // optional
+        )
+        terminal.show_input = true
+        path_worker.kill()
+      )
+    })
+  ) catch e (
+    // optional
   )
-
-  path_worker @= worker({
-    isThread: true,
-    oncreate: def() -> (
-      local updates = []
-      for i path.len (
-        local cur = path[i]
-        local cmd_path = parseFilePath("~/:path/" ++ cur.name)
-        file "exists" cmd_path
-        if exists (
-          if cur.status == "removed" (
-            file "open" cmd_path "onlyaccess"
-            file "delete"
-            continue
-          )
-          local data = open(cmd_path, ["edited"])
-          if data[1] != cur.lastModifiedUnix (
-            void updates.append(cur)
-          )
-        ) else if cur.status != "removed" (
-          void updates.append(cur)
-        )
-      )
-      if updates.len > 0 (
-        terminal.writeLine("Updates found for the following scripts:")
-        for i updates.len (
-          terminal.writeLine("- " ++ updates[i].name)
-        )
-        if terminal.input("Update them? (y/n)") == "y" (
-          file "goto_dir" "~/:path"
-          for i updates.len (
-            local cur = updates[i]
-            file "set_file" cur.name (path_url ++ cur.name).httpGet()
-            file "open" cur.name "onlyaccess"
-            file "set" "edited" cur.lastModifiedUnix
-            terminal.writeLine("Updated " ++ cur.name)
-          )
-        )
-      )
-      terminal.lines = []
-      terminal.show_input = true
-      path_worker.kill()
-    )
-  })
-  terminal.writeLine("Checking for updates...")
 )
 
 def startWorker() (
@@ -473,11 +781,16 @@ if tty (
 )
 
 c prim
-frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "cache@main" (
+term_n = terminal.lines.len
+frame window.left window.top window.right + 20 window.bottom term_n * 20 + 40 "cache@main" (
   c txtc
-  loops = terminal.lines.len
-  count = floor(frame.scroll / 20).clamp(0,loops)
-  loop round(frame.height / 20 + 3).clamp(0,loops) (
+  term_n = terminal.lines.len
+  local count = floor(frame.scroll / 20).clamp(0, max(0, term_n))
+  local visible = max(1, round(frame.height / 20 + 3))
+  loop visible (
+    if count >= term_n (
+      break
+    )
     count ++
     y = count * -20 + frame.scroll + 5
     loc 2 2 10 y
@@ -487,33 +800,35 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
     )
     if typeof(line) == "array" (
       local i = 0
-      loop line.len / 2 (
+      loop floor(line.len / 2) (
         i += 2
-        local cur @= line[i]
-        local cols @= line[i - 1]
+        local cur = line[i]
+        local cols = line[i - 1]
         if typeof(cols) == "string" (
           c cols ?? txtc
-        ) else (
+        ) else if typeof(cols) == "object" (
           if cols.back != null (
-            local len = cur.len * 5
+            local len = ("" ++ cur).len * 5
             change_x len
             c cols.back.toStr()
             square len * 2 20 0
             change_x -len
           )
-          c cols.text ?? txtc
+          c (cols.text ?? txtc)
+        ) else (
+          c txtc
         )
-        text cur 10
+        text ("" ++ cur) 10
         c txtc
       )
     ) else (
-      text line 10
+      text ("" ++ line) 10
     )
   )
 
   local user_start = terminal.user_start()
   if terminal.show_input (
-    loc 2 2 10 loops * -20 + frame.scroll - 15
+    loc 2 2 10 term_n * -20 + frame.scroll - 15
     text user_start 10 : c#txtc
     inputs.main ??= ""
     if "control".isKeyDown() or "meta".isKeyDown() (
@@ -549,7 +864,6 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
         inputs.main = ""
         cursor_pos = 1
       ) else (
-        // remove the last character
         cursor_pos --
         inputs.main = inputs.main.delete(cursor_pos)
       )
@@ -568,19 +882,22 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
     )
     cursor_pos.clamp(1,inputs.main.len + 1)
   if "enter".onKeyDown() (
-    file "open" "~/:path/history.txt" "onlyaccess"
-    file "append" inputs.main ++ "\n"
-    file "close"
+    try (
+      file "open" "~/:path/history.txt" "onlyaccess"
+      file "append" inputs.main ++ "\n"
+      file "close"
+    ) catch e (
+    )
     void last.append(inputs.main)
     last_index = last.len + 1
-    void terminal.lines.append(terminal.user_start() ++ inputs.main)
+    terminal.writeLine(terminal.user_start() ++ inputs.main)
     array parts = inputs.main.oslTokenise()
     if aliases.contains(parts[1]) (
       parts[1] = aliases[parts[1]]
       inputs.main = parts.join(" ")
     )
     if inputs.main == "clear" (
-      terminal.lines = []
+      terminal.clear()
     ) else if inputs.main.len > 0 (
       checkJobs()
       local tokens = parseCommand(inputs.main)
@@ -603,6 +920,5 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
     change_x -offset
     text inputs.main ?? "" 10
   ) else (
-    loops --
   )
 )
