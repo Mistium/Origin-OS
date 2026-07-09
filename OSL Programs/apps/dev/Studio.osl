@@ -30,7 +30,7 @@ class pages (
 
     loc 999 2 20 -25
     text "Recent Files" 8
-    
+
     loc 2 2 w / 2 + 20 -200
     square w2 30 10 : c#c_seco
     if onclick (
@@ -206,7 +206,7 @@ class sidebar (
   resize = 0.5
 
   _resizing = false
-  
+
   def frameInnerRender(callback) (
     if self._resizing and mouse_down.not() (
       self._resizing = false
@@ -216,9 +216,9 @@ class sidebar (
       return
     )
     local w = self.resize * frame.width
-    
+
     local join_x = frame.right - w
-    
+
     frame join_x frame.top frame.right frame.bottom (
       goto 0 0
       square frame.width frame.height 10 : c#c_prim
@@ -260,13 +260,13 @@ class editor (
       tab.unsaved = true
       tabs[current_tab].data @= inputs[tab.id]
     )
-    
+
     goto 0 frame.top - 16.5
     square frame.width - 12 20 10 : c#window_colour
     loc 2 2 15 -16.5
     sidebarbuttons(tab.uuid, tab.id)
   )
-  
+
   def renderShare() (
     local tab @= tabs[current_tab]
     window "responsive" true
@@ -341,7 +341,7 @@ def joinEditSession(id) (
     )
   )
   edit_connection.onclose = def() -> (
-    joinEditSession(edit_connection.room) 
+    joinEditSession(edit_connection.room)
   )
   edit_connection.onjoin = def() -> (
     inputs.share = open(sharing_tab).split("\n")
@@ -379,7 +379,7 @@ def compileOHF(ohf) (
   if typeof(ohf) != "object" (
     return ""
   )
-  
+
   local output = {
     tokens: {},
     overrides: {},
@@ -394,13 +394,13 @@ def compileOHF(ohf) (
         )
       )
     )
-  
+
     if ohf.overrides != null (
       each o ohf.overrides.getKeys() (
         output.overrides[o] = ohf.overrides[o]
       )
     )
-  
+
     output.parser = ohf.parser ?? {}
     output.highlighter = ohf.highlighter ?? {}
   ) catch o (
@@ -482,12 +482,12 @@ def "draw_buttons" (
   loc -2 2 -50 -20
   square 80 20 10 : c#window_colour
   loc -2 2 -20 -20
-  
+
   icon "close" 0.6 : c#c_text
   if onclick (
     window "stop"
   )
-  
+
   change_x -30
   icon "down" 0.6 : c#c_text
   if onclick (
@@ -499,7 +499,7 @@ def "draw_buttons" (
   if onclick (
     window "maximise"
   )
-  
+
   change_x -35
   square 20 20 10 : c#window_colour
   icon "w 4 square 0 0 10 10 w 10 line 5 7 5 -7" 0.6 : c#c_text
@@ -528,12 +528,12 @@ def "insert_tab" "index, data" (
 def "draw_tabs" (
   loc 2 2 9 -21
   local removed = false
-  
+
   c c_text
   x = frame.left - 2.5 - frame.scroll_h
   start = x
   remove_tabs = []
-  
+
   for i tabs.len (
     local tab @= tabs[i]
     tw = 0
@@ -542,12 +542,12 @@ def "draw_tabs" (
     if file (
       file "open" tab.uuid "onlyaccess"
     )
-    
+
     local l = tab_name.len * 9 + 25
     if file "l += 20"
     tw += l + 25
     set_x x + (tw / 2)
-    
+
     square l + 10 20 10 : c#window_colour
     if file (
       change_x -10
@@ -638,7 +638,7 @@ def sidebarButtons(file_uuid, input_name) (
     recents = "recent_files.json".saveGet()
     save "recent_files.json" "set" recents.delete(file_uuid).prepend(file_uuid).trim(1,8)
   )
-  
+
   change_x h
   if [".osl",".oasm",".py",".js",".bf",".owf",".ots"].contains(file_type) (
     icon "play" s
@@ -675,12 +675,12 @@ def sidebarButtons(file_uuid, input_name) (
     )
     change_x h
   )
-  
+
   icon "w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12" s
   if onclick (
     window.create("find_replace_helper", file_uuid)
   )
-  
+
   sidebar.mode = "none"
   switch file_type (
     case ".icn"
@@ -713,7 +713,7 @@ def sidebarButtons(file_uuid, input_name) (
       )
       break
   )
-  
+
   change_x h
   icon "network" s
   if onclick (
@@ -804,8 +804,7 @@ if mouse_down.not() "can = true"
 w @= window
 
 goto 0 window.top - 20
-glass:frame w.left w.top w.right w.bottom
-frame "clear"
+window.setGlass(100, "15px")
 
 if new_transmit (
   if window.children.contains(transmit_source) (

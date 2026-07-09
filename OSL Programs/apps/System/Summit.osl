@@ -25,7 +25,7 @@ class sandbox (
     void fn(data)
     return data
   )
-  
+
   def sanitiseOSL(OSL) (
     local blocked = [
       "save ",
@@ -35,7 +35,7 @@ class sandbox (
       "run ",
       "permission "
     ]
-  
+
     for i OSL.len (
       local line = OSL[i].strip()
       for i2 blocked.len (
@@ -64,7 +64,7 @@ def "add_tab" "url" (
     "id": ouidNew(),
     "history": [url]
   }
-  
+
   void summit.tabs.queue.append(obj)
 )
 
@@ -78,19 +78,19 @@ def "opentab" "url" (
 
 def "draw_page" "url, page_type, tab_id" (
   void summit.pages.current.append(url)
-  
+
   if url == null (
     return
   )
-  
+
   local page_protocol = url.split(":")[1]
-  
+
   local loaded_pages @= summit.pages.loaded
-  
+
   if loaded_pages.contains(url) (
     local page @= loaded_pages[url]
     local data @= page.data
-    
+
     onload = page.onload
     page.onload = false
 
@@ -99,12 +99,12 @@ def "draw_page" "url, page_type, tab_id" (
       title: url.split("/")[1],
       icon: "network"
     }
-    
+
     switch page_type (
       case "osl"
         try (
           page.vars @= sandbox.run(page.fn, page.vars)
-          
+
           if tab_info != null (
             current_tab_name @= tab_info
           )
@@ -137,7 +137,7 @@ def "draw_page" "url, page_type, tab_id" (
       void tabs[tab_id].history.append(summit.redirect_url)
       summit.redirect_url = null
     )
-    
+
     tabs[tab_id].page_len = page_len
     tabs[tab_id].icon = current_tab_name.icon
     tabs[tab_id].title = current_tab_name.title
@@ -151,17 +151,17 @@ def "page_frame" "left, top, right, bottom, url" (
   local tabs @= summit.tabs.all
 
   local tab_id = url
-  
+
   local idx = tabs.getKeys("id").index(url)
-  
+
   local tab @= tabs[idx]
-  
+
   local url = tab.history[tab.position]
-  
+
   local page_protocol = url.split("://")[1]
-  
+
   local page_type = "text"
- 
+
   if url.startsWith("local://") (
     local url = url.trim(9,-1)
     file "open" url "onlyaccess"
@@ -183,7 +183,7 @@ def "page_frame" "left, top, right, bottom, url" (
       local page_type = url.split("/")[-1].split(".")[-1]
     )
   )
-  
+
   if summit.pages.loaded[url] == null (
     local fetch_url = ""
     if page_protocol == "web" (
@@ -208,10 +208,10 @@ def "page_frame" "left, top, right, bottom, url" (
       )
     )
   )
-  
+
   local w = abs(right - left)
   local h = abs(top - bottom)
-  
+
   local x = left + (w / 2)
   local y = bottom + (h / 2)
   goto x y
@@ -247,13 +247,13 @@ summit.sidebar = {
     {
       icn:  "left-arrow",
       func: def() -> (
-      
+
       )
     },
     {
       icn:  "right-arrow",
       func: def() -> (
-      
+
       )
     }
   ],
@@ -264,28 +264,28 @@ summit.sidebar = {
 
 summit.sidebar.main = def() -> (
   void self.handleSize()
-  
+
   if mouse_x < window.left + 30 and mouse_ondown (
     self.target_x = 0
   )
-  
+
   window "set_dragbox" [[2,2,100 + self.x,0],[2,2,self.width + self.x - 40,-40]]
 
   self.left = window.left + self.x
-  
+
   self.edge = self.left + self.width
-  
+
   frame self.left window.top self.edge window.bottom (
     goto 0 0
     square frame.width - 20 frame.height - 20 10 : c#window_colour
-    
+
     c txtc
     loc -2 2 -25 -25
     icon "left" 0.7
     if onclick (
       self.target_x = -300
     )
-    
+
     goto 0 frame.top - 65
     c prim
     square frame.width - 40 30 10
@@ -294,7 +294,7 @@ summit.sidebar.main = def() -> (
       opentab inputs.main
       inputs.main = ""
     )
-    
+
     if self.x > -280 (
       c txtc
       loc 2 2 25 -25
@@ -305,11 +305,11 @@ summit.sidebar.main = def() -> (
         )
         change_x 30
       )
-    
+
       c seco
       frame frame.left + 10 frame.top - 90 frame.right - 10 frame.bottom summit.tabs.current.len * 45 (
         goto 0 frame.top + frame.scroll - 25
-        
+
         local all_tabs = summit.tabs.all
         for i summit.tabs.all.len (
           local tab @= all_tabs[i]
@@ -363,7 +363,7 @@ if file_dropped != 0 (
 
 summit.pages.current = []
 
-glass:frame window.left window.top window.right window.bottom; frame "clear"
+window.setGlass(100, "15px")
 
 void summit.sidebar.main()
 

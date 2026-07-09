@@ -14,8 +14,7 @@ load_theme
 
 goto 0 0
 square window.width - 22 window.height - 22 20 : c#back
-glass:frame window.left window.top window.right window.bottom
-frame "clear"
+window.setGlass(100, "15px")
 
 if mouse_down and can (
   window.close()

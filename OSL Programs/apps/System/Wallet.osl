@@ -15,6 +15,8 @@ if passed_data.isType("object") (
   )
 )
 
+window.setGlass(100, "15px")
+
 rotur_icn = "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220"
 cur_tag = "all"
 
@@ -73,25 +75,24 @@ balance = user["sys.currency"]
 transactions = user["sys.transactions"]
 
 loc 2 999 100 0
-glass:frame window.left window.top window.right window.bottom; frame "clear"
 
 if menu == "transfer" (
   loc 2 2 20 -20
   icon rotur_icn 1
-  
+
   text "Transfer Rotur Credits" 10 : chx#20
-  
+
   goto 0 -15
   square 350 420 20 : c#window_colour
 
   goto 0 50
   image "https://avatars.rotur.dev/" ++ recipient 200 200
   icon "w 5 cutcircle 0 0 103 0 180 w 40 cutcircle 0 0 125 0 180" 1
-  
-  
+
+
   change_y -137
   centext recipient 15 : c#txtc
-  
+
   change_y -77
   c prim
   square 345 25 10
@@ -155,11 +156,11 @@ switch menu (
   case "send"
     loc 999 2 -30 -70
     text "Send Credits To Another User" 10 : c#txtc
-    
+
     loc 999 2 105 -110
     square 360 25 10 : c#prim
     input 350 25 "recipient" "Recipient"
-    
+
     loc 999 2 105 -150
     square 360 25 10 : c#prim
     input 350 25 "amount" "Amount Of Credits"
@@ -171,7 +172,7 @@ switch menu (
     loc 999 2 50 -70
     text "Sent" 10 : c#txtc
     break
-    
+
   case "transfers"
     if transactions.len == 0 (
       loc 999 2 30 -70
@@ -180,7 +181,7 @@ switch menu (
       local l = window.left + 200
       local r = window.right - 10
       local tags = transactions.map(v -> (v["type"])).deDupe().prepend("all")
-      
+
       frame l window.top - 41 r window.top - 81 0 "cache@tags" (
         loc 2 2 3 -20
         for i tags.len (
@@ -207,10 +208,10 @@ switch menu (
         for i filtered.len (
           txt @= filtered[i]
           y -= 35
-        
+
           loc 999 2 0 y
           square frame_width - 20 20 10 : c#prim tooltip#(txt.note ?? "No Note")
-          
+
           c txtc
           if typeof(txt) == "string" (
             loc 2 2 10 y

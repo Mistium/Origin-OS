@@ -16,6 +16,8 @@ inputs.main = ""
 number cursor_pos = 1
 number loops = 0
 
+window.show()
+
 path = path.scripts.getValues()
 last = []
 
@@ -134,49 +136,60 @@ def evalSingle(tokens, input) (
   if tokens.len == 0 (
     return []
   )
-  string first = tokens[1]
-  string path = first.startsWith("./") ? (terminal.pwd.replaceFirst("origin/", "/") ++ "/" ++ first.trim(3, -1)) ("~/:path/" ++ first ++ ".osl")
-  path = parseFilePath(path)
-  file "exists" path
-  local data = open(path)
-  if data == null or !exists (
-    terminal_output = []
-    terminal first
-    return terminal_output
-  )
-  local fn @= function("args", data)
-  void tokens.shift()
-  local lines = terminal.lines
-  for i tokens.len (
-    local cur = tokens[i]
-    if cur[1] == "\"" and cur[-1] == "\"" (
-      tokens[i] = cur.trim(2, -2).replace("\\", "")
+  try (
+    string first = tokens[1]
+    string path = first.startsWith("./") ? (terminal.pwd.replaceFirst("origin/", "/") ++ "/" ++ first.trim(3, -1)) ("~/:path/" ++ first ++ ".osl")
+    path = parseFilePath(path)
+    file "exists" path
+    local data = open(path)
+    if data == null or !exists (
+      terminal_output = []
+      terminal first
+      if terminal_output[1] == "Unknown Terminal Command" (
+        local message = "rsh: command not found: " ++ first
+        terminal.writeLine(message)
+        return [message]
+      )
+      return terminal_output
     )
-    if cur[1] == "(" and cur[-1] == ")" (
-      local ret @= evalCmd(cur.trim(2, -2))
-      for j ret.len (
-        if typeof(ret[j]) == "array" (
-          local line = []
-          for h ret[j].len / 2 (
-            void line.append(ret[j][h * 2])
+    local fn @= function("args", data)
+    void tokens.shift()
+    local lines = terminal.lines
+    for i tokens.len (
+      local cur = tokens[i]
+      if cur[1] == "\"" and cur[-1] == "\"" (
+        tokens[i] = cur.trim(2, -2).replace("\\", "")
+      )
+      if cur[1] == "(" and cur[-1] == ")" (
+        local ret @= evalCmd(cur.trim(2, -2))
+        for j ret.len (
+          if typeof(ret[j]) == "array" (
+            local line = []
+            for h ret[j].len / 2 (
+              void line.append(ret[j][h * 2])
+            )
+            ret[j] = line.join(" ")
           )
-          ret[j] = line.join(" ")
+        )
+        if ret.len > 0 (
+          tokens[i] @= ret.join("\n")
+        ) else (
+          tokens[i] = null
         )
       )
-      if ret.len > 0 (
-        tokens[i] @= ret.join("\n")
-      ) else (
-        tokens[i] = null
-      )
     )
+    terminal.lines @= lines
+    number len = terminal.lines.len
+    terminal.stdin = input
+    void fn.apply(terminal_worker, [tokens])
+    terminal.stdin = null
+    local out @= terminal.lines.trim(len + 1, -1)
+    return out
+  ) catch e (
+    terminal.stdin = null
+    terminal.writeLine(e.full)
+    return [e.full]
   )
-  terminal.lines @= lines
-  number len = terminal.lines.len
-  terminal.stdin = input
-  void fn.apply(terminal_worker, [tokens])
-  terminal.stdin = null
-  local out @= terminal.lines.trim(len + 1, -1)
-  return out
 )
 
 def evalCmd(cmd) (
@@ -314,11 +327,11 @@ class terminal (
       self.lines[self.lines.len] ++= data
     )
   )
-  
+
   def clear() (
     terminal.lines = []
   )
-  
+
   def input(query) (
     self.show_input = true
     self.input_message = query
@@ -328,7 +341,7 @@ class terminal (
     self.input_message = null
     return last.pop()
   )
-  
+
   def user_start() (
     if self.input_message != null (
       return self.input_message ++ ": "
@@ -456,11 +469,7 @@ if tty (
 ) else (
   window.setDragbox([2,2,0,0],[-2,-2,0,0])
   load_theme
-  glass:frame window.left window.top window.right window.bottom
-    c window_colour
-    pen "opacity" 60
-    icon "w 999 dot 0 0" 100
-  frame "clear"
+  window.setGlass(180, "15px")
 )
 
 c prim
@@ -596,8 +605,4 @@ frame window.left window.top window.right + 20 window.bottom loops + 1.5 * 20 "c
   ) else (
     loops --
   )
-)
-
-if !tty (
-  import "win-buttons"
 )
