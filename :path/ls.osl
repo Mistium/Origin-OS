@@ -2,6 +2,11 @@ local targetPath = terminal.pwd
 local flags = args.filter(v -> v.startsWith("-"))
 local paths = args.filter(v -> !v.startsWith("-"))
 
+// Combined short flags: -a, -l, -la, -al
+local flagStr = flags.join("")
+local getAll = flagStr.contains("a")
+local longFmt = flagStr.contains("l") or getAll
+
 if paths.len > 0 (
   targetPath = terminal.resolvePath(paths[1])
 )
@@ -18,7 +23,6 @@ if !exists (
   return
 )
 
-local getAll = flags.contains("-a")
 local entries = listFiles(folderPath)
 array files = []
 
@@ -33,6 +37,71 @@ if files.len == 0 (
   return
 )
 
+// Resolve OFSF uuid (+ optional fields) for an entry name under folderPath
+def entryMeta(folder, name) (
+  local full = folder ++ "/" ++ name
+  try (
+    local m = open(full, ["uuid", "type", "name", "size", "id"])
+    return {
+      uuid: m[1] ?? "?",
+      type: m[2] ?? "",
+      name: m[3] ?? name,
+      size: m[4] ?? "",
+      id: m[5] ?? ""
+    }
+  ) catch e (
+    try (
+      file "open" full "onlyaccess"
+      local out = {
+        uuid: fileGet(14),
+        type: fileGet(1),
+        name: fileGet(2),
+        size: fileGet(12),
+        id: fileGet(8)
+      }
+      file "close"
+      return out
+    ) catch e2 (
+      return { uuid: "?", type: "", name: name, size: "", id: "" }
+    )
+  )
+)
+
+// -a: all entries, one per line with UUID
+// -l: long listing (type, size, name); with -a also shows uuid
+if longFmt (
+  for i files.len (
+    local name = files[i]
+    local meta = entryMeta(folderPath, name)
+    local display = name
+    local color = txtc
+
+    if name.endsWith(".folder") or meta.type == ".folder" (
+      display = name.endsWith(".folder") ? (name.trim(1, -8) ++ "/") (name ++ "/")
+      color = global_accent
+    )
+    if name[1] == ":" (
+      color = "#aaa"
+    )
+
+    if getAll (
+      terminal.writeLine([
+        color, display.padEnd(" ", 28),
+        "#666", "  ",
+        "#aaa", "" ++ meta.uuid
+      ])
+    ) else (
+      terminal.writeLine([
+        "#888", ("" ++ meta.type).padEnd(" ", 10),
+        "#888", ("" ++ meta.size).padEnd(" ", 10),
+        color, display
+      ])
+    )
+  )
+  return
+)
+
+// default: multi-column names only
 local maxLen = 0
 for i files.len (
   local name = files[i]

@@ -6,7 +6,7 @@ permission "request" "rotur token"
 permission "request" "notifications"
 
 if passed_data == "" or typeof(passed_data) != "object" (
-  window.close()
+  window "stop"
 )
 
 window "responsive" true
@@ -24,7 +24,7 @@ key_data = ""
 if type == "buy_key" or type == "cancel_key" (
   key_data = ("https://api.rotur.dev/keys/get/" ++ popup_data.id).httpGet().JsonParse()
   if typeof(key_data) != "object" (
-    window.close()
+    window "stop"
   )
 )
 
@@ -44,8 +44,11 @@ def quitThisApp() (
   if mouse_touching (
     cursor "pointer"
     if onclick (
-      window "kill" window.parent.id
-      window.close()
+      local pid = window.parent.id
+      if pid != null and pid != -1 and pid != window.id (
+        window "kill" pid
+      )
+      window "stop"
     )
     c txtc
   ) else (
@@ -92,20 +95,25 @@ def acceptDeny(string left, string right) (
 
 def parentSays(string thing) (
   goto -185 height / 2 - 15
-  array data @= open(window.parent.file_uuid, ["name"])
-  string name = data[1]
-  file "render" 1
-  file "close"
+  string name = "App"
+  try (
+    array data @= open(window.parent.file_uuid, ["name"])
+    if data != null and data.len > 0 (
+      name = data[1]
+    )
+    file "render" 1
+    file "close"
+  )
   change_x 20
   text name ++ " " ++ thing ++ "..." 10 : c#txtc
 )
 
 def say() (
   parentSays("says")
-  
+
   goto -190 50
   text popup_data.message.toStr().wrapText(38).trim(1, 114) 10
-  
+
   c global_accent
   goto 0 -35
   square 380 30 15
@@ -121,19 +129,19 @@ def say() (
     c txtc
   )
   centext "Ok" 10
-  
+
   quitThisApp()
 )
 
 def transfer() (
   parentSays("wants to transfer")
-  
+
   goto -190 50
   text "Total: " ++ popup_data.amt ++ " Credits" 14 : c#txtc
   set_x -190
   change_y -30
   text "Send to: " ++ popup_data.to 10
-  
+
   change_y -50
   local click = acceptDeny("Cancel", "Send")
   if click == "Cancel" (
@@ -149,33 +157,34 @@ def transfer() (
     }, {})
     window.close()
   )
-  
+
   quitThisApp()
 )
 
 def choose() (
   parentSays("wants you to choose")
-  
+
   goto -190 50
   text popup_data.msg.wrapText(window.width / 10 - 5) 10 : c#txtc
-  
+
   goto 0 -35
   local click = acceptDeny(popup_data.left, popup_data.right)
   if click != null (
     transmit click window.parent.id
+    window.close()
   )
   quitThisApp()
 )
 
 def buy_key() (
   parentSays("wants to")
-  
+
   goto -190 50
   text "Buy: " ++ (key_data.name ?? key_data.id) 14 : c#txtc
   set_x -190
   change_y -30
   text "By " ++ key_data.creator ++ " for " ++ key_data.price ++ " credit" ++ (key_data.price == 1 ? "" "s") 10
-  
+
   change_y -50
   local click = acceptDeny("Cancel", "Buy")
   if click == "Cancel" (
@@ -191,19 +200,19 @@ def buy_key() (
     notify json.message ?? json.error
     window.close()
   )
-  
+
   quitThisApp()
 )
 
 def cancel_key() (
   parentSays("wants to")
-  
+
   goto -190 50
   text "Cancel: " ++ (key_data.name ?? key_data.id) 14 : c#txtc
   set_x -190
   change_y -30
   text "Are you sure?" 10
-  
+
   change_y -50
   local click = acceptDeny("Cancel", "Confirm")
   if click == "Cancel" (
@@ -219,7 +228,7 @@ def cancel_key() (
     notify json.message ?? json.error
     window.close()
   )
-  
+
   quitThisApp()
 )
 

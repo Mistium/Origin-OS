@@ -1,2 +1,3 @@
-eval "localStorage.clear()"
-eval "vm.runtime.greenFlag()"
+// Clear session and reboot originOS
+eval "try{localStorage.setItem('origin_login','');localStorage.removeItem('origin_login')}catch(e){}"
+eval "setTimeout(function(){try{vm.runtime.greenFlag()}catch(e){}},50)"
