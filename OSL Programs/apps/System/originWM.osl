@@ -8,13 +8,18 @@ def checkCollision(number x, number y, number w, number h) (
 )
 
 // use the builtin version api
-version = origin.version
+// normalise both version schemes to one scale: old integer style ("616",
+// "620") becomes 6.16/6.20, new decimal style ("7.00") stays 7.00
+version = origin.version.toNum()
+if version >= 100 (
+  version /= 100
+)
 capabilities = {}
-if version < 600 (
+if version != 0 and version < 6 (
   window.close()
 )
 // can we programatically open the right click menu?
-capabilities.open_rightclick = version >= 610
+capabilities.open_rightclick = version >= 6.1
 
 origin @= "window.origin".eval()
 // get the origin global object
