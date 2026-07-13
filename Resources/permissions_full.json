@@ -31,6 +31,10 @@
     "description": "(Careful) This app wants to use your keyboard",
     "icon": "icn originOS 1"
   },
+  "input monitoring":   {
+    "description": "(Careful) This app can read keyboard and pointer input while other apps are focused",
+    "icon": "icn eye 1"
+  },
   "global variables":    {
     "description": "(Careful) This app wants to edit global data",
     "icon": "icn originOS 1"

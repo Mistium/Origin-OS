@@ -7,6 +7,7 @@
   "windows":             "Allows an app to view open windows",
   "extensions":          "Allows an app to view running origin extensions",
   "simulate inputs":     "(Careful) This app wants to use your keyboard",
+  "input monitoring":    "(Careful) This app can read keyboard and pointer input while other apps are focused",
   "global variables":    "(Careful) This app wants to edit global data",
   "account":             "(Careful) This app wants to edit your account",
   "permission editor":   "(Careful) This app wants to edit permissions",

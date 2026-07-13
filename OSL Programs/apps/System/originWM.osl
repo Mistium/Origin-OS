@@ -2,6 +2,8 @@
 
 permission "request" "windows"
 permission "request" "javascript"
+permission "request" "input monitoring"
+window.setInputMonitoring(true)
 
 def checkCollision(number x, number y, number w, number h) (
   return abs(mouse_x - x) < w / 2 and abs(mouse_y - y) < h / 2
@@ -104,10 +106,10 @@ def dragDiagonal() (
     top.y = state.resize2 + (top.height / state.div2)
     top.target_x = null
     top.target_y = null
-    
+
     local w = top.width / 2
     local h = top.height / 2
-    
+
     top.callRender()
   )
 )
@@ -151,11 +153,11 @@ def moveWindow() (
       if top.tile != null (
         local relative_x = (mouse_x - top.x) / top.width
         local relative_y = (mouse_y - top.y) / top.height
-        
+
         top.tile = null
         top.target_width = 700
         top.target_height = 450
-        
+
         top.x = mouse_x - (relative_x * top.target_width)
         top.y = mouse_y - (relative_y * top.target_height)
 
@@ -210,7 +212,7 @@ def handleResize() (
       state.changeState("right","width")
     )
   )
-  
+
   if top.tile == null (
     // top edge
     if resizable.top != false and checkCollision(x, y + topEdge, width - x25, hitbox_size) (
@@ -226,7 +228,7 @@ def handleResize() (
         state.changeState("bottom","height")
       )
     )
-    
+
     // top right
     if resizable.right != false and resizable.top != false and checkCollision(x + rightEdge, y + topEdge, x2, x2) (
       state.cursor = "nesw-resize"
@@ -234,7 +236,7 @@ def handleResize() (
         state.changeState("right,top","both")
       )
     )
-    
+
     // bottom right
     if resizable.right != false and resizable.bottom != false and checkCollision(x + rightEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nwse-resize"
@@ -242,7 +244,7 @@ def handleResize() (
         state.changeState("right,bottom","both")
       )
     )
-    
+
     // top left
     if resizable.left != false and resizable.top != false and checkCollision(x + leftEdge, y + topEdge, x2, x2) (
       state.cursor = "nwse-resize"
@@ -250,7 +252,7 @@ def handleResize() (
         state.changeState("left,top","both")
       )
     )
-    
+
     // bottom left
     if resizable.left != false and resizable.bottom != false and checkCollision(x + leftEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nesw-resize"
@@ -414,7 +416,7 @@ state = {
       self.resize1 = top.x - (top.width / div)
       self.resize2 = top.y - (top.height / div)
     )
-    
+
     self.prop = prop
     self.last_size = top[prop]
     self.pos = top.tile
