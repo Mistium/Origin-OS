@@ -54,25 +54,51 @@ def "transfer_button" "w, name" (
   centext message 8 : c#txtc
 )
 
-local transactions = user["sys.transactions"]
-if typeof(transactions) != "array" or transactions.len == 0 (
-  transactions = [{
-    "type": "label",
-    "text": "You have no transactions"
-  }]
-)
-array new_totals @= transactions.getKeys("new_total")
-  .filter(v -> v != null)
-  .reverse()
+transaction_source @= null
+transaction_count = -1
+filtered_tag = null
 
-number min_total = min(...new_totals)
-number max_total = max(...new_totals) - min_total
+def refresh_transactions() (
+  local source @= user["sys.transactions"]
+  transaction_source @= source
+  transaction_count = typeof(source) == "array" ? source.len 0
+  transactions @= source
+  if typeof(transactions) != "array" or transactions.len == 0 (
+    transactions = [{
+      "type": "label",
+      "text": "You have no transactions"
+    }]
+  )
+
+  tags @= transactions.map(v -> (v["type"])).deDupe().prepend("all")
+  filtered_tag = null
+
+  local graph_values @= transactions.getKeys("new_total")
+    .filter(v -> v != null)
+    .reverse()
+    .right(180)
+  graph_totals @= []
+  if graph_values.len > 0 (
+    local min_total = min(...graph_values)
+    local max_total = max(...graph_values) - min_total
+    if max_total == 0 (
+      max_total = 1
+    )
+    graph_totals @= graph_values.map(v -> (v - min_total) / max_total)
+  )
+)
+
+refresh_transactions()
 
 mainloop:
 load_theme
 
 balance = user["sys.currency"]
-transactions = user["sys.transactions"]
+latest_transactions @= user["sys.transactions"]
+latest_count = typeof(latest_transactions) == "array" ? latest_transactions.len 0
+if latest_transactions !== transaction_source or latest_count != transaction_count (
+  refresh_transactions()
+)
 
 loc 2 999 100 0
 
@@ -121,7 +147,7 @@ centext "Credits" 10
 loc 2 2 100 -280
 square 180 100 10 : c#prim
 pen "size" 5
-graph 180 100 new_totals.map(v -> (v - min_total) / max_total) : c#txtc
+graph 180 100 graph_totals : c#txtc
 
 loc 2 -2 30 30
 square 0 0 40 : c#window_colour hover_c#prim tooltip#"My Past Transactions"
@@ -180,7 +206,6 @@ switch menu (
     ) else (
       local l = window.left + 200
       local r = window.right - 10
-      local tags = transactions.map(v -> (v["type"])).deDupe().prepend("all")
 
       frame l window.top - 41 r window.top - 81 0 "cache@tags" (
         loc 2 2 3 -20
@@ -199,14 +224,23 @@ switch menu (
         )
       )
       c prim
-      filtered @= transactions
-      if cur_tag != "all" (
-        filtered @= transactions.filter(v -> (v["type"] == cur_tag))
+      if filtered_tag != cur_tag (
+        filtered @= transactions
+        if cur_tag != "all" (
+          filtered @= transactions.filter(v -> (v["type"] == cur_tag))
+        )
+        filtered_tag = cur_tag
       )
       frame l window.top - 81 r window.bottom + 10 filtered.len * 35 - 5 "cache@transactions" (
-        y = frame.scroll + 15
-        for i filtered.len (
-          txt @= filtered[i]
+        local count = floor(frame.scroll / 35).clamp(0, max(0, filtered.len))
+        local visible = max(1, round(frame.height / 35 + 2))
+        y = frame.scroll + 15 - (count * 35)
+        loop visible (
+          if count >= filtered.len (
+            break
+          )
+          count ++
+          txt @= filtered[count]
           y -= 35
 
           loc 999 2 0 y
