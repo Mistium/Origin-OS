@@ -11,7 +11,7 @@ window "dimensions" 750 800
 save "appstore@system" "set_directory"
 if !"installed.json".saveExists() (
   save "installed.json" "set" {}
-) else if typeof("installed.json".saveGet()) == "object" (
+) else if typeof("installed.json".saveGet()) != "object" (
   save "installed.json" "set" {}
 )
 
@@ -30,23 +30,30 @@ page_history = [{
 }]
 
 array say_queue = []
-def say(message) (
+def queueSay(message) (
   say_queue.append(message)
 )
 
+install_msg = null
+install_title = null
+install_icon = null
+
 def installApp(cur, page_data, message) (
   file "goto_dir" "~/Applications"
-  void requests.getAsync("https://apps.rotur.dev/apps/download/" ++ cur.title ++ "/osl?auth=" ++ roturToken())
+  install_msg = message
+  install_title = cur.title
+  install_icon = cur.icon
+  void requests.getAsync("https://apps.rotur.dev/apps/download/" ++ encodeURIComponent(install_title) ++ "/osl?auth=" ++ roturToken())
     .then(resp -> (
-      if resp.body.ok == false (
-        say(resp.body.error)
+      if resp.success == false or resp.body == null or resp.body == "" (
+        queueSay("Download failed")
         return
       )
-      file "set_file" cur.title ++ ".osl" resp.body
-      file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
-      file "set" 11 cur.icon
+      file "set_file" install_title ++ ".osl" resp.body
+      file "open" "~/Applications/" ++ install_title ++ ".osl" "onlyaccess"
+      file "set" 11 install_icon
       file "close"
-      say(message)
+      queueSay(install_msg ?? "Installed " ++ install_title)
     ))
 )
 
@@ -195,7 +202,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       set_x : chy#-60
       square w - 30 30 20 : c#prim
       if onclick (
-        save_data = "installed.json".saveGet().JsonParse()
+        save_data = "installed.json".saveGet() ?? {}
         navigate("applist", supported_json
           .filter(v -> v.title in save_data and v.version != save_data[v.title])
           .map(v -> v.title))
@@ -277,7 +284,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       )
       break
     case "app"
-      save_data = "installed.json".saveGet().JsonParse()
+      save_data = "installed.json".saveGet() ?? {}
     
       cur @= all_json[page_data]
       page_len += 60
@@ -342,7 +349,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
             file "open" v.cur.title ++ ".osl" "onlyaccess"
             file "delete"
             file "close"
-            say "Uninstalled " ++ v.cur.title
+            queueSay("Uninstalled " ++ v.cur.title)
           )},
         ] {cur, page_data}
       )
@@ -417,6 +424,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
 )
 
 if say_queue.len > 0 (
+  // Global `say` command (opens Alert.osl) — not the local queue helper.
   say say_queue.pop()
 )
 
