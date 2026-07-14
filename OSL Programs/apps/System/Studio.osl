@@ -806,18 +806,21 @@ current_tab = 1
 if passed_data == "" (
   tabs.append(tab_types.welcome)
 ) else (
-  change_focus = true
-  local name = open(passed_data, ["name", "type"])
-  tabs.append({
-    type: "file",
-    name: name.join(""),
-    id: ouidNew(),
-    data: open(passed_data).split("\n"),
-    uuid: passed_data,
-    ohf: compileOHF(getOHF(name[2])),
-    func: editor.renderNorm
-  })
-  loadFileUUID(passed_data)
+  local file = open(passed_data, ["name", "type", "data"])
+  if file[2] == "" or typeof(file[3]) != "string" (
+    tabs.append(tab_types.welcome)
+  ) else (
+    change_focus = true
+    tabs.append({
+      type: "file",
+      name: file[1] ++ file[2],
+      id: ouidNew(),
+      data: file[3].split("\n"),
+      uuid: passed_data,
+      ohf: compileOHF(getOHF(file[2])),
+      func: editor.renderNorm
+    })
+  )
 )
 tabs_out = tabs
 sidebar_items = 0

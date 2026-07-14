@@ -420,7 +420,7 @@ def evalSingle(tokens, input) (
     local data = open(path)
     if data == null or !exists (
       terminal_output = []
-      terminal first
+      terminal tokens.join(" ")
       if terminal_output[1] == "Unknown Terminal Command" (
         local message = "rsh: command not found: " ++ first
         terminal.writeLine(message)
