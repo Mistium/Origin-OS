@@ -1151,7 +1151,8 @@ def sidebarButtons(file_uuid, input_name) (
   )
   if [".json", ".ohf", ".ojff"].contains(file_type) (
     if inputs[input_name].len == 1 (
-      icon "line -10 10 5 10 line 0 2.5 10 2.5 line 0 -5 10 -5" 0.6
+      icon "line -10 10 5 10 line 0 2.5 10 2.5 line 0 -5 10 -5" 0.6 : tooltip#"Format JSON"
+      square 30 30 12 1 1
       if onclick (
         inputs[input_name] = inputs[input_name][1]
           .JsonParse()
@@ -1159,7 +1160,8 @@ def sidebarButtons(file_uuid, input_name) (
           .split("\n")
       )
     ) else (
-      icon "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" 0.6
+      icon "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" 0.6 : tooltip#"Minify JSON"
+      square 30 30 12 1 1
       if onclick (
         inputs[input_name] = inputs[input_name]
           .join("\n")
