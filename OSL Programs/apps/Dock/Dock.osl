@@ -222,6 +222,8 @@ previous_wallpaper = background_url
 tempcol = ""
 dock_changed_w = false
 
+wait 1
+
 mainloop:
 needs_render = false
 cur_frame ++
@@ -247,7 +249,7 @@ if !mouse_down (
 if !on_mobile (
   window.resize(screensize_x, 70)
   window.y = round(screensize_y / -2 + 35)
-  y += dock_y_target - round(y) * delta_time * 3
+  y += dock_y_target - round(y) * delta_time * 5
   if y > 0 (
     y = 0
   )

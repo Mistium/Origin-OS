@@ -444,5 +444,7 @@ if !mouse_down (
 
 handleTop()
 if state.cursor != null (
-  cursor state.cursor
+  eval ("origin.cursorOverride = '" ++ state.cursor ++ "'")
+) else (
+  eval "origin.cursorOverride = null"
 )

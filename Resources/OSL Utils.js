@@ -1368,6 +1368,26 @@ class OSLUtils {
       // Normalize line endings first
       CODE = this.normalizeLineEndings(CODE);
 
+      if (CODE.includes("/*")) {
+        let stripped = "";
+        let q = 0, bt = 0, esc = false, mc = false;
+        for (let i = 0; i < CODE.length; i++) {
+          const c = CODE[i];
+          if (mc) {
+            if (c === "\n") stripped += "\n";
+            else if (c === "*" && CODE[i + 1] === "/") { mc = false; i++; }
+            continue;
+          }
+          if (c === '"' && !esc && bt === 0) { q = 1 - q; esc = false; }
+          else if (c === '`' && !esc && q === 0) { bt = 1 - bt; esc = false; }
+          else if (c === "\\" && !esc) esc = true;
+          else esc = false;
+          if (c === "/" && CODE[i + 1] === "*" && q === 0 && bt === 0) { mc = true; i++; continue; }
+          stripped += c;
+        }
+        CODE = stripped;
+      }
+
       let letter = 0;
       let depth = "";
       let quotes = 0;

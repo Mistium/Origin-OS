@@ -576,8 +576,10 @@ def "appearance" (
       loc 9999 2 0 y
       square w 30 15 : c#prim
       if onclick (
-        current_wallpaper = "Enter a url for your wallpaper here".ask()
-        network "update" "wallpaper" current_wallpaper
+        local wp = askFile(null, "dataURL")
+        if wp.name != "" (
+          terminal "system wallpaper_local " ++ wp.data
+        )
       )
       loc 2 2 50 y
       text "Click To Add Custom Wallpaper" 10 : c#txtc
