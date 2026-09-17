@@ -543,9 +543,22 @@ def "draw_file" (
         selected_files ++= files.trim(count, anchor - 1)
       )
     ) else (
-      selected_files @= [file_id]
+      // pressing a file that is part of a multi selection keeps it, so the whole selection can be dragged
+      if !(selected and selected_files.len > 1) (
+        selected_files @= [file_id]
+      )
       drag_id = file_id
       can = false
+    )
+  ) else if drag_id == file_id and selected_files.len > 1 (
+    if !over (
+      drag_id = 0
+      if mouse_down and !use_file_obj (
+        file "move" current_file
+      )
+    ) else if !mouse_down (
+      // released without dragging, so it was a plain click
+      selected_files @= [file_id]
     )
   ) else if (drag_id == file_id or ("enter".onKeyDown() and selected_files[1] == file_id and !path_edit)) and selected_files.len == 1 (
     if !over (
@@ -1077,6 +1090,8 @@ if current_display_type == "grid" (
   scroll_len = ceil(files.len / per_line) * CELL + 12
 )
 
+// the engine drags every file listed here when one of them starts a drag
+window.file_selection = selected_files
 frame view_left list_top view_right view_bottom scroll_len "files_" ++ current_tab (
   if current_folder_uuid != "" (
     // background of the folder takes drops and the folder menu

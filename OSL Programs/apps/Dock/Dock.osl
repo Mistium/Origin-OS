@@ -206,8 +206,22 @@ def "handle_dropped_file" (
     return
   )
   file "open" file_dropped "onlyaccess"
-  file "set" "6" round(x_position - mouse_x / -70) * 70
-  file "set" "7" round(y_position - mouse_y / -70) * 70
+  local new_x = round(x_position - mouse_x / -70) * 70
+  local new_y = round(y_position - mouse_y / -70) * 70
+  // the rest of a multi file drag keeps its offset from the file under the pointer
+  local shift_x = new_x - (round(fileGet(6).toNum() / 70) * 70)
+  local shift_y = new_y - (round(fileGet(7).toNum() / 70) * 70)
+  file "set" "6" new_x
+  file "set" "7" new_y
+  local others @= files_dropped ?? []
+  for i others.len (
+    if others[i] != file_dropped (
+      file "open" others[i] "onlyaccess"
+      file "set" "6" (round(fileGet(6).toNum() / 70) * 70) + shift_x
+      file "set" "7" (round(fileGet(7).toNum() / 70) * 70) + shift_y
+    )
+  )
+  files_dropped = []
 )
 
 def "handle_app_culling" (
@@ -230,18 +244,18 @@ def "handle_app_culling" (
 )
 
 def "render_selection" (
-  sqw = mouse_start_x - mouse_x
-  sqh = mouse_start_y - mouse_y
-  frame mouse_start_x mouse_start_y mouse_x mouse_y (
-    goto 0 0
-    c #000
-    pen "opacity" 70
-    pen "size" frame_width + frame_height
-    pen "down"
-    pen "up"
-    pen "opacity" 100
-    selection_frame @= frame
-  )
+  sel_l = min(mouse_start_x, mouse_x)
+  sel_r = max(mouse_start_x, mouse_x)
+  sel_b = min(mouse_start_y, mouse_y)
+  sel_t = max(mouse_start_y, mouse_y)
+  goto (sel_l + sel_r) / 2 (sel_b + sel_t) / 2
+  style {
+    bg: "#ffffff1f",
+    bgBlur: "3px",
+    border: "1.5px solid #ffffff8c",
+    rounding: 3
+  }
+  square max(0, sel_r - sel_l) max(0, sel_t - sel_b) 0 : c#fff
   window.callRender()
 )
 
@@ -1498,6 +1512,16 @@ def positionWindow() (
 positionWindow()
 
 desktop_apps = []
+desktop_selected = []
+selecting = false
+hover_icon = null
+dragging_selection = false
+selected_pos = {}
+overlay_rects = []
+sel_l = 0
+sel_r = 0
+sel_b = 0
+sel_t = 0
 desktop_cur_frame = 0
 desktop_window_changed_dimensions = false
 previous_desktop_wallpaper = background_url
@@ -1549,12 +1573,29 @@ def render_desktop() (
       can = false
       mouse_start_x = mouse_x
       mouse_start_y = mouse_y
+      // a press on an icon drags it (with the selection if it is part of it), a press on the wallpaper starts a box
+      // only the wallpaper starts a box, never the dock bar, the hub or a toast
+      local bare = mouse_y > (screensize_y / -2) + 70
+      for i overlay_rects.len (
+        local rect @= overlay_rects[i]
+        if mouse_x > rect[1] and mouse_x < rect[3] and mouse_y > rect[2] and mouse_y < rect[4] (
+          bare = false
+        )
+      )
+      selecting = bare and hover_icon == null
+      dragging_selection = bare and hover_icon != null and desktop_selected.contains(hover_icon)
+      if !dragging_selection (
+        desktop_selected = []
+      )
       window.callRender()
     )
     if mouse_down (
-      render_selection
+      if selecting and !file_dragging (
+        render_selection
+      )
     ) else (
       can = true
+      dragging_selection = false
     )
     reload_extensions
 
@@ -1569,11 +1610,19 @@ def render_desktop() (
   )
 
   handle_app_culling
+  // the engine drags every file listed here when one of them starts a drag
+  window.file_selection = desktop_selected
+  window.file_selection_from = selected_pos
 
   if (!doDraw and !hovered) or desktop_apps.len == 0 and !sequenced_refresh (
     return false
   )
 
+  // the icon under the pointer, read by the press check on the next frame
+  local next_hover = null
+  // icons inside the box are collected again every frame while it is dragged out
+  local boxing = selecting and mouse_down and !file_dragging
+  local next_selected = []
   for i desktop_apps.len (
     app_id @= desktop_apps[i]
 
@@ -1583,10 +1632,33 @@ def render_desktop() (
     app_positions[icon_y][icon_x] = app_id
 
     loc 2 2 35 + icon_x -35 + icon_y
+    if boxing and x_position > sel_l and x_position < sel_r and y_position > sel_b and y_position < sel_t (
+      void next_selected.append(app_id)
+      if !desktop_selected.contains(app_id) (
+        void desktop_selected.append(app_id)
+      )
+    )
+    if desktop_selected.contains(app_id) (
+      selected_pos[app_id] = [x_position, y_position]
+      if dragging_selection and file_dragging (
+        // it is in the pile under the pointer
+        continue
+      )
+      hubBox(x_position, y_position, 62, 62, 14, "#ffffff2e", "1px solid #ffffff4d")
+    )
     square 30 30 0 0 1
+    if mouse_touching (
+      next_hover = app_id
+    )
     if mouse_touching or doDraw (
-      file "render" app_size "interactable"
-      rightclick "file" app_id
+      if boxing (
+        // the box is sweeping over it, so it must not pick up
+        file "render" app_size
+      ) else (
+        file "render" app_size "interactable"
+      )
+      local menu_files @= desktop_selected.contains(app_id) ? desktop_selected [app_id]
+      rightclick "file" menu_files
     )
 
     local app_name = fileGet(2).toStr()
@@ -1598,6 +1670,10 @@ def render_desktop() (
       name = null
       window.callRender()
     )
+  )
+  hover_icon = next_hover
+  if boxing (
+    desktop_selected = next_selected
   )
   return true
 )
@@ -1662,7 +1738,9 @@ for syscount segments.len (
   if imp.conditions == null (
     imp.conditions @= () -> (true)
   )
-  dock_width += max(0,imp.width.toNum())
+  if imp.enabled != false (
+    dock_width += max(0,imp.width.toNum()) + 30
+  )
   void segment_classes.append(imp)
 )
 dock_width_temp = dock_width
@@ -1721,12 +1799,23 @@ if dock_colour + icon_colour != tempcol (
   tempcol = dock_colour + icon_colour
   needs_render = true
 )
-movefileloc file_loc
+// positionWindow points drops at the desktop folder, only the dock bar itself takes them into the dock
+if mouse_y < (screensize_y / -2) + 70 (
+  movefileloc file_loc
+)
 if !mouse_down (
   canclick = true
 )
+// melt in like originAssist: opacity rises while the blur sharpens and the bar settles up.
+// the first frames are skipped so segment widths are final before anything shows
+if cur_frame < 4 (
+  dock_started = timestamp
+)
+dock_anim = min(1, (timestamp - dock_started) / 560)
+dock_back = dock_anim - 1
+dock_ease = 1 + (dock_back * dock_back * dock_back)
 if !on_mobile (
-  y = round(screensize_y / -2 + 35)
+  y = round(screensize_y / -2 + 35 - ((1 - dock_ease) * 18))
 )
 
 if on_mobile or y > round(screensize_y / -2 + 35) - 80 (
@@ -1739,6 +1828,19 @@ if on_mobile or y > round(screensize_y / -2 + 35) - 80 (
   local hovering = null
   if on_mobile (
     mobile()
+  ) else if dock_anim < 1 (
+    style {
+      opacity: dock_ease,
+      blur: (round((1 - dock_ease) * 140) / 10) ++ "px"
+    }
+    // goto is relative to the frame centre, so y is shifted while the segments draw
+    local dock_mid = (y + 80 + window.bottom) / 2
+    frame window.left y + 80 window.right window.bottom 0 "dock_melt" (
+      y -= dock_mid
+      goto x y
+      render_dock()
+      y += dock_mid
+    )
   ) else (
     render_dock()
   )
