@@ -1,0 +1,440 @@
+// Developer: @Mistium
+// Description: Send files to nearby devices and your other rotur devices.
+// The transfer itself lives in the kernel, this app picks files, people and folders.
+// Shares its look with the dock hub: one padding, radius and type scale.
+
+import "window_tools"
+
+permission "request" "beam"
+
+window.resize(700, 480)
+window.setGlass(150, "18px")
+window.show()
+
+string mode = "nearby"
+array pending = []
+string save_request = ""
+string folder = ""
+array folder_children = []
+array pickers = []
+array peers = []
+boolean ready = false
+
+number pad = 20
+number gap = 10
+number r_card = 14
+number r_ctrl = 9
+number t_title = 16
+number t_head = 11
+number t_body = 9
+number t_small = 8
+
+def openFolder(string path) (
+  folder = path
+  folder_children = []
+  file "open" path ++ ".folder" "onlyaccess"
+  local children @= fileGet(4) ?? []
+  for i children.len (
+    local info @= open(children[i], ["type", "name"])
+    if info[1] == ".folder" (
+      void folder_children.append({
+        name: "" ++ info[2]
+      })
+    )
+  )
+  // only sortBy exists, so sort records and unwrap them
+  folder_children @= folder_children.sortBy("name").map(v -> v.name)
+)
+
+if typeof(passed_data) == "object" (
+  if passed_data.type == "send" (
+    pending @= passed_data.files ?? []
+  )
+  if passed_data.type == "save" (
+    mode = "save"
+    save_request = "" ++ passed_data.request
+    window.resize(440, 480)
+  )
+)
+
+def ellipsis(string value, number cap) string (
+  if value.len > cap (
+    return value.trim(1, max(1, cap - 3)).strip() ++ "..."
+  )
+  return value
+)
+
+def capFor(number px, number size) number (
+  return max(4, floor(px / (size * 0.97)))
+)
+
+def wrap(string value, number cap) array (
+  local lines = []
+  local cur = ""
+  local words = value.split(" ")
+  for i words.len (
+    local word = words[i]
+    local next = cur == "" ? word (cur ++ " " ++ word)
+    if next.len <= cap (
+      cur = next
+    ) else if lines.len == 1 or cur == "" (
+      void lines.append(ellipsis(next, cap))
+      return lines
+    ) else (
+      void lines.append(cur)
+      cur = word
+    )
+  )
+  if cur != "" (
+    void lines.append(cur)
+  )
+  return lines
+)
+
+def pendingNames() string (
+  if pending.len == 1 (
+    return open(pending[1], ["name", "type"]).join("")
+  )
+  return pending.len ++ " files"
+)
+
+// a filled rounded box of an exact size. fill and line are css values
+def box(number cx, number cy, number w, number h, number r, string fill, string line) (
+  goto cx cy
+  style {
+    bg: fill,
+    border: line,
+    rounding: r
+  }
+  square w - (r * 2) h - (r * 2) r * 2 : c#window_colour
+)
+
+// invisible hit area. sets hit_hover and hit_click for whatever is drawn on top of it
+def hit(number cx, number cy, number w, number h) (
+  goto cx cy
+  square w h 0 0 1
+  hit_hover = mouse_touching
+  hit_click = onclick
+)
+
+def dim(string value, number size) (
+  style {
+    opacity: 0.64
+  }
+  text value size : c#txtc
+)
+
+def dimCentre(string value, number size) (
+  style {
+    opacity: 0.64
+  }
+  centext value size : c#txtc
+)
+
+// a row or card background that lightens under the pointer
+def surface(number cx, number cy, number w, number h, number r, string line) (
+  local fill = hit_hover ? "#ffffff26" "#ffffff12"
+  box(cx, cy, w, h, r, fill, line)
+)
+
+// kind is "plain" or "primary"
+def button(number cx, number cy, number w, string label, string kind) boolean (
+  hit(cx, cy, w, 30)
+  local pressed = hit_click
+  local fill = hit_hover ? "#ffffff2e" "#ffffff1a"
+  local ink = txtc
+  local line = "1px solid #ffffff1f"
+  if kind == "primary" (
+    fill = global_accent
+    ink = window_colour
+    line = "none"
+  )
+  box(cx, cy, w, 30, r_ctrl, fill, line)
+  if kind == "primary" and hit_hover (
+    box(cx, cy, w, 30, r_ctrl, "#ffffff33", "none")
+  )
+  goto cx cy
+  centext ellipsis(label, capFor(w - 12, t_body)) t_body : c#ink
+  return pressed
+)
+
+mainloop:
+load_theme
+
+// the permission popup can still be open on the first frames
+if !ready and window.hasPermission("beam") (
+  ready = true
+  peers @= beam.peers()
+  beam.on("peers", v -> (
+    peers @= v
+  ))
+  if mode == "save" (
+    openFolder(beam.saveFolder())
+  )
+)
+
+if new_transmit (
+  if pickers.contains(transmit_source) (
+    void pending.append(transmit_data)
+    mode = "nearby"
+  )
+  new_transmit = false
+)
+
+number left = window.left + pad
+number right = window.right - pad
+// the header row moved up 7 to meet the window buttons, the content follows it
+number top = window.top + 7
+number inner = window.width - (pad * 2)
+number mid = (window.left + window.right) / 2
+number mid_y = (window.top + window.bottom) / 2
+boolean online = beam.status() == "connected"
+string accent_line = "1px solid " ++ global_accent.trim(1, 7) ++ "99"
+
+// header. It shares the window buttons' centre line (21 below the top), and the
+// status chip matches their height and stops 6 short of them
+number head_y = window.top - 21
+goto left + 8 head_y
+icon "w 2 line 2 8 -5 -1 cont 1 -1 cont -2 -8 cont 5 1 cont -1 1 cont 2 8" 0.7 : c#txtc
+goto left + 24 head_y
+text "Beam" t_head : c#txtc
+string status_label = online ? "Online" "Connecting"
+number chip_w = (status_label.len * t_small) + 32
+number chip_x = window.right - 92 - (chip_w / 2)
+box(chip_x, head_y, chip_w, 27, 12, "#ffffff1a", "1px solid #ffffff1f")
+string status_col = online ? "#3ddc84" "#d9a441"
+box(chip_x - (chip_w / 2) + 14, head_y, 8, 8, 4, status_col, "none")
+goto chip_x - (chip_w / 2) + 24 head_y
+text status_label t_small : c#txtc
+
+if mode == "save" (
+  goto left top - 74
+  text "Save to" t_title : c#txtc
+  goto left top - 98
+  dim(ellipsis(folder, capFor(inner, t_small)), t_small)
+
+  local parent = folder.split("/").trim(1, -2).join("/")
+  local rows = folder_children.len
+  if parent != "" (
+    rows += 1
+  )
+  frame left top - 118 right + 4 window.bottom + 70 rows * 40 "folders" (
+    local row_w = inner - 8
+    local fx = frame.left + (row_w / 2)
+    local y = frame.top + frame.scroll - 18
+    if rows == 0 (
+      goto fx frame.top - 60
+      dimCentre("No folders in here", t_body)
+    )
+    if parent != "" (
+      hit(fx, y, row_w, 34)
+      surface(fx, y, row_w, 34, r_ctrl, "1px solid #ffffff14")
+      if hit_click (
+        openFolder(parent)
+      )
+      goto frame.left + 20 y
+      icon "left-arrow" 0.55 : c#txtc
+      goto frame.left + 42 y
+      local back_label = "Back to " ++ ellipsis(parent.split("/")[-1], 28)
+      text back_label t_body : c#txtc
+      y -= 40
+    )
+    for i folder_children.len (
+      hit(fx, y, row_w, 34)
+      surface(fx, y, row_w, 34, r_ctrl, "1px solid #ffffff14")
+      if hit_click (
+        openFolder(folder ++ "/" ++ folder_children[i])
+        break
+      )
+      goto frame.left + 20 y
+      icon "w 3 square 0 -1 7 4 line -6 5 -2 5" 0.5 : c#txtc
+      goto frame.left + 42 y
+      text ellipsis(folder_children[i], capFor(row_w - 60, t_body)) t_body : c#txtc
+      y -= 40
+    )
+  )
+
+  local half = (inner - gap) / 2
+  if button(left + (half / 2), window.bottom + pad + 15, half, "Always save here", "plain") (
+    void beam.setSaveFolder(folder)
+    say "Beam will save to " ++ folder.split("/")[-1]
+  )
+  if button(right - (half / 2), window.bottom + pad + 15, half, "Save here", "primary") (
+    void beam.accept(save_request, folder)
+    window.close()
+  )
+) else if mode == "text" (
+  goto left top - 74
+  text "Send text" t_title : c#txtc
+  goto left top - 98
+  dim("Lands on the clipboard of every device signed in to your account.", t_small)
+  box(mid, top - 140, inner, 36, 10, "#ffffff1a", accent_line)
+  goto mid top - 140
+  style {
+    bg: "transparent",
+    border: "none",
+    outline: "none"
+  }
+  input inner - 24 26 "message" "Text to send" null txtc
+  if button(right - 160, top - 190, 90, "Back", "plain") (
+    mode = "nearby"
+  )
+  if button(right - 50, top - 190, 100, "Send", "primary") (
+    if inputs.message != "" (
+      say "Sent to " ++ beam.sendTextToOwnDevices(inputs.message) ++ " devices"
+      inputs.message = ""
+      mode = "nearby"
+    )
+  )
+) else (
+  // title row. actions sit on the same line, like beam.rotur.dev
+  goto left top - 74
+  text "Nearby" t_title : c#txtc
+  if button(right - 55, top - 74, 110, "Share file", "primary") (
+    file "pick"
+    void pickers.append(data)
+  )
+  if button(right - 170, top - 74, 100, "Send text", "plain") (
+    mode = "text"
+  )
+  string room_label = "Room"
+  if beam.room() != "" (
+    room_label = "Leave " ++ beam.room()
+  )
+  if button(right - 275, top - 74, 90, room_label, "plain") (
+    if beam.room() == "" (
+      mode = "room"
+    ) else (
+      void beam.leaveRoom()
+    )
+  )
+
+  number grid_top = top - 122
+  if pending.len > 0 (
+    box(mid, top - 116, inner, 34, r_ctrl, global_accent.trim(1, 7) ++ "33", accent_line)
+    goto left + 14 top - 116
+    local pending_label = "Click someone to send " ++ pendingNames()
+    text ellipsis(pending_label, capFor(inner - 110, t_body)) t_body : c#txtc
+    hit(right - 40, top - 116, 64, 22)
+    surface(right - 40, top - 116, 64, 22, 8, "none")
+    goto right - 40 top - 116
+    centext "Clear" t_small : c#txtc
+    if hit_click (
+      pending = []
+    )
+    grid_top = top - 144
+  ) else (
+    goto left top - 100
+    dim("People on your network and your other devices. Drop a file on someone.", t_small)
+  )
+
+  if peers.len == 0 (
+    local empty_y = (grid_top + window.bottom) / 2
+    goto mid empty_y + 22
+    icon "share" 1.3 : c#txtc
+    goto mid empty_y - 14
+    local empty_label = "Nobody nearby yet"
+    if !ready (
+      empty_label = "Waiting for the beam permission"
+    )
+    centext empty_label 10 : c#txtc
+    goto mid empty_y - 34
+    dimCentre("Open Beam on another device signed in to rotur, or join a room.", t_small)
+  )
+
+  number card_w = 156
+  number card_h = 176
+  number columns = max(1, floor((inner + gap) / (card_w + gap)))
+  number rows = ceil(peers.len / columns)
+  frame left grid_top right + 4 window.bottom + pad rows * (card_h + gap) "people" (
+    for i peers.len (
+      object peer @= peers[i]
+      local col = (i - 1) % columns
+      local row = floor((i - 1) / columns)
+      local cx = frame.left + (card_w / 2) + (col * (card_w + gap))
+      local cy = frame.top + frame.scroll - (card_h / 2) - (row * (card_h + gap))
+
+      hit(cx, cy, card_w, card_h)
+      local card_click = hit_click
+      local dropping = hit_hover and file_dropped != 0
+      local card_line = "1px solid #ffffff1f"
+      if hit_hover and pending.len > 0 (
+        card_line = "1px solid " ++ global_accent
+      )
+      surface(cx, cy, card_w, card_h, r_card, card_line)
+      if dropping (
+        void beam.sendFile(peer.peer_id, file_dropped)
+        file_dropped = 0
+      )
+      if card_click (
+        if pending.len > 0 (
+          void beam.sendFile(peer.peer_id, pending)
+          pending = []
+        ) else (
+          file "pick"
+          void pickers.append(data)
+        )
+      )
+
+      goto cx cy + 44
+      style {
+        rounding: "50%"
+      }
+      image peer.avatar_url 60 60
+      goto cx cy - 2
+      centext ellipsis(peer.username, capFor(card_w - 16, 10)) 10 : c#txtc
+      local lines @= wrap(peer.device, capFor(card_w - 20, t_small))
+      for n lines.len (
+        goto cx cy - 6 - (n * 12)
+        dimCentre(lines[n], t_small)
+      )
+      if peer.same_account (
+        box(cx, cy - 64, 104, 20, 10, "#3ddc8426", "1px solid #3ddc8459")
+        goto cx cy - 64
+        centext "YOUR ACCOUNT" 7 : c#5be08f
+      ) else (
+        box(cx, cy - 64, 104, 20, 10, "#ffffff1a", "1px solid #ffffff24")
+        goto cx cy - 64
+        local relation_label = ("" ++ peer.relation).toUpper()
+        centext relation_label 7 : c#txtc
+      )
+    )
+  )
+
+  if mode == "room" (
+    // scrim so the dialog reads as the only active thing
+    box(mid, mid_y, window.width, window.height, 10, "#00000080", "none")
+    goto mid mid_y
+    style {
+      bg: window_colour.trim(1, 7) ++ "f2",
+      bgBlur: "20px",
+      border: "1px solid #ffffff24",
+      shadow: "0 18px 48px rgba(0, 0, 0, 0.45)",
+      rounding: 16
+    }
+    square 308 128 32 : c#window_colour
+    goto mid - 150 mid_y + 52
+    text "Join a room" t_head : c#txtc
+    goto mid - 150 mid_y + 32
+    dim("Finds devices on other networks with the same code.", t_small)
+    box(mid, mid_y - 2, 300, 34, 10, "#ffffff1a", accent_line)
+    goto mid mid_y - 2
+    style {
+      bg: "transparent",
+      border: "none",
+      outline: "none"
+    }
+    input 276 24 "room" "Room code" null txtc
+    if button(mid - 78, mid_y - 50, 146, "Cancel", "plain") (
+      mode = "nearby"
+    )
+    if button(mid + 78, mid_y - 50, 146, "Join", "primary") (
+      if inputs.room != "" (
+        void beam.joinRoom(inputs.room)
+        mode = "nearby"
+      )
+    )
+  )
+)
+
+import "win-buttons"

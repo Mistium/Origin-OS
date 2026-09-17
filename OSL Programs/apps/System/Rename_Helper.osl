@@ -1,49 +1,71 @@
+// Description: Renames the file or folder whose uuid is given as passed_data
+
 import "window_tools"
 
-window "dimensions" 270 140
+window "dimensions" 340 176
 window "resizable" False
 window "show"
 file "open" passed_data "onlyaccess"
-// handle big files
-
-inputs.main = (fileGet(2) ++ fileGet(1)).JsonParse()
 
 folder = fileGet(1) === ".folder"
-if folder (
-  inputs.main = fileGet(2).JsonParse()
+old_name = fileGet(2).toStr()
+inputs.main = old_name
+heading = "Rename Folder"
+if !folder (
+  inputs.main = old_name ++ fileGet(1)
+  heading = "Rename File"
+)
+button_click = false
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 32 14 : c#fill
+  centext label 9 : c#ink
 )
 
 mainloop:
 load_theme
 
-loc 999 2 0 -63
-square 250 30 10 : c#prim
-input 250 23 "main" "Rename file" txtc
+goto window.left + 20 window.top - 26
+text heading 11 : c#txtc
+goto window.left + 20 window.top - 48
+text old_name.trimText(36) 8 : c#muted
 
-loc 999 2 0 -113
-square 250 30 10 : c#prim
-if clicked or "enter".onpress (
-  dta = inputs.main.split(".")
-  if dta.len == 1 and folder (
-    file "set" 2 dta[1].JsonParse()
+goto 0 window.top - 86
+box 300 34 12 : c#hover_col
+c hover_col
+input 284 26 "main" "New name" 9 txtc
+
+// files keep everything after the last dot as their type
+local name = inputs.main.toStr().strip()
+local parts = name.split(".")
+local ext = parts.last()
+local base = parts.trim(1, parts.len - 1).join(".")
+local valid = name != "" and (folder or (parts.len > 1 and ext != "" and base != ""))
+
+goto -78 window.bottom + 36
+text_button "Cancel" 144 prim txtc
+if button_click (
+  window "stop"
+)
+goto 78 window.bottom + 36
+if valid (
+  text_button "Rename" 144 global_accent accent_txt
+  if button_click or "enter".onKeyDown() (
+    if folder (
+      file "set" 2 name
+    ) else (
+      file "set" 2 base
+      file "set" 1 "." ++ ext
+    )
     window "stop"
   )
-  file "set" 2 dta[1].JsonParse()
-  file "set" 1 "." ++ dta[2].JsonParse()
-  window "stop"
+) else (
+  box 144 32 14 : c#prim
+  centext "Rename" 9 : c#muted
 )
-change_x -30
-text "Rename" 8 : c#txtc
-
-loc 999 2 0 -15
-square 270 20 15 : c#prim
-
-loc -2 2 -15 -15
-icon "close" 0.6 : c#txtc
-if clicked (
-  window "stop"
-)
-
-loc 2 2 15 -15
-file "render" 1
-text "Rename File" 9 : chx#20 c#txtc

@@ -1,31 +1,38 @@
-import "rotur/v1" from "packages" as "rotur"
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: Code editor for originOS
+//
+// Layout: a tab strip per split across the top, the splits below it, an optional
+// explorer panel on the right and a status bar. `split_tabs` is the model, each
+// entry is {tabs, cur}. While a split is being drawn `tabs` and `current_tab`
+// alias that split. Sizes passed to `box` are the visible size, OSL arithmetic
+// runs left to right.
 
 file "use_type" "txt"
-
 save "Studio" "set_directory"
 
 permission "request" "file admin"
 permission "request" "notifications"
 
+// tabs mirror the window buttons: 27 tall, centred 21 below the top, 6 in from the edge
+TAB_H = 42
+TOOL_H = 34
+STATUS_H = 24
+
 array pickers = []
 
 state = {
   folder: null,
-  folder_open: true,
+  is_opal: false,
   folder_sidebar: false,
-  folder_sidebar_width: 300,
+  folder_sidebar_width: 280,
   open_folders: [],
   folder_list_len: 0,
-  linked_windows_view: false,
-  linked_windows_scroll: [0,0],
+  linked_windows_scroll: [0, 0],
   linked_windows_height: 0,
   linked_windows: [],
 
-  // adds to 1, uses percentages for each split
+  // fractions of the width for each split, they add to 1
   split_sizes: [1],
-
-  // resize state
   split_resizing: 0,
   split_resize_start_x: 0,
   split_resize_start_left: 0,
@@ -33,243 +40,175 @@ state = {
 
   folder_resizing: false,
   folder_resize_start_x: 0,
-  folder_resize_start_w: 300
+  folder_resize_start_w: 280,
+  draw_highlight: [0, 0]
 }
 
 number right = 0
 number right_smooth = 0
-
-number bottom = 0
-number bottom_smooth = 0
-
 boolean uses_mouse = ["Windows", "Linux"].contains(system_os)
 
 inputs.linked_windows = []
+inputs.name = ""
 
-class pages (
-  def home() (
-    goto 0 0
-    square frame.width - 10 frame.height - 10 10 : c#window_colour
-    w = frame.width / 2 - 20
-    w2 = w - 5
-    loc 2 2 20 -25
-    text "New File" 8 : c#c_text
+// what the status bar describes, set by whichever editor has the cursor
+status_tab = null
+status_cursor = null
 
-    loc 999 2 20 -25
-    text "Recent Files" 8
+tab_dragging = false
+tab_drag_candidate = null
+tab_drag_tab = null
+tab_drag_from_split = 0
+tab_drag_from_index = 0
+tab_close_lock = false
+tab_width = 0
+current_tab_target = 0
+current_split_target = 0
+current_tab_split = 1
+tool_click = false
 
-    loc 2 2 w / 2 + 20 -200
-    square w2 30 10 : c#c_seco
-    if onclick (
-      file "pick"
-      void pickers.append(data)
-      // list of windows that can send us transmits
-    )
-    change_x w2 / -2 + 10
-    text "Open File" 9 : c#c_text
+// ---------------------------------------------------------------- palette
 
-    // loc 2 2 w / 2 + 20 -250
-    // square w2 30 10 : c#c_seco
-    // if onclick (
-    //   add_tab tab_types.invite
-    // )
-    // change_x w2 / -2 + 10
-    // text "Live Share" 9 : c#c_text
+// ponytail: Studio names its theme colours c_prim, c_text and so on, so it keeps its own copy of the
+// window_tools palette. Switch to load_theme when those names are retired.
+def mix(string a, string b, number t) string (
+  return ("((a,b,t)=>{const h=s=>{s=s.replace('#','');if(s.length===3)s=s.replace(/./g,'$&$&');return [0,2,4].map(i=>parseInt(s.slice(i,i+2),16))};const x=h(a),y=h(b);return '#'+x.map((v,i)=>Math.round(v*(1-t)+y[i]*t).toString(16).padStart(2,'0')).join('')})('" ++ a ++ "','" ++ b ++ "'," ++ t ++ ")").eval()
+)
 
-    loc 2 2 w / 2 + 20 -65
-    square w2 30 10 : c#c_prim
-    input w2 - 10 25 "name" "hello world.txt" 10 c_text
-    change_y -55
-    local idx = inputs.name.index(".")
-    if idx > 1 and idx < inputs.name.len (
-      square w2 30 10 : c#c_seco cursor#pointer
-      if mouse_touching (
-        square w2 30 15 : c#global_accent
-        square w2 30 10 : c#c_seco
-      )
-      if onclick or "enter".onKeyDown() (
-        file "download" input_name
-        add_tab {
-          type: "file",
-          name: input_name,
-          id: ouidNew(),
-          data: [],
-          uuid: data,
-          ohf: compileOHF(getOHF(input_name.split(".").last())),
-          func: editor.renderNorm
-        }
-      )
-      change_x w2 / -2 + 15
-    ) else (
-      square w2 30 10 : c#c_prim
-      change_x w2 / -2 + 15
-    )
-    c c_text
-    icon "Add" 0.5
-    text "Create New File" 8 : chx#20
+def readable_on(string a) string (
+  return ("(a=>{let s=a.replace('#','');if(s.length===3)s=s.replace(/./g,'$&$&');const v=[0,2,4].map(i=>parseInt(s.slice(i,i+2),16));return (v[0]*0.299+v[1]*0.587+v[2]*0.114)>150?'#111111':'#ffffff'})('" ++ a ++ "')").eval()
+)
 
-    c c_prim
-    frame 10 frame.top - 40 frame.right - 10 frame.bottom recent_2.len * 55 "cache@" (
-      w = frame_width - 20
-      for count recent_2.len (
-        y = count * -55 + 30 + frame.scroll
-        loc 999 2 0 y
-        square w 30 10 : c#c_prim cursor#pointer
-        cur = recent_2[count].toStr()
-        name @= open(cur, [2, 1])
-        if mouse_touching (
-          if onclick (
-            add_tab {
-              type: "file",
-              data: open(cur).split("\n"),
-              name: name.join(""),
-              id: ouidNew(),
-              uuid: cur,
-              ohf: compileOHF(getOHF(name[2])),
-              func: editor.renderNorm
-            }
-          )
-          square w 30 15 : c#c_seco
-          square w 30 10 : c#c_prim
-        )
-        change w / -2 + 12
-        if loaded_file !== 0 (
-          file "render" 1
-          loc 2 2 40 y
-          text name.join("") 9 : c#c_text
-        ) else (
-          recent.delete(count)
-          save "recent_files.json" "set" recent
-          count --
-          recent2 = recent.trim(1,10)
-        )
-      )
-    )
-  )
+palette_key = ""
+muted = "#888888"
+hover_col = "#333333"
+edge_col = "#333333"
+track_col = "#555555"
+gutter_col = "#111111"
+accent_txt = "#ffffff"
 
-  def invite() (
-    goto 0 0
-    square frame.width - 10 frame.height - 10 10 : c#window_colour
-    window "responsive" true
-    frame window.left + 300 window.top - 40 window.right window.bottom (
-      goto 0 40
-      centext "Type a user's connection id to invite" 10 : c#c_text
-      goto 0 20
-      centext "Your id is: " ++ connection.username 9
-      goto 0 -20
-      square 300 25 10 : c#c_prim
-      input 260 25 "Invite" "Should look like: '06ec19ff33'" : chx#-20
-      c sharing_tab == null ? c_seco c_text
-      icon "send" 0.8 : chx#150 tooltip#"Send Invite to Edit"
-      if onclick and sharing_tab != null (
-        edit_session = ouidNew()
-        host = true
-        rotur.pMessage(connection.room, "ori-" ++ inputs.Invite, {
-          cmd: "join",
-          ohf: getOHF(open(sharing_tab, ["type"])[1]),
-          room: edit_session,
-          file_data: open(sharing_tab, "all")
-        })
-        joinEditSession(edit_session)
-      )
-      c c_text
-      goto 0 -55
-      centext "Recieved:" 9
-      each invite invites.getKeys() (
-        change_y -45
-        square frame.width - 30 30 10 : c#c_prim
-        if onclick (
-          sharing_tab = ""
-          tabs @= tabs.filter(v -> !v.startsWith("^ "))
-          joinEditSession(invites[invite].val.room)
-          local file_data = invites[invite].val.file_data
-          save_name = "temp_" ++ file_data[14] ++ ".lvsh"
-          save save_name "set" file_data[4]
-          sharing_tab = save_name.saveGet(14)
-          inputs.share = file_data[4].split("\n")
-          last_inputs_share = inputs.share
-          share_name = file_data[2] ++ file_data[1]
-          share_type = file_data[1]
-          current_ohf = invites[invite].val.ohf
-          if typeof(current_ohf) == "object" (
-            current_ohf = compileOHF(current_ohf)
-          ) else (
-            current_ohf = null
-          )
-          add_tab "^ " ++ file_data[14]
-          invites = {}
-        )
-        centext "From " ++ invites[invite].origin.username 10 : c#c_text
-      )
-    )
-    frame window.left + 45 window.top - 35 window.left + 300 window.bottom (
-      square frame.width - 25 frame.height - 25 15 : c#c_prim
-      square frame.width - 25 frame.height - 25 10 : c#window_colour
-      goto 0 frame.top + 15
-      each tab tabs (
-        if tab.len == 32 (
-          change_y -45
-          if sharing_tab == tab (
-            square frame.width - 30 30 15 : c#global_accent
-          )
-          square frame.width - 30 30 10 : c#c_prim
-          if clicked (
-            sharing_tab = tab
-          )
-          centext open(tab, ["name", "type"]).join("") 10 : c#c_text
-        )
-      )
-    )
+def "refresh_palette" (
+  local theme = user.theme
+  c_prim = theme.primary
+  c_seco = theme.secondary
+  c_text = theme.text
+  window_colour = theme.background
+  local key = c_prim ++ c_seco ++ c_text ++ window_colour ++ global_accent
+  if key != palette_key (
+    palette_key = key
+    muted = mix(c_text, c_prim, 0.42)
+    hover_col = mix(c_prim, c_seco, 0.4)
+    edge_col = mix(c_prim, c_text, 0.14)
+    track_col = mix(c_prim, c_text, 0.3)
+    gutter_col = mix(window_colour, c_prim, 0.5)
+    accent_txt = readable_on(global_accent)
   )
 )
 
-tab_types = {
-  welcome: {name: "Welcome", func: pages.home},
-  invite: {name: "Invite", func: pages.invite},
-  editor: {name: "Editor", func: editor.renderNorm}
-}
+// ---------------------------------------------------------------- drawing helpers
 
-class sidebar (
-  mode = "none"
-  fn = () -> ()
-  resize = 0.5
+// a filled rounded box, w and h are the visible size and r the corner diameter
+def "box" "w, h, r" (
+  square w - r h - r r
+)
 
-  _resizing = false
-  resize_start_x = 0
-  resize_start_value = 0
+// an invisible hit area, sets mouse_touching / onclick / clicked
+def "hit" "w, h" (
+  square w h 0 0 1
+)
 
-  def frameInnerRender(callback) (
-    if self.resizing and !mouse_down (
-      self.resizing = false
-    )
-    if self.mode == "none" (
-      callback()
+// the strip under the tabs that holds a tab's buttons, leaves the pen on the first slot
+def "toolbar_begin" (
+  goto 0 frame.top - (TOOL_H / 2)
+  square frame.width TOOL_H 0 : c#window_colour
+  goto 0 frame.top - TOOL_H
+  square frame.width 0 1 : c#edge_col
+  goto frame.left + 22 frame.top - (TOOL_H / 2)
+)
+
+// one toolbar button, moves the pen to the next slot, result in `tool_click`
+def "tool" "icn, tip, size" (
+  hit 28 26
+  tool_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+    box 28 26 10 : c#hover_col tooltip#tip
+  )
+  icon icn size : c#c_text
+  change_x 32
+)
+
+// a centred icon and message for a tab with nothing to show
+def "empty_state" "icn, message" (
+  goto 0 10
+  icon icn 2 : c#track_col
+  goto 0 -40
+  centext message 9.5 : c#muted
+)
+
+// ---------------------------------------------------------------- tabs model
+
+def remember_recent(uuid) (
+  recent = recent.delete(uuid).prepend(uuid).trim(1, 10)
+  save "recent_files.json" "set" recent
+)
+
+def file_tab(uuid) (
+  local name = open(uuid, ["name", "type"])
+  remember_recent(uuid)
+  return {
+    type: "file",
+    name: name.join(""),
+    id: ouidNew(),
+    data: open(uuid).toStr().split("\n"),
+    uuid: uuid,
+    ohf: compileOHF(getOHF(name[2])),
+    func: editor.renderNorm
+  }
+)
+
+def welcome_tab() (
+  return {
+    type: "welcome",
+    name: "Welcome",
+    id: ouidNew(),
+    func: pages.home
+  }
+)
+
+def "add_tab" "data" (
+  data.id ??= ouidNew()
+  void tabs.append(data)
+  current_tab = tabs.len
+)
+
+def "insert_tab" "index, data" (
+  data.id ??= ouidNew()
+  tabs ??= []
+  tabs.insert(index, data)
+  current_tab = index
+)
+
+// opens a file in the current split, or focuses its tab when it is already open there
+def "open_file_tab" "uuid" (
+  for i tabs.len (
+    if tabs[i].type == "file" and tabs[i].uuid == uuid (
+      current_tab = i
       return
     )
-    local w = self.resize * frame.width
+  )
+  add_tab file_tab(uuid)
+)
 
-    local join_x = frame.right - w
-
-    frame join_x frame.top frame.right frame.bottom (
-      goto 0 0
-      square frame.width frame.height 10 : c#c_prim
-      self.fn()
-    )
-    if abs(mouse_x - join_x) < 20 (
-      cursor "ew-resize"
-      if mouse_ondown (
-        self.resizing = true
-        self.resize_start_x = mouse_x
-        self.resize_start_value = self.resize
-      )
-    )
-    frame frame.left frame.top join_x frame.bottom (
-      callback()
-    )
-    if self.resizing (
-      self.resize = (self.resize_start_value + (self.resize_start_x - mouse_x) / frame.width).clamp(0.2,0.8)
+// focuses the first tab matching `kind` and `source`, otherwise adds `data`
+def "focus_or_add_tab" "kind, source, data" (
+  for i tabs.len (
+    if tabs[i].type == kind and (source == null or tabs[i].source_tab_id == source) (
+      current_tab = i
+      return
     )
   )
+  add_tab data
 )
 
 def ensureSplitSizes() (
@@ -280,15 +219,13 @@ def ensureSplitSizes() (
   )
   if typeof(state.split_sizes) != "array" or state.split_sizes.len != n (
     state.split_sizes = []
-    local each = 1 / n
     for i n (
-      void state.split_sizes.append(each)
+      void state.split_sizes.append(1 / n)
     )
   )
   local sum = 0
   for i n (
-    state.split_sizes[i] = (state.split_sizes[i] ?? (1 / n)).toNum()
-    state.split_sizes[i] = state.split_sizes[i].clamp(0.08, 0.92)
+    state.split_sizes[i] = (state.split_sizes[i] ?? (1 / n)).toNum().clamp(0.08, 0.92)
     sum += state.split_sizes[i]
   )
   if sum != 0 (
@@ -298,110 +235,249 @@ def ensureSplitSizes() (
   )
 )
 
+def open_folder(uuid) (
+  state.folder = uuid
+  state.open_folders = []
+  state.is_opal = open(uuid, ["location", "name"]).join("/").listFolder().contains("opal.json")
+  recent_folders = recent_folders.delete(uuid).prepend(uuid).trim(1, 8)
+  save "recent_folders.json" "set" recent_folders
+)
+
+// ---------------------------------------------------------------- syntax highlighting
+
+def getOHF(string type) (
+  type = type.toUpper()
+  if type.startsWith(".") (
+    type = type.trim(2, -1)
+  )
+  string name = type ++ ".ohf"
+  // cached definitions are reused for a day
+  if name.saveExists() and timestamp - name.saveGet(10) < 86400000 (
+    return name.saveGet()
+  )
+  local OHF = requests.get("https://origin.mistium.com/Other/OHF/" ++ type ++ ".ohf")
+  if OHF.status != 200 (
+    if name.saveExists() (
+      return name.saveGet()
+    )
+    return null
+  )
+  local parsed = OHF.body.JsonParse()
+  save name "set" parsed
+  return parsed
+)
+
+def compileOHF(ohf) (
+  if typeof(ohf) != "object" (
+    return ""
+  )
+  local output = {
+    tokens: {},
+    overrides: {},
+    parser: {}
+  }
+  try (
+    if ohf.categories != null (
+      each o ohf.categories.getValues() (
+        each r o.tokens (
+          output.tokens["tkn:" ++ r] = o.color
+        )
+      )
+    )
+    if ohf.overrides != null (
+      each o ohf.overrides.getKeys() (
+        output.overrides[o] = ohf.overrides[o]
+      )
+    )
+    output.parser = ohf.parser ?? {}
+    output.highlighter = ohf.highlighter ?? {}
+  ) catch o (
+    error o
+    return ""
+  )
+  return output
+)
+
+// ---------------------------------------------------------------- pages
+
+class pages (
+  def home() (
+    goto 0 0
+    square frame.width frame.height 0 : c#window_colour
+    local cw = min(frame.width - 40, 760)
+    local col = cw / 2 - 10
+    local left = cw / -2
+    local top = frame.top - 34
+
+    goto left top
+    text "Studio" 16 : c#c_text
+    goto left top - 28
+    text "Write and run code for originOS" 9 : c#muted
+
+    // start column
+    local x = left + (col / 2)
+    local y = top - 78
+    goto left y
+    text "START" 7.5 : c#muted
+    y -= 34
+    goto x y
+    box col + 2 34 14 : c#edge_col
+    box col 32 12 : c#c_prim
+    c c_prim
+    input col - 20 24 "name" "New file name, like hello.osl" 9 c_text
+    local dot = inputs.name.index(".")
+    local valid = dot > 1 and dot < inputs.name.len
+    y -= 42
+    goto x y
+    hit col 32
+    local create = onclick and valid
+    if valid (
+      if mouse_touching (
+        cursor "pointer"
+      )
+      box col 32 12 : c#global_accent
+      centext "Create File" 9 : c#accent_txt
+    ) else (
+      box col 32 12 : c#hover_col
+      centext "Create File" 9 : c#muted
+    )
+    if create or (valid and selected_input == "name" and "enter".onKeyDown()) (
+      file "download" inputs.name
+      add_tab file_tab(data)
+      inputs.name = ""
+    )
+    y -= 42
+    goto x y
+    hit col 32
+    if mouse_touching (
+      cursor "pointer"
+      box col 32 12 : c#hover_col
+    ) else (
+      box col + 2 34 14 : c#edge_col
+      box col 32 12 : c#window_colour
+    )
+    if onclick (
+      // the picker answers with a transmit, remember which windows may answer
+      file "pick"
+      void pickers.append(data)
+    )
+    centext "Open File..." 9 : c#c_text
+    y -= 42
+    goto x y
+    hit col 32
+    if mouse_touching (
+      cursor "pointer"
+      box col 32 12 : c#hover_col
+    ) else (
+      box col + 2 34 14 : c#edge_col
+      box col 32 12 : c#window_colour
+    )
+    if onclick (
+      state.folder_sidebar = true
+    )
+    centext "Open Folder..." 9 : c#c_text
+
+    // recent column
+    local rx = left + col + 20
+    goto rx top - 78
+    text "RECENT" 7.5 : c#muted
+    if recent.len == 0 (
+      goto rx top - 112
+      text "Files you save show up here" 9 : c#muted
+      return
+    )
+    frame rx - 8 top - 92 rx + col + 8 frame.bottom + 8 recent.len * 36 + 8 "cache@recent" (
+      local w = frame.width - 12
+      for i recent.len (
+        local uuid = recent[i].toStr()
+        file "uuid_exists" uuid
+        if !exists (
+          void recent.delete(i)
+          save "recent_files.json" "set" recent
+          break
+        )
+        goto 0 frame.top - 4 + frame.scroll - (i - 0.5 * 36)
+        hit w 32
+        if mouse_touching (
+          cursor "pointer"
+          box w 32 12 : c#hover_col
+        )
+        if onclick (
+          open_file_tab uuid
+        )
+        local name = open(uuid, ["name", "type", "location"])
+        goto w / -2 + 20 y_position
+        file "render" 0.8
+        text (name[1] ++ name[2]).trimText(w - 60 / 9) 9 : c#c_text chx#22
+      )
+    )
+  )
+)
+
 class editor (
   def renderNorm() (
     local tab @= tabs[current_tab]
-    goto 0 -18
-    square frame.width - 12 frame.height - 49 10 : c#window_colour
-    c c_prim
+    goto 0 TOOL_H / -2
     inputs[tab.id] @= tab.data
-    textbox frame.width - 4 frame.height - 39 tab.id 0 {
+    c window_colour
+    textbox frame.width frame.height - TOOL_H tab.id 0 {
       line_numbers: {
-        bg_colour: c_prim
+        bg_colour: gutter_col
       },
-      sel_colour: c_seco,
+      sel_colour: track_col,
       text_colour: c_text,
       ohf: tab.ohf
     }
+
+    // lint messages sit at the end of the line they belong to
     local sel @= inputs.selected
     local err @= (tab.errors ?? []).sortBy("line")
     local data @= inputs[tab.id]
-    local offset @= data.len.len * 8 + 30
+    local offset = data.len.toStr().len * 8 + 30
     for i err.len (
       local cur @= err[i]
       if err[i - 1].line == cur.line (
         continue
       )
-      goto frame.left + (data[cur.line].len * 10 + offset) frame.top - 48 - (cur.line - 1 * 23) + tab.scroll.y
-      text cur.message 10 : c#f66
+      goto frame.left + (data[cur.line].len * 10 + offset) frame.top - 44.5 - (cur.line - 1 * 23) + tab.scroll.y
+      if y_position < frame.top - TOOL_H - 8 and y_position > frame.bottom (
+        text cur.message 10 : c#f87171
+      )
+    )
+    if status_tab == null (
+      status_tab @= tab
     )
     if sel.id == tab.id (
       tab.scroll @= sel.scroll
+      status_tab @= tab
+      status_cursor @= sel.cursor
       if sel.changed (
         tab.unsaved = true
-        tabs[current_tab].data @= inputs[tab.id]
-        if tab["type"] == "file" and tab.name.endsWith(".osl") and "lintSyntax" in osl (
+        tab.data @= inputs[tab.id]
+        if tab.name.endsWith(".osl") and "lintSyntax" in osl (
           tab.errors @= osl.lintSyntax(tab.data.join("\n")).errors
         )
       )
     )
 
-    goto 0 frame.top - 16.5
-    square frame.width - 12 20 10 : c#window_colour
-    loc 2 2 15 -16.5
-    sidebarbuttons(tab.uuid, tab.id)
-  )
-
-  def renderShare() (
-    local tab @= tabs[current_tab]
-    window "responsive" true
-    current_studio_page = "Sync"
-    goto 0 0
-    c c_prim
-    textbox frame.width window.height - 45 "share" 0 {
-      line_numbers: {
-        bg_colour: c_prim
-      },
-      sel_colour: c_seco,
-      text_colour: c_text,
-      ohf: tab.ohf
-    }
-
-    if inputs.selected.id == "share" (
-      if inputs.selected.cursor != last_cursor (
-        last_cursor = inputs.selected.cursor
-        rotur.gMessage(edit_connection.room, {
-          cmd: "cursor",
-          data: last_cursor
-        })
-      )
-      if inputs.share.len != last_input_share.len (
-        rotur.gMessage(edit_connection.room, {
-          cmd: "full",
-          data: inputs.share.join("\n")
-        })
-        last_input_share = inputs.share
-      ) else if inputs.share.join("\n") != last_input_share.join("\n") (
-        for i inputs.share.len (
-          if inputs.share[i] != last_input_share[i] (
-            rotur.gMessage(edit_connection.room, {
-              cmd: "line",
-              line: i,
-              data: inputs.share[i].toStr()
-            })
-          )
-        )
-        last_input_share = inputs.share
-      )
-    )
+    toolbar_begin
+    editorButtons(tab)
   )
 )
 
 class icnPreview (
   def render() (
     local tab @= tabs[current_tab]
-    frame frame.left frame.top - 39 frame.right frame.bottom (
+    tab.icn_state ??= {
+      display: [0, 0],
+      last_display: [0, 0],
+      mouse: [0, 0],
+      zoom: 1
+    }
+    local icn @= tab.icn_state
+    frame frame.left frame.top - TOOL_H frame.right frame.bottom (
       goto 0 0
-      square frame.width - 12 frame.height - 12 10 : c#window_colour
-
-      tab.icn_state ??= {
-        display: [0,0],
-        last_display: [0,0],
-        mouse: [0,0],
-        zoom: 1
-      }
-
-      local icn @= tab.icn_state
+      square frame.width frame.height 0 : c#window_colour
       local lines = []
       if tab.source_input != null and inputs[tab.source_input] != null (
         lines @= inputs[tab.source_input]
@@ -411,8 +487,10 @@ class icnPreview (
 
       if mouse_touching (
         if mouse_down (
+          cursor "grabbing"
           icn.display = icn.last_display - (icn.mouse - [mouse_x, mouse_y])
         ) else (
+          cursor "grab"
           icn.last_display = icn.display
           icn.mouse @= [mouse_x, mouse_y]
         )
@@ -423,34 +501,33 @@ class icnPreview (
         icn.mouse @= [mouse_x, mouse_y]
       )
 
+      // axes through the origin, then the icon itself
       goto icn.display
-      c c_seco
+      c edge_col
       icon "w 0 square 0 0 10 9999 square 0 0 9999 10 w 5 c" + c_text + lines.join(" ") icn.zoom
     )
 
-    goto 0 frame.top - 16.5
-    square frame.width - 12 20 10 : c#window_colour
-    loc 2 2 15 -16.5
-
-    local h = 30
-    local s = 0.65
-
-    c c_text
-    icon "minus" s : tooltip#"Zoom Out"
-    square 30 30 12 1 1
-    if onclick (
+    toolbar_begin
+    tool "minus" "Zoom out" 0.6
+    if tool_click (
       icn.zoom = (icn.zoom / 1.25).clamp(0.1, 20)
     )
-
-    change_x h
-    icon "add" s : tooltip#"Zoom In"
-    square 30 30 12 1 1
-    if onclick (
+    tool "add" "Zoom in" 0.6
+    if tool_click (
       icn.zoom = (icn.zoom * 1.25).clamp(0.1, 20)
     )
+    tool "target" "Reset view" 0.6
+    if tool_click (
+      icn.zoom = 1
+      icn.display = [0, 0]
+      icn.last_display = [0, 0]
+    )
+    goto frame.right - 16 frame.top - (TOOL_H / 2)
+    rigtext round(icn.zoom * 100) ++ "%" 8.5 : c#muted
   )
 )
 
+// pulls new log lines out of the windows started from the run button
 def updateLinkedWindowLogs() (
   for i state.linked_windows.len (
     local cur @= state.linked_windows[i]
@@ -476,63 +553,52 @@ def updateLinkedWindowLogs() (
 
 class logsTab (
   def render() (
-    goto 0 -18
-    square frame.width - 12 frame.height - 49 10 : c#window_colour
-
-    updateLinkedWindowLogs()
-
-    goto 0 frame.top - 16.5
-    square frame.width - 12 20 10 : c#window_colour
-    loc 2 2 15 -16.5
-    local h = 30
-    local s = 0.65
-
-    c c_text
-    icon "close" 0.6 : tooltip#"Clear logs"
-    square 30 30 12 1 1
-    if onclick (
+    goto 0 0
+    square frame.width frame.height 0 : c#window_colour
+    toolbar_begin
+    tool "bin" "Clear logs" 0.6
+    if tool_click (
       inputs.linked_windows = []
-      state.linked_windows_scroll = [0,0]
+      state.linked_windows_scroll = [0, 0]
       for i state.linked_windows.len (
         state.linked_windows[i].total_logs = 0
       )
     )
+    goto frame.right - 16 frame.top - (TOOL_H / 2)
+    rigtext state.linked_windows.len ++ " running" 8.5 : c#muted
 
-    if state.linked_windows.len == 0 and inputs.linked_windows.len == 0 (
-      goto 0 0
-      centext "No linked windows, run an osl app to see logs here" 9 : c#c_text
+    if inputs.linked_windows.len == 0 (
+      empty_state "terminal" "Run an osl file to see its logs here"
       return
     )
 
+    // newest line at the bottom, drawn upwards until the frame is full
     local lscroll @= state.linked_windows_scroll
-    frame frame.left + 5 frame.top - 45 frame.right - 5 frame.bottom + 5 state.linked_windows_height "cache@logs_tab" (
-      goto 0 0
-      square frame.width - 10 frame.height - 10 10 : c#window_colour
-      if mouse_touching (
+    frame frame.left frame.top - TOOL_H frame.right frame.bottom state.linked_windows_height "cache@logs_tab" (
+      if mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
         lscroll[2] -= scroll.y.velocity
         lscroll[2] = lscroll[2].clamp(0, state.linked_windows_height)
       )
-      loc 2 -2 10 20 - lscroll[2]
-      local x = x_position
+      local x = frame.left + 16
+      goto x frame.bottom + 20 - lscroll[2]
       local i = inputs.linked_windows.len
-      local w = frame.width / 10 - 5
+      local w = frame.width / 9 - 5
       local hgt = 0
       loop i (
-        local cur @= inputs.linked_windows[i]
-        local parts = cur.wrapText(w).split("\n")
+        local parts = inputs.linked_windows[i].toStr().wrapText(w).split("\n")
         local j = parts.len
         loop j (
           set_x x
-          text parts[j] 10 : c#c_text
-          change_y 23
-          hgt += 23
+          text parts[j] 9 : c#c_text
+          change_y 20
+          hgt += 20
           if y_position > frame.top + 20 (
             break
           )
           j --
         )
-        change_y 10
-        hgt += 10
+        change_y 8
+        hgt += 8
         i --
       )
       state.linked_windows_height = hgt
@@ -543,29 +609,32 @@ class logsTab (
 class searchTab (
   def render() (
     local tab @= tabs[current_tab]
-    goto 0 -18
-    square frame.width - 12 frame.height - 49 10 : c#window_colour
-
-    goto 0 frame.top - 16.5
-    square frame.width - 12 20 10 : c#window_colour
-    loc 999 2 0 -16.5
-    local s = 0.65
+    goto 0 0
+    square frame.width frame.height 0 : c#window_colour
+    toolbar_begin
 
     local input_id = "search_" ++ tab.id
-    square frame.width - 90 20 8 : c#c_prim
-    input frame.width - 90 25 input_id "Search" 5 c_text
-    local q = inputs[input_id] ?? ""
+    local iw = frame.width - 24
+    goto 0 frame.top - (TOOL_H / 2)
+    box iw 24 10 : c#c_prim
+    goto iw / -2 + 14 y_position
+    icon "search" 0.45 : c#muted
+    goto 10 y_position
+    c c_prim
+    input iw - 40 22 input_id "Search in " ++ (tab.source_name ?? "file") 9 c_text
+    local q = (inputs[input_id] ?? "").toStr()
 
-    local lines = []
-    if tab.source_uuid != null (
-      lines @= open(tab.source_uuid).split("\n")
-    )
-
-    tab._last_q ??= ""
+    tab.last_q ??= ""
     tab.results ??= []
     if q != tab.last_q (
       tab.last_q = q
       tab.results = []
+      local lines = []
+      if tab.source_input != null and inputs[tab.source_input] != null (
+        lines @= inputs[tab.source_input]
+      ) else if tab.source_uuid != null (
+        lines @= open(tab.source_uuid).split("\n")
+      )
       local q2 = q.toUpper()
       if q2.len > 0 (
         for i lines.len (
@@ -576,7 +645,7 @@ class searchTab (
               text: line.strip()
             })
           )
-          if tab.results.len > 100 (
+          if tab.results.len >= 200 (
             break
           )
         )
@@ -585,348 +654,201 @@ class searchTab (
 
     local results @= tab.results
     if q.len == 0 (
-      goto 0 0
-      centext "Type to search this file" 9 : c#c_text
+      empty_state "search" "Type to search this file"
       return
     )
-
     if results.len == 0 (
-      goto 0 0
-      centext "No results" 9 : c#c_text
+      empty_state "search" "No results"
       return
     )
 
-    local content_h = results.len * 25
-    c c_prim
-    frame frame.left + 5 frame.top - 45 frame.right - 5 frame.bottom + 5 content_h "cache@search_tab" (
-      goto 0 frame.top + frame.scroll - 12
-      local w = frame.width - 10
-      for i results.len (
+    frame frame.left frame.top - TOOL_H frame.right frame.bottom results.len * 26 + 8 "cache@search_tab" (
+      local w = frame.width - 12
+      local first = max(0, floor(frame.scroll / 26))
+      local i = first
+      loop min(results.len - first, ceil(frame.height / 26) + 1) (
+        i ++
         local r @= results[i]
-        set_x 0
-        square w 20 8 0 1 : cursor#pointer
+        goto 0 frame.top - 4 + frame.scroll - (i - 0.5 * 26)
+        hit w 24
         if mouse_touching (
-          square w 20 8 : c#c_seco
-          if onclick (
-            if tab.source_tab_id != null (
-              local idx = 0
-              for t tabs.len (
-                if tabs[t].id == tab.source_tab_id (
-                  idx = t
-                  break
-                )
-              )
-              if idx != 0 (
-                current_tab = idx
-              )
+          cursor "pointer"
+          box w 24 10 : c#hover_col
+        )
+        if onclick and tab.source_tab_id != null (
+          // jump to the file's tab with the cursor on that line
+          for t tabs.len (
+            if tabs[t].id == tab.source_tab_id (
+              current_tab = t
+              input "focus" tab.source_tab_id
+              input "move_cursor" r.line 0
+              break
             )
           )
         )
-        set_x frame.left + 10
-        text r.line.toStr() ++ ": " 9 : c#c_seco
-        text r.text 9 : chx#10 c#c_text
-        change_y -25
-        if y_position < frame.bottom - 25 (
+        goto frame.left + 52 y_position
+        rigtext r.line.toStr() 8.5 : c#muted
+        goto frame.left + 64 y_position
+        text r.text.trimText(w - 70 / 9) 9 : c#c_text
+      )
+    )
+  )
+)
+
+// ---------------------------------------------------------------- editor toolbar
+
+def saveTab(tab) (
+  file "open" tab.uuid "onlyaccess"
+  file "set" 4 inputs[tab.id].join("\n")
+  // the same file can be open in several splits
+  for i split_tabs.len (
+    local list @= split_tabs[i].tabs
+    for j list.len (
+      if list[j].type == "file" and list[j].uuid == tab.uuid (
+        list[j].unsaved = false
+      )
+    )
+  )
+  remember_recent(tab.uuid)
+)
+
+def editorButtons(tab) (
+  local path = open(tab.uuid, ["location", "name", "type"])
+  local file_type = path[3]
+  local focused = inputs.selected.id == tab.id
+
+  tool "save" "Save (Ctrl+S)" 0.6
+  if tool_click or (focused and "control".isKeyDown() and "s".onKeyDown()) (
+    saveTab(tab)
+  )
+
+  if [".osl", ".js", ".bf", ".owf"].contains(file_type) (
+    tool "play" "Run" 0.6
+    if tool_click (
+      switch file_type (
+        case ".js"
+          local parts = inputs[tab.id].join("\n").eval().toStr().split("\n")
+          for i parts.len (
+            void inputs.linked_windows.append(parts[i])
+          )
           break
-        )
+        case ".osl"
+          window.create(tab.uuid, {
+            get_obj: true
+          })
+          // track the window so its logs can be followed
+          void state.linked_windows.append({ total_logs: 0, context: data })
+          break
+        default
+          file "open" tab.uuid "onlyaccess"
+          file "start"
+          file "close"
       )
     )
   )
-)
 
-window.show()
-
-def joinEditSession(id) (
-  if edit_connection != null (
-    rotur.unSubscribe(edit_connection.room)
+  tool "search" "Search in file" 0.55
+  if tool_click (
+    focus_or_add_tab "search" tab.id {
+      type: "search",
+      name: "Search",
+      source_name: tab.name,
+      source_uuid: tab.uuid,
+      source_input: tab.id,
+      source_tab_id: tab.id,
+      func: searchTab.render
+    }
   )
-  edit_connection @= rotur.subscribe(id, my_id)
-  edit_connection.onmessage = def(packet) -> (
-    switch packet.val.cmd (
-      case "full"
-        inputs.share = packet.val.data.split("\n")
-        last_input_share = inputs.share
-        break
-      case "reqfull"
-        rotur.gMessage(edit_connection.room, {cmd:"full", data: inputs.share.join("\n")})
-        break
-      case "rename"
-        share_name = packet.val.name
-        break
-      case "line"
-        inputs.share[packet.val.line] = packet.val.data
-        last_input_share[packet.val.line] = packet.val.data
-        break
-      case "cursor"
-        cursors[packet.origin] = packet.val
-        break
+
+  if file_type == ".osl" or file_type == ".js" (
+    tool "terminal" "Logs" 0.6
+    if tool_click (
+      focus_or_add_tab "logs" null {
+        type: "logs",
+        name: "Logs",
+        func: logsTab.render
+      }
     )
   )
-  edit_connection.onclose = def() -> (
-    joinEditSession(edit_connection.room)
-  )
-  edit_connection.onjoin = def() -> (
-    inputs.share = open(sharing_tab).split("\n")
-    share_name = open(sharing_tab, ["name", "type"])
-    share_type = share_name[2]
-    current_ohf = compileOHF(getOHF(share_type))
-    share_name = share_name.join("")
-    add_tab "^ Live Share"
-  )
-)
 
-def getOHF(string type) (
-  type = type.toUpper()
-  if type.startsWith(".") (
-    type.trim(2,-1)
-  )
-  local load_save = false
-  if (type ++ ".ohf").saveExists() (
-    load_save = timestamp - (type ++ ".ohf").saveGet(10) < 86400000
-  )
-  if load_save (
-    return (type ++ ".ohf").saveGet()
-  ) else (
-    local OHF = requests.get("https://origin.mistium.com/Other/OHF/" ++ type.toUpper() ++ ".ohf")
-    if OHF.status != 200 (
-      return null
-    )
-    string name = type ++ ".ohf"
-    if name.saveExists() (
-      return name.saveGet()
+  if [".json", ".ohf", ".ojff"].contains(file_type) (
+    if inputs[tab.id].len == 1 (
+      tool "line -10 10 5 10 line 0 2.5 10 2.5 line 0 -5 10 -5" "Format JSON" 0.55
+      if tool_click (
+        inputs[tab.id] = inputs[tab.id][1].JsonParse().JsonFormat().split("\n")
+        tab.unsaved = true
+      )
     ) else (
-      local parsed = OHF.body.JsonParse()
-      save name "set" parsed
-      return parsed
-    )
-  )
-)
-
-def compileOHF(ohf) (
-  if typeof(ohf) != "object" (
-    return ""
-  )
-
-  local output = {
-    tokens: {},
-    overrides: {},
-    parser: {}
-  }
-
-  try (
-    if ohf.categories != null (
-      each o ohf.categories.getValues() (
-        each r o.tokens (
-          output.tokens["tkn:" ++ r] = o.color
-        )
+      tool "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" "Minify JSON" 0.55
+      if tool_click (
+        inputs[tab.id] = inputs[tab.id].join("\n").JsonParse().toStr().split("\n")
+        tab.unsaved = true
       )
     )
-
-    if ohf.overrides != null (
-      each o ohf.overrides.getKeys() (
-        output.overrides[o] = ohf.overrides[o]
-      )
-    )
-
-    output.parser = ohf.parser ?? {}
-    output.highlighter = ohf.highlighter ?? {}
-  ) catch o (
-    error o
-    return ""
   )
 
-  return output
-)
-
-host = false
-my_id = ouidNew().trim(1,3)
-
-edit_session = null
-edit_connection = null
-sharing_tab = null
-share_name = null
-
-last_cursor = ""
-last_share_input = ""
-
-invites = {}
-connection = {}
-def setupRotur() (
-  connection @= rotur.subscribe("Studio", my_id)
-  connection.onmessage = def(packet) -> (
-    if packet.val.cmd == "join" (
-      invites[packet.origin.username] = packet
+  if file_type == ".icn" (
+    tool "eye" "Preview icon" 0.6
+    if tool_click (
+      add_tab {
+        type: "icn_preview",
+        name: "Preview: " ++ tab.name,
+        source_uuid: tab.uuid,
+        source_input: tab.id,
+        func: icnPreview.render
+      }
     )
   )
-  connection.onclose = def() -> (
-    setupRotur()
+
+  // where the file lives, right aligned
+  local room = frame.right - x_position - 30 / 8
+  if room > 12 (
+    goto frame.right - 14 frame.top - (TOOL_H / 2)
+    rigtext path[1].toStr().trimText(room) 8 : c#muted
   )
 )
 
-// setupRotur()
-
-change_focus = true
-current_tab_target = 0
-removed = false
-
-tab_dragging = false
-tab_drag_candidate = null
-tab_drag_tab = null
-tab_drag_from_split = 0
-tab_drag_from_index = 0
-
-tab_close_lock = false
-
-if "recent_files.json".saveExists() (
-  recent = "recent_files.json".saveGet()
-) else (
-  save "recent_files.json" "set" []
-  recent = []
-)
-recent_2 = recent.trim(1,10)
-save "recent_files.json" "set" recent_2
-
-if "recent_folders.json".saveExists() (
-  recent_folders = "recent_folders.json".saveGet()
-) else (
-  save "recent_folders.json" "set" []
-  recent_folders = []
-)
-recent_folders_2 = recent_folders.trim(1,10)
-save "recent_folders.json" "set" recent_folders_2
-
-def loadFileUUID(uuid) (
-  file = open(uuid, ["name", "type", "data"])
-  inputs[uuid] = file[3].split("\n")
-  file.pop()
-)
-
-tabs = []
-current_tab = 1
-if passed_data == "" (
-  tabs.append(tab_types.welcome)
-) else (
-  local file = open(passed_data, ["name", "type", "data"])
-  if file[2] == "" or typeof(file[3]) != "string" (
-    tabs.append(tab_types.welcome)
-  ) else (
-    change_focus = true
-    tabs.append({
-      type: "file",
-      name: file[1] ++ file[2],
-      id: ouidNew(),
-      data: file[3].split("\n"),
-      uuid: passed_data,
-      ohf: compileOHF(getOHF(file[2])),
-      func: editor.renderNorm
-    })
-  )
-)
-tabs_out = tabs
-sidebar_items = 0
-
-def "draw_buttons" (
-  loc -2 2 -50 -20
-  square 80 20 10 : c#window_colour
-  loc -2 2 -20 -20
-
-  icon "close" 0.6 : c#c_text
-  if onclick (
-    window "stop"
-  )
-
-  change_x -30
-  icon "down" 0.6 : c#c_text
-  if onclick (
-    window "minimise"
-  )
-
-  change_x -30
-  icon "maximise" 0.6 : c#c_text
-  if onclick (
-    window "maximise"
-  )
-
-  change_x -35
-  square 20 20 10 : c#window_colour
-  change_x 0
-  icon "w 4 square 0 0 10 10 w 10 line 5 7 5 -7" 0.6 : c#c_text
-  if onclick (
-    state.folder_sidebar = !state.folder_sidebar
-  )
-)
-
-def "add_tab" "data" (
-  if data.id == null (
-    data.id = ouidNew()
-  )
-  void tabs.append(data)
-  change_focus = true
-  current_tab = tabs.len
-)
-
-def "insert_tab" "index, data" (
-  if data.id == null (
-    data.id = ouidNew()
-  )
-  if tabs == null (
-    tabs = []
-  )
-  tabs.insert(index, data)
-  change_focus = true
-  current_tab = index
-)
+// ---------------------------------------------------------------- tab strip
 
 def "draw_tabs" (
-  loc 2 2 9 -21
   local removed = false
-
-  c c_text
-  x = frame.left - 2.5 - frame.scroll_h
+  x = frame.left + 4 - frame.scroll_h
   start = x
-  remove_tabs = []
+  local tab_y = frame.top - (TAB_H / 2)
 
   for i tabs.len (
     local tab @= tabs[i]
     local remove_immediately = false
-    tw = 0
-    tab_name = tab.name
-    file = tab["type"] == "file"
-
+    local is_file = tab.type == "file"
     local can_drag_tab = split_tabs.len > 1 or tabs.len > 1
-    if file (
+    if is_file (
       file "open" tab.uuid "onlyaccess"
     )
 
-    local l = tab_name.len * 9 + 25
-    if file (
+    // l is the label part, the close button sits in the last 24px
+    local l = tab.name.len * 9 + 26
+    if is_file (
       l += 20
     )
-    tw += l + 25
-    set_x x
+    local tw = l + 28
+
+    // drop marker in front of this tab
     if file_dragging or tab_dragging (
-      local offset = i == 1 ? 5 0
-      change_x offset
-      if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
-        square 0 20 2 : c#c_text
+      goto x tab_y
+      if dist(x_position, y_position, mouse_x, mouse_y) < 40 (
+        square 0 20 2 : c#global_accent
         current_tab_target = current_tab_split ++ "," ++ i
-        change_x offset
-        x += offset * 2
-      ) else (
-        change_x -offset
+        x += 8
       )
     )
-    change_x tw / 2
 
-    square l + 10 20 10 : c#window_colour
-    if file (
-      change_x -10
-      square l - 10 20 10 0 1
-      change_x 10
-    )
+    goto x + (tw / 2) tab_y
+    hit tw - 4 27
+    local over = mouse_touching
+    goto x + (l / 2) tab_y
+    hit l 27
 
-    if file (
-      change_x -10
+    if is_file (
       if mouse_touching (
         rightclick "file" tab.uuid
       )
@@ -936,26 +858,23 @@ def "draw_tabs" (
           current_tab = i
         )
         if data == "dragging" (
+          // the OS now carries the file, the tab goes with it unless it is the only one
           if can_drag_tab (
             remove_immediately = true
-          ) else if (
+          ) else (
             data = ""
             file_dragging = false
           )
         )
       )
-      change_x 10
     ) else (
-      if mouse_touching (
-        if !tab_dragging and tab_drag_candidate == null and mouse_down and !file_dragging and can_drag_tab (
-          tab_drag_candidate = {
-            split: current_tab_split,
-            index: i,
-            start: [mouse_x, mouse_y]
-          }
-        )
+      if mouse_touching and !tab_dragging and tab_drag_candidate == null and mouse_down and !file_dragging and can_drag_tab (
+        tab_drag_candidate = {
+          split: current_tab_split,
+          index: i,
+          start: [mouse_x, mouse_y]
+        }
       )
-
       if tab_drag_candidate != null and tab_drag_candidate.split == current_tab_split and tab_drag_candidate.index == i and mouse_down and !file_dragging and can_drag_tab (
         if dist(tab_drag_candidate.start[1], tab_drag_candidate.start[2], mouse_x, mouse_y) > 10 (
           tab_dragging = true
@@ -967,432 +886,327 @@ def "draw_tabs" (
           if current_tab > i (
             current_tab -= 1
           )
-          if tabs.len == 0 (
-            current_tab = 1
-          ) else (
-            current_tab.clamp(1, tabs.len)
-          )
+          current_tab = current_tab.clamp(1, max(1, tabs.len))
           i --
           continue
         )
       )
-
       if onclick (
         current_tab = i
       )
     )
 
     if remove_immediately (
-      if edit_connection != null (
-        rotur.unSubscribe(edit_connection.room)
-      )
       tabs @= tabs.delete(i)
       i --
-      removed = false
-      remove_immediately = false
       continue
     )
 
-    square l + 10 20 10 : c#window_colour
-    if file (
-      change_x -10
-      square l - 10 20 10 0 1
-      change_x 10
+    goto x + (tw / 2) tab_y
+    if i == current_tab (
+      box tw - 2 29 14 : c#edge_col
+      box tw - 4 27 12 : c#c_prim
+    ) else if over (
+      box tw - 4 27 12 : c#hover_col
     )
-    change_x l / -2
-    if file (
-      change_x 5
+    goto x + 16 tab_y
+    if is_file (
+      change_x 4
       file "render" 0.7
-      change_x 15
+      change_x 16
     )
-    c i == current_tab ? c_text c_seco
-    text tab_name 9
-    change_x 20
-    if tab.unsaved (
-      icon "w 20 dot 0 0" 0.5 : cursor#pointer
-    ) else (
-      icon "close" 0.5 : cursor#pointer
-      if onclick (
-        if !tab_close_lock (
-          tab_close_lock = true
-          removed = true
-        )
+    c i == current_tab ? c_text muted
+    text tab.name 9
+
+    // close button, an unsaved tab shows a dot until it is hovered
+    goto x + tw - 18 tab_y
+    hit 20 20
+    local over_close = mouse_touching
+    if over_close (
+      cursor "pointer"
+      box 20 20 10 : c#track_col
+    )
+    if tab.unsaved == true and !over_close (
+      icon "w 9 dot 0 0" 0.5 : c#c_text
+    ) else if over or over_close or i == current_tab (
+      icon "close" 0.4 : c#c_text
+    )
+    if onclick and !tab_close_lock (
+      tab_close_lock = true
+      removed = true
+      if tab.unsaved == true (
+        removed = ("Close " ++ tab.name ++ " without saving?").confirm()
       )
     )
     if removed (
-      if edit_connection != null (
-        rotur.unSubscribe(edit_connection.room)
+      if status_tab != null and status_tab.id == tab.id (
+        status_tab = null
+        status_cursor = null
       )
       tabs @= tabs.delete(i)
+      if current_tab > i (
+        current_tab -= 1
+      )
       i --
       removed = false
+      continue
     )
     x += tw
   )
+
+  // drop marker after the last tab
   if file_dragging or tab_dragging (
-    change_x 17
-    if dist(x_position,y_position,mouse_x,mouse_y) < 40 (
-      square 0 20 2 : c#c_text
-      current_tab_target = current_tab_split ++ "," ++ (i + 1)
-    )
-    change_x -17
-  )
-  if edit_connection == null (
-    icon "add" 0.6 : chx#30 c#c_text
-    if onclick (
-      add_tab tab_types.welcome
+    goto x + 6 tab_y
+    if dist(x_position, y_position, mouse_x, mouse_y) < 40 (
+      square 0 20 2 : c#global_accent
+      current_tab_target = current_tab_split ++ "," ++ (tabs.len + 1)
     )
   )
+  goto x + 18 tab_y
+  hit 28 28
+  if mouse_touching (
+    cursor "pointer"
+    box 28 28 10 : c#hover_col tooltip#"New tab"
+  )
+  icon "add" 0.55 : c#c_text
+  if onclick (
+    add_tab welcome_tab()
+  )
+  goto x + 36 tab_y
   tab_width = x_position - start
 )
 
-def sidebarButtons(file_uuid, input_name) (
-  c c_text
-  local h = 30
-  local s = 0.65
-  icon "save" s : tooltip#"Save"
-  square 30 30 12 1 1
-  local path = open(file_uuid, ["location", "name", "type"])
-  local file_type = path[3]
-  if onclick or ("control".isKeyDown() and "s".onKeyDown()) (
-    for i split_tabs.len (
-      local cur @= split_tabs[i].tabs
-      for j cur.len (
-        local cur2 @= cur[j]
-        if cur2["type"] == "file" and cur2.uuid == file_uuid (
-          cur2.unsaved = false
-        )
-      )
-    )
-    path = path[1] ++ "/" ++ path[2] ++ path[3]
-    file "set" 4 inputs[input_name].join("\n")
-    recents = "recent_files.json".saveGet()
-    save "recent_files.json" "set" recents.delete(file_uuid).prepend(file_uuid).trim(1,8)
-  )
+// ---------------------------------------------------------------- explorer
 
-  change_x h
-  if [".osl",".js",".bf",".owf"].contains(file_type) (
-    icon "play" s : tooltip#"Run"
-    square 30 30 12 1 1
-    if onclick (
-      local code = inputs[input_name].join("\n")
-      switch file_type (
-        case ".js"
-          local parts = code.eval().split("\n")
-          for i parts.len (
-            void inputs.linked_windows.append(parts[i])
-          )
-          break
-        case ".osl"
-          window.create(file_uuid, {
-            get_obj: true
-          })
-          // track the window and the total number of logs
-          void state.linked_windows.append({ total_logs: 0, context: data })
-          break
-        default
-          file "open" file_uuid "onlyaccess"
-          file "start"
-          file "close"
-      )
-    )
-    change_x h
-  )
-
-  icon "move -2 2 scale 0.9 w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12" s : tooltip#"Search"
-  square 30 30 12 1 1
-  if onclick (
-    local existing = 0
-    for i tabs.len (
-      if tabs[i].type == "search" and tabs[i].source_tab_id == input_name (
-        existing = i
-        break
-      )
-    )
-    if existing != 0 (
-      current_tab = existing
-    ) else (
-      add_tab {
-        type: "search",
-        name: "Search",
-        id: ouidNew(),
-        source_uuid: file_uuid,
-        source_input: input_name,
-        source_tab_id: input_name,
-        func: searchTab.render
-      }
-    )
-  )
-  change_x h
-
-  if file_type == ".osl" (
-    icon "scale 2.2 w 1.5 line 0 -4 5 -4 line -2 0 -6 4 line -2 0 -6 -4" s : tooltip#"Logs"
-    square 30 30 12 1 1
-    if onclick (
-      local existing = 0
-      for i tabs.len (
-        if tabs[i].type == "logs" (
-          existing = i
-          break
-        )
-      )
-      if existing != 0 (
-        current_tab = existing
-      ) else (
-        add_tab {
-          type: "logs",
-          name: "Logs",
-          id: ouidNew(),
-          func: logsTab.render
-        }
-      )
-    )
-    change_x h
-  )
-  if [".json", ".ohf", ".ojff"].contains(file_type) (
-    if inputs[input_name].len == 1 (
-      icon "line -10 10 5 10 line 0 2.5 10 2.5 line 0 -5 10 -5" 0.6 : tooltip#"Format JSON"
-      square 30 30 12 1 1
-      if onclick (
-        inputs[input_name] = inputs[input_name][1]
-          .JsonParse()
-          .JsonFormat()
-          .split("\n")
-      )
-    ) else (
-      icon "line -10 10 10 10 line -10 2.5 10 2.5 line -10 -5 5 -5" 0.6 : tooltip#"Minify JSON"
-      square 30 30 12 1 1
-      if onclick (
-        inputs[input_name] = inputs[input_name]
-          .join("\n")
-          .JsonParse()
-          .toStr()
-          .split("\n")
-      )
-    )
-    change_x h
-  )
-
-  if file_type == ".icn" (
-    icon "eye" s
-    square 30 30 12 1 1
-    if onclick (
-      add_tab {
-        type: "icn_preview",
-        name: "Preview: " ++ path[2] ++ file_type,
-        id: ouidNew(),
-        source_uuid: file_uuid,
-        source_input: input_name,
-        func: icnPreview.render
-      }
-    )
-    change_x h
-  )
-
-  sidebar.mode = "none"
-
-  // change_x h
-  // icon "network" s
-  // if onclick (
-  //   add_tab tab_types.invite
-  //   start = true
-  // )
-)
-
-sharing_with = null
-
-start = true
-
-split_tabs = [{tabs, cur: 1}]
-
-def drawFilesList(uuids) (
-  local x = x_position
+def drawFilesList(uuids, depth) (
   for i uuids.len (
-    file "open" uuids[i] "onlyaccess"
-    local type = fileGet(1)
-    set_x 0
-    square frame.width - 20 20 5 0 1
-    rightclick "file" uuids[i]
-    set_x x
-    if type != ".folder" (
-      data = ""
-      if mouse_touching and !tab_dragging and tab_drag_candidate == null (
-        file "interact"
-      )
-      if data == "open" (
-        local name = open(uuids[i], ["name", "type"])
-        add_tab {
-          type: "file",
-          data: open(uuids[i]).split("\n"),
-          name: name.join(""),
-          id: ouidNew(),
-          uuid: uuids[i],
-          ohf: compileOHF(getOHF(name[2])),
-          func: editor.renderNorm
-        }
-      )
-    ) else (
-      boolean folder_open = state.open_folders.contains(uuids[i])
-      if onclick (
-        if folder_open (
-          void state.open_folders.delete(uuids[i])
-        ) else (
-          void state.open_folders.append(uuids[i])
-        )
-      )
-      icon folder_open ? "down" "right" 0.5 : c#c_text
-      change_x 25
-    )
-    file "render" 0.8
-    text fileGet(2) 9 : c#c_text chx#18
-    if type != ".folder" (
-      text type 9 : c#c_seco
-    )
-    change_y -30
     if y_position < frame.bottom - 30 (
       break
     )
-    if type == ".folder" (
-      set_x x + 30
-      if folder_open (
-        local files @= fileGet(4)
-        state.folder_list_len += files.len * 30
-        drawFilesList(files)
+    local uuid = uuids[i]
+    file "open" uuid "onlyaccess"
+    local type = fileGet(1)
+    local is_folder = type == ".folder"
+    local row_y = y_position
+    local x = frame.left + 14 + (depth * 16)
+
+    goto 0 row_y
+    hit frame.width - 12 26
+    local over = mouse_touching
+    rightclick "file" uuid
+    if over (
+      cursor "pointer"
+      box frame.width - 12 26 10 : c#hover_col
+    )
+    if is_folder (
+      local folder_open = state.open_folders.contains(uuid)
+      if onclick (
+        if folder_open (
+          void state.open_folders.delete(uuid)
+        ) else (
+          void state.open_folders.append(uuid)
+        )
       )
-      set_x x
+      goto x row_y
+      icon folder_open ? "down" "right" 0.4 : c#muted
+    ) else (
+      data = ""
+      if over and !tab_dragging and tab_drag_candidate == null (
+        file "interact"
+      )
+      if data == "open" (
+        open_file_tab uuid
+      )
+    )
+    file "open" uuid "onlyaccess"
+    goto x + 20 row_y
+    file "render" 0.75
+    local label = fileGet(2) ++ (is_folder ? "" type)
+    text label.trimText(frame.right - x - 56 / 9) 9 : c#c_text chx#18
+
+    goto 0 row_y - 28
+    if is_folder and state.open_folders.contains(uuid) (
+      file "open" uuid "onlyaccess"
+      local children @= fileGet(4)
+      state.folder_list_len += children.len * 28
+      drawFilesList(children, depth + 1)
     )
   )
 )
 
-mainloop:
+def "draw_explorer" (
+  goto 0 0
+  square frame.width frame.height 0 : c#window_colour
+  goto frame.left 0
+  square 0 frame.height 1 : c#edge_col
 
-window "responsive" false
-local theme = user.theme
-c_prim = theme.primary
-c_seco = theme.secondary
-c_tert = theme.tertiary
-c_text = theme.text
-window_colour = theme.background
-
-tab_close_lock = false
-
-if change_focus and !start (
-  change_focus = false
+  // header: title, run button for opal projects, close folder
+  local head_y = frame.top - (TOOL_H / 2)
+  goto frame.left + 16 head_y
+  local title = "EXPLORER"
+  if state.folder != null (
+    title = open(state.folder, ["name"])[1].toStr().toUpper()
+  )
+  text title.trimText(frame.width - 90 / 7.5) 7.5 : c#muted
+  goto frame.right - 20 head_y
+  if state.folder != null (
+    tool "close" "Close folder" 0.4
+    if tool_click (
+      state.folder = null
+      state.is_opal = false
+    )
+    if state.is_opal (
+      goto frame.right - 52 head_y
+      tool "play" "Run project" 0.55
+      if tool_click (
+        run_opal_project()
+      )
+    )
+  )
+  goto 0 frame.top - TOOL_H
+  square frame.width 0 1 : c#edge_col
 )
-start = false
 
-if !mouse_down (
-  can = true
-  if !tab_dragging (
-    tab_drag_candidate = null
+def run_opal_project() (
+  local root_dir = open(state.folder, ["location", "name"]).join("/")
+  local path = root_dir ++ "/opal.json"
+  if !path.fileExists() (
+    say "opal.json not found"
+    return
+  )
+  local script = open(path).JsonParse().main
+  if script == null (
+    say "opal.json has no main script"
+    return
+  )
+  local open_path = root_dir ++ "/" ++ script
+  if !open_path.fileExists() (
+    say "Script not found"
+    return
+  )
+  file "open" open_path "onlyaccess"
+  if fileGet(1) == ".osl" (
+    file "start"
+  )
+  file "close"
+)
+
+// ---------------------------------------------------------------- startup
+
+if "recent_files.json".saveExists() (
+  recent = "recent_files.json".saveGet().trim(1, 10)
+) else (
+  recent = []
+  save "recent_files.json" "set" recent
+)
+if "recent_folders.json".saveExists() (
+  recent_folders = "recent_folders.json".saveGet().trim(1, 8)
+) else (
+  recent_folders = []
+  save "recent_folders.json" "set" recent_folders
+)
+
+tabs = []
+current_tab = 1
+if passed_data == "" (
+  void tabs.append(welcome_tab())
+) else (
+  local file = open(passed_data, ["name", "type", "data"])
+  if file[2] == "" or typeof(file[3]) != "string" (
+    void tabs.append(welcome_tab())
+  ) else (
+    void tabs.append(file_tab(passed_data))
   )
 )
+split_tabs = [{tabs, cur: 1}]
 
+window.show()
+
+mainloop:
+window "responsive" false
+refresh_palette
+tab_close_lock = false
 w @= window
 
-goto 0 window.top - 20
-window.setGlass(100, "15px")
+if !mouse_down and !tab_dragging (
+  tab_drag_candidate = null
+)
+
+// the whole window is one flat surface, panels are divided by hairlines
+goto 0 0
+square window.width + 10 window.height + 10 0 : c#window_colour
 
 updateLinkedWindowLogs()
 
+// a file picked from the welcome page
 if new_transmit (
-  if pickers.contains(transmit_source) (
-    local name = open(transmit_data, ["name", "type"])
-    add_tab {
-      type: "file",
-      name: name.join(""),
-      id: ouidNew(),
-      data: open(transmit_data).split("\n"),
-      uuid: transmit_data,
-      ohf: compileOHF(getOHF(name[2])),
-      func: editor.renderNorm
-    }
-
-    loadFileUUID(transmit_data)
+  if pickers.contains(transmit_source) and transmit_data != "closed" (
+    tabs @= split_tabs[1].tabs
+    open_file_tab transmit_data
+    split_tabs[1].cur = current_tab
   )
   new_transmit = false
 )
 
+// a file dropped on a tab strip, a split or the explorer
 if file_dropped != 0 (
   local name @= open(file_dropped, ["name", "type", "data"])
   if name[2] == ".shortcut" (
-    local name @= open(name[3], ["name", "type", "uuid"])
-    file_dropped = name[3]
+    file_dropped = open(name[3], ["uuid"])[1]
+    name @= open(file_dropped, ["name", "type", "data"])
   )
-  if name[2] == ".folder" and current_tab_target == "folder_sidebar" (
-    state.folder = file_dropped
-    state.folder_open = true
-    state.open_folders = []
-
-    // Save recent folders
-    local rf = "recent_folders.json".saveGet() ?? []
-    save "recent_folders.json" "set" rf
-      .delete(file_dropped)
-      .prepend(file_dropped)
-      .trim(1,8)
+  if name[2] == ".folder" (
+    if current_tab_target == "folder_sidebar" (
+      open_folder(file_dropped)
+    )
   ) else (
     local spl = current_tab_target.toStr().split(",")
-    local cur @= split_tabs[spl[1]]
+    local cur @= split_tabs[spl[1].toNum().clamp(1, split_tabs.len)]
     if current_split_target != 0 (
-      split_tabs.insert(current_split_target, {tabs:[], cur: 1})
+      split_tabs.insert(current_split_target, {tabs: [], cur: 1})
       cur @= split_tabs[current_split_target]
     )
-    current_tab_target = spl[2]
-    if current_tab_target == 0 (
-      current_tab_target = tabs.len + 1
-    )
     tabs @= cur.tabs
-    insert_tab current_tab_target {
-      type: "file",
-      name: name.trim(1,-2).join(""),
-      id: ouidNew(),
-      data: open(file_dropped).toStr().split("\n"),
-      uuid: file_dropped,
-      ohf: compileOHF(getOHF(name[2])),
-      func: editor.renderNorm
-    }
-    cur.cur = tabs.len
+    local at = spl[2].toNum()
+    if at == 0 (
+      at = tabs.len + 1
+    )
+    insert_tab at.clamp(1, tabs.len + 1) file_tab(file_dropped)
+    cur.cur = current_tab
     cur.tabs @= tabs
-    loadFileUUID(file_dropped)
   )
   current_tab_target = 0
   file_dropped = 0
 )
 
-right_target = -5
+// explorer slides in from the right
+right_target = 0
 if state.folder_sidebar (
-  state.folder_sidebar_width ??= 300
   right_target -= state.folder_sidebar_width
 )
-right_smooth += right_target - right_smooth / 5
-right = w.right + right_smooth
-
-bottom_target = 5
-if state.linked_windows_view (
-  bottom_target += 150
+right_smooth += right_target - right_smooth / 4
+if abs(right_target - right_smooth) < 0.5 (
+  right_smooth = right_target
 )
-bottom_smooth += bottom_target - bottom_smooth / 5
-bottom = w.bottom + bottom_smooth
+right = w.right + right_smooth
+local explorer_shown = right_smooth < -1
 
-// folder sidebar resizing
 if state.folder_resizing and !mouse_down (
   state.folder_resizing = false
 )
-if !file_dragging and !tab_dragging and (state.folder_sidebar or right_smooth < -10) (
-  // only allow grabbing inside the main work area
-  if mouse_y > w.bottom and mouse_y < (w.top - 40) and abs(mouse_x - right) < 8 (
+if explorer_shown and !file_dragging and !tab_dragging (
+  if mouse_y > w.bottom + STATUS_H and mouse_y < w.top - TAB_H and abs(mouse_x - right) < 6 (
     cursor "ew-resize"
     if mouse_ondown (
       state.folder_resizing = true
       state.folder_resize_start_x = mouse_x
-      state.folder_resize_start_w = state.folder_sidebar_width ?? 300
+      state.folder_resize_start_w = state.folder_sidebar_width
     )
   )
 )
 if state.folder_resizing (
-  state.folder_sidebar_width = (state.folder_resize_start_w + (state.folder_resize_start_x - mouse_x)).clamp(200, w.width - 250)
-  right_target = -5 - state.folder_sidebar_width
-  right_smooth = right_target
+  state.folder_sidebar_width = (state.folder_resize_start_w + (state.folder_resize_start_x - mouse_x)).clamp(200, w.width - 300)
+  right_smooth = 0 - state.folder_sidebar_width
   right = w.right + right_smooth
 )
 
@@ -1400,45 +1214,61 @@ if file_dragging or tab_dragging (
   current_tab_target = 0
 )
 
-window.dragbox = [[1,1,0,0], [1,1,0,0]]
-// entire tabs area
-frame w.left + 5 w.top right w.top - 40 (
+// ---- tab strips, the space after the last tab drags the window
+window.dragbox = [[1, 1, 0, 0], [1, 1, 0, 0]]
+local strip_right = min(right, w.right - 126)
+frame w.left w.top strip_right w.top - TAB_H (
   ensureSplitSizes()
   local sections = split_tabs.len
   local total_w = frame.width
-  local x = 0
+  local sx = 0
   for i sections (
     local cur @= split_tabs[i]
     tabs @= cur.tabs
     current_tab_split = i
     current_tab = cur.cur
     local fw = total_w * state.split_sizes[i]
-    frame frame.left + x frame.top frame.left + fw + x frame.bottom - 20 [cur.tab_width.toNum() + (i == sections ? 200 100),0] "split_" ++ i (
+    frame frame.left + sx frame.top frame.left + fw + sx frame.bottom [cur.tab_width.toNum() + 60, 0] "split_" ++ i (
       draw_tabs
       if mouse_x > frame.left and mouse_x < frame.right (
-        number frame_left = frame.x - window.x + x_position
-        number frame_right = min(frame.x - window.x + frame.right, window.right - 140)
-        if frame_left < frame_right (
+        number drag_left = frame.x - window.x + x_position
+        number drag_right = min(frame.x - window.x + frame.right, window.right - 126)
+        if drag_left < drag_right (
           window.dragbox = [
-            [9999, 2, frame_left, 0],
-            [9999, 2, frame_right, -40]
+            [9999, 2, drag_left, 0],
+            [9999, 2, drag_right, 0 - TAB_H]
           ]
         )
       )
     )
     cur.tab_width = tab_width
-    if tabs.len == 0 (
-      cur.cur = 1
-    ) else (
-      cur.cur = current_tab.clamp(1, tabs.len)
-    )
+    cur.cur = current_tab.clamp(1, max(1, tabs.len))
     cur.tabs @= tabs
     split_tabs[i] @= cur
-    x += fw
+    sx += fw
   )
 )
+// the gap between the last strip and the window buttons drags too
+if mouse_x > strip_right (
+  window.dragbox = [[9999, 2, strip_right, 0], [9999, 2, w.right - 126, 0 - TAB_H]]
+)
 
-// remove empty tab sections
+// explorer toggle sits beside the window buttons
+goto w.right - 106 w.top - (TAB_H / 2)
+hit 27 27
+if mouse_touching (
+  cursor "pointer"
+  box 27 27 10 : c#hover_col tooltip#"Toggle explorer"
+)
+if onclick (
+  state.folder_sidebar = !state.folder_sidebar
+)
+c state.folder_sidebar ? global_accent c_text
+icon "w 3 square 0 0 10 10 w 8 line 5 6 5 -6" 0.55
+goto 0 w.top - TAB_H
+square w.width 0 1 : c#edge_col
+
+// drop splits that lost their last tab
 local cleanup_i = split_tabs.len
 loop cleanup_i (
   local s @= split_tabs[cleanup_i]
@@ -1451,21 +1281,17 @@ if split_tabs.len == 0 (
   window.close()
 )
 
-draw_buttons
-
+// which split would a dragged file or tab land in
 current_split_target = 0
 if file_dragging or tab_dragging (
-  frame window.left + 5 window.top - 40 right bottom (
+  frame w.left w.top - TAB_H right w.bottom + STATUS_H (
     local sections = split_tabs.len + 1
     local fw = frame.width / sections
-    local x = 0
     for i sections (
-      frame frame.left + x frame.top frame.left + fw + x frame.bottom (
-        if mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
-          current_split_target = i
-          state.draw_highlight = [x, fw]
-        )
-        x += fw
+      local zone_l = frame.left + (i - 1 * fw)
+      if mouse_x > zone_l and mouse_x < zone_l + fw and mouse_y > frame.bottom and mouse_y < frame.top (
+        current_split_target = i
+        state.draw_highlight = [i - 1 * fw, fw]
       )
     )
   )
@@ -1475,37 +1301,31 @@ if tab_dragging (
   file_dropped = 0
 )
 
+// a dragged tab lands in a strip, in a new split, or back where it came from
 if tab_dragging and !mouse_down (
   local placed = false
-
   if typeof(current_tab_target) == "string" and current_tab_target.contains(",") (
     local spl = current_tab_target.split(",")
     local dest_split = spl[1].toNum()
-    local dest_index = spl[2].toNum()
-
     if dest_split >= 1 and dest_split <= split_tabs.len (
       local dest @= split_tabs[dest_split]
-      dest_index = dest_index.clamp(1, dest.tabs.len + 1)
+      local dest_index = spl[2].toNum().clamp(1, dest.tabs.len + 1)
       dest.tabs.insert(dest_index, tab_drag_tab)
       dest.cur = dest_index
       split_tabs[dest_split] @= dest
       placed = true
     )
   )
-
   if !placed and current_split_target != 0 (
     split_tabs.insert(current_split_target, {tabs: [tab_drag_tab], cur: 1})
     placed = true
   )
-
   if !placed and tab_drag_from_split != 0 (
-    local src @= split_tabs[tab_drag_from_split]
+    local src @= split_tabs[tab_drag_from_split.clamp(1, split_tabs.len)]
     local idx = tab_drag_from_index.clamp(1, src.tabs.len + 1)
     src.tabs.insert(idx, tab_drag_tab)
     src.cur = idx
-    split_tabs[tab_drag_from_split] @= src
   )
-
   tab_dragging = false
   tab_drag_tab = null
   tab_drag_from_split = 0
@@ -1513,28 +1333,25 @@ if tab_dragging and !mouse_down (
   tab_drag_candidate = null
   current_tab_target = 0
   current_split_target = 0
-  state.draw_highlight = [0,0]
+  state.draw_highlight = [0, 0]
 )
 
-// top level area for the editor itself
-frame window.left + 5 window.top - 40 right bottom (
+// ---- splits
+frame w.left w.top - TAB_H right w.bottom + STATUS_H (
   ensureSplitSizes()
   local sections = split_tabs.len
   local total_w = frame.width
-  local x = 0
 
-  // split resizing (grab vertical boundaries between sections)
   if state.split_resizing != 0 and !mouse_down (
     state.split_resizing = 0
   )
-
-  // determine boundaries from current sizes
+  // grab the boundary between two splits to resize them
   local running = 0
   for i (sections - 1) (
     running += total_w * state.split_sizes[i]
     local split_x = frame.left + running
     if !file_dragging and !tab_dragging and state.split_resizing == 0 (
-      if mouse_y > frame.bottom and mouse_y < frame.top and abs(mouse_x - split_x) < 8 (
+      if mouse_y > frame.bottom and mouse_y < frame.top and abs(mouse_x - split_x) < 6 (
         cursor "ew-resize"
         if mouse_ondown (
           state.split_resizing = i
@@ -1545,153 +1362,137 @@ frame window.left + 5 window.top - 40 right bottom (
       )
     )
   )
-
   if state.split_resizing != 0 (
     local idx = state.split_resizing
     local pair_sum = state.split_resize_start_left.toNum() + state.split_resize_start_right.toNum()
     local delta = (mouse_x - state.split_resize_start_x).toNum() / total_w
-    local tab_left = (state.split_resize_start_left.toNum() + delta).clamp(0.08, pair_sum - 0.08)
-    local tab_right = pair_sum - tab_left
-    state.split_sizes[idx] = tab_left
-    state.split_sizes[idx + 1] = tab_right
+    local left_size = (state.split_resize_start_left.toNum() + delta).clamp(0.08, pair_sum - 0.08)
+    state.split_sizes[idx] = left_size
+    state.split_sizes[idx + 1] = pair_sum - left_size
   )
 
-  // render sections using split sizes
+  local sx = 0
   for i sections (
     local fw = total_w * state.split_sizes[i]
-    frame frame.left + x frame.top frame.left + fw + x frame.bottom 0 (
+    frame frame.left + sx frame.top frame.left + fw + sx frame.bottom 0 (
       local cur @= split_tabs[i]
       tabs @= cur.tabs
       current_tab = cur.cur
       func @= tabs[current_tab].func
       if typeof(func) == "function" (
-        sidebar.frameInnerRender(func)
+        func()
       )
       cur.cur = current_tab
       cur.tabs @= tabs
     )
-    x += fw
+    sx += fw
+    if i < sections (
+      goto frame.left + sx 0
+      square 0 frame.height 1 : c#edge_col
+    )
   )
 
   if current_split_target != 0 (
-    x = state.draw_highlight[1]
-    fw = state.draw_highlight[2]
-    frame frame.left + x frame.top frame.left + fw + x frame.bottom (
-      c c_text
-      pen "opacity" 50
-      icon "dot 0 0" 10000
-    )
+    goto frame.left + state.draw_highlight[1] + (state.draw_highlight[2] / 2) 0
+    effect "transparency" 80
+    square state.draw_highlight[2] - 12 frame.height - 12 12 : c#global_accent
+    effect "clear"
   )
 )
 
-if state.folder_sidebar or right_smooth < -10 (
-  frame right + 5 window.top - 40 window.right - 5 window.bottom + 5 (
-    goto 0 0
-    square frame.width - 10 frame.height - 10 10 : c#window_colour
-    if state.is_opal (
-      goto 0 frame.top - 20
-      square frame.width - 10 30 10 : c#c_prim
-      set_x frame.left + 20
-      square 20 20 10 : c#c_seco
-      if onclick (
-        local open_path = state.folder
-        local root_dir = open(open_path, ["location", "name"]).join("/")
-        local path = root_dir ++ "/opal.json"
-        if !path.fileExists() (
-          say "opal.json not found"
-        ) else (
-          opal_json = open(path).JsonParse()
-          script = opal_json.main
-          if script == null (
-            say "No main() function found in opal.json"
-          ) else (
-            open_path = root_dir ++ "/" ++ script
-            if !open_path.fileExists() (
-              say "Script not found"
-            ) else (
-              file "open" open_path "onlyaccess"
-              if fileGet(1) == ".osl" (
-                file "start"
-              )
-              file "close"
-            )
-          )
-        )
-      )
-      icon "play" 0.6 : c#c_text
-    )
+// ---- explorer
+if explorer_shown (
+  frame right w.top - TAB_H w.right w.bottom + STATUS_H (
+    draw_explorer
   )
-  c c_prim
-  frame right + 5 window.top - (state.is_opal ? 75 40) window.right - 5 window.bottom + 5 state.folder_list_len "cache@folders" (
-    if file_dragging and mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top (
-      square frame.width - 10 frame.height - 10 10 : c#c_prim
-      icon "open" 3 : c#c_text
+  frame right w.top - TAB_H - TOOL_H w.right w.bottom + STATUS_H state.folder_list_len "cache@folders" (
+    local drop_here = file_dragging and mouse_x > frame.left and mouse_x < frame.right and mouse_y > frame.bottom and mouse_y < frame.top
+    if drop_here (
       current_tab_target = "folder_sidebar"
+      goto 0 0
+      effect "transparency" 80
+      square frame.width - 16 frame.height - 16 12 : c#global_accent
+      effect "clear"
+      empty_state "folder" "Drop a folder to open it"
+    ) else if state.folder != null (
+      local children = open(state.folder)
+      state.folder_list_len = children.len * 28 + 12
+      // opening a file from here adds it to the last split
+      local cur @= split_tabs[split_tabs.len]
+      tabs @= cur.tabs
+      current_tab = cur.cur
+      goto 0 frame.top - 18 + frame.scroll
+      drawFilesList(children, 0)
+      cur.tabs @= tabs
+      cur.cur = current_tab
     ) else (
-      if state.folder != null and state.folder_open (
-        local files = open(state.folder)
-        state.folder_list_len = files.len * 30
-        local cur @= split_tabs[split_tabs.len]
-        tabs @= cur.tabs
-        current_tab = cur.cur
-        loc 2 2 25 -25 + frame.scroll
-        drawFilesList(files)
-        cur.tabs @= tabs
-        cur.cur = current_tab
-        split_tabs[split_tabs.len] @= cur
-      ) else (
-        loc 2 2 10 -20
-        text "No folder selected\nDrag and drop a folder here" 9 : c#c_text
-        local rf_preview = ("recent_folders.json".saveGet() ?? []).trim(1,5)
-        if rf_preview.len != 0 (
-          loc 2 2 10 -80
-          text "Recent folders" 9 : c#c_text
-          change_y -30
-          for i rf_preview.len (
-            local uuid @= rf_preview[i]
-            file "open" uuid "onlyaccess"
-            if fileGet(1) != ".folder" (
-              continue
-            )
-            set_x 0
-            square frame.width - 20 20 8 : c#c_prim cursor#pointer
-            if mouse_touching (
-              square frame.width - 20 20 8 : c#c_seco
-              if onclick (
-                state.folder = uuid
-                state.folder_open = true
-                state.open_folders = []
-                state.is_opal = open(uuid, ["location", "name"])
-                  .join("/").listFolder()
-                  .contains("opal.json")
-                local rf = "recent_folders.json".saveGet() ?? []
-                save "recent_folders.json" "set" rf
-                  .delete(uuid)
-                  .prepend(uuid)
-                  .trim(1,8)
-              )
-            )
-            set_x frame.left + 25
-            file "render" 0.7
-            text fileGet(2) 9 : c#c_text chx#20
-            change_y -35
-          )
+      goto frame.left + 16 frame.top - 20
+      text "No folder open" 9 : c#c_text
+      goto frame.left + 16 frame.top - 42
+      text "Drag a folder here to browse it".wrapText(frame.width - 32 / 8.5) 8.5 : c#muted
+      local shown = 0
+      for i recent_folders.len (
+        local uuid @= recent_folders[i]
+        file "uuid_exists" uuid
+        if !exists (
+          continue
         )
+        if shown == 0 (
+          goto frame.left + 16 frame.top - 96
+          text "RECENT FOLDERS" 7.5 : c#muted
+        )
+        shown ++
+        goto 0 frame.top - 98 - (shown * 28)
+        hit frame.width - 12 26
+        if mouse_touching (
+          cursor "pointer"
+          box frame.width - 12 26 10 : c#hover_col
+        )
+        if onclick (
+          open_folder(uuid)
+        )
+        file "open" uuid "onlyaccess"
+        goto frame.left + 26 y_position
+        file "render" 0.75
+        text fileGet(2).toStr().trimText(frame.width - 70 / 9) 9 : c#c_text chx#20
       )
     )
   )
 )
 
+// ---- status bar
+local status_y = w.bottom + (STATUS_H / 2)
+goto 0 w.bottom + STATUS_H
+square w.width 0 1 : c#edge_col
+local status_left = "Ready"
+local status_right = ""
+if status_tab != null and status_tab.type == "file" (
+  local kind = file_types["." ++ status_tab.name.split(".").last()]
+  status_right = (kind == null or kind[2] == "") ? "Plain Text" kind[2]
+  status_left = status_tab.unsaved == true ? "Unsaved changes" "Saved"
+  if status_cursor != null (
+    status_left ++= "    Ln " ++ status_cursor.line ++ ", Col " ++ (status_cursor.char + 1)
+  )
+  local problems = (status_tab.errors ?? []).len
+  if problems > 0 (
+    status_left ++= "    " ++ problems ++ (problems == 1 ? " problem" " problems")
+  )
+  status_right ++= "    " ++ status_tab.data.len ++ " lines"
+)
+goto w.left + 14 status_y
+text status_left 8 : c#muted
+goto w.right - 14 status_y
+rigtext status_right 8 : c#muted
+
+// the tab being dragged follows the pointer
 if tab_dragging and tab_drag_tab != null (
-  frame window.left window.top window.right window.bottom (
+  frame w.left w.top w.right w.bottom (
+    local name = (tab_drag_tab.name ?? "").toStr()
     goto mouse_x mouse_y
-    local name = tab_drag_tab.name ?? ""
-    local l = name.len * 9 + 35
-    pen "opacity" 85
-    square l 20 10 : c#window_colour
-    pen "opacity" 100
-    c c_text
-    change_x l / -2 + 10
-    text name 9
+    box name.len * 9 + 30 30 12 : c#edge_col
+    box name.len * 9 + 28 28 12 : c#c_prim
+    centext name 9 : c#c_text
   )
 )
+
+import "win-buttons"

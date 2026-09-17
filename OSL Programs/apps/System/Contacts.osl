@@ -1,5 +1,11 @@
+// Developer: @Mistium
+// Description: Friends, friend requests and rotur profiles
+//
+// Layout: a glass sidebar listing friends or requests, and a profile pane. Opened
+// with a username as passed_data it shows just that profile in a narrow window.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
 import "window_tools"
-import as "glass" from "packages"
 
 permission "request" "account"
 permission "request" "rvoice"
@@ -7,465 +13,589 @@ permission "request" "terminal"
 permission "request" "notifications"
 permission "request" "rotur token"
 
-page = "Friends"
+SIDE = 290
+ROW_H = 46
+
+tab = "Friends"
 selected_user = ""
-window.resize(1000,600)
-
-if passed_data != "" (
-  selected_user = passed_data
-  page = "Profile"
-  window.resize(400, 600)
-)
-sending = false
-calling = ""
-
-show_save_note = false
-send_file_mode = false
+adding = false
+profile_only = false
+inputs.search = ""
+inputs.username = ""
 user_data = {}
-pickers = []
+calling = ""
+call_time = 0
+note_dirty = false
+note_user = ""
+button_click = false
+side_len = 0
+page_len = 0
+
+window.resize(980, 620)
+if passed_data != "" (
+  selected_user = passed_data.toStr()
+  profile_only = true
+  window.resize(440, 620)
+)
+window.show()
 
 notes @= user["sys.notes"] ?? {}
 if typeof(notes) != "object" (
   notes = {}
 )
-
-class friends (
-  def remove(user) (
-    say "Removing friend..."
-    void requests.postAsync("https://api.rotur.dev/friends/remove/" ++ user ++ "?auth=" ++ roturToken())
-      .then((resp) -> (
-        say resp.body.message ?? resp.body.error
-      ))
-  )
+pinned @= user["origin_fav_friends"] ?? []
+if typeof(pinned) != "array" (
+  pinned = []
 )
 
-class requests (
-  def reject(user) (
-    say "Rejecting request..."
-    void requests.postAsync("https://api.rotur.dev/friends/reject/" ++ user ++ "?auth=" ++ roturToken())
-      .then((resp) -> (
-        say resp.body.message ?? resp.body.error
-      ))
-  )
+// ---------------------------------------------------------------- rotur
 
-  def accept(user) (
-    say "Accepting request..."
-    void requests.postAsync("https://api.rotur.dev/friends/accept/" ++ user ++ "?auth=" ++ roturToken())
-      .then((resp) -> (
-        say resp.body.message ?? resp.body.error
-      ))
-  )
-
-  def send(user) (
-    say "Sending friend request..."
-    requests.postAsync("https://api.rotur.dev/friends/request/" ++ user ++ "?auth=" ++ roturToken())
-      .then((resp) -> (
-        say resp.body.message ?? resp.body.error
-      ))
-  )
+// posts to the friends api and reports what the server said
+def friend_action(string action, string name, string busy) (
+  say busy
+  void requests.postAsync("https://api.rotur.dev/friends/" ++ action ++ "/" ++ name ++ "?auth=" ++ roturToken())
+    .then((resp) -> (
+      say resp.body.message ?? resp.body.error
+    ))
 )
 
-def "con_button" "t, i, callback" (
-  square 130 80 12 : c#prim hover_c#seco
-  if onclick (
-    callback()
-  )
-  change_y 15
-  icon i 1.3 : c#txtc
-  change_y -40
-  centext t 10 : c#txtc
-  change_y 25
-  change_x 155
-)
-
-def "seperator" (
-  set_x 0 : chy#-35
-  square frame.width - 30 0 2 : c#seco
-  page_len += 35
-)
-
-def extractUsername(name) (
-  if name.contains("§") (
-    return name.trim(5,-12).toLower()
-  ) else (
-    return name
-  )
-)
-
-def toReadableTime(number inp) (
-  string date = inp.timestamp("to-date")
-  array parts @= date.split("-")
+def readable_date(number stamp) string (
+  array parts @= stamp.timestamp("to-date").split("-")
   return time.months[parts[2].toNum()] ++ " " ++ parts[3] ++ ", " ++ parts[1]
 )
 
-pinned_friends @= user["origin_fav_friends"] ?? []
-if typeof(pinned_friends) != "array" (
-  pinned_friends = []
+// ---------------------------------------------------------------- drawing helpers
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 30
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 30 14 : c#fill
+  centext label 8.5 : c#ink
 )
 
-def organiseFriends() (
-  array friends @= user["sys.friends"]
-    .filter(v -> !pinned_friends.contains(v))
-
-  return pinned_friends ++ friends
+// a square action tile with an icon above its label, result in `button_click`
+def "action_tile" "label, icn, w, danger" (
+  hit w 72
+  button_click = onclick
+  local ink = txtc
+  if danger (
+    ink = "#f87171"
+  )
+  box w + 2 74 16 : c#edge_col
+  if mouse_touching (
+    cursor "pointer"
+    box w 72 14 : c#hover_col
+  ) else (
+    box w 72 14 : c#prim
+  )
+  local x = x_position
+  local y = y_position
+  goto x y + 12
+  icon icn 0.9 : c#ink
+  goto x y - 20
+  centext label 8 : c#ink
+  goto x y
 )
 
-list @= organiseFriends()
+// label on the left, value on the right, inside a card the caller drew
+def "info_row" "label, value, y" (
+  goto pane_w / -2 + 30 y
+  text label 9 : c#muted
+  goto pane_w / 2 - 30 y
+  rigtext value.toStr().trimText(pane_w - 200 / 9) 9 : c#txtc
+)
 
-lh = 0
+// ---------------------------------------------------------------- sidebar
 
-friends_length = user["sys.friends"].len
-requests_length = user["sys.requests"].len
+def "person_row" "name, y" (
+  local lower = name.toStr().toLower()
+  local is_online = online.contains(lower)
+  goto 0 y
+  hit sw ROW_H - 4
+  local over = mouse_touching
+  local row_click = onclick
+  local ink = txtc
+  local dim = muted
+  if selected_user == name (
+    box sw ROW_H - 4 14 : c#global_accent
+    ink = accent_txt
+    dim = accent_txt
+  ) else if over (
+    cursor "pointer"
+    box sw ROW_H - 4 14 : c#hover_col
+  )
+  goto sw / -2 + 26 y
+  style {rounding: 17}
+  image "https://avatars.rotur.dev/" ++ name ++ "?radius=128" 34 34
+  // presence dot on the avatar's corner
+  goto sw / -2 + 38 y - 12
+  box 12 12 12 : c#window_colour
+  local presence = track_col
+  if is_online (
+    presence = "#34d399"
+  )
+  box 8 8 8 : c#presence
+  goto sw / -2 + 54 y + 8
+  text name.toStr().trimText(sw - 130 / 9.5) 9.5 : c#ink
+  local status = "Offline"
+  if is_online (
+    status = "Online"
+  )
+  goto sw / -2 + 54 y - 10
+  text status 7.5 : c#dim
+
+  local acted = false
+  if tab == "Friends" (
+    // pin toggle, shown for pinned friends and on hover
+    local is_pinned = pinned.contains(name)
+    if is_pinned or over (
+      goto sw / 2 - 22 y
+      hit 24 24
+      if mouse_touching (
+        cursor "pointer"
+      )
+      if onclick (
+        acted = true
+        if is_pinned (
+          void pinned.delete(name)
+        ) else (
+          void pinned.append(name)
+        )
+        network "update" "origin_fav_friends" pinned
+        list_key = ""
+      )
+      icon is_pinned ? "pin-full" "pin" 0.55 : c#dim
+    )
+  ) else (
+    // requests: accept or decline the person on this row
+    goto sw / 2 - 22 y
+    hit 26 26
+    if mouse_touching (
+      cursor "pointer"
+      box 26 26 12 : c#track_col
+    )
+    if onclick (
+      acted = true
+      friend_action("reject", name, "Declining request...")
+    )
+    icon "close" 0.5 : c#ink
+    goto sw / 2 - 54 y
+    hit 26 26
+    if mouse_touching (
+      cursor "pointer"
+      box 26 26 12 : c#track_col
+    )
+    if onclick (
+      acted = true
+      friend_action("accept", name, "Accepting request...")
+    )
+    icon "tick" 0.5 : c#ink
+  )
+  if row_click and !acted (
+    selected_user = name
+    adding = false
+    note_dirty = false
+  )
+)
+
+def "section_label" "label, y" (
+  goto sw / -2 + 10 y
+  text label 7.5 : c#muted
+)
+
+// ---------------------------------------------------------------- profile
+
+def "draw_profile" (
+  pane_w = min(frame.width - 40, 620)
+  local y = frame.top - 16 + frame.scroll
+  local top = y
+  local loaded = typeof(user_data[selected_user]) == "object"
+  if !loaded (
+    user_data[selected_user] = ("https://api.rotur.dev/profile?include_posts=0&name=" ++ selected_user).getAsync()
+  )
+  local cur @= user_data[selected_user]
+
+  // banner with the avatar overlapping its lower edge
+  local bh = pane_w / 3.2
+  goto 0 y - (bh / 2)
+  card pane_w bh
+  string banner_url = "https://avatars.rotur.dev/.banners/" ++ selected_user
+  if !banner_url.imageinfo("loaded") (
+    image banner_url 0
+  )
+  if banner_url.imageinfo("width") > 10 (
+    style {rounding: 7}
+    image banner_url pane_w - 2 bh - 2
+  )
+  y -= bh
+  goto pane_w / -2 + 60 y
+  box 96 96 96 : c#window_colour
+  style {rounding: 44}
+  image "https://avatars.rotur.dev/" ++ selected_user ++ "?radius=128" 88 88
+  goto pane_w / -2 + 120 y - 16
+  text selected_user.trimText(pane_w - 160 / 14) 14 : c#txtc
+  if loaded and typeof(cur.badges) == "array" (
+    goto pane_w / -2 + 126 y - 42
+    for i cur.badges.len (
+      local badge @= cur.badges[i]
+      icon badge.icon 0.9 : c#txtc tooltip#badge.name
+      if onclick (
+        say badge.description
+      )
+      change_x 24
+    )
+  )
+  y -= 78
+
+  if !loaded (
+    goto 0 y - 40
+    direction timer * 360
+    icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
+    direction 90
+    goto 0 y - 74
+    centext "Loading profile" 9 : c#muted
+    page_len = top - y + 120
+    return
+  )
+  if cur.created == null (
+    goto 0 y - 30
+    icon "deny" 1.6 : c#track_col
+    goto 0 y - 70
+    centext "No rotur account called " ++ selected_user 9.5 : c#muted
+    page_len = top - y + 120
+    return
+  )
+
+  // actions
+  local is_friend = friends_arr.contains(selected_user)
+  local is_request = requests_arr.contains(selected_user)
+  local banned = cur["sys.banned"] == true
+  if !banned (
+    local tiles = 4
+    local tw = pane_w - (8 * (tiles - 1)) / tiles
+    local tx = pane_w / -2 + (tw / 2)
+    y -= 36
+    goto tx y
+    if is_friend (
+      action_tile "Call" "phone" tw false
+      if button_click (
+        rotur "call" selected_user "request"
+        calling = selected_user
+        call_time = timestamp
+      )
+    ) else if is_request (
+      action_tile "Accept" "tick" tw false
+      if button_click (
+        friend_action("accept", selected_user, "Accepting request...")
+      )
+    ) else (
+      action_tile "Add Friend" "add" tw false
+      if button_click (
+        friend_action("request", selected_user, "Sending friend request...")
+      )
+    )
+    goto tx + tw + 8 y
+    action_tile "Send Credits" "rotur" tw false
+    if button_click (
+      window.create("Wallet", {
+        passed_data: {
+          mode: "transfer",
+          user: selected_user
+        }
+      })
+    )
+    goto tx + (tw + 8 * 2) y
+    action_tile "Copy Name" "copy" tw false
+    if button_click (
+      clipboard "set" selected_user
+      say "Copied username to clipboard"
+    )
+    goto tx + (tw + 8 * 3) y
+    if is_friend (
+      action_tile "Remove" "close" tw true
+      if button_click and "Remove this friend?".confirm() (
+        friend_action("remove", selected_user, "Removing friend...")
+        selected_user = ""
+      )
+    ) else if is_request (
+      action_tile "Decline" "close" tw true
+      if button_click (
+        friend_action("reject", selected_user, "Declining request...")
+        selected_user = ""
+      )
+    ) else (
+      action_tile "Profile Link" "link" tw false
+      if button_click (
+        clipboard "set" "https://rotur.dev/" ++ selected_user
+        say "Copied profile link"
+      )
+    )
+    y -= 52
+  )
+
+  if calling == selected_user (
+    y -= 24
+    goto 0 y
+    box pane_w 32 14 : c#hover_col
+    centext "Ringing " ++ selected_user ++ "..." 9 : c#txtc
+    y -= 24
+    if timestamp - call_time > 10000 (
+      say "Call has timed out."
+      calling = ""
+    )
+    terminal "rvoice peer"
+    if terminal_output[1] != "" (
+      calling = ""
+    )
+  )
+
+  // about
+  y -= 12
+  goto pane_w / -2 + 14 y - 10
+  text "ABOUT" 7.5 : c#muted
+  y -= 26
+  goto 0 y - 51
+  card pane_w 102
+  local followers = cur.followers ?? 0
+  info_row "Joined" readable_date(cur.created ?? 0) y - 17
+  goto 0 y - 34
+  square pane_w - 32 0 1 : c#edge_col
+  local system_name = cur.system ?? "Unknown"
+  info_row "System" system_name y - 51
+  goto 0 y - 68
+  square pane_w - 32 0 1 : c#edge_col
+  info_row "Followers" followers y - 85
+  y -= 114
+
+  local bio = (cur.bio ?? "").toStr()
+  if bio.len > 0 (
+    goto pane_w / -2 + 14 y - 10
+    text "BIO" 7.5 : c#muted
+    y -= 26
+    local wrapped = bio.wrapText(pane_w - 40 / 9)
+    local lines = wrapped.split("\n").len
+    local bio_h = lines * 21 + 24
+    goto 0 y - (bio_h / 2)
+    card pane_w bio_h
+    goto pane_w / -2 + 18 y - 22
+    text wrapped 9 : c#txtc
+    y -= bio_h + 12
+  )
+
+  // private notes, synced for Plus and above
+  goto pane_w / -2 + 14 y - 10
+  text "PRIVATE NOTES" 7.5 : c#muted
+  y -= 26
+  local tier = user["sys.subscription"].tier ?? "Free"
+  if tier == "Free" or tier == "Lite" (
+    goto 0 y - 24
+    card pane_w 48
+    centext "Upgrade to Plus or higher to keep synced notes about people" 8.5 : c#muted
+    y -= 60
+  ) else (
+    if note_user != selected_user (
+      note_user = selected_user
+      inputs.notes @= (notes[selected_user] ?? "").toStr().split("\n")
+      note_dirty = false
+    )
+    goto 0 y - 50
+    card pane_w 100
+    c prim
+    textbox pane_w - 16 88 "notes" 0 {
+      line_numbers: false,
+      bg_colour: prim,
+      text_colour: txtc
+    }
+    if inputs.selected.id == "notes" and inputs.selected.changed (
+      notes[selected_user] @= inputs.notes.join("\n")
+      note_dirty = true
+    )
+    y -= 112
+    if note_dirty (
+      goto pane_w / 2 - 60 y - 8
+      text_button "Save Note" 120 global_accent accent_txt
+      if button_click (
+        local resp @= ("https://api.rotur.dev/me/note/" ++ selected_user ++ "?auth=" ++ roturToken() ++ "&note=" ++ encodeURIComponent(inputs.notes.join("\n"))).http("POST", {}, {})
+        if resp.error != null (
+          say resp.error
+        ) else (
+          note_dirty = false
+        )
+      )
+      y -= 40
+    )
+  )
+  page_len = top - y + 30
+)
+
+list = []
+list_key = ""
 
 mainloop:
 load_theme
 
-friends_arr @= user["sys.friends"]
-requests_arr @= user["sys.requests"]
-
-if new_transmit (
-  if pickers.contains(transmit_source) (
-    file "open" transmit_data
-  )
-  new_transmit = false
+friends_arr @= user["sys.friends"] ?? []
+requests_arr @= user["sys.requests"] ?? []
+try (
+  online @= network.online.deDupe().filter(v -> v != null)
+) catch (
+  online @= network.online ?? []
 )
 
-tier = user["sys.subscription"].tier ?? "Free"
+// not named side: names are case-insensitive and that would overwrite SIDE
+local side_w = profile_only ? 0 SIDE
+local cl = window.left + side_w
 
-if page != "Profile" (
-  try (
-    online @= network.online.deDupe().filter(v -> v != null)
-  ) catch (
-    online @= network.online ?? []
+// page background, squared off where it meets the glass sidebar
+window.setGlass(100, "15px")
+goto side_w / 2 0
+square window.width - side_w - 10 window.height + 10 10 : c#window_colour
+if side_w > 0 (
+  goto cl + 12 0
+  square 20 window.height 4
+  c window_colour
+  pen "opacity" 55
+  icon "w 99999 dot 0 0" 10
+  pen "opacity" 0
+  frame "clear"
+
+  // the visible list: pinned friends first, filtered by the search box
+  local query = inputs.search.toStr().toLower().strip()
+  local list_now = tab ++ query ++ friends_arr.len ++ requests_arr.len ++ pinned.len
+  if list_now != list_key (
+    list_key = list_now
+    local source @= requests_arr
+    if tab == "Friends" (
+      source @= pinned.filter(v -> (friends_arr.contains(v))) ++ friends_arr.filter(v -> (!pinned.contains(v)))
+    )
+    list = source.filter(v -> (query == "" or v.toStr().toLower().contains(query)))
+  )
+  local pinned_shown = 0
+  if tab == "Friends" (
+    pinned_shown = list.filter(v -> (pinned.contains(v))).len
   )
 
-  window.setGlass(100, "15px")
-  goto 210 0
-  square window.width - 200 window.height + 10 10 : c#window_colour
+  // search, then the Friends and Requests switch
+  local sx = window.left + (SIDE / 2)
+  // the top row shares the window buttons' centre line and height, the sides use the same 6 inset
+  local inner = SIDE - 12
+  goto sx window.top - 21
+  box inner 27 12 : c#prim
+  goto sx - (inner / 2) + 16 window.top - 21
+  icon "search" 0.5 : c#muted
+  goto sx + 12 window.top - 21
+  c prim
+  input inner - 44 21 "search" "Search" 9 txtc
 
-  loc 2 2 10 -20
-  text page 10 : c#txtc
-  loc 2 2 280 -20
-  icon "add" 0.5
-  if onclick (
-    sending = true
-    selected_user = ""
-  )
-  length = list.len
-  c seco
-
-  if page == "Friends" (
-    height = length * 45 + (pinned_friends.len > 0 ? 40 0) + 40
-  ) else (
-    height = length * 45
-  )
-
-  frame window.left window.top - 50 window.left + 305 window.bottom + 60 height "cache@sidebar" (
-    if length == 0 (
-      loc 2 2 10 -20
-      text "No" + page 10 : c#txtc
+  goto sx window.top - 56
+  box inner 27 14 : c#prim
+  local tabs = ["Friends", "Requests"]
+  for i 2 (
+    goto sx - (inner / 2) + (i - 0.5 * (inner / 2)) window.top - 56
+    hit inner / 2 - 6 21
+    if mouse_touching (
+      cursor "pointer"
+    )
+    if onclick (
+      tab = tabs[i]
+      selected_user = ""
+    )
+    local label = tabs[i]
+    if i == 2 and requests_arr.len > 0 (
+      label = "Requests (" ++ requests_arr.len ++ ")"
+    )
+    if tab == tabs[i] (
+      box inner / 2 - 6 21 10 : c#global_accent
+      centext label 8.5 : c#accent_txt
     ) else (
-      number total_pinned = pinned_friends.len
-      local w = frame.width - 25
-      count = 0
-      y = frame.scroll + (count + 0.5 * -40) - 10
-      if total_pinned > 0 and page == "Friends" (
-        loc 999 2 0 y + 15
-        centext "Pinned Friends (" ++ total_pinned ++ ")" 10 : c#txtc
-        y -= 20
-      )
-      loop list.len (
-        count ++
-        if count > list.len (
-          break
-        )
-        if count == total_pinned + 1 (
-          y -= 20
-          loc 999 2 0 y + 15
-          centext "All " ++ page ++ " (" ++ (list.len - total_pinned) ++ ")" 10 : c#txtc
-          y -= 20
-        )
-        loc 999 2 0 y
-        if y_position > frame.top + 20 (
-          y -= 45
-          continue
-        )
-        square w 25 15 : c#window_colour
-        if mouse_touching (
-          square w 25 15 : c#prim
-          clicked_bg = onclick
-          set_x w / 2 - 12.5
-          if page == "Friends" (
-            boolean pinned = pinned_friends.contains(list[count])
-            icon pinned ? "pin-full" "pin" 0.7 : c#txtc
-            if onclick (
-              if pinned (
-                void pinned_friends
-                  .delete(list[count])
-              ) else (
-                void pinned_friends
-                  .append(list[count])
-              )
-              if page == "Friends" (
-                list @= organiseFriends()
-              )
-              network "update" "origin_fav_friends" pinned_friends
-            )
-          ) else if page == "Requests" (
-            square 25 25 10 0 1
-            if mouse_touching (
-              cursor "pointer"
-              square 25 25 10 : c#seco
-              if onclick (
-                requests.reject(selected_user)
-              )
-            )
-            icon "close" 0.6 : c#txtc
-
-            square 25 25 10 0 1 : chx#-40
-            if mouse_touching (
-              cursor "pointer"
-              square 25 25 10 : c#seco
-              if onclick (
-                requests.accept(selected_user)
-              )
-            )
-            icon "tick" 0.6 : c#txtc
-          )
-          if clicked_bg and !onclick (
-            selected_user = list[count]
-            show_save_note = false
-          )
-        )
-        set_x w / -2 + 12.5
-        image "https://avatars.rotur.dev/" ++ list[count] ++ "?radius=40px" 30 30
-        change_x 30
-        icon online.contains(list[count].toLower()) ? "c #4f7 w 10 dot 0 0" "c #555 w 10 dot 0 0" 1.3
-        text list[count] 10 : c#txtc chx#15
-        y -= 45
-        lh += 45
-        if y_position < frame.bottom - 20 (
-          break
-        )
-      )
+      centext label 8.5 : c#txtc
     )
   )
 
-  if friends_length != friends_arr.len and page == "Friends" (
-    list @= organiseFriends()
-  )
-  if requests_length != requests_arr.len and page == "Requests" (
-    list @= requests_arr
-  )
-
-  loc 2 -2 152 30
-  square 280 35 15 : c#window_colour
-
-  loc 2 -2 79 30
-  square 130 30 10 : c#prim hover_c#seco
-  if onclick (
-    page = "Friends"
-    list @= organiseFriends()
-    selected_user = ""
-  )
-  centext "Friends" 9 : c#txtc
-
-  loc 2 -2 225 30
-  square 130 30 10 : c#prim hover_c#seco
-  if onclick (
-    page = "Requests"
-    list @= requests_arr
-    selected_user = ""
-  )
-  centext "Requests" 9 : c#txtc
-)
-c prim
-frame window.left + (page == "Profile" ? 0 305) window.top - 50 window.right window.bottom page_len "page" (
-  page_len = 0
-  local w = frame_width - 35
-  if selected_user == "" (
-    if sending (
-      loc 9999 2 0 -65
-      square w 30 12 : c#prim
-      input w - 10 30 "username" "Enter Username" txtc
-
-      loc 9999 2 0 -120
-      square w 30 12 : c#prim hover_c#seco
-      if onclick (
-        selected_user = inputs.username
-        sending = false
+  frame window.left window.top - 76 cl window.bottom + 46 side_len "people" (
+    sw = frame.width - 12
+    local y = frame.top - 8 + frame.scroll
+    local start = y
+    if list.len == 0 (
+      goto 0 10
+      icon "accounts" 1.6 : c#track_col
+      goto 0 -30
+      local empty = "No friends yet"
+      if tab == "Requests" (
+        empty = "No friend requests"
       )
-      text "View Profile" 10 : c#txtc chx#-60
-    ) else (
-      goto 0 20
-      centext "Select a user" 10 : c#txtc
+      if inputs.search != "" (
+        empty = "Nobody matches that"
+      )
+      centext empty 9 : c#muted
+    )
+    for i list.len (
+      if tab == "Friends" and pinned_shown > 0 and i == 1 (
+        section_label "PINNED" y - 12
+        y -= 26
+      )
+      if tab == "Friends" and pinned_shown > 0 and i == pinned_shown + 1 (
+        section_label "ALL FRIENDS" y - 16
+        y -= 30
+      )
+      y -= ROW_H / 2
+      if y < frame.top + ROW_H and y > frame.bottom - ROW_H (
+        person_row list[i] y
+      )
+      y -= ROW_H / 2
+    )
+    side_len = start - y + 16
+  )
+
+  goto sx window.bottom + 22
+  local find_fill = prim
+  local find_ink = txtc
+  if adding (
+    find_fill = global_accent
+    find_ink = accent_txt
+  )
+  text_button "Find Someone" inner find_fill find_ink
+  if button_click (
+    adding = true
+    selected_user = ""
+    input "focus" "username"
+  )
+  goto cl 0
+  square 0 window.height 1 : c#edge_col
+)
+
+// ---- profile pane
+frame cl + 1 window.top - 42 window.right window.bottom page_len "profile_" ++ selected_user (
+  if selected_user != "" (
+    draw_profile
+  ) else if adding (
+    page_len = 0
+    goto 0 60
+    icon "search" 1.8 : c#track_col
+    goto 0 16
+    centext "Look up anyone on rotur by their username" 9.5 : c#muted
+    goto 0 -30
+    box 300 34 14 : c#prim
+    c prim
+    input 280 26 "username" "Username" 10 txtc
+    goto 0 -76
+    text_button "View Profile" 300 global_accent accent_txt
+    if (button_click or "enter".onKeyDown()) and inputs.username.toStr().strip() != "" (
+      selected_user = inputs.username.toStr().strip()
+      adding = false
     )
   ) else (
-    local w = frame_width - 35
-    local loaded = true
-    if typeof(user_data[selected_user]) != "object" (
-      loaded = false
-      user_data[selected_user] = ("https://api.rotur.dev/profile?include_posts=0&name=" ++ selected_user).getAsync()
-    )
-
-    local cur = user_data[selected_user]
-
-    string banner_url = "https://avatars.rotur.dev/.banners/" ++ selected_user
-    if !banner_url.imageinfo("loaded") (
-      image banner_url 0
-    )
-    if banner_url.imageinfo("width") > 10 (
-      goto 0 frame.top - (frame.width / 6) + frame.scroll
-      image banner_url frame.width
-      set_x frame.left + 60
-      change_y frame.width / -6
-      page_len += frame.width / 3
-    ) else (
-      goto frame.left + 60 frame.top - 120 + frame.scroll
-      page_len += 120
-    )
-    image "https://avatars.rotur.dev/" ++ selected_user ++ "?radius=30px" 100
-
-    text selected_user 10 : c#txtc chx#60 chy#-20
-    change_x 40
-    if loaded (
-      if typeof(cur.badges) == "array" (
-        array badges @= cur.badges ?? []
-        local w2 = badges.len * 30
-        for i badges.len (
-          local badge = badges[i]
-          icon badge.icon 1.2 : c#txtc tooltip#badge.name
-          if onclick (
-            say badge.description
-          )
-          change_x 30
-        )
-      )
-      change_y -20
-      page_len += 40
-
-      seperator
-
-      number left = frame.left + 10
-      set_x left : chy#-35
-      text "Joined " ++ toReadableTime(cur.created ?? 0) ++ "\n" 10 : c#txtc
-      text cur.system + "account\n" 10
-      local followers = cur.followers
-      text followers + "Follower" ++ (followers == 1 ? "" "s") 10
-      page_len += 100
-
-      if cur.bio.len > 0 (
-        seperator
-
-        set_x left : chy#-35
-        string bio = (cur.bio ?? "").wrapText(frame.width / 10 - 5)
-        text bio 10 : c#txtc
-        page_len += bio.split("\n").len * 23 + 30
-      )
-
-      if cur["sys.banned"] != true and cur.created != null (
-        seperator
-
-        set_x frame.left + 80 : chy#-70
-        con_button "Copy Username" "copy" def() -> (
-          clipboard "set" selected_user
-          say "Copied username to clipboard"
-        )
-        if friends_arr.contains(selected_user) (
-          con_button "Call" "phone" def() -> (
-            rotur "call" selected_user "request"
-            calling = selected_user
-            call_time = timestamp
-          )
-          con_button "Remove Friend" "close" def() -> (
-            if !"Are you sure you want to remove this friend?".confirm() (
-              return
-            )
-            friends.remove(selected_user)
-            selected_user = ""
-          )
-        ) else if requests_arr.contains(selected_user) (
-          con_button "Add Friend" "tick" def() -> (
-            say "Accepting request..."
-            requests.accept(selected_user)
-            selected_user = ""
-          )
-          con_button "Reject" "close" def() -> (
-            say "Rejecting request..."
-            requests.reject(selected_user)
-            selected_user = ""
-          )
-        ) else (
-          con_button "Add Friend" "add" def() -> (
-            say "Sending friend request..."
-            requests.send(selected_user)
-            selected_user = ""
-          )
-        )
-        con_button "Make Transfer" "rotur" def() -> (
-          window.create("Wallet", {
-            passed_data: {
-              mode: "transfer",
-              user: selected_user
-            }
-          })
-        )
-        page_len += 70
-        set_x 0 : chy#-90
-        page_len += 90
-        if tier != "Free" and tier != "Lite" (
-          square frame.width - 30 50 10 : c#prim
-          inputs.notes @= (notes[selected_user] ?? "").split("\n")
-          textbox frame.width - 30 50 "notes" 0 {
-            line_numbers: {
-              bg_colour: prim
-            },
-            sel_colour: seco,
-            text_colour: txtc
-          }
-          if inputs.selected.id == "notes" (
-            if inputs.selected.changed (
-              notes[selected_user] @= inputs.notes.join("\n")
-              show_save_note = true
-            )
-          )
-          if show_save_note (
-            change 240 80
-            icon "save" 0.6 : c#txtc
-            if onclick (
-              string url = "https://api.rotur.dev/me/note/" ++ selected_user ++ "?auth=" ++ roturToken() ++ "&note=" ++ encodeURIComponent(inputs.notes.join("\n"))
-              resp @= url.http("POST", {}, {})
-              if resp.error != null (
-                say resp.error
-                return
-              )
-            )
-          )
-          change_y -30
-          page_len += 30
-        ) else (
-          centext "Upgrade to Plus or higher to add synced notes" 10
-        )
-      )
-    )
-
-    if calling == selected_user (
-      if timestamp - call_time > 10000 (
-        say "Call has timed out."
-        calling = ""
-      )
-
-      goto frame.left + 10 frame.top - 20
-      text "Ringing this user..." 10
-      direction timestamp / 5
-      icon "sync" 0.6
-      direction 90
-
-      terminal "rvoice peer"
-      if terminal_output[1] != "" (
-        calling = ""
-      )
-    )
+    page_len = 0
+    goto 0 20
+    icon "accounts" 2 : c#track_col
+    goto 0 -30
+    centext "Select someone to see their profile" 9.5 : c#muted
   )
 )
+window.setDragbox([2, 2, side_w, 0], [-2, 2, -92, -42])
+
 import "win-buttons"

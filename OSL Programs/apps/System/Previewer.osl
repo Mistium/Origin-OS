@@ -1,80 +1,780 @@
+// Developer: @Mistium
+// Description: Image and video viewer for originOS
+//
+// Opens the file given as passed_data and lets you step through the other images
+// and videos in the same folder. Images zoom towards the pointer, pan by dragging
+// and rotate. Videos get a full transport: scrubbing, volume, speed and loop.
+// The view eases towards `t_zoom` and `t_pan`, so every input only sets a target.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
 import "window_tools"
 
-window_info = false
-if passed_data != "" (
-  file "open" passed_data "onlyaccess"
-  fileName = fileGet(2)
-  fileType = fileGet(1)
-  if [".mp4", ".mov"].contains(fileType) (
+IMAGE_TYPES = [".png", ".jpg", ".jpeg", ".webp", ".gif", ".bmp", ".ico", ".tiff", ".odd", ".svg"]
+VIDEO_TYPES = [".mp4", ".mov", ".webm", ".m4v"]
+// the window buttons are 27 tall and centred 21 below the top, the header mirrors them
+HEAD_H = 42
+BAR_H = 40
+INFO_W = 250
+SPEEDS = [1, 1.25, 1.5, 2, 0.5]
+
+gallery = []
+index = 0
+uuid = ""
+mode = "empty"
+media = ""
+file_name = ""
+file_ext = ""
+file_rows = []
+media_w = 0
+media_h = 0
+sized = false
+// a file whose contents are neither a data URL nor a link cannot be drawn
+broken = false
+// the file to show next frame, so "Loading" is on screen while a cloud file downloads
+pending = ""
+
+zoom = 1
+t_zoom = 1
+pan = [0, 0]
+t_pan = [0, 0]
+rot = 0
+fit = 1
+
+dragging = false
+stage_press = false
+drag_moved = 0
+drag_from = [0, 0]
+pan_from = [0, 0]
+last_click = -10
+scrubbing = false
+vol_drag = false
+was_playing = false
+volume = 1
+speed_i = 1
+show_info = false
+button_click = false
+last_move = timer
+last_mouse = [0, 0]
+pickers = []
+// wheels scroll the other way to trackpads with natural scrolling, same rule as Studio
+uses_mouse = ["Windows", "Linux"].contains(system_os)
+
+def clock(number t) string (
+  local total = floor(max(t, 0))
+  local secs = total % 60
+  local mins = floor(total / 60) % 60
+  local out = mins ++ ":" ++ (secs < 10 ? "0" "") ++ secs
+  if total >= 3600 (
+    out = floor(total / 3600) ++ ":" ++ (mins < 10 ? "0" "") ++ out
+  )
+  return out
+)
+
+// every image and video next to `target`, in folder order
+def "load_gallery" "target" (
+  file "open" target "onlyaccess"
+  local me = fileGet(14)
+  local folder = fileGet(3)
+  gallery = []
+  file "open" folder ++ ".folder" "onlyaccess"
+  local kids = fileGet(4)
+  if typeof(kids) == "array" (
+    for i kids.len (
+      file "open" kids[i] "onlyaccess"
+      local ext = fileGet(1).toStr().toLower()
+      if IMAGE_TYPES.contains(ext) or VIDEO_TYPES.contains(ext) (
+        void gallery.append(fileGet(14))
+      )
+    )
+  )
+  if !gallery.contains(me) (
+    void gallery.append(me)
+  )
+  index = gallery.index(me)
+)
+
+def "reset_view" (
+  zoom = 1
+  t_zoom = 1
+  pan = [0, 0]
+  t_pan = [0, 0]
+  rot = 0
+)
+
+def "show_file" "target" (
+  if mode == "video" (
+    video "v" "clear"
+  )
+  file "open" target "onlyaccess"
+  uuid = fileGet(14)
+  file_ext = fileGet(1).toStr().toLower()
+  file_name = fileGet(2) ++ file_ext
+  media = fileGet(4)
+  file_rows = [
+    ["Kind", file_ext.trim(2, -1).toUpper()],
+    ["Size", formatFileSize(fileGet(12).toNum())],
+    ["Created", fileGet(9).timestamp("convert-relative")],
+    ["Edited", fileGet(10).timestamp("convert-relative")],
+    ["Where", fileGet(3)]
+  ]
+  media_w = 0
+  media_h = 0
+  local head = media.toStr().left(12).toLower()
+  broken = !(head.startsWith("data:") or head.startsWith("http") or head.startsWith("blob:") or head.startsWith("<svg") or head.startsWith("<?xml"))
+  reset_view
+  if VIDEO_TYPES.contains(file_ext) and !broken (
     mode = "video"
+    video "load" media "v"
+    video "v" "loop" false
+    video "v" "mute" false
+    video "v" "volume" volume
+    video "v" "speed" SPEEDS[speed_i]
+    video "v" "play"
   ) else (
     mode = "image"
   )
-  fileName ++= fileType
-  data = fileGet(4)
-  if mode == "video" (
-    video "load" data "video"
-  )
-) else (
-  say "you need to open a file with this app"
-  window_info = true
+  last_move = timer
 )
+
+def "step" "by" (
+  if gallery.len > 1 (
+    index = ((index - 1 + by + gallery.len) % gallery.len) + 1
+    pending = gallery[index]
+  )
+)
+
+def "toggle_play" (
+  if "v".videoinfo("playing") (
+    video "v" "pause"
+  ) else (
+    // a finished video starts again from the top
+    if "v".videoinfo("current_time") >= ("v".videoinfo("duration") - 0.1) (
+      video "v" "seek" 0
+    )
+    video "v" "play"
+  )
+  last_move = timer
+)
+
+def "seek_by" "secs" (
+  local to = ("v".videoinfo("current_time") + secs).clamp(0, "v".videoinfo("duration"))
+  video "v" "seek" to
+  last_move = timer
+)
+
+def "set_volume" "v" (
+  volume = v.clamp(0, 1)
+  video "v" "volume" volume
+  video "v" "mute" volume == 0
+  last_move = timer
+)
+
+// zoom by `factor`, keeping the point (mx, my) of the image under the pointer
+def "zoom_at" "factor, mx, my" (
+  local next = (t_zoom * factor).clamp(1, max(8 / fit, 8))
+  if abs(next - 1) < 0.04 (
+    next = 1
+  )
+  local k = next / t_zoom
+  t_pan = [mx - (mx - t_pan[1] * k), my - (my - t_pan[2] * k)]
+  t_zoom = next
+)
+
+// a round icon button on the bar, result in `button_click`. Moves the pen along
+def "bar_button" "icn, size, tip, enabled, active" (
+  hit 30 30
+  button_click = onclick and enabled
+  if enabled and mouse_touching (
+    cursor "pointer"
+    box 30 30 12 : c#hover_col tooltip#tip
+  )
+  local ink = txtc
+  if !enabled (
+    ink = track_col
+  ) else if active (
+    ink = global_accent
+  )
+  icon icn size : c#ink
+  change_x 34
+)
+
+def "divider" (
+  change_x -8
+  square 0 16 1 : c#edge_col
+  change_x 26
+)
+
+// a big round arrow at the edge of the stage
+def "edge_arrow" "x, y, icn, by, tip" (
+  goto x y
+  hit 44 44
+  if mouse_touching (
+    cursor "pointer"
+    box 44 44 44 : c#hover_col tooltip#tip
+  ) else (
+    box 44 44 44 : c#prim
+  )
+  icon icn 0.8 : c#txtc
+  if onclick (
+    step by
+  )
+)
+
+if passed_data != "" and passed_data != null (
+  load_gallery passed_data
+  show_file passed_data
+)
+window.resize(860, 600)
 window.show()
 
-def stretch() (
-  temp = window.width - 50 / w * 100
-  temp2 = window.height - 50 / h * 100
-  if temp2 > temp (
-    stretch "x" temp
-    stretch "y" temp
-  ) else (
-    stretch "x" temp2
-    stretch "y" temp2
-  )
-)
-
 mainloop:
-if window_info (
-  window.hide()
-  window.resize(0,0)
-  // close if we are the top window
-  if window_id_index == 1 (
-    window.close()
-  )
-)
-
 load_theme
 
-goto 0 -25
-
-if mode == "image" (
-  w = data.imageinfo("width")
-  h = data.imageinfo("height")
-  stretch()
-  image data
+// ---- picked from the empty state
+if new_transmit (
+  if pickers.contains(transmit_source) and transmit_data != "closed" (
+    load_gallery transmit_data
+    show_file transmit_data
+    sized = false
+  )
+  new_transmit = false
 )
-if mode == "video" (
-  w = "video".videoinfo("width")
-  h = "video".videoinfo("height")
-  stretch()
-  video "video"
-  loc 2 -2 20 20
-  square 20 20 10 : c#prim
-  playing = "video".videoinfo("playing")
-  icon playing ? "pause" "play" 0.7 : c#txtc
-  if clicked (
-    if playing (
-      video "video" "pause"
-    ) else (
-      video "video" "play"
+
+goto 0 0
+square window.width + 10 window.height + 10 0 : c#window_colour
+
+if mode == "empty" (
+  goto 0 40
+  icon "image" 2.4 : c#track_col
+  goto 0 -30
+  centext "Open an image or video" 11 : c#txtc
+  goto 0 -54
+  centext "Pick a file here, or open one from Files" 8.5 : c#muted
+  goto 0 -100
+  hit 150 32
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box 150 32 14 : c#global_accent
+  centext "Choose File..." 9 : c#accent_txt
+  if onclick (
+    file "pick"
+    void pickers.append(data)
+  )
+  window.setDragbox([2, 2, 0, 0], [-2, 2, -92, 0 - HEAD_H])
+  import "win-buttons"
+  exit
+)
+
+// ---- media size, and a window shaped to fit it the first time it is known
+if mode == "image" (
+  media_w = media.imageinfo("width")
+  media_h = media.imageinfo("height")
+) else (
+  media_w = "v".videoinfo("width")
+  media_h = "v".videoinfo("height")
+)
+local known = media_w > 0 and media_h > 0 and !broken
+if known and !sized (
+  sized = true
+  local k = min(min(900 / media_w, 620 / media_h), 1)
+  window.resize(max(media_w * k, 520), max(media_h * k, 320) + HEAD_H)
+)
+
+local moved = abs(mouse_x - last_mouse[1]) + abs(mouse_y - last_mouse[2]) > 1
+if moved or mouse_down (
+  last_move = timer
+)
+last_mouse = [mouse_x, mouse_y]
+local is_video = mode == "video"
+local playing = is_video and "v".videoinfo("playing")
+// the chrome gets out of the way of a playing video once the pointer rests
+local chrome = !playing or timer - last_move < 2.5 or scrubbing or vol_drag
+
+local side = show_info ? INFO_W 0
+local st_l = window.left
+local st_r = window.right - side
+local st_t = window.top - HEAD_H
+local st_b = window.bottom
+local st_w = st_r - st_l
+local st_h = st_t - st_b
+local st_cx = st_l + st_r / 2
+local st_cy = st_t + st_b / 2
+local bar_max = is_video ? 640 400
+local bar_w = min(st_w - 24, bar_max)
+local bar_y = st_b + 12 + (BAR_H / 2)
+local over_bar = chrome and abs(mouse_x - st_cx) < (bar_w / 2) and abs(mouse_y - bar_y) < (BAR_H / 2 + 4)
+local over_arrows = gallery.len > 1 and abs(mouse_y - st_cy) < 30 and (mouse_x < (st_l + 64) or mouse_x > (st_r - 64)) and mouse_x < st_r
+// pointer position measured from the middle of the stage
+local mx = mouse_x - st_cx
+local my = mouse_y - st_cy
+
+// ---- view maths
+local turned = (round(rot / 90) % 2) != 0
+local box_w = turned ? media_h media_w
+local box_h = turned ? media_w media_h
+if known (
+  local fit_cap = is_video ? 99 1
+  fit = min(min(st_w / box_w, st_h / box_h), fit_cap)
+)
+local reach_x = max(0, (box_w * fit * t_zoom) - st_w / 2)
+local reach_y = max(0, (box_h * fit * t_zoom) - st_h / 2)
+t_pan = [t_pan[1].clamp(0 - reach_x, reach_x), t_pan[2].clamp(0 - reach_y, reach_y)]
+zoom += (t_zoom - zoom) * 0.35
+pan = [pan[1] + ((t_pan[1] - pan[1]) * 0.35), pan[2] + ((t_pan[2] - pan[2]) * 0.35)]
+if abs(t_zoom - zoom) < 0.001 (
+  zoom = t_zoom
+)
+
+// ---- stage
+frame st_l st_t st_r st_b (
+  goto 0 0
+  square frame.width frame.height 0 : c#090a0c
+  hit frame.width frame.height
+  local over_stage = mouse_touching and !over_bar and !over_arrows
+  // only noted here: inside a frame the pointer is measured from the frame's middle
+  stage_press = onclick and !over_bar and !over_arrows
+  if broken (
+    goto 0 24
+    icon "info" 1.6 : c#555555
+    goto 0 -24
+    centext "This file can't be shown" 10 : c#dddddd
+    goto 0 -46
+    centext "It was not saved as a data URL or a link" 8.5 : c#777777
+  ) else if !known or pending != "" (
+    goto 0 0
+    centext "Loading..." 9 : c#777777
+  )
+  local drawable = !broken and pending == ""
+  if drawable and is_video (
+    goto 0 0
+    video "v" media_w * fit media_h * fit
+  ) else if drawable (
+    goto pan[1] pan[2]
+    style {rotate: rot, transition: "rotate 0.18s ease"}
+    image media media_w * fit * zoom media_h * fit * zoom
+  )
+  if over_stage and !is_video (
+    if t_zoom > 1 (
+      cursor dragging ? "grabbing" "grab"
+    )
+    if scroll_velocity != 0 (
+      // the velocity decays over several frames, so each frame only nudges the zoom
+      local amount = uses_mouse ? scroll_velocity / -4000 scroll_velocity / 4000
+      zoom_at 2 ^ amount.clamp(-0.1, 0.1) mx my
     )
   )
 )
-loc 2 2 10 -20
-text `${fileName} ${w}x${h}` 10 : c#txtc
-loc -2 2 -20 -20
-square 20 20 10 : c#prim
-icon "close" 0.7 : c#txtc
-if clicked (
-  window.close()
+
+if stage_press (
+  stage_press = false
+  dragging = true
+  drag_moved = 0
+  drag_from = [mouse_x, mouse_y]
+  pan_from = t_pan
+)
+if dragging (
+  drag_moved = max(drag_moved, abs(mouse_x - drag_from[1]) + abs(mouse_y - drag_from[2]))
+  if mouse_down (
+    if !is_video (
+      t_pan = [pan_from[1] + (mouse_x - drag_from[1]), pan_from[2] + (mouse_y - drag_from[2])]
+      // a drag follows the hand exactly, easing here would feel like lag
+      pan = t_pan
+    )
+  ) else (
+    dragging = false
+    if drag_moved < 4 (
+      if is_video (
+        toggle_play
+      ) else if timer - last_click < 0.35 (
+        // double click flips between fitting the window and actual size
+        if t_zoom > 1 (
+          t_zoom = 1
+          t_pan = [0, 0]
+        ) else (
+          zoom_at max(1 / fit, 2) mx my
+        )
+        last_click = -10
+      ) else (
+        last_click = timer
+      )
+    )
+  )
+)
+
+// ---- right click
+if mouse_right and abs(mx) < (st_w / 2) and abs(my) < (st_h / 2) and !over_bar (
+  local menu = [
+    {"Show in Files": def(id) -> (
+      window.create("/(a) system/user applications/Files.osl", id)
+    )},
+    {"File Info": def(id) -> (
+      window "add" "Files_Info" id
+    )},
+    {"Copy Path": def(id) -> (
+      file "open" id "onlyaccess"
+      clipboard "set" fileGet(3) ++ "/" ++ fileGet(2) ++ fileGet(1)
+    )}
+  ]
+  if !is_video (
+    void menu.append("-")
+    void menu.append({"Set as Wallpaper": def(id) -> (
+      permission "request" "terminal"
+      if window.permissions.contains("terminal") (
+        file "open" id "onlyaccess"
+        terminal "system wallpaper_local " ++ fileGet(4)
+      )
+    )})
+  )
+  rightclick menu uuid
+)
+
+// ---- keyboard
+if "escape".onKeyDown() (
+  if t_zoom > 1 (
+    t_zoom = 1
+    t_pan = [0, 0]
+  ) else (
+    window.close()
+  )
+)
+if "i".onKeyDown() (
+  show_info = !show_info
+)
+if is_video (
+  if "space".onKeyDown() or "k".onKeyDown() (
+    toggle_play
+  )
+  if "arrowright".onKeyDown() (
+    if "shift".isKeyDown() (
+      step 1
+    ) else (
+      seek_by 5
+    )
+  )
+  if "arrowleft".onKeyDown() (
+    if "shift".isKeyDown() (
+      step -1
+    ) else (
+      seek_by -5
+    )
+  )
+  if "arrowup".onKeyDown() (
+    set_volume volume + 0.1
+  )
+  if "arrowdown".onKeyDown() (
+    set_volume volume - 0.1
+  )
+  if "m".onKeyDown() (
+    video "v" "mute" !"v".videoinfo("muted")
+    last_move = timer
+  )
+  if "l".onKeyDown() (
+    video "v" "loop" !"v".videoinfo("loop")
+    last_move = timer
+  )
+) else (
+  if "arrowright".onKeyDown() (
+    step 1
+  )
+  if "arrowleft".onKeyDown() (
+    step -1
+  )
+  if "=".onKeyDown() or "+".onKeyDown() (
+    zoom_at 1.5 0 0
+  )
+  if "-".onKeyDown() (
+    zoom_at 1 / 1.5 0 0
+  )
+  if "0".onKeyDown() (
+    t_zoom = 1
+    t_pan = [0, 0]
+  )
+  if "1".onKeyDown() and t_zoom == 1 (
+    zoom_at 1 / fit 0 0
+  )
+  if "r".onKeyDown() (
+    rot += 90
+    t_pan = [0, 0]
+  )
+)
+
+// ---- previous and next, shown when the pointer nears a side of the stage
+local near_side = abs(mx) > (st_w / 2 - 110) and abs(mx) < (st_w / 2) and abs(my) < (st_h / 2)
+if chrome and gallery.len > 1 and near_side and !over_bar (
+  // arrow keys seek inside a video, so stepping takes shift there
+  local keys = is_video ? "shift + arrow" "arrow key"
+  if mx < 0 (
+    edge_arrow st_l + 34 st_cy "left-arrow" -1 "Previous (" ++ keys ++ ")"
+  ) else (
+    edge_arrow st_r - 34 st_cy "right-arrow" 1 "Next (" ++ keys ++ ")"
+  )
+)
+
+// ---- floating bar
+if chrome and !broken (
+  goto st_cx bar_y
+  box bar_w + 2 BAR_H + 2 22 : c#edge_col
+  box bar_w BAR_H 20 : c#prim
+  local bl = st_cx - (bar_w / 2)
+  local br = st_cx + (bar_w / 2)
+  if is_video (
+    local now = "v".videoinfo("current_time")
+    local total = "v".videoinfo("duration")
+    local play_icn = playing ? "pause" "play"
+    local play_tip = playing ? "Pause (space)" "Play (space)"
+    goto bl + 22 bar_y
+    bar_button play_icn 0.6 play_tip true false
+    if button_click (
+      toggle_play
+    )
+
+    // right hand side first, the scrubber takes whatever is left
+    // not named muted, that is the theme's secondary text colour
+    local is_muted = "v".videoinfo("muted") or volume == 0
+    local looping = "v".videoinfo("loop")
+    local loop_tip = looping ? "Loop is on (L)" "Loop is off (L)"
+    goto br - 22 bar_y
+    bar_button "reload" 0.55 loop_tip true looping
+    if button_click (
+      video "v" "loop" !looping
+    )
+    goto br - 60 bar_y
+    hit 38 26
+    if mouse_touching (
+      cursor "pointer"
+      box 38 26 12 : c#hover_col tooltip#"Playback speed"
+    )
+    if onclick (
+      speed_i = (speed_i % SPEEDS.len) + 1
+      video "v" "speed" SPEEDS[speed_i]
+    )
+    centext SPEEDS[speed_i] ++ "x" 8 : c#txtc
+
+    local wide = bar_w > 460
+    local vol_w = wide ? 56 0
+    local vx = br - 96 - vol_w - (wide ? 16 0)
+    goto vx bar_y
+    local vol_icn = "volume-max"
+    if is_muted (
+      vol_icn = "volume-mute"
+    ) else if volume < 0.5 (
+      vol_icn = "volume-1"
+    )
+    local vol_tip = is_muted ? "Unmute (M)" "Mute (M)"
+    bar_button vol_icn 0.6 vol_tip true false
+    if button_click (
+      if volume == 0 (
+        set_volume 0.6
+      ) else (
+        video "v" "mute" !is_muted
+      )
+    )
+    if wide (
+      local vl = vx + 22
+      goto vl + (vol_w / 2) bar_y
+      hit vol_w + 12 20
+      if mouse_touching (
+        cursor "pointer"
+      )
+      if onclick (
+        vol_drag = true
+      )
+      local shown_vol = is_muted ? 0 volume
+      box vol_w 4 4 : c#track_col
+      if shown_vol > 0 (
+        set_x vl + (vol_w * shown_vol / 2)
+        box max(vol_w * shown_vol, 4) 4 4 : c#txtc
+      )
+      set_x vl + (vol_w * shown_vol)
+      box 10 10 10 : c#txtc
+      if vol_drag (
+        if mouse_down (
+          set_volume (mouse_x - vl) / vol_w
+        ) else (
+          vol_drag = false
+        )
+      )
+    )
+
+    // scrubber between the two time labels
+    local tl = bl + 46
+    local tr = vx - 24
+    local total_txt = clock(total)
+    goto tl bar_y
+    text clock(now) 8 : c#txtc
+    goto tr bar_y
+    rigtext total_txt 8 : c#muted
+    local label_w = total_txt.len * 8 + 12
+    local sl = tl + label_w
+    local sr = tr - label_w
+    local sw = max(sr - sl, 10)
+    goto sl + sr / 2 bar_y
+    hit sw + 10 22
+    local over_scrub = mouse_touching
+    if over_scrub (
+      cursor "pointer"
+    )
+    if onclick and total > 0 (
+      scrubbing = true
+      was_playing = playing
+      video "v" "pause"
+    )
+    local part = 0
+    if total > 0 (
+      part = (now / total).clamp(0, 1)
+    )
+    local hover_part = ((mouse_x - sl) / sw).clamp(0, 1)
+    if scrubbing (
+      part = hover_part
+      video "v" "seek" part * total
+      if !mouse_down (
+        scrubbing = false
+        if was_playing (
+          video "v" "play"
+        )
+      )
+    )
+    local lively = over_scrub or scrubbing
+    local thick = lively ? 6 4
+    box sw thick thick : c#track_col
+    if part > 0 (
+      set_x sl + (sw * part / 2)
+      box max(sw * part, thick) thick thick : c#global_accent
+    )
+    if lively (
+      set_x sl + (sw * part)
+      box 12 12 12 : c#txtc
+      // the time under the pointer
+      local hover_txt = clock(hover_part * total)
+      goto sl + (sw * hover_part) bar_y + 36
+      box 52 22 10 : c#prim
+      centext hover_txt 8 : c#txtc
+    )
+  ) else (
+    // zoom out, readout, zoom in, fit | rotate | info
+    goto st_cx - 116 bar_y
+    bar_button "minus" 0.55 "Zoom out (-)" t_zoom > 1 false
+    if button_click (
+      zoom_at 1 / 1.5 0 0
+    )
+    change_x 12
+    hit 54 26
+    if mouse_touching (
+      cursor "pointer"
+      box 54 26 12 : c#hover_col tooltip#"Actual size (1)"
+    )
+    if onclick (
+      t_zoom = 1
+      t_pan = [0, 0]
+      zoom_at 1 / fit 0 0
+    )
+    centext round(fit * zoom * 100) ++ "%" 8 : c#txtc
+    change_x 46
+    bar_button "add" 0.55 "Zoom in (+)" true false
+    if button_click (
+      zoom_at 1.5 0 0
+    )
+    bar_button "maximise" 0.5 "Fit to window (0)" t_zoom != 1 false
+    if button_click (
+      t_zoom = 1
+      t_pan = [0, 0]
+    )
+    divider
+    bar_button "reload" 0.55 "Rotate (R)" true false
+    if button_click (
+      rot += 90
+      t_pan = [0, 0]
+    )
+    divider
+    bar_button "info" 0.6 "Info (I)" true show_info
+    if button_click (
+      show_info = !show_info
+    )
+  )
+)
+
+// ---- header: name, then what it is, on the window buttons' centre line
+goto 0 window.top - (HEAD_H / 2)
+square window.width HEAD_H 0 : c#window_colour
+local head_y = window.top - 21
+local name_room = window.width - 330
+goto window.left + 14 head_y
+text file_name.trimText(max(name_room, 80) / 9.5) 9.5 : c#txtc
+local facts = ""
+if known (
+  facts = media_w ++ " x " ++ media_h
+)
+if is_video and known (
+  facts ++= "    " ++ clock("v".videoinfo("duration"))
+)
+if gallery.len > 1 (
+  facts ++= "    " ++ index ++ " of " ++ gallery.len
+)
+if name_room > 260 (
+  text "    " ++ facts 8 : c#muted
+)
+local drag_stop = -92
+if is_video (
+  // images have Info on the bar, videos get it beside the window buttons
+  drag_stop = -126
+  goto window.right - 106 head_y
+  hit 27 27
+  if mouse_touching (
+    cursor "pointer"
+    box 27 27 10 : c#hover_col tooltip#"Info (I)"
+  )
+  if onclick (
+    show_info = !show_info
+  )
+  local info_ink = show_info ? global_accent txtc
+  icon "info" 0.6 : c#info_ink
+)
+window.setDragbox([2, 2, 0, 0], [-2, 2, drag_stop, 0 - HEAD_H])
+
+// ---- info panel
+if show_info (
+  local il = window.right - INFO_W
+  goto il + (INFO_W / 2) st_cy
+  square INFO_W st_h 0 : c#window_colour
+  goto il st_cy
+  square 0 st_h 1 : c#edge_col
+  local rows = file_rows
+  if known (
+    rows = [["Dimensions", media_w ++ " x " ++ media_h]] ++ rows
+  )
+  if is_video and known (
+    rows = [["Duration", clock("v".videoinfo("duration"))]] ++ rows
+  )
+  goto il + 16 st_t - 22
+  text "INFO" 7.5 : c#muted
+  local ry = st_t - 50
+  for i rows.len (
+    local row_label = rows[i][1]
+    local row_value = rows[i][2].toStr()
+    goto il + 16 ry
+    text row_label 8 : c#muted
+    // long values such as the folder go under their label
+    if row_value.len > 18 (
+      ry -= 20
+      goto il + 16 ry
+      text row_value.trimText(INFO_W - 32 / 8) 8 : c#txtc
+    ) else (
+      goto window.right - 16 ry
+      rigtext row_value 8 : c#txtc
+    )
+    ry -= 13
+    goto il + (INFO_W / 2) ry
+    square INFO_W - 32 0 1 : c#edge_col
+    ry -= 15
+  )
+)
+
+import "win-buttons"
+
+// drawn first, loaded after: fetching a cloud file blocks until it arrives
+if pending != "" (
+  local next_file = pending
+  pending = ""
+  show_file next_file
 )

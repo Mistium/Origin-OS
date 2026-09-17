@@ -1,462 +1,896 @@
+// Developer: @Mistium
+// Description: System monitor for originOS
+//
+// Two modes. The main window has Processes, Performance, Network and Storage
+// pages. Opened with a window id as passed_data it shows one process in detail.
+// Metrics are sampled a few times a second into fixed length histories, the
+// process table refreshes once a second. Sizes passed to `box` are the visible
+// size, OSL arithmetic runs left to right.
+
 import "window_tools"
 
 permission "request" "windows"
 permission "request" "terminal"
 
+// global names are case-insensitive, so this must not be spelled like the `hist` object
+SAMPLES = 120
+SAMPLE_EVERY = 0.25
+TABLE_EVERY = 1
+ROW_H = 30
+// the window buttons are 80 by 27, 6 from the right edge and centred 21 below the top.
+// Header and footer controls mirror that: same height, same centre line, same inset.
+HEAD_H = 42
+STATUS_H = 42
+
 window.show()
-window.resize(600,400)
-current_tab = "no_perms"
 
-activity_info = false
+detail_id = null
 if Windows().getKeys("id").contains(passed_data) (
-  activity_info = true
-  page = passed_data
+  detail_id = passed_data
+  window.resize(560, 370)
+) else (
+  window.resize(820, 540)
 )
-memory = roturLink.enabled or "performance.memory !== undefined".eval()
+
+pages = ["Processes", "Performance", "Network", "Storage"]
+page = "Processes"
 paused = false
-graph = []
-network_usage = []
-string delta = "0%"
-
-dom_last_update = 0
-dom_prev_dom_writes = 0
-dom_prev_dom_t = timer
-dom_writes_per_s = 0
-dom_writes_per_frame = 0
-dom_layout_score = 0
-dom_layout_state = "stable"
+selected_pid = null
+sort_key = "time"
+sort_desc = true
+metric = "cpu"
+button_click = false
+table_len = 0
+rows = []
+collapsed = []
+process_count = 0
+dom_rows = {}
 dom_global = {}
-dom_target_stats = {}
-dom_window_rows = []
+last_sample = 0
+last_table = 0
+last_writes = 0
+last_writes_t = timer
+writes_per_frame = 0
+total_ms = 0
+detail_lines = []
+detail_name = ""
+detail_ms = 0
+has_memory = roturLink.enabled or "performance.memory !== undefined".eval()
 
-def drawTab(name, label) (
-  c name == current_tab ? seco prim
-  square tab_w 25 10 1
-  if onclick (
-    current_tab = name
+def blank() (
+  return (1 to SAMPLES).fill(0)
+)
+
+// samples already scaled to 0..1 so they can be handed straight to `graph`, newest last.
+// Scaling per frame with a lambda cost about 600 function calls a frame and dropped the OS to 15 fps.
+hist = {
+  fps: blank(),
+  cpu: blank(),
+  mem: blank(),
+  dom: blank(),
+  up: blank(),
+  down: blank(),
+  proc: blank()
+}
+
+// what 1.0 means for each history, and the most recent unscaled reading
+scales = {
+  fps: 60,
+  cpu: 100,
+  mem: 100,
+  dom: 40,
+  proc: 16.7
+}
+latest = {
+  fps: 0,
+  cpu: 0,
+  mem: 0,
+  dom: 0,
+  up: 0,
+  down: 0,
+  proc: 0
+}
+// network has no natural ceiling, so its raw samples are rescaled to the running peak
+net_raw = {
+  up: blank(),
+  down: blank()
+}
+net_peak = 1024
+
+// ---------------------------------------------------------------- drawing helpers
+// `box`, `hit`, `card` and the derived colours come from window_tools
+
+// one colour per metric so graphs are recognisable at a glance
+metric_cols = {
+  cpu: "#60a5fa",
+  fps: "#34d399",
+  mem: "#c084fc",
+  dom: "#fbbf24",
+  up: "#f472b6",
+  down: "#22d3ee"
+}
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink, enabled" (
+  hit w 27
+  button_click = onclick and enabled
+  if enabled (
+    if mouse_touching (
+      cursor "pointer"
+    )
+    box w 27 12 : c#fill
+    centext label 8.5 : c#ink
+  ) else (
+    box w 27 12 : c#hover_col
+    centext label 8.5 : c#muted
   )
-  change_x tab_w / -2 + 8
-  text label 8 : c#txtc
 )
 
-rightclick_menu = [
-  "Unknown",
-  "-",
-  {"Show in Files": def(win) -> (
-    window.create("/(a) system/user applications/Files.osl", win.file.uuid)
-  )},
-  {"More Activity Info": def(win) -> (
-    window.create(window.file.uuid, {
-      passed_data: win.id,
-      child: true
-    })
-  )},
-  {"Copy File Path": def(win) -> (
-    clipboard "set" win.file.path
-  )},
-  {"Get File Info": def(win) -> (
-    window.create("/(a) system/system apps/Files_Info.osl", win.file.uuid)
-  )},
-  "-",
-  {"Kill Process": def(win) -> (
-    void win.close()
-  )},
-]
-
-def getWindowsData() (
-  windows_list @= Windows()
-    .map(v -> (
-      v.time = v.render[1].toNum()
-      return v
-    ))
-
-  windows_names @= windows_list.getKeys("name")
-  windows_drawtimes @= windows_list.getKeys("render")
-  windows_ids @= windows_list.getKeys("id")
-  windows_draw_main @= windows_list.getKeys("time")
-
-  local vals = []
-  for i windows_list.len (
-    vals.append({
-      name: windows_names[i],
-      time: windows_draw_main[i],
-      id: windows_ids[i],
-      draw: windows_drawtimes[i]
-    })
-   )
-   windows_total_time = windows_draw_main.sum()
-   number system_time = max(0, floor(((delta_time * 1000) - windows_total_time) * 10) / 10)
-   vals.append({
-     name: "System",
-     time: system_time,
-     id: -1,
-     draw: [system_time]
-   })
-   windows_list.append(vals[-1])
-
-   vals @= vals.sortBy("time").reverse()
-   windows_list @= windows_list.sortBy("time").reverse()
-
-   windows_names @= vals.getKeys("name")
-   windows_ids @= vals.getKeys("id")
-   windows_drawtimes @= vals.getKeys("draw")
-   windows_draw_main @= vals.getKeys("time")
+// a usage bar centred on the pen, fraction is 0..1
+def "meter" "w, fraction, col" (
+  local x = x_position
+  box w 6 6 : c#track_col
+  local fill = (w * fraction.clamp(0, 1)).clamp(6, w)
+  set_x x - (w / 2) + (fill / 2)
+  box fill 6 6 : c#col
+  set_x x
 )
 
-def "updateDomMetrics" (
-  if timer - dom_last_update >= 0.5 (
-    dom_last_update = timer
-    dom_global = "window.OSLDom && window.OSLDom.stats ? window.OSLDom.stats() : {}".eval()
-    dom_total_writes = "window.OSLDom && window.OSLDom.writes ? window.OSLDom.writes() : 0".eval()
-    dom_write_delta = dom_total_writes - dom_prev_dom_writes
-    dom_write_dt = max(timer - dom_prev_dom_t, 0.01)
-    dom_prev_dom_t = timer
-    dom_prev_dom_writes = dom_total_writes
-    dom_writes_per_s = dom_write_delta / dom_write_dt
-    dom_writes_per_frame = dom_writes_per_s / max(fps, 1)
-    dom_layout_score = dom_writes_per_frame / max(dom_global.records / 10, 1)
-    if dom_writes_per_frame > 16 (
-      dom_layout_state = "heavy layout thrash"
+// a graph with its left bottom at (x, y): grid lines, soft fill and a line
+def "plot" "x, y, w, h, values, col" (
+  for i 3 (
+    goto x + (w / 2) y + (h * i / 4)
+    square w 0 1 : c#edge_col
+  )
+  goto x + (w / 2) y + (h / 2)
+  pen "size" 2
+  style {fill: true}
+  c col
+  graph w h values
+)
+
+def plural(number n, string word) string (
+  if n == 1 (
+    return n ++ " " ++ word
+  )
+  if word == "child" (
+    return n ++ " children"
+  )
+  if word.endsWith("s") (
+    return n ++ " " ++ word ++ "es"
+  )
+  return n ++ " " ++ word ++ "s"
+)
+
+def one_dp(number n) string (
+  return (round(n * 10) / 10).toStr()
+)
+
+// frame times, switching to seconds so a startup spike still fits its column
+def ms_text(number n) string (
+  if n >= 1000 (
+    return one_dp(n / 1000) ++ " s"
+  )
+  return one_dp(n) ++ " ms"
+)
+
+// ---------------------------------------------------------------- sampling
+
+// not named push: function calls resolve through the scope array first, which has its own push
+def record_sample(string key, number value) (
+  latest[key] = value
+  local list @= hist[key]
+  void list.append((value / scales[key]).clamp(0, 1))
+  void list.delete(1)
+)
+
+def record_network(string key, number value) (
+  latest[key] = value
+  local list @= net_raw[key]
+  void list.append(value)
+  void list.delete(1)
+)
+
+def "sample_metrics" (
+  local budget = 1000 / max(fps_limit, 1)
+  scales.fps = max(fps_limit, 1)
+  scales.proc = budget
+  record_sample("fps", fps)
+  record_sample("cpu", (roturLink.cpu.percent ?? (total_ms / budget * 100)).clamp(0, 100))
+  if has_memory (
+    record_sample("mem", roturLink.memory.percent ?? "performance.memory.usedJSHeapSize / performance.memory.jsHeapSizeLimit * 100".eval())
+  )
+  local writes = "window.OSLDom && window.OSLDom.writes ? window.OSLDom.writes() : 0".eval()
+  local dt = max(timer - last_writes_t, 0.01)
+  writes_per_frame = max(0, writes - last_writes) / dt / max(fps, 1)
+  last_writes = writes
+  last_writes_t = timer
+  record_sample("dom", writes_per_frame)
+
+  record_network("up", network.upload.toNum())
+  record_network("down", network.download.toNum())
+  net_peak = max(max(net_raw.up.max(), net_raw.down.max()), 1024)
+  local up @= hist.up
+  local down @= hist.down
+  for i SAMPLES (
+    up[i] = net_raw.up[i] / net_peak
+    down[i] = net_raw.down[i] / net_peak
+  )
+)
+
+// per window DOM node counts plus the parent link, keyed by window id.
+// `_child` is set by window.create(..., {child: true}) and is not readable from OSL, hence the eval
+def "sample_dom" (
+  dom_global = "window.OSLDom && window.OSLDom.stats ? window.OSLDom.stats() : {}".eval()
+  dom_rows = "(()=>{ const out = {}; try { for (const t of vm.runtime.targets) { const w = t.window, s = t.__osldom; if (!s || !w || w.id == null) continue; let records = 0, attached = 0, canvasBytes = 0; for (const pool of s.els || []) for (const rec of pool.arr || []) { if (!rec || rec.dead) continue; records++; if (rec.el && rec.el.isConnected) attached++; if (rec.cv) canvasBytes += (rec.cv.width || 0) * (rec.cv.height || 0) * 4; } out[w.id] = { records, attached, canvasBytes, parent: w.parent ? w.parent.id : -1, child: w._child === true }; } } catch (e) {} return out })()".eval()
+)
+
+def "sample_table" (
+  local list @= Windows()
+  process_count = list.len
+  local workers @= "window.origin.workers ?? {}".eval()
+  local out = []
+  total_ms = 0
+  for i list.len (
+    local win @= list[i]
+    local ms = win.render[1].toNum()
+    total_ms += ms
+    local dom @= dom_rows[win.id] ?? {}
+    local parent_id = "root"
+    if dom.child == true (
+      parent_id = dom.parent
     )
-    if dom_writes_per_frame > 6 and dom_writes_per_frame <= 16 (
-      dom_layout_state = "churn"
+    void out.append({
+      id: win.id,
+      name: win.name.toStr(),
+      uuid: (win.window ?? {}).file.uuid ?? win.uuid,
+      time: ms,
+      nodes: dom.records ?? 0,
+      workers: (workers[win.id] ?? {}).getKeys().len,
+      win: win.window,
+      parent: parent_id,
+      depth: 0,
+      kids: 0,
+      tree_time: ms
+    })
+    if win.id == detail_id (
+      detail_name = win.name.toStr()
+      detail_ms = ms
+      detail_lines = win.render[2] ?? []
     )
-    if dom_writes_per_frame <= 6 (
-      dom_layout_state = "stable"
+  )
+  // time the kernel itself took this frame, measured by the kernel
+  local system_ms = "origin.time.kernel_ms ?? 0".eval().toNum()
+  void out.append({
+    id: -1,
+    name: "System",
+    uuid: null,
+    time: round(system_ms * 10) / 10,
+    nodes: 0,
+    workers: 0,
+    win: null,
+    parent: "root",
+    depth: 0,
+    kids: 0,
+    tree_time: round(system_ms * 10) / 10
+  })
+  // rows hold live window handles, so everything here is assigned by reference.
+  // A plain `=` deep-clones every window and cost over a second per refresh.
+  local sorted @= out.sortBy(sort_key)
+  if sort_desc (
+    sorted @= sorted.reverse()
+  )
+  // a child whose parent has gone is shown at the top level
+  local ids = sorted.getKeys("id")
+  for i sorted.len (
+    if !ids.contains(sorted[i].parent) (
+      sorted[i].parent = "root"
     )
-    dom_window_rows = "(()=>{ try { const rt = window.vm && window.vm.runtime; if (!rt || !rt.targets) return []; const out = []; for (const t of rt.targets) { const w = t.window; if (!t.__osldom || !w || w.id == null) continue; const wi = window.origin?.windows?.ids?.findIndex(id => String(id) === String(w.id)) ?? -1; const windowName = wi >= 0 ? window.origin.windows.names[wi] : null; const s = t.__osldom; let pools = 0, records = 0, attached = 0, persistent = 0, canvasBytes = 0; for (const pool of s.els || []) { pools += 1; for (const rec of pool.arr || []) { if (!rec || rec.dead) continue; records += 1; if (rec.el && rec.el.isConnected) attached += 1; if (rec.type === 'iframe' || rec.type === 'textedit' || rec.type === 'lineedit') persistent += 1; if (rec.cv) canvasBytes += (rec.cv.width || 0) * (rec.cv.height || 0) * 4; } } out.push({ id: +w.id, name: String(windowName || w.name || t.sprite?.name || 'Window'), records, attached, detached: records - attached, persistent, pools, canvasBytes, approxBytes: records * 180 }); } return out.sort((a,b)=>b.records-a.records); } catch(e) { return []; } })()".eval()
-    if activity_info (
-      dom_target_stats = null
-      local ids = dom_window_rows.getKeys("id")
-      if ids.len > 0 (
-        local idx = ids.index(page)
-        if idx > -1 (
-          dom_target_stats = dom_window_rows[idx]
+  )
+  rows @= []
+  void add_branch(sorted, "root", 0)
+)
+
+// appends the rows whose parent is `parent_id`, each followed by its own children,
+// and returns the frame time of everything it added
+def add_branch(sorted, parent_id, number depth) (
+  local total = 0
+  for i sorted.len (
+    local row @= sorted[i]
+    if row.parent == parent_id (
+      row.depth = depth
+      local hidden = collapsed.contains(row.id)
+      local before = rows.len
+      void rows.append(row)
+      local below = add_branch(sorted, row.id, depth + 1)
+      row.kids = rows.len - before - 1
+      row.kids_hidden = row.kids
+      row.tree_time = row.time + below
+      if hidden (
+        // keep the parent, drop the rows its subtree just added
+        rows @= rows.trim(1, before + 1)
+      )
+      total += row.tree_time
+    )
+  )
+  return total
+)
+
+// ---------------------------------------------------------------- pages
+
+def "sort_header" "label, key, x, align_right" (
+  local width = label.len * 8 + 20
+  local hit_x = x + (width / 2) - 6
+  if align_right (
+    hit_x = x - (width / 2) + 6
+  )
+  goto hit_x head_y
+  hit width 22
+  if mouse_touching (
+    cursor "pointer"
+  )
+  if onclick (
+    if sort_key == key (
+      sort_desc = !sort_desc
+    ) else (
+      sort_key = key
+      sort_desc = key != "name"
+    )
+    last_table = 0
+  )
+  local active = sort_key == key
+  goto x head_y
+  c active ? txtc muted
+  if align_right (
+    rigtext label 8
+    if active (
+      goto x - (label.len * 8) - 10 head_y
+      icon sort_desc ? "down" "up" 0.35
+    )
+  ) else (
+    text label 8
+    if active (
+      icon sort_desc ? "down" "up" 0.35 : chx#10
+    )
+  )
+)
+
+def "page_processes" (
+  local budget = 1000 / max(fps_limit, 1)
+  local left = window.left + 16
+  // lines up with the value columns inside the scrolling frame below
+  local right = window.right - 18
+  head_y = view_top - 16
+  sort_header "Name" "name" left + 44 false
+  sort_header "Frame Time" "time" right - 250 true
+  sort_header "Nodes" "nodes" right - 80 true
+  sort_header "PID" "id" right true
+  goto 0 view_top - 32
+  square window.width - 32 0 1 : c#edge_col
+
+  frame window.left + 8 view_top - 34 window.right - 8 view_bottom rows.len * ROW_H + 10 "processes" (
+    local w = frame.width - 12
+    local fl = frame.left
+    // the frame keeps a 10px scrollbar gutter, so its right edge sits 18px inside the window
+    local fr = frame.right - 8
+    local first = max(0, floor(frame.scroll / ROW_H))
+    local i = first
+    loop min(rows.len - first, ceil(frame.height / ROW_H) + 1) (
+      i ++
+      local row @= rows[i]
+      local y = frame.top - 5 + frame.scroll - (i - 0.5 * ROW_H)
+      goto 0 y
+      hit w ROW_H - 2
+      local over = mouse_touching
+      if onclick (
+        selected_pid = row.id
+      )
+      if row.win != null and mouse_right (
+        selected_pid = row.id
+        rightclick [
+          "> " ++ row.uuid,
+          "-",
+          {"Details": def(item) -> (
+            window.create(window.file.uuid, {passed_data: item.id, child: true})
+          )},
+          {"Show in Files": def(item) -> (
+            window.create("/(a) system/user applications/Files.osl", item.uuid)
+          )},
+          {"Copy File Path": def(item) -> (
+            clipboard "set" item.win.file.path
+          )},
+          "-",
+          {"End Process": def(item) -> (
+            void item.win.close()
+          )}
+        ] row
+      )
+      local ink = txtc
+      local dim = muted
+      if selected_pid == row.id (
+        box w ROW_H - 4 12 : c#global_accent
+        ink = accent_txt
+        dim = accent_txt
+      ) else if over (
+        box w ROW_H - 4 12 : c#hover_col
+      )
+      // children are indented under their parent, parents get a disclosure arrow
+      local indent = row.depth * 18
+      local is_closed = collapsed.contains(row.id)
+      if row.kids > 0 or is_closed (
+        goto fl + 14 + indent y
+        hit 16 20
+        if mouse_touching (
+          cursor "pointer"
         )
+        if onclick (
+          if is_closed (
+            void collapsed.delete(row.id)
+          ) else (
+            void collapsed.append(row.id)
+          )
+          last_table = 0
+        )
+        icon is_closed ? "right" "down" 0.35 : c#dim
+      )
+      local shown_time = row.time
+      if is_closed (
+        shown_time = row.tree_time
+      )
+      goto fl + 32 + indent y
+      if row.uuid == null (
+        icon "origin-logo" 0.6 : c#ink
+      ) else (
+        file "open" row.uuid "onlyaccess"
+        file "render" 0.75
+      )
+      goto fl + 52 + indent y
+      text row.name.trimText(fr - fl - 400 - indent / 9) 9 : c#ink
+      if is_closed (
+        text "  +" ++ plural(row.kids_hidden ?? 0, "child") 8 : c#dim
+      ) else if row.workers > 0 (
+        text "  " ++ plural(row.workers, "worker") 8 : c#dim
+      )
+
+      // share of the frame budget as a bar, then the number
+      goto fr - 370 y
+      local heat = "#34d399"
+      if shown_time > budget * 0.25 (
+        heat = "#fbbf24"
+      )
+      if shown_time > budget * 0.6 (
+        heat = "#f87171"
+      )
+      meter 100 shown_time / budget heat
+      goto fr - 250 y
+      rigtext ms_text(shown_time) 8.5 : c#ink
+      goto fr - 80 y
+      local nodes = "-"
+      if row.nodes > 0 (
+        nodes = row.nodes.toStr()
+      )
+      rigtext nodes 8.5 : c#dim
+      goto fr y
+      local pid = "-"
+      if row.id != -1 (
+        pid = row.id.toStr()
+      )
+      rigtext pid 8.5 : c#dim
+    )
+  )
+
+  // actions for the selected process
+  local chosen = null
+  for i rows.len (
+    if rows[i].id == selected_pid (
+      chosen @= rows[i]
+    )
+  )
+  local can_act = chosen != null and chosen.win != null
+  goto window.right - 58 status_y
+  text_button "End Process" 104 "#f87171" "#111111" can_act
+  if button_click and ("End " ++ chosen.name ++ "?").confirm() (
+    void chosen.win.close()
+    selected_pid = null
+    last_table = 0
+  )
+  goto window.right - 164 status_y
+  text_button "Details" 96 hover_col txtc can_act
+  if button_click (
+    window.create(window.file.uuid, {passed_data: chosen.id, child: true})
+  )
+  goto window.left + 16 status_y
+  text plural(process_count, "process") ++ "    " ++ one_dp(total_ms) ++ " ms of " ++ one_dp(budget) ++ " ms per frame" 8.5 : c#muted
+)
+
+// the metrics the Performance page can show: [key, title, value text, scale peak, note]
+def metric_list() (
+  local list = [
+    ["cpu", "CPU", round(latest.cpu) ++ "%", scales.cpu, "Share of each frame spent running windows"],
+    ["fps", "Frame Rate", round(latest.fps) ++ " fps", scales.fps, "Frames drawn per second, the limit is " ++ fps_limit]
+  ]
+  if has_memory (
+    void list.append(["mem", "Memory", round(latest.mem) ++ "%", scales.mem, "JavaScript heap in use"])
+  )
+  void list.append(["dom", "Renderer", round(latest.dom) ++ " writes", scales.dom, "DOM writes per frame, a static screen stays under 6"])
+  return list
+)
+
+def "page_performance" (
+  local list = metric_list()
+  local side = 210
+  local cx = window.left + 16 + (side / 2)
+  local chosen @= list[1]
+  for i list.len (
+    local item @= list[i]
+    local y = view_top - 8 - (i - 0.5 * 84)
+    goto cx y
+    hit side 76
+    if mouse_touching (
+      cursor "pointer"
+    )
+    if onclick (
+      metric = item[1]
+    )
+    if metric == item[1] (
+      chosen @= item
+      box side + 2 78 16 : c#global_accent
+    ) else (
+      box side + 2 78 16 : c#edge_col
+    )
+    box side 76 14 : c#prim
+    // indexed values go through locals, `text list[i] 9` does not parse as two arguments
+    local card_title = item[2]
+    local card_value = item[3]
+    goto cx - (side / 2) + 14 y + 22
+    text card_title 8.5 : c#muted
+    goto cx - (side / 2) + 14 y + 2
+    text card_value 11 : c#txtc
+    // sparkline along the bottom of the card
+    goto cx y - 22
+    pen "size" 1.5
+    c metric_cols[item[1]]
+    graph side - 28 20 hist[item[1]]
+  )
+
+  // the selected metric, large
+  local gl = window.left + 16 + side + 20
+  local gr = window.right - 16
+  local gw = gr - gl
+  local values @= hist[chosen[1]]
+  local big_title = chosen[2]
+  local big_value = chosen[3]
+  local big_note = chosen[5]
+  goto gl view_top - 22
+  text big_title 13 : c#txtc
+  // modifiers take a plain name, not an indexed expression
+  local col = metric_cols[chosen[1]]
+  goto gr view_top - 22
+  rigtext big_value 13 : c#col
+  goto gl view_top - 46
+  text big_note 8.5 : c#muted
+
+  local gtop = view_top - 70
+  local gbottom = view_bottom + 74
+  goto gl + (gw / 2) gtop + gbottom / 2
+  card gw gtop - gbottom
+  plot gl + 10 gbottom + 10 gw - 20 gtop - gbottom - 20 values col
+  goto gl + 14 gtop - 12
+  text one_dp(chosen[4]) 7.5 : c#muted
+  goto gl + 14 gbottom + 12
+  text "0" 7.5 : c#muted
+  goto gr - 14 gbottom + 12
+  rigtext round(SAMPLES * SAMPLE_EVERY) ++ " seconds" 7.5 : c#muted
+
+  // summary tiles
+  local scale = chosen[4]
+  local stats = [
+    ["Current", latest[chosen[1]]],
+    ["Average", values.sum() / SAMPLES * scale],
+    ["Peak", values.max() * scale],
+    ["Lowest", values.min() * scale]
+  ]
+  local tw = gw / 4
+  for i 4 (
+    goto gl + (i - 0.5 * tw) view_bottom + 34
+    card tw - 10 52
+    local tile_x = x_position - (tw / 2) + 18
+    local tile_title = stats[i][1]
+    local tile_value = one_dp(stats[i][2])
+    goto tile_x view_bottom + 46
+    text tile_title 7.5 : c#muted
+    goto tile_x view_bottom + 26
+    text tile_value 11 : c#txtc
+  )
+)
+
+def "info_rows" "x, y, w, list" (
+  goto x + (w / 2) y - (list.len * 30 / 2)
+  card w list.len * 30
+  for i list.len (
+    local ry = y - (i - 0.5 * 30)
+    if i > 1 (
+      goto x + (w / 2) ry + 15
+      square w - 28 0 1 : c#edge_col
+    )
+    local row_label = list[i][1]
+    local row_value = list[i][2].toStr().trimText(w - 140 / 8.5)
+    goto x + 14 ry
+    text row_label 8.5 : c#muted
+    goto x + w - 14 ry
+    rigtext row_value 8.5 : c#txtc
+  )
+)
+
+def "page_network" (
+  local gl = window.left + 16
+  local gw = window.width - 32
+  local peak = net_peak
+  goto gl view_top - 22
+  text "Throughput" 13 : c#txtc
+  goto gl + gw view_top - 22
+  rigtext "scale " ++ formatFileSize(peak) ++ "/s" 8.5 : c#muted
+
+  local gtop = view_top - 44
+  local gbottom = view_top - 204
+  goto 0 gtop + gbottom / 2
+  card gw gtop - gbottom
+  plot gl + 10 gbottom + 10 gw - 20 gtop - gbottom - 20 hist.down metric_cols.down
+  goto gl + (gw / 2) gtop + gbottom / 2
+  pen "size" 2
+  c metric_cols.up
+  graph gw - 20 gtop - gbottom - 20 hist.up
+
+  // legend
+  local down_col = metric_cols.down
+  local up_col = metric_cols.up
+  goto gl + 8 gbottom - 18
+  box 10 10 10 : c#down_col
+  text "Download  " ++ formatFileSize(latest.down) ++ "/s" 8.5 : c#txtc chx#12
+  goto gl + 230 gbottom - 18
+  box 10 10 10 : c#up_col
+  text "Upload  " ++ formatFileSize(latest.up) ++ "/s" 8.5 : c#txtc chx#12
+
+  local half = gw / 2 - 8
+  local status = "Offline"
+  if network.connected (
+    status = "Connected"
+  )
+  local info = [
+    ["Status", status],
+    ["Server", network.server],
+    ["Account", network.username],
+    ["IP Address", network.ip]
+  ]
+  info_rows gl gbottom - 44 half info
+  local totals = [
+    ["Total Downloaded", formatFileSize(network.downloadTotal)],
+    ["Total Uploaded", formatFileSize(network.uploadTotal)]
+  ]
+  if roturLink.enabled (
+    void totals.append(["Packets Received", roturLink.network.packets_received])
+    void totals.append(["Packets Sent", roturLink.network.packets_sent])
+  )
+  info_rows gl + half + 16 gbottom - 44 half totals
+)
+
+def "usage_card" "y, title, used, total, col" (
+  local gl = window.left + 16
+  local gw = window.width - 32
+  goto 0 y - 42
+  card gw 84
+  goto gl + 16 y - 22
+  text title 10 : c#txtc
+  goto gl + gw - 16 y - 22
+  if total > 0 (
+    rigtext formatFileSize(used) ++ " of " ++ formatFileSize(total) 9 : c#muted
+    goto 0 y - 52
+    meter gw - 32 used / total col
+    goto gl + 16 y - 70
+    text round(used / total * 100) ++ "% used, " ++ formatFileSize(total - used) ++ " free" 8 : c#muted
+  ) else (
+    rigtext "Not available" 9 : c#muted
+  )
+)
+
+def "page_storage" (
+  usage_card view_top - 8 "Rotur Drive" user.used_size.toNum() user.max_size.toNum() metric_cols.mem
+  if roturLink.enabled (
+    usage_card view_top - 108 "This Device" roturLink.disk.used.toNum() roturLink.disk.total.toNum() metric_cols.cpu
+  ) else (
+    usage_card view_top - 108 "This Device" 0 0 metric_cols.cpu
+    goto window.left + 32 view_top - 160
+    text "Hardware disk metrics need roturLink" 8 : c#muted
+  )
+  local caches @= dom_global.caches ?? {}
+  local limits @= dom_global.limits ?? {}
+  goto window.left + 18 view_top - 224
+  text "RENDERER CACHES" 7.5 : c#muted
+  info_rows window.left + 16 view_top - 240 window.width - 32 [
+    ["Images", (caches.images ?? 0) ++ " of " ++ (limits.images ?? 0) ++ "    " ++ formatFileSize(caches.imageBytes ?? 0)],
+    ["Icon Sprites", (caches.sprites ?? 0) ++ " of " ++ (limits.sprites ?? 0) ++ "    " ++ formatFileSize(caches.spriteBytes ?? 0)],
+    ["Canvas Textures", formatFileSize(dom_global.canvasBytes ?? 0)],
+    ["DOM Records", (dom_global.records ?? 0) ++ " (" ++ (dom_global.attached ?? 0) ++ " attached)"]
+  ]
+)
+
+// one process in its own window
+def "page_detail" (
+  local budget = 1000 / max(fps_limit, 1)
+  local gl = window.left + 16
+  local gw = window.width - 32
+  local top = window.top - 32
+  local alive = false
+  for i rows.len (
+    if rows[i].id == detail_id (
+      alive = true
+      goto gl + 16 top
+      file "open" rows[i].uuid "onlyaccess"
+      file "render" 1.1
+    )
+  )
+  goto gl + 44 top + 8
+  text detail_name.trimText(gw - 220 / 11) 11 : c#txtc
+  goto gl + 44 top - 12
+  local state = "This process has ended"
+  if alive (
+    state = "PID " ++ detail_id
+  )
+  text state 8.5 : c#muted
+  // sits to the left of the window buttons
+  goto window.right - 144 window.top - 21
+  text_button "End Process" 104 "#f87171" "#111111" alive
+  if button_click (
+    // closing through the window handle is what actually ends it, `terminal "kill"` left it running
+    for i rows.len (
+      if rows[i].id == detail_id and rows[i].win != null (
+        void rows[i].win.close()
       )
     )
+    window.close()
+  )
+
+  goto gl + 16 top - 44
+  text "Frame Time" 9 : c#txtc
+  goto gl + gw - 16 top - 44
+  local cpu_col = metric_cols.cpu
+  rigtext one_dp(detail_ms) ++ " ms  (" ++ round(detail_ms / budget * 100) ++ "% of the frame)" 9 : c#cpu_col
+  local gtop = top - 60
+  local gbottom = top - 190
+  goto 0 gtop + gbottom / 2
+  card gw gtop - gbottom
+  plot gl + 10 gbottom + 10 gw - 20 gtop - gbottom - 20 hist.proc metric_cols.cpu
+
+  local dom @= dom_rows[detail_id] ?? {}
+  info_rows gl gbottom - 12 gw / 2 - 8 [
+    ["DOM Nodes", dom.records ?? 0],
+    ["Attached", dom.attached ?? 0],
+    ["Canvas Cache", formatFileSize(dom.canvasBytes ?? 0)],
+    ["Writes", round(writes_per_frame) ++ " per frame"]
+  ]
+  // the engine's own breakdown of where the frame went
+  local bx = gl + (gw / 2) + 8
+  local bw = gw / 2 - 8
+  local shown = detail_lines.trim(1, 6)
+  goto bx + (bw / 2) gbottom - 12 - 60
+  card bw 120
+  if shown.len == 0 (
+    centext "No breakdown reported" 8.5 : c#muted
+  )
+  for i shown.len (
+    local line = shown[i].toStr().trimText(bw - 28 / 8)
+    goto bx + 14 gbottom - 12 - (i - 0.5 * 19) - 3
+    text line 8 : c#txtc
   )
 )
-
-created_time = timer
-last_timer = timer
-next_update = 2
-high = 0
-low = 250
-graph = (1 to 1000).fill(null)
-getWindowsData()
-
-disk_info = []
-
-width = window.width
-height = window.height
 
 mainloop:
 load_theme
 
-window_changed_dimensions = false
-if window.width != width or window.height != height (
-  window_changed_dimensions = true
-  width = window.width
-  height = window.height
-)
-
-if current_tab == "no_perms" (
-  if window.permissions.contains("windows") (
-    current_tab = "Render Info"
-  ) else (
-    if current_tab == "no_perms" (
-      loc 2 2 20 -20
-      text "This Application requires window permissions to function properly" 10 : c#fff
-      exit
-    )
-  )
-)
-if activity_info (
-  loc 2 2 20 -20
-  text name 10 : c#txtc
-  loc 2 2 20 -50
-  text round(dt ?? 0) + "fps" 15
-  void updateDomMetrics()
-  if timer - created_time > 1 (
-    loc 2 2 90 -100
-    square 140 25 10 : c#prim hover_c#seco
-    if clicked (
-      terminal "kill " ++ page
-      window.close()
-    )
-    icon "close" 0.7 : c#txtc chx#-50
-
-    text "Force Quit" 9 : chx#20
-  )
-
-  wwm = window_width / 30
-  whm = window_height / 100
-  if timer - last_timer > 0.05 (
-    last_timer = timer
-    dt = delta_time
-    windows_list @= Windows()
-    current = windows_list.getKeys("id").index(page)
-    drawtimes @= (windows_list[current].render ?? "[]").JsonParse()
-    name = windows_list[current].name
-    dt = (1000 / (drawtimes[1] + 0.01)).clamp(1,1000)
-    pr = drawtimes[2]
-    void graph.append(dt / 1000)
-    graph.delete(1)
-  )
-  c txtc
-  loc 2 2 20 -150
-  each i pr (
-    set_x window.left + 20
-    text i 10
-    change_y -20
-  )
-  if dom_target_stats != null (
-    dom_lines = [
-      "vDOM nodes: " ++ dom_target_stats.records,
-      "vDOM approx size: " ++ formatFileSize(dom_target_stats.approxBytes),
-      "Attached: " ++ dom_target_stats.attached,
-      "Detached: " ++ dom_target_stats.detached,
-      "Pools: " ++ dom_target_stats.pools,
-      "Persistent: " ++ dom_target_stats.persistent,
-      "Canvas cache: " ++ formatFileSize(dom_target_stats.canvasBytes),
-      "Writes/second: " ++ dom_writes_per_s.round(),
-      "Writes/frame: " ++ dom_writes_per_frame.round() ++ " (" ++ dom_layout_state ++ ")",
-      "Layout churn score: " ++ dom_layout_score.round()
-    ]
-  )
-  if dom_target_stats == null (
-    dom_lines = ["DOM stats unavailable for this process"]
-  )
-  loc 2 2 25 -350
-  text dom_lines.join("\n") 8
-  goto 150 -50
-  c global_accent
-  graph window_width - 300 window_height - 100 graph
+if !window.permissions.contains("windows") (
+  goto 0 10
+  icon "locked" 2 : c#track_col
+  goto 0 -40
+  centext "Activity needs the windows permission to list processes" 9.5 : c#muted
+  import "win-buttons"
   exit
 )
 
-wwm = window_width - 50 / 100
-whm = window_height / 300
+// sampling keeps running on every page so the graphs never have gaps
 if !paused (
-  // only add to the fps usage graph when not paused
-  // fixes: https://discord.com/channels/1147362734300725298/1336340461555552319
-  usage = (fps / fps_limit).clamp(0,1)
-  graph.append(usage)
-  if graph.len > 1000 (
-    graph.delete(1)
+  if timer - last_table > TABLE_EVERY or last_table == 0 (
+    last_table = timer
+    sample_dom
+    sample_table
   )
-  frames = fps.round()
-  high = max(high, frames)
-  low *= 1.002
-  low = min(low, frames)
+  if timer - last_sample > SAMPLE_EVERY (
+    last_sample = timer
+    sample_metrics
+    if detail_id != null (
+      record_sample("proc", detail_ms)
+    )
+  )
 )
-if !paused and current_tab == "DOM" (
-  void updateDomMetrics()
-)
-loc 2 2 23 - (frames.len * 5) -20
-text frames 10 : c#txtc
-loc 2 2 13.5 -40
-text "fps" 7
-loc 2 2 23 - (high.len * 5) -70
-text high 10
-loc 2 2 12 -90
-text "high" 7
-loc 2 2 23 - (round(low).len * 5) -120
-text round(low) 10
-loc 2 2 13.5 -140
-text "low" 7
-loc 2 2 23 - (delta.len * 5) -170
-text delta 10
-loc 2 2 13.5 -190
-text "cpu" 7
-if memory (
-  ram_use = (roturLink.memory.percent ?? "Math.round(performance.memory.totalJSHeapSize/performance.memory.jsHeapSizeLimit*100)".eval()).round() ++ "%"
-  loc 2 2 23 - (ram_use.len * 5) -220
-  text ram_use 10
-  loc 2 2 13.5 -240
-  text "ram" 7
-)
-tab_w = 78
-loc 2 2 100 -20
-drawTab("Render Info", "Render")
-loc 2 2 195 -20
-drawTab("Performance", "Graph")
-loc 2 2 290 -20
-drawTab("Network", "Network")
-loc 2 2 385 -20
-drawTab("Disk", "Disk")
-loc 2 2 480 -20
-drawTab("DOM", "DOM")
-loc 2 -2 25 25
-c paused ? global_accent prim
-square 25 25 10 : tooltip#Pause
-if onclick (
-  paused.not()
-)
-icon "w 3 line 5 10 -5 10 cont -10 5 cont -10 -5 cont -5 -10 cont 5 -10 cont 10 -5 cont 10 5 cont 5 10" 0.8 : c#txtc
 
-updated = false
-if timer - last_timer > next_update and !paused (
-  last_timer = timer
-  dt = delta_time
-  getWindowsData()
-  number cpu_usage = roturLink.cpu.percent ?? (windows_total_time / (1000 / fps_limit) * 100)
-  cpu_percent = round(cpu_usage).clamp(1,100)
-  delta = cpu_percent ++ "%"
-  updated = true
+goto 0 0
+square window.width + 10 window.height + 10 0 : c#window_colour
+view_top = window.top - HEAD_H
+view_bottom = window.bottom + STATUS_H
+status_y = window.bottom + (STATUS_H / 2)
+
+if detail_id != null (
+  window.setDragbox([2, 2, 0, 0], [-2, 2, -200, -42])
+  page_detail
+  import "win-buttons"
+  exit
 )
-switch current_tab (
+
+// ---- header: page switcher and pause
+local seg = 108
+local total = pages.len * seg
+goto window.left + 6 + (total / 2) window.top - 21
+box total 27 14 : c#prim
+for i pages.len (
+  goto window.left + 6 + (i - 0.5 * seg) window.top - 21
+  hit seg - 6 21
+  if mouse_touching (
+    cursor "pointer"
+  )
+  if onclick (
+    page = pages[i]
+  )
+  if page == pages[i] (
+    box seg - 6 21 10 : c#global_accent
+    centext pages[i] 8.5 : c#accent_txt
+  ) else (
+    centext pages[i] 8.5 : c#txtc
+  )
+)
+window.setDragbox([2, 2, total + 12, 0], [-2, 2, -182, -42])
+
+goto window.right - 134 window.top - 21
+hit 84 27
+if mouse_touching (
+  cursor "pointer"
+)
+if onclick (
+  paused = !paused
+)
+if paused (
+  box 84 27 12 : c#global_accent
+  centext "Resume" 8.5 : c#accent_txt
+) else (
+  box 84 27 12 : c#prim
+  centext "Pause" 8.5 : c#txtc
+)
+goto 0 view_top
+square window.width 0 1 : c#edge_col
+
+switch page (
+  case "Processes"
+    page_processes
+    break
   case "Performance"
-    window "responsive" true
-    goto 25 -40
-    c global_accent
-    graph max(100, window_width - 70) max(100, window_height - 100) graph
+    page_performance
     break
   case "Network"
-    info = [
-      "connected   |   " ++ network.connected,
-      "server      |   " ++ network.server,
-      "username    |   " ++ network.username,
-      "",
-      "- Websocket",
-      "upload      |   " ++ formatFileSize(network.upload),
-      "download    |   " ++ formatFileSize(network.download),
-      "total up    |   " ++ formatFileSize(network.uploadTotal),
-      "total down  |   " ++ formatFileSize(network.downloadTotal)
-    ]
-    if roturLink.enabled (
-      net = roturLink.network
-      info ++= [
-        "",
-        "- Packets",
-        "received    |   " ++ net.packets_received,
-        "sent        |   " ++ net.packets_sent,
-        "",
-        "- Data",
-        "received    |   " ++ formatFileSize(net.received),
-        "sent        |   " ++ formatFileSize(net.sent)
-      ]
-    )
-    loc 2 2 60 -60
-    text info.join("\n") 10 : c#txtc
+    page_network
     break
-  case "Render Info"
-    // get an object of {window_id: {worker_id: worker_object, ...}, ...}
-    object workers @= "window.origin.workers".eval()
-
-    window "responsive" false
-    loc 2 2 50 -45
-    x = x_position
-    y = y_position
-    loc -2 -2 0 0
-    c prim
-    frame x y x_position y_position windows_names.len * 40 (
-      y = frame.scroll - 20
-      tot = 0
-      w = frame_width - 20
-      for count windows_names.len (
-        loc 999 2 0 y
-        square w 25 10 : c#prim
-        if mouse_touching (
-          square w 25 10 : c#seco
-          if onclick (
-            window.create(window.file.uuid, {
-              passed_data: windows_ids[count],
-              child: true
-            })
-          )
-        )
-
-        // handle right clicking
-        if windows_ids[count] == -1 (
-          loc 2 2 25 y
-          icon "origin-logo" 0.7 : c#txtc
-          text "System" 7 : chx#20 c#txtc
-          loc -2 2 -15 y
-          d = windows_drawtimes[count][1]
-          rigtext d.toStr() ++ "ms" 7
-          y -= 40
-          continue
-        )
-        object win_top @= windows_list[count] ?? {}
-        object win @= win_top.window ?? {file: {uuid: win_top.uuid}}
-        rightclick_menu[1] = "> " ++ win.file.uuid
-        rightclick rightclick_menu win
-
-        file "open" win.file.uuid "onlyaccess"
-        loc 2 2 25 y
-        file "render" 1 : c#txtc
-        text fileGet(2) 7 : c#txtc chx#20
-        loc -2 2 -15 y
-        d = windows_drawtimes[count][1]
-        tot += d
-        rigtext d.toStr() ++ "ms" 7
-        y -= 40
-      )
-    )
-    break
-  case "DOM"
-    dom_cache = dom_global.caches ?? {}
-    dom_limits = dom_global.limits ?? {}
-    dom_lines = [
-      "DOM states: " ++ (dom_global.states ?? 0),
-      "Pool count: " ++ (dom_global.pools ?? 0),
-      "VDOM records: " ++ (dom_global.records ?? 0),
-      "Attached nodes: " ++ (dom_global.attached ?? 0),
-      "Detached nodes: " ++ (dom_global.detached ?? 0),
-      "Persistent nodes: " ++ (dom_global.persistent ?? 0),
-      "Pooled DOM nodes: " ++ (dom_global.pooledElements ?? 0),
-      "Canvas texture bytes: " ++ formatFileSize(dom_global.canvasBytes ?? 0),
-      "VDOM approx size: " ++ formatFileSize((dom_global.records ?? 0) * 180),
-      "Image cache: " ++ (dom_cache.images ?? 0) ++ "/" ++ (dom_limits.images ?? 0) ++ " (" ++ formatFileSize(dom_cache.imageBytes ?? 0) ++ "/" ++ formatFileSize(dom_limits.imageBytes ?? 0) ++ ")",
-      "Sprite cache: " ++ (dom_cache.sprites ?? 0) ++ "/" ++ (dom_limits.sprites ?? 0) ++ " (" ++ formatFileSize(dom_cache.spriteBytes ?? 0) ++ "/" ++ formatFileSize(dom_limits.spriteBytes ?? 0) ++ ")",
-      "Image refs / names: " ++ (dom_cache.imageRefs ?? 0) ++ " / " ++ (dom_cache.imageNames ?? 0),
-      "Writes/sec: " ++ dom_writes_per_s.round() ++ " | " ++ "writes/frame: " ++ dom_writes_per_frame.round() ++ " (" ++ dom_layout_state ++ ")",
-      "Layout churn score: " ++ dom_layout_score.round()
-    ]
-    if dom_window_rows.len > 0 (
-      dom_lines.append("")
-      dom_lines.append("Top VDOM windows:")
-      local list_len = dom_window_rows.len.clamp(0, 8)
-      for i list_len (
-        object row = dom_window_rows[i]
-        dom_lines.append(row.name ++ " (#" ++ row.id ++ "): " ++ row.records ++ " nodes, " ++ row.attached ++ " attached, " ++ formatFileSize(row.canvasBytes) ++ ", score " ++ ((row.approxBytes / max(row.records, 1)).round() / 1.8).round())
-      )
-    )
-    loc 2 2 85 -65
-    text "DOM / VDOM profile" 12 : c#txtc
-    loc 2 2 70 -90
-    local dom_frame_left = x_position
-    local dom_frame_top = y_position
-    loc -2 -2 -20 20
-    frame dom_frame_left dom_frame_top x_position y_position dom_lines.len * 20 + 50 (
-      local dom_report_y = frame.scroll - 10
-      loc 2 2 15 dom_report_y
-      text dom_lines.join("\n") 10
-    )
-    break
-  case "Disk"
-    loc 2 2 60 -60
-    text "- Rotur Cloud\n" 10 : c#txtc
-    text disk_info.len > 0 ? disk_info.join("\n") "Usage data unavailable" 10
-
-    if roturLink.enabled (
-      local disk = roturLink.disk
-      loc 2 2 60 -200
-      text "- Hardware Disk\n" 10
-      text "Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
-      text "Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
-      text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
-    ) else (
-      loc 2 2 60 -200
-      text "- Hardware Disk\n" 10 : c#txtc
-      text "Metrics unavailable in browser mode" 10
-    )
+  case "Storage"
+    page_storage
     break
 )
-if mouse_down.not() (
-  can = true
+
+// ---- status bar, the Processes page adds its own actions to it
+goto 0 view_bottom
+square window.width 0 1 : c#edge_col
+if page != "Processes" (
+  goto window.left + 16 status_y
+  text round(latest.fps) ++ " fps    CPU " ++ round(latest.cpu) ++ "%    " ++ plural(process_count, "process") 8.5 : c#muted
+  if paused (
+    goto window.right - 16 status_y
+    rigtext "Sampling paused" 8.5 : c#muted
+  )
 )
 
 import "win-buttons"

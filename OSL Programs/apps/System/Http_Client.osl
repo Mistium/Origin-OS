@@ -25,7 +25,7 @@ window "show"
 
 
 mainloop:
-loc 2 2 15 -18
+loc 2 2 15 -20
 text "HTTP Client" 9 : c#fff
 
 // draws the method buttons

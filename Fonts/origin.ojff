@@ -14,7 +14,8 @@
     "monowidth": "True",
     "character_width": "30",
     "size": "1",
-    "author": "Mist"
+    "author": "Mist",
+    "ttf": "Fonts/origin.ttf"
   },
   "\n": "",
   "\r": "",

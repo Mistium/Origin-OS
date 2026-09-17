@@ -1,14 +1,59 @@
-import "window_tools" as "wt"
+// Description: Shows a system error, the message is passed_data
+
+import "window_tools"
+
+message = passed_data.toStr()
+page_len = 0
+button_click = false
+copied = -10
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 32 14 : c#fill
+  centext label 9 : c#ink
+)
 
 mainloop:
-wt:load_theme
+load_theme
 
-goto 0 window.top - 20
-square window.width 30 10 : c#prim
-loc 2 2 20 -20
-text "Popup" 10 : c#txtc
+// the title shares the window buttons' centre line, and everything keeps a 16 inset
+goto window.left + 26 window.top - 21
+local warn = "#f87171"
+icon "info" 0.8 : c#warn
+goto window.left + 48 window.top - 21
+text "Something went wrong" 11 : c#txtc
+window "set_dragbox" [[2, 2, 0, 0], [-2, 2, -92, -42]]
 
-loc 2 2 20 -60
-text passed_data.wrapText(window.width / 10 - 5) 10 : c#txtc
+// the message scrolls inside a card
+goto 0 (window.top - 42 + window.bottom + 56) / 2
+card window.width - 32 window.height - 98
+c prim
+frame window.left + 24 window.top - 50 window.right - 24 window.bottom + 64 page_len "message" (
+  local wrapped = message.wrapText(frame.width - 30 / 8.5)
+  goto frame.left + 8 frame.top - 12 + frame.scroll
+  text wrapped 8.5 : c#txtc
+  page_len = wrapped.split("\n").len * 19 + 16
+)
+
+goto window.right - 172 window.bottom + 32
+local copy_label = "Copy"
+if timer - copied < 1.5 (
+  copy_label = "Copied"
+)
+text_button copy_label 100 prim txtc
+if button_click (
+  clipboard "set" message
+  copied = timer
+)
+goto window.right - 66 window.bottom + 32
+text_button "Close" 100 global_accent accent_txt
+if button_click (
+  window.close()
+)
 
 import "win-buttons"

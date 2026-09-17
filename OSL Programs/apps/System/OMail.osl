@@ -208,7 +208,7 @@ frame l window.top - 60 x + (w / 2) window.bottom + 15 0 "cache@contents" (
 goto 0 window.top - 22
 square window.width 43 0 : c#window_colour
 
-loc 2 2 10 -22
+loc 2 2 10 -20
 text "Rotur Mail (" ++ username ++ "@rmail.rotur.dev)" 10 : c#txtc
 
 if current_rmail.toNum() > 0 (

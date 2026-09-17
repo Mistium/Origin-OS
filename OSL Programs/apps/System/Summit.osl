@@ -504,7 +504,7 @@ summit.sidebar.main = def() -> (
     square frame.width - 20 frame.height - 20 10 : c#window_colour
 
     c txtc
-    loc -2 2 -25 -25
+    loc -2 2 -25 -20
     icon "left" 0.7
     if onclick (
       self.target_x = -300
@@ -520,7 +520,7 @@ summit.sidebar.main = def() -> (
 
     if self.x > -280 (
       c txtc
-      loc 2 2 25 -25
+      loc 2 2 25 -20
       for i self.icons.len (
         icon self.icons[i].icn 0.7
         if onclick (

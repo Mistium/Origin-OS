@@ -1,91 +1,536 @@
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: Rotur credits: balance, spending summary, searchable history and sending
+//
+// Layout: a glass sidebar with the balance and navigation, and a pane for the Overview,
+// Activity and Send pages. Opened with {mode: "transfer", user} it shows only the send
+// form. `user["sys.transactions"]` is newest first; it is summarised into `rows` once per
+// change so the per-frame work is only drawing.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
 import "window_tools"
 
 permission "request" "account"
 permission "request" "rotur token"
 
-menu = "transfers"
+SIDE = 250
+ROW_H = 52
+DAY = 86400000
+GOOD = "#34d399"
+BAD = "#f87171"
 
+page = "overview"
+send_only = false
+inputs.recipient = ""
+inputs.amount = ""
+inputs.search = ""
+cur_tag = "all"
+page_len = 0
+button_click = false
+claiming = false
+
+window.resize(920, 620)
 if passed_data.isType("object") (
   if passed_data.mode == "transfer" (
-    menu = "transfer"
-    recipient = passed_data.user
-    window.resize(400,500)
+    send_only = true
+    page = "send"
+    inputs.recipient = passed_data.user.toStr()
+    window.resize(420, 520)
     window "resizable" false
   )
 )
-
-window.setGlass(100, "15px")
+window.show()
 
 rotur_icn = "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220"
-cur_tag = "all"
-
-def transfer(recipient) (
-  // this is validated server side too.
-  number amt = inputs.amount.toNum()
-  if balance < amt (
-    say "Too Few Credits For This Transaction"
-  ) else if amt < 0.01 (
-    say "Send amount must be greater than 0.01"
-  ) else if recipient == username (
-    say "You Cannot Send To Yourself"
-  ) else (
-    rotur "transfer" amt recipient
-    inputs.amount = null
-  )
-)
-
-def "transfer_button" "w, name" (
-  if inputs.amount == "" or name == "" (
-    c prim
-    can = false
-  ) else (
-    c seco
-    can = true
-  )
-  square w 25 10
-  if onclick and can (
-    transfer(name)
-  )
-  message = "Transfer" + inputs.amount.toNum()
-  if name.len > 0 (
-    message ++= " to " ++ name
-  )
-  centext message 8 : c#txtc
-)
 
 transaction_source @= null
 transaction_count = -1
-filtered_tag = null
+rows = []
+shown = []
+shown_key = ""
+tags = ["all", "received", "spent"]
+graph_totals = []
+people = []
+stats = {week_in: 0, week_out: 0, month_in: 0, month_out: 0}
 
+def money(number v) string (
+  return (round(v * 100) / 100).toStr()
+)
+
+// 1 when the transaction added credits, -1 when it took them
+def tx_sign(tx) number (
+  local kind = tx["type"].toStr()
+  if kind == "out" or kind == "escrow_out" or kind == "key_buy" (
+    return -1
+  )
+  if kind == "gamble" and !tx.note.toStr().toLower().contains("won") (
+    return -1
+  )
+  return 1
+)
+
+def describe(tx) string (
+  switch tx["type"] (
+    case "gamble"
+      return "Gambling, " ++ tx.note
+    case "out"
+      return "Sent to " ++ tx.user
+    case "in"
+      return "From " ++ tx.user
+    case "tax"
+      return "Tax share from " ++ tx.user
+    case "escrow_out"
+      return "Devfund petition #" ++ tx.petition_id
+    case "key_sale"
+      return "Sold " ++ tx.key_name
+    case "key_buy"
+      return "Bought " ++ tx.key_name
+  )
+  return tx["type"].toStr().replace("_", " ").toTitle()
+)
+
+// summarises the transactions: display rows, totals, the balance graph and who you pay most
 def refresh_transactions() (
   local source @= user["sys.transactions"]
   transaction_source @= source
-  transaction_count = typeof(source) == "array" ? source.len 0
-  transactions @= source
-  if typeof(transactions) != "array" or transactions.len == 0 (
-    transactions = [{
-      "type": "label",
-      "text": "You have no transactions"
-    }]
-  )
-
-  tags @= transactions.map(v -> (v["type"])).deDupe().prepend("all")
-  filtered_tag = null
-
-  local graph_values @= transactions.getKeys("new_total")
-    .filter(v -> v != null)
-    .reverse()
-    .right(180)
-  graph_totals @= []
-  if graph_values.len > 0 (
-    local min_total = min(...graph_values)
-    local max_total = max(...graph_values) - min_total
-    if max_total == 0 (
-      max_total = 1
+  transaction_count = 0
+  rows = []
+  local week_in = 0
+  local week_out = 0
+  local month_in = 0
+  local month_out = 0
+  local sent_to = {}
+  local kinds = []
+  if typeof(source) == "array" (
+    transaction_count = source.len
+    for i source.len (
+      local tx @= source[i]
+      if typeof(tx) == "object" (
+        // the running balance says which way it went, whatever the type is called
+        local sign = tx_sign(tx)
+        local older @= source[i + 1]
+        if typeof(older) == "object" and tx.new_total != null and older.new_total != null and tx.new_total != older.new_total (
+          sign = -1
+          if tx.new_total > older.new_total (
+            sign = 1
+          )
+        )
+        local amount = tx.amount.toNum()
+        local age = timestamp - tx.time
+        void rows.append({
+          title: describe(tx),
+          note: (tx.note ?? "").toStr(),
+          amount: amount,
+          sign: sign,
+          time: tx.time,
+          who: (tx.user ?? "").toStr(),
+          kind: tx["type"].toStr(),
+          total: tx.new_total
+        })
+        void kinds.append(tx["type"].toStr())
+        if age < (DAY * 30) (
+          if sign > 0 (
+            month_in += amount
+          ) else (
+            month_out += amount
+          )
+          if age < (DAY * 7) (
+            if sign > 0 (
+              week_in += amount
+            ) else (
+              week_out += amount
+            )
+          )
+        )
+        if tx["type"] == "out" (
+          sent_to[tx.user] ??= 0
+          sent_to[tx.user] += 1
+        )
+      )
     )
-    graph_totals @= graph_values.map(v -> (v - min_total) / max_total)
   )
+  stats = {week_in: week_in, week_out: week_out, month_in: month_in, month_out: month_out}
+  tags = ["all", "received", "spent"] ++ kinds.deDupe()
+
+  local names = sent_to.getKeys()
+  local counted = []
+  for i names.len (
+    void counted.append({name: names[i], count: sent_to[names[i]]})
+  )
+  // system accounts are uuids, nobody sends to those by hand
+  people = counted.sortBy("count").reverse().map(v -> v.name).filter(v -> v.toStr().len < 24)
+  // friends fill the quick picks when there is little history
+  local friends @= user["sys.friends"] ?? []
+  if typeof(friends) == "array" (
+    people = (people ++ friends).deDupe()
+  )
+  people = people.trim(1, 8)
+
+  local graph_values @= rows.map(v -> v.total).filter(v -> v != null).reverse().right(180)
+  graph_totals @= []
+  if graph_values.len > 1 (
+    local min_total = min(...graph_values)
+    local span = max(...graph_values) - min_total
+    if span == 0 (
+      span = 1
+    )
+    graph_totals @= graph_values.map(v -> (v - min_total) / span)
+  )
+  shown_key = ""
+)
+
+def claim_daily() (
+  claiming = true
+  void requests.getAsync("https://api.rotur.dev/claim_daily?auth=" ++ roturToken())
+    .then(resp -> (
+      claiming = false
+      say resp.body.message ?? resp.body.error ?? "Could not reach rotur"
+    ))
+)
+
+// ---------------------------------------------------------------- drawing helpers
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 32 14 : c#fill
+  centext label 9 : c#ink
+)
+
+// a sidebar entry, result in `button_click`
+def "nav_row" "label, icn, key, y" (
+  goto side_x y
+  hit sw 32
+  button_click = onclick
+  local ink = txtc
+  if page == key (
+    box sw 32 12 : c#global_accent
+    ink = accent_txt
+  ) else if mouse_touching (
+    cursor "pointer"
+    box sw 32 12 : c#hover_col
+  )
+  goto side_x - (sw / 2) + 20 y
+  icon icn 0.55 : c#ink
+  goto side_x - (sw / 2) + 40 y
+  text label 9 : c#ink
+)
+
+def "section_label" "label, y" (
+  goto pw / -2 + 6 + cx y
+  text label 7.5 : c#muted
+)
+
+// a small figure with its caption, in a card
+def "stat_tile" "label, value, ink, x, y, w" (
+  goto x y
+  card w 70
+  goto x - (w / 2) + 16 y + 14
+  text label 7.5 : c#muted
+  goto x - (w / 2) + 16 y - 12
+  text value.toStr().trimText(w - 30 / 13) 13 : c#ink
+)
+
+// one transaction. Clicking a row with a person opens Send for them
+def "tx_row" "row, y" (
+  goto cx y
+  local has_person = row.who != ""
+  if has_person (
+    hit pw ROW_H - 6
+    if mouse_touching (
+      cursor "pointer"
+      box pw ROW_H - 6 14 : c#hover_col tooltip#"Send credits to this person"
+    )
+    if onclick (
+      inputs.recipient = row.who
+      page = "send"
+    )
+    goto pw / -2 + 28 + cx y
+    style {rounding: 17}
+    image "https://avatars.rotur.dev/" ++ row.who ++ "?radius=128" 34 34
+  ) else (
+    goto pw / -2 + 28 + cx y
+    box 34 34 34 : c#hover_col
+    icon rotur_icn 0.9 : c#muted
+  )
+  goto pw / -2 + 56 + cx y + 10
+  text row.title.trimText(pw - 220 / 9) 9 : c#txtc
+  local sub = row.time.timestamp("to-relative")
+  if row.note != "" and row.kind != "gamble" (
+    sub = sub ++ " - " ++ row.note
+  )
+  goto pw / -2 + 56 + cx y - 10
+  text sub.trimText(pw - 220 / 7.5) 7.5 : c#muted
+
+  local ink = GOOD
+  local amount = "+" ++ money(row.amount)
+  if row.sign < 0 (
+    ink = BAD
+    amount = "-" ++ money(row.amount)
+  )
+  goto pw / 2 - 14 + cx y + 10
+  rigtext amount 10 : c#ink
+  if row.total != null (
+    goto pw / 2 - 14 + cx y - 10
+    rigtext "Balance " ++ money(row.total) 7.5 : c#muted
+  )
+)
+
+// a round avatar that fills in the recipient, result in `button_click`
+def "person_chip" "name, x, y" (
+  goto x y
+  hit 44 58
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  if inputs.recipient.toStr().toLower() == name.toStr().toLower() (
+    goto x y + 8
+    box 44 44 44 : c#global_accent
+  )
+  goto x y + 8
+  style {rounding: 19}
+  image "https://avatars.rotur.dev/" ++ name ++ "?radius=128" 38 38
+  goto x y - 22
+  centext name.toStr().trimText(7) 7 : c#muted
+)
+
+// ---------------------------------------------------------------- pages
+
+def "draw_overview" (
+  local y = frame.top - 12 + frame.scroll
+  local top = y
+  local tw = pw - 24 / 3
+  local left = cx - (pw / 2) + (tw / 2)
+  local net = stats.month_in - stats.month_out
+  local net_ink = GOOD
+  local net_text = "+" ++ money(net)
+  if net < 0 (
+    net_ink = BAD
+    net_text = money(net)
+  )
+  stat_tile "RECEIVED THIS WEEK" "+" ++ money(stats.week_in) GOOD left y - 35 tw
+  stat_tile "SPENT THIS WEEK" "-" ++ money(stats.week_out) BAD left + tw + 12 y - 35 tw
+  stat_tile "NET, LAST 30 DAYS" net_text net_ink left + (tw + 12 * 2) y - 35 tw
+  y -= 84
+
+  section_label "BALANCE OVER TIME" y - 8
+  y -= 24
+  goto cx y - 80
+  card pw 160
+  if graph_totals.len > 1 (
+    pen "size" 2
+    style {fill: true}
+    c global_accent
+    graph pw - 28 132 graph_totals
+  ) else (
+    centext "Your balance history will appear here" 9 : c#muted
+  )
+  y -= 174
+
+  if people.len > 0 (
+    section_label "SEND AGAIN" y - 8
+    y -= 24
+    goto cx y - 38
+    card pw 76
+    for i people.len (
+      local px = cx - (pw / 2) + 40 + (i - 1 * 60)
+      if px < (cx + (pw / 2) - 30) (
+        person_chip people[i] px y - 38
+        if button_click (
+          inputs.recipient = people[i]
+          page = "send"
+        )
+      )
+    )
+    y -= 90
+  )
+
+  section_label "RECENT" y - 8
+  y -= 24
+  if rows.len == 0 (
+    goto cx y - 30
+    centext "No transactions yet" 9 : c#muted
+    y -= 60
+  )
+  for i min(rows.len, 6) (
+    local row @= rows[i]
+    tx_row row y - (ROW_H / 2)
+    y -= ROW_H
+  )
+  if rows.len > 6 (
+    goto cx y - 22
+    text_button "See all " ++ rows.len ++ " transactions" 220 prim txtc
+    if button_click (
+      page = "activity"
+    )
+    y -= 50
+  )
+  page_len = top - y + 20
+)
+
+def "draw_activity" (
+  // the visible list only changes with the filter, the search or new transactions
+  local query = inputs.search.toStr().toLower().strip()
+  local key = cur_tag ++ "|" ++ query ++ "|" ++ transaction_count
+  if key != shown_key (
+    shown_key = key
+    shown_query = query
+    shown = rows
+    if cur_tag == "received" (
+      shown = shown.filter(v -> v.sign > 0)
+    ) else if cur_tag == "spent" (
+      shown = shown.filter(v -> v.sign < 0)
+    ) else if cur_tag != "all" (
+      shown = shown.filter(v -> v.kind == cur_tag)
+    )
+    if query != "" (
+      shown = shown.filter(v -> ((v.title ++ " " ++ v.note).toLower().contains(shown_query)))
+    )
+    shown_in = 0
+    shown_out = 0
+    for i shown.len (
+      if shown[i].sign > 0 (
+        shown_in += shown[i].amount
+      ) else (
+        shown_out += shown[i].amount
+      )
+    )
+  )
+
+  local y = frame.top - 8 + frame.scroll
+  goto cx - (pw / 2) + 6 y - 10
+  text shown.len ++ " transactions" 8 : c#muted
+  goto cx + (pw / 2) - 8 y - 10
+  rigtext "+" ++ money(shown_in) ++ "  -" ++ money(shown_out) 8 : c#muted
+  y -= 28
+  if shown.len == 0 (
+    goto cx 0
+    centext "Nothing matches that" 9.5 : c#muted
+  )
+  for i shown.len (
+    local ry = y - (i - 1 * ROW_H) - (ROW_H / 2)
+    if ry < frame.top + ROW_H and ry > frame.bottom - ROW_H (
+      local row @= shown[i]
+      tx_row row ry
+    )
+  )
+  page_len = shown.len * ROW_H + 48
+)
+
+def "draw_send" (
+  local y = frame.top - 16 + frame.scroll
+  local top = y
+  local name = inputs.recipient.toStr().strip()
+  local amount = inputs.amount.toNum()
+
+  goto cx y - 60
+  card pw 120
+  if name != "" (
+    goto cx y - 48
+    style {rounding: 32}
+    image "https://avatars.rotur.dev/" ++ name ++ "?radius=128" 64 64
+    goto cx y - 98
+    centext "To " ++ name.trimText(24) 10 : c#txtc
+  ) else (
+    goto cx y - 48
+    box 64 64 64 : c#hover_col
+    icon "accounts" 1.2 : c#muted
+    goto cx y - 98
+    centext "Who are you sending to?" 10 : c#muted
+  )
+  y -= 134
+
+  if !send_only (
+    section_label "RECIPIENT" y - 8
+    y -= 24
+    goto cx y - 18
+    box pw 36 12 : c#hover_col
+    c hover_col
+    input pw - 20 28 "recipient" "rotur username" 9 txtc
+    y -= 46
+    if people.len > 0 (
+      for i people.len (
+        local px = cx - (pw / 2) + 26 + (i - 1 * 56)
+        if px < (cx + (pw / 2) - 20) (
+          person_chip people[i] px y - 30
+          if button_click (
+            inputs.recipient = people[i]
+          )
+        )
+      )
+      y -= 68
+    )
+  )
+
+  section_label "AMOUNT" y - 8
+  y -= 24
+  goto cx y - 18
+  box pw 36 12 : c#hover_col
+  c hover_col
+  input pw - 20 28 "amount" "Credits" 9 txtc
+  y -= 46
+  local quick = [1, 5, 10, 25, 50]
+  for i quick.len (
+    local value = quick[i]
+    goto cx - (pw / 2) + 30 + (i - 1 * 66) y - 14
+    hit 58 26
+    local chip = prim
+    if mouse_touching (
+      cursor "pointer"
+      chip = hover_col
+    )
+    if onclick (
+      inputs.amount = value.toStr()
+    )
+    box 58 26 12 : c#chip
+    centext value.toStr() 8.5 : c#txtc
+  )
+  y -= 44
+
+  // say why it cannot be sent rather than failing after the click
+  local problem = ""
+  if name == "" (
+    problem = "Enter who to send to"
+  ) else if name.toLower() == username.toStr().toLower() (
+    problem = "You cannot send credits to yourself"
+  ) else if inputs.amount.toStr() == "" (
+    problem = "Enter an amount"
+  ) else if amount < 0.01 (
+    problem = "The smallest amount is 0.01"
+  ) else if amount > balance (
+    problem = "You only have " ++ money(balance) ++ " credits"
+  )
+
+  goto cx y - 22
+  card pw 44
+  goto cx - (pw / 2) + 18 y - 22
+  if problem == "" (
+    text "Balance after sending" 9 : c#muted
+    goto cx + (pw / 2) - 18 y - 22
+    rigtext money(balance - amount) ++ " credits" 9 : c#txtc
+  ) else (
+    text problem 9 : c#muted
+  )
+  y -= 60
+
+  goto cx y - 16
+  if problem == "" (
+    text_button "Send " ++ money(amount) ++ " credits" pw global_accent accent_txt
+    if button_click or "enter".onKeyDown() (
+      // opens the system confirmation before anything is sent
+      rotur "transfer" amount name
+      inputs.amount = ""
+    )
+  ) else (
+    box pw 32 14 : c#prim
+    centext "Send" 9 : c#muted
+  )
+  y -= 40
+  page_len = top - y + 20
 )
 
 refresh_transactions()
@@ -93,196 +538,144 @@ refresh_transactions()
 mainloop:
 load_theme
 
-balance = user["sys.currency"]
+balance = user["sys.currency"].toNum()
 latest_transactions @= user["sys.transactions"]
-latest_count = typeof(latest_transactions) == "array" ? latest_transactions.len 0
+latest_count = 0
+if typeof(latest_transactions) == "array" (
+  latest_count = latest_transactions.len
+)
 if latest_transactions !== transaction_source or latest_count != transaction_count (
   refresh_transactions()
 )
 
-loc 2 999 100 0
-
-if menu == "transfer" (
-  loc 2 2 20 -20
-  icon rotur_icn 1
-
-  text "Transfer Rotur Credits" 10 : chx#20
-
-  goto 0 -15
-  square 350 420 20 : c#window_colour
-
-  goto 0 50
-  image "https://avatars.rotur.dev/" ++ recipient 200 200
-  icon "w 5 cutcircle 0 0 103 0 180 w 40 cutcircle 0 0 125 0 180" 1
-
-
-  change_y -137
-  centext recipient 15 : c#txtc
-
-  change_y -77
-  c prim
-  square 345 25 10
-  input 340 23 "amount" "Amount Of Credits"
-
-  change_y -45
-  transfer_button 345 recipient
-
-  import "win-buttons"
-  exit
+local side_w = SIDE
+if send_only (
+  side_w = 0
 )
+local cl = window.left + side_w
 
-goto 95 -15
-square window.width - 230 window.height - 70 20 : c#window_colour
+// page background, squared off where it meets the glass sidebar
+window.setGlass(100, "15px")
+goto side_w / 2 0
+square window.width - side_w - 10 window.height + 10 10 : c#window_colour
+if side_w > 0 (
+  goto cl + 12 0
+  square 20 window.height 4
+  c window_colour
+  pen "opacity" 55
+  icon "w 99999 dot 0 0" 10
+  pen "opacity" 0
+  frame "clear"
 
-loc 2 2 10 -20
-text "My Wallet (" ++ menu ++ ")" 10 : c#txtc
-loc 2 2 100 -100
-icon rotur_icn 4
+  // ---- sidebar: balance, navigation and the daily claim
+  side_x = window.left + (SIDE / 2)
+  // the title shares the window buttons' centre line, the sides use the same 6 inset as the top
+  sw = SIDE - 12
+  goto side_x - (sw / 2) + 22 window.top - 21
+  icon rotur_icn 1.1 : c#txtc
+  goto side_x - (sw / 2) + 44 window.top - 21
+  text "Wallet" 11 : c#txtc
+  goto side_x - (sw / 2) + 8 window.top - 71
+  text money(balance).trimText(sw - 16 / 22) 22 : c#txtc
+  goto side_x - (sw / 2) + 8 window.top - 97
+  text "rotur credits" 8 : c#muted
+  if graph_totals.len > 1 (
+    goto side_x window.top - 141
+    pen "size" 2
+    style {fill: true}
+    c global_accent
+    graph sw - 8 44 graph_totals
+  )
 
-loc 2 2 100 -180
-centext balance 20
-loc 2 2 100 -210
-centext "Credits" 10
+  nav_row "Overview" "home" "overview" window.top - 193
+  if button_click (
+    page = "overview"
+  )
+  nav_row "Activity" "list" "activity" window.top - 229
+  if button_click (
+    page = "activity"
+  )
+  nav_row "Send" "send" "send" window.top - 265
+  if button_click (
+    page = "send"
+  )
 
-loc 2 2 100 -280
-square 180 100 10 : c#prim
-pen "size" 5
-graph 180 100 graph_totals : c#txtc
-
-loc 2 -2 30 30
-square 0 0 40 : c#window_colour hover_c#prim tooltip#"My Past Transactions"
-if onclick (
-  menu = "transfers"
-)
-icon "list" 0.8 : c#txtc
-
-change_x 50
-square 0 0 40 : c#window_colour hover_c#prim tooltip#"Transfer Credits"
-if onclick (
-  menu = "send"
-)
-change -2 -2
-icon "send" 0.8 : c#txtc
-
-change_x 50
-square 0 0 40 : c#window_colour hover_c#prim tooltip#"Claim Daily Credit"
-if onclick (
-  token = roturToken()
-  promise.new(def() -> (
-    response = ("https://api.rotur.dev/claim_daily?auth=" ++ token).httpGet()
-    token = null
-    say response.message ?? response.error
-  ))
-)
-change -0.5
-icon rotur_icn 1 : c#txtc
-
-c prim
-switch menu (
-  case "send"
-    loc 999 2 -30 -70
-    text "Send Credits To Another User" 10 : c#txtc
-
-    loc 999 2 105 -110
-    square 360 25 10 : c#prim
-    input 350 25 "recipient" "Recipient"
-
-    loc 999 2 105 -150
-    square 360 25 10 : c#prim
-    input 350 25 "amount" "Amount Of Credits"
-    loc 999 2 105 -190
-    transfer_button 360 inputs.recipient
-    break
-
-  case "sent"
-    loc 999 2 50 -70
-    text "Sent" 10 : c#txtc
-    break
-
-  case "transfers"
-    if transactions.len == 0 (
-      loc 999 2 30 -70
-      text "No Transactions" 10 : c#txtc
-    ) else (
-      local l = window.left + 200
-      local r = window.right - 10
-
-      frame l window.top - 41 r window.top - 81 0 "cache@tags" (
-        loc 2 2 3 -20
-        for i tags.len (
-          local cur = tags[i]
-          change_x cur.len * 5 + 8
-          if cur == cur_tag (
-            square cur.len * 10 20 14 : c#global_accent
-          )
-          square cur.len * 10 20 10 : c#prim
-          if onclick (
-            cur_tag = cur
-          )
-          centext cur 10 : c#txtc
-          change_x cur.len * 5 + 8
-        )
-      )
-      c prim
-      if filtered_tag != cur_tag (
-        filtered @= transactions
-        if cur_tag != "all" (
-          filtered @= transactions.filter(v -> (v["type"] == cur_tag))
-        )
-        filtered_tag = cur_tag
-      )
-      frame l window.top - 81 r window.bottom + 10 filtered.len * 35 - 5 "cache@transactions" (
-        local count = floor(frame.scroll / 35).clamp(0, max(0, filtered.len))
-        local visible = max(1, round(frame.height / 35 + 2))
-        y = frame.scroll + 15 - (count * 35)
-        loop visible (
-          if count >= filtered.len (
-            break
-          )
-          count ++
-          txt @= filtered[count]
-          y -= 35
-
-          loc 999 2 0 y
-          square frame_width - 20 20 10 : c#prim tooltip#(txt.note ?? "No Note")
-
-          c txtc
-          if typeof(txt) == "string" (
-            loc 2 2 10 y
-            text txt 10
-          ) else (
-            loc 2 2 10 y
-            switch txt["type"] (
-              case "label"
-                text txt.text 10
-                break
-              case "gamble"
-                text "You " ++ txt.note + txt.amount + "credits gambling" 10
-                break
-              case "out"
-                text "You sent " ++ txt.amount ++ " credit to " ++ txt.user 10
-                break
-              case "in"
-                text txt.user ++ " sent you " ++ txt.amount ++ " credits" 10
-                break
-              case "tax"
-                text "You got " ++ txt.amount ++ " from " ++ txt.user ++ "'s taxes" 10
-                break
-              case "escrow_out"
-                text "You sent " ++ txt.amount ++ " to devfund petition #" ++ txt.petition_id 10
-                break
-              case "key_sale"
-                text txt.key_name ++ " sold for " ++ txt.amount ++ " credits" 10
-                break
-              case "key_buy"
-                text txt.key_name ++ " bought for " ++ txt.amount ++ " credits" 10
-                break
-            )
-            text txt.time.timestamp("to-relative") 10 : chx#10
-          )
-        )
-      )
+  goto side_x window.bottom + 23
+  if claiming (
+    box sw 32 14 : c#prim
+    centext "Claiming..." 9 : c#muted
+  ) else (
+    text_button "Claim Daily Credit" sw prim txtc
+    if button_click (
+      claim_daily()
     )
-    break
+  )
 )
+
+// ---- pane header
+local titles = {overview: "Overview", activity: "Activity", send: "Send Credits"}
+local title = titles[page]
+goto cl + 24 window.top - 21
+text title 12 : c#txtc
+window "set_dragbox" [[2, 2, side_w + 20, 0], [-2, 2, -92, -42]]
+
+local pane_top = window.top - 46
+if page == "activity" (
+  // search and filter chips stay put above the scrolling list
+  local bar_w = min(window.right - cl - 50, 760)
+  local bar_x = cl + window.right / 2 - 5
+  goto bar_x window.top - 64
+  box bar_w 32 12 : c#hover_col
+  goto bar_x - (bar_w / 2) + 16 window.top - 64
+  icon "search" 0.5 : c#muted
+  goto bar_x + 12 window.top - 64
+  c hover_col
+  input bar_w - 44 26 "search" "Search people and notes" 9 txtc
+  frame bar_x - (bar_w / 2) window.top - 86 bar_x + (bar_w / 2) window.top - 122 0 "tags" (
+    goto frame.left + 2 0
+    for i tags.len (
+      local tag = tags[i]
+      local label = tag.replace("_", " ").toTitle()
+      local tw = label.len * 8 + 22
+      change_x tw / 2
+      hit tw 26
+      if mouse_touching (
+        cursor "pointer"
+      )
+      if onclick (
+        cur_tag = tag
+      )
+      if cur_tag == tag (
+        box tw 26 12 : c#global_accent
+        centext label 8 : c#accent_txt
+      ) else (
+        box tw 26 12 : c#prim
+        centext label 8 : c#txtc
+      )
+      change_x tw / 2 + 6
+    )
+  )
+  pane_top = window.top - 126
+)
+
+local frame_id = "wallet_" ++ page
+c window_colour
+frame cl pane_top window.right window.bottom page_len frame_id (
+  pw = min(frame.width - 50, 760)
+  // the scrollbar gutter takes 10px on the right
+  cx = -5
+  switch page (
+    case "overview"
+      draw_overview
+      break
+    case "activity"
+      draw_activity
+      break
+    case "send"
+      pw = min(pw, 420)
+      draw_send
+      break
+  )
+)
+
 import "win-buttons"

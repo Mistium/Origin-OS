@@ -1,3 +1,11 @@
+// Developer: @Mistium
+// Description: Browse, install and update apps from apps.rotur.dev
+//
+// Layout: a glass sidebar with search, the main sections and the categories, and a
+// pane showing the Discover page, a list of apps or one app. `installed.json` in the
+// appstore@system save maps an app title to the version the store installed.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
 import "window_tools"
 
 permission "request" "file admin"
@@ -6,29 +14,42 @@ permission "request" "save admin"
 permission "request" "account"
 permission "request" "rotur token"
 
-window "dimensions" 750 800
+SIDE = 230
+ROW_H = 84
+
+window.resize(1000, 680)
+window.show()
+
 save "appstore@system" "set_directory"
 if !"installed.json".saveExists() (
   save "installed.json" "set" {}
 ) else if typeof("installed.json".saveGet()) != "object" (
   save "installed.json" "set" {}
 )
-
-def "rigtext" "txt, sze" (
-  change_x txt.len * -sze
-  text txt sze
-)
+save_data @= "installed.json".saveGet() ?? {}
 
 home_json = null
 all_json = null
+supported_json = []
+categories = {}
+category_keys = []
 
 page = "loading"
-page_data = ""
-page_history = [{
-  page: "home"
-}]
+page_title = "Discover"
+page_list = []
+page_app = ""
+nav_key = "discover"
+page_history = []
+last_query = ""
+inputs.search = ""
+side_len = 0
+page_len = 0
+button_click = false
+shot = 1
+installing = ""
 
 array say_queue = []
+array forget_queue = []
 def queueSay(message) (
   say_queue.append(message)
 )
@@ -37,13 +58,15 @@ install_msg = null
 install_title = null
 install_icon = null
 
-def installApp(cur, page_data, message) (
+def installApp(cur, message) (
   file "goto_dir" "~/Applications"
   install_msg = message
   install_title = cur.title
   install_icon = cur.icon
+  installing = cur.title
   void requests.getAsync("https://apps.rotur.dev/apps/download/" ++ encodeURIComponent(install_title) ++ "/osl?auth=" ++ roturToken())
     .then(resp -> (
+      installing = ""
       if resp.success == false or resp.body == null or resp.body == "" (
         queueSay("Download failed")
         return
@@ -56,43 +79,38 @@ def installApp(cur, page_data, message) (
     ))
 )
 
-def appCard(name) (
-  local name = name.toStr().toLower()
-  local x = x_position
-  local y = y_position
-  square w - 30 h - 30 20 : c#prim
-  if onclick (
-    void ("https://apps.rotur.dev/apps/info/" ++ name).getAsync()
-    navigate("app",name)
-  )
-  
-  local img_w = h / 40
-  change_x w / -2 + (img_w * 20)
-  icon all_json[name].icon.replace("\n"," ") img_w img_w
-  change_x img_w * 15
-  local x2 = x_position
-  change_y 20
-  local txt_w = w / 10 - (img_w * 1)
-  text name.trimText(txt_w - 17) + "\n" 10 : c#txtc
-  text (all_json[name].description ?? "")
-    .wrapText(txt_w - 2)
-    .split("\n")
-    .trim(1,2)
-    .join("\n") ++ "..." 8
-    
-  goto x y
-  change w / 2 - 20 20
-  rigtext formatFileSize(all_json[name].scripts.osl.size) 10
-  goto x y
+// remembers where we were, then shows a page
+def navigate(p, title, list, app, key) (
+  page_history.append({page: page, title: page_title, list: page_list, app: page_app, key: nav_key})
+  page = p
+  page_title = title
+  page_list = list
+  page_app = app
+  nav_key = key
+  shot = 1
 )
 
-def navigate(p, d) (
-  page = p
-  page_data = d
-  page_history.append({
-    page,
-    page_data
-  })
+def go_back() (
+  local last @= page_history.pop()
+  page = last.page
+  page_title = last.title
+  page_list = last.list
+  page_app = last.app
+  nav_key = last.key
+)
+
+// a top level section, it starts a fresh history
+def open_section(title, list, key) (
+  page_history = []
+  page = key == "discover" ? "discover" "list"
+  page_title = title
+  page_list = list
+  page_app = ""
+  nav_key = key
+)
+
+def pending_updates() (
+  return supported_json.filter(v -> (v.title in save_data and v.version != save_data[v.title])).map(v -> v.title)
 )
 
 my_apps @= requests.get("https://apps.rotur.dev/apps/owned?auth=" ++ roturToken())
@@ -100,6 +118,308 @@ if my_apps.status != 200 (
   my_apps @= []
 ) else (
   my_apps @= my_apps.body.ownedApps
+)
+
+// ---------------------------------------------------------------- drawing helpers
+
+// a sidebar entry, result in `button_click`
+def "nav_row" "label, icn, key, y, badge" (
+  goto side_x y
+  hit sw 30
+  button_click = onclick
+  local ink = txtc
+  if nav_key == key (
+    box sw 30 12 : c#global_accent
+    ink = accent_txt
+  ) else if mouse_touching (
+    cursor "pointer"
+    box sw 30 12 : c#hover_col
+  )
+  goto side_x - (sw / 2) + 18 y
+  icon icn 0.55 : c#ink
+  goto side_x - (sw / 2) + 36 y
+  text label 8.5 : c#ink
+  if badge != "" (
+    goto side_x + (sw / 2) - 12 y
+    rigtext badge 8 : c#ink
+  )
+)
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 32 14 : c#fill
+  centext label 9 : c#ink
+)
+
+// one app as a card: icon, name, a line of description, size and install state
+def "app_row" "name, x, y, w" (
+  local id = name.toStr().toLower()
+  local app @= all_json[id]
+  if app == null (
+    return
+  )
+  goto x y
+  hit w ROW_H - 12
+  local over = mouse_touching
+  if onclick (
+    void ("https://apps.rotur.dev/apps/info/" ++ id).getAsync()
+    navigate("app", app.title, page_list, id, nav_key)
+  )
+  box w + 2 ROW_H - 10 16 : c#edge_col
+  if over (
+    cursor "pointer"
+    box w ROW_H - 12 14 : c#hover_col
+  ) else (
+    box w ROW_H - 12 14 : c#prim
+  )
+  goto x - (w / 2) + 40 y
+  icon app.icon.replace("\n", " ") 1.6 : c#txtc
+  local chars = w - 165 / 8
+  goto x - (w / 2) + 78 y + 12
+  text app.title.trimText(w - 190 / 10) 10 : c#txtc
+  goto x - (w / 2) + 78 y - 10
+  text (app.description ?? "").toStr().replace("\n", " ").trimText(chars) 8 : c#muted
+  local state = formatFileSize(app.scripts.osl.size)
+  local state_ink = muted
+  if app.title in save_data (
+    state = "Installed"
+    if save_data[app.title] != app.version (
+      state = "Update"
+      state_ink = global_accent
+    )
+  ) else if app.price > 0 (
+    state = app.price ++ " rc"
+  )
+  goto x + (w / 2) - 16 y
+  rigtext state 8 : c#state_ink
+)
+
+// label on the left, value on the right, inside a card the caller drew
+def "info_row" "label, value, y" (
+  goto pw / -2 + 20 + cx y
+  text label 9 : c#muted
+  goto pw / 2 - 20 + cx y
+  rigtext value.toStr().trimText(pw - 220 / 9) 9 : c#txtc
+)
+
+def "section_label" "label, y" (
+  goto pw / -2 + 6 + cx y
+  text label 7.5 : c#muted
+)
+
+// ---------------------------------------------------------------- pages
+
+// rows of app cards, two columns when there is room. Only visible rows are drawn
+def "draw_apps" "list, y" (
+  local cols = pw > 620 ? 2 1
+  local cw = pw - (cols - 1 * 12) / cols
+  for i list.len (
+    local col = i - 1 % cols
+    local row = floor(i - 1 / cols)
+    local ry = y - (row * ROW_H) - (ROW_H / 2)
+    if ry < frame.top + ROW_H and ry > frame.bottom - ROW_H (
+      app_row list[i] cx - (pw / 2) + (cw / 2) + (col * (cw + 12)) ry cw
+    )
+  )
+  apps_height = ceil(list.len / cols) * ROW_H
+)
+
+def "draw_discover" (
+  local y = frame.top - 12 + frame.scroll
+  local top = y
+  local bh = pw / 16 * 7
+  goto cx y - (bh / 2)
+  card pw bh
+  style {rounding: 7}
+  image home_json.featured.image pw - 2 bh - 2
+  y -= bh + 14
+  app_row home_json.featured.name cx y - (ROW_H / 2) pw
+  y -= ROW_H + 8
+
+  section_label "POPULAR RIGHT NOW" y - 8
+  y -= 24
+  local tiles @= home_json.tiles.map(v -> v.title)
+  draw_apps tiles y
+  y -= apps_height
+  page_len = top - y + 24
+)
+
+def "draw_list" (
+  local y = frame.top - 8 + frame.scroll
+  if page_list.len == 0 (
+    goto cx 20
+    icon "apps" 1.6 : c#track_col
+    goto cx -24
+    local empty = "Nothing here yet"
+    if nav_key == "updates" (
+      empty = "Everything is up to date"
+    )
+    if nav_key == "search" (
+      empty = "No apps match that"
+    )
+    centext empty 9.5 : c#muted
+    page_len = 0
+    return
+  )
+  draw_apps page_list y
+  page_len = apps_height + 24
+)
+
+def "draw_app" (
+  cur @= all_json[page_app]
+  local y = frame.top - 12 + frame.scroll
+  local top = y
+
+  // header: icon, name, author and the main action
+  goto cx y - 50
+  card pw 100
+  goto pw / -2 + 52 + cx y - 50
+  icon cur.icon.replace("\n", " ") 2.4 : c#txtc
+  goto pw / -2 + 104 + cx y - 36
+  text cur.title.trimText(pw - 300 / 14) 14 : c#txtc
+  goto pw / -2 + 104 + cx y - 64
+  local by = "By " ++ cur.author
+  text by 9 : c#muted
+  goto pw / -2 + 104 + (by.len * 4.5) + cx y - 64
+  hit by.len * 9 18
+  if mouse_touching (
+    cursor "pointer"
+  )
+  if onclick (
+    local who = cur.author.toLower()
+    author_key = who
+    navigate("list", "Apps by " ++ cur.author, supported_json.filter(v -> (v.author.toLower().replace(" ", "").split(",").contains(author_key))).map(v -> v.title), "", nav_key)
+    return
+  )
+
+  file "exists" parseFilePath("~/Applications/" ++ cur.title ++ ".osl")
+  local installed = exists
+  local msg = "Install"
+  if installing == cur.title (
+    msg = "Installing..."
+  ) else if installed (
+    // plain ifs: a ternary after `or` binds to the last operand and the label became `true`
+    msg = "Open"
+    if cur.title in save_data and save_data[cur.title] != cur.version (
+      msg = "Update"
+    )
+  ) else if cur.price > 0 and !my_apps.contains(cur.title.toLower()) (
+    msg = "Buy for " ++ cur.price ++ " rc"
+  )
+  local bw = msg.len * 9 + 36
+  goto pw / 2 - 20 - (bw / 2) + cx y - 50
+  text_button msg bw global_accent accent_txt
+  if button_click and installing == "" (
+    if msg == "Open" (
+      file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
+      file "start"
+      file "close"
+    ) else if !msg.startsWith("Buy ") or "Are you sure you want to buy this app?".confirm() (
+      installApp(cur, "Installed to " ++ username ++ "/Applications")
+      save_data[cur.title] = cur.version
+      save "installed.json" "set" save_data
+    )
+  )
+  if installed (
+    goto pw / 2 - 40 - bw + cx y - 50
+    hit 32 32
+    if mouse_touching (
+      cursor "pointer"
+      box 32 32 14 : c#hover_col
+    )
+    icon "more" 0.6 : c#txtc
+    if onclick (
+      open_rightclick [
+        {"Reinstall": def(v) -> (
+          installApp(v.cur, "Reinstalled " ++ v.cur.title)
+        )},
+        {"Uninstall": def(v) -> (
+          file "goto_dir" "~/Applications"
+          file "open" v.cur.title ++ ".osl" "onlyaccess"
+          file "delete"
+          file "close"
+          forget_queue.append(v.cur.title)
+          queueSay("Uninstalled " ++ v.cur.title)
+        )},
+      ] {cur}
+    )
+  )
+  y -= 114
+
+  // one screenshot at a time, with dots to switch
+  if cur.screenshots.len > 0 (
+    shot = shot.clamp(1, cur.screenshots.len)
+    local sh = min(pw / 16 * 9, 340)
+    goto cx y - (sh / 2)
+    card pw sh
+    style {rounding: 7}
+    image "https://apps.rotur.dev/apps/screenshots/" ++ page_app ++ "/" ++ encodeURIComponent(cur.screenshots[shot]) null sh - 16
+    y -= sh + 14
+    if cur.screenshots.len > 1 (
+      goto cur.screenshots.len - 1 * -9 + cx y
+      for i cur.screenshots.len (
+        hit 16 16
+        if mouse_touching (
+          cursor "pointer"
+        )
+        if onclick (
+          shot = i
+        )
+        local dot = i == shot ? global_accent track_col
+        box 8 8 8 : c#dot
+        change_x 18
+      )
+      y -= 22
+    )
+  )
+
+  section_label "ABOUT" y - 8
+  y -= 24
+  local descr = (cur.description ?? "No description").toStr().wrapText(pw - 40 / 9)
+  local lines = descr.split("\n").len
+  local dh = lines * 20 + 24
+  goto cx y - (dh / 2)
+  card pw dh
+  goto pw / -2 + 20 + cx y - 22
+  text descr 9 : c#txtc
+  y -= dh + 14
+
+  section_label "INFORMATION" y - 8
+  y -= 24
+  local perms = "None"
+  if cur.permissions.len > 0 (
+    perms = cur.permissions.join(", ")
+  )
+  local price = cur.price > 0 ? cur.price ++ " rc" "Free"
+  local rows = [
+    ["Version", cur.version],
+    ["Size", formatFileSize(cur.scripts.osl.size)],
+    ["Price", price],
+    ["Category", (cur.genre ?? "").toStr().toTitle()],
+    ["Downloads", cur.downloads ?? 0],
+    ["Views", cur.views ?? 0],
+    ["Permissions", perms]
+  ]
+  local ih = rows.len * 30 + 8
+  goto cx y - (ih / 2)
+  card pw ih
+  for i rows.len (
+    local item @= rows[i]
+    local label = item[1]
+    local value = item[2]
+    info_row label value y - 19 - (i - 1 * 30)
+    if i < rows.len (
+      goto cx y - 34 - (i - 1 * 30)
+      box pw - 40 1 0 : c#edge_col
+    )
+  )
+  y -= ih
+  page_len = top - y + 24
 )
 
 mainloop:
@@ -119,311 +439,160 @@ if all_json == null (
       .filter(v -> v.supports.contains("originOS"))
       .sortBy("genre")
 
-    categories = supported_json
-      .map(v -> v.genre.toStr().toLower())
-
+    local genres = supported_json.map(v -> v.genre.toStr().toLower())
     out = {}
     for i supported_json.len (
-      cur = categories[i].split(",")
-      for i2 cur.len (
-        out[cur[i2].strip()] ??= []
-
-        void out[cur[i2].strip()]
-          .append(supported_json[i].title)
+      local parts = genres[i].split(",")
+      for i2 parts.len (
+        local genre = parts[i2].strip()
+        if genre != "" (
+          out[genre] ??= []
+          void out[genre].append(supported_json[i].title)
+        )
       )
     )
     categories @= out
+    category_keys = categories.getKeys()
   )
 )
-
 if all_json != null and home_json != null and page == "loading" (
-  page = "home"
-)
-
-frame window.left window.top window.right window.top - 40 (
-  goto 0 0
-  square frame.width 40 10 : c#prim
-
-  dragbox = [[2,2,0,0],[-2,2,0,-40]]
-
-  loc 2 2 10 -20
-  if page_history.len > 1 (
-    change_x 10
-    dragbox = [[2,2,40,0],[-2,2,0,-40]]
-    square 17 17 10 : c#seco
-    if onclick (
-      cur = page_history[page_history.len - 1]
-      page = cur.page
-      page_data = cur.page_data
-      void page_history.pop()
-    )
-    icon "left-arrow" 0.63 : c#txtc
-    change_x 20
+  page = "discover"
+  // an app id as passed_data opens straight on that app, originAssist uses this
+  local deep = passed_data.toStr().toLower()
+  if deep != "" and all_json[deep] != null (
+    navigate("app", all_json[deep].title, [], deep, "discover")
   )
-  window "set_dragbox" dragbox
-
-  text "App Store" 10 : c#txtc
 )
 
-c prim
-frame window.left window.top - 45 window.right window.bottom page_len (
-  w = min(700, frame.width)
-  page_len = 0
+while forget_queue.len > 0 (
+  void save_data.delete(forget_queue.pop())
+  save "installed.json" "set" save_data
+)
 
+// typing in the search box shows results, clearing it returns to Discover
+local query = inputs.search.toStr().toLower().strip()
+if query != last_query and all_json != null (
+  last_query = query
+  if query == "" (
+    open_section("Discover", [], "discover")
+  ) else (
+    search_query = query
+    open_section("Results for " ++ query, supported_json.filter(v -> (v.title.toLower().contains(search_query) or (v.description ?? "").toStr().toLower().contains(search_query))).map(v -> v.title), "search")
+  )
+)
+
+// page background, squared off where it meets the glass sidebar
+local cl = window.left + SIDE
+window.setGlass(100, "15px")
+goto SIDE / 2 0
+square window.width - SIDE - 10 window.height + 10 10 : c#window_colour
+goto cl + 12 0
+square 20 window.height 4
+c window_colour
+pen "opacity" 55
+icon "w 99999 dot 0 0" 10
+pen "opacity" 0
+frame "clear"
+
+// ---- sidebar
+side_x = window.left + (SIDE / 2)
+// the top row shares the window buttons' centre line (21 below the top) and height (27),
+// and the sidebar keeps the same 6 inset at the sides as it has at the top
+sw = SIDE - 12
+goto side_x window.top - 21
+box sw 27 12 : c#prim
+goto side_x - (sw / 2) + 16 window.top - 21
+icon "search" 0.5 : c#muted
+goto side_x + 12 window.top - 21
+c prim
+input sw - 44 21 "search" "Search apps" 9 txtc
+
+if page != "loading" (
+  local updates @= pending_updates()
+  local update_badge = updates.len > 0 ? updates.len.toStr() ""
+  nav_row "Discover" "home" "discover" window.top - 63 ""
+  if button_click (
+    inputs.search = ""
+    last_query = ""
+    open_section("Discover", [], "discover")
+  )
+  nav_row "Updates" "download" "updates" window.top - 97 update_badge
+  if button_click (
+    open_section("Updates", updates, "updates")
+  )
+  nav_row "Installed" "apps" "installed" window.top - 131 ""
+  if button_click (
+    open_section("Installed", supported_json.filter(v -> (v.title in save_data)).map(v -> v.title), "installed")
+  )
+
+  goto side_x - (sw / 2) + 10 window.top - 167
+  text "CATEGORIES" 7.5 : c#muted
+  frame window.left window.top - 181 cl window.bottom + 8 side_len "categories" (
+    side_x = 0
+    sw = frame.width - 12
+    local y = frame.top - 18 + frame.scroll
+    for i category_keys.len (
+      if y < frame.top + 40 and y > frame.bottom - 40 (
+        local name = category_keys[i]
+        local count = categories[name].len.toStr()
+        nav_row name.toTitle() "folder" "cat:" ++ name y count
+        if button_click (
+          open_section(name.toTitle(), categories[name], "cat:" ++ name)
+        )
+      )
+      y -= 34
+    )
+    side_len = category_keys.len * 34 + 12
+  )
+)
+
+// ---- pane header: back, title and the drag area
+local hx = cl + 24
+if page_history.len > 0 (
+  goto hx + 6 window.top - 21
+  hit 27 27
+  if mouse_touching (
+    cursor "pointer"
+    box 27 27 12 : c#hover_col
+  )
+  if onclick (
+    go_back()
+  )
+  icon "left-arrow" 0.6 : c#txtc
+  hx += 34
+)
+goto hx window.top - 21
+text page_title.toStr().trimText(window.right - hx - 140 / 12) 12 : c#txtc
+window "set_dragbox" [[2, 2, SIDE + 70, 0], [-2, 2, -92, -42]]
+
+c window_colour
+frame cl window.top - 46 window.right window.bottom page_len "store" (
+  pw = min(frame.width - 50, 760)
+  // the scrollbar gutter takes 10px on the right
+  cx = -5
   switch page (
     case "loading"
-      goto 0 0
-      direction timer * 600
-      icon "w 2 cutcircle 0 0 10 0 90" 3 : c#txtc
+      goto cx 0
+      direction timer * 360
+      icon "w 2 cutcircle 0 0 10 0 90" 1.4 : c#txtc
       direction 90
+      goto cx -40
+      centext "Loading the store" 9 : c#muted
       break
-    case "home"
-      h = w / 16 * 9
-      goto 0 frame.top - (h / 2) + frame.scroll - 10
-      square w - 30 h - 30 20 : c#prim
-      image home_json.featured.image w - 30 h - 30
-      change_y h - 30 / -2 - 65
-      page_len += h + 10
-      h = 100
-      appCard(home_json.featured.name)
-      page_len += h
-
-      change_y -80
-      square w - 30 30 20 : c#prim
-      if onclick (
-        navigate("categories")
-      )
-      local y = y_position
-      set_x w / -2 + 40
-      icon "list" 1 : c#txtc
-      text "Categories" 10 : chx#30
-
-      set_x : chy#-60
-      square w - 30 30 20 : c#prim
-      if onclick (
-        save_data = "installed.json".saveGet() ?? {}
-        navigate("applist", supported_json
-          .filter(v -> v.title in save_data and v.version != save_data[v.title])
-          .map(v -> v.title))
-      )
-      local y = y_position
-      set_x w / -2 + 40
-      icon "download" 1 : c#txtc
-      text "Updates" 10 : chx#30
-
-      set_x : chy#-60
-      square w - 30 30 20 : c#prim
-      if onclick (
-        navigate("search")
-      )
-      local y = y_position
-      set_x w / -2 + 40
-      icon "search" 1 : c#txtc
-      text "Search" 10 : chx#30
-
-      change_y -80
-      set_x w / -4
-      page_len += 280
-      w /= 2
-
-      for i home_json.tiles.len (
-        if x_position > w (
-          set_x w / -2
-          change_y -100
-          page_len += 100
-        )
-        appCard(home_json.tiles[i].title)
-        change_x w
-      )
+    case "discover"
+      draw_discover
       break
-    case "categories"
-      goto 0 frame.top + frame.scroll - 50
-      local category_keys = categories.getKeys()
-      for i categories.len (
-        local cur = category_keys[i]
-        set_x 0
-        square w - 30 40 20 : c#prim
-        if onclick (
-          navigate("applist", categories[cur])
-        )
-        set_x w / -2 + 20
-        text cur.toTitle() 10 : c#txtc
-        text "(" ++ categories[cur].len + "Apps)" 10 : chx#20
-        change_y -70
-        page_len += 70
-      )
-      break
-    case "search"
-      goto 0 frame.top + frame.scroll - 50
-      c prim
-      square frame.width - 100 30 10
-      input frame.width - 110 30 "search" "Search for an app"
-      change_y -100
-      page_len += 100
-      local apps = all_json.getValues()
-      for i apps.len (
-        if apps[i].title.contains(inputs.search) or (apps[i].description ?? "").contains(inputs.search) (
-          appCard(apps[i].title)
-          change_y -100
-          page_len += 100
-        )
-      )
-      break
-    case "applist"
-      h = 100
-      goto 0 frame.top + frame.scroll - 70
-      if page_data.len == 0 (
-        centext "Looking Kinda Empty" 10 : c#txtc
-      )
-
-      for i page_data.len (
-        appCard(page_data[i])
-        change_y -100
-        page_len += 100
-      )
+    case "list"
+      draw_list
       break
     case "app"
-      save_data = "installed.json".saveGet() ?? {}
-
-      cur @= all_json[page_data]
-      page_len += 60
-      loc 2 2 50 -50 + frame.scroll
-      icon cur.icon 3 : c#txtc
-      text cur.title ++ "\n" 15 : c#txtc chx#40 chy#12
-      text "By" + cur.author 10 : chy#5
-      if onclick (
-        navigate("applist", supported_json
-          .filter(v -> v.author
-            .toLower()
-            .replace(" ","")
-            .split(",")
-            .contains(cur.author.toLower()))
-          .map(v -> v.title))
-      )
-
-      file "exists" parseFilePath("~/Applications/" ++ cur.title ++ ".osl")
-      if exists (
-        if save_data[cur.title] == cur.version (
-          msg = "Launch"
-        ) else (
-          msg = "Update"
-        )
-      ) else if cur.price > 0 and !my_apps.contains(cur.title.toLower()) (
-        msg = "Buy (" ++ cur.price ++ " rc)"
-      ) else (
-        msg = "Install"
-      )
-
-      loc -2 2 -40 -45 + frame.scroll
-      square msg.len * 10 + 40 30 10 : c#prim chx#(msg.len * -5)
-      change_x -15
-      square msg.len * 10 30 0 0 1
-      if onclick (
-        if msg == "Launch" (
-          file "open" "~/Applications/" ++ cur.title ++ ".osl" "onlyaccess"
-          file "start"
-          file "close"
-        ) else if !msg.startsWith("Buy ") or "Are you sure you want to buy this app?".confirm() (
-          installApp(cur, page_data, "Installed to " ++ username ++ "/Applications")
-
-          save_data[cur.title] = cur.version
-          save "installed.json" "set" save_data
-        )
-      )
-      centext msg 10 : c#txtc
-
-      change_x msg.len * 5 + 10
-      square 0 20 2 : c#global_accent
-      icon "down" 0.5 : chx#15 c#txtc
-      square 20 30 0 0 1
-      menu_clicked = clicked
-      if onclick (
-        change -20 -20
-        open_rightclick [
-          {"Reinstall": def(v) -> (
-            installApp(v.cur, v.page_data, "Reinstalled " ++ v.cur.title)
-          )},
-          {"Uninstall": def(v) -> (
-            file "goto_dir" "~/Applications"
-            file "open" v.cur.title ++ ".osl" "onlyaccess"
-            file "delete"
-            file "close"
-            queueSay("Uninstalled " ++ v.cur.title)
-          )},
-        ] {cur, page_data}
-      )
-
-      change -45 -35
-      centext formatFileSize(cur.scripts.osl.size) 10
-
-      set_y frame.top - 70 + frame.scroll
-
-      if cur.screenshots.len > 0 (
-        cur.screenshot ??= 1
-        cur.screenshot_x ??= 0
-        cur.smooth_dt ??= delta_time
-        cur.smooth_dt += delta_time - cur.smooth_dt * .05
-        cur.screenshot_x += cur.screenshot - 1 - cur.screenshot_x * cur.smooth_dt * 30
-        set_x 0
-        change_y -200
-        page_len += 200
-        square window.width 330 10 : c#prim
-        set_x cur.screenshot_x * frame.width / -1
-        for i cur.screenshots.len (
-          image "https://apps.rotur.dev/apps/screenshots/" ++ page_data ++ "/" ++ encodeURIComponent(cur.screenshots[i]) null 300
-          change_x frame.width
-        )
-        set_x cur.screenshots.len - 1 * -10
-        change_y -160
-        page_len += 160
-        for i cur.screenshots.len (
-          if i == cur.screenshot (
-            c global_accent
-          ) else (
-            c seco
-          )
-          icon "w 15 dot 0 0" 0.5
-          if onclick (
-            cur.screenshot = i
-          )
-          change_x 20
-        )
-      )
-      descr = (cur.description ?? "").wrapText(frame.width / 10 - 3)
-      lines = descr.split("\n").len
-      set_x 0
-      change_y lines * -11.5 - 30
-      square frame.width lines * 23 10 : c#prim
-      change frame.left + 10 lines * 11.5 - 15
-      text descr 10 : c#txtc
-      page_len += lines * 23 + 30
-
-      set_x 0
-      change_y -80
-      square frame.width 90 10 : c#prim
-
-      set_x frame.left + 10 : chy#35
-      text "Views:" + (cur.views ?? 0) ++ ", Downloads:" + (cur.downloads ?? 0) 10 : c#txtc
-
-      set_x frame.left + 10 : chy#-23
-      if cur.permissions.len == 0 (
-        text "No permissions are required for this app" 10
-      ) else (
-        text "Requires Permissions: " ++ cur.permissions.join(",") 10
-      )
-
-      set_x frame.left + 10 : chy#-23
-      text "Version: " ++ cur.version 10
-
-      set_x frame.left + 10 : chy#-23
-      text "Price: " ++ cur.price 10
-      page_len += 120
+      draw_app
       break
   )
 )
 
 if say_queue.len > 0 (
-  // Global `say` command (opens Alert.osl) — not the local queue helper.
+  // Global `say` command (opens Alert.osl), not the local queue helper.
   say say_queue.pop()
 )
 

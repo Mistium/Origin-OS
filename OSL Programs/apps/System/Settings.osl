@@ -1,4 +1,11 @@
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: System settings for originOS
+//
+// Layout: a sidebar of categories and a content page. Every page is a vertical
+// stack built from the ui_* and row_* commands below, which advance the cursor
+// `cy` and work out the scroll length for you. Add a setting by adding a row.
+// OSL evaluates operators left to right, so `a - 1 * b` means `(a - 1) * b`.
+
 import "window_tools"
 load_theme
 
@@ -10,2263 +17,2014 @@ permission "request" "account"
 permission "request" "kernel"
 permission "request" "display"
 
-def "setting_toggle" "txt, w, state, callback" (
-  local x = x_position
-  square w 30 10 : c#prim
-  change_x w / -2 + 10
-  text txt 10 : c#txtc
-  set_x x + (w / 2 - 15)
-  square 30 30 5 : c#seco
-  if onclick (
-    set_x x
-    return callback()
-  )
-  if state (
-    icon "tick" 0.8 : c#txtc
-  )
-  set_x x
+// ---------------------------------------------------------------- toolkit
+
+ROW = 42
+LABEL_X = 16
+GAP = 22
+SIDEBAR = 240
+
+def "ui_begin" (
+  cw = min(frame.width - 48, 640)
+  cy = frame.top - 8 + frame.scroll
+  page_top = cy
+  page_scroll = frame.scroll
 )
 
-def "setting_msg" "txt, w" (
-  local x = x_position
-  square w 30 10 : c#prim
-  change_x w / -2 + 5
-  text txt 10 : c#txtc
-  set_x x
+def "ui_end" (
+  page_len = page_top - cy + 28
 )
 
-def "setting_do" "txt, icn, w, callback, inp" (
-  local x = x_position
-  square w 30 10 : c#prim
-  local cl = onclick
-  change_x w / -2
-  if icn != null (
-    change_x 20
-    icon icn 0.8 : c#txtc
-    change_x 25
-  )
-  change_x 5
-  text txt 10 : c#txtc
-  set_x x
-  if cl (
-    void callback(inp ?? "")
+def "ui_gap" "n" (
+  cy -= n
+)
+
+def "ui_header" "txt" (
+  goto cw / -2 + LABEL_X cy - 10
+  text txt.toStr().toUpper() 7.5 : c#muted
+  cy -= 26
+)
+
+def "ui_note" "txt" (
+  local wrapped = txt.wrapText(cw - 32 / 8)
+  goto cw / -2 + LABEL_X cy - 16
+  text wrapped 8 : c#muted
+  cy -= wrapped.split("\n").len * 17 + 26
+)
+
+// a rounded card with a hairline edge, width and height are the full visible size
+def "ui_card" "x, y, w, h" (
+  goto x y
+  square w - 13 h - 13 15 : c#edge_col
+  square w - 15 h - 15 14 : c#prim
+)
+
+// a card that the next `rows` rows draw on top of
+def "ui_group" "rows, h" (
+  row_h = h
+  row_i = 0
+  row_n = rows
+  if rows > 0 (
+    ui_card 0 cy - (rows * h / 2) cw rows * h
   )
 )
 
-def "setting_option" "name, icn_code, w" (
-  local x = x_position
-  square w 30 10 0 1
-  if mouse_touching (
-    square w 30 15 : c#seco
-    square w 30 10 : c#prim
-    if onclick (
-      gotosubcategory = name
+// `indent` is how far the label is pushed right by an icon, the divider lines up with it
+def "ui_row" "clickable, indent" (
+  row_i ++
+  ry = cy - (row_h / 2)
+  goto 0 ry
+  square cw - 16 row_h - 16 14 0 1
+  row_hover = mouse_touching
+  row_click = onclick
+  if clickable and row_hover (
+    cursor "pointer"
+    // rounded only where the row meets the card's own corners
+    square cw - 16 row_h - 16 14 : c#hover_col
+    if row_i > 1 (
+      goto 0 ry + (row_h / 4)
+      square cw - 4 row_h / 2 - 2 2
     )
-  ) else (
-    square w 30 15 1 : c#prim
+    if row_i < row_n (
+      goto 0 ry - (row_h / 4)
+      square cw - 4 row_h / 2 - 2 2
+    )
+  ) else if row_i > 1 (
+    local line_x = cw / -2 + LABEL_X + indent
+    goto line_x + (cw / 2) / 2 cy
+    square cw / 2 - line_x - 2 0 1 : c#edge_col
   )
-  change_x w / -2 + 20
-  icn_code ??= name
-  icon icn_code 0.8 : c#txtc
-  text name 10 : chx#30
-  page_len += 50
+  cy -= row_h
 )
 
-def "setting_input" "id, default_txt, w, callback" (
-  square w 30 10 : c#prim
-  if inputs[id] == null (
-    inputs[id] = default_txt
+def "ui_label" "txt, icn, col" (
+  goto cw / -2 + LABEL_X ry
+  if icn != "" (
+    change_x 11
+    c col
+    square 10 10 12
+    icon icn 0.55 : c#fff
+    change_x 23
   )
-  if "enter".onKeyDown() (
-    return callback(inputs[id])
+  text txt 9 : c#txtc
+)
+
+// right aligned secondary value, `reserved` is how many characters the label uses
+def "ui_value" "value, reserved" (
+  goto cw / 2 - LABEL_X ry
+  rigtext value.toStr().trimText(cw - 60 / 9 - reserved - 2) 9 : c#muted
+)
+
+// a small icon button at the right of the current row, sets `button_click`
+def "ui_button" "icn, offset" (
+  goto cw / 2 - offset ry
+  square 14 14 10 0 1
+  button_click = onclick
+  if mouse_touching (
+    square 14 14 10 : c#track_col
+    cursor "pointer"
   )
-  input w - 10 25 id null 10
+  icon icn 0.6 : c#txtc
+)
+
+def "row_nav" "txt, icn, col, target" (
+  local indent = 0
+  if icn != "" (
+    indent = 34
+  )
+  ui_row true indent
+  if row_click (
+    nav_sub = target
+  )
+  ui_label txt icn col
+  goto cw / 2 - 22 ry
+  icon "right" 0.5 : c#muted
+)
+
+def "row_info" "txt, value" (
+  ui_row false 0
+  ui_label txt "" ""
+  ui_value value txt.len
+)
+
+def "ui_switch" "state" (
+  goto cw / 2 - 36 ry
+  local knob_x = x_position - 9
+  if state (
+    knob_x += 18
+    square 18 0 22 : c#global_accent
+  ) else (
+    square 18 0 22 : c#track_col
+  )
+  goto knob_x ry
+  // soft ring so the knob still reads on a pale accent
+  effect "transparency" 75
+  square 0 0 19 : c#000
+  effect "clear"
+  square 0 0 17 : c#fff
+)
+
+def "row_toggle" "txt, state, callback" (
+  ui_row true 0
+  ui_label txt "" ""
+  ui_switch state
+  if row_click (
+    void callback()
+  )
+)
+
+// set `action_danger = true` first for a destructive action
+def "row_action" "txt, icn, callback, arg" (
+  local indent = 0
+  if icn != "" (
+    indent = 34
+  )
+  ui_row true indent
+  local col = global_accent
+  if action_danger (
+    col = "#f87171"
+  )
+  action_danger = false
+  goto cw / -2 + LABEL_X ry
+  if icn != "" (
+    change_x 11
+    icon icn 0.6 : c#col
+    change_x 23
+  )
+  text txt 9 : c#col
+  if row_click (
+    void callback(arg)
+  )
+)
+
+def "ui_keycap" "key" (
+  goto cw / -2 + LABEL_X + 6 + (key.len * 4.5) ry
+  square key.len * 9 6 12 : c#track_col
+  goto cw / -2 + LABEL_X + 6 ry
+  text key 9 : c#txtc
+)
+
+// file icons vary a lot, a quiet tile keeps the column even and covers files with no icon
+def "ui_file_icon" "path" (
+  goto cw / -2 + LABEL_X + 12 ry
+  square 12 12 12 : c#hover_col
+  file "open" path "onlyaccess"
+  file "render" 0.9
+)
+
+// segmented control, calls back with the option that was picked
+def "row_choice" "txt, options, current, callback" (
+  ui_row false 0
+  ui_label txt "" ""
+  // segments are as wide as the longest label needs
+  local longest = 0
+  for i options.len (
+    longest = max(longest, options[i].toStr().len)
+  )
+  local sw = longest * 8 + 22
+  local total = options.len * sw
+  local right = cw / 2 - LABEL_X
+  goto right - (total / 2) ry
+  square total - 12 12 12 : c#track_col
+  for i options.len (
+    goto right - total + (i - 0.5 * sw) ry
+    square sw - 14 8 10 0 1
+    local hit = onclick
+    if mouse_touching (
+      cursor "pointer"
+    )
+    if options[i] == current (
+      square sw - 14 8 10 : c#global_accent
+      centext options[i] 8 : c#accent_txt
+    ) else (
+      centext options[i] 8 : c#txtc
+    )
+    if hit and options[i] != current (
+      void callback(options[i])
+    )
+  )
+)
+
+// the value lives in the global `slider_<id>` as 0..1, `slider_active` is true while dragging
+def "row_slider" "txt, id" (
+  ui_row false 0
+  ui_label txt "" ""
+  slider_active = row_hover and mouse_down
+  goto cw / 2 - LABEL_X - 94 ry
+  slider 180 0 id 8 : c#track_col
+  // a knob, the built in slider only draws the filled part
+  local vars @= Variables()
+  goto cw / 2 - LABEL_X - 184 + (vars["slider_" ++ id] * 180) ry
+  effect "transparency" 75
+  square 0 0 17 : c#000
+  effect "clear"
+  square 0 0 15 : c#fff
+)
+
+// the value lives in `inputs[id]`, enter submits
+def "row_input" "txt, id, w, placeholder, callback" (
+  ui_row false 0
+  ui_label txt "" ""
+  goto cw / 2 - LABEL_X - (w / 2) ry
+  square w - 12 14 12 : c#hover_col
+  c hover_col
+  input w - 16 24 id placeholder 9 txtc
+  if "enter".onKeyDown() and inputs[id].toStr() != "" (
+    void callback(inputs[id])
+  )
+)
+
+def "row_colour" "txt, id" (
+  ui_row true 0
+  ui_label txt "" ""
+  goto cw / 2 - LABEL_X - 11 ry
+  square 0 0 22 : c#track_col
+  c theme_select[id]
+  square 0 0 19
+  change_x -22
+  rigtext theme_select[id] 8 : c#muted
+  if row_click (
+    colourpicker "setcol" theme_select[id]
+    colourpicker "show"
+    selected_col = id
+  )
+)
+
+// a file row with a trailing bin, check `button_click` afterwards
+def "row_path" "path" (
+  ui_row false 38
+  ui_file_icon path
+  text path.toStr().split("/").last().trimText(cw - 140 / 9) 9 : c#txtc chx#26
+  ui_button "bin" 28
+)
+
+// an empty state inside a card, so a page never ends on a bare background
+def "ui_empty" "txt" (
+  ui_group 1 64
+  goto 0 cy - 32
+  centext txt 9 : c#muted
+  cy -= 64
+)
+
+def "ui_spinner" "label" (
+  goto 0 cy - 60
+  direction timer * 360
+  icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
+  direction 90
+  change_y -30
+  centext label 9 : c#muted
+  cy -= 120
+)
+
+def update_theme_flag(string key) (
+  local theme = user.theme
+  theme[key] = theme[key] == false
+  network "update" "theme" theme
 )
 
 def hasTierOrHigher(string tier) boolean (
-  string user_tier = (user["sys.subscription"].tier ?? "free").toLower()
-
-  switch tier (
-    case "free"
-      return true
-    case "lite"
-      if user_tier == "lite" (
-        return true
-      )
-    case "plus"
-      if user_tier == "plus" (
-        return true
-      )
-    case "drive"
-      if user_tier == "drive" (
-        return true
-      )
-    case "pro"
-      if user_tier == "pro" (
-        return true
-      )
-    case "max"
-      return true
-  )
-  return false
-)
-
-def "setting_tier_banner" "tier" (
-  if hasTierOrHigher(tier) (
-    return
-  )
-  local x = x_position
-  square w 30 10 : c#prim
-  local cl = onclick
-  change_x w / -2 + 5
-  text "You need a " + tier + " subscription to use this feature" 10 : c#txtc
-  set_x x
-  if onclick (
-    category = "Upgrade"
-    subcategory = ""
-  )
+  array tiers = ["free", "lite", "plus", "drive", "pro", "max"]
+  string mine = (user["sys.subscription"].tier ?? "free").toLower()
+  return tiers.index(mine) >= tiers.index(tier.toLower())
 )
 
 def parseUserAgent(string ua) string (
   string browser = "Unknown Browser"
   string os = "Unknown OS"
-
-  if ua.contains("Firefox") (
-    browser = "Firefox"
-  ) else if ua.contains("Chrome") (
-    browser = "Chrome"
-  ) else if ua.contains("Safari") (
-    browser = "Safari"
-  ) else if ua.contains("Edg") (
-    browser = "Edge"
-  ) else if ua.contains("Opera") (
-    browser = "Opera"
+  each name ["Opera", "Edg", "Firefox", "Chrome", "Safari"] (
+    if ua.contains(name) and browser == "Unknown Browser" (
+      browser = name == "Edg" ? "Edge" name
+    )
   )
-
-
-  if ua.contains("Windows") (
-    os = "Windows"
-  ) else if ua.contains("Mac") (
-    os = "macOS"
-  ) else if ua.contains("Linux") (
-    os = "Linux"
-  ) else if ua.contains("Android") (
-    os = "Android"
-  ) else if ua.contains("like Mac") (
-    os = "iOS"
+  each name ["Android", "iPhone", "Windows", "Mac", "Linux"] (
+    if ua.contains(name) and os == "Unknown OS" (
+      os = name == "Mac" ? "macOS" name
+    )
   )
-
   return browser ++ " on " ++ os
 )
 
-def "appopt" "optname,opticn,icnsize" (
-  loc 999 2 0 y
-  square frame_width - 25 30 10 1 : c#prim
-  loc 2 2 30 y
-  icon opticn icnsize.destr : c#txtc
-  change_x 25
-  text optname 8
-)
+// ---------------------------------------------------------------- account
 
-def "DrawCategory" "setting,icn_code" (
-  temp = x_position
-  change_x 80
-  if category == setting (
-    set_x frame.left
-    square 0 20 5 : c#txtc
-    set_x temp + 80
-  ) else (
-    square 190 30 15 0 1
-  )
-  if onclick (
-    category = setting
-    subcategory = "none"
-  )
-  icon icn_code 0.8 : c#txtc chx#-80
-  change_x 25
-  text setting 10
-  goto temp y_position - 40
-)
-
-def "option" "name, icn_code" (
-  loc 999 2 0 y
-  local w = frame.width - 100
-  square w 30 10 0 1
-  if mouse_touching (
-    square w 30 15 : c#seco
-    square w 30 10 : c#prim
-    if onclick (
-      gotosubcategory = name
-    )
-  ) else (
-    square w 30 15 1 : c#prim
-  )
-  change_x w / -2 + 20
-  icn_code ??= name
-  icon icn_code 0.8 : c#txtc
-  text name 10 : chx#30
-  y -= 50
-  page_len += 50
-)
-
-def "system" (
-  local w = frame.width - 25
+def "page_account" (
+  local tier = user["sys.subscription"].tier ?? "Free"
   switch subcategory (
     case "none"
-      option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
-      option "Media" "volume-max"
-      option "Boot Applications" "power"
-      option "Default Apps" "grid-apps"
-      option "Time" "alarm-clock"
-      option "About" "info"
-      break
-    case "About"
-      about
-      break
-    case "Display"
-      loc 2 2 10 -20 + frame.scroll
-      text "Origin Resolution: " ++ screensize_x ++ "x" ++ screensize_y 10 : c#txtc
+      local bh = cw / 3.4
+      ui_card 0 cy - (bh / 2) cw bh
+      effect "transparency" 45
+      image user.banner ++ "?radius=14" cw - 2 bh - 2
+      effect "clear"
 
-      goto 0 window.top - 100 + frame.scroll
-
-      display "invert" "get"
-      c #txtc
-      setting_toggle "Invert Colours" w data === 100 def(val) -> (
-        display "invert" "get"
-        inp = 100 - data
-        display "invert" "set" inp
-      )
-
-      change_y -50
-      display "saturation" "get"
-      c #txtc
-      setting_toggle "Black & White" w data === 0 def(val) -> (
-        display "saturation" "get"
-        inp = 100 - data
-        display "saturation" "set" inp
-      )
-
-      change_y -50
-      display "contrast" "get"
-      c #txtc
-      setting_toggle "Increase Contrast" w data === 110 def(val) -> (
-        display "contrast" "get"
-        inp = data == 110 ? 100 110
-        display "contrast" "set" inp
-      )
-      break
-    case "Media"
-      if media == "" (
-        terminal "get access camera"
-        data2 = data
-        terminal "get access microphone"
-        if [data, data2].contains("granted") (
-          terminal "get mediadevices"
-          media = data.JsonParse()
-          keys = media.getKeys()
-          types = media.getValues().getKeys("type")
-        ) else (
-          media = "Please Grant Origin Microphone And Camera Permissions"
-        )
-      )
-      loc 2 2 10 -40 + frame.scroll
-      slider_volume ??= 100
-      text "System Volume" + round(slider_volume * 100) ++ "%" 10 : c#txtc
-      loc 999 2 0 -90 + frame.scroll
-      terminal "system sound get volume"
-      slider_volume = data.toNum() / 100
-      slider w 40 "volume" 15 : c#prim
-      terminal "system sound set volume " ++ (slider_volume * 100)
-      c txtc
-      loc 2 2 10 -160 + frame.scroll
-      if typeof(media) == "object"  (
-        text "Media Devices" 10
-        for i keys.len (
-          y = i + 2.5 * -60 + frame.scroll
-          loc 999 2 0 y
-          w = frame.width - 25
-          square w 40 15 : c#prim
-          if mouse_touching (
-            square w 40 15 : c#seco
-            square w 40 10 : c#prim
-          )
-          cur = keys[i]
-          loc 2 2 30 y
-          square 30 30 10 : c#seco
-          c txtc
-          type = types[i]
-          if type == "audiooutput" or type == "audioboth" (
-            icon "volume-max" 0.7
-          )
-          if type == "audioinput" (
-            icon "microphone" 0.7
-          )
-          if type == "videoinput" (
-            icon "camera" 0.7
-          )
-          text cur 9 : chx#30
-        )
-        page_len = keys.len + 3 * 60
-      ) else (
-        text media 10
-        page_len = 100
-      )
-      break
-    case "Boot Applications"
-      boot_apps = user.onboot
-      if new_transmit (
-        file "open" transmit_data
-        f = file[3] ++ "/" ++ file[2] ++ file[1]
-        void boot_apps.append(f)
-        network "update" "onboot" boot_apps
-        new_transmit = false
-      )
-      y = -30 + frame.scroll
-      loc 9999 2 0 y
-      square w 30 15 : c#prim
-      if onclick (
-        boot_apps = [
-          "origin/(a) system/system apps/originWM.osl",
-          "origin/(a) system/docks/Dock.osl",
-          "origin/(a) system/system apps/Quick_Settings.osl"
-        ]
-        network "update" "onboot" boot_apps
-      )
-      loc 2 2 30 y
-      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
-      text "Reset Boot To Default" 9 : chx#20
-      loc 2 2 20 -70 + frame.scroll
-      text "Drop File Here" 9 : c#txtc
-      if file_dropped != 0 (
-        local dat = open(file_dropped, ["location","name","type"])
-        void boot_apps.append(dat[1] ++ "/" ++ dat[2] ++ dat[3])
-
-        network "update" "onboot" boot_apps
-        file_dropped = 0
-      )
-      loc 9999 2 0 y - 50
-      square w 30 15 : c#prim
-      if onclick (
-        file "pick" "osl"
-        can = false
-      )
-      loc 2 2 30 y - 50
-      icon "upload" 0.7 : c#txtc
-      text "Click here or drop an osl file to add it to your boot" 9 : chx#20
-
-      for count boot_apps.len (
-        y = count + 1.5 * -60 + frame.scroll
-        loc 999 2 0 y
-        square w 40 15 : c#prim
-        loc 2 2 15 y
-        text boot_apps[count] 9 : c#txtc
-        loc -2 2 -33 y
-        square 30 30 10 0 1
-        if mouse_touching (
-          square 30 30 10 : c#prim
-          if onclick (
-            boot_apps.delete(count)
-            network "update" "onboot" boot_apps
-          )
-        )
-        icon "bin" 0.8 : c#txtc
-      )
-      page_len = boot_apps.len + 2 * 60
-      break
-    case "Default Apps"
-      y = -30 + frame.scroll
-      loc 9999 2 0 y
-      square w 30 15 : c#prim
-      if onclick (
-        app_defaults.current = app_defaults.original
-        save "default_apps.json" "set" app_defaults.current
-      )
-      loc 2 2 30 y
-      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
-      text "Reset Apps To Default" 9 : chx#20
-      loc 9999 2 0 y - 50
-      square w 30 15 : c#prim
-      loc 2 2 30 y - 50
-      icon "upload" 0.7 : c#txtc
-      text "Drop an app onto the app type that you want to replace" 10 : chx#20
-
-      local default_apps @= app_defaults.current
-
-      local categories = default_apps.getKeys()
-      for i categories.len (
-        local cur = categories[i]
-        y = i + 1 * -80 + frame.scroll
-        loc 999 2 0 y
-        c prim
-        local focused = false
-        if mouse_y > y_position - 40 and mouse_y < y_position + 40 and mouse_x > frame.left and mouse_x < frame.right (
-          focused = true
-        )
-        if focused (
-          if file_dropped != 0 (
-            local parts = open(file_dropped, ["location","name","type"])
-            if parts[3] == ".shortcut" (
-              parts = open(open(file_dropped), ["location","name","type"])
-            )
-            if parts[3] == ".osl" (
-              default_apps[cur] = parts[1] ++ "/" ++ parts[2] ++ parts[3]
-              save "default_apps.json" "set" default_apps
-            ) else (
-              say "Invalid file type, select a .osl file"
-            )
-            file_dropped = 0
-          )
-          if file_dragging (
-            c seco
-          )
-        )
-        square w 60 15
-        loc 2 2 30 y + 15
-        text cur 9 : c#txtc
-        loc 2 2 40 y - 12
-        file "open" default_apps[cur] "onlyaccess"
-        file "render" 1.2
-        text default_apps[cur] 9 : c#txtc chx#25
-        change_y -50
-      )
-      break
-    case "Time"
-      goto 0 frame.top - 40 + frame.scroll
-      centext timestamp.timestamp("convert-time") ++ "." ++ timestamp.toStr().right(3) 20 : c#txtc
-      change_y -50
-      centext "Your originOS time is offset by" 10
-      change_y -40
-      centext time.offset ++ "ms" 20
-      change_y -40
-      centext "to make it more accurate" 10
-
-      change_y -50
-      setting_toggle "Show Seconds" w user.timeformat.show_seconds def() -> (
-        local current_format = user.timeformat
-        current_format.show_seconds = current_format.show_seconds.not()
-        network "update" "timeformat" current_format
-      )
-
-      change_y -50
-      setting_toggle "Use 24 hour time" w user.timeformat.hours == "24h" def() -> (
-        local current_format = user.timeformat
-        current_format.hours = current_format.hours == "24h" ? "12h" "24h"
-        network "update" "timeformat" current_format
-      )
-      break
-  )
-  clicked = false
-)
-
-def "network_page" (
-  local w = frame.width - 25
-  if subcategory == "Cors Proxy" (
-    loc 2 2 20 -20
-    text "Current Cors Proxy: " ++ user.proxy ?? "https://apps.mistium.com/cors?url=" 10 : c#txtc
-
-    set_x 0 : chy#-50
-
-    setting_input "proxy" user.proxy ?? "https://apps.mistium.com/cors?url=" w def(value) -> (
-      if value.startsWith("https://") (
-        network "update" "proxy" value
-      )
-    )
-    return
-  )
-  goto 0 window.top - 70 + frame.scroll
-
-  icon "network" 4 : c#txtc
-  if network.connected (
-    local message = "Connected"
-  ) else (
-    icon "w 2 line -10 -10 10 10" 4
-    local message = "No Connection"
-  )
-
-  change_y -60
-  centext message 10
-
-  if roturlink.enabled (
-    change_y -100
-    setting_msg "Connected to " ++ roturlink.wifi.ssid w
-    change_y -50
-    setting_msg "Signal Strength: " ++ roturlink.wifi.signal_strength w
-
-    change_y -70
-    local networks @= roturlink.wifi.scan
-      .sortBy("signal_strength")
-      .reverse()
-
-    setting_msg networks.len + (networks.len == 1 ? "Network" "Networks") w
-    change_y -10
-
-    for i networks.len (
-      local cur @= networks[i]
-      set_x 0 : chy#-50
-      setting_do cur.ssid null w (val) -> (
-        // implement network switching
-      ) cur
-
-      set_x w / 2 - 20
-      local connection = round(cur.signal_strength.clamp(0, 75) / 25)
-
-      icon "network" 0.8 : c#seco
-      c txtc
-      icon [
-        "",
-        "w 4 dot 0 -6",
-        "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
-        "network"
-      ][connection + 1] 0.8
-    )
-    page_len = networks.len * 50 + 350
-  )
-  // option "Cors Proxy" "network"
-)
-
-def "colour_selector" "name, id" (
-  loc 9999 2 0 y
-  local w = frame.width - 25
-  square w 30 15 : c#prim
-  if mouse_touching (
-    square w 30 15 : c#seco
-    square w 30 10 : c#prim
-  )
-  loc 2 2 15 y
-  text name ++ ":" 10 : c#txtc
-  loc -2 2 -130 y
-  text theme_select[id] 10
-  square 0 0 25 0 : chx#30
-  c theme_select[id]
-  square 0 0 20 0
-  if onclick (
-    colourpicker "setcol" theme_select[id]
-    colourpicker "show"
-    selected_col = id
-  )
-  if user.theme[id] != theme_select[id] (
-    change_x -120
-    square 20 20 10 0 1 : tooltip#"Reset Colour"
-    if mouse_touching (
-      square 20 20 15 : c#seco
-      square 20 20 10 : c#prim
-    )
-    icon "reload" 0.5 : c#txtc
-    if onclick (
-      theme_select[id] = user.theme[id]
-      colourpicker "setcol" theme_select[id]
-      selected_col = id
-    )
-  )
-)
-
-def "appearance" (
-  local w = frame.width - 25
-  switch subcategory (
-    case "none"
-      option "Background" "w 3 square 0 0 10 10 line 5 -5 3 -3 cont 2 -4 line 1 -5 -2 -2 cont -5 -5 w 6 dot 3 4"
-      option "Dock" "w 6 line -7 -7 0 -7 line 7 -7 7 -7"
-      option "Windows" "maximise"
-      option "Colours" "w 3 cutcircle 0 -3 5 18 120 cont 0 8 cont 4.9 -1.5 line 4 -3 -4 -3 line 4 -5.5 -4 -5.5"
-      break
-    case "Background"
-      y = -30 + frame.scroll
-      w = frame.width - 25
-      loc 9999 2 0 y
-      square w 30 15 : c#prim
-      if onclick (
-        local wp = askFile(null, "dataURL")
-        if wp.name != "" (
-          terminal "system wallpaper_local " ++ wp.data
-        )
-      )
-      loc 2 2 50 y
-      text "Click To Add Custom Wallpaper" 10 : c#txtc
-      loc 2 2 27 y
-      icon "paste" 0.7 : c#txtc
-
-      y -= 50
-      loc 9999 2 0 y
-      square w 30 15 : c#prim
-      loc 2 2 27 y
-      icon "image" 0.7 : c#txtc
-      text "Wallpaper Cover Mode" 10 : c#txtc chx#30
-
-      w = frame.width / 2 - 25
-      y -= 50
-      array categories @= wallpaper_categories.getKeys()
-      for i categories.len (
-        object category @= wallpaper_categories[categories[i]]
-        array wallpapers @= category.values
-        loc 2 2 20 y
-        text categories[i] 10 : c#txtc
-        loc -2 2 -20 y
-        if wallpapers.len > 2 (
-          rigtext category.open ? "Show Less" "Show More" 10 : c#txtc
-          if onclick (
-            category.open = !category.open
-          )
-        )
-        y += 100
-        for count wallpapers.len (
-          if count % 2 == 1 (
-            if !category.open and count > 1 (
-              break
-            )
-            y -= 230
-          )
-          loc count % 2 == 1 ? 4 -4 2 0 y
-          if y_position < frame.bottom - 120 (
-            continue
-          )
-          square w 200 15 : c#prim
-          string cur = wallpapers[count]
-          if onclick and mouse_y < frame.top (
-            terminal "system wallpaper " ++ wallpaper_provider ++ "static/" ++ cur
-          )
-          image wallpaper_provider ++ "preview/" ++ cur w 200
-        )
-        y -= 150
-      )
-
-      if typeof(user.wallpaper_mode) != "string" (
-        network "update" "wallpaper_mode" "Fill"
-      )
-      array modes = ["Fill","Center","Fit","Stretch"]
-      local mode = (user.wallpaper_mode ?? "Fill").toStr().toTitle()
-      inputs.dropdowns ??= {}
-      inputs.dropdowns.fillmode ??= {
-        open: false,
-        idx: modes.index(mode),
-        value: mode
-      }
-
-      loc -2 2 -115 -80 + frame.scroll
-      dropdown 200 25 10 {
-        id: "fillmode",
-        options: modes,
-        max_height: 300
-      } : c#window_colour
-
-      local fillmode @= inputs.dropdowns.fillmode.value
-      if fillmode != null and fillmode != user.wallpaper_mode (
-        terminal "system wallpapermode " ++ fillmode
-        network "update" "wallpaper_mode" fillmode
-      )
-
-      page_len = -y + frame.scroll
-      break
-    case "Dock"
-      if new_transmit (
-        file "open" transmit_data "onlyaccess"
-        f = fileGet(3) ++ "/" ++ fileGet(2) ++ fileGet(1)
-        segments.append(f)
-        network "update" "origin_dock" segments
-        new_transmit = false
-      )
-      w = frame.width - 25
-      y = -30 + frame.scroll
-      loc 9999 2 0 y
-      square w 30 15 : c#prim
-      loc 2 2 30 y
-      icon "w 4 cutcircle 0 -2 11 13.5 150 line -6 9 0 15 line -6 10 0 3" 0.6 : c#txtc
-      text "Reset Dock To Default" 9 : chx#20
-      if clicked (
-        segments = [
-          "Origin/(A) System/Docks/Modules/main.ode",
-          "Origin/(A) System/Docks/Modules/applications.ode",
-          "Origin/(A) System/Docks/Modules/folders.ode",
-          "Origin/(A) System/Docks/Modules/time.ode",
-          "Origin/(A) System/Docks/Modules/battery.ode"
-        ]
-        network "update" "origin_dock" segments
-      )
-      if file_dropped != 0 (
-        file "open" file_dropped "onlyaccess"
-        data = fileGet(1)
-        if data == ".ode" (
-          f = fileGet(3) ++ "/" ++ fileGet(2) ++ data
-          void segments.append(f)
-          network "update" "origin_dock" segments
-        )
-        file_dropped = 0
-      )
-      loc 9999 2 0 y - 50
-      square w 30 15 : c#prim
-      if onclick (
-        file "pick" "ode"
-        can = false
-      )
-      loc 2 2 30 y - 50
-      icon "upload" 0.7 : c#txtc
-      text "Click here or drop an ode file to add it to your dock" 9 : chx#20
-      for count segments.len (
-        y = count + 2 * -50 + frame.scroll
-        loc 999 2 0 y
-        w = frame_width - 25
-        square w 30 15 : c#prim
-        if mouse_touching (
-          square w 30 15 : c#seco
-          square w 30 10 : c#prim
-        )
-        loc 2 2 15 y
-        text segments[count] 9 : c#txtc
-        loc -2 2 -28 y
-        square 30 30 10 0 1
-        if mouse_touching (
-          square 30 30 15 : c#seco
-          square 30 30 10 : c#prim
-          if onclick (
-            segments.delete(count)
-            network "update" "origin_dock" segments
-          )
-        )
-        icon "bin" 0.8 : c#txtc
-        change_x -45
-        if count > 1 (
-          square 30 30 15 0 1
-          if mouse_touching (
-            square 30 30 15 : c#seco
-            square 30 30 10 : c#prim
-            if onclick (
-              segments.swap(count - 1,count)
-              network "update" "origin_dock" segments
-            )
-          )
-          icon "up" 0.8 : c#txtc
-        )
-        if count < segments.len (
-          change_x -45
-          square 30 30 15 0 1
-          if mouse_touching (
-            square 30 30 15 : c#seco
-            square 30 30 10 : c#prim
-            if onclick (
-              segments.swap(count,count + 1)
-              network "update" "origin_dock" segments
-            )
-          )
-          icon "down" 0.8 : c#txtc
-        )
-      )
-      page_len = segments.len + 2 * 60
-      break
-    case "Windows"
-      goto 0 frame.top + frame.scroll - 30
-      setting_toggle "Show Window Outline" w user.theme.show_outline != false def() -> (
-        local theme = user.theme
-        theme.show_outline = theme.show_outline == false
-        network "update" "theme" theme
-      )
-      change_y -50
-      setting_toggle "Use true blur (may cause performance issues)" w user.theme.use_true_blur != false def() -> (
-        local theme = user.theme
-        theme.use_true_blur = theme.use_true_blur == false
-        network "update" "theme" theme
-      )
-      break
-    case "Colours"
-      y = -30 + frame.scroll
-      colour_selector "Accent Colour" "accent"
-
-      y -= 70
-      colour_selector "Window Background" "background"
-      y -= 50
-      colour_selector "Window Primary" "primary"
-      y -= 50
-      colour_selector "Window Secondary" "secondary"
-      y -= 50
-      colour_selector "Window Tertiary" "tertiary"
-      y -= 50
-      colour_selector "Window Text And Icons" "text"
-
-      switch selected_col (
-        case "accent"
-          window_accent = picker_colour
-          break
-        case "background"
-          window_colour = picker_colour
-          break
-        case "primary"
-          prim = picker_colour
-          break
-        case "secondary"
-          seco = picker_colour
-          break
-        case "tertiary"
-          tert = picker_colour
-          break
-        case "text"
-          txtc = picker_colour
-          break
-      )
-      if selected_col != "" (
-        theme_select[selected_col] = picker_colour
-      )
-
-      y -= 50
-      loc 9999 2 0 y
-      w = frame.width - 25
-      square w 30 15 : c#prim
-      if mouse_touching (
-        if onclick (
-          network "update" "theme" theme_select
-        )
-        square w 30 15 : c#seco
-        square w 30 10 : c#prim
-      )
-      loc 2 2 30 y
-      icon "save" 0.7 : c#txtc
-      text "Save And Apply Theme" 9 : chx#30
-
-      y -= 80
-      each theme themes.getKeys() (
-        loc 9999 2 0 y
-        square w 30 15 : c#prim
-        if mouse_touching (
-          if onclick (
-            theme_select = themes[theme]
-            selected_col = ""
-
-            prim = theme_select.primary
-            seco = theme_select.secondary
-            tert = theme_select.tertiary
-            txtc = theme_select.text
-            window_colour = theme_select.background
-            window_accent = global_accent
-          )
-        )
-        loc 2 2 30 y
-        text theme 10 : c#txtc
-        y -= 50
-      )
-
-      page_len = 380 + (themes.len * 50)
-      break
-  )
-)
-
-def "files" (
-
-  local w = frame.width - 100
-  page_len = 0
-
-  switch subcategory (
-    case "none"
-      option "File Types" "file"
-      option "Storage" "save"
-      break
-    case "File Types"
-      for count ftkeys.len (
-        y = count * -60 + frame.scroll + 30
-
-        loc 999 2 0 y
-        square frame.width - 20 40 10 : c#prim
-        if mouse_touching (
-          square frame.width - 20 40 10 : c#seco
-          square frame.width - 20 40 5 : c#prim
-        )
-
-        loc 2 2 30 y
-        square 40 40 10 : c#seco
-        square 40 40 5 : c#prim
-
-        ftv @= ftvalues[count]
-        icon ftv[1] 1 : c#txtc
-        text ftv[2] + "(" ++ ftkeys[count] ++ ")" 9 : chx#35 : c#txtc
-      )
-      page_len = count * 60
-      break
-    case "Storage"
-      y = -160 + 75 + frame.scroll
-      loc 2 2 80 y
-      image pfp 100 100
-      text "(Network)" + username 15 : chx#80 chy#20 c#txtc
-      change_x 20
-      square 150 20 10 : c#seco chx#70
+      goto cw / -2 + 62 cy - bh
+      square 0 0 92 : c#window_colour
+      image pfp 84 84
+      square 84 84 0 0 1
       if mouse_touching (
         cursor "pointer"
-        if onclick (
-          category = "Upgrade"
+        effect "transparency" 35
+        square 0 0 84 : c#000
+        effect "clear"
+        centext "Change" 8 : c#fff
+        if onclick and timer - upload_time > 1 (
+          local picked @= askFile(null, "dataURL")
+          if picked.name.endsWith(".gif") and !hasTierOrHigher("drive") (
+            say "Upgrade to Drive or higher to have animated avatars"
+          ) else if picked.name != "" (
+            upload_time = timer
+            network "update" "pfp" picked.data
+          )
         )
       )
-      centext "Upgrade Storage" 9 : c#txtc
 
-      loc 2 2 160 y
-      number used_size = user.used_size.toNum()
-      number max_size = user.max_size.toNum()
-      text formatFileSize(used_size) ++ "/" ++ formatFileSize(max_size) 10 : c#txtc
-      loc 999 2 125 / 2 y - 35
-      c prim
-      bar frame_width - 200 20 10 used_size / max_size seco
-      page_len = 460
-
-      if total_files == 0 (
-        loop 100 (
-          file "open" current[1] "onlyaccess"
-          dat = fileGet(4).toStr()
-          file = dat.len + "bytes"
-          file = " " * (15 - file.len) + file + "-" + fileGet(2)
-          file.append(fileGet(1))
-          files.append(file)
-          current.delete(1)
-          if fileGet(1) == ".folder" (
-            current ++= fileGet(4)
+      goto cw / -2 + 120 cy - bh - 14
+      text user.username.trimText(cw - 260 / 14) 14 : c#txtc
+      local badges @= user["sys.badges"]
+      if typeof(badges) == "array" (
+        change_x 14
+        for i badges.len (
+          icon badges[i].icon 1 : tooltip#badges[i].name
+          if onclick (
+            say badges[i].description
           )
-          total_files = files.len
-          file_data = files.sort().reverse().trim(1,20)
-        )
-
-        goto frame.left + 30 frame.top + frame.scroll - 200
-        direction (timer * 100).sin() * 360
-        icon "w 2 cutcircle 0 0 10 0 90" 1 : c#txtc
-        direction 90
-        text files.len + "Files Processed" 10 : chx#30
-      ) else (
-        loc 2 2 20 -200 + frame.scroll
-        text "Biggest Files" 9 : c#txtc
-        for i file_data.len (
-          loc 2 2 20 i * -30 - 200 + frame.scroll
-          text file_data[i] 9
-        )
-        page_len = file_data.len * 30 + 200
-      )
-      break
-  )
-)
-
-def "account" (
-  local tier = user["sys.subscription"].tier ?? "Free"
-  local w = frame.width - 100
-  page_len = 500
-
-  goto 0 frame.top - 50 + frame.scroll
-
-  if subcategory == "backups" (
-    page_len = 0
-    each this.backup user["sys.backups"] (
-      if typeof(backup) == "object"  (
-        page_len += 50
-        setting_do backup.name + "(" ++ round(backup.size / 1000) ++ "kb)" null w def(id) -> (
-          if "Restore this backup?".confirm() (
-            network "server" "restore_backup" id
-          )
-        ) backup.id
-        set_x 0 : chy#-50
-      )
-    )
-    return
-  )
-
-  if subcategory == "banners" (
-    local premium = ["Pro", "Max"].contains(tier)
-    page_len = 0
-    goto 0 frame.top - 110 + frame.scroll
-    square w 200 10 : c#prim
-    c seco
-    square 50 50 20
-    if mouse_touching (
-      cursor "pointer"
-      if onclick (
-        if premium or user["sys.currency"] >= 10 (
-          file @= askFile(null, "dataURL")
-          if file.name.endsWith(".gif") and !premium (
-            say "Upgrade to Pro to have animated avatars"
-            // this is validated server-side too lol, this is just to tell the user
-            return
-          )
-          if file.name == "" (
-            say "Please select a file"
-          ) else (
-            network "update" "banner" file.data
-          )
-        ) else (
-          say "You do not have enough credits for this"
+          change_x 26
         )
       )
-    )
-    c txtc
-    icon "add" 1.5
-    change_y 50
-    centext "Add New Banner" 10
-    change_y -100
-    if premium (
-      centext "Cost: Free" 10
-      change_y -20
-      centext "(for pro subscribers)" 10
-    ) else (
-      centext "Cost: 10 credits" 10
-      change_y -20
-      centext "You have " ++ user["sys.currency"] ++ " credits" 10
-    )
+      goto cw / -2 + 120 cy - bh - 36
+      text user.system + "account -" + tier 8.5 : c#muted
+      cy -= bh + 64
 
-    array banners = []
-    if user["sys.banner"].toStr() != "" (
-      change_y -60
-      centext "Current banner:" 10
-      change_y 100
-
-      banners @= [user["sys.banner"]]
-      y = y_position - (100 + (w / 6)) - 20
-
-      each banner banners (
-        goto 0 y
-        square w w / 3 10 : c#prim
-        image banner w w / 3
-        y -= w / 3 + 20
+      ui_header "Bio"
+      local bio = inputs.bio.join("\n")
+      local bio_max = 200
+      if hasTierOrHigher("drive") (
+        bio_max = 500
       )
-    )
-    page_len = (w / 3 + 20) * banners.len + 250
-    return
-  )
-
-  if subcategory == "connections" (
-    /*
-    local links = user["sys.links"]
-    if links.contains("github") and github_data == "Loading" (
-      github_data = ("https://api.github.com/user/" ++ links.github.id).getAsync()
-    )
-    setting_do "Github: " ++ (links.contains("github") ? github_data.login "Click To Link") null w def() -> (
-      network "server" "link" {
-        service: "github",
-        username: "What is your github username?".ask()
+      if hasTierOrHigher("pro") (
+        bio_max = 1000
+      )
+      ui_group 1 120
+      goto 0 cy - 60
+      textbox cw - 30 100 "bio" 10 {
+        bg_colour: prim,
+        line_numbers: false
       }
-    )
-    */
-    page_len = 50
-    goto 0 frame.top + frame.scroll + 25
+      cy -= 120
+      if bio != (user.bio ?? "") (
+        ui_gap 8
+        ui_group 1 ROW
+        row_action "Save Bio (" ++ bio.len ++ "/" ++ bio_max ++ ")" "save" def(limit) -> (
+          local value = inputs.bio.join("\n").strip()
+          if value.len > limit (
+            say "Bio too long"
+          ) else (
+            network "update" "bio" value
+          )
+        ) bio_max
+      )
+      ui_gap GAP
 
-    set_x 0 : chy#-50
-    setting_do "Change Email (" ++ user.email ++ ")" "edit" w def() -> (
-      network "update" "email" "Enter Your New Email".ask()
-    )
+      ui_header "Profile"
+      ui_group 2 ROW
+      row_nav "Banner" "image" "#8b5cf6" "Banner"
+      row_nav "Subscriptions" "tag" "#f59e0b" "Subscriptions"
+      ui_gap GAP
 
-    return
+      ui_header "Sign-in"
+      ui_group 3 ROW
+      row_action "Change Email (" ++ user.email ++ ")" "mail" def() -> (
+        local value = "Enter your new email".ask()
+        if value.toStr() != "" (
+          network "update" "email" value
+        )
+      ) null
+      row_action "Change Password" "key" def() -> (
+        local value = "Enter your new password".ask()
+        if value == null or value == "" (
+          say "Cancelled"
+        ) else (
+          network "update" "password" value.hashMD5()
+        )
+      ) null
+      row_nav "Backups" "save" "#10b981" "Backups"
+      ui_gap GAP
+
+      ui_group 1 ROW
+      action_danger = true
+      row_action "Log Out" "log-out" def() -> (
+        eval "localStorage.setItem('origin_login', '')"
+        terminal "shutdown"
+      ) null
+      break
+    case "Banner"
+      local label = "Upload New Banner (10 credits)"
+      if hasTierOrHigher("pro") (
+        label = "Upload New Banner (free with Pro)"
+      )
+      ui_group 1 ROW
+      row_action label "upload" def() -> (
+        if !hasTierOrHigher("pro") and user["sys.currency"] < 10 (
+          say "You do not have enough credits for this"
+          return
+        )
+        local picked @= askFile(null, "dataURL")
+        if picked.name == "" (
+          say "Please select a file"
+        ) else if picked.name.endsWith(".gif") and !hasTierOrHigher("pro") (
+          say "Upgrade to Pro to have animated banners"
+        ) else (
+          network "update" "banner" picked.data
+        )
+      ) null
+      ui_note "You have " ++ user["sys.currency"] ++ " credits."
+      if user["sys.banner"].toStr() != "" (
+        ui_header "Current Banner"
+        local bh = cw / 3
+        ui_card 0 cy - (bh / 2) cw bh
+        image user["sys.banner"] cw - 2 bh - 2
+        cy -= bh
+      )
+      break
+    case "Subscriptions"
+      if typeof(subscriptions) != "array" (
+        ui_spinner "Fetching subscriptions"
+        local data = ("https://social.rotur.dev/keys/mine?auth=" ++ roturToken()).getAsync()
+        if data != "Loading" (
+          subscriptions = data.filter(v -> (v["type"] == "subscription"))
+        )
+      ) else if subscriptions.len == 0 (
+        ui_note "You have no subscriptions."
+      ) else (
+        for i subscriptions.len (
+          local cur @= subscriptions[i]
+          ui_header cur.name ?? cur.key
+          ui_group 3 ROW
+          row_info "Creator" cur.creator
+          row_info "Price" cur.price ++ " credits per " ++ cur.subscription.frequency ++ " " ++ cur.subscription.period
+          action_danger = true
+          row_action "Cancel Subscription" "close" def(sub) -> (
+            if ("Are you sure you want to cancel '" ++ sub.name ++ "'?").confirm() (
+              void ("https://social.rotur.dev/keys/cancel/" ++ sub.key ++ "?auth=" ++ roturToken()).getAsync()
+              subscriptions = ""
+            )
+          ) cur
+          ui_gap GAP
+        )
+      )
+      break
+    case "Backups"
+      local backups = (user["sys.backups"] ?? []).filter(v -> (typeof(v) == "object"))
+      if backups.len == 0 (
+        ui_note "You have no backups."
+      ) else (
+        ui_group backups.len ROW
+        for i backups.len (
+          row_action backups[i].name + "(" ++ round(backups[i].size / 1000) ++ "kb)" "reload" def(id) -> (
+            if "Restore this backup?".confirm() (
+              network "server" "restore_backup" id
+            )
+          ) backups[i].id
+        )
+      )
+      break
   )
+)
 
-  if subcategory == "Subscriptions" (
-    page_len = 0
-    if typeof(subscriptions) != "array" (
-      goto 0 frame.top - 60 + frame.scroll
-      centext "Fetching Subscriptions" 10 : c#txtc
+// ---------------------------------------------------------------- connectivity
 
-      data = ("https://social.rotur.dev/keys/mine?auth=" ++ roturToken()).getAsync()
-      if data != "Loading" (
-        subscriptions = data.filter(v -> (v["type"] == "subscription"))
-      )
+def "signal_icon" "strength" (
+  goto cw / 2 - 28 ry
+  icon "network" 0.7 : c#track_col
+  icon ["", "w 4 dot 0 -6", "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6", "network"][strength + 1] 0.7 : c#txtc
+)
+
+def "page_wifi" (
+  ui_group 2 ROW
+  row_info "Network" roturlink.wifi.ssid
+  row_info "Signal Strength" roturlink.wifi.signal_strength
+  ui_gap GAP
+  local networks @= roturlink.wifi.scan.sortBy("signal_strength").reverse()
+  ui_header networks.len + "networks nearby"
+  ui_group networks.len ROW
+  for i networks.len (
+    ui_row false 0
+    ui_label networks[i].ssid "" ""
+    signal_icon round(networks[i].signal_strength.clamp(0, 75) / 25)
+  )
+)
+
+def "page_bluetooth" (
+  local devices = roturlink.bluetooth.devices.filter(v -> (v.name != "unknown")).sortBy("rssi").reverse()
+  ui_header devices.len + "devices"
+  ui_group devices.len ROW
+  for i devices.len (
+    ui_row false 0
+    ui_label devices[i].name "" ""
+    signal_icon round((devices[i].rssi + 100).clamp(0, 75) / 25)
+  )
+)
+
+def "page_network" (
+  local status = "No Connection"
+  if network.connected (
+    status = "Connected"
+  )
+  ui_group 2 ROW
+  row_info "Status" status
+  row_info "IP Address" network.ip
+  ui_gap GAP
+  ui_header "Cors Proxy"
+  ui_group 2 ROW
+  row_info "Current" user.proxy ?? "https://apps.mistium.com/cors?url="
+  row_input "New Proxy" "proxy" 300 "https://" def(value) -> (
+    if value.startsWith("https://") (
+      network "update" "proxy" value
+      inputs.proxy = ""
     ) else (
-      goto 0 frame.top - 60 + frame.scroll
-      if subscriptions.len == 0 (
-        centext "You have no subscriptions" 10 : c#txtc
-      )
+      say "The proxy must start with https://"
+    )
+  )
+  ui_note "Apps use this proxy to reach sites that block cross-origin requests. Press enter to save."
+)
 
-      for i subscriptions.len (
-        cur @= subscriptions[i]
-        x = x_position
-        y = y_position
-        square w 100 10 : c#prim
-        change w / -2 + 10 30
-        text cur.name ?? cur.key ++ "\n" 10 : c#txtc
-        text "by: " ++ cur.creator ++ "\n" 10
-        text "price (credits): " ++ cur.price ++ " per " ++ cur.subscription.frequency ++ " " ++ cur.subscription.period 10
-        goto x y
-        change w / 2 - 70
-        square 100 40 10 : c#seco
-        if onclick (
-          if ("Are you sure you want to cancel '" ++ cur.name ++ "'?").confirm() (
-            void ("https://social.rotur.dev/keys/cancel/" ++ cur.key ++ "?auth=" ++ roturToken()).getAsync()
-            subscriptions = ""
+// ---------------------------------------------------------------- general
+
+// shared editor for a list of file paths kept on the account (boot apps, dock modules)
+def "page_list_editor" "key, items, extension, defaults" (
+  local added = ""
+  if new_transmit (
+    file "open" transmit_data "onlyaccess"
+    added = fileGet(3) ++ "/" ++ fileGet(2) ++ fileGet(1)
+    new_transmit = false
+  )
+  if file_dropped != 0 (
+    local parts = open(file_dropped, ["location", "name", "type"])
+    added = parts[1] ++ "/" ++ parts[2] ++ parts[3]
+    file_dropped = 0
+  )
+  if added != "" (
+    if added.toLower().endsWith("." ++ extension) (
+      void items.append(added)
+      network "update" key items
+    ) else (
+      say "Choose a ." ++ extension ++ " file"
+    )
+  )
+  ui_group items.len ROW
+  for i items.len (
+    row_path items[i]
+    if button_click (
+      void items.delete(i)
+      network "update" key items
+      break
+    )
+    if i > 1 (
+      ui_button "up" 56
+      if button_click (
+        void items.swap(i - 1, i)
+        network "update" key items
+      )
+    )
+  )
+  ui_gap GAP
+  ui_group 2 ROW
+  row_action "Add A ." ++ extension ++ " File" "add" def(ext) -> (
+    file "pick" ext
+  ) extension
+  row_action "Reset To Default" "reload" def(args) -> (
+    network "update" args[1] args[2]
+  ) [key, defaults]
+)
+
+def "page_storage" (
+  number used = user.used_size.toNum()
+  number max = user.max_size.toNum()
+  ui_group 1 70
+  ui_row false 0
+  goto cw / -2 + 22 ry + 14
+  text "Rotur Drive" 9 : c#txtc
+  goto cw / 2 - 20 ry + 14
+  rigtext formatFileSize(used) ++ " of " ++ formatFileSize(max) 9 : c#muted
+  goto 0 ry - 14
+  c track_col
+  bar cw - 42 2 8 used / max global_accent
+  ui_gap GAP
+  ui_group 1 ROW
+  row_action "Upgrade Storage" "up" def() -> (
+    nav_cat = "Subscription"
+  ) null
+  ui_gap GAP
+
+  ui_header "Largest Files"
+  if scan_left.len > 0 (
+    loop 100 (
+      if scan_left.len == 0 (
+        break
+      )
+      file "open" scan_left[1] "onlyaccess"
+      void scan_left.delete(1)
+      if fileGet(1) == ".folder" (
+        scan_left ++= fileGet(4)
+      ) else (
+        void scan_found.append({
+          size: fileGet(4).toStr().len,
+          name: fileGet(2) ++ fileGet(1)
+        })
+      )
+    )
+    ui_spinner scan_found.len + "files scanned"
+    scan_top = null
+  ) else (
+    scan_top ??= scan_found.sortBy("size").reverse().trim(1, 20)
+    ui_group scan_top.len ROW
+    for i scan_top.len (
+      row_info scan_top[i].name formatFileSize(scan_top[i].size)
+    )
+  )
+)
+
+def "page_general" (
+  switch subcategory (
+    case "none"
+      ui_group 1 ROW
+      row_nav "About" "info" "#6b7280" "About"
+      ui_gap GAP
+      ui_group 4 ROW
+      row_nav "Date & Time" "alarm-clock" "#3b82f6" "Date & Time"
+      row_nav "Login Items" "power" "#10b981" "Login Items"
+      row_nav "Default Apps" "grid-apps" "#8b5cf6" "Default Apps"
+      row_nav "File Types" "file" "#f59e0b" "File Types"
+      ui_gap GAP
+      ui_group 1 ROW
+      row_nav "Storage" "save" "#6b7280" "Storage"
+      break
+    case "About"
+      goto 0 cy - 40
+      icon "origin-logo" 3 : c#txtc
+      cy -= 96
+      goto 0 cy
+      centext "originOS" 14 : c#txtc
+      cy -= 34
+      ui_group 4 ROW
+      // "700" and "7.00" are the same release, show both as 7.00
+      local version = origin.version.toNum()
+      if version < 100 (
+        version *= 100
+      )
+      local digits = round(version).toStr()
+      row_info "Version" digits.left(digits.len - 2) ++ "." ++ digits.right(2)
+      row_info "Resolution" screensize_x ++ " x " ++ screensize_y
+      row_info "Runtime" "vm.runtime.platform.name".eval()
+      row_info "Browser" parseUserAgent("navigator.userAgent".eval())
+      ui_note "originOS is a scratch-based desktop environment that runs the OSL programming language. Developed with <3 by Mistium."
+      ui_group 1 ROW
+      row_action "Buy Me A Monster :3" "open" def() -> (
+        http "newtab" "https://ko-fi.com/mistium/tip"
+      ) null
+      break
+    case "Date & Time"
+      goto 0 cy - 24
+      centext timestamp.timestamp("convert-time") 22 : c#txtc
+      cy -= 64
+      ui_group 2 ROW
+      row_toggle "Show Seconds" user.timeformat.show_seconds def() -> (
+        local format = user.timeformat
+        format.show_seconds = format.show_seconds.not()
+        network "update" "timeformat" format
+      )
+      row_choice "Clock" ["12h", "24h"] user.timeformat.hours def(value) -> (
+        local format = user.timeformat
+        format.hours = value
+        network "update" "timeformat" format
+      )
+      ui_note "Your clock is corrected by " ++ time.offset ++ "ms to match the server."
+      break
+    case "Login Items"
+      page_list_editor "onboot" user.onboot "osl" [
+        "origin/(a) system/system apps/originWM.osl",
+        "origin/(a) system/docks/Dock.osl",
+        "origin/(a) system/system apps/Quick_Settings.osl"
+      ]
+      ui_note "These apps open when you log in. Drop an osl file here to add it."
+      break
+    case "Default Apps"
+      local defaults @= app_defaults.current
+      local kinds = defaults.getKeys()
+      ui_group kinds.len ROW
+      for i kinds.len (
+        ui_row false 0
+        if row_hover and file_dropped != 0 (
+          local parts = open(file_dropped, ["location", "name", "type"])
+          if parts[3] == ".shortcut" (
+            parts = open(open(file_dropped), ["location", "name", "type"])
+          )
+          if parts[3] == ".osl" (
+            defaults[kinds[i]] = parts[1] ++ "/" ++ parts[2] ++ parts[3]
+            save "default_apps.json" "set" defaults
+          ) else (
+            say "Invalid file type, drop a .osl file"
+          )
+          file_dropped = 0
+        )
+        if row_hover and file_dragging (
+          goto 0 ry
+          square cw - 16 row_h - 16 14 : c#hover_col
+        )
+        ui_label kinds[i] "" ""
+        ui_value defaults[kinds[i]].toStr().split("/").last() kinds[i].len
+      )
+      ui_note "Drop an app onto a row to make it the default for that kind of file."
+      ui_group 1 ROW
+      row_action "Reset Default Apps" "reload" def() -> (
+        app_defaults.current = app_defaults.original
+        save "default_apps.json" "set" app_defaults.current
+      ) null
+      break
+    case "File Types"
+      local keys = file_types.getKeys()
+      local values @= file_types.getValues()
+      ui_group keys.len ROW
+      for i keys.len (
+        ui_row false 38
+        goto cw / -2 + LABEL_X + 12 ry
+        square 12 12 12 : c#hover_col
+        icon values[i][1] 0.7 : c#txtc
+        text values[i][2] 9 : c#txtc chx#26
+        ui_value keys[i] values[i][2].len + 4
+      )
+      break
+    case "Storage"
+      page_storage
+      break
+  )
+)
+
+// ---------------------------------------------------------------- appearance
+
+def "apply_theme_preview" (
+  prim = theme_select.primary
+  seco = theme_select.secondary
+  tert = theme_select.tertiary
+  txtc = theme_select.text
+  window_colour = theme_select.background
+)
+
+// keeps the accent and window flags when switching preset
+def "save_theme" "next" (
+  next.show_outline = user.theme.show_outline
+  next.use_true_blur = user.theme.use_true_blur
+  theme_select = next
+  network "update" "theme" next
+  apply_theme_preview
+)
+
+def "page_appearance" (
+  switch subcategory (
+    case "none"
+      ui_header "Theme"
+      local names = themes.getKeys()
+      local tw = cw - 20 / names.len
+      ui_group 1 92
+      for i names.len (
+        local preset @= themes[names[i]]
+        local tx = cw / -2 + 10 + (i - 0.5 * tw)
+        goto tx cy - 36
+        square tw - 28 30 12 0 1
+        local hit = onclick
+        if mouse_touching (
+          cursor "pointer"
+        )
+        // ring sits 3px outside the thumbnail so both corners stay concentric
+        if preset.background == user.theme.background and preset.primary == user.theme.primary (
+          square tw - 28 30 20 : c#global_accent
+        ) else (
+          square tw - 28 30 14 : c#edge_col
+        )
+        c preset.background
+        square tw - 28 30 12
+        c preset.primary
+        square tw - 46 8 8 : chy#5
+        c preset.text
+        square tw - 56 0 3 : chy#-14 chx#-5
+        c preset.accent
+        square 0 0 5 : chx#(tw - 46 / 2)
+        goto tx cy - 74
+        centext names[i].toTitle() 8 : c#txtc
+        if hit (
+          local next = preset
+          next.accent = user.theme.accent ?? preset.accent
+          save_theme next
+        )
+      )
+      cy -= 92
+      ui_gap GAP
+
+      ui_header "Accent Colour"
+      ui_group 1 52
+      ui_row false 0
+      local custom = !accents.contains(user.theme.accent)
+      for i accents.len + 1 (
+        goto cw / -2 + LABEL_X + 13 + (i - 1 * 38) ry
+        square 0 0 24 0 1
+        local hit = onclick
+        if mouse_touching (
+          cursor "pointer"
+        )
+        local swatch = accents[i] ?? user.theme.accent
+        local current = swatch == user.theme.accent and (i <= accents.len or custom)
+        if current (
+          square 0 0 30 : c#txtc
+          square 0 0 26 : c#prim
+        )
+        c swatch
+        square 0 0 22
+        if i > accents.len (
+          // the last swatch is your own colour and opens the picker
+          icon "pen" 0.45 : c#accent_txt
+          if hit (
+            nav_sub = "Custom Colours"
+            selected_col = "accent"
+            colourpicker "setcol" user.theme.accent
+            colourpicker "show"
+          )
+        ) else if hit (
+          local next = user.theme
+          next.accent = accents[i]
+          save_theme next
+        )
+      )
+      ui_gap GAP
+
+      ui_header "Windows"
+      ui_group 2 ROW
+      row_toggle "Show Window Border" user.theme.show_outline != false def() -> (
+        update_theme_flag("show_outline")
+      )
+      row_toggle "True Blur" user.theme.use_true_blur != false def() -> (
+        update_theme_flag("use_true_blur")
+      )
+      ui_note "The border uses your accent colour on the focused window. True blur looks better but can slow down older devices."
+
+      ui_group 2 ROW
+      row_nav "Custom Colours" "pen" "#ec4899" "Custom Colours"
+      row_nav "Fonts" "w 2.5 line -6 -8 0 8 cont 6 -8 line -3.5 -2 3.5 -2" "#64748b" "Fonts"
+      break
+    case "Custom Colours"
+      if selected_col != "" (
+        theme_select[selected_col] = picker_colour
+        apply_theme_preview
+      )
+      ui_group 6 ROW
+      row_colour "Accent" "accent"
+      row_colour "Window Background" "background"
+      row_colour "Primary" "primary"
+      row_colour "Secondary" "secondary"
+      row_colour "Tertiary" "tertiary"
+      row_colour "Text And Icons" "text"
+      ui_note "Changes preview in this window only until you save."
+      ui_group 2 ROW
+      row_action "Save And Apply Theme" "save" def() -> (
+        network "update" "theme" theme_select
+        selected_col = ""
+      ) null
+      row_action "Discard Changes" "reload" def() -> (
+        theme_select = user.theme
+        selected_col = ""
+        apply_theme_preview
+      ) null
+      break
+    case "Fonts"
+      if typeof(font_list) != "array" (
+        ui_spinner "Fetching fonts"
+        local data = "https://api.github.com/repos/Mistium/Origin-OS/contents/Fonts".getAsync()
+        if typeof(data) == "array" (
+          font_list = data.map(v -> (v.name)).filter(v -> (v.endsWith(".ojff"))).map(v -> (v.replace(".ojff", "")))
+        )
+      ) else (
+        // the system font file is the Source Code Pro build, "font.load" reads it straight from (A) System
+        ui_group 1 ROW
+        ui_row true 0
+        ui_label "System Default (Source Code Pro)" "" ""
+        if font_current == "" (
+          goto cw / 2 - 28 ry
+          icon "tick" 0.6 : c#global_accent
+        )
+        if row_click (
+          terminal "font.load origin"
+          font_current = ""
+        )
+        ui_gap GAP
+        ui_header "More Fonts"
+        ui_group font_list.len ROW
+        for i font_list.len (
+          ui_row true 0
+          ui_label font_list[i].toTitle() "" ""
+          if font_list[i] == font_current (
+            goto cw / 2 - 28 ry
+            icon "tick" 0.6 : c#global_accent
+          )
+          if row_click (
+            terminal "font install " ++ font_list[i]
+            terminal "font use " ++ font_list[i]
+            font_current = font_list[i]
           )
         )
-        centext "Cancel" 10 : c#txtc
-        goto x y
-        change_y -120
-        page_len += 120
+        ui_note "Fonts download into your Fonts folder. The choice lasts until you restart originOS."
+        ui_gap GAP
+
+        // fonts installed earlier live in the Fonts folder, anything that is not a stock font is custom
+        if !fonts_scanned (
+          fonts_scanned = true
+          local found @= (user_folder ++ "/Fonts").listFolder()
+          if typeof(found) == "array" (
+            for i found.len (
+              local entry = found[i].toStr()
+              local slug = entry.replace(".ojff", "")
+              if entry.endsWith(".ojff") and !font_list.contains(slug) and !custom_fonts.contains(slug) (
+                void custom_fonts.append(slug)
+              )
+            )
+          )
+        )
+        ui_header "Custom Fonts"
+        ui_group 2 ROW
+        row_input "Google Fonts" "gfont" 220 "Family, e.g. Inter" def(family) -> (
+          install_google_font(family.toStr().strip())
+        )
+        row_action "Install A Font File (.ttf .otf .woff2)" "add" def() -> (
+          font_picking = true
+          file "pick"
+        ) null
+        if font_status != "" (
+          ui_note font_status
+        )
+        if new_transmit and font_picking (
+          font_picking = false
+          if transmit_data != "closed" (
+            install_font_file(transmit_data.toStr())
+          )
+          new_transmit = false
+        )
+        if custom_fonts.len > 0 (
+          ui_gap GAP
+          ui_group custom_fonts.len ROW
+          for i custom_fonts.len (
+            ui_row true 0
+            ui_label custom_fonts[i].toTitle() "" ""
+            if custom_fonts[i] == font_current (
+              goto cw / 2 - 28 ry
+              icon "tick" 0.6 : c#global_accent
+            )
+            if row_click (
+              terminal "font use " ++ custom_fonts[i]
+              font_current = custom_fonts[i]
+            )
+          )
+        )
+        ui_note "A custom font keeps the system glyphs as a fallback and is laid out on origin's character grid, so every app still lines up. Press enter to install a Google font."
       )
-    )
-    return
+      break
   )
+)
 
-  if subcategory == "Recent Logins" (
-    page_len = 0
-    goto 0 frame.top - 60 + frame.scroll
-    array logins @= user["sys.logins"]
-    logins.sortBy("timestamp")
-    logins.reverse()
+// name, kind and a small frame grabbed from the live desktop wallpaper, which works for images and videos
+def wallpaper_info() (
+  return ("(()=>{const w=origin.wallpaper||{};const el=window.__osldomWall&&window.__osldomWall.querySelector('video,img');const video=!!el&&el.tagName==='VIDEO';let thumb='';try{const c=document.createElement('canvas');c.width=320;c.height=176;const sw=video?el.videoWidth:el.naturalWidth,sh=video?el.videoHeight:el.naturalHeight;const k=Math.max(320/sw,176/sh);c.getContext('2d').drawImage(el,(320-sw*k)/2,(176-sh*k)/2,sw*k,sh*k);thumb=c.toDataURL('image/jpeg',0.7)}catch(e){thumb=el&&!video?el.src:''}const cur=String(w.current||'');const src=String(w.video||w.data||cur);let name=decodeURIComponent(cur.split('/').pop().split('?')[0]);if(cur==='local'||src.startsWith('data:'))name='Custom '+(video?'Video':'Image');return {thumb:thumb,name:name||'None',kind:video?'Live wallpaper':'Still image'}})()").eval()
+)
 
-    if logins.len == 0 (
-      centext "You have no logins" 10 : c#txtc
-    )
-
-    for i logins.len (
-      object cur @= logins[i]
-      x = x_position
-      y = y_position
-      square w 100 10 : c#prim
-      change w / -2 + 10 30
-      text "Login " ++ cur.timestamp.timestamp("to-relative") ++ " from " ++ cur.country ++ "\n" 10 : c#txtc
-      text "Origin: " ++ cur.origin ++ "\n" 10
-      text parseUserAgent(cur.userAgent) ++ "\n" 10
-      goto x + (w / 2) - 50 y
-      image "https://proxy.mistium.com?url=" ++ encodeURIComponent("https://favicon.is/" ++ cur.origin) 50 50
-      goto x y
-      change_y -120
-      page_len += 120
-    )
-    return
+def "page_wallpaper" (
+  // what is on the desktop right now, refreshed every couple of seconds
+  if timer - wall_time > 2 or wall == null (
+    wall = wallpaper_info()
+    wall_time = timer
   )
-
-  if subcategory == "Privacy" (
-    page_len = 550
-    setting_toggle "Private Account?" w user.private def() -> (
-      network "update" "private" user.private.not()
-    )
-    set_x 0 : chy#-50
-    centext "Public Data:" 10 : c#txtc
-    local items = {
-      "username": "username",
-      "profile picture": "pfp",
-      "banner": "sys.banner",
-      "bio": "bio",
-      "theming and colours": "theme",
-      "rotur credit total": "sys.currency",
-      "your rotur operating system": "system",
-      "account creation date": "created"
-    }
-    change_y -50
-    local names = items.getKeys()
-    local keys = items.getValues()
-    for i names.len (
-      square w 30 10 : c#prim
-      set_x w / -2 + 10
-      text names[i].toTitle() 10 : c#txtc tooltip#keys[i]
-      set_x 0 : chy#-50
-    )
-    return
-  )
-
-  if subcategory == "Blocked Ips" (
-    local w = frame.width - 25
-    set_x 0
-    blocked_ips @= user["blocked_ips"]
-    if typeof(blocked_ips) != "array" (
-      blocked_ips = []
-    )
-    set_x 0
-    centext "Block IPs from logging into your account!" 10 : c#txtc
-    change_y -30
-    centext "Your ip is " ++ network.ip 10 : c#txtc
-    change_y -50
-    setting_do "Block IP" "add" w def() -> (
-      local ip = "Enter an ip".ask().strip()
-      if ip == "" (
-        say "Please enter an ip"
-        return
-      )
-      if blocked_ips.contains(ip) (
-        say "Ip already blocked"
-      ) else (
-        void blocked_ips.append(ip)
-      )
-      network "update" "blocked_ips" blocked_ips
-      return
-    )
-    change_y -60
-    if blocked_ips.len == 0 (
-      set_x 0
-      centext "No blocked ips" 10 : c#txtc
-      return
-    )
-
-    for i blocked_ips.len (
-      local cur = blocked_ips[i]
-      set_x 0
-      square w 30 10 : c#prim
-      set_x w / -2 + 10
-      text cur 10 : c#txtc
-      set_x w / 2 - 20
-      icon "bin" 0.6 : c#txtc
-      if clicked (
-        void blocked_ips.delete(cur)
-        network "update" "blocked_ips" blocked_ips
-      )
-      set_x 0 : chy#-50
-    )
-    return
-  )
-
-  goto 0 frame.top - (w / 6) - 10 + frame.scroll
-  square w w / 3 10 : c#prim
-  effect "transparency" 70
-  image user.banner ++ "?radius=10" w w / 3
-  effect "clear"
-  page_len += w / 3
-
-  local pfp_s = w / 3 - 30
-  change_x w / -2 + (pfp_s / 2) + 15
-  image pfp pfp_s pfp_s
-  square pfp_s pfp_s 10 0 1
-  if mouse_touching (
-    if mouse_ondown and timer - upload_time > 1 (
-      file @= askFile(null, "dataURL")
-      if file.name.endsWith(".gif") and !["Drive", "Pro", "Max"].contains(tier) (
-        say "Upgrade to Drive or higher to have animated avatars"
-        // this is validated server-side too lol, this is just to tell the user
-        return
-      )
-      if file.name == "" (
-        say "Please select a file"
-      ) else (
-        upload_time = timer
-        network "update" "pfp" file.data
-      )
-    )
-    change_y 20
-    square 25 25 12 : c#seco
-    icon "paste" 0.7 : c#txtc
-
-    square 81 10 20 : chy#-40 c#seco
-    centext "Change PFP" 9 : c#txtc
-    change_y 20
-  )
-
-  local pos = [x_position + (pfp_s / 2) + 30, y_position + 15]
-  goto pos
-
-  local username_x = x_position
-  local uname = user.username.trimText((frame.width - (frame.right + x_position)) / 15 - 5)
-  text uname 15 : c#txtc
-
-  loc -2 2 -70 -30 + frame.scroll
-  icon "edit" 0.8
-  if onclick (
-    subcategory = "Banners"
-  )
-
-  local user_badges @= user["sys.badges"]
-  if typeof(user_badges) != "array" (
-    user_badges = []
-  )
-  local w2 = user_badges.len * 30
-  local username_w = uname.len * 15
-  local x = pos[1] + username_w + 15 + w2
-  if x < frame.right - 50 (
-    pos[1] += username_w + 0
+  ui_group 1 112
+  goto cw / -2 + 96 cy - 56
+  square 148 76 14 : c#edge_col
+  square 148 76 12 : c#hover_col
+  if wall.thumb == "" (
+    icon "image" 1.2 : c#muted
   ) else (
-    pos[1] -= 15
-    pos[2] -= 30
+    style {rounding: 6}
+    image wall.thumb 160 88
   )
-  goto pos[1] + (w2 * .5) + 15 pos[2]
-  square w2 - 5 25 10 : c#prim
-  goto pos[1] + 30 pos[2]
-  for i user_badges.len (
-    local badge @= user_badges[i]
-    icon badge.icon 1.2 : tooltip#badge.name
-    if onclick (
-      say badge.description
+  goto cw / -2 + 196 cy - 38
+  text "CURRENT WALLPAPER" 7.5 : c#muted
+  goto cw / -2 + 196 cy - 58
+  text wall.name.trimText(cw - 230 / 10) 10 : c#txtc
+  goto cw / -2 + 196 cy - 78
+  text wall.kind 8 : c#muted
+  cy -= 112
+  ui_gap GAP
+
+  ui_group 2 ROW
+  row_action "Choose A Custom Wallpaper" "image" def() -> (
+    local picked @= askFile(null, "dataURL")
+    if picked.name != "" (
+      terminal "system wallpaper_local " ++ picked.data
     )
-    change_x 30
+  ) null
+  local mode = (user.wallpaper_mode ?? "Fill").toStr().toTitle()
+  row_choice "Fit" ["Fill", "Center", "Fit", "Stretch"] mode def(picked) -> (
+    terminal "system wallpapermode " ++ picked
+    network "update" "wallpaper_mode" picked
   )
-  set_x username_x
-  change_y -25
-  text user.system + "Account" 10 : c#txtc
+  ui_gap GAP
 
-  set_x username_x
-  change_y -25
-  text "Subscription:" + tier 10 : c#txtc
-  if onclick (
-    category = "Upgrade"
-  )
-
-  local bio_data = inputs.bio.join("\n")
-
-  goto w / -2 frame.top - (w / 3) - 70 + frame.scroll
-  local bio_maxSize = 200
-  switch tier (
-    case "Free"
-    case "Lite"
-    case "Plus"
-      bio_maxSize = 200
-      break
-    case "Drive"
-      bio_maxSize = 500
-      break
-    case "Pro"
-    case "Max"
-      bio_maxSize = 1000
-      break
-  )
-  // this is enforced on the server too lol, this is just a display for it
-  c txtc
-  if bio_data.len > bio_maxSize (
-    c #fc3f3f
-  )
-  text "Bio (" ++ bio_data.len ++ "/" ++ bio_maxSize ++ ")" 10
-
-  if bio_data != user.bio (
-    set_x w / 2 - 10
-    icon "save" 0.7
-    if onclick (
-      if bio_data.len > bio_maxSize (
-        say "Bio too long"
+  // every category has an even count, so two columns never leaves an orphan
+  local cols = 2
+  local tw = cw / cols
+  local th = tw * 0.56
+  local names = wallpaper_categories.getKeys()
+  for i names.len (
+    local wallpapers @= wallpaper_categories[names[i]]
+    ui_header names[i]
+    for j wallpapers.len (
+      local col = j - 1 % cols
+      goto cw / -2 + (col + 0.5 * tw) cy - (th / 2)
+      if y_position < frame.top + th and y_position > frame.bottom - th (
+        square tw - 26 th - 26 14 0 1
+        local hit = onclick and mouse_y < frame.top
+        local over = mouse_touching
+        if over (
+          cursor "pointer"
+        )
+        if wall.name == wallpapers[j] (
+          square tw - 26 th - 26 22 : c#global_accent
+        ) else if over (
+          square tw - 26 th - 26 18 : c#track_col
+        ) else (
+          square tw - 26 th - 26 16 : c#edge_col
+        )
+        square tw - 26 th - 26 14 : c#prim
+        style {rounding: 7}
+        image wallpaper_provider ++ "preview/" ++ wallpapers[j] tw - 12 th - 12
+        if hit (
+          terminal "system wallpaper " ++ wallpaper_provider ++ "static/" ++ wallpapers[j]
+        )
       )
-      network "update" "bio" inputs.bio.join("\n").strip()
+      if col == cols - 1 or j == wallpapers.len (
+        cy -= th
+      )
     )
+    ui_gap 6
   )
-
-  set_x 0 : chy#-70
-  textbox w 100 "bio" 10 {
-    bg_colour: prim,
-    line_numbers: false
-  }
-
-  set_x 0 : chy#-100
-  setting_do "Change Password" "edit" w def() -> (
-    local data = "Enter Your New Password".ask()
-    if data == null or data == "" (
-      say "Cancelled"
-      return
-    )
-    network "update" "password" data.hashMD5()
-  )
-
-  change_y -20
-
-  set_x 0 : chy#-50
-  setting_option "Privacy" "key" w
-
-  set_x 0 : chy#-50
-  setting_option "Recent Logins" "list" w
-
-  set_x 0 : chy#-50
-  setting_option "Blocked Ips" "w 4 line 8 8 -8 -8 line -8 8 8 -8" w
-
-  set_x 0 : chy#-50
-  setting_option "Connections" "link" w
-
-  set_x 0 : chy#-70
-  setting_option "Subscriptions" "scale 1.1 w 2 ellipse 0 0 10 0.45 100 ellipse 0 0 10 0.45 160 ellipse 0 0 10 0.45 220" w
-
-  change_y -20
-
-  set_x 0 : chy#-50
-  setting_do "Logout" "log-out" w def() -> (
-    eval "localStorage.setItem('origin_login', '')"
-    terminal "shutdown"
-  )
-
-  page_len -= 120
 )
 
-def "apps" (
-
+def "page_dock" (
+  page_list_editor "origin_dock" user.origin_dock "ode" [
+    "Origin/(A) System/Docks/Modules/main.ode",
+    "Origin/(A) System/Docks/Modules/applications.ode",
+    "Origin/(A) System/Docks/Modules/folders.ode",
+    "Origin/(A) System/Docks/Modules/time.ode",
+    "Origin/(A) System/Docks/Modules/battery.ode"
+  ]
+  ui_note "Dock modules draw left to right in this order. Use the arrows to reorder them, or drop an ode file here to add one."
 )
 
-def "permissions" (
+// one display effect on a slider: value = low + slider * span, only written while dragging
+def "display_slider" "label, effect, low, span" (
+  display effect "get"
+  local current = data.toNum()
+  local vars @= Variables()
+  vars["slider_fx_" ++ effect] = (current - low / span).clamp(0, 1)
+  row_slider label "fx_" ++ effect
+  local wanted = round(vars["slider_fx_" ++ effect] * span + low)
+  if slider_active and wanted != round(current) (
+    display effect "set" wanted
+  )
+)
+
+def "page_display" (
+  ui_group 1 ROW
+  row_info "Resolution" screensize_x ++ " x " ++ screensize_y
+  ui_gap GAP
+
+  ui_header "Picture"
+  ui_group 3 ROW
+  display_slider "Brightness" "brightness" 40 120
+  display_slider "Contrast" "contrast" 50 100
+  display_slider "Saturation" "saturation" 0 200
+  ui_gap GAP
+
+  ui_header "Filters"
+  ui_group 3 ROW
+  display "invert" "get"
+  row_toggle "Invert Colours" data.toNum() == 100 def() -> (
+    display "invert" "get"
+    display "invert" "set" 100 - data.toNum()
+  )
+  display "saturation" "get"
+  row_toggle "Greyscale" data.toNum() == 0 def() -> (
+    display "saturation" "get"
+    local next = 0
+    if data.toNum() == 0 (
+      next = 100
+    )
+    display "saturation" "set" next
+  )
+  display "sepia" "get"
+  row_toggle "Warm Tint" data.toNum() > 0 def() -> (
+    display "sepia" "get"
+    local next = 40
+    if data.toNum() > 0 (
+      next = 0
+    )
+    display "sepia" "set" next
+  )
+  ui_gap GAP
+
+  ui_header "Performance"
+  ui_group 1 ROW
+  row_choice "Frame Rate Limit" ["30", "60", "120"] fps_limit def(value) -> (
+    fps_limit = value
+    terminal "system runtime fps_limit " ++ value
+  )
+  ui_note "Lower limits save battery. Display settings last until you restart originOS."
+
+  ui_group 1 ROW
+  row_action "Reset Display" "reload" def() -> (
+    display "reset"
+    fps_limit = "60"
+    terminal "system runtime fps_limit 60"
+  ) null
+)
+
+def "page_sound" (
+  terminal "system sound get volume"
+  local volume = data.toNum()
+  slider_volume = volume / 100
+  ui_group 1 ROW
+  row_slider "Volume (" ++ round(volume) ++ "%)" "volume"
+  if slider_active and round(slider_volume * 100) != round(volume) (
+    terminal "system sound set volume " ++ round(slider_volume * 100)
+  )
+  ui_gap GAP
+
+  if media == "" (
+    terminal "get access camera"
+    local camera = data
+    terminal "get access microphone"
+    if [data, camera].contains("granted") (
+      terminal "get mediadevices"
+      media = data.JsonParse()
+    ) else (
+      media = "denied"
+    )
+  )
+  ui_header "Devices"
+  if typeof(media) != "object" (
+    ui_note "Grant originOS microphone and camera access in your browser to see your devices."
+    return
+  )
+  local names = media.getKeys()
+  local kinds = media.getValues().getKeys("type")
+  ui_group names.len ROW
+  for i names.len (
+    ui_row false 0
+    local icn = "volume-max"
+    if kinds[i] == "audioinput" (
+      icn = "microphone"
+    )
+    if kinds[i] == "videoinput" (
+      icn = "camera"
+    )
+    ui_label names[i].toStr().trimText(cw / 9 - 10) icn "#6b7280"
+  )
+)
+
+// ---------------------------------------------------------------- input
+
+def "page_mouse" (
+  terminal "get scrollspeed"
+  local speed = data.toNum()
+  local sign = 1
+  if speed < 0 (
+    sign = -1
+  )
+  slider_scroll = abs(speed).clamp(1, 10) - 1 / 9
+  ui_group 2 ROW
+  row_slider "Scroll Speed (" ++ (round(abs(speed) * 10) / 10) ++ "x)" "scroll"
+  local wanted = round(slider_scroll * 9 + 1 * 10) / 10 * sign
+  if slider_active and wanted != speed (
+    terminal "system scrollspeed " ++ wanted
+  )
+  if !mouse_down and speed != user.scrollspeed (
+    network "update" "scrollspeed" speed
+  )
+  row_toggle "Natural Scrolling" sign == -1 def() -> (
+    terminal "get scrollspeed"
+    terminal "system scrollspeed " ++ (data.toNum() * -1)
+  )
+)
+
+def "page_keyboard" (
+  local keybinds @= "origin.keyboard?.keybinds".eval()
+  local groups = keybinds.getKeys()
+  for i groups.len (
+    local group = groups[i]
+    local binds @= keybinds[group].getKeys()
+    ui_header group
+    ui_group binds.len + 1 ROW
+    for j binds.len (
+      local key = binds[j]
+      if keybind_edit == group ++ "/" ++ key (
+        ui_row false 0
+        ui_keycap key
+        ui_button "save" 28
+        if button_click (
+          keybinds[group][key] = inputs.bind.join("\n")
+          save "keybinds.json" "set" keybinds.JsonFormat()
+          keybind_edit = ""
+        )
+      ) else (
+        ui_row true 0
+        ui_keycap key
+        ui_value keybinds[group][key].toStr().split("\n")[1] key.len + 8
+        if row_click (
+          keybind_edit = group ++ "/" ++ key
+          inputs.bind = keybinds[group][key].toStr().split("\n")
+        )
+      )
+    )
+    row_action "Add A Keybind" "add" def(name) -> (
+      local key = "What key?".ask().toStr()
+      local all @= "origin.keyboard?.keybinds".eval()
+      if key == "" or all[name].contains(key) (
+        say "That key is empty or already bound"
+      ) else (
+        all[name][key] = ""
+        save "keybinds.json" "set" all.JsonFormat()
+      )
+    ) group
+    if keybind_edit.startsWith(group ++ "/") (
+      ui_gap 8
+      ui_group 1 90
+      goto 0 cy - 45
+      textbox cw - 30 70 "bind" 0 {
+        line_numbers: false,
+        bg_colour: prim,
+        sel_colour: seco,
+        text_colour: txtc
+      }
+      cy -= 90
+      ui_gap 8
+      ui_group 1 ROW
+      action_danger = true
+      row_action "Delete This Keybind" "bin" def(path) -> (
+        local parts = path.split("/")
+        local all @= "origin.keyboard?.keybinds".eval()
+        void all[parts[1]].delete(parts[2])
+        save "keybinds.json" "set" all.JsonFormat()
+        keybind_edit = ""
+      ) keybind_edit
+    )
+    ui_gap GAP
+  )
+  ui_note "Click a keybind to edit the OSL it runs."
+)
+
+def "page_controllers" (
+  local gamepads = getGamepads()
+  ui_group 1 ROW
+  row_info "Connected" gamepads.len ++ " of 4"
+  ui_gap GAP
+  for i gamepads.len (
+    local pad @= gamepads[i]
+    ui_header pad.id.trimText(cw / 8 - 6)
+    ui_group 1 110
+    goto cw / -2 + 40 cy - 30
+    for j pad.axes.len (
+      square 0 0 30 : c#track_col
+      change pad.axes[j].x * 10 pad.axes[j].y * 10
+      square 0 0 6 : c#txtc
+      change pad.axes[j].x * -10 + 44 pad.axes[j].y * -10
+    )
+    goto cw / -2 + 34 cy - 78
+    for j pad.buttons.len (
+      if pad.buttons[j]["pressed"] (
+        square 0 0 22 : c#global_accent
+      ) else (
+        square 0 0 22 : c#track_col
+      )
+      centext j 7 : c#txtc
+      change_x 28
+    )
+    cy -= 110
+    ui_gap GAP
+  )
+)
+
+// ---------------------------------------------------------------- privacy
+
+def "save_permissions" "perms" (
+  file "open" "~/application data/permissions.json" "onlyaccess"
+  file "set" 4 perms
+  file "close"
+)
+
+def "page_permissions" (
   file "open" "~/application data/permissions.json" "onlyaccess"
   local perms = fileGet(4)
   if typeof(perms) != "object" (
-    file "set" 4 {}
     perms = {}
   )
-
-  local w = frame.width - 100
-
-  if subcategory != "none" (
-    local my_perms @= perms[subcategory]
-
-    goto 0 window.top - 100 + frame.scroll
-    file "open" subcategory "onlyaccess"
-    file "render" 2
-    change_y -50
-    centext fileGet(2) 10 : c#txtc
-    change_y -40
-    centext fileGet(3) 9 : c#seco
-
-    change_y -100
-    square w 45 10 : c#prim
-    change_x w / -2 + 20
-    text "Add a permission" 10 : c#txtc
-    set_x w / 2 - 20
-    square 20 20 10 : c#seco tooltip#"Add"
-    if onclick and can (
-      void my_perms.prepend("Enter the permission name".ask())
-      file "open" "~/application data/permissions.json" "onlyaccess"
-      file "set" 4 perms
-      file "close"
-    )
-    icon "add" 0.8 : c#txtc
-    set_x 0
-    change_y -70
-    each perm my_perms (
-      square w 45 10 : c#prim
-      change_x w / -2 + 20
-      text perm 10 : c#txtc
-      set_x w / 2 - 20
-      square 20 20 10 : c#seco tooltip#"Remove"
-      if onclick and can (
-        can = false
-        void my_perms.delete(perm)
-        file "open" "~/application data/permissions.json" "onlyaccess"
-        file "set" 4 perms
-        file "close"
-      )
-      icon "minus" 0.8 : c#txtc
-      set_x 0 : chy#-60
-    )
-    file "close"
-
-    page_len = my_perms.len * 60 + 330
-    return
-  )
-  local perm_keys @= perms
-    .getKeys()
-    .prepend("__ADD__")
-
   if new_transmit (
     if transmit_source == picker_id (
       file "open" transmit_data "onlyaccess"
       if fileGet(1) == ".osl" (
-        subcategory = fileGet(14)
         perms[fileGet(14)] ??= []
-        file "open" "~/application data/permissions.json" "onlyaccess"
-        file "set" 4 perms
-        file "close"
+        perm_app = fileGet(14)
+        save_permissions perms
       ) else (
         say "Invalid file type, select a .osl file"
       )
-
-      file "close"
     )
     new_transmit = false
   )
-
-  local ih = 60
-  local count = round(frame.scroll / ih) - 1
-
-  loop ceil(frame.height / ih) + 1 (
-    count ++
-    if count > perm_keys.len or count < 1 (
-      continue
-    )
-    local uuid = perm_keys[count]
-    goto 0 frame.top - (count - 0.5 * ih) + frame.scroll
-    square w 45 10 : c#prim
-    change_x w / -2 + 20
-    if uuid == "__ADD__" (
-      if onclick (
-        file "pick"
-        picker_id = data
-      )
-      text "Select a script to view and edit permissions".trimText(w / 10 - 8) 10 : c#txtc
-      set_x w / 2 - 20
-      icon "open" 0.8
-    ) else (
-      if onclick (
-        subcategory = uuid
-      )
-      file "uuid_exists" uuid
-      if exists.not() or perms[uuid].len == 0 (
-        file "open" "~/application data/permissions.json" "onlyaccess"
-        file "set" 4 perms.delete(uuid)
-        file "close"
-        continue
-      )
-      file "open" uuid "onlyaccess"
-      file "render" 1.5
-      change 25 -10
-      local x = x_position
-      text fileGet(3).trimText(w / 8 - 14) 8 : c#seco
-      set_x x : chy#20
-      text fileGet(2).trimText(w / 10 - 10) 10 : c#txtc
-      set_x w / 2 - 20 : chy#-10
-      icon "right" 0.8
-    )
-  )
-
-  page_len = perm_keys.len * ih
-)
-
-def "bluetooth_page" (
-  goto 0 frame.top - 40 + frame.scroll
-  w = frame.width - 100
-  local connection = 0
-  local changePage = def() -> (
-
-  )
-  local devices = roturlink.bluetooth.devices
-    .filter(v -> (v.name != "unknown"))
-    .sortBy("rssi")
-    .reverse()
-
-  inputs.bluetooth = roturlink.bluetooth.enabled
-  setting_msg devices.len ++ " Devices" w
-  change_y -10
-
-  each device devices (
-    set_x 0 : chy#-50
-    setting_msg device.name w changePage
-
-    set_x w / 2 - 20
-    connection = round((device.rssi + 100).clamp(0, 100) / 25)
-
-    icon "network" 0.8 : c#seco
-    c txtc
-    icon [
-      "",
-      "w 4 dot 0 -6",
-      "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
-      "network"
-    ][connection + 1] 0.8
-  )
-
-  page_len = devices.len + 1 * 50
-)
-
-def "inputs" (
-  local w = frame.width - 25
-  switch subcategory (
-    case "none"
-      option "Mouse" "line -9 9 7 -1 cont -5 -6 cont -9 9 line 5.8 -10 -9 9 line 0 0 -5 -5"
-      option "Keybinds" "w 2.5 line -3 7 -3 -7 line -7 3 7 3 line -7 -3 7 -3 line 3 7 3 -7 w 2.2 cutcircle -7 7 4 -4.5 135 cutcircle 7 7 4 4.5 135 cutcircle 7 -7 4 13.5 135 cutcircle -7 -7 4 -13.5 135"
-      option "Gamepads" "controller"
-      break
-    case "Mouse"
-      loc 2 2 10 -20
-      text "Scroll Wheel Speed" 12 : c#txtc
-      terminal "get scrollspeed"
-      data = data.toNum()
-      flipped = false
-      if data < 0 (
-        data *= -1
-        flipped = true
-      )
-      slider_scrollsp = data.clamp(1,10)
-      loc 2 2 10 -90
-      text "Scrolling " ++ (round(slider_scrollsp * 10) / 10) ++ "x speed" 9 : c#txtc
-      slider_scrollsp = slider_scrollsp - 1 / 9
-      loc 999 2 0 -60
-      slider w 25 "scrollsp" 10 : c#prim
-      slider_scrollsp = slider_scrollsp * 9 + 1
-      change_y -90
-      setting_toggle "Invert Scroll Direction" w flipped def() -> (
-        flipped = flipped.not()
-      )
-      if flipped (
-        slider_scrollsp *= -1
-      )
-      terminal "system scrollspeed " ++ slider_scrollsp
-      if slider_scrollsp != user.scrollspeed and mouse_down.not() (
-        network "update" "scrollspeed" slider_scrollsp
-      )
-      break
-    case "Keybinds"
-      local keybinds @= "origin.keyboard?.keybinds".eval()
-      local keys = keybinds.getKeys()
-      keybind_display ??= keys[1]
-      keybind_selected ??= null
-      goto 0 frame.top + frame.scroll - 30
-      for i keys.len (
-        local cur = keys[i]
-        set_x 0
-        square w 30 10 : c#prim
-        if mouse_touching (
-          if onclick (
-            keybind_display = cur
-          )
-          square w 30 15 : c#seco
-          square w 30 10 : c#prim
-        )
-        set_x w / -2 + 10
-        text cur ++ " (" ++ keybinds[cur].len ++ " binds)" 9 : c#txtc
-        set_x w / 2 - 20
-        icon keybind_display == cur ? "down" "right" 0.6
-        change_y -50
-        if keybind_display == cur (
-          local binds @= keybinds[cur].getKeys()
-          local height = binds.len * 30
-
-          change_y height / -2 + 15
-          page_len += height
-          set_x 0
-          change_y height / 2 - 15
-          local w2 = w - 20
-          for j binds.len (
-            local cur2 = binds[j]
-            set_x 0
-            square w2 30 10 : c#prim
-            if mouse_touching (
-              square w2 30 15 : c#seco
-              square w2 30 10 : c#prim
-            )
-            set_x w2 / -2 + 10
-            text cur2 9 : c#txtc
-            set_x w2 / 2 - 20
-            if keybind_selected == cur2 (
-              icon "close" 0.6 : tooltip#"Stop editing"
-              if onclick (
-                keybind_selected = null
-              )
-              change_x -30
-              icon "save" 0.6 : tooltip#"Save keybind"
-              if onclick (
-                keybinds[cur][cur2] = inputs.bind.join("\n")
-                save "keybinds.json" "set" keybinds.JsonFormat()
-              )
-              change_y -85
-              set_x 0
-              square w2 100 10 : c#prim
-              textbox w2 100 "bind" 0 {
-                line_numbers: {
-                  bg_colour: prim
-                },
-                sel_colour: seco,
-                text_colour: txtc,
-              }
-              change_y -35
-              page_len += 320
-            ) else (
-              icon "edit" 0.6 : tooltip#"Edit keybind"
-              if onclick (
-                keybind_selected = cur2
-                inputs.bind = keybinds[cur][cur2].split("\n")
-              )
-              change_x -30
-              icon "bin" 0.6 : tooltip#"Delete keybind"
-              if onclick (
-                void keybinds[cur].delete(cur2)
-                save "keybinds.json" "set" keybinds.JsonFormat()
-              )
-            )
-            change_y -50
-          )
-          change_y -10
-          set_x 0
-          square w2 30 10 : c#prim
-          change_x w2 / -2 + 10
-          text "Click to add a keybind" 9 : c#txtc
-          if onclick (
-            local name = "What key?".ask()
-            if binds.contains(name) (
-              say "Key already exists"
-            ) else (
-              keybinds[cur][name] = ""
-              keybind_selected = name
-              inputs.bind = [""]
-              save "keybinds.json" "set" keybinds.JsonFormat()
-            )
-          )
-          change_y -60
-          page_len += binds.len * 50
-        )
-        page_len += 50
-      )
-      break
-    case "Gamepads"
-      local gamepads = getGamepads()
-
-      loc 2 2 10 -20 + frame.scroll
-      text "Total: " ++ gamepads.len ++ "/4" 10 : c#txtc
-
-      y = y_position + 70
-      for i gamepads.len (
-        y -= 170
-        local cur @= gamepads[i]
-        goto 0 y
-        square w 150 10 : c#prim
-        set_x frame.left + 20 : chy#60
-        text cur.id 10 : c#txtc
-        goto frame.left + 30 y + 20
-        for j cur.axes.len (
-          local x = x_position
-          square 0 0 30 : c#seco
-          change cur.axes[j].x * 10 cur.axes[j].y * 10
-          square 0 0 5 : c#txtc
-          goto x + 40 y + 20
-        )
-        goto frame.left + 30 y - 20
-        for j cur.buttons.len (
-          local x = x_position
-          if cur.buttons[j]["pressed"] (
-            square 0 0 34 : c#txtc
-          )
-          square 0 0 30 : c#seco
-          centext j 10 : c#txtc
-          change_x 40
-          if x_position > frame.right - 20 (
-            set_x frame.left + 30 : chy#-40
-          )
-        )
-      )
-      break
-  )
-)
-
-
-def "credits" (
-  if subcategory == "none" (
-    page_len = 290
-    w = frame_width / 2 - 50
-    loc 4 2 2.5 -95 + frame.scroll
-    square w 150 20 : c#prim
-    square w 150 15 : c#global_accent
-    square w 150 8 : c#prim
-    c txtc
-    x = x_position
-    change_x -65
-    icon "w 1 ellipse 0 0 10 0.5 100 ellipse 0 0 10 0.5 160 ellipse 0 0 10 0.5 220" 1.3
-    text "roturTw" 15 : chx#30
-    change -25 -18
-    text "v5" 8
-    set_x x : chy#-105
-    square w 40 20 : c#prim
-    if clicked (
-      subcategory = "Extensions"
-      extensions = "Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions))".eval()
-      extensions.prepend("Total:" + extensions.len)
-    )
-    change_x w / -2 + 10
-    text "Full Extensions List >" 9 -100 : c#txtc
-
-    set_x x : chy#-70
-    square w 40 20 : c#prim
-    if clicked (
-      subcategory = "Community"
-    )
-    change_x w / -2 + 10
-    text "Community >" 9 -100 : c#txtc
-
-
-    loc -4 2 -2.5 -95 + frame.scroll
-    square w 150 20 : c#prim
-    if onclick (
-      http "newtab" "https://turbowarp.org"
-    )
-    x = x_position
-    change w / -2 + 30 40
-    image "https://origin.mistium.com/Resources/turbowarp_logo.png" 50 50
-    change_x 30
-    text "TurboWarp" 16 : c#txtc
-    change -200 -45
-    local y = y_position
-    text "Thanks to GarboMuffin and the scratch team for making TurboWarp possible".wrapText(w / 9 - 1) 9
-    goto x y - 120
-    square w 40 20 : c#prim
-    if onclick (
-      http "newtab" "vm.runtime.platform.url".eval()
-    )
-    change_x w / -2 + 10
-    text "Made With " ++ "vm.runtime.platform.name".eval() 10 : c#txtc
-    goto x y - 190
-    square w 40 20 : c#prim
-    if clicked (
-      subcategory = "Contributors"
-    )
-    change_x w / -2 + 10
-    text "Github Contributors >" 9 -100 : c#txtc
-  )
-  if subcategory == "Extensions" (
-    w = frame_width - 25
-    for count extensions.len (
-      y = count - 0.5 * -60 + frame.scroll
-      loc 999 2 0 y
-      square w 40 15 1 : c#prim
-      if mouse_touching (
-        square w 40 15 : c#seco
-        square w 40 10 1 : c#prim
-      )
-      loc 2 2 15 y
-      text extensions[count] 9 : c#txtc
-    )
-    page_len = extensions.len * 60
-  )
-  if subcategory == "Contributors" (
-    w = frame_width - 25
-    for count contributors.len (
-      local cur @= contributors[count]
-      y = count - 0.5 * -60 + frame.scroll
-      loc 999 2 0 y
-      square w 40 15 1 : c#prim
-      if mouse_touching (
-        square w 40 15 : c#seco
-        square w 40 10 1 : c#prim
-        if onclick (
-          http "newtab" "https://github.com/" ++ cur.login
-        )
-      )
-      loc 2 2 30 y
-      image cur.avatar_url 40 40
-      text cur.login 9 : c#txtc chx#30
-
-      text "(" ++ cur.contributions ++ " commits)" 8 : chx#10
-    )
-    page_len = contributors.len * 60
-  )
-  if subcategory == "Community" (
-    local url = "https://social.rotur.dev/supporters"
-    local data = null
-    if supporterData.getType() != "array" (
-      data @= url.getAsync()
-      if data.getType() == "array" (
-        supporterData = data
-      )
-    )
-    if supporterData == null (
-      goto 0 0
-      direction timer * 720
-      icon "sync" .75 : c#txtc
-    ) else (
-      loc 2 2 115 -30 + frame.scroll
-      square 200 25 10 : c#prim hover_c#seco
-      if onclick (
-        http "newtab" "https://ko-fi.com/mistium"
-      )
-      centext "Support me!" 10 : c#txtc chx#-17.5
-      icon "open" .6 : chx#("Support me!".len * 5 + 17.5)
-      loc 2 2 15 -70 + frame.scroll
-      text "Members:" 10 : c#txtc
-
-      supporters @= {
-        "Pro": supporterData
-          .filter(u -> u.subscription == "Pro")
-          .map(u -> u.username),
-        "Drive": supporterData
-          .filter(u -> u.subscription == "Drive")
-          .map(u -> u.username),
-        "Plus": supporterData
-          .filter(u -> u.subscription == "Plus")
-          .map(u -> u.username),
-        "Lite": supporterData
-          .filter(u -> u.subscription == "Lite")
-          .map(u -> u.username),
-      }
-
-      local height = 0
-      local y = 0
-      local keys @= supporters.getKeys()
-      local values @= supporters.getValues()
-      for categoryi supporters.getKeys().len (
-        local category @= values[categoryi]
-        local categoryName @= keys[categoryi]
-
-        if category.len > 0 (
-          y += 20
-          loc 2 2 15 -85 - y + frame.scroll
-          text categoryName 11.5 : c#txtc
-          y += 20
-
-          for useri category.len (
-            local user @= category[useri]
-
-            y += 8
-            loc 2 2 25 -85 - y + frame.scroll
-            image "https://avatars.rotur.dev/" ++ user ++ "?radius=128" 22 : chx#15
-            text user 10 : c#txtc chx#16.5
-            y += 20
-          )
-        )
-      )
-      page_len = y + 80
-    )
-  )
-)
-
-def "connectivity" (
-  local w = frame.width - 25
-
-  switch subcategory (
-    case "none"
-      option "Wi-Fi" "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6"
-      option "Bluetooth" "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5"
-      break
-    case "Wi-Fi"
-      network_page
-      break
-    case "Bluetooth"
-      bluetooth_page
-      break
-  )
-)
-
-def networking() (
-  if new_network_data (
-    if packet.username != "sys-rotur" (
-      new_network_data = false
-      return
-    )
-    switch network_data_command (
-      case "ping"
-        ping.time = timestamp - ping.sent
+  if perm_app != "" (
+    local mine = perms[perm_app] ?? []
+    file "open" perm_app "onlyaccess"
+    goto 0 cy - 30
+    file "render" 2
+    cy -= 70
+    goto 0 cy
+    centext fileGet(2) 10 : c#txtc
+    cy -= 30
+    ui_group mine.len + 2 ROW
+    for i mine.len (
+      ui_row false 0
+      ui_label mine[i] "" ""
+      ui_button "minus" 28
+      if button_click (
+        void mine.delete(i)
+        perms[perm_app] = mine
+        save_permissions perms
         break
-      case "link"
-        if packet.data == "Failed" (
-          say "Unable to link to this account"
-        )
-        break
+      )
     )
-    new_network_data = false
-  )
-)
-
-def "about" (
-  local w = frame.width - 25
-  set_x frame.left + 20
-  set_y frame.top - 20
-  text "originOS v" ++ origin.version ++ "\n" 10 : c#txtc
-
-  set_x frame.left + 20
-  change_y -30
-  local info = "originOS is a scratch-based desktop environment that runs the OSL programming language. It is designed to be a powerful, customizable, and secure desktop experience."
-  text info.wrapText(w / 10 - 4) 10 : c#txtc
-
-  set_x frame.left + 20
-  change_y -60
-  text "Developed with <3 by Mistium" 10 : c#txtc
-
-  set_x frame.left + 20
-  change_y -90
-  text "Support me!" 10 : c#txtc
-
-  change_y -40
-  square 200 20 10 : c#seco
-  if onclick (
-    http "newtab" "https://ko-fi.com/mistium/tip"
-  )
-  centext "Buy me a monster :3" 9 : c#txtc
-)
-
-def "upgrade" (
-  local w = frame.width - 25
-  number left = frame.left + 20
-  set_x left
-  set_y frame.top - 20 + frame.scroll
-  y = y_position + 20
-
-  if subcategory == "Lite" (
-    text "Lite - 15 credits per month" 10 : c#txtc
-
-    array features = [
-      "Storage Boost (5mb -> 10mb)",
-      "Your name in the originOS settings app's supporters tab",
-      "Bio templating",
-    ]
-
-    set_x left
-    change_y -30
-    text "Features" 10 : c#txtc
-    change_y -30
-    for i features.len (
-      set_x left
-      change_y -20
-      text ("- " ++ features[i]).wrapText(w / 10 - 4) 10 : c#txtc
-      change_y -10
-    )
-
-    key_id = "4f229157f0c40f5a98cbf28efd39cfe8"
-
-    set_x left + 100
-    change_y -50
-    square 200 20 10 : c#seco
-    if onclick (
-      rotur "key_buy" key_id
-    )
-    centext "Subscribe" 10 : c#txtc
-
+    row_action "Add A Permission" "add" def(args) -> (
+      local name = "Enter the permission name".ask().toStr()
+      if name != "" (
+        local all = args[1]
+        all[args[2]] = (all[args[2]] ?? []).prepend(name)
+        save_permissions all
+      )
+    ) [perms, perm_app]
+    row_action "Back To All Apps" "left" def() -> (
+      perm_app = ""
+    ) null
     return
   )
-
-
-  local info = "Hey! You can gain benefits (like more storage space, higher quality profile pictures and more customisation) by upgrading to Premium. Check out the different tiers and their features."
-  text info.wrapText(w / 10 - 4) 10 : c#txtc
-
-  set_x left
-  change_y -60
-  text "Credit Tiers" 12 : c#txtc
-
-  set_x left
-  change_y -40
-  text "Lite - 15 credits per month" 10 : c#txtc
-  change_y -30
-  set_x left + 100
-  square 200 20 10 : c#seco
-  if onclick (
-    subcategory = "Lite"
+  local apps = perms.getKeys().filter(v -> (perms[v].len > 0))
+  ui_group apps.len + 1 ROW
+  for i apps.len (
+    file "uuid_exists" apps[i]
+    ui_row true 38
+    if exists (
+      ui_file_icon apps[i]
+      text fileGet(2) 9 : c#txtc chx#26
+      ui_value perms[apps[i]].len ++ " permissions" fileGet(2).len + 4
+    ) else (
+      ui_label "Deleted app" "" ""
+    )
+    if row_click (
+      perm_app = apps[i]
+    )
   )
-  centext "Learn more" 10 : c#txtc
+  row_action "Choose An App" "open" def() -> (
+    file "pick"
+    picker_id = data
+  ) null
+)
 
-  set_x left
-  change_y -70
-  text "Premium Tiers" 12 : c#txtc
-  set_x left
-  change_y -40
-  text "Plus, Drive, and Pro are available through Ko-Fi!" 10 : c#txtc
-  change_y -30
-  set_x left
-  info = "To make sure your support is properly linked, please use the same email for both your originOS and Ko-Fi accounts, or link your Ko-Fi account to Discord and connect your Discord to Rotur."
-  text info.wrapText(w / 9 - 4) 9 : c#txtc
-  change_y -30
-  set_x left + 100
-  square 200 20 10 : c#seco
-  if onclick (
+def "page_privacy" (
+  switch subcategory (
+    case "none"
+      ui_group 1 ROW
+      row_toggle "Private Account" user.private def() -> (
+        network "update" "private" user.private.not()
+      )
+      ui_note "A private account hides your profile from other rotur users."
+      ui_group 3 ROW
+      row_nav "App Permissions" "permissions" "#3b82f6" "App Permissions"
+      row_nav "Recent Logins" "list" "#6b7280" "Recent Logins"
+      row_nav "Blocked IPs" "deny" "#ef4444" "Blocked IPs"
+      ui_gap GAP
+      ui_gap -14
+      ui_note "Other rotur users can always see your username, profile picture, banner, bio, theme, credit total, operating system and account creation date."
+      break
+    case "App Permissions"
+      page_permissions
+      break
+    case "Recent Logins"
+      // newest first, capped so a long history does not make a huge page
+      local logins = (user["sys.logins"] ?? []).sortBy("timestamp").reverse().trim(1, 20)
+      if logins.len == 0 (
+        ui_note "No logins recorded."
+      )
+      for i logins.len (
+        ui_header logins[i].timestamp.timestamp("to-relative")
+        ui_group 3 ROW
+        row_info "Location" logins[i].country
+        row_info "Site" logins[i].origin
+        row_info "Device" parseUserAgent(logins[i].userAgent)
+        ui_gap GAP
+      )
+      break
+    case "Blocked IPs"
+      local blocked = user["blocked_ips"]
+      if typeof(blocked) != "array" (
+        blocked = []
+      )
+      ui_group blocked.len + 1 ROW
+      for i blocked.len (
+        ui_row false 0
+        ui_label blocked[i] "" ""
+        ui_button "bin" 28
+        if button_click (
+          void blocked.delete(i)
+          network "update" "blocked_ips" blocked
+          break
+        )
+      )
+      row_action "Block An IP" "add" def(list) -> (
+        local ip = "Enter an ip".ask().toStr().strip()
+        if ip == "" or list.contains(ip) (
+          say "That ip is empty or already blocked"
+        ) else (
+          network "update" "blocked_ips" list.append(ip)
+        )
+      ) blocked
+      ui_note "Blocked addresses cannot log into your account. Your ip is " ++ network.ip ++ "."
+      break
+  )
+)
+
+// ---------------------------------------------------------------- subscription and credits
+
+def "page_subscription" (
+  ui_group 1 ROW
+  row_info "Current Plan" user["sys.subscription"].tier ?? "Free"
+  ui_note "Upgrading gives you more storage, higher quality profile pictures and more customisation."
+
+  ui_header "Credit Tiers"
+  ui_group 4 ROW
+  row_info "Lite" "15 credits per month"
+  row_info "Storage" "5mb to 10mb"
+  row_info "Extras" "Supporter listing, bio templating"
+  row_action "Subscribe To Lite" "up" def() -> (
+    rotur "key_buy" "4f229157f0c40f5a98cbf28efd39cfe8"
+  ) null
+  ui_gap GAP
+
+  ui_header "Premium Tiers"
+  ui_group 1 ROW
+  row_action "View Plus, Drive And Pro On Ko-Fi" "open" def() -> (
     http "newtab" "https://ko-fi.com/mistium/tiers"
+  ) null
+  ui_note "Use the same email for originOS and Ko-Fi, or link Ko-Fi to Discord and connect Discord to Rotur, so your support is linked to this account."
+)
+
+def "page_credits" (
+  switch subcategory (
+    case "none"
+      ui_group 2 ROW
+      row_action "Made With " ++ "vm.runtime.platform.name".eval() "open" def() -> (
+        http "newtab" "vm.runtime.platform.url".eval()
+      ) null
+      row_action "Built On TurboWarp" "open" def() -> (
+        http "newtab" "https://turbowarp.org"
+      ) null
+      ui_note "Thanks to GarboMuffin and the Scratch team for making TurboWarp possible."
+      ui_group 3 ROW
+      row_nav "Community Supporters" "favorites" "#ec4899" "Supporters"
+      row_nav "Github Contributors" "script" "#6b7280" "Contributors"
+      row_nav "Loaded Extensions" "cube" "#3b82f6" "Extensions"
+      break
+    case "Extensions"
+      extensions ??= "Object.keys(Object.fromEntries(vm.extensionManager._loadedExtensions))".eval()
+      ui_header extensions.len + "extensions"
+      ui_group extensions.len ROW
+      for i extensions.len (
+        ui_row false 0
+        ui_label extensions[i] "" ""
+      )
+      break
+    case "Contributors"
+      if typeof(contributors) != "array" (
+        ui_spinner "Fetching contributors"
+        local data = "https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/main/contributors.json".getAsync()
+        if typeof(data) == "array" (
+          contributors = data.filter(v -> (v["type"] == "User"))
+        )
+      ) else (
+        ui_group contributors.len ROW
+        for i contributors.len (
+          ui_row true 38
+          goto cw / -2 + LABEL_X + 12 ry
+          style {rounding: 13}
+          image contributors[i].avatar_url 26 26
+          text contributors[i].login 9 : c#txtc chx#26
+          ui_value contributors[i].contributions ++ " commits" contributors[i].login.len + 4
+          if row_click (
+            http "newtab" "https://github.com/" ++ contributors[i].login
+          )
+        )
+      )
+      break
+    case "Supporters"
+      if typeof(supporters) != "array" (
+        ui_spinner "Fetching supporters"
+        local data = "https://social.rotur.dev/supporters".getAsync()
+        if typeof(data) == "array" (
+          supporters = data
+        )
+      ) else (
+        ui_group 1 ROW
+        row_action "Support Me!" "open" def() -> (
+          http "newtab" "https://ko-fi.com/mistium"
+        ) null
+        ui_gap GAP
+        each tier ["Pro", "Drive", "Plus", "Lite"] (
+          local members = supporters.filter(u -> (u.subscription == tier))
+          if members.len > 0 (
+            ui_header tier
+            ui_group members.len ROW
+            for i members.len (
+              ui_row false 38
+              goto cw / -2 + LABEL_X + 12 ry
+              image "https://avatars.rotur.dev/" ++ members[i].username ++ "?radius=128" 24 24
+              text members[i].username 9 : c#txtc chx#26
+            )
+            ui_gap GAP
+          )
+        )
+      )
+      break
   )
-  centext "View on Ko-Fi" 10 : c#txtc
-
-  page_len = y - y_position + 20
 )
 
-if passed_data == "" (
-  category = "Account"
-  subcategory = "none"
-) else (
-  passed_data.split("/")
-  category = passed_data[1]
-  subcategory = passed_data[2]
+// ---------------------------------------------------------------- state
+
+// sidebar entries, `gap` starts a new visual group, `link` needs roturlink
+pages = [
+  {name: "General", icn: "cog", col: "#64748b", gap: true},
+  {name: "Appearance", icn: "sun", col: "#6366f1"},
+  {name: "Wallpaper", icn: "image", col: "#06b6d4"},
+  {name: "Dock", icn: "w 2.5 square 0 1 14 9 w 3.5 line -4 -3 4 -3", col: "#0ea5e9"},
+  {name: "Display", icn: "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10", col: "#3b82f6"},
+  {name: "Sound", icn: "volume-max", col: "#ef4444"},
+  {name: "Mouse", icn: "line -9 9 7 -1 cont -5 -6 cont -9 9", col: "#64748b", gap: true},
+  {name: "Keyboard", icn: "w 2.5 square 0 0 15 8 w 2.5 dot -5 2 dot 0 2 dot 5 2 line -4 -3 4 -3", col: "#64748b"},
+  {name: "Game Controllers", icn: "controller", col: "#64748b"},
+  {name: "Wi-Fi", icn: "w 2.5 cutcircle 0 -5 14 0 45 cutcircle 0 -5 7 0 40 w 4 dot 0 -6", col: "#3b82f6", link: true, gap: true},
+  {name: "Bluetooth", icn: "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5", col: "#3b82f6", link: true},
+  {name: "Network", icn: "network", col: "#10b981", gap: true},
+  {name: "Privacy & Security", icn: "locked", col: "#3b82f6"},
+  {name: "Subscription", icn: "tag", col: "#f59e0b", gap: true},
+  {name: "Credits", icn: "accounts", col: "#ec4899"}
+]
+
+// extra words the sidebar search matches: [words, page, subpage]
+search_index = [
+  ["border outline blur window theme colour color accent dark light", "Appearance", "none"],
+  ["custom colours", "Appearance", "Custom Colours"],
+  ["font text", "Appearance", "Fonts"],
+  ["background", "Wallpaper", "none"],
+  ["brightness contrast invert greyscale fps frame rate", "Display", "none"],
+  ["volume microphone camera", "Sound", "none"],
+  ["scroll", "Mouse", "none"],
+  ["keybinds shortcuts", "Keyboard", "none"],
+  ["time clock date seconds", "General", "Date & Time"],
+  ["boot startup login items", "General", "Login Items"],
+  ["default apps", "General", "Default Apps"],
+  ["storage files space", "General", "Storage"],
+  ["about version", "General", "About"],
+  ["permissions", "Privacy & Security", "App Permissions"],
+  ["logins ip blocked private", "Privacy & Security", "none"],
+  ["proxy cors", "Network", "none"]
+]
+
+// names used by older deep links, such as the dock's "Style/Background"
+aliases = {
+  "Style/Background": "Wallpaper",
+  "System": "General",
+  "Style": "Appearance",
+  "Controls": "Mouse",
+  "Connection": "Wi-Fi",
+  "Storage": "General/Storage",
+  "Permissions": "Privacy & Security/App Permissions",
+  "Upgrade": "Subscription"
+}
+
+category = "Account"
+subcategory = "none"
+if passed_data.toStr() != "" (
+  local target = passed_data.toStr()
+  target = aliases[target] ?? target
+  local parts = target.split("/")
+  if aliases[parts[1]] != null (
+    parts = (aliases[parts[1]] ++ "/" ++ (parts[2] ?? "none")).split("/")
+  )
+  category = parts[1]
+  subcategory = parts[2] ?? "none"
 )
+nav_cat = ""
+nav_sub = ""
+
+themes = {
+  "dark": {"primary": "#222222", "secondary": "#555555", "tertiary": "#777777", "text": "#ffffff", "background": "#050505", "accent": "#57cdac"},
+  "midnight": {"primary": "#111111", "secondary": "#333333", "tertiary": "#555555", "text": "#ffffff", "background": "#000000", "accent": "#57cdac"},
+  "light": {"primary": "#cccccc", "secondary": "#e6e6e6", "tertiary": "#ffffff", "text": "#292929", "background": "#b0b0b0", "accent": "#57cdac"},
+  "ocean": {"primary": "#1a1d28", "secondary": "#313f4e", "tertiary": "#4f617d", "text": "#bae3ee", "background": "#090a0b", "accent": "#7cc2f8"},
+  "forest": {"primary": "#1a2823", "secondary": "#33523e", "tertiary": "#417656", "text": "#e5ffed", "background": "#090b0a", "accent": "#7ea59a"},
+  "mint": {"primary": "#8fbcac", "secondary": "#639274", "tertiary": "#07170e", "text": "#000000", "background": "#cde5dd", "accent": "#97f7dc"},
+  "candyfloss": {"primary": "#9e8cb1", "secondary": "#eac5f2", "tertiary": "#170717", "text": "#000000", "background": "#cdb6d3", "accent": "#f8e0ff"}
+}
+accents = ["#57cdac", "#7cc2f8", "#a5b4fc", "#d0c4ed", "#f9a8d4", "#fca5a5", "#fdba74", "#fde047", "#86efac", "#cbd5e1"]
+
+wallpaper_provider = "https://wallpapers.mistium.com/"
+wallpaper_categories = {
+  origin: ["originOS-Veil.jpeg", "originOS-Dawn.jpeg", "originOS-Rift.png", "originOS-Flow.png"],
+  nature: ["autumn.jpeg", "lake.png", "mountains.png", "fog.png"],
+  city: ["night-city.png", "cyberpunk-scene.png"],
+  anime: ["asleep.png", "miku-and-stars.png", "miku.png", "warm-and-cozy.png"]
+}
 
 save "settings" "set_directory"
 file "open" user_folder ++ ".folder"
-ping = {
-  "sent": timestamp,
-  "time": 0
-}
+scan_left = file[4]
+scan_found = []
+scan_top = null
 
-current = file[4]
-files = []
-file_data = ""
-total_files = 0
-contributors = "https://raw.githubusercontent.com/Mistium/Origin-OS/refs/heads/main/contributors.json"
-  .httpGet()
-  .JsonParse()
-  .filter(v -> v["type"] == "User")
-
-c_names @= contributors.getKeys("username")
-c_imgs @= contributors.getKeys("avatar_url")
-
-window "dimensions" 880 500
-window_accent = global_accent
-media = ""
-segments = user.origin_dock
-accent_select = ""
-tier = null
-network_drive = "none"
-gotosubcategory = ""
-github_data = "Loading"
-if "wallpapers.json".saveExists() (
-  wallpapers = "wallpapers.json".saveGet()
-) else (
-  wallpapers = []
-)
-
-app_defaults @= "origin.apps?.defaults ?? {original: {}, modified: {}}".eval()
-
-def populateDefaultApps() (
-  local default_apps @= app_defaults.original
-  array default_keys = default_apps.getKeys()
-
-  local original_apps @= app_defaults.original
-  array original_keys = original_apps.getKeys()
-
-  for i default_keys.len (
-    if !default_apps.contains(default_keys[i]) (
-      default_apps[default_keys[i]] = original_apps[default_keys[i]]
-    )
-  )
-  save "default_apps.json" "set" default_apps
-)
-
-populateDefaultApps()
-
-wallpaper_provider = "https://wallpapers.mistium.com/"
-
-wallpaper_categories = {
-  origin: {
-    open: false,
-    values: [
-      "originOS-Veil.jpeg",
-      "originOS-Dawn.jpeg",
-      "originOS-Rift.png",
-      "originOS-Flow.png",
-    ]
-  },
-  nature: {
-    open: false,
-    values: [
-      "autumn.jpeg",
-      "lake.png",
-      "mountains.png",
-      "fog.png"
-    ]
-  },
-  city: {
-    open: false,
-    values: [
-      "night-city.png",
-      "cyberpunk-scene.png"
-    ]
-  },
-  anime: {
-    open: false,
-    values: [
-      "asleep.png",
-      "miku-and-stars.png",
-      "miku.png",
-      "warm-and-cozy.png",
-    ]
-  }
-}
-current_wallpaper = ""
-
-themes = {
-  "dark":{"primary":"#222222","secondary":"#555555","tertiary":"#777777","text":"#ffffff","background":"#050505","accent":"#57cdac"},
-  "midnight":{"primary":"#111111","secondary":"#333333","tertiary":"#555555","text":"#ffffff","background":"#000000","accent":"#57cdac"},
-  "light":{"primary":"#cccccc","secondary":"#e6e6e6","tertiary":"#ffffff","text":"#292929","background":"#b0b0b0","accent":"#57cdac"},
-  "ocean":{"primary":"#1a1d28","secondary":"#313f4e","tertiary":"#4f617d","text":"#bae3ee","background":"#090a0b","accent":"#7cc2f8"},
-  "forest":{"primary":"#1a2823","secondary":"#33523e","tertiary":"#417656","text":"#e5ffed","background":"#090b0a","accent":"#7ea59a"},
-  "mint":{"primary":"#8fbcac","secondary":"#639274","tertiary":"#07170e","text":"#000000","background":"#cde5dd","accent":"#97f7dc"},
-  "candyfloss":{"primary":"#9e8cb1","secondary":"#eac5f2","tertiary":"#170717","text":"#000000","background":"#cdb6d3","accent":"#f8e0ff"},
-}
-
-number y = 0
-frame 0 0 0 0 (
-  system
-)
-// file type pages
-ftkeys = file_types.getKeys()
-ftvalues = file_types.getValues()
-
-inputs.bio = (user.bio ?? "").split("\n")
-
-window "set_dragbox" [[2,2,260,0],[-2,2,-100,-40]]
-
-pfp = "https://avatars.rotur.dev/" ++ username ++ "?radius=30"
-
-supporterData = null
-
-slider_brightness = (roturlink.enabled ? roturlink.brightness 100) / 100
-upload_time = timer
-
-sidebar_height = 0
+app_defaults @= "origin.apps?.defaults ?? {original: {}, current: {}}".eval()
 theme_select = user.theme ?? themes.dark
-w = 0
+selected_col = ""
+inputs.bio = (user.bio ?? "").split("\n")
+inputs.search = ""
+pfp = "https://avatars.rotur.dev/" ++ username ++ "?radius=128"
+upload_time = timer
+media = ""
+fps_limit = "60"
+font_list = null
+font_current = ""
+font_status = ""
+font_picking = false
+fonts_scanned = false
+custom_fonts = []
+inputs.gfont = ""
+
+// A custom font is an .ojff that keeps the system glyphs and names a real font file in its
+// header. `layout: "cell"` makes the renderer place each character on origin's fixed grid.
+def install_font(string title, string source) (
+  local slug = title.toLower().replace("/[^a-z0-9]+/g", "_")
+  file "open" "origin/(a) system/fonts/origin.ojff" "onlyaccess"
+  local base @= fileGet(4).toStr().JsonParse()
+  file "close"
+  if typeof(base) != "object" or typeof(base.origin) != "object" (
+    font_status = "Could not read the system font to build on"
+    return null
+  )
+  base.origin.ttf = source
+  base.origin.layout = "cell"
+  base.origin.name = title
+  file "download" slug ++ ".ojff" null base.JsonStringify() user_folder ++ "/Fonts"
+  terminal "font use " ++ slug
+  font_current = slug
+  if !custom_fonts.contains(slug) (
+    void custom_fonts.append(slug)
+  )
+  font_status = "Installed " ++ title
+)
+
+// Google's css lists one file per script, the last block is the latin one
+def install_google_font(string family) (
+  if family == "" (
+    return null
+  )
+  font_status = "Looking up " ++ family
+  google_family = family
+  void requests.getAsync("https://fonts.googleapis.com/css2?family=" ++ family.replace(" ", "+"))
+    .then(resp -> (
+      local found @= resp.body.toStr().match("/url[(]([^)]+)[)]/g")
+      if resp.success != true or typeof(found) != "array" or found.len == 0 (
+        font_status = "Google Fonts has no family called " ++ google_family
+        return
+      )
+      local address = found.last().replace("url(", "").replace(")", "")
+      install_font(google_family, address)
+    ))
+)
+
+def install_font_file(string uuid) (
+  file "open" uuid "onlyaccess"
+  local kind = fileGet(1).toStr().toLower()
+  local title = fileGet(2).toStr()
+  local data = fileGet(4).toStr()
+  file "close"
+  if ![".ttf", ".otf", ".woff", ".woff2"].contains(kind) (
+    font_status = "Pick a .ttf, .otf, .woff or .woff2 file"
+    return null
+  )
+  if !data.startsWith("data:") (
+    font_status = "That file is not stored as binary data, upload it to Files again"
+    return null
+  )
+  install_font(title, data)
+)
+keybind_edit = ""
+perm_app = ""
+picker_id = ""
+subscriptions = ""
+contributors = null
+supporters = null
+extensions = null
+slider_active = false
+button_click = false
+page_len = 0
+sidebar_len = 0
+row_n = 0
+page_scroll = 0
+wall = null
+wall_time = 0
+action_danger = false
+
+window "dimensions" 920 640
+// starts to the right of the back button, a press inside the drag strip moves the window instead
+window "set_dragbox" [[2, 2, SIDEBAR + 80, 0], [-2, 2, -92, -42]]
 
 mainloop:
-networking()
-
 window.setGlass(100, "15px")
-goto 105 0
-square window.width - 200 window.height + 10 10 : c#window_colour
+goto SIDEBAR / 2 0
+square window.width - SIDEBAR - 10 window.height + 10 10 : c#window_colour
+// square off the page's left edge so it meets the sidebar on a straight line
+goto window.left + SIDEBAR + 12 0
+square 20 window.height 4
 c window_colour
-pen "opacity" 40
+pen "opacity" 55
 icon "w 99999 dot 0 0" 10
 pen "opacity" 0
 frame "clear"
 
-frame window.left window.top window.left + 225 window.bottom sidebar_height "cache@sidebar" (
-  sidebar_height = 25
-  loc 2 2 107 -25 + frame.scroll
-  temp = x_position
-  y = y_position
-  c txtc
-  if category == "Account" (
-    set_x frame.left
-    square 0 20 5
-    set_x temp
-  ) else (
-    square 190 30 15 0 1
-    if onclick (
-      category = "Account"
-      subcategory = "none"
+frame window.left window.top window.left + SIDEBAR window.bottom sidebar_len "cache@sidebar" (
+  // the search row shares the window buttons' centre line (21 below the top) and height (27),
+  // and the sides use the same 6 inset as the top
+  local sw = frame.width - 12
+  local sy = frame.top - 20 + frame.scroll
+  local top = sy
+
+  // search uses the same pill shape as the rows below it
+  goto 0 sy
+  square sw - 12 15 12 : c#prim
+  goto sw / -2 + 16 sy
+  icon "search" 0.5 : c#muted
+  goto 12 sy
+  c prim
+  input sw - 44 21 "search" "Search" 9 txtc
+  sy -= 42
+
+  local query = inputs.search.toStr().toLower().strip()
+  if query == "" (
+    goto 0 sy
+    if category == "Account" (
+      square sw - 12 32 12 : c#global_accent
+    ) else (
+      square sw - 12 32 12 0 1
+      if mouse_touching (
+        cursor "pointer"
+        square sw - 12 32 12 : c#hover_col
+      )
+      if onclick (
+        nav_cat = "Account"
+      )
+    )
+    goto sw / -2 + 28 sy
+    image pfp 34 34
+    goto sw / -2 + 54 sy + 8
+    if category == "Account" (
+      text user.username.trimText(sw - 70 / 9.5) 9.5 : c#accent_txt
+      goto sw / -2 + 54 sy - 9
+      text "Rotur Account" 7.5
+    ) else (
+      text user.username.trimText(sw - 70 / 9.5) 9.5 : c#txtc
+      goto sw / -2 + 54 sy - 9
+      text "Rotur Account" 7.5 : c#muted
+    )
+    sy -= 36
+  )
+
+  local drawn = 0
+  local gapped = false
+  for i pages.len (
+    local page @= pages[i]
+    local available = page.link != true or roturlink.enabled
+    local shown = available
+    local target_sub = "none"
+    if query != "" (
+      shown = available and page.name.toLower().contains(query)
+      for j search_index.len (
+        if available and search_index[j][2] == page.name and search_index[j][1].contains(query) (
+          shown = true
+          target_sub = search_index[j][3]
+        )
+      )
+    )
+    // a hidden page still passes its gap on, so groups never collapse into each other
+    if page.gap == true (
+      gapped = true
+    )
+    if shown (
+      if gapped and query == "" (
+        sy -= 14
+      )
+      gapped = false
+      drawn ++
+      goto 0 sy
+      local selected = category == page.name and query == ""
+      if selected (
+        square sw - 12 18 12 : c#global_accent
+      ) else (
+        square sw - 12 18 12 0 1
+        if mouse_touching (
+          cursor "pointer"
+          square sw - 12 18 12 : c#hover_col
+        )
+        if onclick (
+          nav_cat = page.name
+          nav_sub = target_sub
+          inputs.search = ""
+        )
+      )
+      goto sw / -2 + 22 sy
+      c page.col
+      square 9 9 12
+      icon page.icn 0.5 : c#fff
+      if selected (
+        text page.name 9 : c#accent_txt chx#20
+      ) else (
+        text page.name 9 : c#txtc chx#20
+      )
+      sy -= 30
     )
   )
-
-  text user.username.trimText(13) 10 : chx#-50
-
-  loc 2 2 27 -25 + frame.scroll
-  image pfp 35 35
-
-  set_x frame.left + 27
-  change_y -70
-  DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
-  DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-  DrawCategory "Controls" "rename"
-  if roturlink.enabled (
-    DrawCategory "Connection" "link"
+  if drawn == 0 (
+    goto 0 sy - 10
+    centext "No results" 8.5 : c#muted
+    sy -= 40
   )
-
-  change_y -25
-  // DrawCategory "Apps" "grid-apps"
-  DrawCategory "Storage" "file"
-  DrawCategory "Permissions" "permissions"
-
-  change_y -25
-  DrawCategory "Upgrade" "up"
-  DrawCategory "Credits" "w 3 cutcircle -4.5 -10 5.5 0 90 cutcircle 4 -5.5 6 3 60 cutcircle -5 5 2 0 180 cutcircle 5 8 2 0 180"
-
-  sidebar_height = y - y_position
+  sidebar_len = top - sy + 24
 )
 
-loc 2 2 232 -25
+// hairline between the glass sidebar and the page
+goto window.left + SIDEBAR 0
+square 0 window.height 1 : c#edge_col
+
+// title lines up with the text inside the cards
+local page_cw = min(window.width - SIDEBAR - 48, 640)
+goto window.left + SIDEBAR + window.right / 2 - (page_cw / 2) + LABEL_X window.top - 21
+if subcategory != "none" (
+  change_x 6
+  square 14 14 10 0 1
+  local back = onclick
+  if mouse_touching (
+    cursor "pointer"
+    square 14 14 10 : c#hover_col
+  )
+  if back (
+    nav_sub = "back"
+  )
+  icon "left" 0.6 : c#global_accent
+  change_x 22
+)
+local title = subcategory
 if subcategory == "none" (
-  set_x 105
-  centext category 10 : c#txtc
-) else (
-  change_x 10
-  icon "left-arrow" 0.6 : c#txtc
-  square 20 20 15 0 1
-  if clicked (
-    subcategory = "none"
-  )
-  set_x 105
-  centext subcategory 10
+  title = category
 )
-c seco
-frame window.left + 215 window.top - 47 window.right window.bottom page_len "cache@page" (
-  page_len = 0
-  y = -29 + frame.scroll
-  startx = x_position
-  location = category + subcategory
+text title 14 : c#txtc
+
+// one scroll position per page, so a new page always opens at the top
+frame window.left + SIDEBAR + 1 window.top - 48 window.right window.bottom page_len "cache@page_" ++ category ++ subcategory (
+  ui_begin
   switch category (
-    case "System"
-      system
-      break
-    case "Connection"
-      connectivity
-      break
-    case "Style"
-      appearance
-      break
-    case "Storage"
-      files
-      break
-    case "Controls"
-      inputs
-      break
     case "Account"
-      account
+      page_account
       break
-    case "Permissions"
-      permissions
+    case "Wi-Fi"
+      page_wifi
       break
-    case "Apps"
-      apps
+    case "Bluetooth"
+      page_bluetooth
       break
-    case "Upgrade"
-      upgrade
+    case "Network"
+      page_network
+      break
+    case "General"
+      page_general
+      break
+    case "Appearance"
+      page_appearance
+      break
+    case "Wallpaper"
+      page_wallpaper
+      break
+    case "Dock"
+      page_dock
+      break
+    case "Display"
+      page_display
+      break
+    case "Sound"
+      page_sound
+      break
+    case "Mouse"
+      page_mouse
+      break
+    case "Keyboard"
+      page_keyboard
+      break
+    case "Game Controllers"
+      page_controllers
+      break
+    case "Privacy & Security"
+      page_privacy
+      break
+    case "Subscription"
+      page_subscription
       break
     case "Credits"
-      credits
+      page_credits
       break
   )
-
-  if !mouse_down (
-    can = true
-  )
+  ui_end
 )
 
-if gotosubcategory != "" and !mouse_down (
-  subcategory = gotosubcategory
-  gotosubcategory = ""
+// content scrolling under the title gets a hairline so it does not look like it collides
+if page_scroll > 2 (
+  goto window.left + SIDEBAR + window.right / 2 window.top - 48
+  square window.width - SIDEBAR 0 1 : c#edge_col
+)
+
+// navigation is applied once the mouse is up so a click never lands on the next page
+if !mouse_down (
+  if nav_cat != "" (
+    category = nav_cat
+    subcategory = "none"
+    if nav_sub != "" (
+      subcategory = nav_sub
+    )
+    nav_cat = ""
+    nav_sub = ""
+    perm_app = ""
+  )
+  if nav_sub == "back" (
+    subcategory = "none"
+    nav_sub = ""
+  )
+  if nav_sub != "" (
+    subcategory = nav_sub
+    nav_sub = ""
+  )
 )
 window.show()
 import "win-buttons"

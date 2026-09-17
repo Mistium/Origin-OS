@@ -1,8 +1,17 @@
+// Shared look and feel for system apps.
+// `load_theme` sets the theme colours and the colours derived from them, call it
+// every frame. `box` and `hit` take the visible size, where `square` adds its
+// rounding to the size it is given.
+
 def "seticon" "icon" (
   file "open" my_uuid
   file "set" 11 icon
 )
 
+// Sets the theme colours and the colours derived from them, so every theme keeps
+// readable secondary text and visible edges. Derived colours are only recomputed
+// when an input changes. Self-contained on purpose: under `import ... as "wt"` the
+// module's commands are renamed `wt:name`, so it cannot call sibling commands.
 def "load_theme" (
   local global @= Variables()
   global.window_colour = user.theme.background
@@ -10,4 +19,67 @@ def "load_theme" (
   global.seco = user.theme.secondary
   global.tert = user.theme.tertiary
   global.txtc = user.theme.text
+  local key = global.prim ++ global.seco ++ global.txtc ++ global_accent
+  if key != global.wt_palette_key (
+    global.wt_palette_key = key
+    // Plain OSL on purpose. `.eval()` only runs real JavaScript for apps that hold the
+    // javascript permission, so an eval here left every normal app without these colours.
+    local jobs = [
+      ["muted", global.txtc, global.prim, 0.42],
+      ["hover_col", global.prim, global.seco, 0.4],
+      ["edge_col", global.prim, global.txtc, 0.14],
+      ["track_col", global.prim, global.txtc, 0.3],
+      ["accent_txt", global_accent, global_accent, 0]
+    ]
+    for i jobs.len (
+      local job @= jobs[i]
+      local pair = [job[2].toStr().replace("#", ""), job[3].toStr().replace("#", "")]
+      for side 2 (
+        local hex = pair[side]
+        if hex.len == 3 (
+          hex = hex[1] ++ hex[1] ++ hex[2] ++ hex[2] ++ hex[3] ++ hex[3]
+        )
+        pair[side] = hex
+      )
+      local out = "#"
+      local light = 0
+      local weights = [0.299, 0.587, 0.114]
+      for ch 3 (
+        local from_v = pair[1].trim(ch * 2 - 1, ch * 2).toBase(16, 10).toNum()
+        local to_v = pair[2].trim(ch * 2 - 1, ch * 2).toBase(16, 10).toNum()
+        local mixed = round((from_v * (1 - job[4])) + (to_v * job[4]))
+        light += from_v * weights[ch]
+        local part = mixed.toStr().toBase(10, 16).toStr().toLower()
+        if part.len < 2 (
+          part = "0" ++ part
+        )
+        out ++= part
+      )
+      if job[1] == "accent_txt" (
+        // black or white, whichever reads better on the accent
+        out = "#ffffff"
+        if light > 150 (
+          out = "#111111"
+        )
+      )
+      local name = job[1]
+      global[name] = out
+    )
+  )
+)
+
+// a filled rounded box, w and h are the visible size and r the corner diameter
+def "box" "w, h, r" (
+  square w - r h - r r
+)
+
+// an invisible hit area, sets mouse_touching / onclick / clicked
+def "hit" "w, h" (
+  square w h 0 0 1
+)
+
+// a bordered card centred on the pen
+def "card" "w, h" (
+  square w - 14 h - 14 16 : c#edge_col
+  square w - 14 h - 14 14 : c#prim
 )
