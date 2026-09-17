@@ -6,7 +6,9 @@ permission "request" "input monitoring"
 window.setInputMonitoring(true)
 
 def checkCollision(number x, number y, number w, number h) (
-  return abs(mouse_x - x) < w / 2 and abs(mouse_y - y) < h / 2
+  local pointer_x = mouse_ondown ? mouse_press_x mouse_x
+  local pointer_y = mouse_ondown ? mouse_press_y mouse_y
+  return abs(pointer_x - x) < w / 2 and abs(pointer_y - y) < h / 2
 )
 
 // use the builtin version api
@@ -27,14 +29,14 @@ origin @= "window.origin".eval()
 // get the origin global object
 // this gives us a shit ton of apis
 
-origin.windows.area = {
-  top: 0,
-  bottom: 0,
-  right: 0,
-  left: 0
-}
-
+if typeof(origin.windows.area) != "object" (
+  origin.windows.area = {}
+)
 window_area @= origin.windows.area
+window_area.top = window_area.top ?? 0
+window_area.bottom = window_area.bottom ?? 0
+window_area.right = window_area.right ?? 0
+window_area.left = window_area.left ?? 0
 
 window "responsive" true
 
@@ -42,6 +44,39 @@ number hitbox_size = 13
 
 number x2 = hitbox_size * 2
 number x25 = hitbox_size / 4
+
+def tileWindow(win, position) (
+  if win.restore_bounds == null (
+    win.restore_bounds = {
+      x: win.x,
+      y: win.y,
+      width: win.width,
+      height: win.height
+    }
+  )
+  local bottom = screen.y / -2 + max(0, window_area.bottom)
+  local win_top = screen.y / 2 - max(0, window_area.top)
+  local left = screen.x / -2 + max(0, window_area.left)
+  local right = screen.x / 2 - max(0, window_area.right)
+  local width = right - left
+  if position == "top" (
+    win.tile = "0,-1"
+  ) else if position == "left" (
+    local desktop @= "origin.desktop".eval()
+    width = desktop.split[desktop.current + 1] * width
+    win.tile = "-1,0"
+    right = left + width
+  ) else (
+    local desktop @= "origin.desktop".eval()
+    width = (1 - desktop.split[desktop.current + 1]) * width
+    win.tile = "1,0"
+    left = right - width
+  )
+  win.target_x = (left + right) / 2
+  win.target_y = (bottom + win_top) / 2
+  win.target_width = width
+  win.target_height = win_top - bottom
+)
 
 def dragEdge(prop, axis) (
   if !mouse_down (
@@ -57,10 +92,11 @@ def dragEdge(prop, axis) (
       if pos.startsWith("-1,") or pos.startsWith("1,") (
         local desktop @= "origin.desktop".eval()
         local mouse = pos[1] == "-" ? -mouse_x mouse_x
-        local split = (abs(state.resize1 + mouse) / screensize_x).clamp(0.3, 0.7)
-        desktop.split[desktop.current + 1] = split
         local left = screen.x / -2 + max(0, window_area.left)
         local right = screen.x / 2 - max(0, window_area.right)
+        local available = right - left
+        local split = (abs(state.resize1 + mouse) / available).clamp(0.3, 0.7)
+        desktop.split[desktop.current + 1] = split
 
         for i wins.len (
           local cur @= wins[i].window
@@ -70,11 +106,11 @@ def dragEdge(prop, axis) (
           )
           if cur.desktop == desktop.current and (tile.startsWith("-1,") or tile.startsWith("1,")) (
             if tile[1] == "-" (
-              cur.width = split * screen.x - 5
-              cur.x = left + (split * screen.x / 2) - 3
+              cur.width = split * available - 5
+              cur.x = left + (split * available / 2) - 3
             ) else (
-              cur.width = 1 - split * screen.x - 5
-              cur.x = right - (1 - split * screen.x / 2) - 3
+              cur.width = (1 - split) * available - 5
+              cur.x = right - ((1 - split) * available / 2) - 3
             )
             cur.target_x = null
             cur.callRender()
@@ -116,33 +152,15 @@ def dragDiagonal() (
 
 def moveWindow() (
   if !mouse_down (
-      local bottom = screen.y / -2 + max(0, window_area.bottom)
       local win_top = screen.y / 2 - max(0, window_area.top)
       local left = screen.x / -2 + max(0, window_area.left)
       local right = screen.x / 2 - max(0, window_area.right)
-      local width = right - left
-      local desktop @= "origin.desktop".eval()
-      local current = desktop.split[desktop.current + 1]
       if mouse_y > win_top - 13 (
-        top.tile = "0,-1"
-        top.target_x = (left + (width / 2)).toNum()
-        top.target_y = (bottom + win_top / 2).toNum()
-        top.target_width = width
-        top.target_height = win_top - bottom
+        tileWindow(top, "top")
       ) else if mouse_x < left + 13 (
-        width = current * screen.x
-        top.tile = "-1,0"
-        top.target_x = (left + (width / 2)).toNum()
-        top.target_y = (bottom + win_top / 2).toNum()
-        top.target_width = width
-        top.target_height = win_top - bottom
+        tileWindow(top, "left")
       ) else if mouse_x > right - 13 (
-        width = 1 - current * screen.x
-        top.tile = "1,0"
-        top.target_x = right - (width / 2)
-        top.target_y = bottom + win_top / 2
-        top.target_width = width
-        top.target_height = win_top - bottom
+        tileWindow(top, "right")
       )
       state.move = null
       return
@@ -153,10 +171,12 @@ def moveWindow() (
       if top.tile != null (
         local relative_x = (mouse_x - top.x) / top.width
         local relative_y = (mouse_y - top.y) / top.height
+        local restore @= top.restore_bounds ?? {}
 
         top.tile = null
-        top.target_width = 700
-        top.target_height = 450
+        top.target_width = restore.width ?? 700
+        top.target_height = restore.height ?? 450
+        top.restore_bounds = null
 
         top.x = mouse_x - (relative_x * top.target_width)
         top.y = mouse_y - (relative_y * top.target_height)
@@ -264,13 +284,15 @@ def handleResize() (
 )
 
 def handleMove() (
+  local pointer_x = mouse_ondown ? mouse_press_x mouse_x
+  local pointer_y = mouse_ondown ? mouse_press_y mouse_y
   drag @= top.dragbox[1]
   if typeof(drag) != "array" (
     return
   )
   goto x y
   change top.width / -drag[1].toNum() + drag[3].toNum() top.height / drag[2].toNum() + drag[4].toNum()
-  if mouse_x < x_position or mouse_y > y_position (
+  if pointer_x < x_position or pointer_y > y_position (
     return
   )
 
@@ -280,7 +302,7 @@ def handleMove() (
   )
   goto x y
   change top.width / -drag[1].toNum() + drag[3].toNum() top.height / drag[2].toNum() + drag[4].toNum()
-  if mouse_x > x_position or mouse_y < y_position (
+  if pointer_x > x_position or pointer_y < y_position (
     return
   )
   state.cursor = "grab"
@@ -325,8 +347,8 @@ def handleMove() (
     state.move = {
       x: top.x,
       y: top.y,
-      mouse_x: mouse_x,
-      mouse_y: mouse_y,
+      mouse_x: mouse_ondown ? mouse_press_x mouse_x,
+      mouse_y: mouse_ondown ? mouse_press_y mouse_y,
       tile: top.tile
     }
   )

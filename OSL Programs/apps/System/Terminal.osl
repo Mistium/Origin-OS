@@ -5,6 +5,18 @@ permission "request" "terminal"
 permission "request" "file admin"
 network "set_app_id" "terminal@system"
 
+boolean remote_shell = typeof(passed_data) == "object" and passed_data.type == "roturConnect"
+remote_queue @= remote_shell ? passed_data.queue []
+boolean remote_running = false
+boolean remote_prompt_visible = false
+
+def remoteSend(data) (
+  if !remote_shell (
+    return
+  )
+  roturConnect.shellOutput(data)
+)
+
 // fetch the path tracker file (non-fatal)
 path_url = "https://origin.mistium.com/%3Apath/"
 path = {}
@@ -22,7 +34,11 @@ number cursor_pos = 1
 // line count for the frame (never name this "loops" — clashes with frame/loop machinery)
 number term_n = 0
 
-window.show()
+if remote_shell (
+  window.hide()
+) else (
+  window.show()
+)
 
 path = path.scripts.getValues()
 last = []
@@ -584,6 +600,8 @@ class terminal (
 
   def writeLine(data) (
     // Preserve color lines: ls writes [color, text, color, text, ...] arrays
+    remoteSend(data)
+    remoteSend("\r\n")
     if typeof(data) == "array" (
       void self.lines.append(data)
         return
@@ -600,6 +618,7 @@ class terminal (
   )
 
   def write(data) (
+    remoteSend(data)
     if typeof(data) == "array" (
       // append color segments onto the current line buffer as a new colored line
       if self.lines.len == 0 or typeof(self.lines[self.lines.len]) != "array" (
@@ -669,6 +688,13 @@ class terminal (
   )
 )
 
+def remotePrompt() (
+  if remote_shell and !remote_prompt_visible (
+    remoteSend(terminal.user_start())
+    remote_prompt_visible = true
+  )
+)
+
 if typeof(passed_data) == "object" (
   switch passed_data["type"] (
     case "cd"
@@ -682,12 +708,12 @@ inputs.main = null
 last_index = 0
 
 // handle if created by the onboot and we are the only window
-boolean tty = Windows().len <= 1
+boolean tty = !remote_shell and Windows().len <= 1
 
 taking_input = false
 ots_i = 1
 
-if path.len > 0 and home_path != "" (
+if !remote_shell and path.len > 0 and home_path != "" (
   try (
     path_worker @= worker({
       isThread: true,
@@ -759,6 +785,11 @@ def startWorker() (
 
 startWorker()
 
+if remote_shell (
+  roturConnect.shellReady()
+  remotePrompt()
+)
+
 mainloop:
 
 if terminal_worker.alive == false (
@@ -766,6 +797,40 @@ if terminal_worker.alive == false (
   startWorker()
 )
 
+if remote_shell (
+  if remote_running and terminal_worker.cmd == null and terminal.show_input (
+    remote_running = false
+    roturConnect.shellCommand("terminal")
+    remotePrompt()
+  )
+  if remote_queue.len > 0 and typeof(remote_queue[1]) == "object" and remote_queue[1].close (
+    remote_queue.shift()
+    window.close()
+  ) else if !remote_running and remote_queue.len > 0 (
+    local remote_cmd = remote_queue.shift()
+    remote_prompt_visible = false
+    string command = "" ++ remote_cmd
+    if command == "clear" (
+      terminal.clear()
+      remoteSend(27.chr() ++ "[2J" ++ 27.chr() ++ "[H")
+      remotePrompt()
+    ) else if command.len > 0 (
+      array parts = command.oslTokenise()
+      if aliases.contains(parts[1]) (
+        parts[1] = aliases[parts[1]]
+        command = parts.join(" ")
+      )
+      terminal.show_input = false
+      terminal_worker.cmd = command
+      remote_running = true
+      roturConnect.shellCommand(command)
+    ) else (
+      remotePrompt()
+    )
+  )
+)
+
+if !remote_shell (
 if tty (
   window.setDragbox([2,2,0,0],[2,2,0,0])
   window.resize(screensize_x, screensize_y)
@@ -921,4 +986,8 @@ frame window.left window.top window.right + 20 window.bottom term_n * 20 + 40 "c
     text inputs.main ?? "" 10
   ) else (
   )
+)
+if !tty (
+  import "win-buttons"
+)
 )

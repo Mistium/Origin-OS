@@ -1,6 +1,7 @@
 import "window_tools"
 import "glass" from "packages" as "glass"
 
+window.show()
 window.resize(270,100)
 window "resizable" false
 window "responsive" true
@@ -8,15 +9,20 @@ window "responsive" true
 window.setDragbox([],[])
 
 can = false
+opened_at = timer
 
 mainloop:
 load_theme
+
+if timer - opened_at > 0.1 and window.id != focused_application_id (
+  window.close()
+)
 
 goto 0 0
 square window.width - 22 window.height - 22 20 : c#back
 window.setGlass(100, "15px")
 
-if mouse_down and can (
+if onclick and can (
   window.close()
 )
 can = mouse_down.not()

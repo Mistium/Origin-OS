@@ -1,5 +1,4 @@
 import "window_tools"
-import as "glass" from "packages"
 
 permission "request" "file admin"
 permission "request" "terminal"
@@ -119,16 +118,16 @@ if all_json == null (
     supported_json = all_json.getValues()
       .filter(v -> v.supports.contains("originOS"))
       .sortBy("genre")
-    
+
     categories = supported_json
       .map(v -> v.genre.toStr().toLower())
-      
+
     out = {}
     for i supported_json.len (
       cur = categories[i].split(",")
       for i2 cur.len (
         out[cur[i2].strip()] ??= []
-        
+
         void out[cur[i2].strip()]
           .append(supported_json[i].title)
       )
@@ -188,7 +187,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       h = 100
       appCard(home_json.featured.name)
       page_len += h
-      
+
       change_y -80
       square w - 30 30 20 : c#prim
       if onclick (
@@ -198,7 +197,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       set_x w / -2 + 40
       icon "list" 1 : c#txtc
       text "Categories" 10 : chx#30
-      
+
       set_x : chy#-60
       square w - 30 30 20 : c#prim
       if onclick (
@@ -211,7 +210,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       set_x w / -2 + 40
       icon "download" 1 : c#txtc
       text "Updates" 10 : chx#30
-      
+
       set_x : chy#-60
       square w - 30 30 20 : c#prim
       if onclick (
@@ -221,7 +220,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       set_x w / -2 + 40
       icon "search" 1 : c#txtc
       text "Search" 10 : chx#30
-      
+
       change_y -80
       set_x w / -4
       page_len += 280
@@ -276,7 +275,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       if page_data.len == 0 (
         centext "Looking Kinda Empty" 10 : c#txtc
       )
-      
+
       for i page_data.len (
         appCard(page_data[i])
         change_y -100
@@ -285,7 +284,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       break
     case "app"
       save_data = "installed.json".saveGet() ?? {}
-    
+
       cur @= all_json[page_data]
       page_len += 60
       loc 2 2 50 -50 + frame.scroll
@@ -332,7 +331,7 @@ frame window.left window.top - 45 window.right window.bottom page_len (
         )
       )
       centext msg 10 : c#txtc
-      
+
       change_x msg.len * 5 + 10
       square 0 20 2 : c#global_accent
       icon "down" 0.5 : chx#15 c#txtc
@@ -353,12 +352,12 @@ frame window.left window.top - 45 window.right window.bottom page_len (
           )},
         ] {cur, page_data}
       )
-      
+
       change -45 -35
       centext formatFileSize(cur.scripts.osl.size) 10
-      
+
       set_y frame.top - 70 + frame.scroll
-      
+
       if cur.screenshots.len > 0 (
         cur.screenshot ??= 1
         cur.screenshot_x ??= 0
@@ -398,24 +397,24 @@ frame window.left window.top - 45 window.right window.bottom page_len (
       change frame.left + 10 lines * 11.5 - 15
       text descr 10 : c#txtc
       page_len += lines * 23 + 30
-      
+
       set_x 0
       change_y -80
       square frame.width 90 10 : c#prim
-      
+
       set_x frame.left + 10 : chy#35
       text "Views:" + (cur.views ?? 0) ++ ", Downloads:" + (cur.downloads ?? 0) 10 : c#txtc
-      
+
       set_x frame.left + 10 : chy#-23
       if cur.permissions.len == 0 (
         text "No permissions are required for this app" 10
       ) else (
         text "Requires Permissions: " ++ cur.permissions.join(",") 10
       )
-      
+
       set_x frame.left + 10 : chy#-23
       text "Version: " ++ cur.version 10
-      
+
       set_x frame.left + 10 : chy#-23
       text "Price: " ++ cur.price 10
       page_len += 120

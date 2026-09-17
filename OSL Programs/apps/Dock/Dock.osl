@@ -4,13 +4,17 @@ permission "request" "start run"
 permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "windows"
+permission "request" "javascript"
 
 save "Dock@System" "set_directory"
+save "desktop@system" "set_directory"
 open_path = null
 y = -100
 
 window "responsive" true
-window "hide"
+window "show"
+window.desktop_layer = true
+window.style = {bg: "transparent"}
 
 if on_mobile (
   y = 0
@@ -34,15 +38,28 @@ state = {
   }
 }
 
-desktop @= () -> (
+def render_dock() (
+  local predicted_width = 0
+  local resolved_widths = []
   for bg segment_classes.len (
     local cur @= segment_classes[bg]
-    if cur.enabled == false (
+    local w = 0
+    if cur.enabled != false (
+      w = max(0, cur.width.toNum())
+      predicted_width += w + 30
+    )
+    cur.render_width = w
+    void resolved_widths.append(w)
+  )
+  local compact_folders = predicted_width > screensize_x - 20
+
+  for bg segment_classes.len (
+    local cur @= segment_classes[bg]
+    if cur.enabled == false or (compact_folders and cur.name.endsWith("folders.osl")) (
       continue
     )
-    local w = max(0, cur.width.toNum())
+    local w = resolved_widths[bg]
     dock_width += w + 30
-    cur.width = w
     change_x w / 2
     style {
         bgBlur: "5px",
@@ -54,10 +71,10 @@ desktop @= () -> (
 
   for i segment_classes.len (
     local cur @= segment_classes[i]
-    if cur.enabled == false (
+    if cur.enabled == false or (compact_folders and cur.name.endsWith("folders.osl")) (
       continue
     )
-    local w = cur.width
+    local w = resolved_widths[i]
     c dock_colour
     local w2 = w / 2 + 10
     local h2 = height / 2 + 10
@@ -137,16 +154,330 @@ window.no_desktop = true
 // window.pinned = true
 // pin to the top to stop other windows from overlapping
 
-if !on_mobile (
-  window "y" screensize_y / -2 + 35
+app_positions = {}
+
+def icons_big() (
+  app_size = 2.5
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+)
+
+def icons_norm() (
+  app_size = 2
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+)
+
+def icons_small() (
+  app_size = 1.7
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+)
+
+def icons_hide() (
+  app_size = 0
+  theme.app_size = app_size
+  save "theme.json" "set" theme
+)
+
+def upload_file() (
+  terminal "upload /desktop"
+)
+
+def "reload_extensions" (
+  local extensions @= "window.osl_extensions".eval().getValues()
+
+  if extensions != apps_temp (
+    apps_temp = extensions
+    for i extensions.len (
+      local extension = extensions[i]
+      extensions[i] = extension.JsonParse()
+    )
+    desktop_rightclick[desktop_rightclick.len] = ["Apps"].concat(extensions)
+  )
+)
+
+def "handle_dropped_file" (
+  loc 2 2 35 -35
+  if !file_dropped.fileExists() (
+    warn "Dropped file: " ++ file_dropped ++ " does not exist"
+    return
+  )
+  file "open" file_dropped "onlyaccess"
+  file "set" "6" round(x_position - mouse_x / -70) * 70
+  file "set" "7" round(y_position - mouse_y / -70) * 70
+)
+
+def "handle_app_culling" (
+  if mouse_down or app_positions.len == 0 or sequenced_refresh (
+    desktop_apps = desktop_data
+  ) else (
+    loc 2 2 35 -35
+    local x = round(mouse_x - x_position / 70) * 70
+    local y = round(mouse_y - y_position / 70) * 70
+    desktop_apps = []
+    local cur = app_positions[y][x]
+    if desktop_data.contains(cur) (
+      if cur != null (
+        void desktop_apps.append(cur)
+      )
+    ) else (
+      app_positions[y][x] = null
+    )
+  )
+)
+
+def "render_selection" (
+  sqw = mouse_start_x - mouse_x
+  sqh = mouse_start_y - mouse_y
+  frame mouse_start_x mouse_start_y mouse_x mouse_y (
+    goto 0 0
+    c #000
+    pen "opacity" 70
+    pen "size" frame_width + frame_height
+    pen "down"
+    pen "up"
+    pen "opacity" 100
+    selection_frame @= frame
+  )
+  window.callRender()
+)
+
+def getUuid(path) (
+  if path.startsWith("sys/") (
+    local path = "origin/(a) system/user applications/" ++ path.trim(5,-1)
+  )
+  local uuid = open(path, ["uuid"])[1]
+  file "close"
+  return uuid
+)
+
+def generateQuickApp(path) (
+  local uuid = getUuid(path)
+  local fn @= def() -> (
+    window.create(self.uuid)
+  )
+  return {"> " ++ uuid: fn.bind({uuid})}
+)
+
+desktop_rightclick = [
+  "> " ++ getUuid("~/desktop.folder"),
+  "-",
+  {"Change Wallpaper": def() -> (
+    window.create(getUuid("sys/Settings.osl"), "Style/Background")
+  )},
+  ["Quick Apps",
+    generateQuickApp("sys/Files.osl"),
+    generateQuickApp("sys/Settings.osl"),
+    generateQuickApp("sys/Activity.osl"),
+    generateQuickApp("/(a) system/system apps/Terminal.osl"),
+  ],
+  "-",
+  ["New",
+    {"Upload": def() -> (
+      terminal "upload user/desktop"
+    )},
+    {"Folder": def() -> (
+      file "download" "New Folder.folder" "" [] parseFilePath("~/desktop")
+    )},
+    {"File": def() -> (
+      window.create("new_file", {
+        passed_data: user_folder ++ "/desktop"
+      })
+    )},
+  ],
+  "Info",
+  "-",
+  ["View",
+    {"Big Icons":    icons_big   },
+    {"Normal Icons": icons_norm  },
+    {"Small Icons":  icons_small },
+    "-",
+    {"Hide Icons":   icons_hide  }
+  ],
+  [
+    "Apps",
+    "None"
+  ]
+]
+
+desktop_rightclick_temp = desktop_rightclick
+
+widgets = []
+if "widgets.json".saveExists() (
+  widgets = "widgets.json".saveGet().JsonClean()
+  if typeof(widgets) != "array" (
+    say "Invalid widgets config, must be a valid array"
+    widgets = []
+  )
+)
+for i widgets.len (
+  local cur @= widgets[i]
+  cur.imp @= import(cur.file)
+)
+
+if "theme.json".saveExists() (
+  theme = "theme.json".saveGet().JsonClean()
+  if typeof(theme) != "object" (
+    theme = {"app_size":"1.8"}
+    save "theme.json" "set" theme
+  )
+) else (
+  theme = {"app_size":"1.8"}
+  save "theme.json" "set" theme
+)
+
+app_size = theme.app_size
+clicked_id = 0
+windowfileloc = user_folder ++ "/Desktop"
+desktop_uuid = open(windowfileloc ++ ".folder", [14])[1]
+positions = {}
+name = null
+apps_temp = ""
+can = false
+
+include windowfileloc
+desktop_data @= data
+
+area @= "origin.windows.area".eval()
+
+def positionWindow() (
+  // set window parameters
+  window.drop_location = windowfileloc
+
+  number width = round(screensize_x)
+  number height = round(screensize_y)
+
+  window.goto(0, 0)
+  if window.width != width or window.height != height (
+    window.width = width
+    window.height = height
+    desktop_window_changed_dimensions = true
+  )
+)
+
+positionWindow()
+
+desktop_apps = []
+desktop_cur_frame = 0
+desktop_window_changed_dimensions = false
+previous_desktop_wallpaper = background_url
+
+def render_desktop() (
+  desktop_cur_frame ++
+  positionWindow()
+
+  back = user.theme.background
+  txtc = user.theme.text
+
+  local desktop_wallpaper_changed = previous_desktop_wallpaper != background_url
+  previous_desktop_wallpaper = background_url
+
+  include windowfileloc
+  local hovered = window_id_index == window_top_index
+
+  // if this is true, it forces the window to redraw and not cache
+  // with the DOM renderer the OSL runtime diffs elements, so always draw (never cache/exit)
+  local dom = "window.origin.domRender".eval() == true
+  sequenced_refresh = dom or desktop_cur_frame % 120 == 0 or desktop_wallpaper_changed or desktop_window_changed_dimensions
+
+  if desktop_wallpaper_changed (
+    window.callRender()
+  )
+
+  doDraw = desktop_data.len != data.len or mouse_down or desktop_apps.len > 0 or sequenced_refresh
+
+  for j widgets.len (
+    local cur @= widgets[j]
+    local pos = cur.position
+    local size = cur.size
+    size[1] /= 2
+    size[2] /= 2
+    loc pos[1] pos[2] pos[3] pos[4]
+    frame x_position - size[1] y_position + size[2] x_position + size[1] y_position - size[2] (
+      void cur.imp.main()
+    )
+  )
+
+  desktop_data = data
+  if hovered (
+    if file_dropped != 0 (
+      handle_dropped_file
+      file_dropped = 0
+      window.callRender()
+    )
+    if mouse_down and can (
+      can = false
+      mouse_start_x = mouse_x
+      mouse_start_y = mouse_y
+      window.callRender()
+    )
+    if mouse_down (
+      render_selection
+    ) else (
+      can = true
+    )
+    reload_extensions
+
+    goto 0 0
+    pen "opacity" 0
+    square screensize_x screensize_y 1 0 1
+    pen "opacity" 100
+
+    rightclick desktop_rightclick desktop_uuid
+  ) else if !sequenced_refresh (
+    return false
+  )
+
+  handle_app_culling
+
+  if (!doDraw and !hovered) or desktop_apps.len == 0 and !sequenced_refresh (
+    return false
+  )
+
+  for i desktop_apps.len (
+    app_id @= desktop_apps[i]
+
+    file "open" app_id "onlyaccess"
+    local icon_x = round(fileGet(6).toNum() / 70) * 70
+    local icon_y = round(fileGet(7).toNum() / 70) * 70
+    app_positions[icon_y][icon_x] = app_id
+
+    loc 2 2 35 + icon_x -35 + icon_y
+    square 30 30 0 0 1
+    if mouse_touching or doDraw (
+      file "render" app_size "interactable"
+      rightclick "file" app_id
+    )
+
+    local app_name = fileGet(2).toStr()
+    if mouse_touching (
+      square app_name.len * 8 5 15 : c#back chy#-35
+      centext app_name 8 : c#txtc
+      name = app_name
+    ) else if name == app_name (
+      name = null
+      window.callRender()
+    )
+  )
+  return true
 )
 
 segments = user.origin_dock
+local retired_running_osl = "Origin/(A) System/Docks/Modules/running.osl"
+local retired_running_ode = "Origin/(A) System/Docks/Modules/running.ode"
+if typeof(segments) == "array" and segments.contains(retired_running_osl) (
+  segments.delete(segments.index(retired_running_osl))
+  network "update" "origin_dock" segments
+)
+if typeof(segments) == "array" and segments.contains(retired_running_ode) (
+  segments.delete(segments.index(retired_running_ode))
+  network "update" "origin_dock" segments
+)
 if typeof(segments) != "array" (
   segments = [
     "Origin/(A) System/Docks/Modules/main.osl",
     "Origin/(A) System/Docks/Modules/applications.osl",
-    "Origin/(A) System/Docks/Modules/running.osl",
     "Origin/(A) System/Docks/Modules/folders.osl",
     "Origin/(A) System/Docks/Modules/time.osl",
     "Origin/(A) System/Docks/Modules/battery.osl"
@@ -162,10 +493,14 @@ if user.timeformat == null (
   }
 )
 
-eval "origin.windows.area.bottom += 70"
+if !on_mobile (
+  eval "origin.windows.area.bottom += 70"
+)
 
 window.on("close", def() -> (
-  eval "origin.windows.area.bottom -= 70"
+  if !on_mobile (
+    eval "origin.windows.area.bottom -= 70"
+  )
 ))
 
 goto 0 y
@@ -226,7 +561,9 @@ wait 1
 
 mainloop:
 needs_render = false
+render_desktop()
 cur_frame ++
+
 dock_colour = user.theme.background
 icon_colour = user.theme.text
 prim = user.theme.primary
@@ -247,20 +584,12 @@ if !mouse_down (
   canclick = true
 )
 if !on_mobile (
-  window.resize(screensize_x, 70)
-  window.y = round(screensize_y / -2 + 35)
-  y += dock_y_target - round(y) * delta_time * 5
-  if y > 0 (
-    y = 0
-  )
-  if round(y) != round(dock_y_target) (
-    needs_render = true
-  )
+  y = round(screensize_y / -2 + 35)
 )
 
-if y > -80 (
+if on_mobile or y > round(screensize_y / -2 + 35) - 80 (
   width = 0
-  local x = round(dock_width / -2 + 15)
+  x = round(dock_width / -2 + 15)
   dock_width = 0
 
   goto x y
@@ -269,7 +598,7 @@ if y > -80 (
   if on_mobile (
     mobile()
   ) else (
-    desktop()
+    render_dock()
   )
 
   if dock_width != dock_width_temp (

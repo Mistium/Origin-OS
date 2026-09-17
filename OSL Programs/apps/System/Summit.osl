@@ -67,15 +67,37 @@ def resolve_url(url) (
   if url == "" (
     return summit.home_url
   )
+  if url.startsWith("about:") or url.startsWith("mailto:") (
+    return url
+  )
   if url.contains("://") (
     return url
   )
+  if url.startsWith("www.") (
+    return "https://" ++ url
+  )
+  if url.startsWith("localhost") or url.startsWith("127.") or url.startsWith("192.168.") or url.endsWith(".local") (
+    return "http://" ++ url
+  )
   if !url.contains(" ") and url.contains(".") (
-    local tld = url.split("/")[1].split(".").last()
+    local host = url.split("/")[1].split(":")[1]
+    local tld = host.split(".").last()
     if summit.tlds[tld] != null (
       return "web://" ++ url
     )
     return "https://" ++ url
+  )
+  if !url.contains(" ") (
+    local host = url.split("/")[1]
+    if host.contains(".") (
+      local tld = host.split(".").last()
+      if summit.tlds[tld] != null (
+        return "web://" ++ url
+      )
+      if !url.startsWith("/") (
+        return "https://" ++ url
+      )
+    )
   )
   return summit.search_url ++ encodeURIComponent(url)
 )
@@ -319,49 +341,56 @@ def "page_frame" "left, top, right, bottom, url" (
       local parts = url.split("/")
       local current_tld = parts[1].split(".").last()
       local host = summit.tlds[current_tld]
+      local page_key = url
       if host == null or host == "" (
-        summit.pages.loaded[url] @= error_page("Can't resolve", "Unknown or unloaded TLD: ." ++ current_tld, "web://" ++ url)
+        if current_tld == "web" (
+          fetch_url = summit.system_url ++ url
+        ) else (
+          fetch_url = "https://" ++ url
+        )
       ) else (
-        local page_key = url
         fetch_url = "https://" ++ host ++ url
-        summit.pages.loading[page_key] = true
-        void requests.getAsync(fetch_url).then(resp -> (
-          if resp.success != true (
-            local detail = fetch_url
-            if typeof(resp.body) == "object" (
-              detail = fetch_url ++ "\n" ++ (resp.body.error ?? resp.body.JsonStringify())
-            ) else if resp.body != null and resp.body != "" (
-              detail = fetch_url ++ "\n" ++ (("" ++ resp.body).trimText(200))
-            )
-            local status_txt = ""
-            if resp.status != null and resp.status != 0 (
-              status_txt = " (" ++ resp.status ++ ")"
-            )
-            summit.pages.loaded[page_key] @= error_page("Can't fetch page", "Request failed" ++ status_txt, detail)
-            summit.pages.loading[page_key] = false
-            return
-          )
-          local body = resp.body
-          if typeof(body) != "string" (
-            body = body.JsonStringify()
-          )
-          if body == null or body == "" (
-            summit.pages.loaded[page_key] @= error_page("Empty response", "The server returned no content", fetch_url)
-            summit.pages.loading[page_key] = false
-            return
-          )
-          summit.pages.loaded[page_key] @= {
-            data: body.split("\n"),
-            onload: true,
-            vars: {},
-            fetch_url
-          }
-          if fetch_url.endsWith(".osl") or page_key.endsWith(".osl") or fetch_url.endsWith(".owf") (
-            summit.pages.loaded[page_key].fn @= function("data", sandbox.sanitiseOSL(body.split("\n")).join("\n"))
-          )
-          summit.pages.loading[page_key] = false
-        ))
       )
+      summit.pages.loading[page_key] = true
+      local fetch_handler @= def(resp) -> (
+        local page_key = self.page_key
+        local fetch_url = self.fetch_url
+        if resp.success != true (
+          local detail = fetch_url
+          if typeof(resp.body) == "object" (
+            detail = fetch_url ++ "\n" ++ (resp.body.error ?? resp.body.JsonStringify())
+          ) else if resp.body != null and resp.body != "" (
+            detail = fetch_url ++ "\n" ++ (("" ++ resp.body).trimText(200))
+          )
+          local status_txt = ""
+          if resp.status != null and resp.status != 0 (
+            status_txt = " (" ++ resp.status ++ ")"
+          )
+          summit.pages.loaded[page_key] @= error_page("Can't fetch page", "Request failed" ++ status_txt, detail)
+          summit.pages.loading[page_key] = false
+          return
+        )
+        local body = resp.body
+        if typeof(body) != "string" (
+          body = body.JsonStringify()
+        )
+        if body == null or body == "" (
+          summit.pages.loaded[page_key] @= error_page("Empty response", "The server returned no content", fetch_url)
+          summit.pages.loading[page_key] = false
+          return
+        )
+        summit.pages.loaded[page_key] @= {
+          data: body.split("\n"),
+          onload: true,
+          vars: {},
+          fetch_url
+        }
+        if fetch_url.endsWith(".osl") or page_key.endsWith(".osl") or fetch_url.endsWith(".owf") (
+          summit.pages.loaded[page_key].fn @= function("data", sandbox.sanitiseOSL(body.split("\n")).join("\n"))
+        )
+        summit.pages.loading[page_key] = false
+      )
+      void requests.getAsync(fetch_url).then(fetch_handler.bind({page_key, fetch_url}))
     ) else if page_protocol == "local" (
       local file_data = open(url, ["path","name","type","data"])
       if file_data == null (
@@ -604,7 +633,7 @@ local current_right = left + tab_w
 
 for i summit.tabs.current.len (
   tab_id @= summit.tabs.current[i]
-  page_frame current_left window.top - 10 current_right window.bottom + 10 tab_id
+  page_frame current_left window.top - 45 current_right window.bottom + 10 tab_id
   local current_left += tab_w
   local current_right += tab_w
 )

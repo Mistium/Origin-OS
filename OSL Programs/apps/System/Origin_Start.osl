@@ -1,5 +1,5 @@
 import as "glass" from "packages"
-import "window_tools" as "wt"
+import "window_tools"
 
 permission "request" "file admin"
 permission "request" "terminal"
@@ -89,7 +89,10 @@ before = [
     name: "Total Applications: " ++ total_apps,
     icon: "icn Grid-Apps 0.8"
   },
-  {},
+  {
+    type: "spacer",
+    name: ""
+  },
   {
     type: "label",
     name: "Apps"
@@ -107,7 +110,7 @@ transparent = {
 }
 
 mainloop:
-wt:load_theme
+load_theme
 
 width = window.width - 20
 height = window.height - 20
@@ -208,4 +211,4 @@ if window_id_index != 1 (
   window.close()
 )
 
-window.y = screensize_y - window.height / -2 + "origin.windows.area.bottom".eval().toNum() + 20
+window.y = screensize_y / -2 + window.height / 2 + "origin.windows.area.bottom".eval().toNum() + 20

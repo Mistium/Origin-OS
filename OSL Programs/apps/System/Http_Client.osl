@@ -5,11 +5,19 @@ buttons = [
 
 // variable setup
 response = ""
+response_code = "-"
+resp_all = ""
+resp = ""
+resp_len = 0
 http "new"
 response_failed = false
 response_success = false
+last_response_failed = false
+last_response_success = false
 window "set_dragbox" [[2,2,0,0],[-2,2,-40,-40]]
-input_type = "text/plain".destr
+inputs.Url = ""
+inputs.body = ""
+inputs.type = "text/plain"
 selected = 1
 
 // shows the window
@@ -17,14 +25,17 @@ window "show"
 
 
 mainloop:
+loc 2 2 15 -18
+text "HTTP Client" 9 : c#fff
+
 // draws the method buttons
-loc 2 2 40 -20
+loc 2 2 40 -55
 for "count" buttons.len (
   c #222
   // highlights the selected button
   if selected == count "c #444"
   square 60 20 10
-  if clicked (
+  if onclick (
     // switches the selected button
     selected = count
   )
@@ -35,83 +46,83 @@ for "count" buttons.len (
   set_x x + 75
 )
 
-// draws the close button at the top left
-loc -2 2 -20 -20
-square 20 20 10 : c#222
-if clicked (
-  window "stop"
-)
-icon "close" 0.6 : c#fff
-
-loc 2 2 10 -60
-text `Make a ${buttons[selected]} request to website:` 10 : c#fff
-loc 2 2 0 -100
-set_x -50
-c #333
-w = window_width - 120
-square w 25 10
-input w - 10 25 "Url" "Enter url of website to request"
-if mouse_down.not "can = true"
-loc -2 2 -50 -100
+loc 2 2 10 -90
+text "Make a " ++ buttons[selected] ++ " request to a website:" 10 : c#fff
+loc 2 2 window.width - 50 -130
+send_clicked = mouse_ondown and abs(mouse_press_x - x_position) < 45 and abs(mouse_press_y - y_position) < 18
 square 80 25 10 : c#333 hover_c#444 click_c#222
-if clicked and can (
-  // send the http request if send is clicked
-  can = false
+if send_clicked (
+  // send the HTTP request when Send is activated
+  response_code = "pending"
+  last_response_failed = false
+  last_response_success = false
   http "new"
   http "method" buttons[selected]
-  http "body" input_body
-  http "type" input_type
-  http "sendto" input_url.str
+  http "body" inputs.body
+  http "type" inputs.type
+  http "sendto" inputs.Url
 )
 c #fff
 change_x -20
 text "Send" 10
 
+loc 2 2 0 -130
+set_x -50
+c #333
+w = window_width - 120
+square w 25 10
+input w - 10 25 "Url" "Enter url of website to request"
+
 // render the request body input
-loc 99999 2 0 -140
+loc 99999 2 0 -170
 square window_width - 20 25 10 : c#333
 if buttons[selected] == "get" (
-  loc 2 2 15 -140
-  text "Cant use request body for `get`" 8 : c#fff
+  loc 2 2 15 -170
+  text "Can't use a request body for GET" 8 : c#fff
 ) else (
   input window_width - 30 25 "body" "Request body"
 )
 
 // render the request type input
-loc 99999 2 0 -180
+loc 99999 2 0 -210
 square window_width - 20 25 10 : c#333
 input window_width - 30 25 "type" "text/plain"
 
-if response_failed nor response_success (
+if response_failed or response_success (
   // get the response and then handle it
   http "get_response"
+  last_response_failed = response_failed
+  last_response_success = response_success
   resp_all = response
   resp_len = resp_all.len
   resp = response.split(newline)[1].trim(1,100)
   http "new"
 )
-loc 2 2 10 -220
+loc 2 2 10 -250
 c #fff
-text `Recieved a response, code: ${response_code}` 10
+text "Received a response, code: " ++ (response_code ?? "-") 10
 change_x 30
 // draws whether the request succeeded lol
-if response_success (
+if last_response_success (
   text "Response Succeeded" 10
 )
-if response_failed (
+if last_response_failed (
   text "Response Failed" 10
 )
 
 // render the response data
-loc 2 2 10 -250
-text "Recieved:" + resp_len + "Text Characters" 10
-loc 2 2 10 -300
+loc 2 2 10 -280
+text "Received: " ++ resp_len ++ " text characters" 10
+loc 2 2 10 -330
 text resp 10
 
 // position the copy button
-loc 2 2 140 -350
+loc 2 2 140 -380
 c #333
+copy_clicked = mouse_ondown and abs(mouse_press_x - x_position) < 130 and abs(mouse_press_y - y_position) < 18
 button "Copy response to clipboard" 250 25 10 : hover_c#444 click_c#222
-if clicked (
+if copy_clicked (
   clipboard "set" resp_all.toStr().destr
 )
+
+import "win-buttons"

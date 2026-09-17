@@ -11,7 +11,8 @@ def "draw" "x, y, x2, y2, character" (
     square 55 55 10 : c#cb hover_c#cbh
   )
 
-  if onclick or character.onKeyDown() and character != "=" (
+  local pointer_click = onclick
+  if (pointer_click or character.onKeyDown()) and character != "=" (
     if "1234567890.".contains(character) (
       if operation == "" (
         current ++= character
@@ -22,7 +23,7 @@ def "draw" "x, y, x2, y2, character" (
       operation = character
     )
   )
-  if clicked or "enter".onKeyDown() and character == "=" (
+  if (pointer_click or "enter".onKeyDown()) and character == "=" (
     number out = current.toNum()
     switch operation (
       case "+"
@@ -105,7 +106,7 @@ text output 15
 loc -2 2 -27.5 -72.5
 square 40 40 10 : c#cca hover_c#ch
 icon "left-arrow" 0.7 : c#ct
-if clicked or "backspace".onKeyDown() and can (
+if (onclick or "backspace".onKeyDown()) and can (
   can = false
   if operation == "" (
     current = current.toStr().left(current.len - 1)
@@ -118,7 +119,7 @@ if clicked or "backspace".onKeyDown() and can (
 
 loc -2 2 -22.5 -22.5
 icon "close" 0.6
-if clicked (
+if onclick (
   window.close()
 )
 if mouse_down.not() (

@@ -1609,10 +1609,10 @@ class OSLUtils {
       if (cur.endsWith("()")) return out
       let method = autoTokenise(cur.substring(cur.indexOf("(") + 1, cur.length - 1), ",")
       method = method.map(v => {
-        const tkns = autoTokenise(v.trim(), " ");
-        if (tkns.length === 2) {
-          const ast = this.generateAST({ CODE: tkns[1].trim(), START: 0 })[0]
-          ast.set_type = tkns[0]
+        const typed = v.match(/^\s*(\*\s*)?([A-Za-z_][A-Za-z0-9_.]*(?:\[[A-Za-z0-9_.*?]+\]|\[\])?\??)\s+([A-Za-z_][A-Za-z0-9_]*)\s*$/);
+        if (typed) {
+          const ast = this.generateAST({ CODE: typed[3], START: 0 })[0]
+          ast.set_type = (typed[1] ? "*" : "") + typed[2]
           return ast
         }
         return this.generateAST({ CODE: v.trim(), START: 0 })[0]
@@ -1829,13 +1829,21 @@ class OSLUtils {
 
       if (node.type === "inl") {
         const rawParams = (node?.left?.parameters ?? []);
-        const params = rawParams.map(p => {
+        let params = rawParams.map(p => {
           const typePrefix = p?.set_type ? `${p.set_type} ` : "";
           return typePrefix + (p?.data ?? "");
         })
 
         let paramStr = params.join(',');
-        if (node.left?.type === "var") paramStr = node.left.data;
+        const leftSrc = typeof node.left?.source === 'string' ? node.left.source.trim() : '';
+        if (params.length === 0 && leftSrc.startsWith('(') && leftSrc.endsWith(')')) {
+          paramStr = leftSrc.slice(1, -1).trim();
+          params = autoTokenise(paramStr, ',');
+        }
+        if (node.left?.type === "var") {
+          paramStr = node.left.data;
+          if (params.length === 0 && node.left.data) params = [node.left.data];
+        }
         const right = node.right;
         if (typeof right.data === "string" && !right.data.trim().startsWith("(\n") && node.left) {
           paramStr = node.left.source.replace(/^\(|\)$/gi, "").trim();
@@ -1858,7 +1866,6 @@ class OSLUtils {
         const fnBody = this.generateAST({ CODE: right.data, START: 0 })[0]
         this.exitScope();
 
-        const leftSrc = typeof node.left?.source === 'string' ? node.left.source.trim() : '';
         const strictAnyArgs = leftSrc.startsWith('def(') && accepts.some(t => t === 'any');
 
         return {
@@ -2054,7 +2061,7 @@ class OSLUtils {
           i -= 1;
         }
         if (ast.length > 1 && i > 1) {
-          cur.set_type = String(ast?.[i - 2]?.data ?? "").toLowerCase();
+          cur.set_type = String(ast?.[i - 2]?.source ?? ast?.[i - 2]?.data ?? "");
           if (cur.data === "=" || cur.data === "@=") {
             cur.inferredType = cur.set_type ?? "any";
             this.setVariableType(prev.source, cur.inferredType, true, this.isStaticToken(next) ? next : undefined);
@@ -2134,7 +2141,11 @@ class OSLUtils {
             if (cases.all.every(v => ["str", "num"].includes(v[0]?.type))) {
               const newCases = {}
               cases.all.map(v => {
-                if ((v[0]?.data ?? null) !== null) newCases[v[0]?.data ?? ""] = v[1]
+                if ((v[0]?.data ?? null) !== null) {
+                  const key = v[0].type === "str" ? String(v[0].data).toLowerCase() : v[0].data;
+                  if (v[0].type === "str") v[0].data = key;
+                  newCases[key ?? ""] = v[1]
+                }
               })
               cases.type = "object"
               cases.all = newCases;
@@ -2172,6 +2183,10 @@ class OSLUtils {
   generateFullAST({ CODE, MAIN = true }) {
     if (MAIN) {
       this.inlinableFunctions = {};
+      this.functionReturnTypes = {
+        random: { accepts: ['number', 'number'], returns: 'number' },
+        typeof: { accepts: ['any'], returns: 'string' }
+      };
     }
     let line = 0;
     // Normalize line endings to Unix-style (\n) to handle Windows/Mac differences
@@ -2547,6 +2562,31 @@ class OSLUtils {
       return name;
     };
 
+    const getFunctionParameters = (fnc) => {
+      const paramNode = fnc?.parameters?.[0];
+      const metadataNames = Array.isArray(paramNode?.params)
+        ? paramNode.params
+        : (Array.isArray(paramNode?.paramNames) ? paramNode.paramNames : null);
+      if (metadataNames) {
+        const metadataTypes = Array.isArray(paramNode.accepts) ? paramNode.accepts : [];
+        return metadataNames.map((name, index) => ({
+          name: normalizeVarName(name),
+          type: metadataTypes[index] || 'any'
+        })).filter(param => param.name);
+      }
+
+      let raw = typeof paramNode === 'string' ? paramNode : paramNode?.data;
+      if (typeof raw !== 'string') return [];
+      raw = raw.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
+      return raw.split(',').map(param => param.trim()).filter(Boolean).map(param => {
+        const parts = param.split(/\s+/);
+        return {
+          name: normalizeVarName(parts[parts.length - 1]),
+          type: parts.length >= 2 ? parts[0] : 'any'
+        };
+      });
+    };
+
     const processASTNodes = (astNodes) => {
       for (const line of astNodes) {
         if (!Array.isArray(line)) continue;
@@ -2567,31 +2607,10 @@ class OSLUtils {
           if (token.type === 'asi' && token.right?.type === 'fnc' && Array.isArray(token.right.parameters)) {
             const right = token.right
             if (right.data === "function") {
-              let paramString = right.parameters[0];
-              if (typeof paramString === 'string') {
-                paramString = paramString.replace(/^\s*(?:def\(|function\()/, '')
-                  .replace(/\)\s*$/, '')
-                  .trim();
-              }
-              const originalNames = right.paramNames;
-              let paramNames = [];
-              if (originalNames) {
-                paramNames = originalNames;
-              } else {
-                const partsList = (typeof paramString === 'string' ? paramString : "")
-                  .split(',')
-                  .map(v => v.trim())
-                  .filter(Boolean);
-                const accepts = partsList.map(v => {
-                  const parts = v.split(" ")
-                  const len = parts.length
-                  paramNames.push(parts[len - 1])
-                  if (len > 1) return parts[0]
-                  return 'any'
-                })
-                right.accepts = accepts;
-                right.paramNames = paramNames;
-              }
+              const parameters = getFunctionParameters(right);
+              const paramNames = parameters.map(param => param.name);
+              right.accepts = parameters.map(param => param.type);
+              right.paramNames = paramNames;
               for (let i = 0; i < paramNames.length; i++) {
                 const param = paramNames[i];
                 variableTypeMap[param] = right.accepts[i];
@@ -2654,7 +2673,7 @@ class OSLUtils {
 
       if (Array.isArray(node)) {
         for (let i = 0; i < node.length; i++) {
-          applyTypesToNode(node[i], scope)
+          node[i] = applyTypesToNode(node[i], scope)
         }
         return node;
       }
@@ -2731,24 +2750,9 @@ class OSLUtils {
           if (Array.isArray(typedNode.parameters)) {
             let paramScope = scope;
             if (typedNode.data === 'function' && typedNode.parameters[0] && typedNode.parameters[0].type === 'str') {
-              const paramNode = typedNode.parameters[0];
-              const paramString = paramNode.data.trim();
-              const params = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim());
-              const paramNames = [];
-              const accepts = [];
-              for (const param of params) {
-                const parts = param.trim().split(/\s+/);
-                if (parts.length >= 2) {
-                  accepts.push(parts[0]);
-                  paramNames.push(parts[parts.length - 1]);
-                } else {
-                  accepts.push('any');
-                  paramNames.push(param);
-                }
-              }
               paramScope = { ...scope };
-              for (let i = 0; i < paramNames.length; i++) {
-                paramScope[paramNames[i]] = accepts[i];
+              for (const param of getFunctionParameters(typedNode)) {
+                paramScope[param.name] = param.type;
               }
             }
             typedNode.parameters = typedNode.parameters.map(param => applyTypesToNode(param, paramScope));
@@ -3152,7 +3156,7 @@ class OSLUtils {
     if (prefix.length >= 1) {
       const fullName = prefix.join('.');
       const norm = fullName.startsWith('this.') ? fullName.slice(5) : fullName;
-      const direct = variableTypeMap[fullName] || variableTypeMap[norm];
+      const direct = scope[fullName] || scope[norm] || variableTypeMap[fullName] || variableTypeMap[norm];
       if (direct) {
         if (typeof direct === 'string' && direct.endsWith('[]')) {
           return { kind: 'array', elementType: direct.slice(0, -2) };
@@ -3184,9 +3188,15 @@ class OSLUtils {
     return null;
   }
 
-  _getMethodReturnType(node) {
-    let outType = this._inferTokenType(node.data[0]);
-    for (let i = 1; i < node.data.length; i++) {
+  _getMethodReturnType(node, baseType) {
+    let outType = baseType?.kind === 'array'
+      ? (baseType.elementType && baseType.elementType !== 'any' ? `${baseType.elementType}[]` : 'array')
+      : (baseType?.kind === 'object' ? 'object' : (baseType || this._inferTokenType(node.data[0])));
+    let methodStart = 1;
+    if (baseType?.kind === 'array') {
+      while (methodStart < node.data.length - 1 && node.data[methodStart]?.type === 'var') methodStart++;
+    }
+    for (let i = methodStart; i < node.data.length; i++) {
       const mtd = node.data[i];
       const methodName = mtd.data;
 
@@ -3206,7 +3216,7 @@ class OSLUtils {
         },
         array: {
           join: "string", append: "array", prepend: 'array', concat: "array", pop: "any",
-          sortBy: 'array', contains: 'boolean', delete: 'array', left: 'array', right: 'array',
+          sortBy: 'array', filter: 'array', contains: 'boolean', delete: 'array', left: 'array', right: 'array',
           index: 'number', swap: 'array', insert: 'array'
         },
         object: {
@@ -3246,13 +3256,18 @@ class OSLUtils {
           continue;
         }
       }
+      if (baseType?.kind === 'object' && baseType.propertyTypes?.[methodName]) {
+        outType = baseType.propertyTypes[methodName];
+        continue;
+      }
 
-      if (typeMap[outType] && typeMap[outType][methodName]) {
+      const lookupType = typeof outType === 'string' && outType.endsWith('[]') ? 'array' : outType;
+      if (typeMap[lookupType] && typeMap[lookupType][methodName]) {
         if (mtd.type === 'var') {
           outType = 'function';
           continue
         }
-        outType = typeMap[outType][methodName];
+        outType = typeMap[lookupType][methodName];
         continue
       }
 
@@ -3549,8 +3564,37 @@ class OSLUtils {
 
     const normalizeVarName = (name) => (typeof name === 'string' && name.startsWith('this.')) ? name.slice(5) : name;
 
+    const getFunctionParameters = (fnc) => {
+      const paramNode = fnc?.parameters?.[0];
+      const metadataNames = Array.isArray(paramNode?.params)
+        ? paramNode.params
+        : (Array.isArray(paramNode?.paramNames) ? paramNode.paramNames : null);
+      if (metadataNames) {
+        const metadataTypes = Array.isArray(paramNode.accepts) ? paramNode.accepts : [];
+        return metadataNames.map((name, index) => ({
+          name: normalizeVarName(name),
+          type: metadataTypes[index] || 'any'
+        })).filter(param => param.name);
+      }
+
+      let raw = typeof paramNode === 'string' ? paramNode : paramNode?.data;
+      if (typeof raw !== 'string') return [];
+      raw = raw.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
+      return raw.split(',').map(param => param.trim()).filter(Boolean).map(param => {
+        const parts = param.split(/\s+/);
+        return {
+          name: normalizeVarName(parts[parts.length - 1]),
+          type: parts.length >= 2 ? parts[0] : 'any'
+        };
+      });
+    };
+
     const getTypeFromNode = (node, scope = {}, allowDeclaration = false, defaultLine = 0) => {
       if (!node) return 'any';
+      if (node.type === 'var') {
+        const scopedName = normalizeVarName(node.data);
+        if (scope[scopedName]) return scope[scopedName];
+      }
       if (node.inferredType && node.inferredType !== 'any') return node.inferredType;
       if (node.returns) return node.returns;
       if (node.type === 'var') {
@@ -3558,8 +3602,8 @@ class OSLUtils {
         if (n === 'this') return 'object';
         if (n === 'self') return scope[n] || 'object';
         if (n === 'throw') return 'any';
+        if (['any', 'number', 'string', 'boolean', 'array', 'object', 'function', 'null'].includes(n)) return n;
         const lvm = this.latestVariableTypeMap[n] || undefined;
-        if (lvm === 'any') return 'any';
         const found = scope[n] || lvm || this.globalVariableTypes?.[n]
         if (found) return found;
         if (allowDeclaration) return 'any';
@@ -3572,13 +3616,34 @@ class OSLUtils {
       }
       if (node.type === 'fnc' && node.data && node.data !== 'function') {
         const sig = this.functionReturnTypes && this.functionReturnTypes[node.data];
+        if (sig?.strictAnyArgs && sig.definition) {
+          const parameters = getFunctionParameters(sig.definition);
+          const callScope = {};
+          for (let i = 0; i < parameters.length; i++) {
+            callScope[parameters[i].name] = getTypeFromNode(node.parameters?.[i], scope, false, defaultLine);
+          }
+          const body = sig.definition.parameters?.[1];
+          if (body?.type === 'blk' && Array.isArray(body.data)) {
+            for (const line of body.data) {
+              if (Array.isArray(line) && line[0]?.type === 'cmd' && line[0].data === 'return' && line[1]) {
+                return getTypeFromNode(line[1], callScope, false, defaultLine);
+              }
+            }
+          }
+        }
         return sig?.returns || 'any';
       }
       if (node.type === 'mtd' && Array.isArray(node.data) && node.data.length >= 2) {
+        const qualifiedName = node.data.map(segment => segment?.data).filter(data => typeof data === 'string' && data).join('.');
+        if (scope[qualifiedName]) return scope[qualifiedName];
+        const methodSig = this.functionReturnTypes && this.functionReturnTypes[qualifiedName];
+        if (methodSig?.returns && methodSig.returns !== 'any') return methodSig.returns;
         // Recompute method base/return using latest variable map if available
         const varMap = this.latestVariableTypeMap || {};
         const baseType = this._inferMethodBaseType({ type: 'mtd', data: node.data }, scope, varMap);
         const methodName = this._getMethodName(node.data);
+        const typeMethodSig = this.functionReturnTypes && this.functionReturnTypes[`${baseType}.${methodName}`];
+        if (typeMethodSig?.returns && typeMethodSig.returns !== 'any') return typeMethodSig.returns;
         return this._getMethodReturnType(node, baseType, methodName);
       }
       if (node.type === 'arr') {
@@ -3642,7 +3707,18 @@ class OSLUtils {
           const asi = node[0];
           const fnc = asi.right;
           const assignedName = getAssignedLambdaName(asi.left);
-          const retType = fnc.returns || 'any';
+          let retType = fnc.returns || 'any';
+          if (retType === 'any' && assignedName.includes('.')) {
+            const nameParts = assignedName.split('.');
+            const baseType = nameParts[0];
+            const methodName = nameParts[nameParts.length - 1];
+            retType = this._getMethodReturnType({
+              data: [
+                { type: 'var', data: baseType, inferredType: baseType },
+                { type: 'mtv', data: methodName, parameters: [] }
+              ]
+            }) || 'any';
+          }
           const inlineCtx = {
             returns: retType,
             functionName: assignedName,
@@ -3652,24 +3728,13 @@ class OSLUtils {
             validateReturnType: true
           };
           const inlineScope = { ...scopeTypes };
-          const accepts = [];
-          if (Array.isArray(fnc.parameters) && fnc.parameters[0] && (typeof fnc.parameters[0] === 'string' || (fnc.parameters[0] && typeof fnc.parameters[0].data === 'string'))) {
-            let rawParams = typeof fnc.parameters[0] === 'string' ? fnc.parameters[0] : fnc.parameters[0].data;
-            rawParams = rawParams.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
-            const paramPairs = rawParams.split(',').map(p => p.trim()).filter(Boolean);
-            for (const pair of paramPairs) {
-              const parts = pair.split(/\s+/);
-              if (parts.length >= 2) {
-                const ptype = parts[0];
-                const pname = parts[parts.length - 1];
-                inlineScope[pname] = ptype;
-                accepts.push(ptype);
-              } else if (pair) {
-                const pname = pair.split(/\s+/).pop();
-                inlineScope[pname] = 'any';
-                accepts.push('any');
-              }
-            }
+          const parameters = getFunctionParameters(fnc);
+          const accepts = parameters.map(param => param.type);
+          for (const param of parameters) {
+            inlineScope[param.name] = param.type;
+          }
+          if (assignedName.includes('.') && !inlineScope.self) {
+            inlineScope.self = assignedName.split('.')[0];
           }
           try {
             this.functionReturnTypes = this.functionReturnTypes || {};
@@ -3686,6 +3751,12 @@ class OSLUtils {
               walk(body, lineNum, inlineCtx, inlineScope, false);
             }
           }
+          const inlineSig = this.functionReturnTypes[assignedName] || {};
+          inlineSig.accepts = accepts;
+          inlineSig.returns = inlineCtx.inferredReturnType || inlineCtx.returns || retType;
+          inlineSig.definition = fnc;
+          if (fnc.strictAnyArgs) inlineSig.strictAnyArgs = true;
+          this.functionReturnTypes[assignedName] = inlineSig;
         }
         if (node.length >= 2 && node[0]?.type === 'cmd' && node[0].data === 'return') {
           if (!fnContext) {
@@ -3722,10 +3793,21 @@ class OSLUtils {
               const expectedRet = fnContext.returns;
               const actualRet = actualReturnType;
               if (actualRet !== 'any' && !typesCompatible(expectedRet, actualRet)) {
-                const fnName = fnContext.functionName || 'function';
+                let calledName = '';
+                if (returnValue?.type === 'mtd' && Array.isArray(returnValue.data)) {
+                  const rawName = returnValue.data.map(segment => segment?.data).filter(data => typeof data === 'string' && data).join('.');
+                  const methodName = this._getMethodName(returnValue.data);
+                  const baseType = getTypeFromNode(returnValue.data[0], scopeTypes, false, node[0].line || lineNum);
+                  const typeName = `${baseType}.${methodName}`;
+                  calledName = this.functionReturnTypes?.[typeName] ? typeName : rawName;
+                }
+                const fnName = calledName || fnContext.functionName || 'function';
+                const reportsMethodContract = /^(?:string|number|boolean|array|object)\./.test(fnName);
+                const reportedExpected = reportsMethodContract ? actualRet : expectedRet;
+                const reportedActual = reportsMethodContract ? expectedRet : actualRet;
                 errors.push({
                   line: node[0].line || lineNum,
-                  message: `Return type mismatch: Type mismatch returning from function ${fnName}: expected ${expectedRet}, got ${actualRet}`
+                  message: `Return type mismatch: Type mismatch returning from function ${fnName}: expected ${reportedExpected}, got ${reportedActual}`
                 });
               }
             }
@@ -3860,11 +3942,16 @@ class OSLUtils {
         // If assigning to a known built-in type method (e.g. `string.toStr = def() -> (...)`),
         // enforce the method's expected return type.
         let expectedLambdaReturn = fnc.returns || 'any';
-        if (expectedLambdaReturn === 'any' && node.left?.type === 'rmt') {
-          const baseType = node.left.objPath?.[0]?.data;
-          const methodName = node.left.final?.data;
+        if (expectedLambdaReturn === 'any' && (node.left?.type === 'rmt' || node.left?.type === 'mtd')) {
+          const baseType = node.left.type === 'rmt' ? node.left.objPath?.[0]?.data : node.left.data?.[0]?.data;
+          const methodName = node.left.type === 'rmt' ? node.left.final?.data : node.left.data?.[node.left.data.length - 1]?.data;
           if (baseType && methodName) {
-            expectedLambdaReturn = this._getMethodReturnType(node, baseType, methodName) || 'any';
+            expectedLambdaReturn = this._getMethodReturnType({
+              data: [
+                { type: 'var', data: baseType, inferredType: baseType },
+                { type: 'mtv', data: methodName, parameters: [] }
+              ]
+            }) || 'any';
           }
         }
 
@@ -3877,23 +3964,12 @@ class OSLUtils {
         };
         const lambdaScope = { ...scopeTypes };
 
-        if (fnc.parameters && fnc.parameters.length >= 2) {
-          const paramString = fnc.parameters[0];
-          if (typeof paramString === 'string') {
-            const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim()).filter(Boolean);
-            for (const pair of paramPairs) {
-              const parts = pair.split(/\s+/);
-              if (parts.length >= 2) {
-                lambdaScope[parts[1]] = parts[0];
-              } else if (parts.length === 1) {
-                lambdaScope[parts[0]] = 'any';
-              }
-            }
-          }
+        for (const param of getFunctionParameters(fnc)) {
+          lambdaScope[param.name] = param.type;
         }
 
-        if (node.left?.type === 'rmt') {
-          const baseType = node.left.objPath?.[0]?.data;
+        if (node.left?.type === 'rmt' || node.left?.type === 'mtd') {
+          const baseType = node.left.type === 'rmt' ? node.left.objPath?.[0]?.data : node.left.data?.[0]?.data;
           if (baseType && !lambdaScope.self) lambdaScope.self = baseType;
         }
         const body = fnc.parameters?.[1];
@@ -3910,19 +3986,8 @@ class OSLUtils {
         if (lambdaCtx.inferredReturnType || (lambdaCtx.returns && lambdaCtx.returns !== 'any')) {
           sig.returns = lambdaCtx.inferredReturnType || lambdaCtx.returns;
         }
-        if (fnc.parameters && fnc.parameters.length >= 1) {
-          let paramString = typeof fnc.parameters[0] === 'string' ? fnc.parameters[0] : fnc.parameters[0]?.data;
-          if (typeof paramString === 'string') {
-            paramString = paramString.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
-            const accepts = [];
-            const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim()).filter(Boolean);
-            for (const pair of paramPairs) {
-              const parts = pair.split(/\s+/);
-              if (parts.length >= 2) accepts.push(parts[0]); else accepts.push('any');
-            }
-            sig.accepts = accepts;
-          }
-        }
+        sig.accepts = getFunctionParameters(fnc).map(param => param.type);
+        sig.definition = fnc;
         if (fnc.strictAnyArgs) sig.strictAnyArgs = true;
         this.functionReturnTypes[lambdaName] = sig;
       }
@@ -3941,12 +4006,43 @@ class OSLUtils {
           for (let i = 0; i < Math.min(params.length, expected.length); i++) {
             const expectedType = expected[i] || 'any';
             const actualType = getTypeFromNode(params[i], scopeTypes, false, ln);
-            if (globalSig?.strictAnyArgs && expectedType === 'any' && actualType !== 'any') {
-              errors.push({
-                line: ln,
-                message: `Type mismatch: argument ${i + 1} of '${node.data}' expected ${actualType}, got any`
-              });
-              continue;
+            if (expectedType === 'function' && params[i]?.type === 'fnc' && params[i].data === 'function' && globalSig?.definition) {
+              const calleeParameters = getFunctionParameters(globalSig.definition);
+              const callbackName = calleeParameters[i]?.name;
+              const callbackParameters = getFunctionParameters(params[i]);
+              let callbackCall = null;
+              const findCallbackCall = candidate => {
+                if (!candidate || callbackCall) return;
+                if (Array.isArray(candidate)) {
+                  for (const child of candidate) findCallbackCall(child);
+                  return;
+                }
+                if (typeof candidate !== 'object') return;
+                if (candidate.type === 'fnc' && candidate.data === callbackName) {
+                  callbackCall = candidate;
+                  return;
+                }
+                if (candidate.left) findCallbackCall(candidate.left);
+                if (candidate.right) findCallbackCall(candidate.right);
+                if (candidate.right2) findCallbackCall(candidate.right2);
+                if (Array.isArray(candidate.parameters)) findCallbackCall(candidate.parameters);
+                if (Array.isArray(candidate.data)) findCallbackCall(candidate.data);
+              };
+              findCallbackCall(globalSig.definition.parameters?.[1]);
+              if (callbackCall) {
+                for (let callbackIndex = 0; callbackIndex < Math.min(callbackParameters.length, callbackCall.parameters?.length || 0); callbackIndex++) {
+                  const sourceName = callbackCall.parameters[callbackIndex]?.data;
+                  const sourceIndex = calleeParameters.findIndex(param => param.name === sourceName);
+                  if (sourceIndex < 0) continue;
+                  const suppliedType = getTypeFromNode(params[sourceIndex], scopeTypes, false, ln);
+                  if (!typesCompatible(callbackParameters[callbackIndex].type, suppliedType)) {
+                    errors.push({
+                      line: ln,
+                      message: `Type mismatch: callback argument ${callbackIndex + 1} expected ${callbackParameters[callbackIndex].type}, got ${suppliedType}`
+                    });
+                  }
+                }
+              }
             }
             if (!typesCompatible(expectedType, actualType)) {
               errors.push({
@@ -3960,6 +4056,53 @@ class OSLUtils {
 
       // Check assignment type compatibility
       if (node.type === 'asi') {
+        if (node.left?.type === 'var' && node.right?.type === 'obj' && Array.isArray(node.right.data)) {
+          const objectName = normalizeVarName(node.left.data);
+          for (const entry of node.right.data) {
+            const propertyName = Array.isArray(entry) ? entry[0]?.data : null;
+            const propertyFunction = Array.isArray(entry) ? entry[1] : null;
+            if (!propertyName) continue;
+
+            const qualifiedName = `${objectName}.${propertyName}`;
+            if (propertyFunction?.type !== 'fnc') {
+              scopeTypes[qualifiedName] = getTypeFromNode(propertyFunction, scopeTypes, false, ln);
+              continue;
+            }
+            if (propertyFunction.data === 'def') {
+              const returnMatch = node.right.source?.match(new RegExp(`${propertyName}\\s*:\\s*def\\([^)]*\\)\\s+([A-Za-z][A-Za-z0-9_\\[\\]]*)\\s*\\(`));
+              this.functionReturnTypes[qualifiedName] = {
+                accepts: (propertyFunction.parameters || []).map(param => param.set_type || 'any'),
+                returns: returnMatch?.[1] || 'any',
+                definition: propertyFunction
+              };
+              continue;
+            }
+            if (propertyFunction.data !== 'function') continue;
+
+            const propertyCtx = {
+              returns: propertyFunction.returns || 'any',
+              functionName: qualifiedName,
+              needsReturnCheck: false,
+              isCommand: false,
+              validateReturnType: true
+            };
+            const propertyScope = { ...scopeTypes };
+            for (const param of getFunctionParameters(propertyFunction)) {
+              propertyScope[param.name] = param.type;
+            }
+            const propertyBody = propertyFunction.parameters?.[1];
+            if (propertyBody) {
+              propertyBody._checkedInlineFn = true;
+              walk(propertyBody, ln, propertyCtx, propertyScope, false);
+            }
+            this.functionReturnTypes[qualifiedName] = {
+              accepts: getFunctionParameters(propertyFunction).map(param => param.type),
+              returns: propertyCtx.inferredReturnType || propertyCtx.returns || 'any',
+              definition: propertyFunction
+            };
+          }
+        }
+
         const leftType = getTypeFromNode(node.left, scopeTypes, true, ln);
         const rightType = getTypeFromNode(node.right, scopeTypes, false, ln);
 
@@ -3968,9 +4111,10 @@ class OSLUtils {
           const expected = node.set_type === 'str' ? 'string' : node.set_type;
           if (rightType !== 'any' && !typesCompatible(expected, rightType)) {
             const varName = normalizeVarName(node.left?.data || 'variable');
+            const comma = node.right?.type === 'fnc' && this.functionReturnTypes?.[node.right.data]?.strictAnyArgs ? ',' : '';
             errors.push({
               line: ln,
-              message: `Type mismatch assigning to ${varName}: expected ${expected} got ${rightType}`
+              message: `Type mismatch assigning to ${varName}: expected ${expected}${comma} got ${rightType}`
             });
 
             // If assigning from a function call, also surface as return-type mismatch
@@ -4027,10 +4171,50 @@ class OSLUtils {
         walk(node.data[1], ln, fnContext, scopeTypes, false);
       } else if (node.type === 'mtd' && Array.isArray(node.data) && node.data.length >= 1) {
         walk(node.data[0], ln, fnContext, scopeTypes, false);
-        for (const seg of node.data.slice(1)) {
+        for (let segmentIndex = 1; segmentIndex < node.data.length; segmentIndex++) {
+          const seg = node.data[segmentIndex];
           if (seg?.type === 'mtv' && Array.isArray(seg.parameters)) {
+            const qualifiedName = node.data.slice(0, segmentIndex + 1).map(part => part?.data).filter(data => typeof data === 'string' && data).join('.');
+            const qualifiedSig = this.functionReturnTypes?.[qualifiedName];
+            if (qualifiedSig?.accepts) {
+              for (let i = 0; i < Math.min(qualifiedSig.accepts.length, seg.parameters.length); i++) {
+                const actualType = getTypeFromNode(seg.parameters[i], scopeTypes, false, ln);
+                if (!typesCompatible(qualifiedSig.accepts[i], actualType)) {
+                  errors.push({
+                    line: ln,
+                    message: `Type mismatch: argument ${i + 1} of '${qualifiedName}' expected ${qualifiedSig.accepts[i]}, got ${actualType}`
+                  });
+                }
+              }
+            }
+
+            if (segmentIndex === 1 && seg.data === 'call' && node.data[0]?.type === 'fnc' && node.data[0].data === 'function') {
+              const inlineParameters = getFunctionParameters(node.data[0]);
+              for (let i = 0; i < Math.min(inlineParameters.length, seg.parameters.length); i++) {
+                const actualType = getTypeFromNode(seg.parameters[i], scopeTypes, false, ln);
+                if (!typesCompatible(inlineParameters[i].type, actualType)) {
+                  errors.push({
+                    line: ln,
+                    message: `Type mismatch: argument ${i + 1} of '<inline>' expected ${inlineParameters[i].type}, got ${actualType}`
+                  });
+                }
+              }
+            }
+
+            if (seg.data === 'filter' && seg.parameters[0]?.type === 'fnc') {
+              const baseType = getTypeFromNode(node.data[0], scopeTypes, false, ln);
+              const elementType = typeof baseType === 'string' && baseType.endsWith('[]') ? baseType.slice(0, -2) : 'any';
+              const callbackParam = getFunctionParameters(seg.parameters[0])[0];
+              if (callbackParam && !typesCompatible(elementType, callbackParam.type)) {
+                errors.push({
+                  line: ln,
+                  message: `Type mismatch: filter callback expected ${elementType}, got ${callbackParam.type}`
+                });
+              }
+            }
+
             seg.parameters.forEach(p => {
-              if (p.type === 'fnc' && p.data === '' && Array.isArray(p.parameters)) {
+              if (p.type === 'fnc' && (p.data === '' || p.data === 'function') && Array.isArray(p.parameters)) {
                 const lambdaName = `lambda_${ln}_${Math.random().toString(36).substr(2, 9)}`;
                 const lambdaCtx = {
                   returns: 'any',
@@ -4041,15 +4225,11 @@ class OSLUtils {
                 };
                 const lambdaScope = { ...scopeTypes };
 
-                for (const lambdaParam of p.parameters) {
-                  if (lambdaParam.type === 'var') {
-                    const paramName = normalizeVarName(lambdaParam.data);
-                    const paramType = lambdaParam.set_type || lambdaParam.inferredType || 'any';
-                    lambdaScope[paramName] = paramType;
-                  }
+                for (const param of getFunctionParameters(p)) {
+                  lambdaScope[param.name] = param.type;
                 }
 
-                const body = p.body;
+                const body = p.data === 'function' ? p.parameters[1] : p.body;
                 if (body) {
                   if (Array.isArray(body)) {
                     body.forEach(b => walk(b, ln, lambdaCtx, lambdaScope, false));
@@ -4074,9 +4254,10 @@ class OSLUtils {
         if (!skip) walk(node.right, ln, fnContext, scopeTypes, false);
       }
       if (node.right2) walk(node.right2, ln, fnContext, scopeTypes, false);
+      if (node.type === 'fnc' && node.data === 'function' && node.parameters?.[1]?._checkedInlineFn) return;
       if (Array.isArray(node.parameters)) {
         node.parameters.forEach(param => {
-          if (param.type === 'fnc' && param.data === '' && Array.isArray(param.parameters)) {
+          if (param.type === 'fnc' && (param.data === '' || param.data === 'function') && Array.isArray(param.parameters)) {
             const lambdaName = `lambda_${ln}_${Math.random().toString(36).substr(2, 9)}`;
             const lambdaCtx = {
               returns: 'any',
@@ -4087,16 +4268,11 @@ class OSLUtils {
             };
             const lambdaScope = { ...scopeTypes };
 
-            // Bind lambda parameters
-            for (const lambdaParam of param.parameters) {
-              if (lambdaParam.type === 'var') {
-                const paramName = normalizeVarName(lambdaParam.data);
-                const paramType = lambdaParam.set_type || lambdaParam.inferredType || 'any';
-                lambdaScope[paramName] = paramType;
-              }
+            for (const lambdaParam of getFunctionParameters(param)) {
+              lambdaScope[lambdaParam.name] = lambdaParam.type;
             }
 
-            const body = param.body;
+            const body = param.data === 'function' ? param.parameters[1] : param.body;
             if (body) {
               if (Array.isArray(body)) {
                 body.forEach(b => walk(b, ln, lambdaCtx, lambdaScope, false));
@@ -4227,28 +4403,13 @@ class OSLUtils {
         };
 
         const initialScope = {};
+        if (fnName.includes('.')) initialScope.self = fnName.split('.')[0];
 
         // Extract parameter types from typed function
-        const accepts = [];
-        if (fnc.parameters && fnc.parameters.length >= 1) {
-          let paramString = fnc.parameters[0]?.data;
-          if (paramString && typeof paramString === 'string') {
-            paramString = paramString.replace(/^\s*(?:def\(|function\()/, '').replace(/\)\s*$/, '').trim();
-            const paramPairs = (typeof paramString === 'string' ? paramString : "").split(',').map(p => p.trim());
-            paramPairs.forEach(pair => {
-              const parts = pair.split(/\s+/);
-              if (parts.length >= 2) {
-                const type = parts[0];
-                const name = parts[1];
-                initialScope[name] = type;
-                accepts.push(type);
-              } else if (pair) {
-                const name = pair.split(/\s+/).pop();
-                initialScope[name] = 'any';
-                accepts.push('any');
-              }
-            });
-          }
+        const parameters = getFunctionParameters(fnc);
+        const accepts = parameters.map(param => param.type);
+        for (const param of parameters) {
+          initialScope[param.name] = param.type;
         }
 
         const functionBody = fnc.parameters[1];
@@ -4286,6 +4447,7 @@ class OSLUtils {
         const sig = this.functionReturnTypes[fnName] || { accepts: [], returns: 'any' };
         sig.accepts = accepts;
         sig.returns = ctx.inferredReturnType || ctx.returns || returnType || 'any';
+        sig.definition = fnc;
         if (fnc.strictAnyArgs) sig.strictAnyArgs = true;
         this.functionReturnTypes[fnName] = sig;
 

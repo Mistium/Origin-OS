@@ -1,13 +1,23 @@
 
+dock_state = {
+  refreshed_at: -1,
+  dock: [],
+  open_apps_refreshed_at: -1,
+  open_apps: [],
+}
+
 width = {
   w: 0,
   _get: def() -> (
-    include user_folder ++ "/dock"
-    self.w = data.len * 50 - 15
-    if data.len == 0 (
-      self.w = 0
+    if dock_state.refreshed_at < 0 or timer - dock_state.refreshed_at > 0.25 (
+      include user_folder ++ "/dock"
+      dock_state.refreshed_at = timer
+      self.w = data.len * 50 - 15
+      if data.len == 0 (
+        self.w = 0
+      )
+      dock_state.dock @= data
     )
-    self.dock @= data
     return self.w
   ),
   _set: def(value) -> (
@@ -24,8 +34,23 @@ def conditions() (
 
 def main() (
   local x = x_position
-  change_x self.width.toNum() / 2
-  square self.width.toNum() height 30 1 0 1
+  if dock_state.open_apps_refreshed_at < 0 or timer - dock_state.open_apps_refreshed_at > 0.1 (
+    dock_state.open_apps_refreshed_at = timer
+    local window_list @= Windows()
+    dock_state.open_apps = []
+    for i window_list.len (
+      local candidate @= window_list[i]
+      if candidate.window.no_desktop != true (
+        local open_uuid = candidate.uuid ?? candidate.window.file.uuid
+        if open_uuid != null (
+          void dock_state.open_apps.append({uuid: open_uuid, window: candidate})
+        )
+      )
+    )
+  )
+  local segment_width = self.render_width ?? self.width.toNum()
+  change_x segment_width / 2
+  square segment_width height 30 1 0 1
   if mouse_touching (
     cursor self.cursor
   )
@@ -45,26 +70,47 @@ def main() (
   )
   goto x + 20 y
   self.cursor = null
-  for i self.dock.len (
-    local app @= dock[i]
+  for i dock_state.dock.len (
+    local app @= dock_state.dock[i]
     file = open(app, [2])
+    local app_uuid = fileGet(14)
+    if fileGet(1) == ".shortcut" (
+      local target_path = fileGet(4)
+      app_uuid = open(target_path, [14])[1]
+      file = open(app, [2])
+    )
+    local active_window = null
+    for w dock_state.open_apps.len (
+      if active_window == null and dock_state.open_apps[w].uuid == app_uuid (
+        active_window @= dock_state.open_apps[w].window
+      )
+    )
+    local icon_x = x_position
     file "render" 1.7
     square 45 45 0 0 1
     file "interact"
     if data == "open" (
-      file "start"
-      // check the output of the interaction
+      if active_window != null (
+        window.focusWindow(active_window.id)
+      ) else (
+        file "start"
+      )
     )
-    if mouse_touching (
+    rightclick "file" app
+    if active_window != null (
+      goto icon_x y - 20
+      square 14 1 0 : c#global_accent
+      goto icon_x y
+    )
+    if mouse_x > icon_x - 22.5 and mouse_x < icon_x + 22.5 and mouse_y > y - 22.5 and mouse_y < y + 22.5 (
       self.cursor = "pointer"
       curx = x_position
       cur = file[1]
     )
-    rightclick "file" app
     change_x 50
   )
   if cur != null (
-    goto curx 15
+    goto curx y + 36
     square cur.len * 8 10 12 : c#dock_colour
     centext cur 8 : c#icon_colour
   )
