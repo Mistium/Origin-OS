@@ -1,38 +1,56 @@
+// Description: Asks for a file name and creates it in the folder given as passed_data
+
 import "window_tools"
 
-window "dimensions" 270 140
+window "dimensions" 340 176
 window "resizable" False
 window "show"
 
 location = passed_data
 location_last = location.split("/").last()
+inputs.name = ""
+button_click = false
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 32 14 : c#fill
+  centext label 9 : c#ink
+)
 
 mainloop:
 load_theme
 
-loc 999 2 0 -15
-square 270 20 15 : c#prim
+goto window.left + 20 window.top - 26
+text "New File" 11 : c#txtc
+goto window.left + 20 window.top - 48
+text ("in /" ++ location_last).trimText(36) 8 : c#muted
 
-loc 2 2 10 -15
-text "New in /" ++ location_last 9 : c#txtc
+goto 0 window.top - 86
+box 300 34 12 : c#hover_col
+c hover_col
+input 284 26 "name" "notes.txt" 9 txtc
 
-loc 999 2 0 -63
-square 250 30 10 : c#prim
-input 250 23 "name" "Example: 'file.txt'"
-
-loc 999 2 0 -113
-square 250 30 10 : c#prim
-if inputs.name.contains(".") (
-  square 250 30 10 : c#seco
-  if clicked or "enter".onKeyDown() (
+// a name needs an extension before it can be created
+local parts = inputs.name.toStr().strip().split(".")
+local valid = parts.len > 1 and parts.last() != "" and parts[1] != ""
+goto -78 window.bottom + 36
+text_button "Cancel" 144 prim txtc
+if button_click (
+  window.close()
+)
+goto 78 window.bottom + 36
+if valid (
+  text_button "Create" 144 global_accent accent_txt
+  if button_click or "enter".onKeyDown() (
     file "download" inputs.name.toStr() null null location
     window.close()
   )
-)
-change_x -55
-text "Create File" 10 : c#txtc
-loc -2 2 -15 -15
-icon "close" 0.6 : c#txtc
-if clicked (
-  window.close()
+) else (
+  box 144 32 14 : c#prim
+  centext "Create" 9 : c#muted
 )

@@ -6,6 +6,7 @@ const fs = require("fs");
 
 const W = +(process.env.WEIGHT || 3.6);      // stroke weight (origin.ojff used 5.53)
 const SEG = 18;                               // degrees per arc segment
+const FACE = process.env.FACE || "Fonts/origin.ttf";  // prebuilt face loadFontOJFF installs
 const L = 5.5, R = 24.5, CX = 15;
 const BL = 5, XH = 26, CT = 36.5, DS = -5.5;
 const CM = 20.75;                             // cap middle
@@ -182,7 +183,7 @@ const src = JSON.parse(fs.readFileSync(process.argv[2], "utf8"));
 const out = {};
 for (const k in src) {
   if (k in G) out[k] = G[k];                                   // redrawn
-  else if (typeof src[k] !== "string") out[k] = src[k];        // metadata header
+  else if (typeof src[k] !== "string") out[k] = { ...src[k], ttf: FACE };  // metadata header
   else out[k] = src[k].replace(/(^|\s)w 5\.53(\s|$)/g, "$1w " + W + "$2");  // kept, reweighted
 }
 fs.writeFileSync(process.argv[3], JSON.stringify(out, null, 2) + "\n");

@@ -1,127 +1,549 @@
-canclick = false
-operation = ""
-string current = ""
-secondary = ""
+// Developer: @Mistium
+// Description: Calculator with live results, history, unit conversion and number bases
+//
+// Calculate: type or tap an expression, the answer updates as you type and Enter
+// keeps it in the history. Convert: one value shown in every unit of its kind.
+// Bases: one whole number in decimal, hex, binary and octal.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
 
-def "draw" "x, y, x2, y2, character" (
-  loc x y x2 + 5 y2 + 65
-  if operation == character (
-    square 55 55 10 : c#co hover_c#coh
-  ) else (
-    square 55 55 10 : c#cb hover_c#cbh
-  )
+import "window_tools"
 
-  local pointer_click = onclick
-  if (pointer_click or character.onKeyDown()) and character != "=" (
-    if "1234567890.".contains(character) (
-      if operation == "" (
-        current ++= character
-      ) else (
-        secondary ++= character
-      )
-    ) else (
-      operation = character
-    )
+permission "request" "javascript"
+
+save "calculator@system" "set_directory"
+
+window.resize(680, 520)
+window "resizable" false
+window.show()
+
+PAD_W = 340
+
+// the expression engine lives in JavaScript: a small recursive descent parser, so nothing
+// the user types is ever evaluated as code
+void "window.__originCalc = function (src, deg, ans) { const F = { sin: x => Math.sin(deg ? x * Math.PI / 180 : x), cos: x => Math.cos(deg ? x * Math.PI / 180 : x), tan: x => Math.tan(deg ? x * Math.PI / 180 : x), asin: x => Math.asin(x) * (deg ? 180 / Math.PI : 1), acos: x => Math.acos(x) * (deg ? 180 / Math.PI : 1), atan: x => Math.atan(x) * (deg ? 180 / Math.PI : 1), sqrt: Math.sqrt, cbrt: Math.cbrt, abs: Math.abs, ln: Math.log, log: Math.log10, log2: Math.log2, exp: Math.exp, floor: Math.floor, ceil: Math.ceil, round: Math.round, min: Math.min, max: Math.max }; const K = { pi: Math.PI, e: Math.E, ans: ans, tau: Math.PI * 2 }; const toks = String(src).toLowerCase().match(new RegExp('[0-9]*[.]?[0-9]+(?:e[+-]?[0-9]+)?|[a-z_][a-z0-9_]*|[-+*/^%(),!]|[^ ]', 'g')) || []; let i = 0; const peek = () => toks[i], next = () => toks[i++]; const fail = m => { throw new Error(m) }; const isStart = t => t !== undefined && (/^[0-9.]/.test(t) || /^[a-z_]/.test(t) || t === '('); function expr() { let v = term(); while (peek() === '+' || peek() === '-') { const o = next(), r = term(); v = o === '+' ? v + r : v - r } return v } function term() { let v = unary(); for (;;) { const t = peek(); if (t === '*' || t === '/') { next(); const r = unary(); v = t === '*' ? v * r : v / r } else if (isStart(t)) { v = v * unary() } else return v } } function unary() { if (peek() === '-') { next(); return -unary() } if (peek() === '+') { next(); return unary() } return power() } function power() { let b = postfix(); if (peek() === '^') { next(); return Math.pow(b, unary()) } return b } function postfix() { let v = atom(); for (;;) { if (peek() === '%') { next(); v = v / 100 } else if (peek() === '!') { next(); if (v < 0 || v > 170 || v !== Math.floor(v)) fail('Factorial needs a whole number from 0 to 170'); let f = 1; for (let k = 2; k <= v; k++) f *= k; v = f } else return v } } function atom() { const t = next(); if (t === undefined) fail('Incomplete'); if (/^[0-9.]/.test(t)) return parseFloat(t); if (t === '(') { const v = expr(); if (peek() === ')') next(); return v } if (/^[a-z_]/.test(t)) { if (F[t]) { if (peek() !== '(') fail(t + ' needs brackets'); next(); const a = []; if (peek() !== ')') { a.push(expr()); while (peek() === ',') { next(); a.push(expr()) } } if (peek() === ')') next(); return F[t](...a) } if (t in K) return K[t]; fail('Unknown name: ' + t) } fail('Unexpected ' + t) } try { if (!toks.length) return { ok: false, text: '' }; const v = expr(); if (i < toks.length) fail('Unexpected ' + toks[i]); if (typeof v !== 'number' || isNaN(v)) return { ok: false, text: 'Not a number' }; if (!isFinite(v)) return { ok: false, text: v > 0 ? 'Infinity' : '-Infinity' }; let text = Math.abs(v) >= 1e15 || (v !== 0 && Math.abs(v) < 1e-9) ? v.toExponential(8).replace(/[.]?0+e/, 'e') : String(parseFloat(v.toPrecision(12))); return { ok: true, value: v, text: text } } catch (err) { return { ok: false, text: err.message } } }".eval()
+
+pages = ["Calculate", "Convert", "Bases"]
+page = "Calculate"
+degrees = true
+answer = 0
+inputs.expr = ""
+inputs.convert = "1"
+inputs.base = "255"
+last_key = ""
+result = {ok: false, text: ""}
+copied_at = -10
+key_click = false
+convert_key = ""
+convert_out = []
+base_key = null
+base_parsed = null
+
+history = []
+if "history.json".saveExists() (
+  history = "history.json".saveGet()
+  if typeof(history) != "array" (
+    history = []
   )
-  if (pointer_click or "enter".onKeyDown()) and character == "=" (
-    number out = current.toNum()
-    switch operation (
-      case "+"
-        out += secondary.toNum()
-        break
-      case "-"
-        out -= secondary.toNum()
-        break
-      case "x"
-        out *= secondary.toNum()
-        break
-      case "÷"
-        out /= secondary.toNum()
-        break
-    )
-    current = out.toStr()
-    secondary = ""
-    operation = ""
-  )
-  change -10 -5
-  text character 20 : c#ct
 )
 
-co = #f79204
-coh = #f7ae43
+// each unit is [label, how many base units one of it is]
+units = {
+  Length: [["Millimetres", 0.001], ["Centimetres", 0.01], ["Metres", 1], ["Kilometres", 1000], ["Inches", 0.0254], ["Feet", 0.3048], ["Yards", 0.9144], ["Miles", 1609.344]],
+  Mass: [["Milligrams", 0.000001], ["Grams", 0.001], ["Kilograms", 1], ["Tonnes", 1000], ["Ounces", 0.028349523125], ["Pounds", 0.45359237], ["Stone", 6.35029318]],
+  Volume: [["Millilitres", 0.001], ["Litres", 1], ["Cubic Metres", 1000], ["Teaspoons", 0.00492892], ["Cups", 0.24], ["Pints (UK)", 0.56826125], ["Gallons (UK)", 4.54609], ["Gallons (US)", 3.785411784]],
+  Area: [["Square Metres", 1], ["Square Kilometres", 1000000], ["Hectares", 10000], ["Square Feet", 0.09290304], ["Acres", 4046.8564224], ["Square Miles", 2589988.110336]],
+  Speed: [["Metres / Second", 1], ["Kilometres / Hour", 0.2777777778], ["Miles / Hour", 0.44704], ["Knots", 0.5144444444], ["Feet / Second", 0.3048]],
+  Time: [["Milliseconds", 0.001], ["Seconds", 1], ["Minutes", 60], ["Hours", 3600], ["Days", 86400], ["Weeks", 604800], ["Years", 31557600]],
+  Data: [["Bytes", 1], ["Kilobytes", 1000], ["Megabytes", 1000000], ["Gigabytes", 1000000000], ["Terabytes", 1000000000000], ["Kibibytes", 1024], ["Mebibytes", 1048576], ["Gibibytes", 1073741824], ["Bits", 0.125]],
+  Temperature: [["Celsius", 1], ["Fahrenheit", 1], ["Kelvin", 1]]
+}
+unit_kinds = units.getKeys()
+unit_kind = "Length"
+unit_from = 3
 
-window "show"
-window "dimensions" 280 380
-window "resizable" false
+// ---------------------------------------------------------------- helpers
+
+def evaluate(string source) (
+  // the text travels URI encoded inside a template literal, which leaves nothing in it that could end the string
+  return ("window.__originCalc(decodeURIComponent(`" ++ encodeURIComponent(source) ++ "`), " ++ degrees ++ ", " ++ answer ++ ")").eval()
+)
+
+// trims floating point noise and switches to exponent form for extreme sizes
+def tidy(number value) string (
+  return ("(v => Math.abs(v) >= 1e15 || (v !== 0 && Math.abs(v) < 1e-9) ? v.toExponential(6) : String(parseFloat(v.toPrecision(10))))(" ++ value ++ ")").eval()
+)
+
+def to_kelvin(number value, string unit) number (
+  if unit == "Celsius" (
+    return value + 273.15
+  )
+  if unit == "Fahrenheit" (
+    return value - 32 * 5 / 9 + 273.15
+  )
+  return value
+)
+
+def from_kelvin(number value, string unit) number (
+  if unit == "Celsius" (
+    return value - 273.15
+  )
+  if unit == "Fahrenheit" (
+    return value - 273.15 * 9 / 5 + 32
+  )
+  return value
+)
+
+def "copy_value" "value" (
+  clipboard "set" value
+  copied_at = timer
+)
+
+def "commit" (
+  if result.ok (
+    void history.prepend({
+      expr: inputs.expr,
+      text: result.text
+    })
+    history = history.trim(1, 60)
+    save "history.json" "set" history
+    answer = result.value
+    inputs.expr = result.text
+  )
+)
+
+// one keypad key centred on the pen, sets `key_click`
+// one keypad key centred on the pen, sets `key_click`. Not named key, that is a built in command.
+// kinds: "" digit, "tool" function, "op" operator, "danger", "accent"
+def "pad_key" "label, w, h, kind" (
+  hit w h
+  key_click = onclick
+  local over = mouse_touching
+  if over (
+    cursor "pointer"
+  )
+  // every label is the same size, short symbols a touch larger so they carry the same weight
+  local size = 10
+  if label.len == 1 (
+    size = 12
+  )
+  if kind == "accent" (
+    box w h 14 : c#global_accent
+    centext label size : c#accent_txt
+  ) else (
+    // digits are the brightest keys, functions recede, operators take the accent colour
+    local fill = hover_col
+    local ink = txtc
+    if kind == "tool" (
+      fill = prim
+      ink = muted
+    )
+    if kind == "op" (
+      fill = prim
+      ink = global_accent
+    )
+    if kind == "danger" (
+      fill = prim
+      ink = "#f87171"
+    )
+    if over (
+      fill = track_col
+      ink = txtc
+    )
+    box w + 2 h + 2 16 : c#edge_col
+    box w h 14 : c#fill
+    centext label size : c#ink
+  )
+)
+
+// ---------------------------------------------------------------- pages
+
+// the keypad, each entry is [label, what it types, kind]
+keys = [
+  [["sin", "sin(", "tool"], ["cos", "cos(", "tool"], ["tan", "tan(", "tool"], ["ln", "ln(", "tool"], ["log", "log(", "tool"]],
+  [["sqrt", "sqrt(", "tool"], ["x^2", "^2", "tool"], ["^", "^", "tool"], ["(", "(", "tool"], [")", ")", "tool"]],
+  [["7", "7", ""], ["8", "8", ""], ["9", "9", ""], ["/", "/", "op"], ["AC", "clear", "danger"]],
+  [["4", "4", ""], ["5", "5", ""], ["6", "6", ""], ["*", "*", "op"], ["del", "back", "danger"]],
+  [["1", "1", ""], ["2", "2", ""], ["3", "3", ""], ["-", "-", "op"], ["%", "%", "op"]],
+  [["0", "0", ""], [".", ".", ""], ["ans", "ans", "tool"], ["+", "+", "op"], ["=", "equals", "accent"]]
+]
+
+// the quick row above the keypad: [label, what it types]
+chips = [["pi", "pi"], ["e", "e"], ["!", "!"], ["abs", "abs("]]
+
+def "page_calculate" (
+  // one grid drives everything on the left: five columns, 8px gutters, flush with the display card
+  local left = window.left + 16
+  local pw = PAD_W - 32
+  local top = window.top - 58
+  local gap = 8
+  local kw = pw - (gap * 4) / 5
+
+  // display: what you typed, then the live answer
+  goto left + (pw / 2) top - 48
+  card pw 96
+  goto left + (pw / 2) top - 24
+  c prim
+  input pw - 24 26 "expr" "Type a sum, like 2(3+4)^2" 10 txtc
+  local shown = result.text
+  local ink = txtc
+  if !result.ok (
+    ink = muted
+    if inputs.expr == "" (
+      shown = "0"
+    )
+  )
+  goto left + pw - 14 top - 68
+  rigtext shown.toStr().trimText(pw - 40 / 15) 15 : c#ink
+
+  // quick row: angle unit then constants, on the same columns as the keypad
+  local chip_y = top - 96 - gap - 16
+  goto left + (kw / 2) chip_y
+  local angle = "RAD"
+  if degrees (
+    angle = "DEG"
+  )
+  pad_key angle kw 32 "op"
+  if key_click (
+    degrees = !degrees
+  )
+  for k chips.len (
+    local chip_label = chips[k][1]
+    local chip_text = chips[k][2]
+    goto left + (k * (kw + gap)) + (kw / 2) chip_y
+    pad_key chip_label kw 32 "tool"
+    if key_click (
+      inputs.expr ++= chip_text
+    )
+  )
+
+  local grid_top = chip_y - 16 - gap
+  for r keys.len (
+    local row @= keys[r]
+    for k row.len (
+      // indexed values go through locals, `pad_key item[1] kw` does not parse as separate arguments
+      local item @= row[k]
+      local label = item[1]
+      local types = item[2]
+      local kind = item[3]
+      goto left + (k - 1 * (kw + gap)) + (kw / 2) grid_top - (r - 0.5 * 50) + 4
+      pad_key label kw 42 kind
+      if key_click (
+        switch types (
+          case "clear"
+            inputs.expr = ""
+            break
+          case "back"
+            inputs.expr = inputs.expr.left(inputs.expr.len - 1)
+            break
+          case "equals"
+            commit
+            break
+          default
+            inputs.expr ++= types
+        )
+      )
+    )
+  )
+  if "enter".onKeyDown() (
+    commit
+  )
+
+  // history column, separated by a hairline and sharing the display's top edge
+  local hl = window.left + PAD_W + 8
+  local hr = window.right - 16
+  local hw = hr - hl
+  goto window.left + PAD_W - 4 window.top - 42 + window.bottom / 2
+  square 0 window.height - 42 1 : c#edge_col
+  goto hl top - 10
+  text "HISTORY" 7.5 : c#muted
+  if history.len > 0 (
+    goto hr - 20 top - 10
+    hit 44 20
+    if mouse_touching (
+      cursor "pointer"
+    )
+    if onclick (
+      history = []
+      save "history.json" "set" history
+    )
+    goto hr top - 10
+    rigtext "Clear" 8 : c#global_accent
+  ) else (
+    goto hl + (hw / 2) 10
+    icon "clock" 1.8 : c#track_col
+    goto hl + (hw / 2) -34
+    centext "Press = or Enter to keep an answer" 8.5 : c#muted
+  )
+  frame hl - 6 top - 26 hr + 14 window.bottom + 10 history.len * 66 + 8 "history" (
+    local w = frame.width - 12
+    local first = max(0, floor(frame.scroll / 66))
+    local i = first
+    loop min(history.len - first, ceil(frame.height / 66) + 1) (
+      i ++
+      local item @= history[i]
+      local y = frame.top - 2 + frame.scroll - (i - 0.5 * 66)
+      goto 0 y
+      hit w 58
+      local over = mouse_touching
+      // a click reuses the answer, a right click brings the whole sum back
+      if onclick (
+        inputs.expr ++= item.text
+      )
+      if mouse_right and over (
+        inputs.expr = item.expr
+      )
+      box w + 2 60 16 : c#edge_col
+      if over (
+        cursor "pointer"
+        box w 58 14 : c#hover_col tooltip#"Click to use the answer, right click to edit the sum"
+      ) else (
+        box w 58 14 : c#prim
+      )
+      local line = item.expr.toStr().trimText(w - 28 / 8.5)
+      local value = item.text.toStr().trimText(w - 28 / 12)
+      goto w / -2 + 14 y + 14
+      text line 8.5 : c#muted
+      goto w / 2 - 14 y - 10
+      rigtext value 12 : c#txtc
+    )
+  )
+)
+
+def "page_convert" (
+  local left = window.left + 16
+  local gw = window.width - 32
+  local top = window.top - 56
+
+  // kinds, as wrapping chips
+  local cx = left
+  local cy = top - 14
+  for i unit_kinds.len (
+    local kind = unit_kinds[i]
+    local cw = kind.len * 8.5 + 24
+    if cx + cw > left + gw (
+      cx = left
+      cy -= 34
+    )
+    goto cx + (cw / 2) cy
+    hit cw 26
+    if mouse_touching (
+      cursor "pointer"
+    )
+    if onclick (
+      unit_kind = kind
+      unit_from = 1
+    )
+    if unit_kind == kind (
+      box cw 26 12 : c#global_accent
+      centext kind 8.5 : c#accent_txt
+    ) else (
+      box cw 26 12 : c#prim
+      centext kind 8.5 : c#txtc
+    )
+    cx += cw + 8
+  )
+
+  local list @= units[unit_kind]
+  unit_from = unit_from.clamp(1, list.len)
+  local from_name = list[unit_from][1]
+  local from_factor = list[unit_from][2]
+
+  goto 0 cy - 50
+  card gw 48
+  goto left + 16 cy - 50
+  text from_name 9.5 : c#muted
+  goto left + gw - 118 cy - 50
+  box 212 32 12 : c#hover_col
+  c hover_col
+  input 192 26 "convert" "0" 12 txtc
+
+  // converted once per change, not once per frame
+  local convert_now = inputs.convert ++ unit_kind ++ unit_from
+  if convert_now != convert_key (
+    convert_key = convert_now
+    local typed = evaluate(inputs.convert)
+    local value = 0
+    if typed.ok (
+      value = typed.value
+    )
+    local base = value * from_factor
+    if unit_kind == "Temperature" (
+      base = to_kelvin(value, from_name)
+    )
+    convert_out = []
+    for i list.len (
+      local out = base / list[i][2]
+      if unit_kind == "Temperature" (
+        out = from_kelvin(base, list[i][1])
+      )
+      void convert_out.append(tidy(out))
+    )
+  )
+
+  local ry = cy - 92
+  goto 0 ry - (list.len * 34 / 2) + 6
+  card gw list.len * 34 + 8
+  for i list.len (
+    local name = list[i][1]
+    local y = ry - (i - 0.5 * 34) + 2
+    goto 0 y
+    hit gw - 12 30
+    local over = mouse_touching
+    if over (
+      cursor "pointer"
+    )
+    if i == unit_from (
+      box gw - 12 30 12 : c#hover_col
+    ) else if over (
+      box gw - 12 30 12 : c#hover_col
+    )
+    // a click makes this the unit you are typing in, keeping the amount it shows
+    local shown = convert_out[i]
+    if onclick and i != unit_from (
+      inputs.convert = shown
+      unit_from = i
+    )
+    goto left + 16 y
+    text name 9.5 : c#txtc
+    goto left + gw - 46 y
+    rigtext shown 10.5 : c#txtc
+    goto left + gw - 22 y
+    hit 22 22
+    if mouse_touching (
+      cursor "pointer"
+      box 22 22 10 : c#track_col
+    )
+    if onclick (
+      copy_value shown
+    )
+    icon "copy" 0.45 : c#muted
+  )
+  goto left + 4 window.bottom + 20
+  text "You can type a sum as the amount. Click a row to convert from that unit." 8 : c#muted
+  if timer - copied_at < 1.2 (
+    goto left + gw - 4 window.bottom + 20
+    rigtext "Copied" 8.5 : c#global_accent
+  )
+)
+
+def "page_bases" (
+  local left = window.left + 16
+  local gw = window.width - 32
+  local top = window.top - 56
+
+  goto 0 top - 30
+  card gw 48
+  goto left + 16 top - 30
+  text "Number" 9.5 : c#muted
+  goto left + gw - 168 top - 30
+  box 312 32 12 : c#hover_col
+  c hover_col
+  input 292 26 "base" "255, 0xff or 0b1111" 12 txtc
+
+  // whole numbers only, read as decimal unless prefixed with 0x, 0b or 0o
+  if inputs.base != base_key (
+    base_key = inputs.base
+    base_parsed = ("(s => { s = s.trim().toLowerCase().replace(/_/g, ''); if (!/^-?(0x[0-9a-f]+|0b[01]+|0o[0-7]+|[0-9]+)$/.test(s)) return null; const neg = s[0] === '-'; let n; try { n = BigInt(neg ? s.slice(1) : s) } catch (e) { return null } if (neg) n = -n; const u32 = BigInt.asUintN(32, n); const ch = n >= 32n && n <= 1114111n ? String.fromCodePoint(Number(n)) : ''; return { dec: n.toString(10), hex: (neg ? '-' : '') + '0x' + (neg ? -n : n).toString(16).toUpperCase(), bin: (neg ? '-' : '') + '0b' + (neg ? -n : n).toString(2), oct: (neg ? '-' : '') + '0o' + (neg ? -n : n).toString(8), u32: '0x' + u32.toString(16).toUpperCase().padStart(8, '0'), bits: (neg ? -n : n).toString(2).length, ch: ch } })(decodeURIComponent(`" ++ encodeURIComponent(inputs.base.toStr()) ++ "`))").eval()
+  )
+  local parsed @= base_parsed
+
+  if parsed == null (
+    goto 0 top - 130
+    icon "script" 1.8 : c#track_col
+    goto 0 top - 176
+    centext "Enter a whole number" 9.5 : c#muted
+    return
+  )
+  local character = parsed.ch
+  if character == "" (
+    character = "none"
+  )
+  local rows = [
+    ["Decimal", parsed.dec],
+    ["Hexadecimal", parsed.hex],
+    ["Binary", parsed.bin],
+    ["Octal", parsed.oct],
+    ["32 bit two's complement", parsed.u32],
+    ["Bits needed", parsed.bits],
+    ["Character", character]
+  ]
+  local ry = top - 72
+  goto 0 ry - (rows.len * 38 / 2) + 6
+  card gw rows.len * 38 + 8
+  for i rows.len (
+    local label = rows[i][1]
+    local value = rows[i][2].toStr()
+    local y = ry - (i - 0.5 * 38) + 2
+    goto 0 y
+    hit gw - 12 34
+    if mouse_touching (
+      cursor "pointer"
+      box gw - 12 34 12 : c#hover_col
+    )
+    if onclick (
+      copy_value value
+    )
+    goto left + 16 y
+    text label 9.5 : c#muted
+    goto left + gw - 16 y
+    rigtext value.trimText(gw - 260 / 10) 10 : c#txtc
+  )
+  goto left + 4 window.bottom + 20
+  text "Click a row to copy it." 8 : c#muted
+  if timer - copied_at < 1.2 (
+    goto left + gw - 4 window.bottom + 20
+    rigtext "Copied" 8.5 : c#global_accent
+  )
+)
 
 mainloop:
+load_theme
 
-theme = user.theme
-cb = theme.primary
-cbh = theme.secondary
-cca = theme.primary
-ctb = theme.primary
-ct = theme.text
-rh = theme.tertiary
-window_colour = theme.background
+goto 0 0
+square window.width + 10 window.height + 10 0 : c#window_colour
 
-
-loc 999 2 0 -22.5
-square 265 30 10 1 : c#ctb
-
-loc 999 2 0 -72.5
-square 265 40 10 : c#ctb
-
-loc 2 2 20 -22.5
-text "Calculator" 9 : c#ct
-
-draw 2 2 30 -200 "1"
-draw 2 2 100 -200 "2"
-draw 2 2 170 -200 "3"
-draw 2 2 240 -200 "+"
-
-draw 2 2 30 -270 "4"
-draw 2 2 100 -270 "5"
-draw 2 2 170 -270 "6"
-draw 2 2 240 -270 "-"
-
-draw 2 2 30 -340 "7"
-draw 2 2 100 -340 "8"
-draw 2 2 170 -340 "9"
-draw 2 2 240 -340 "x"
-
-draw 2 2 30 -410 "."
-draw 2 2 100 -410 "0"
-draw 2 2 170 -410 "="
-draw 2 2 240 -410 "÷"
-
-loc 2 2 25 -72.5
-output = secondary != "" ? secondary current
-
-if output == "" (
-  output = 0
-)
-text output 15
-
-loc -2 2 -27.5 -72.5
-square 40 40 10 : c#cca hover_c#ch
-icon "left-arrow" 0.7 : c#ct
-if (onclick or "backspace".onKeyDown()) and can (
-  can = false
-  if operation == "" (
-    current = current.toStr().left(current.len - 1)
-  ) else if secondary != "" (
-    secondary = secondary.left(secondary.len - 1)
+// ---- page switcher
+local seg = 96
+local total = pages.len * seg
+goto window.left + 6 + (total / 2) window.top - 21
+box total 27 14 : c#prim
+for i pages.len (
+  goto window.left + 6 + (i - 0.5 * seg) window.top - 21
+  hit seg - 6 21
+  if mouse_touching (
+    cursor "pointer"
+  )
+  if onclick (
+    page = pages[i]
+  )
+  if page == pages[i] (
+    box seg - 6 21 10 : c#global_accent
+    centext pages[i] 8.5 : c#accent_txt
   ) else (
-    operation = ""
+    centext pages[i] 8.5 : c#txtc
   )
 )
+window.setDragbox([2, 2, total + 12, 0], [-2, 2, -92, -42])
+goto 0 window.top - 42
+square window.width 0 1 : c#edge_col
 
-loc -2 2 -22.5 -22.5
-icon "close" 0.6
-if onclick (
-  window.close()
+// the answer only needs working out again when the sum or the angle unit changes
+local key_now = inputs.expr ++ degrees ++ answer
+if key_now != last_key (
+  last_key = key_now
+  result = evaluate(inputs.expr)
 )
-if mouse_down.not() (
-  can = true
+
+switch page (
+  case "Calculate"
+    page_calculate
+    break
+  case "Convert"
+    page_convert
+    break
+  case "Bases"
+    page_bases
+    break
 )
+
+import "win-buttons"

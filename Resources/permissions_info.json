@@ -22,5 +22,7 @@
   "javascript":          "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
   "python":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
   "kernel":              "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
+  "notification manager": "(Careful) This app can read, answer and delete all of your notifications",
+  "beam":                "(Careful) This app can send any of your files to nearby devices and receive files",
   "rotur token":         "(CAREFUL) GIVES COMPLETE ACCESS TO YOUR ACCOUNT"
 }

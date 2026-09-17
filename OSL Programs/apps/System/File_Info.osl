@@ -1,328 +1,352 @@
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: Details for one file: its facts, its icon source, a folder's colour and a preview.
+//
+// Layout: a header with the file's icon and name, a segmented control, and one scrolling
+// pane per tab. Shares `card`, `box`, `hit` and the derived colours with the other system
+// apps. Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
 import "window_tools"
 
 permission "request" "file admin"
 
+window.resize(460, 600)
+window "min_size" 400 420
 window.show()
-file "open" 1
-tab = "info"
 
 if passed_data == null (
   passed_data = window.parent.file_uuid
 )
 
 file "open" passed_data
-window "dimensions" 600 500
-window "min_size" 400 400
 file_json = file
 
 // properly handle the types for each file part
 type = file[1].toStr()
 name = file[2].toStr()
-loc = file[3].toStr()
+location = file[3].toStr()
 file_data = file[4]
-data_secondary = file[5]
 created = file[9].toNum()
 edited = file[10].toNum()
-icon = file[11].toStr()
 uuid = file[14].toStr()
+full_path = location ++ "/" ++ name ++ type
 
 number size = file.JsonStringify().len
+number content_size = file_data.toStr().len
 
-inputs.icon = icon.split("\n")
+inputs.icon = file[11].toStr().split("\n")
 icon_changed = false
 
-file_config = data
-tabs @= [
-  ["info", "info"],
-  ["edit", "edit"]
-]
-
-preview @= [".3dicn",".icn",".txt"]
+tab = "info"
+tabs = [["info", "Info"], ["edit", "Icon"]]
+page_len = 0
+pane_w = 400
+button_click = false
 
 if type == ".folder" (
   def folder_icon(colour1, colour2) (
     return "c" + colour1 + "square 0 2 10 4 c" + colour2 + "square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0"
   )
+  // the second entry is the default, stored as no icon at all
   folder_icons = [
-    // red
     folder_icon(#7a1212, #f24b4b),
-    // red orange (default)
     file_types[".folder"][1],
-    // orange
     folder_icon(#703d00, #FF9800),
-    // yellow
     folder_icon(#6e6410, #dbc714),
-    // lime
     folder_icon(#245e10, #54db27),
-    // green
     folder_icon(#295c2c, #4CAF50),
-    // cyan
     folder_icon(#0f5c3d, #1fd18a),
-    // blue
     folder_icon(#334859, #42A5F5),
-    // purple
     folder_icon(#6c2d7b, #bd64e9),
-    // pink
     folder_icon(#5f134c, #f436de),
-    // red pink
     folder_icon(#571028, #E91E63),
-    // white
     folder_icon(#7d7d7d, #FFFFFF),
-    // gray (but slightly blue for some reason??)
     folder_icon(#5e5e5e, #B4B6B7),
-    // dark gray
-    folder_icon(#303030, #7a7a7a),
+    folder_icon(#303030, #7a7a7a)
   ]
-  void tabs.append(["image", "theme"])
+  void tabs.append(["theme", "Colour"])
 )
-if preview.contains(type) (
-  void tabs.append(["eye", "preview"])
+if [".icn", ".txt", ".osl", ".json", ".md"].contains(type) (
+  void tabs.append(["preview", "Preview"])
+  preview_lines = file_data.toStr().split("\n").trim(1, 40)
+)
+
+// ---------------------------------------------------------------- drawing helpers
+
+def "section" "label, y" (
+  goto pane_w / -2 + 14 y
+  text label 7.5 : c#muted
+)
+
+// label on the left, value on the right, inside a card the caller drew. click copies the value
+def "info_row" "label, value, y" (
+  goto 0 y
+  hit pane_w - 16 30
+  if mouse_touching (
+    cursor "pointer"
+    box pane_w - 16 30 12 : c#hover_col
+    if onclick (
+      clipboard "set" value
+      say "Copied " ++ label.toLower()
+    )
+  )
+  goto pane_w / -2 + 24 y
+  text label 9 : c#muted
+  goto pane_w / 2 - 24 y
+  rigtext value.toStr().trimText(pane_w - 170 / 9) 9 : c#txtc
+)
+
+def "divider" "y" (
+  goto 0 y
+  square pane_w - 32 0 1 : c#edge_col
+)
+
+// a square action tile with an icon above its label, result in `button_click`
+def "action_tile" "label, icn, w" (
+  hit w 72
+  button_click = onclick
+  box w + 2 74 16 : c#edge_col
+  if mouse_touching (
+    cursor "pointer"
+    box w 72 14 : c#hover_col
+  ) else (
+    box w 72 14 : c#prim
+  )
+  local x = x_position
+  local y = y_position
+  goto x y + 12
+  icon icn 0.9 : c#txtc
+  goto x y - 20
+  centext label 8 : c#txtc
+  goto x y
+)
+
+// ---------------------------------------------------------------- pages
+
+def "draw_info" (
+  local y = frame.top - 14 + frame.scroll
+  local top = y
+  section "DETAILS" y
+  y -= 16
+  local kind = type == ".folder" ? "Folder" (type.trim(2, -1).toUpper() ++ " file")
+  local rows = [
+    ["Kind", kind],
+    ["Location", location],
+    ["Created", created.timestamp("convert-relative")],
+    ["Edited", edited.timestamp("convert-relative")],
+    ["Size", formatFileSize(size)],
+    ["Content", formatFileSize(content_size)],
+    ["UUID", uuid]
+  ]
+  local card_h = rows.len * 34 + 8
+  goto 0 y - (card_h / 2)
+  card pane_w card_h
+  for i rows.len (
+    info_row rows[i][1] rows[i][2] y - 21 - (i - 1 * 34)
+    if i < rows.len (
+      divider y - 38 - (i - 1 * 34)
+    )
+  )
+  y -= card_h + 18
+
+  section "ACTIONS" y
+  y -= 52
+  local tw = pane_w - 20 / 3
+  goto pane_w / -2 + (tw / 2) y
+  action_tile "Copy Path" "copy" tw
+  if button_click (
+    clipboard "set" full_path
+    say "Copied path"
+  )
+  goto 0 y
+  action_tile "Copy As Json" "w 2 line -3 6 -8 0 cont -3 -6 line 3 6 8 0 cont 3 -6" tw
+  if button_click (
+    clipboard "set" file_json.toStr()
+    say "Copied file as json"
+  )
+  goto pane_w / 2 - (tw / 2) y
+  action_tile "Show In Files" "folder" tw
+  if button_click (
+    window.create("/(a) system/user applications/Files.osl", uuid)
+  )
+  y -= 50
+  page_len = top - y + 24
+)
+
+def "draw_edit" (
+  local y = frame.top - 14 + frame.scroll
+  local top = y
+  section "PREVIEW" y
+  y -= 16
+  goto 0 y - 80
+  card pane_w 160
+  local cx = x_position
+  local cy = y_position
+  frame cx - 70 cy + 70 cx + 70 cy - 70 (
+    icon "w 0.1 line -10 -20 -10 20 line 10 -20 10 20 line -20 -10 20 -10 line -20 10 20 10" 7 : c#edge_col
+    icon inputs.icon.join(" ") 7
+  )
+  y -= 178
+
+  section "ICN SOURCE" y
+  y -= 16
+  goto 0 y - 90
+  card pane_w 180
+  textbox pane_w - 24 164 "icon" 10 {
+    line_numbers: {
+      bg_colour: prim
+    },
+    sel_colour: seco,
+    text_colour: txtc,
+    bg_colour: prim
+  }
+  if inputs.selected.id == "icon" and inputs.selected.changed (
+    icon_changed = true
+  )
+  y -= 204
+
+  goto 0 y
+  hit pane_w 32
+  if icon_changed (
+    if mouse_touching (
+      cursor "pointer"
+    )
+    if onclick (
+      icon_changed = false
+      file "open" passed_data "onlyaccess"
+      file "set" 11 inputs.icon.join(" ")
+      file "close"
+      say "Icon saved"
+    )
+    box pane_w 32 14 : c#global_accent
+    centext "Save Icon" 9 : c#accent_txt
+  ) else (
+    box pane_w + 2 34 16 : c#edge_col
+    box pane_w 32 14 : c#prim
+    centext "No changes" 9 : c#muted
+  )
+  y -= 16
+  page_len = top - y + 24
+)
+
+def "draw_theme" (
+  local y = frame.top - 14 + frame.scroll
+  local top = y
+  section "FOLDER COLOUR" y
+  y -= 16
+  file "open" passed_data "onlyaccess"
+  local current = fileGet(11)
+  local columns = max(1, floor(pane_w + 10 / 82))
+  local grid_w = columns * 82 - 10
+  for i folder_icons.len (
+    local col = i - 1 % columns
+    local row = floor(i - 1 / columns)
+    goto grid_w / -2 + 36 + (col * 82) y - 36 - (row * 82)
+    hit 72 72
+    local over = mouse_touching
+    if onclick (
+      if i == 2 (
+        file "set" 11 null
+      ) else (
+        file "set" 11 folder_icons[i]
+      )
+    )
+    if current == folder_icons[i] or (i == 2 and current.len == 0) (
+      box 76 76 18 : c#global_accent
+    ) else (
+      box 74 74 16 : c#edge_col
+    )
+    if over (
+      cursor "pointer"
+      box 72 72 14 : c#hover_col
+    ) else (
+      box 72 72 14 : c#prim
+    )
+    icon folder_icons[i] 2.2 : c#txtc
+  )
+  y -= ceil(folder_icons.len / columns) * 82
+  page_len = top - y + 24
+)
+
+def "draw_preview" (
+  local y = frame.top - 14 + frame.scroll
+  local top = y
+  section "PREVIEW" y
+  y -= 16
+  if type == ".icn" (
+    goto 0 y - 120
+    card pane_w 240
+    icon file_data 9 : c#txtc
+    y -= 250
+  ) else (
+    local card_h = preview_lines.len * 14 + 28
+    goto 0 y - (card_h / 2)
+    card pane_w card_h
+    goto pane_w / -2 + 20 y - 20
+    text preview_lines.map(v -> v.trimText(pane_w - 40 / 7.5)).join("\n") 7.5 : c#txtc
+    y -= card_h + 10
+  )
+  page_len = top - y + 24
 )
 
 mainloop:
-  load_theme
-  
-  // tabs
-  loc 2 2 0 -20
-  x = window.left + 5
-  local tabWidth = window.width - 100 + 5 / tabs.len
-  for count tabs.len (
-    x += tabWidth / 2
-    goto x y_position
-    local cur @= tabs[count]
-    if tab == cur[2] (
-      square tabWidth - 20 20 10 : c#seco
-    ) else (
-      square tabWidth - 20 20 10 : c#prim
-    )
-    if onclick (
-      tab = cur[2]
-    )
-    local titleW = cur[2].len * 8 + 20
-    goto x - (titleW / 2) y_position
-    icon cur[1] 0.7 : c#txtc chx#5
-    text cur[2].toTitle() 8 : chx#20
-    x += tabWidth / 2
+load_theme
+
+local left = window.left + 20
+local top = window.top
+
+// header: the file's own icon on a tile, then its name and where it lives
+goto left + 28 top - 62
+hit 56 56
+box 58 58 18 : c#edge_col
+box 56 56 16 : c#prim
+file "open" passed_data "onlyaccess"
+file "render" 1.9
+rightclick "file" passed_data
+goto left + 70 top - 53
+text (name ++ type).trimText(window.width - 130 / 11) 11 : c#txtc
+goto left + 70 top - 73
+text location.trimText(window.width - 130 / 8) 8 : c#muted
+
+// segmented control
+local track_w = window.width - 40
+local seg_w = track_w / tabs.len
+goto 0 top - 118
+box track_w + 2 34 18 : c#edge_col
+box track_w 32 16 : c#prim
+for i tabs.len (
+  goto window.left + 20 + (seg_w * (i - 0.5)) top - 118
+  hit seg_w - 6 26
+  if onclick (
+    tab = tabs[i][1]
   )
-  
-  fheight = 0
-  
+  local ink = muted
+  if tab == tabs[i][1] (
+    box seg_w - 6 26 12 : c#global_accent
+    ink = accent_txt
+  ) else if mouse_touching (
+    cursor "pointer"
+    box seg_w - 6 26 12 : c#hover_col
+    ink = txtc
+  )
+  centext tabs[i][2] 8.5 : c#ink
+)
+
+frame window.left top - 142 window.right window.bottom page_len "page" (
+  pane_w = min(frame.width - 40, 560)
   switch tab (
+    case "info"
+      draw_info
+      break
+    case "edit"
+      draw_edit
+      break
     case "theme"
-      fheight = theme_h
+      draw_theme
+      break
+    case "preview"
+      draw_preview
       break
   )
-  
-  frame window.left window.top - 35 window.right window.bottom (
-    // background
-    goto 0 0
-    square frame.width - 30 frame.height - 30 10 : c#prim
-  )
-  
-  frame window.left + 10 window.top - 35 - 10 window.right - 10 window.bottom + 10 fheight (
-    
-    switch tab (
-      case "info"
-        loc 2 2 35 -35
-        file "open" passed_data
-        file "render" 2
-        rightclick "file" passed_data
-        text name ++ type 9 : c#txtc chx#35
-        
-        square 15 15 10 : chx#20 c#prim hover_c#seco
-        if mouse_touching (
-          cursor "pointer"
-          if onclick (
-            clipboard "set" fileGet(3) ++ "/" ++ fileGet(2) ++ fileGet(1)
-          )
-        )
-        icon "copy" .6 : c#txtc
-        
-        loc 2 2 10 -50
-        local x = x_position
-        local y = y_position
-        
-        y -= 25
-        goto x y
-        text "Location: " ++ loc 9
-        
-        square 15 15 10 : chx#20 c#prim hover_c#seco
-        if mouse_touching (
-          cursor "pointer"
-          if onclick (
-            clipboard "set" fileGet(3)
-          )
-        )
-        icon "copy" .6 : c#txtc
-        
-        y -= 10
-        
-        y -= 25
-        goto x y
-        text "Created:" + created.timestamp("convert-relative") 9
-        y -= 25
-        goto x y
-        text "Edited:" + edited.timestamp("convert-relative") 9
-        
-        y -= 10
-        
-        y -= 25
-        goto x y
-        text "Size: " ++ formatFileSize(size) 9
-        y -= 25
-        goto x y
-        text "Content Size: " ++ formatFileSize(fileGet(4).toStr().len) 9
-        
-        // bar chart showing content / size
-        if false (
-          y -= 35
-          local w = frame.width - 45
-          local contentW = w * (fileGet(4).toStr().len / size)
-          goto 0 y
-          square w 25 10 : c#seco
-          goto (w / -2) + contentW y
-          square contentW 25 10 : c#txtc
-          y -= 35
-        )
-        break
-      case "preview"
-        loc 999 999 0 0
-        c txtc
-        if type == ".icn" (
-          icon file_data 8
-          rightclick "file" passed_data
-        )
-        break
-      case "edit"
-        loc 2 2 5 5
-        local x = x_position
-        local y = y_position
-        
-        y -= 30
-        object actions @= {
-          "copy": {
-            icon: "copy",
-            text: "Copy As Json",
-            click: def() -> (
-              clipboard "set" file_json.toStr()
-              say "Copied file as json"
-            )
-          },
-          "open": {
-            icon: "open",
-            text: "Open In Files",
-            click: def() -> (
-              file "open" passed_data "onlyaccess"
-              window.create("/(a) system/user applications/Files.osl", fileGet(14))
-              file "close"
-            )
-          }
-        }
-        local buttonW = frame.width / actions.len
-        local buttonX = buttonW * -1
-        local keys = actions.getKeys()
-        for count keys.len (
-          local action @= actions[keys[count]]
-          buttonX += buttonW / 2
-          
-          goto buttonX y
-          square buttonW - 20 30 10 1 : c#seco
-          if mouse_touching (
-            cursor "pointer"
-            if onclick and action.click != null (
-              void action.click()
-            )
-          )
-          
-          local textW = action.text.len * 8 + 20
-          change_x textW / -2
-          icon action.icon 0.8 : c#txtc chx#5
-          text action.text 8 : chx#20
-          
-          buttonX += buttonW / 2
-        )
-        y -= 30
-        
-        y -= 25
-        goto x y
-        text "Edit this file's icn" 10 : c#txtc
-        
-        file "open" passed_data "onlyaccess"
-        if icon_changed (
-          goto window.right - 40 y
-          icon "save" 0.7
-          if onclick (
-            icon_changed = false
-            file "set" 11 inputs.icon.join(" ")
-          )
-        )
-        file "close"
-        
-        y -= 120
-        local w = window.width - 255
-        goto window.left + (w / 2) + 20 y
-        textbox w 200 "icon" 10 {
-          line_numbers: {
-            bg_colour: prim
-          },
-          sel_colour: seco,
-          text_colour: txtc,
-          bg_colour: window_colour
-        }
-        if inputs.selected.id == "icon" (
-          if inputs.selected.changed (
-            icon_changed = true
-          )
-        )
-        
-        goto window.right - 120 y
-        square 200 200 10 : c#window_colour
-        frame x_position - 105 y_position + 105 x_position + 105 y_position - 105 (
-          icon "w 0.1 line -10 -20 -10 20 line 10 -20 10 20 line -20 -10 20 -10 line -20 10 20 10" 8 : c#seco
-          icon inputs.icon.join(" ") 8
-        )
-        break
-      case "theme"
-        // page to select theme colours and icons for folders
-        
-        loc 2 2 15 -25
-        local x = x_position
-        local y = y_position + frame.scroll
-        local startY = y
-        
-        goto x + 5 y
-        text "Folder Theme" 10 : c#txtc
-      
-        file "open" passed_data "onlyaccess"
-        local icon = fileGet(11)
-        y -= 70
-        goto x + 50 y
-        for i folder_icons.len (
-          if icon == folder_icons[i] or (i == 2 and icon.len == 0) (
-            square 80 80 20 : c#seco
-            square 80 80 10 : c#window_colour
-          ) else (
-            square 80 80 20 : c#window_colour
-          )
-          if onclick (
-            if i == 2 (
-              file "set" 11 null
-            ) else (
-              file "set" 11 folder_icons[i]
-            )
-          )
-          icon folder_icons[i] 2.5 : c#txtc
-          change_x 110
-          if x_position > frame.right - 50 (
-            set_x x + 50
-            change_y -110
-          )
-        )
-        theme_h = startY - y_position + 80
-        break
-    )
-  )
-can = mouse_down.not()
-frame "clear"
+)
+
 import "win-buttons"

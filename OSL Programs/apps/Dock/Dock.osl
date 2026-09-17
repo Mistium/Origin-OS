@@ -5,6 +5,8 @@ permission "request" "file admin"
 permission "request" "terminal"
 permission "request" "windows"
 permission "request" "javascript"
+permission "request" "notification manager"
+permission "request" "beam"
 
 save "Dock@System" "set_directory"
 save "desktop@system" "set_directory"
@@ -241,6 +243,1143 @@ def "render_selection" (
     selection_frame @= frame
   )
   window.callRender()
+)
+
+// ---- hub: start menu and notifications side by side, plus live toasts ----
+// one spacing, radius and type scale is shared by both panels and the toasts
+hub = {
+  open: false,
+  toggle: false,
+  anim: 0,
+  apps: [],
+  recent: [],
+  armed: "",
+  armed_at: -10,
+  pad: 16,
+  gap: 12,
+  width: 400,
+  r_panel: 18,
+  r_card: 12,
+  r_ctrl: 9,
+  t_title: 11,
+  t_body: 9,
+  t_small: 8
+}
+
+notif = {
+  ready: false,
+  items: [],
+  toasts: [],
+  rows: [],
+  rows_h: 0,
+  unread: 0,
+  filter: "all",
+  built_for: ""
+}
+
+def hubEllipsis(string value, number cap) string (
+  if value.len > cap (
+    return value.trim(1, max(1, cap - 3)).strip() ++ "..."
+  )
+  return value
+)
+
+// characters that fit in px at a text size. the system font is monospace
+def hubCap(number px, number size) number (
+  return max(4, floor(px / (size * 0.97)))
+)
+
+// wraps onto at most two lines, the second one gets the ellipsis
+def hubWrap(string value, number cap) array (
+  local lines = []
+  local cur = ""
+  local words = value.split(" ")
+  for i words.len (
+    local word = words[i]
+    local next = cur == "" ? word (cur ++ " " ++ word)
+    if next.len <= cap (
+      cur = next
+    ) else if lines.len == 1 or cur == "" (
+      cur = hubEllipsis(next, cap)
+      void lines.append(cur)
+      return lines
+    ) else (
+      void lines.append(cur)
+      cur = word
+    )
+  )
+  if cur != "" (
+    void lines.append(cur)
+  )
+  return lines
+)
+
+// short relative time, the long form pushes titles off the card
+def hubAgo(number when) string (
+  local secs = (timestamp - when) / 1000
+  if secs < 60 (
+    return "now"
+  )
+  if secs < 3600 (
+    return floor(secs / 60) ++ "m"
+  )
+  if secs < 86400 (
+    return floor(secs / 3600) ++ "h"
+  )
+  return floor(secs / 86400) ++ "d"
+)
+
+// "cam_sender" -> "Cam Sender"
+def hubDisplayName(string raw) string (
+  local words = raw.replace("_", " ").replace("-", " ").split(" ")
+  local out = []
+  for i words.len (
+    local word = words[i]
+    if word.len > 1 (
+      void out.append(word[1].toUpper() ++ word.trim(2, -1))
+    ) else if word.len == 1 (
+      void out.append(word.toUpper())
+    )
+  )
+  return out.join(" ")
+)
+
+// a filled rounded box of an exact size. fill and line are css values
+def hubBox(number cx, number cy, number w, number h, number r, string fill, string line) (
+  goto cx cy
+  style {
+    bg: fill,
+    border: line,
+    rounding: r
+  }
+  square w - (r * 2) h - (r * 2) r * 2 : c#dock_colour
+)
+
+// the frosted surface used by both panels and every toast
+def hubSurface(number cx, number cy, number w, number h, number r) (
+  goto cx cy
+  style {
+    bg: "linear-gradient(180deg, " ++ dock_colour.trim(1, 7) ++ "d9, " ++ dock_colour.trim(1, 7) ++ "c2)",
+    bgBlur: "22px",
+    border: "1px solid #ffffff24",
+    shadow: "0 18px 48px rgba(0, 0, 0, 0.45), inset 0 1px 0 #ffffff1f",
+    rounding: r
+  }
+  square w - (r * 2) h - (r * 2) r * 2 : c#dock_colour
+)
+
+// invisible hit area. sets hub_hover and hub_click for whatever is drawn on top of it
+def hubHit(number cx, number cy, number w, number h) (
+  goto cx cy
+  square w h 0 0 1
+  hub_hover = mouse_touching
+  hub_click = onclick
+)
+
+def hubDim(string value, number size) (
+  style {
+    opacity: 0.62
+  }
+  text value size : c#icon_colour
+)
+
+def hubDimCentre(string value, number size) (
+  style {
+    opacity: 0.62
+  }
+  centext value size : c#icon_colour
+)
+
+// a button of an exact size. kind is "plain", "primary" or "danger"
+def hubButton(number cx, number cy, number w, number h, string label, string kind) boolean (
+  hubHit(cx, cy, w, h)
+  local pressed = hub_click
+  local fill = hub_hover ? "#ffffff2e" "#ffffff1a"
+  local ink = icon_colour
+  if kind == "primary" (
+    fill = nt_acc
+    ink = dock_colour
+  ) else if kind == "danger" (
+    fill = hub_hover ? "#e5484dcc" "#e5484d33"
+  )
+  hubBox(cx, cy, w, h, hub.r_ctrl, fill, (kind == "plain" ? "1px solid #ffffff14" "none"))
+  if kind == "primary" and hub_hover (
+    hubBox(cx, cy, w, h, hub.r_ctrl, "#ffffff2e", "none")
+  )
+  goto cx cy
+  centext hubEllipsis(label, hubCap(w - 10, hub.t_small)) hub.t_small : c#ink
+  return pressed
+)
+
+def hubLoadApps() (
+  local found = open("~/Applications") ++ open("/(A) System/User Applications")
+  local list = []
+  local seen = {}
+  for i found.len (
+    local info @= open(found[i], ["name", "location"])
+    local shown_name = hubDisplayName("" ++ info[1])
+    local key = shown_name.toLower()
+    // two files with the same name get a number so they can be told apart
+    seen[key] = (seen[key] ?? 0) + 1
+    if seen[key] > 1 (
+      shown_name = shown_name ++ " " ++ seen[key]
+    )
+    void list.append({
+      name: shown_name,
+      search: (shown_name ++ " " ++ info[1]).toLower(),
+      where: "" ++ info[2],
+      uuid: found[i]
+    })
+  )
+  hub.apps @= list.sortBy("name")
+  local saved = "localStorage.getItem('origin_hub_recent') || '[]'".eval()
+  local ids = ("" ++ saved).JsonParse()
+  if typeof(ids) != "array" (
+    ids = []
+  )
+  hub.recent @= hub.apps.filter(v -> ids.contains(v.uuid)).sortBy("name")
+  hub.recent_ids @= ids
+)
+
+def hubLaunch(string uuid) (
+  local ids @= (hub.recent_ids ?? []).filter(v -> v != uuid)
+  void ids.insert(1, uuid)
+  ids @= ids.trim(1, 8)
+  eval ("localStorage.setItem('origin_hub_recent', " ++ ids.JsonStringify().JsonStringify() ++ ")")
+  file "open" uuid "onlyaccess"
+  file "start"
+  hub.toggle = true
+)
+
+// one app cell. selected draws the enter target ring
+def hubApp(object app, number cx, number cy, number w, boolean selected) (
+  hubHit(cx, cy, w - 8, 84)
+  if hub_hover or selected (
+    local cell_fill = hub_hover ? "#ffffff24" "#ffffff14"
+    local cell_line = "1px solid #ffffff1f"
+    if selected (
+      cell_line = "1px solid " ++ nt_acc
+    )
+    hubBox(cx, cy, w - 8, 84, hub.r_card, cell_fill, cell_line)
+  )
+  if hub_click (
+    hubLaunch(app.uuid)
+  )
+  goto cx cy + 16
+  file "open" app.uuid "onlyaccess"
+  file "render" 1.25
+  local lines @= hubWrap(app.name, hubCap(w - 4, hub.t_small))
+  for i lines.len (
+    goto cx cy - 5 - (i * 13)
+    centext lines[i] hub.t_small : c#icon_colour
+  )
+)
+
+// control centre tile. fraction draws a usage bar when it is 0 or more
+def hubTile(number cx, number cy, number w, string title, string detail, string glyph, number fraction) boolean (
+  local h = 50
+  hubHit(cx, cy, w, h)
+  local pressed = hub_click
+  hubBox(cx, cy, w, h, hub.r_card, (hub_hover ? "#ffffff26" "#ffffff14"), "1px solid #ffffff14")
+  local left = cx - (w / 2)
+  hubBox(left + 25, cy, 30, 30, 9, nt_acc.trim(1, 7) ++ "38", "none")
+  goto left + 25 cy
+  icon glyph 0.62 : c#icon_colour
+  local cap = hubCap(w - 60, hub.t_small)
+  goto left + 48 cy + (fraction >= 0 ? 11 8)
+  text hubEllipsis(title, cap) hub.t_body : c#icon_colour
+  goto left + 48 cy - (fraction >= 0 ? 3 8)
+  hubDim(hubEllipsis(detail, cap), hub.t_small)
+  if fraction >= 0 (
+    local bar_w = w - 60
+    hubBox(left + 48 + (bar_w / 2), cy - 15, bar_w, 4, 2, "#ffffff24", "none")
+    local fill_w = max(4, bar_w * fraction.clamp(0, 1))
+    hubBox(left + 48 + (fill_w / 2), cy - 15, fill_w, 4, 2, nt_acc, "none")
+  )
+  return pressed
+)
+
+def hubIconButton(number cx, number cy, string glyph, string tip, string arm_id) boolean (
+  hubHit(cx, cy, 32, 32)
+  local armed = arm_id != "" and hub.armed == arm_id and timer - hub.armed_at < 4
+  local fill = hub_hover ? "#ffffff2e" "#ffffff1a"
+  if armed (
+    fill = "#e5484dcc"
+  )
+  hubBox(cx, cy, 32, 32, hub.r_ctrl, fill, "1px solid #ffffff14")
+  goto cx cy
+  square 32 32 0 0 1 : tooltip#tip
+  icon glyph 0.62 : c#icon_colour
+  if hub_click (
+    if arm_id == "" or armed (
+      return true
+    )
+    hub.armed = arm_id
+    hub.armed_at = timer
+  )
+  return false
+)
+
+def hubStart(number left, number bottom, number w, number h) (
+  local pad = hub.pad
+  local top = bottom + h
+  local cx = left + (w / 2)
+  local inner = w - (pad * 2)
+  hubSurface(cx, bottom + (h / 2), w, h, hub.r_panel)
+
+  local query = ("" ++ (inputs.hub_search ?? "")).strip().toLower()
+
+  // search field
+  local sy = top - pad - 17
+  hubBox(cx, sy, inner, 34, 10, "#ffffff1a", "1px solid " ++ nt_acc.trim(1, 7) ++ "99")
+  goto left + pad + 17 sy
+  icon "search" 0.55 : c#icon_colour
+  goto left + pad + 34 + ((inner - 92) / 2) sy
+  style {
+    bg: "transparent",
+    border: "none",
+    outline: "none"
+  }
+  input inner - 92 24 "hub_search" "Search apps" null icon_colour
+  if query == "" (
+    hubHit(left + w - pad - 24, sy, 34, 20)
+    hubBox(left + w - pad - 24, sy, 34, 20, 6, (hub_hover ? "#ffffff2e" "#ffffff14"), "1px solid #ffffff1f")
+    goto left + w - pad - 24 sy
+    hubDimCentre("esc", hub.t_small)
+    if hub_click (
+      hub.toggle = true
+    )
+  ) else (
+    hubHit(left + w - pad - 17, sy, 22, 22)
+    hubBox(left + w - pad - 17, sy, 22, 22, 11, (hub_hover ? "#ffffff2e" "#ffffff14"), "none")
+    goto left + w - pad - 17 sy
+    icon "close" 0.4 : c#icon_colour
+    if hub_click (
+      inputs.hub_search = ""
+    )
+  )
+
+  local shown @= hub.apps
+  if query != "" (
+    shown @= hub.apps.filter(v -> v.search.contains(query))
+  )
+
+  local cursor = sy - 17 - hub.gap
+  if query == "" (
+    // quick controls, a two by two grid with the same gap as everything else
+    local tile_w = (inner - 8) / 2
+    local col_a = left + pad + (tile_w / 2)
+    local col_b = left + w - pad - (tile_w / 2)
+    local beam_count = beam.peers().len
+    local beam_detail = "Offline"
+    if beam.status() == "connected" (
+      beam_detail = beam_count == 0 ? "Nobody nearby" (beam_count ++ " nearby")
+    )
+    if hubTile(col_a, cursor - 25, tile_w, "Beam", beam_detail, "share", -1) (
+      window.create("Beam")
+      hub.toggle = true
+    )
+    local used = user.used_size.toNum()
+    local total = max(1, user.max_size.toNum())
+    if hubTile(col_b, cursor - 25, tile_w, "Storage", formatFileSize(used) ++ " used", "w 2 square 0 3 7 2 square 0 -4 7 2 dot 5 3 dot 5 -4", used / total) (
+      window.create("files")
+      hub.toggle = true
+    )
+    if hubTile(col_a, cursor - 83, tile_w, "Settings", "Theme and dock", "settings", -1) (
+      window.create("settings")
+      hub.toggle = true
+    )
+    if hubTile(col_b, cursor - 83, tile_w, "Terminal", username ++ "@originos", "w 2 line -6 5 -1 0 cont -6 -5 line 1 -5 7 -5", -1) (
+      window.create("terminal")
+      hub.toggle = true
+    )
+    cursor -= 108 + hub.gap
+  )
+
+  local columns = 4
+  local grid_w = inner - 8
+  local cell = grid_w / columns
+  local recent @= query == "" ? hub.recent []
+  local recent_rows = ceil(recent.len.clamp(0, columns) / columns)
+  local rows = ceil(shown.len / columns)
+  local content_h = (rows * 92) + 24 + (recent_rows > 0 ? (recent_rows * 92) + 28 0)
+  local foot_top = bottom + pad + 32 + hub.gap
+
+  // the scrollbar gets its own gutter so it never covers a cell
+  frame left + pad cursor left + w - pad + 4 foot_top content_h "hub_apps" (
+    local fx = frame.left
+    local y = frame.top + frame.scroll
+    if shown.len == 0 (
+      local mid_x = fx + (grid_w / 2)
+      goto mid_x frame.top - 70
+      icon "search" 1.1 : c#icon_colour
+      goto mid_x frame.top - 104
+      hubDimCentre("Nothing matches \"" ++ hubEllipsis(query, 18) ++ "\"", hub.t_body)
+    )
+    if recent_rows > 0 (
+      goto fx + 4 y - 10
+      hubDim("Recent", hub.t_small)
+      y -= 24
+      for i recent.len.clamp(0, columns) (
+        hubApp(recent[i], fx + (cell * (i - 0.5)), y - 44, cell, false)
+      )
+      y -= 92 + 4
+    )
+    if shown.len > 0 (
+      goto fx + 4 y - 10
+      local grid_label = "All apps"
+      if query != "" (
+        grid_label = shown.len ++ (shown.len == 1 ? " result" " results")
+      )
+      hubDim(grid_label, hub.t_small)
+      y -= 24
+    )
+    for i shown.len (
+      local row = floor((i - 1) / columns)
+      local ay = y - 44 - (row * 92)
+      if ay > frame.top + 50 (
+        continue
+      )
+      if ay < frame.bottom - 50 (
+        break
+      )
+      local is_target = query != "" and i == 1
+      hubApp(shown[i], fx + (cell * (((i - 1) % columns) + 0.5)), ay, cell, is_target)
+    )
+  )
+  // scrolled content fades out instead of being sliced by the footer
+  local view_h = cursor - foot_top
+  if content_h > view_h (
+  goto cx foot_top + 20
+  style {
+    bg: "linear-gradient(180deg, " ++ dock_colour.trim(1, 7) ++ "00, " ++ dock_colour.trim(1, 7) ++ "f2)",
+    rounding: 0
+  }
+  square inner 40 0 : c#dock_colour
+  )
+
+  if query != "" and shown.len > 0 and "enter".onKeyDown() (
+    hubLaunch(shown[1].uuid)
+  )
+
+  // user and power row
+  hubBox(cx, foot_top, inner, 1, 0, "#ffffff1f", "none")
+  local fy = bottom + pad + 16
+  goto left + pad + 16 fy
+  style {
+    rounding: "50%"
+  }
+  image "https://avatars.rotur.dev/" ++ username 32 32
+  goto left + pad + 42 fy + 7
+  text hubEllipsis(username, 16) 10 : c#icon_colour
+  goto left + pad + 42 fy - 8
+  local armed_live = hub.armed != "" and timer - hub.armed_at < 4
+  if armed_live (
+    text "Click again to " ++ hub.armed hub.t_small : c#icon_colour
+  ) else (
+    hubDim("originOS v" ++ origin.version, hub.t_small)
+  )
+
+  if hubIconButton(left + w - pad - 16, fy, "power", "Restart originOS", "restart") (
+    terminal "shutdown"
+  )
+  if hubIconButton(left + w - pad - 56, fy, "log-out", "Log out", "log out") (
+    eval "localStorage.setItem('origin_login', '')"
+    terminal "shutdown"
+  )
+  // the harmless action sits apart from the two that end your session
+  hubBox(left + w - pad - 84, fy, 1, 20, 0, "#ffffff1f", "none")
+  if hubIconButton(left + w - pad - 112, fy, "multitasking", "All windows", "") (
+    spaces.toggle = true
+    hub.toggle = true
+  )
+)
+
+// measures a notification for a card that is cw wide
+def notifMeasure(object item, number cw) object (
+  local lines = []
+  if item.text != "" (
+    lines @= hubWrap(item.text, hubCap(cw - 64, hub.t_small))
+  )
+  local h = 24 + 14
+  if lines.len > 0 (
+    h += 2 + (lines.len * 12)
+  )
+  if item.progress != null (
+    h += 12
+  )
+  if item.actions.len > 0 (
+    h += 34
+  )
+  return {
+    lines: lines,
+    h: max(52, h)
+  }
+)
+
+// one notification with its top edge at top. glass is true for toasts, which float on their own
+def notifCard(object item, object size, number cx, number top, number cw, boolean glass) (
+  local h = size.h
+  local left = cx - (cw / 2)
+  local right = cx + (cw / 2)
+  local cy = top - (h / 2)
+  hubHit(cx, cy, cw, h)
+  local card_click = hub_click
+  local card_hover = hub_hover
+  local hit = false
+  if glass (
+    hubSurface(cx, cy, cw, h, hub.r_card + 2)
+  ) else (
+    hubBox(cx, cy, cw, h, hub.r_card, (card_hover ? "#ffffff24" (item.read ? "#ffffff0f" "#ffffff1c")), "1px solid #ffffff1a")
+  )
+  if item.live (
+    hubBox(left + 5, cy, 3, h - 24, 1.5, nt_acc, "none")
+  )
+
+  // avatar and app icons share one 28px slot so every title starts on the same line
+  if item.image != "" (
+    goto left + 26 top - 26
+    style {
+      rounding: "50%"
+    }
+    image item.image 28 28
+  ) else (
+    hubBox(left + 26, top - 26, 28, 28, 8, "#ffffff1f", "none")
+    goto left + 26 top - 26
+    if item.icon != "" (
+      icon item.icon 0.85
+    ) else (
+      icon "notifications" 0.6 : c#icon_colour
+    )
+  )
+
+  // dismiss is always there, time and source sit beside it
+  hubHit(right - 20, top - 19, 20, 20)
+  if hub_hover (
+    hubBox(right - 20, top - 19, 20, 20, 10, "#ffffff2e", "none")
+  )
+  goto right - 20 top - 19
+  local close_alpha = hub_hover ? 1 0.55
+  style {
+    opacity: close_alpha
+  }
+  icon "close" 0.36 : c#icon_colour
+  if hub_click (
+    hit = true
+    if glass and !item.live (
+      void notificationCenter.dismissToast(item.id)
+    ) else if glass (
+      void notificationCenter.act(item.id, "dismiss")
+    ) else (
+      void notificationCenter.remove(item.id)
+    )
+  )
+  local meta = hubAgo(item.time)
+  local meta_w = meta.len * hub.t_small * 0.97
+  goto right - 36 - meta_w top - 19
+  hubDim(meta, hub.t_small)
+  if !item.read (
+    hubBox(right - 44 - meta_w, top - 19, 6, 6, 3, nt_acc, "none")
+  )
+
+  goto left + 50 top - 19
+  text hubEllipsis(item.title, hubCap(cw - 64 - meta_w - 44, hub.t_body)) hub.t_body : c#icon_colour
+  for i size.lines.len (
+    goto left + 50 top - 22 - (i * 12)
+    hubDim(size.lines[i], hub.t_small)
+  )
+
+  local cursor = top - 26 - (size.lines.len > 0 ? 2 + (size.lines.len * 12) 0)
+  if item.progress != null (
+    local bar_w = cw - 62
+    hubBox(left + 50 + (bar_w / 2), cursor - 6, bar_w, 4, 2, "#ffffff24", "none")
+    local fill_w = max(4, bar_w * item.progress.clamp(0, 1))
+    hubBox(left + 50 + (fill_w / 2), cursor - 6, fill_w, 4, 2, nt_acc, "none")
+    cursor -= 12
+  )
+  if item.actions.len > 0 (
+    local count = item.actions.len
+    local bw = (cw - 62 - ((count - 1) * 6)) / count
+    for i count (
+      local action @= item.actions[i]
+      local kind = action.primary == true ? "primary" (action.id == "decline" ? "danger" "plain")
+      if hubButton(left + 50 + (bw / 2) + ((i - 1) * (bw + 6)), cursor - 22, bw, 26, "" ++ action.label, kind) (
+        hit = true
+        void notificationCenter.act(item.id, action.id)
+      )
+    )
+  )
+  if card_click and !hit (
+    void notificationCenter.act(item.id, "open")
+  )
+)
+
+// groups the list into live, last day and earlier, and measures every card once
+def notifBuild(number cw) (
+  local source @= notif.items
+  if notif.filter == "unread" (
+    source @= notif.items.filter(v -> !v.read)
+  ) else if notif.filter == "rotur" (
+    source @= notif.items.filter(v -> v.source == "rotur")
+  )
+  local groups = [
+    ["Needs you", source.filter(v -> v.live)],
+    ["Last 24 hours", source.filter(v -> !v.live and timestamp - v.time < 86400000)],
+    ["Earlier", source.filter(v -> !v.live and timestamp - v.time >= 86400000)]
+  ]
+  local rows = []
+  local total = 0
+  for g groups.len (
+    local list @= groups[g][2]
+    if list.len == 0 (
+      continue
+    )
+    void rows.append({
+      kind: "label",
+      text: groups[g][1],
+      h: 24
+    })
+    total += 24
+    for i list.len (
+      local size @= notifMeasure(list[i], cw)
+      void rows.append({
+        kind: "card",
+        item: list[i],
+        size: size,
+        h: size.h + 8
+      })
+      total += size.h + 8
+    )
+  )
+  notif.rows @= rows
+  notif.rows_h = total + 16
+)
+
+def hubNotifications(number left, number bottom, number w, number h) (
+  local pad = hub.pad
+  local top = bottom + h
+  local cx = left + (w / 2)
+  local inner = w - (pad * 2)
+  local cw = inner - 8
+  hubSurface(cx, bottom + (h / 2), w, h, hub.r_panel)
+
+  // header sits on the same line as the search field next door
+  local sy = top - pad - 17
+  goto left + pad + 2 sy
+  text "Notifications" hub.t_title : c#icon_colour
+  if notif.unread > 0 (
+    local label = notif.unread > 99 ? "99+" notif.unread.toStr()
+    local bw = 12 + (label.len * 7)
+    local badge_x = left + pad + 156 + (bw / 2)
+    hubBox(badge_x, sy, bw, 18, 9, nt_acc, "none")
+    goto badge_x sy
+    centext label hub.t_small : c#dock_colour
+  )
+
+  // segmented filter
+  local tabs = ["all", "unread", "rotur"]
+  local names = ["All", "Unread", "rotur"]
+  local seg = 56
+  local seg_left = left + w - pad - (seg * 3)
+  hubBox(seg_left + (seg * 1.5), sy, (seg * 3) + 4, 28, 10, "#ffffff14", "1px solid #ffffff14")
+  for i tabs.len (
+    local sx = seg_left + (seg * (i - 0.5))
+    hubHit(sx, sy, seg - 2, 24)
+    local active = notif.filter == tabs[i]
+    if active (
+      hubBox(sx, sy, seg - 2, 24, 8, nt_acc, "none")
+    ) else if hub_hover (
+      hubBox(sx, sy, seg - 2, 24, 8, "#ffffff1f", "none")
+    )
+    if hub_click (
+      notif.filter = tabs[i]
+    )
+    goto sx sy
+    if active (
+      centext names[i] hub.t_small : c#dock_colour
+    ) else (
+      centext names[i] hub.t_small : c#icon_colour
+    )
+  )
+
+  local stamp = notif.filter ++ notif.version ++ cw
+  if notif.built_for != stamp (
+    notif.built_for = stamp
+    notifBuild(cw)
+  )
+
+  local has_items = notif.items.len > 0
+  local foot_top = has_items ? (bottom + pad + 28 + hub.gap) (bottom + pad)
+  frame left + pad sy - 17 - hub.gap left + w - pad + 4 foot_top notif.rows_h "notif_list" (
+    local fx = frame.left
+    local y = frame.top + frame.scroll
+    if notif.rows.len == 0 (
+      local mid_x = fx + (cw / 2)
+      local mid_y = (frame.top + frame.bottom) / 2
+      goto mid_x mid_y + 24
+      icon "tick" 1.3 : c#icon_colour
+      goto mid_x mid_y - 12
+      centext (notif.filter == "all" ? "You're all caught up" "Nothing here") 10 : c#icon_colour
+      goto mid_x mid_y - 32
+      hubDimCentre("New notifications show up here and in the top right", hub.t_small)
+    )
+    for i notif.rows.len (
+      local row @= notif.rows[i]
+      if y < frame.bottom - 40 (
+        break
+      )
+      if y - row.h < frame.top + 40 (
+        if row.kind == "label" (
+          goto fx + 4 y - 12
+          hubDim(row.text, hub.t_small)
+        ) else (
+          notifCard(row.item, row.size, fx + (cw / 2), y, cw, false)
+        )
+      )
+      y -= row.h
+    )
+  )
+
+  if has_items (
+    local view_h = sy - 17 - hub.gap - foot_top
+    if notif.rows_h > view_h (
+      goto cx foot_top + 12
+      style {
+        bg: "linear-gradient(180deg, " ++ dock_colour.trim(1, 7) ++ "00, " ++ dock_colour.trim(1, 7) ++ "e6)",
+        rounding: 0
+      }
+      square inner 24 0 : c#dock_colour
+    )
+
+    local bw = (inner - 8) / 2
+    local fy = bottom + pad + 14
+    if hubButton(left + pad + (bw / 2), fy, bw, 28, "Mark all read", "plain") (
+      void notificationCenter.readAll()
+    )
+    // clearing also deletes your rotur notifications, so it takes two clicks
+    local armed = hub.armed == "clear" and timer - hub.armed_at < 4
+    local clear_label = armed ? "Click again to clear" "Clear all"
+    local clear_kind = armed ? "danger" "plain"
+    if hubButton(left + w - pad - (bw / 2), fy, bw, 28, clear_label, clear_kind) (
+      if armed (
+        void notificationCenter.clear()
+        hub.armed = ""
+      ) else (
+        hub.armed = "clear"
+        hub.armed_at = timer
+      )
+    )
+  )
+)
+
+// the hub is the start menu and the notification list side by side
+def render_hub() (
+  if !notif.ready and window.hasPermission("notification manager") (
+    notif.ready = true
+    notif.version = 0
+    notif.items @= notificationCenter.list()
+    notif.unread = notificationCenter.unread()
+    notificationCenter.on("change", count -> (
+      notif.unread = count
+      notif.items @= notificationCenter.list()
+      notif.version = notif.version + 1
+    ))
+  )
+  if notif.ready (
+    notif.toasts @= notificationCenter.toasts()
+  )
+
+  if hub.open (
+    hub.anim += (1 - hub.anim) / 3
+    local w = hub.width
+    local total_w = (w * 2) + hub.gap
+    local h = min(620, screensize_y - 110)
+    // sits above the dock's left edge, where the button that opens it lives
+    local left = (dock_width / -2).clamp((screensize_x / -2) + hub.gap, (screensize_x / 2) - total_w - hub.gap)
+    local rest = (screensize_y / -2) + 70 + hub.gap
+    local bottom = round(rest - ((1 - hub.anim) * 18))
+    // pointer and keyboard input inside this box belong to the dock, even above other windows
+    void overlay_rects.append([left, rest, left + total_w, rest + h])
+    overlay_kb = true
+
+    window.beginOverlay()
+    hubStart(left, bottom, w, h)
+    hubNotifications(left + w + hub.gap, bottom, w, h)
+    window.endOverlay()
+
+    if "escape".onKeyDown() (
+      hub.toggle = true
+    )
+    // a press on the bare desktop closes the hub
+    if mouse_ondown and (mouse_x < left or mouse_x > left + total_w or mouse_y < rest - 80 or mouse_y > rest + h) (
+      hub.toggle = true
+    )
+  ) else if notif.toasts.len > 0 (
+    local w = 360
+    local sizes = []
+    local total = 0
+    for i notif.toasts.len (
+      local size @= notifMeasure(notif.toasts[i], w)
+      void sizes.append(size)
+      total += size.h + 8
+    )
+    local right = (screensize_x / 2) - hub.gap
+    local top = (screensize_y / 2) - hub.gap
+    void overlay_rects.append([right - w, top - total, right, top])
+    window.beginOverlay()
+    local cy = top
+    for i notif.toasts.len (
+      notifCard(notif.toasts[i], sizes[i], right - (w / 2), cy, w, true)
+      cy -= sizes[i].h + 8
+    )
+    window.endOverlay()
+  )
+
+  // applied after drawing so the press that opens the hub can never reach its buttons
+  if hub.toggle (
+    hub.toggle = false
+    hub.open = !hub.open
+    hub.armed = ""
+    hub.anim = 0
+    if hub.open (
+      hubLoadApps()
+      inputs.hub_search = ""
+      input "focus" "hub_search"
+      spaces.open = false
+    )
+  )
+)
+
+// ---- spaces: desktops that exist only while they are in use ----
+// there is always exactly one empty space after the last used one, up to five
+spaces = {
+  open: false,
+  toggle: false,
+  anim: 0,
+  count: 1,
+  seen_overview: 0,
+  seen_current: 0,
+  wallpaper: "",
+  hud_until: -10
+}
+
+def spacesSet(number index) (
+  eval ("origin.desktop.current = " ++ index.clamp(0, 4))
+)
+
+// windows that live on a space, front most first
+def spacesWindows() array (
+  return Windows().filter(v -> (v.window.no_desktop != true or v.window.carried == true) and v.window.desktop_layer != true and v.id != window.id and v.window.width > 0)
+)
+
+// closes gaps left by emptied spaces so numbering stays 1, 2, 3
+def spacesCompact() (
+  local wins @= spacesWindows()
+  // a window being carried between spaces is mid flight, renumber once it lands
+  if wins.filter(v -> v.window.carried == true).len > 0 (
+    spaces.dirty = true
+    return
+  )
+  local current = desktops.current.toNum()
+  local used = []
+  for d 5 (
+    local has = d - 1 == current
+    for i wins.len (
+      if (wins[i].window.desktop ?? 0).toNum() == d - 1 (
+        has = true
+      )
+    )
+    if has (
+      void used.append(d - 1)
+    )
+  )
+  for i wins.len (
+    local at = used.index((wins[i].window.desktop ?? 0).toNum())
+    if at > 0 (
+      wins[i].window.desktop = at - 1
+    )
+  )
+  local now = used.index(current) - 1
+  if now != current (
+    spacesSet(now)
+  )
+  // the current space counts as used, so an empty current space at the end is the spare one
+  local current_empty = wins.filter(v -> (v.window.desktop ?? 0).toNum() == now).len == 0
+  local total = used.len + 1
+  if current_empty and now + 1 == used.len (
+    total = used.len
+  )
+  spaces.count = total.clamp(1, 5)
+  eval ("origin.desktop.count = " ++ spaces.count)
+)
+
+// a small keycap, used for the shortcut legend. returns the x after it
+def spacesKey(string label, number x, number y) number (
+  local w = (label.len * hub.t_small) + 12
+  hubBox(x + (w / 2), y, w, 20, 6, "#ffffff1f", "1px solid #ffffff29")
+  goto x + (w / 2) y
+  centext label hub.t_small : c#icon_colour
+  return x + w + 4
+)
+
+def spacesCard(number index, array wins, number cx, number cy, number w, number h, boolean current) (
+  hubHit(cx, cy, w, h)
+  local card_click = hub_click
+  local card_hover = hub_hover
+  local hit = false
+  local mine @= wins.filter(v -> (v.window.desktop ?? 0).toNum() == index)
+  local spare = mine.len == 0 and !current and index + 1 == spaces.count
+
+  if spare (
+    // the spare space reads as an offer, not as a desktop that already exists
+    local spare_fill = card_hover ? "#ffffff1f" "#ffffff0a"
+    hubBox(cx, cy, w, h, hub.r_card, spare_fill, "1px dashed #ffffff4d")
+    goto cx cy + 8
+    icon "add" 0.9 : c#icon_colour
+    goto cx cy - 16
+    hubDimCentre("New space", hub.t_small)
+  ) else (
+    if spaces.wallpaper != "" (
+      goto cx cy
+      style {
+        rounding: hub.r_card
+      }
+      image spaces.wallpaper w h
+    )
+    local shade = "#00000066"
+    if current (
+      shade = "#00000033"
+    ) else if card_hover (
+      shade = "#0000004d"
+    )
+    local card_line = "1px solid #ffffff2e"
+    if current (
+      card_line = "2px solid " ++ nt_acc
+    )
+    hubBox(cx, cy, w, h, hub.r_card, shade, card_line)
+    if mine.len == 0 (
+      goto cx cy
+      hubDimCentre("Empty", hub.t_small)
+    )
+  )
+
+  // back to front so the front window is drawn last
+  for n mine.len (
+    local cur @= mine[mine.len + 1 - n]
+    local win @= cur.window
+    local mw = (win.width / screensize_x * w).clamp(30, w - 10)
+    local mh = (win.height / screensize_y * h).clamp(24, h - 10)
+    local mx = (cx + (win.x / screensize_x * w)).clamp(cx - (w / 2) + (mw / 2) + 4, cx + (w / 2) - (mw / 2) - 4)
+    local my = (cy + (win.y / screensize_y * h)).clamp(cy - (h / 2) + (mh / 2) + 4, cy + (h / 2) - (mh / 2) - 4)
+    hubHit(mx, my, mw, mh)
+    local over = hub_hover
+    local mini_click = hub_click
+    goto mx my
+    local mini_fill = dock_colour.trim(1, 7) ++ (over ? "f2" "cc")
+    local mini_line = over ? ("1px solid " ++ nt_acc) "1px solid #ffffff4d"
+    style {
+      bg: mini_fill,
+      bgBlur: "6px",
+      border: mini_line,
+      shadow: "0 4px 12px rgba(0, 0, 0, 0.35)",
+      rounding: 6
+    }
+    square mw - 12 mh - 12 12 : c#dock_colour
+    // title bar line so it reads as a window, then the app's own icon
+    hubBox(mx, my + (mh / 2) - 5, mw - 8, 2, 1, "#ffffff33", "none")
+    local mini_scale = (min(mw, mh) / 40).clamp(0.4, 1.2)
+    goto mx my - 2
+    file "open" cur.uuid "onlyaccess"
+    file "render" mini_scale
+    if over (
+      spaces.hover_name = "" ++ cur.name
+      // send the window one space left or right without leaving the overview
+      if index > 0 (
+        hubHit(mx - (mw / 2) + 10, my, 18, 18)
+        local left_fill = hub_hover ? nt_acc "#000000b3"
+        hubBox(mx - (mw / 2) + 10, my, 18, 18, 9, left_fill, "none")
+        goto mx - (mw / 2) + 10 my
+        icon "left" 0.4 : c#icon_colour
+        if hub_click (
+          hit = true
+          win.desktop = index - 1
+          spaces.dirty = true
+        )
+      )
+      if index < 4 (
+        hubHit(mx + (mw / 2) - 10, my, 18, 18)
+        local right_fill = hub_hover ? nt_acc "#000000b3"
+        hubBox(mx + (mw / 2) - 10, my, 18, 18, 9, right_fill, "none")
+        goto mx + (mw / 2) - 10 my
+        icon "right" 0.4 : c#icon_colour
+        if hub_click (
+          hit = true
+          win.desktop = index + 1
+          spaces.dirty = true
+        )
+      )
+    )
+    if mini_click and !hit (
+      hit = true
+      win.focus()
+      spaces.toggle = true
+    )
+  )
+
+  // number badge, accent on the space you are in
+  local badge_fill = current ? nt_acc "#000000a6"
+  hubBox(cx - (w / 2) + 16, cy + (h / 2) - 16, 20, 20, 10, badge_fill, "none")
+  goto cx - (w / 2) + 16 cy + (h / 2) - 16
+  if current (
+    centext (index + 1).toStr() hub.t_small : c#dock_colour
+  ) else (
+    centext (index + 1).toStr() hub.t_small : c#icon_colour
+  )
+
+  if card_click and !hit (
+    spacesSet(index)
+    spaces.toggle = true
+  )
+)
+
+def render_spaces() (
+  // alt + up bumps a counter in the kernel, the dock owns the actual view
+  local bumped = (desktops.overview ?? 0).toNum()
+  if bumped != spaces.seen_overview (
+    spaces.seen_overview = bumped
+    spaces.toggle = true
+  )
+  local current = desktops.current.toNum()
+  if current != spaces.seen_current (
+    spaces.seen_current = current
+    spaces.hud_until = timer + 1.2
+    if !spaces.open (
+      spacesCompact()
+    )
+  )
+
+  if spaces.dirty == true and !spaces.open (
+    spaces.dirty = false
+    spacesCompact()
+  )
+  if spaces.open (
+    spaces.anim += (1 - spaces.anim) / 3
+    if spaces.dirty == true (
+      spaces.dirty = false
+      spacesCompact()
+    )
+    local wins @= spacesWindows()
+    local count = spaces.count
+    local card_w = 232
+    local card_h = round(card_w / screensize_x * screensize_y)
+    local pad = hub.pad
+    local total_w = (count * card_w) + ((count - 1) * hub.gap) + (pad * 2)
+    local h = card_h + (pad * 2) + 76
+    local left = total_w / -2
+    local rest = (screensize_y / -2) + 70 + hub.gap
+    local bottom = round(rest - ((1 - spaces.anim) * 18))
+    void overlay_rects.append([left, rest, left + total_w, rest + h])
+    overlay_kb = true
+    spaces.hover_name = ""
+
+    window.beginOverlay()
+    hubSurface(0, bottom + (h / 2), total_w, h, hub.r_panel)
+    local head_y = bottom + h - pad - 10
+    goto left + pad + 2 head_y
+    text "Spaces" hub.t_title : c#icon_colour
+    // shortcut legend as keycaps, only when there is room for it
+    if total_w > 430 (
+      local kx = left + total_w - pad - 196
+      kx = spacesKey("alt", kx, head_y)
+      kx = spacesKey("<", kx, head_y)
+      kx = spacesKey(">", kx, head_y)
+      goto kx + 4 head_y
+      hubDim("switch", hub.t_small)
+      kx = spacesKey("esc", kx + 62, head_y)
+      goto kx + 4 head_y
+      hubDim("close", hub.t_small)
+    )
+
+    for d count (
+      local cx = left + pad + (card_w / 2) + ((d - 1) * (card_w + hub.gap))
+      local cy = bottom + pad + 34 + (card_h / 2)
+      spacesCard(d - 1, wins, cx, cy, card_w, card_h, d - 1 == current)
+      local here = wins.filter(v -> (v.window.desktop ?? 0).toNum() == d - 1).len
+      local space_label = "Space " ++ d
+      if here == 0 and d - 1 != current and d == count (
+        space_label = "Add"
+      )
+      local detail = here == 1 ? "1 window" (here ++ " windows")
+      if here == 0 (
+        detail = d - 1 == current ? "You are here" ""
+      )
+      goto cx bottom + pad + 14
+      if d - 1 == current (
+        centext space_label hub.t_body : c#icon_colour
+      ) else (
+        hubDimCentre(space_label, hub.t_body)
+      )
+      goto cx bottom + pad
+      hubDimCentre(detail, hub.t_small)
+    )
+    if spaces.hover_name != "" (
+      goto 0 bottom + h + 16
+      local tip_w = (spaces.hover_name.len * hub.t_small) + 20
+      hubSurface(0, bottom + h + 16, tip_w, 24, 12)
+      goto 0 bottom + h + 16
+      centext spaces.hover_name hub.t_small : c#icon_colour
+    )
+    window.endOverlay()
+
+    if "escape".onKeyDown() (
+      spaces.toggle = true
+    )
+    if "arrowleft".onKeyDown() and current > 0 (
+      spacesSet(current - 1)
+    )
+    if "arrowright".onKeyDown() and current + 1 < count (
+      spacesSet(current + 1)
+    )
+    for d count (
+      if d.toStr().onKeyDown() (
+        spacesSet(d - 1)
+        spaces.toggle = true
+      )
+    )
+    if mouse_ondown and (mouse_x < left or mouse_x > left + total_w or mouse_y < rest - 80 or mouse_y > rest + h) (
+      spaces.toggle = true
+    )
+  ) else if timer < spaces.hud_until and spaces.count > 1 (
+    // brief feedback when a shortcut switches space
+    local count = spaces.count
+    local w = (count * 14) + 96
+    local cy = (screensize_y / -2) + 70 + hub.gap + 16
+    window.beginOverlay()
+    hubSurface(0, cy, w, 32, 16)
+    goto (w / -2) + 16 cy
+    local hud_label = "Space " ++ (current + 1)
+    text hud_label hub.t_small : c#icon_colour
+    for d count (
+      local dot_x = (w / 2) - 14 - ((count - d) * 14)
+      if d - 1 == current (
+        hubBox(dot_x, cy, 10, 6, 3, nt_acc, "none")
+      ) else (
+        hubBox(dot_x, cy, 6, 6, 3, "#ffffff4d", "none")
+      )
+    )
+    window.endOverlay()
+  )
+
+  if spaces.toggle (
+    spaces.toggle = false
+    spaces.open = !spaces.open
+    spaces.anim = 0
+    spaces.wallpaper = "" ++ ("origin.wallpaper.data || ''".eval())
+    spacesCompact()
+    if spaces.open (
+      hub.open = false
+    )
+  )
 )
 
 def getUuid(path) (
@@ -567,6 +1706,9 @@ cur_frame ++
 dock_colour = user.theme.background
 icon_colour = user.theme.text
 prim = user.theme.primary
+nt_sec = user.theme.secondary
+nt_ter = user.theme.tertiary
+nt_acc = user.theme.accent
 
 wallpaper_changed = previous_wallpaper != background_url
 previous_wallpaper = background_url
@@ -610,6 +1752,16 @@ if on_mobile or y > round(screensize_y / -2 + 35) - 80 (
   )
   dock_x = dock_width / -2
 )
+overlay_rects = []
+overlay_kb = false
+render_hub()
+render_spaces()
+if overlay_rects.len > 0 (
+  window.overlay_rect = overlay_rects
+) else (
+  window.overlay_rect = null
+)
+window.overlay_keyboard = overlay_kb
 if segments != user.origin_dock (
   segments = user.origin_dock
   needs_render = true

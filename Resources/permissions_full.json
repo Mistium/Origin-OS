@@ -91,6 +91,14 @@
     "description": "(Careful) GIVES COMPLETE CONTROL OF ORIGINOS",
     "icon": "icn originOS 1"
   },
+  "notification manager": {
+    "description": "(Careful) This app can read, answer and delete all of your notifications",
+    "icon": "icn notifications 1"
+  },
+  "beam":                {
+    "description": "(Careful) This app can send any of your files to nearby devices and receive files",
+    "icon": "icn share 1"
+  },
   "rotur token":         {
     "description": "(CAREFUL) GIVES COMPLETE ACCESS TO YOUR ACCOUNT",
     "icon": "icn rotur 1"

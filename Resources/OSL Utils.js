@@ -579,10 +579,10 @@ class OSLLinter {
       }
 
       if (token.type === 'bracket') {
+        // brackets inside a template ${...} are not tracked, so neither side may touch the stack
+        if (inTemplateExpr) continue;
         if (['(', '[', '{'].includes(token.value)) {
-          if (!inTemplateExpr) {
-            stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: i });
-          }
+          stack.push({ bracket: token.value, line: token.line + 1, start: token.start, tokenIndex: i });
         } else {
           if (stack.length === 0) {
             if (!inTemplateExpr) {

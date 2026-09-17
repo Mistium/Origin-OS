@@ -8,14 +8,24 @@ def main() (
   change_x 70
   square 30 30 0 0 1
   if onclick (
-    open_path = "Origin/(A) System/System Apps/Origin_Start.osl"
+    // the start menu lives in the dock itself now
+    if hub == null (
+      open_path = "Origin/(A) System/System Apps/Origin_Start.osl"
+    ) else (
+      hub.toggle = true
+    )
   )
   icon "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10" 1 : c#icon_colour
 
   change_x 45
   square 30 30 0 0 1
   if onclick (
-    open_path = "Origin/(A) System/System Apps/Desktop_Manager.osl"
+    // spaces are drawn by the dock itself now
+    if spaces == null (
+      open_path = "Origin/(A) System/System Apps/Desktop_Manager.osl"
+    ) else (
+      spaces.toggle = true
+    )
   )
   icon "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7" 1
 

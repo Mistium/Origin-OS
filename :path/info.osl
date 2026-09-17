@@ -24,7 +24,6 @@ local artLines = asciiArt["logo"]
 local infoTexts = [
   "User       |   " ++ username ++ "@" ++ user.system,
   "System     |   originOS v" ++ origin.version,
-  "Kernel     |   " ++ kernel.name ++ kernel.version ++ " (" ++ kernel["type"] ++ ")",
   "Uptime     |   " ++ uptime,
   "Shell      |   RSHv2 (OSL)",
   "Screen     |   " ++ screensize_x ++ "x" ++ screensize_y,
