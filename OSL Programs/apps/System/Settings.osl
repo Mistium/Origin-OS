@@ -214,9 +214,9 @@ def "system" (
   switch subcategory (
     case "none"
       option "Display" "w 3 square 0 3 10 7 w 3 line 0 -7 0 -10 line -6 -10 6 -10"
-      option "Media" "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80"
-      option "Boot Applications" "w 2.5 cutcircle 0 0 10 18 130 line 0 4 0 10"
-      option "Default Apps" "w 2.4 square -7.5 7.5 5 5 square 7.5 7.5 5 5 square -7.5 -7.5 5 5 cutcircle 7.5 -7.5 5 0 180"
+      option "Media" "volume-max"
+      option "Boot Applications" "power"
+      option "Default Apps" "grid-apps"
       option "Time" "alarm-clock"
       option "About" "info"
       break
@@ -296,13 +296,13 @@ def "system" (
           c txtc
           type = types[i]
           if type == "audiooutput" or type == "audioboth" (
-            icon "w 2 cutcircle -3 -1.5 6.5 -9 90 line -3 5 0 7 line -3 -8 0 -10 line 0 -10 0 7 cutcircle 4 -2 3 9 90 cutcircle 4 -2 8 9 80" 0.7
+            icon "volume-max" 0.7
           )
           if type == "audioinput" (
-            icon "w 3 line 0 -8 0 -5 line -4 -10 4 -10 cutcircle 0 2 7 18 70 w 7 line 0 2 0 8" 0.7
+            icon "microphone" 0.7
           )
           if type == "videoinput" (
-            icon "w 3 line 8 -6 8 6 cont -4 6 cont -4 -6 cont 8 -6 cont -4 -6 cont -4 0 cont -10 -5 cont -10 5 cont -4 0" 0.7
+            icon "camera" 0.7
           )
           text cur 9 : chx#30
         )
@@ -327,7 +327,6 @@ def "system" (
       if onclick (
         boot_apps = [
           "origin/(a) system/system apps/originWM.osl",
-          "origin/(a) system/system apps/Desktop.osl",
           "origin/(a) system/docks/Dock.osl",
           "origin/(a) system/system apps/Quick_Settings.osl"
         ]
@@ -511,13 +510,13 @@ def "network_page" (
       set_x w / 2 - 20
       local connection = round(cur.signal_strength.clamp(0, 75) / 25)
 
-      icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
+      icon "network" 0.8 : c#seco
       c txtc
       icon [
         "",
         "w 4 dot 0 -6",
         "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
-        "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6"
+        "network"
       ][connection + 1] 0.8
     )
     page_len = networks.len * 50 + 350
@@ -584,7 +583,7 @@ def "appearance" (
       loc 2 2 50 y
       text "Click To Add Custom Wallpaper" 10 : c#txtc
       loc 2 2 27 y
-      icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
+      icon "paste" 0.7 : c#txtc
 
       y -= 50
       loc 9999 2 0 y
@@ -623,7 +622,7 @@ def "appearance" (
           square w 200 15 : c#prim
           string cur = wallpapers[count]
           if onclick and mouse_y < frame.top (
-            terminal "system wallpaper" + wallpaper_provider ++ "static/" ++ cur
+            terminal "system wallpaper " ++ wallpaper_provider ++ "static/" ++ cur
           )
           image wallpaper_provider ++ "preview/" ++ cur w 200
         )
@@ -651,7 +650,7 @@ def "appearance" (
 
       local fillmode @= inputs.dropdowns.fillmode.value
       if fillmode != null and fillmode != user.wallpaper_mode (
-        terminal "system wallpapermode" + fillmode
+        terminal "system wallpapermode " ++ fillmode
         network "update" "wallpaper_mode" fillmode
       )
 
@@ -676,7 +675,6 @@ def "appearance" (
         segments = [
           "Origin/(A) System/Docks/Modules/main.ode",
           "Origin/(A) System/Docks/Modules/applications.ode",
-          "Origin/(A) System/Docks/Modules/running.ode",
           "Origin/(A) System/Docks/Modules/folders.ode",
           "Origin/(A) System/Docks/Modules/time.ode",
           "Origin/(A) System/Docks/Modules/battery.ode"
@@ -855,8 +853,8 @@ def "files" (
 
   switch subcategory (
     case "none"
-      option "File Types" "w 4 line -8 10 3 10 cont 8 5 cont 8 -10 cont -8 -10 cont -8 10"
-      option "Storage" "w 3 line -10 10 5 10 cont 10 5 cont 10 -10 cont -10 -10 cont -10 10 line -4 5 2 5 w 8 line 0 -2 0 -2"
+      option "File Types" "file"
+      option "Storage" "save"
       break
     case "File Types"
       for count ftkeys.len (
@@ -1225,7 +1223,7 @@ def "account" (
     )
     change_y 20
     square 25 25 12 : c#seco
-    icon "w 4 square 0 0 7 8 line -2 6 2 6 line 0 10 0 10" 0.7 : c#txtc
+    icon "paste" 0.7 : c#txtc
 
     square 81 10 20 : chy#-40 c#seco
     centext "Change PFP" 9 : c#txtc
@@ -1512,13 +1510,13 @@ def "bluetooth_page" (
     set_x w / 2 - 20
     connection = round((device.rssi + 100).clamp(0, 100) / 25)
 
-    icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.8 : c#seco
+    icon "network" 0.8 : c#seco
     c txtc
     icon [
       "",
       "w 4 dot 0 -6",
       "w 3 cutcircle 0 -6 7 0 50 w 4 dot 0 -6",
-      "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6"
+      "network"
     ][connection + 1] 0.8
   )
 
@@ -1557,7 +1555,7 @@ def "inputs" (
       if flipped (
         slider_scrollsp *= -1
       )
-      terminal "system scrollspeed" + slider_scrollsp
+      terminal "system scrollspeed " ++ slider_scrollsp
       if slider_scrollsp != user.scrollspeed and mouse_down.not() (
         network "update" "scrollspeed" slider_scrollsp
       )
@@ -2191,7 +2189,7 @@ frame window.left window.top window.left + 225 window.bottom sidebar_height "cac
   change_y -70
   DrawCategory "System" "w 2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -2 -4 -8 -10"
   DrawCategory "Style" "w 3 cutcircle 5 6 3 45 80 line 7.5 4 -4.5 -9 line 3.5 8.5 -9 -5 line -9 -5 -11 -11 line -4.5 -9 -11 -11"
-  DrawCategory "Controls" "w 3 square 0 0 10 5.5 line 3 10 3 -10 line -1 10 7 10 line -1 -10 7 -10 line -5 0 -2 0"
+  DrawCategory "Controls" "rename"
   if roturlink.enabled (
     DrawCategory "Connection" "link"
   )

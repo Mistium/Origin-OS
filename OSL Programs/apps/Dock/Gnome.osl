@@ -1,6 +1,6 @@
 width = 0
-terminal "system windows set min-y" + ( screensize_y * -1 + 150 )
-terminal "system windows set max-y" + ( screensize_y - 60 )
+terminal "system windows set min-y " ++ ( screensize_y * -1 + 150 )
+terminal "system windows set max-y " ++ ( screensize_y - 60 )
 include "Origin/(C) Users/" ++ username ++ "/Dock"
 dock = data
 goto 0 y

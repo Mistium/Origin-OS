@@ -18,14 +18,25 @@ graph = []
 network_usage = []
 string delta = "0%"
 
-def "tab" "name" (
+dom_last_update = 0
+dom_prev_dom_writes = 0
+dom_prev_dom_t = timer
+dom_writes_per_s = 0
+dom_writes_per_frame = 0
+dom_layout_score = 0
+dom_layout_state = "stable"
+dom_global = {}
+dom_target_stats = {}
+dom_window_rows = []
+
+def drawTab(name, label) (
   c name == current_tab ? seco prim
   square tab_w 25 10 1
   if onclick (
     current_tab = name
   )
-  change_x tab_w / -2 + 5
-  text name 8 : c#txtc
+  change_x tab_w / -2 + 8
+  text label 8 : c#txtc
 )
 
 rightclick_menu = [
@@ -92,13 +103,47 @@ def getWindowsData() (
    windows_draw_main @= vals.getKeys("time")
 )
 
+def "updateDomMetrics" (
+  if timer - dom_last_update >= 0.5 (
+    dom_last_update = timer
+    dom_global = "window.OSLDom && window.OSLDom.stats ? window.OSLDom.stats() : {}".eval()
+    dom_total_writes = "window.OSLDom && window.OSLDom.writes ? window.OSLDom.writes() : 0".eval()
+    dom_write_delta = dom_total_writes - dom_prev_dom_writes
+    dom_write_dt = max(timer - dom_prev_dom_t, 0.01)
+    dom_prev_dom_t = timer
+    dom_prev_dom_writes = dom_total_writes
+    dom_writes_per_s = dom_write_delta / dom_write_dt
+    dom_writes_per_frame = dom_writes_per_s / max(fps, 1)
+    dom_layout_score = dom_writes_per_frame / max(dom_global.records / 10, 1)
+    if dom_writes_per_frame > 16 (
+      dom_layout_state = "heavy layout thrash"
+    )
+    if dom_writes_per_frame > 6 and dom_writes_per_frame <= 16 (
+      dom_layout_state = "churn"
+    )
+    if dom_writes_per_frame <= 6 (
+      dom_layout_state = "stable"
+    )
+    dom_window_rows = "(()=>{ try { const rt = window.vm && window.vm.runtime; if (!rt || !rt.targets) return []; const out = []; for (const t of rt.targets) { const w = t.window; if (!t.__osldom || !w || w.id == null) continue; const wi = window.origin?.windows?.ids?.findIndex(id => String(id) === String(w.id)) ?? -1; const windowName = wi >= 0 ? window.origin.windows.names[wi] : null; const s = t.__osldom; let pools = 0, records = 0, attached = 0, persistent = 0, canvasBytes = 0; for (const pool of s.els || []) { pools += 1; for (const rec of pool.arr || []) { if (!rec || rec.dead) continue; records += 1; if (rec.el && rec.el.isConnected) attached += 1; if (rec.type === 'iframe' || rec.type === 'textedit' || rec.type === 'lineedit') persistent += 1; if (rec.cv) canvasBytes += (rec.cv.width || 0) * (rec.cv.height || 0) * 4; } } out.push({ id: +w.id, name: String(windowName || w.name || t.sprite?.name || 'Window'), records, attached, detached: records - attached, persistent, pools, canvasBytes, approxBytes: records * 180 }); } return out.sort((a,b)=>b.records-a.records); } catch(e) { return []; } })()".eval()
+    if activity_info (
+      dom_target_stats = null
+      local ids = dom_window_rows.getKeys("id")
+      if ids.len > 0 (
+        local idx = ids.index(page)
+        if idx > -1 (
+          dom_target_stats = dom_window_rows[idx]
+        )
+      )
+    )
+  )
+)
+
 created_time = timer
 last_timer = timer
 next_update = 2
 high = 0
 low = 250
 graph = (1 to 1000).fill(null)
-
 getWindowsData()
 
 disk_info = []
@@ -116,20 +161,6 @@ if window.width != width or window.height != height (
   height = window.height
 )
 
-loc -2 2 -20 -20
-square 25 25 10 : c#prim
-if clicked (
-  window.close()
-)
-
-square 25 25 10 : chx#-40
-if clicked (
-  window.minimise()
-)
-
-icon "down" 0.7 : c#txtc
-icon "close" 0.7 : chx#40
-
 if current_tab == "no_perms" (
   if window.permissions.contains("windows") (
     current_tab = "Render Info"
@@ -146,11 +177,12 @@ if activity_info (
   text name 10 : c#txtc
   loc 2 2 20 -50
   text round(dt ?? 0) + "fps" 15
+  void updateDomMetrics()
   if timer - created_time > 1 (
     loc 2 2 90 -100
     square 140 25 10 : c#prim hover_c#seco
     if clicked (
-      terminal "kill" + page
+      terminal "kill " ++ page
       window.close()
     )
     icon "close" 0.7 : c#txtc chx#-50
@@ -179,7 +211,27 @@ if activity_info (
     text i 10
     change_y -20
   )
+  if dom_target_stats != null (
+    dom_lines = [
+      "vDOM nodes: " ++ dom_target_stats.records,
+      "vDOM approx size: " ++ formatFileSize(dom_target_stats.approxBytes),
+      "Attached: " ++ dom_target_stats.attached,
+      "Detached: " ++ dom_target_stats.detached,
+      "Pools: " ++ dom_target_stats.pools,
+      "Persistent: " ++ dom_target_stats.persistent,
+      "Canvas cache: " ++ formatFileSize(dom_target_stats.canvasBytes),
+      "Writes/second: " ++ dom_writes_per_s.round(),
+      "Writes/frame: " ++ dom_writes_per_frame.round() ++ " (" ++ dom_layout_state ++ ")",
+      "Layout churn score: " ++ dom_layout_score.round()
+    ]
+  )
+  if dom_target_stats == null (
+    dom_lines = ["DOM stats unavailable for this process"]
+  )
+  loc 2 2 25 -350
+  text dom_lines.join("\n") 8
   goto 150 -50
+  c global_accent
   graph window_width - 300 window_height - 100 graph
   exit
 )
@@ -198,6 +250,9 @@ if !paused (
   high = max(high, frames)
   low *= 1.002
   low = min(low, frames)
+)
+if !paused and current_tab == "DOM" (
+  void updateDomMetrics()
 )
 loc 2 2 23 - (frames.len * 5) -20
 text frames 10 : c#txtc
@@ -222,15 +277,17 @@ if memory (
   loc 2 2 13.5 -240
   text "ram" 7
 )
-tab_w = 100
-loc 2 2 110 -20
-tab "Render Info"
-loc 2 2 225 -20
-tab "Performance"
-loc 2 2 340 -20
-tab "Network"
-loc 2 2 455 -20
-tab "Disk"
+tab_w = 78
+loc 2 2 100 -20
+drawTab("Render Info", "Render")
+loc 2 2 195 -20
+drawTab("Performance", "Graph")
+loc 2 2 290 -20
+drawTab("Network", "Network")
+loc 2 2 385 -20
+drawTab("Disk", "Disk")
+loc 2 2 480 -20
+drawTab("DOM", "DOM")
 loc 2 -2 25 25
 c paused ? global_accent prim
 square 25 25 10 : tooltip#Pause
@@ -252,8 +309,9 @@ if timer - last_timer > next_update and !paused (
 switch current_tab (
   case "Performance"
     window "responsive" true
-    goto 25 -25
-    graph window_width - 50 frame.height - 50 graph
+    goto 25 -40
+    c global_accent
+    graph max(100, window_width - 70) max(100, window_height - 100) graph
     break
   case "Network"
     info = [
@@ -338,10 +396,50 @@ switch current_tab (
       )
     )
     break
+  case "DOM"
+    dom_cache = dom_global.caches ?? {}
+    dom_limits = dom_global.limits ?? {}
+    dom_lines = [
+      "DOM states: " ++ (dom_global.states ?? 0),
+      "Pool count: " ++ (dom_global.pools ?? 0),
+      "VDOM records: " ++ (dom_global.records ?? 0),
+      "Attached nodes: " ++ (dom_global.attached ?? 0),
+      "Detached nodes: " ++ (dom_global.detached ?? 0),
+      "Persistent nodes: " ++ (dom_global.persistent ?? 0),
+      "Pooled DOM nodes: " ++ (dom_global.pooledElements ?? 0),
+      "Canvas texture bytes: " ++ formatFileSize(dom_global.canvasBytes ?? 0),
+      "VDOM approx size: " ++ formatFileSize((dom_global.records ?? 0) * 180),
+      "Image cache: " ++ (dom_cache.images ?? 0) ++ "/" ++ (dom_limits.images ?? 0) ++ " (" ++ formatFileSize(dom_cache.imageBytes ?? 0) ++ "/" ++ formatFileSize(dom_limits.imageBytes ?? 0) ++ ")",
+      "Sprite cache: " ++ (dom_cache.sprites ?? 0) ++ "/" ++ (dom_limits.sprites ?? 0) ++ " (" ++ formatFileSize(dom_cache.spriteBytes ?? 0) ++ "/" ++ formatFileSize(dom_limits.spriteBytes ?? 0) ++ ")",
+      "Image refs / names: " ++ (dom_cache.imageRefs ?? 0) ++ " / " ++ (dom_cache.imageNames ?? 0),
+      "Writes/sec: " ++ dom_writes_per_s.round() ++ " | " ++ "writes/frame: " ++ dom_writes_per_frame.round() ++ " (" ++ dom_layout_state ++ ")",
+      "Layout churn score: " ++ dom_layout_score.round()
+    ]
+    if dom_window_rows.len > 0 (
+      dom_lines.append("")
+      dom_lines.append("Top VDOM windows:")
+      local list_len = dom_window_rows.len.clamp(0, 8)
+      for i list_len (
+        object row = dom_window_rows[i]
+        dom_lines.append(row.name ++ " (#" ++ row.id ++ "): " ++ row.records ++ " nodes, " ++ row.attached ++ " attached, " ++ formatFileSize(row.canvasBytes) ++ ", score " ++ ((row.approxBytes / max(row.records, 1)).round() / 1.8).round())
+      )
+    )
+    loc 2 2 85 -65
+    text "DOM / VDOM profile" 12 : c#txtc
+    loc 2 2 70 -90
+    local dom_frame_left = x_position
+    local dom_frame_top = y_position
+    loc -2 -2 -20 20
+    frame dom_frame_left dom_frame_top x_position y_position dom_lines.len * 20 + 50 (
+      local dom_report_y = frame.scroll - 10
+      loc 2 2 15 dom_report_y
+      text dom_lines.join("\n") 10
+    )
+    break
   case "Disk"
     loc 2 2 60 -60
     text "- Rotur Cloud\n" 10 : c#txtc
-    text disk_info.join("\n") 10
+    text disk_info.len > 0 ? disk_info.join("\n") "Usage data unavailable" 10
 
     if roturLink.enabled (
       local disk = roturLink.disk
@@ -350,9 +448,15 @@ switch current_tab (
       text "Free   |   " ++ formatFileSize(disk.free) ++ "\n" 10
       text "Used   |   " ++ formatFileSize(disk.used) ++ "\n" 10
       text "Size   |   " ++ formatFileSize(disk.total) ++ "\n" 10
+    ) else (
+      loc 2 2 60 -200
+      text "- Hardware Disk\n" 10 : c#txtc
+      text "Metrics unavailable in browser mode" 10
     )
     break
 )
 if mouse_down.not() (
   can = true
 )
+
+import "win-buttons"

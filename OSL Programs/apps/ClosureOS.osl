@@ -27,7 +27,7 @@ def "home"
   loc 2 2 10 -15
   text hour ++ ":" ++ minute 8 : c#fff
   loc -2 2 -15 -15
-  icon "w 3 cutcircle 0 -6 14 0 50 cutcircle 0 -6 7 0 50 w 4 dot 0 -6" 0.7
+  icon "network" 0.7
   if network.connected.not() (
     icon "w 3 line 10 10 -10 -10" 0.7
   )

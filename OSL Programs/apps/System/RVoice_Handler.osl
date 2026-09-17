@@ -43,7 +43,7 @@ def switchMode(m) (
 
 if my_role == "confirm" (
   switchMode("connecting")
-  terminal "rvoice call" + passed_data.from
+  terminal "rvoice call " ++ passed_data.from
 )
 
 was_connected = false
@@ -123,7 +123,7 @@ if incoming (
   change_x -75
   square 60 60 10 : c#55d
   if onclick (
-    terminal "rvoice mic_mode" + (mic_enabled ? "disable" "enable")
+    terminal "rvoice mic_mode " ++ (mic_enabled ? "disable" "enable")
   )
   icon "microphone" 1.2 : c#119
   if mic_enabled.toBool().not() (

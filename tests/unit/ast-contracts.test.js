@@ -79,6 +79,27 @@ const tests = [
   ),
 
   helper.createTest(
+    'package types and parenthesized typed lambdas keep their names',
+    'noop = 1',
+    {
+      customAssert: () => {
+        for (const type of ['serve.Router', '*serve.Router']) {
+          const declaration = firstStmt(`${type} r @= serve.new()`)[0];
+          if (declaration.set_type !== type) throw new Error(`expected package type ${type}, got ${declaration.set_type}`);
+        }
+        for (const syntax of ['def(*serve.Context c)', '(*serve.Context c)']) {
+          const route = firstStmt(`r.GET("/", ${syntax} -> (\n  c.string("ok")\n))`)[0];
+          const handler = route.right.data[1].parameters[1];
+          const params = handler.parameters[0];
+          if (params.params[0] !== 'c' || params.accepts[0] !== '*serve.Context') {
+            throw new Error(`expected typed context parameter, got ${JSON.stringify(params)}`);
+          }
+        }
+      }
+    }
+  ),
+
+  helper.createTest(
     'nested if statements keep [cmd, cond, blk, else, blk] statement arrays',
     'noop = 1',
     {
