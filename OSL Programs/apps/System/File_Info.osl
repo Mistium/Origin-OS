@@ -44,7 +44,7 @@ button_click = false
 
 if type == ".folder" (
   def folder_icon(colour1, colour2) (
-    return "c" + colour1 + "fill 1 icn folder 1 0 0 c" + colour2 + "icn folder 0.8 0 0.1 fill 0"
+    return "c" + colour1 + "fill 1 icn folder 0.87 0 0 fill 0 c" + colour2 + "w 6.1 rect 0 -2.2 6.96 3.05"
   )
   // the second entry is the default, stored as no icon at all
   folder_icons = [

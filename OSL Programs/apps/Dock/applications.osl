@@ -12,7 +12,7 @@ width = {
     if dock_state.refreshed_at < 0 or timer - dock_state.refreshed_at > 0.25 (
       include user_folder ++ "/dock"
       dock_state.refreshed_at = timer
-      self.w = data.len * 50 - 15
+      self.w = data.len * 50 - 10
       if data.len == 0 (
         self.w = 0
       )
@@ -86,8 +86,8 @@ def main() (
       )
     )
     local icon_x = x_position
-    file "render" 1.7
-    square 45 45 0 0 1
+    file "render" 1.8
+    square 50 50 0 0 1
     file "interact"
     if data == "open" (
       if active_window != null (

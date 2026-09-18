@@ -581,7 +581,19 @@ const MAP = {
   scissors: ['scissors'],
   terminal: ['terminal'],
   'select-all': ['square-dashed'],
-  clipboard: ['clipboard']
+  clipboard: ['clipboard'],
+  // system app tiles
+  activity: ['activity'],
+  brain: ['brain'],
+  calculator: ['calculator'],
+  code: ['code'],
+  globe: ['globe'],
+  'life-buoy': ['life-buoy'],
+  radio: ['radio'],
+  replace: ['replace'],
+  rocket: ['rocket'],
+  wallet: ['wallet'],
+  split: ['columns-2']
 }
 
 /* ---------- run ---------- */

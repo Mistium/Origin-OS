@@ -1,33 +1,682 @@
-import "window_tools" as "wt"
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: Web browser for originOS
+//
+// Layout: glass tab sidebar, then a column of toolbar and page panes. `current`
+// holds the ids of the tabs shown side by side and `active_id` the one the
+// toolbar drives. Each tab keeps its own history. http(s) pages are iframes,
+// web:// pages run OSL from the rotur web, local:// pages open files and
+// summit:// pages are drawn here. Sizes passed to `box` are the visible size,
+// OSL arithmetic runs left to right.
 
-summit = {
-  pages: {
-    current: [],
-    loaded: {},
-    loading: {},
-  },
-  tabs: {
-    current: [],
-    all: [],
-    queue: []
-  },
-  system_url: "https://web.rotur.dev/",
-  tlds: {},
-  search_url: "https://lite.duckduckgo.com/lite/?q=",
-  home_url: "web://search.web",
-  redirect_url: null,
-  last_active: null
-}
+import "window_tools"
 
-local tlds_resp = requests.get("https://web.rotur.dev/tlds.json")
-if tlds_resp != null and tlds_resp.success and typeof(tlds_resp.body) == "object" (
-  summit.tlds @= tlds_resp.body
+permission "request" "file admin"
+permission "request" "notifications"
+save "Summit@system" "set_directory"
+
+window.resize(1100, 680)
+window.show()
+
+SIDEBAR = 230
+TOOL_H = 44
+PANE_HEAD = 30
+ROW_H = 36
+CELL = 118
+MAX_TABS = 16
+MAX_SPLIT = 3
+HOME = "summit://home"
+SYSTEM_URL = "https://web.rotur.dev/"
+ENGINES = [
+  ["DuckDuckGo", "https://lite.duckduckgo.com/lite/?q="],
+  ["Brave", "https://search.brave.com/search?q="],
+  ["Bing", "https://www.bing.com/search?q="],
+  ["Startpage", "https://www.startpage.com/do/search?q="]
+]
+INTERNAL_PAGES = [
+  ["home", "New tab", "home"],
+  ["bookmarks", "Bookmarks", "bookmark"],
+  ["history", "History", "clock"],
+  ["settings", "Settings", "cog"]
+]
+NAME_CHARS = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 -_"
+
+tabs = []
+current = []
+active_id = ""
+show_sidebar = true
+tlds = {}
+pages = {loaded: {}, loading: {}}
+url_edit = false
+button_click = false
+tab_info = null
+page_len = 0
+sidebar_len = 0
+last_session = ""
+summit_redirect = null
+inputs.url = ""
+inputs.home_search = ""
+
+// ---------------------------------------------------------------- saved state
+
+def loadSave(name, fallback) (
+  if name.saveExists() (
+    local v = name.saveGet()
+    if typeof(v) == typeof(fallback) (
+      return v
+    )
+  )
+  save name "set" fallback
+  return fallback
 )
 
-page_len = 0
-tab_info = null
-current_tab_name = {}
+bookmarks = loadSave("bookmarks.json", [])
+history = loadSave("history.json", [])
+settings = loadSave("settings.json", {engine: "DuckDuckGo", restore: true})
+if settings.restore == null (
+  settings.restore = true
+)
+
+void requests.getAsync(SYSTEM_URL ++ "tlds.json").then(def(resp) -> (
+  if resp.success and typeof(resp.body) == "object" (
+    tlds @= resp.body
+  )
+))
+
+// ---------------------------------------------------------------- urls
+
+def scheme_of(url) (
+  return ("" ++ url).split("://")[1]
+)
+
+def host_of(url) (
+  return ("" ++ url).split("://")[2].split("/")[1].split(":")[1]
+)
+
+def engine_url() (
+  for i ENGINES.len (
+    if ENGINES[i][1] == settings.engine (
+      return ENGINES[i][2]
+    )
+  )
+  return ENGINES[1][2]
+)
+
+def resolve_url(url) (
+  url = ("" ++ url).strip()
+  if url == "" (
+    return HOME
+  )
+  if url.contains("://") or url.startsWith("about:") or url.startsWith("mailto:") (
+    return url
+  )
+  if url.startsWith("www.") (
+    return "https://" ++ url
+  )
+  if url.startsWith("localhost") or url.startsWith("127.") or url.startsWith("192.168.") (
+    return "http://" ++ url
+  )
+  local host = url.split("/")[1].split(":")[1]
+  if !url.contains(" ") and host.contains(".") and !host.endsWith(".") (
+    if tlds[host.split(".").last()] != null (
+      return "web://" ++ url
+    )
+    return "https://" ++ url
+  )
+  return engine_url() ++ encodeURIComponent(url)
+)
+
+// the address bar shows the url without the scheme and trailing slash
+def pretty_url(url) (
+  if url == HOME (
+    return ""
+  )
+  local out = "" ++ url
+  if out.startsWith("https://") (
+    out = out.trim(9, -1)
+  )
+  if out.endsWith("/") (
+    out = out.trim(1, -2)
+  )
+  return out
+)
+
+def internal_page(url) (
+  for i INTERNAL_PAGES.len (
+    if url == "summit://" ++ INTERNAL_PAGES[i][1] (
+      return INTERNAL_PAGES[i]
+    )
+  )
+  return null
+)
+
+def favicon_icn(favicon) (
+  if (favicon ?? "") == "" (
+    return "globe"
+  )
+  return "image " ++ favicon ++ " 20"
+)
+
+def clean_name(name) (
+  local out = ""
+  local chars = "" ++ name
+  for i chars.len (
+    if NAME_CHARS.contains(chars[i]) (
+      out ++= chars[i]
+    )
+  )
+  return out.strip().trim(1, 40)
+)
+
+// ---------------------------------------------------------------- tabs
+
+def tab_url(tab) (
+  return tab.history[tab.position]
+)
+
+def tab_index(id) (
+  for i tabs.len (
+    if tabs[i].id == id (
+      return i
+    )
+  )
+  return 0
+)
+
+def active_tab() (
+  return tabs[max(1, tab_index(active_id))]
+)
+
+def "sync_bar" (
+  url_edit = false
+  inputs.url = pretty_url(tab_url(active_tab()))
+)
+
+// shows the tab on its own, or beside the current split when `split` is true
+def "show_tab" "id, split" (
+  if split (
+    if !current.contains(id) and current.len < MAX_SPLIT (
+      void current.append(id)
+    )
+  ) else (
+    current = [id]
+  )
+  active_id = id
+  sync_bar
+)
+
+def "new_tab" "url, split" (
+  if tabs.len >= MAX_TABS (
+    return
+  )
+  local tab = {
+    id: ouidNew(),
+    history: [resolve_url(url)],
+    position: 1,
+    title: "New tab",
+    favicon: "",
+    nav: 0,
+    page_len: 0,
+    loading: false,
+    recorded: ""
+  }
+  void tabs.append(tab)
+  show_tab tab.id split
+)
+
+def "navigate" "url" (
+  local tab @= active_tab()
+  tab.history = tab.history.trim(1, tab.position).append(resolve_url(url))
+  tab.position = tab.history.len
+  tab.nav = 0
+  tab.title = "Loading"
+  tab.favicon = ""
+  sync_bar
+)
+
+def "close_tab" "id" (
+  local at = tab_index(id)
+  if at == 0 (
+    return
+  )
+  void tabs.delete(at)
+  current = current.filter(v -> (v != id))
+  if tabs.len == 0 (
+    new_tab HOME false
+    return
+  )
+  if current.len == 0 (
+    current = [tabs[min(at, tabs.len)].id]
+  )
+  if !current.contains(active_id) (
+    active_id = current.last()
+  )
+  sync_bar
+)
+
+def "step_history" "delta" (
+  local tab @= active_tab()
+  local at = tab.position + delta
+  if at >= 1 and at <= tab.history.len (
+    tab.position = at
+    tab.nav = 0
+    tab.favicon = ""
+    sync_bar
+  )
+)
+
+def "reload" (
+  local tab @= active_tab()
+  tab.nav ++
+  pages.loaded[tab_url(tab)] = null
+)
+
+// ---------------------------------------------------------------- history and bookmarks
+
+def record_history(url, title, favicon) (
+  if !(url.startsWith("http") or url.startsWith("web://")) (
+    return
+  )
+  history = history.filter(v -> (v.url != url))
+  void history.insert(1, {url: url, title: title, favicon: favicon, time: timestamp})
+  if history.len > 500 (
+    history = history.trim(1, 500)
+  )
+  save "history.json" "set" history
+)
+
+def bookmark_index(url) (
+  for i bookmarks.len (
+    if bookmarks[i].url == url (
+      return i
+    )
+  )
+  return 0
+)
+
+def "toggle_bookmark" (
+  local tab @= active_tab()
+  local url = tab_url(tab)
+  local at = bookmark_index(url)
+  if at > 0 (
+    void bookmarks.delete(at)
+  ) else if url != HOME (
+    void bookmarks.append({url: url, title: tab.title, favicon: tab.favicon})
+  )
+  save "bookmarks.json" "set" bookmarks
+)
+
+// writes the page as a small app in ~/Applications, with the site's favicon as its icon
+def "save_as_app" (
+  local tab @= active_tab()
+  local url = tab_url(tab)
+  if !url.startsWith("http") (
+    notify "Only web pages can be saved as apps"
+    return
+  )
+  local suggested = clean_name(tab.title)
+  if suggested == "" (
+    suggested = clean_name(host_of(url))
+  )
+  if suggested == "" (
+    suggested = "Web App"
+  )
+  local name = clean_name(("Name the app (" ++ suggested ++ ")").ask())
+  if name == "" (
+    name = suggested
+  )
+  if !("Save " ++ name ++ " to Applications? It opens " ++ pretty_url(url) ++ " in its own window.").confirm() (
+    return
+  )
+  local icon = "c #3d8ee8 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 c #3d8ee8 icn globe 0.5"
+  local glyph = "globe"
+  if tab.favicon != "" (
+    icon = "c #1a1a1a w 10 square 0 0 5 5 image " ++ tab.favicon ++ " 12"
+    glyph = "image " ++ tab.favicon ++ " 20"
+  )
+  local title = ("" ++ tab.title).replace("\"", "")
+  local src = [
+    "window.resize(1100, 700)",
+    "window.show()",
+    "window.setDragbox([2, 2, 0, 0], [-2, 2, -92, -36])",
+    "",
+    "mainloop:",
+    "window.setGlass(100, \"15px\")",
+    "c user.theme.background",
+    "goto 0 0",
+    "square window.width window.height 10",
+    "goto window.left + 18 window.top - 18",
+    "icon \"" ++ glyph ++ "\" 0.7",
+    "c user.theme.text",
+    "text \"" ++ title ++ "\" 9 : chx#16",
+    "iframe \"" ++ url ++ "\" 0 -18 window.width window.height - 36 0",
+    "import \"win-buttons\""
+  ].join("\n")
+  file "download" name ++ ".osl" icon src user_folder ++ "/Applications"
+  notify "Saved " ++ name ++ " to Applications"
+)
+
+// ---------------------------------------------------------------- drawing helpers
+
+// a 30px icon button at the pen position, result in `button_click`
+def "icon_button" "icn, tip, enabled" (
+  local x = x_position
+  hit 30 30
+  button_click = onclick and enabled
+  if enabled (
+    if mouse_touching (
+      cursor "pointer"
+      box 30 30 12 : c#hover_col tooltip#tip
+    )
+    icon icn 0.7 : c#txtc
+  ) else (
+    icon icn 0.7 : c#track_col
+  )
+  set_x x
+)
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink, enabled" (
+  hit w 26
+  button_click = onclick and enabled
+  if mouse_touching and enabled (
+    cursor "pointer"
+  )
+  if enabled (
+    box w 26 12 : c#fill
+    centext label 8.5 : c#ink
+  ) else (
+    box w 26 12 : c#hover_col
+    centext label 8.5 : c#muted
+  )
+)
+
+def "section_title" "txt" (
+  goto frame.left + 24 ly
+  text txt 12 : c#txtc
+  ly -= 34
+)
+
+// a row for a saved page: favicon, title, url, click opens it
+def "page_row" "entry, menu" (
+  goto 0 ly
+  hit frame.width - 24 ROW_H - 4
+  local over = mouse_touching
+  if over (
+    cursor "pointer"
+    box frame.width - 24 ROW_H - 4 12 : c#hover_col
+    if mouse_right (
+      rightclick menu entry
+    )
+  )
+  if onclick (
+    if "shift".isKeyDown() (
+      new_tab entry.url true
+    ) else (
+      navigate entry.url
+    )
+  )
+  local when = ""
+  if entry.time != null (
+    when = entry.time.timestamp("convert-relative")
+  )
+  local title = ("" ++ entry.title).trimText(min(28, max(8, frame.width - 140 - (when.len * 8) / 9)))
+  local url_chars = frame.width - 120 - (title.len * 9) - (when.len * 8) / 8
+  goto frame.left + 34 ly
+  icon favicon_icn(entry.favicon) 0.6 : c#txtc
+  text title 9 : c#txtc chx#20
+  if url_chars > 6 (
+    goto frame.left + 34 + 20 + (title.len * 9) + 12 ly
+    text pretty_url(entry.url).trimText(url_chars) 8 : c#muted
+  )
+  if when != "" (
+    goto frame.right - 24 - (when.len * 8) ly
+    text when 8 : c#muted
+  )
+  ly -= ROW_H
+)
+
+def "empty_state" "icn, message" (
+  goto 0 20
+  icon icn 2.2 : c#track_col
+  goto 0 -36
+  centext message 9.5 : c#muted
+)
+
+// ---------------------------------------------------------------- sidebar
+
+def "sidebar_tab" "tab" (
+  local shown = current.contains(tab.id)
+  local active = tab.id == active_id
+  goto 0 sy
+  hit sw 32
+  local over = mouse_touching
+  if onclick (
+    show_tab tab.id "shift".isKeyDown()
+  )
+  if over and mouse_right (
+    rightclick [
+      {"Reload": def(v) -> (
+        show_tab v false
+        reload
+      )},
+      {"Duplicate": def(v) -> (
+        new_tab tab_url(tabs[tab_index(v)]) false
+      )},
+      {"Open In Split": def(v) -> (
+        show_tab v true
+      )},
+      "-",
+      {"Bookmark": def(v) -> (
+        show_tab v false
+        toggle_bookmark
+      )},
+      {"Save As App...": def(v) -> (
+        show_tab v false
+        save_as_app
+      )},
+      "-",
+      {"Close": def(v) -> (
+        close_tab v
+      )},
+      {"Close Others": def(v) -> (
+        tabs = [tabs[tab_index(v)]]
+        show_tab v false
+      )}
+    ] tab.id
+  )
+  if active (
+    box sw 32 12 : c#global_accent
+  ) else if shown (
+    box sw 32 12 : c#prim
+  ) else if over (
+    cursor "pointer"
+    box sw 32 12 : c#hover_col
+  )
+  goto sw / -2 + 20 sy
+  local ink = active ? accent_txt txtc
+  if tab.loading (
+    icon "reload" 0.5 : c#muted
+  ) else (
+    icon favicon_icn(tab.favicon) 0.6 : c#ink
+  )
+  c ink
+  text ("" ++ tab.title).trimText(sw - 74 / 9) 9 : chx#20
+  if over or active (
+    goto sw / 2 - 18 sy
+    hit 20 20
+    if mouse_touching (
+      cursor "pointer"
+      box 20 20 10 : c#track_col
+    )
+    icon "close" 0.4 : c#ink
+    if onclick (
+      close_tab tab.id
+    )
+  )
+  sy -= 34
+)
+
+// ---------------------------------------------------------------- internal pages
+
+def "draw_home" (
+  ly = frame.top - 70 + frame.scroll
+  goto 0 ly
+  local search_w = min(560, frame.width - 60)
+  box search_w 40 18 : c#prim
+  goto frame.left + (frame.width - search_w / 2) + 20 ly
+  icon "search" 0.55 : c#muted
+  goto 0 ly
+  c prim
+  input search_w - 60 30 "home_search" "Search the web or type a URL" 10 txtc
+  if selected_input == "home_search" and "enter".onKeyDown() (
+    navigate inputs.home_search
+    inputs.home_search = ""
+  )
+  ly -= 60
+
+  if bookmarks.len > 0 (
+    local per_line = max(1, floor(frame.width - 40 / CELL))
+    local shown = min(bookmarks.len, per_line * 2)
+    local rows = ceil(shown / per_line)
+    local grid_w = min(shown, per_line) * CELL
+    for i shown (
+      local entry @= bookmarks[i]
+      local col = i - 1 % per_line
+      local row = floor(i - 1 / per_line)
+      goto (grid_w / -2) + (col + 0.5 * CELL) ly - (row * CELL) - 40
+      hit CELL - 12 CELL - 12
+      if mouse_touching (
+        cursor "pointer"
+        box CELL - 12 CELL - 12 16 : c#hover_col
+        if mouse_right (
+          rightclick [{"Remove Bookmark": def(v) -> (
+            void bookmarks.delete(bookmark_index(v.url))
+            save "bookmarks.json" "set" bookmarks
+          )}] entry
+        )
+      )
+      if onclick (
+        navigate entry.url
+      )
+      change_y 14
+      box 44 44 14 : c#prim
+      icon favicon_icn(entry.favicon) 1 : c#txtc
+      change_y -40
+      centext ("" ++ entry.title).trimText(11) 8 : c#txtc
+    )
+    ly -= rows * CELL + 30
+  )
+
+  if history.len > 0 (
+    section_title "Recent"
+    for i min(history.len, 8) (
+      page_row history[i] [{"Remove From History": def(v) -> (
+        history = history.filter(h -> (h.url != v.url))
+        save "history.json" "set" history
+      )}]
+    )
+  ) else if bookmarks.len == 0 (
+    ly -= 40
+    goto 0 ly
+    centext "Pages you bookmark and visit will show up here" 9 : c#muted
+  )
+  page_len = frame.top - ly + frame.scroll + 20
+)
+
+def "draw_bookmarks" (
+  ly = frame.top - 40 + frame.scroll
+  section_title "Bookmarks"
+  if bookmarks.len == 0 (
+    empty_state "bookmark" "Star a page to bookmark it"
+  )
+  for i bookmarks.len (
+    page_row bookmarks[i] [
+      {"Open In Split": def(v) -> (
+        new_tab v.url true
+      )},
+      {"Save As App...": def(v) -> (
+        new_tab v.url false
+        save_as_app
+      )},
+      "-",
+      {"Remove": def(v) -> (
+        void bookmarks.delete(bookmark_index(v.url))
+        save "bookmarks.json" "set" bookmarks
+      )}
+    ]
+  )
+  page_len = frame.top - ly + frame.scroll + 20
+)
+
+def "draw_history" (
+  ly = frame.top - 40 + frame.scroll
+  section_title "History"
+  goto frame.right - 70 frame.top - 40 + frame.scroll
+  text_button "Clear" 90 hover_col txtc history.len > 0
+  if button_click and "Clear your browsing history?".confirm() (
+    history = []
+    save "history.json" "set" history
+  )
+  if history.len == 0 (
+    empty_state "clock" "Pages you visit will show up here"
+  )
+  local first = max(0, floor(frame.scroll - 40 / ROW_H))
+  ly -= first * ROW_H
+  for i min(history.len - first, ceil(frame.height / ROW_H) + 2) (
+    page_row history[first + i] [
+      {"Open In Split": def(v) -> (
+        new_tab v.url true
+      )},
+      {"Remove": def(v) -> (
+        history = history.filter(h -> (h.url != v.url))
+        save "history.json" "set" history
+      )}
+    ]
+  )
+  page_len = history.len * ROW_H + 100
+)
+
+def "setting_row" "label, active" (
+  goto 0 ly
+  hit frame.width - 24 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+    box frame.width - 24 32 12 : c#hover_col
+  )
+  goto frame.left + 34 ly
+  local ink = active ? global_accent muted
+  icon active ? "circle-full" "circle" 0.5 : c#ink
+  text label 9 : c#txtc chx#22
+  ly -= 34
+)
+
+def "draw_settings" (
+  ly = frame.top - 40 + frame.scroll
+  section_title "Search engine"
+  for i ENGINES.len (
+    setting_row ENGINES[i][1] settings.engine == ENGINES[i][1]
+    if button_click (
+      settings.engine = ENGINES[i][1]
+      save "settings.json" "set" settings
+    )
+  )
+  ly -= 10
+  section_title "On launch"
+  setting_row "Reopen the last session" settings.restore == true
+  if button_click (
+    settings.restore = true
+    save "settings.json" "set" settings
+  )
+  setting_row "Start with a new tab" settings.restore != true
+  if button_click (
+    settings.restore = false
+    save "settings.json" "set" settings
+  )
+  page_len = frame.top - ly + frame.scroll + 20
+)
+
+// ---------------------------------------------------------------- rotur web and local pages
 
 class sandbox (
   def run(fn, data) (
@@ -36,16 +685,7 @@ class sandbox (
   )
 
   def sanitiseOSL(OSL) (
-    local blocked = [
-      "save ",
-      "window ",
-      "network ",
-      "file ",
-      "run ",
-      "permission ",
-      "iframe "
-    ]
-
+    local blocked = ["save ", "window ", "network ", "file ", "run ", "permission ", "iframe "]
     for i OSL.len (
       local line = OSL[i].strip()
       for i2 blocked.len (
@@ -58,584 +698,542 @@ class sandbox (
   )
 )
 
-permission "request" "file admin"
-
-window "dimensions" 1000 600
-
-def resolve_url(url) (
-  url = ("" ++ url).strip()
-  if url == "" (
-    return summit.home_url
-  )
-  if url.startsWith("about:") or url.startsWith("mailto:") (
-    return url
-  )
-  if url.contains("://") (
-    return url
-  )
-  if url.startsWith("www.") (
-    return "https://" ++ url
-  )
-  if url.startsWith("localhost") or url.startsWith("127.") or url.startsWith("192.168.") or url.endsWith(".local") (
-    return "http://" ++ url
-  )
-  if !url.contains(" ") and url.contains(".") (
-    local host = url.split("/")[1].split(":")[1]
-    local tld = host.split(".").last()
-    if summit.tlds[tld] != null (
-      return "web://" ++ url
-    )
-    return "https://" ++ url
-  )
-  if !url.contains(" ") (
-    local host = url.split("/")[1]
-    if host.contains(".") (
-      local tld = host.split(".").last()
-      if summit.tlds[tld] != null (
-        return "web://" ++ url
-      )
-      if !url.startsWith("/") (
-        return "https://" ++ url
-      )
-    )
-  )
-  return summit.search_url ++ encodeURIComponent(url)
-)
-
 def error_page(title, message, detail) (
-  return {
-    data: [],
-    onload: true,
-    vars: {},
-    fetch_url: "",
-    error: true,
-    error_title: title,
-    error_message: message,
-    error_detail: detail ?? ""
-  }
+  return {data: [], onload: true, vars: {}, fetch_url: "", error: true, error_title: title, error_message: message, error_detail: detail ?? ""}
 )
 
-def draw_error_page(page) (
+def "draw_error_page" "page" (
   goto 0 40
-  centext (page.error_title ?? "Error") 16 : c#txtc
-  change_y -28
-  centext (page.error_message ?? "") 11 : c#txtc
-  local detail = ("" ++ (page.error_detail ?? "")).replace("/@line", "").strip()
+  icon "deny" 2 : c#track_col
+  change_y -50
+  centext (page.error_title ?? "Error") 14 : c#txtc
+  change_y -24
+  centext (page.error_message ?? "") 10 : c#txtc
+  local detail = ("" ++ (page.error_detail ?? "")).strip()
   if detail != "" (
-    local lines = detail.wrapText(42).split("\n")
+    local lines = detail.wrapText(60).split("\n")
     for i lines.len (
-      local line = ("" ++ lines[i]).replace("/@line", "").strip()
-      if line != "" (
-        change_y -16
-        centext line 9 : c#txtc
-      )
+      change_y -16
+      centext ("" ++ lines[i]).strip() 8.5 : c#muted
     )
   )
-  page_len = 160
+  page_len = 220
 )
 
-def "add_tab" "url" (
-  local obj = {
-    "title": "Loading",
-    "position": 1,
-    "icon": "refresh",
-    "id": ouidNew(),
-    "nav": 0,
-    "history": [resolve_url(url)]
-  }
-
-  void summit.tabs.queue.append(obj)
-)
-
-def active_tab() (
-  if summit.tabs.current.len == 0 (
-    return null
-  )
-  local tabs @= summit.tabs.all
-  local idx = tabs.getKeys("id").index(summit.tabs.current[1])
-  if idx == 0 (
-    return null
-  )
-  return tabs[idx]
-)
-
-def "navigate" "url" (
-  local resolved = resolve_url(url)
-  local tab @= active_tab()
-  if tab == null (
-    add_tab resolved
-    return
-  )
-  if tab.position < tab.history.len (
-    tab.history @= tab.history.trim(1, tab.position)
-  )
-  void tab.history.append(resolved)
-  tab.position = tab.history.len
-  tab.nav = 0
-  inputs.main = resolved
-)
-
-def "redirect" "url" (
-  summit.redirect_url = url
-)
-
-def "opentab" "url" (
-  add_tab url
-)
-
-def "draw_page" "url, page_type, tab_id" (
-  void summit.pages.current.append(url)
-
-  if url == null (
-    return
-  )
-
-  local page_protocol = url.split(":")[1]
-
-  local loaded_pages @= summit.pages.loaded
-
-  if loaded_pages[url] != null (
-    local page @= loaded_pages[url]
-    local data @= page.data
-
-    onload = page.onload
-    page.onload = false
-
-    tab_info = null
-    current_tab_name = {
-      title: url.split("/")[1],
-      icon: "network"
-    }
-
-    if page.error (
-      void draw_error_page(page)
-      current_tab_name @= {
-        title: page.error_title ?? "Error",
-        icon: "network"
-      }
-    ) else (
-      switch page_type (
-        case "osl"
-          try (
-            page.vars @= sandbox.run(page.fn, page.vars)
-
-            if tab_info != null (
-              current_tab_name @= tab_info
-            )
-          ) catch e (
-            loaded_pages[url] @= error_page("Page error", "" ++ e, url)
-            void draw_error_page(loaded_pages[url])
-            current_tab_name @= {
-              title: "Page error",
-              icon: "network"
-            }
-          )
-          break
-        case "png"
-        case "jpg"
-          image page.fetch_url 500
-          current_tab_name @= {
-            "title": url.split("/")[-1],
-            "icon": "image" + page.fetch_url + "20"
-          }
-          break
-        default
-          goto 0 0
-          inputs[url] @= data
-          textbox frame.width frame.height url
-          break
-      )
-    )
-    local tabs @= summit.tabs.all
-    if summit.redirect_url != null (
-      if !summit.redirect_url.split("/")[-1].contains(".") or summit.redirect_url.endsWith(".web") (
-        summit.redirect_url ++= "/index.osl"
-      )
-      tabs[tab_id].url = summit.redirect_url
-      tabs[tab_id].position ++
-      void tabs[tab_id].history.append(summit.redirect_url)
-      summit.redirect_url = null
-    )
-
-    tabs[tab_id].page_len = page_len
-    tabs[tab_id].icon = current_tab_name.icon
-    tabs[tab_id].title = current_tab_name.title
-    current_tab_name = {}
-    page_len = 0
-  )
-)
-
-def "page_frame" "left, top, right, bottom, url" (
-
-  local tabs @= summit.tabs.all
-
-  local tab_id = url
-
-  local idx = tabs.getKeys("id").index(url)
-
-  if idx == 0 (
-    return
-  )
-
-  local tab @= tabs[idx]
-
-  local url = tab.history[tab.position]
-
-  local page_protocol = url.split("://")[1]
-
-  local w = abs(right - left)
-  local h = abs(top - bottom)
-
-  local x = left + (w / 2)
-  local y = bottom + (h / 2)
-  goto x y
-  c window_colour
-  square w h 10
-
-  if page_protocol == "http" or page_protocol == "https" (
-    local iw = w - 6
-    local ih = h - 6
-    iframe url x y iw ih tab.nav
-    local info = data
-    local domain = url.split("://")[2].split("/")[1]
-    tab.title = domain
-    if info != null and info.title != null and info.title != "" (
-      local t = ("" ++ info.title).strip()
-      local tl = t.toLower()
-      if !tl.startsWith("404") and !tl.startsWith("403") and !tl.startsWith("500") and !tl.startsWith("502") and !tl.startsWith("503") and !tl.contains("not found") and !tl.contains("unavailable") (
-        tab.title = t
-      )
-    )
-    tab.icon = "image" + ("https://proxy.mistium.com?url=" ++ encodeURIComponent("https://favicon.is/" ++ domain)) + "20"
-    tab.page_len = 0
-    return
-  )
-
-  local page_type = "text"
-
+// web:// and local:// urls become a page key, a fetch url and a page type
+def page_source(url) (
+  local out = {key: url, fetch_url: "", type: "text", protocol: scheme_of(url)}
   if url.startsWith("local://") (
-    local url = url.trim(9,-1)
-    file "open" url "onlyaccess"
+    out.key = url.trim(9, -1)
+    file "open" out.key "onlyaccess"
     if [".owf", ".osl"].contains(fileGet(1)) (
-      local page_type = "osl"
+      out.type = "osl"
     )
+    return out
   )
-  if url.startsWith("web://") (
-    if url.endsWith("/") (
-      local url = url.trim(1,-2)
-    )
-    local url = url.trim(7,-1)
-    if url.endsWith(".osl") (
-      local page_type = "osl"
-    ) else if !url.contains("/") (
-      local page_type = "osl"
-      local url ++= "/index.osl"
+  local key = url.trim(7, -1)
+  if key.endsWith("/") (
+    key = key.trim(1, -2)
+  )
+  if key.endsWith(".osl") (
+    out.type = "osl"
+  ) else if !key.contains("/") (
+    out.type = "osl"
+    key ++= "/index.osl"
+  ) else (
+    out.type = key.split("/")[-1].split(".")[-1]
+  )
+  out.key = key
+  local parts = key.split("/")
+  local tld = parts[1].split(".").last()
+  local host = tlds[tld]
+  if host == null or host == "" (
+    if tld == "web" (
+      out.fetch_url = SYSTEM_URL ++ key
     ) else (
-      local page_type = url.split("/")[-1].split(".")[-1]
+      out.fetch_url = "https://" ++ key
+    )
+  ) else (
+    out.fetch_url = "https://" ++ host ++ key
+  )
+  return out
+)
+
+def store_page(key, fetch_url, body) (
+  if body == null or body == "" (
+    pages.loaded[key] @= error_page("Empty response", "The server returned no content", fetch_url)
+    return
+  )
+  local page = {data: body.split("\n"), onload: true, vars: {}, fetch_url: fetch_url}
+  if fetch_url.endsWith(".osl") or key.endsWith(".osl") or fetch_url.endsWith(".owf") (
+    page.fn @= function("data", sandbox.sanitiseOSL(body.split("\n")).join("\n"))
+  )
+  pages.loaded[key] @= page
+)
+
+def "load_page" "src" (
+  if pages.loaded[src.key] != null or pages.loading[src.key] == true (
+    return
+  )
+  if src.protocol == "local" (
+    local file_data = open(src.key, ["path", "name", "type", "data"])
+    if file_data == null (
+      pages.loaded[src.key] @= error_page("Can't open file", "File not found or inaccessible", src.key)
+    ) else (
+      store_page(src.key, file_data[1] ++ "/" ++ file_data[2] ++ file_data[3], "" ++ file_data[4])
+    )
+    return
+  )
+  pages.loading[src.key] = true
+  local handler @= def(resp) -> (
+    local key = self.key
+    local fetch_url = self.fetch_url
+    pages.loading[key] = false
+    if resp.success != true (
+      local detail = fetch_url
+      if typeof(resp.body) == "object" (
+        detail = fetch_url ++ "\n" ++ (resp.body.error ?? resp.body.JsonStringify())
+      ) else if resp.body != null and resp.body != "" (
+        detail = fetch_url ++ "\n" ++ (("" ++ resp.body).trimText(200))
+      )
+      local status_txt = ""
+      if resp.status != null and resp.status != 0 (
+        status_txt = " (" ++ resp.status ++ ")"
+      )
+      pages.loaded[key] @= error_page("Can't fetch page", "Request failed" ++ status_txt, detail)
+      return
+    )
+    local body = resp.body
+    if typeof(body) != "string" (
+      body = body.JsonStringify()
+    )
+    store_page(key, fetch_url, body)
+  )
+  void requests.getAsync(src.fetch_url).then(handler.bind({key: src.key, fetch_url: src.fetch_url}))
+)
+
+// draws a loaded rotur web or local page inside the pane frame
+def "draw_osl_page" "src, idx" (
+  local tab @= tabs[idx]
+  local page @= pages.loaded[src.key]
+  onload = page.onload
+  page.onload = false
+  tab_info = null
+  local name = {title: src.key.split("/")[1]}
+  if page.error (
+    draw_error_page page
+    name.title = page.error_title ?? "Error"
+  ) else (
+    switch src.type (
+      case "osl"
+        try (
+          page.vars @= sandbox.run(page.fn, page.vars)
+          if tab_info != null (
+            name.title = tab_info.title ?? name.title
+          )
+        ) catch e (
+          pages.loaded[src.key] @= error_page("Page error", "" ++ e, src.key)
+          draw_error_page pages.loaded[src.key]
+          name.title = "Page error"
+        )
+        break
+      case "png"
+      case "jpg"
+      case "jpeg"
+      case "webp"
+      case "gif"
+        image page.fetch_url frame.width - 40
+        name.title = src.key.split("/")[-1]
+        break
+      default
+        goto 0 0
+        inputs[src.key] @= page.data
+        textbox frame.width frame.height src.key
+        break
     )
   )
+  if summit_redirect != null (
+    local target = summit_redirect
+    summit_redirect = null
+    if !target.split("/")[-1].contains(".") or target.endsWith(".web") (
+      target ++= "/index.osl"
+    )
+    tab.history = tab.history.trim(1, tab.position).append(target)
+    tab.position = tab.history.len
+  )
+  tab.page_len = page_len
+  tab.title = name.title
+  page_len = 0
+)
 
-  if summit.pages.loaded[url] == null and summit.pages.loading[url] != true (
-    local fetch_url = ""
-    if page_protocol == "web" (
-      local parts = url.split("/")
-      local current_tld = parts[1].split(".").last()
-      local host = summit.tlds[current_tld]
-      local page_key = url
-      if host == null or host == "" (
-        if current_tld == "web" (
-          fetch_url = summit.system_url ++ url
-        ) else (
-          fetch_url = "https://" ++ url
-        )
-      ) else (
-        fetch_url = "https://" ++ host ++ url
+// pages call these to move on or open another tab
+def "redirect" "url" (
+  summit_redirect = url
+)
+def "opentab" "url" (
+  new_tab url false
+)
+
+// ---------------------------------------------------------------- panes
+
+// draws the tab with index `idx` between the given edges
+def "draw_pane" "idx, left, right, top, bottom" (
+  local tab @= tabs[idx]
+  local url = tab_url(tab)
+  local internal = internal_page(url)
+  local is_web = url.startsWith("http")
+  local split = current.len > 1
+  local pane_top = top
+  if split (
+    // a header names the pane and clicking it makes the pane active
+    goto left + right / 2 top - (PANE_HEAD / 2)
+    hit right - left PANE_HEAD
+    if onclick (
+      active_id = tab.id
+      sync_bar
+    )
+    local head = tab.id == active_id ? prim hover_col
+    box right - left PANE_HEAD 12 : c#head
+    goto left + 18 top - (PANE_HEAD / 2)
+    icon favicon_icn(tab.favicon) 0.55 : c#txtc
+    text ("" ++ tab.title).trimText(right - left - 70 / 8.5) 8.5 : c#txtc chx#16
+    goto right - 16 top - (PANE_HEAD / 2)
+    hit 20 20
+    if mouse_touching (
+      cursor "pointer"
+      box 20 20 10 : c#track_col
+    )
+    icon "close" 0.4 : c#txtc
+    if onclick (
+      current = current.filter(v -> (v != tab.id))
+      if !current.contains(active_id) (
+        active_id = current[1]
       )
-      summit.pages.loading[page_key] = true
-      local fetch_handler @= def(resp) -> (
-        local page_key = self.page_key
-        local fetch_url = self.fetch_url
-        if resp.success != true (
-          local detail = fetch_url
-          if typeof(resp.body) == "object" (
-            detail = fetch_url ++ "\n" ++ (resp.body.error ?? resp.body.JsonStringify())
-          ) else if resp.body != null and resp.body != "" (
-            detail = fetch_url ++ "\n" ++ (("" ++ resp.body).trimText(200))
-          )
-          local status_txt = ""
-          if resp.status != null and resp.status != 0 (
-            status_txt = " (" ++ resp.status ++ ")"
-          )
-          summit.pages.loaded[page_key] @= error_page("Can't fetch page", "Request failed" ++ status_txt, detail)
-          summit.pages.loading[page_key] = false
-          return
-        )
-        local body = resp.body
-        if typeof(body) != "string" (
-          body = body.JsonStringify()
-        )
-        if body == null or body == "" (
-          summit.pages.loaded[page_key] @= error_page("Empty response", "The server returned no content", fetch_url)
-          summit.pages.loading[page_key] = false
-          return
-        )
-        summit.pages.loaded[page_key] @= {
-          data: body.split("\n"),
-          onload: true,
-          vars: {},
-          fetch_url
-        }
-        if fetch_url.endsWith(".osl") or page_key.endsWith(".osl") or fetch_url.endsWith(".owf") (
-          summit.pages.loaded[page_key].fn @= function("data", sandbox.sanitiseOSL(body.split("\n")).join("\n"))
-        )
-        summit.pages.loading[page_key] = false
+      sync_bar
+      return
+    )
+    pane_top = top - PANE_HEAD - 4
+  )
+  local w = right - left
+  local h = pane_top - bottom
+  local cx = left + right / 2
+  local cy = pane_top + bottom / 2
+
+  if is_web (
+    goto cx cy
+    box w h 12 : c#prim
+    iframe url cx cy w - 4 h - 4 tab.nav
+    local info = data
+    tab.loading = info != null and info.loading == true
+    if info != null (
+      if info.title != null and info.title != "" (
+        tab.title = "" ++ info.title
+      ) else if tab.title == "Loading" (
+        tab.title = host_of(url)
       )
-      void requests.getAsync(fetch_url).then(fetch_handler.bind({page_key, fetch_url}))
-    ) else if page_protocol == "local" (
-      local file_data = open(url, ["path","name","type","data"])
-      if file_data == null (
-        summit.pages.loaded[url] @= error_page("Can't open file", "File not found or inaccessible", url)
-      ) else (
-        fetch_url = file_data[1] ++ "/" ++ file_data[2] ++ file_data[3]
-        local content = "" ++ file_data[4]
-        summit.pages.loaded[url] @= {
-          data: content.split("\n"),
-          onload: true,
-          vars: {},
-          fetch_url
-        }
-        if fetch_url.endsWith(".osl") or url.endsWith(".osl") or fetch_url.endsWith(".owf") (
-          summit.pages.loaded[url].fn @= function("data", sandbox.sanitiseOSL(content.split("\n")).join("\n"))
-        )
+      if info.icon != null and info.icon != "" (
+        tab.favicon = "" ++ info.icon
+      )
+      if !tab.loading and tab.recorded != url and info.title != null (
+        tab.recorded = url
+        record_history(url, tab.title, tab.favicon)
       )
     )
+    return
   )
 
-  frame left top right bottom tab.page_len tab.id (
-    frame.scroll = frame.scroll
-    if summit.pages.loaded[url] != null (
-      draw_page url page_type idx
-    ) else if summit.pages.loading[url] == true (
-      goto 0 0
-      text "Loading..." 14 : c#txtc
+  tab.loading = false
+  if internal != null (
+    tab.title = internal[2]
+    tab.favicon = ""
+  )
+  frame left pane_top right bottom tab.page_len "page_" ++ tab.id (
+    if internal != null (
+      switch internal[1] (
+        case "home"
+          draw_home
+          break
+        case "bookmarks"
+          draw_bookmarks
+          break
+        case "history"
+          draw_history
+          break
+        case "settings"
+          draw_settings
+          break
+      )
+      tab.page_len = page_len
+      page_len = 0
+    ) else if url.startsWith("web://") or url.startsWith("local://") (
+      local src = page_source(url)
+      load_page src
+      if pages.loaded[src.key] != null (
+        draw_osl_page src idx
+        if tab.recorded != url (
+          tab.recorded = url
+          record_history(url, tab.title, "")
+        )
+      ) else (
+        goto 0 0
+        centext "Loading..." 10 : c#muted
+      )
+    ) else (
+      tab.title = url
+      empty_state "deny" "Summit can't open " ++ url
     )
-    frame.scroll = 0
   )
 )
+
+// ---------------------------------------------------------------- startup
 
 if passed_data != "" (
-  add_tab "local://" ++ passed_data
-) else (
-  add_tab summit.home_url
+  local start = "" ++ passed_data
+  if typeof(passed_data) == "object" (
+    start = "" ++ (passed_data.url ?? passed_data.file ?? "")
+  )
+  if start.startsWith("http") or start.startsWith("web://") or start.startsWith("summit://") (
+    new_tab start false
+  ) else (
+    new_tab "local://" ++ start false
+  )
+) else if settings.restore == true and "session.json".saveExists() (
+  local session = "session.json".saveGet()
+  if typeof(session) == "object" and typeof(session.urls) == "array" (
+    for i min(session.urls.len, MAX_TABS) (
+      new_tab session.urls[i] false
+    )
+    local shown = []
+    local shown_at = session.current ?? []
+    each at shown_at (
+      if at >= 1 and at <= tabs.len (
+        void shown.append(tabs[at].id)
+      )
+    )
+    if shown.len > 0 (
+      current = shown
+      active_id = current[1]
+      sync_bar
+    )
+  )
 )
-
-summit.sidebar = {
-  width: 300,
-  x: -300,
-  target_x: 0,
-  icons: [
-    {
-      icn:  "w 3 cutcircle -2 2 8 0 180 w 3.5 line 4 -4 12 -12",
-      func: def() -> (
-        input "focus" "main"
-      )
-    },
-    {
-      icn:  "left-arrow",
-      func: def() -> (
-        local tab @= active_tab()
-        if tab != null (
-          if tab.position > 1 (
-            tab.position --
-            inputs.main = tab.history[tab.position]
-          )
-        )
-      )
-    },
-    {
-      icn:  "right-arrow",
-      func: def() -> (
-        local tab @= active_tab()
-        if tab != null (
-          if tab.position < tab.history.len (
-            tab.position ++
-            inputs.main = tab.history[tab.position]
-          )
-        )
-      )
-    },
-    {
-      icn:  "refresh",
-      func: def() -> (
-        local tab @= active_tab()
-        if tab != null (
-          tab.nav ++
-          summit.pages.loaded = {}
-        )
-      )
-    },
-    {
-      icn:  "plus",
-      func: def() -> (
-        add_tab summit.home_url
-      )
-    }
-  ],
-  handleSize: def() -> (
-    self.x += self.target_x - self.x / 7
-  ),
-}
-
-summit.sidebar.main = def() -> (
-  void self.handleSize()
-
-  if mouse_x < window.left + 30 and mouse_ondown (
-    self.target_x = 0
-  )
-
-  window "set_dragbox" [[2,2,100 + self.x,0],[2,2,self.width + self.x - 40,-40]]
-
-  self.left = window.left + self.x
-
-  self.edge = self.left + self.width
-
-  frame self.left window.top self.edge window.bottom (
-    goto 0 0
-    square frame.width - 20 frame.height - 20 10 : c#window_colour
-
-    c txtc
-    loc -2 2 -25 -20
-    icon "left" 0.7
-    if onclick (
-      self.target_x = -300
-    )
-
-    goto 0 frame.top - 65
-    c prim
-    square frame.width - 40 30 10
-    input frame.width - 50 25 "main" "Search or enter a URL"
-    if "enter".onKeyDown() and selected_input == "main" (
-      navigate inputs.main
-    )
-
-    if self.x > -280 (
-      c txtc
-      loc 2 2 25 -20
-      for i self.icons.len (
-        icon self.icons[i].icn 0.7
-        if onclick (
-          void self.icons[i].func()
-        )
-        change_x 30
-      )
-
-      c seco
-      frame frame.left + 10 frame.top - 90 frame.right - 10 frame.bottom summit.tabs.current.len * 45 (
-        goto 0 frame.top + frame.scroll - 25
-
-        local all_tabs = summit.tabs.all
-        for i summit.tabs.all.len (
-          local tab @= all_tabs[i]
-          set_x 0
-          square frame.width 40 0 0 1
-          if summit.tabs.current.contains(tab.id) (
-            square frame.width - 20 30 15 : c#seco
-            square frame.width - 20 30 10 : c#window_colour
-          )
-          if mouse_touching (
-            square frame.width - 20 30 15 : c#global_accent
-            square frame.width - 20 30 10 : c#window_colour
-            if onclick (
-              if "shift".isKeyDown() (
-                if summit.tabs.current.contains(tab.id) (
-                  if summit.tabs.current.len > 1 (
-                    void summit.tabs.current.delete(tab.id)
-                  )
-                ) else (
-                  void summit.tabs.current.append(tab.id)
-                )
-              ) else (
-                summit.tabs.current = [tab.id]
-              )
-            )
-          )
-          set_x frame.left + 25
-          square 30 30 10 : c#prim
-          icon tab.icon 0.7 : c#txtc
-          text tab.title.trimText(frame.width - 70 / 9) 9 : c#txtc chx#30
-          set_x frame.right - 25
-          icon "close" 0.5
-          if onclick (
-            void summit.tabs.all.delete(i)
-          )
-          change_y -45
-        )
-      )
-      goto 0 window.top
-    )
-  )
+if tabs.len == 0 (
+  new_tab HOME false
 )
 
 mainloop:
-wt:load_theme
+load_theme
 
 if file_dropped != 0 (
-  add_tab "local://" ++ file_dropped
+  new_tab "local://" ++ file_dropped "shift".isKeyDown()
   file_dropped = 0
 )
 
-summit.pages.current = []
+// a tab may have been closed from anywhere, keep the views pointing at real tabs
+local ids = tabs.getKeys("id")
+current = current.filter(v -> (ids.contains(v)))
+if current.len == 0 (
+  current = [tabs.last().id]
+)
+if !current.contains(active_id) (
+  active_id = current.last()
+  sync_bar
+)
 
+local side_w = 0
+if show_sidebar and window.width > 700 (
+  side_w = SIDEBAR
+)
+local cl = window.left + side_w
+local cr = window.right
+local cmid = cl + cr / 2
+
+// page background, squared off where it meets the glass sidebar
 window.setGlass(100, "15px")
-
-void summit.sidebar.main()
-
-for i summit.tabs.queue.len (
-  local new_tab @= summit.tabs.queue.shift()
-  void summit.tabs.all.append(new_tab)
-  summit.tabs.current @= [new_tab.id]
+goto side_w / 2 0
+square window.width - side_w - 10 window.height + 10 10 : c#window_colour
+if side_w > 0 (
+  goto cl + 12 0
+  square 20 window.height 4
+  c window_colour
+  pen "opacity" 55
+  icon "w 99999 dot 0 0" 10
+  pen "opacity" 0
+  frame "clear"
 )
 
-local ids = summit.tabs.all.getKeys("id")
-local kept = []
-for i summit.tabs.current.len (
-  if ids.contains(summit.tabs.current[i]) (
-    void kept.append(summit.tabs.current[i])
-  )
-)
-if kept.len == 0 and summit.tabs.all.len > 0 (
-  kept = [summit.tabs.all.last().id]
-)
-summit.tabs.current = kept
-
-if summit.tabs.current.len > 0 (
-  if summit.last_active != summit.tabs.current[1] (
-    summit.last_active = summit.tabs.current[1]
-    local tab @= active_tab()
-    if tab != null (
-      inputs.main = tab.history[tab.position]
+// ---- sidebar: the tab list
+if side_w > 0 (
+  frame window.left window.top cl window.bottom sidebar_len "sidebar" (
+    sw = frame.width - 12
+    sy = frame.top - 21 + frame.scroll
+    local top = sy
+    goto sw / -2 + 15 sy
+    icon_button "add" "New tab" tabs.len < MAX_TABS
+    if button_click (
+      new_tab HOME false
+      url_edit = true
+      input "focus" "url"
     )
+    goto sw / -2 + 49 sy
+    icon_button "split" "New tab in a split" tabs.len < MAX_TABS and current.len < MAX_SPLIT
+    if button_click (
+      new_tab HOME true
+      url_edit = true
+      input "focus" "url"
+    )
+    sy -= 44
+    for i tabs.len (
+      sidebar_tab tabs[i]
+    )
+    sidebar_len = top - sy + 30
+  )
+  goto cl 0
+  square 0 window.height 1 : c#edge_col
+)
+
+// ---- toolbar, the gaps in this row drag the window
+local tool_y = window.top - 21
+local tab @= active_tab()
+local url = tab_url(tab)
+local internal = internal_page(url)
+local is_web = url.startsWith("http")
+
+goto cl + 21 tool_y
+local side_tip = show_sidebar ? "Hide tabs" "Show tabs"
+icon_button "menu" side_tip true
+if button_click (
+  show_sidebar = !show_sidebar
+)
+goto cl + 55 tool_y
+icon_button "left-arrow" "Back" tab.position > 1
+if button_click or ("alt".isKeyDown() and "arrowleft".onKeyDown()) (
+  step_history -1
+)
+goto cl + 89 tool_y
+icon_button "right-arrow" "Forward" tab.position < tab.history.len
+if button_click or ("alt".isKeyDown() and "arrowright".onKeyDown()) (
+  step_history 1
+)
+goto cl + 123 tool_y
+icon_button "reload" "Reload" internal == null
+if button_click or ("control".isKeyDown() and "r".onKeyDown()) (
+  reload
+)
+
+goto cr - 106 tool_y
+icon_button "more" "Menu" true
+if button_click (
+  open_rightclick [
+    {"New Tab": def(v) -> (
+      new_tab HOME false
+    )},
+    {"New Split": def(v) -> (
+      new_tab HOME true
+    )},
+    "-",
+    {"Save Page As App...": def(v) -> (
+      save_as_app
+    )},
+    "-",
+    {"Bookmarks": def(v) -> (
+      new_tab "summit://bookmarks" false
+    )},
+    {"History": def(v) -> (
+      new_tab "summit://history" false
+    )},
+    {"Settings": def(v) -> (
+      new_tab "summit://settings" false
+    )}
+  ] 0
+)
+goto cr - 140 tool_y
+local star_icn = bookmark_index(url) > 0 ? "bookmark-full" "bookmark"
+icon_button star_icn "Bookmark" url != HOME
+if button_click or ("control".isKeyDown() and "d".onKeyDown()) (
+  toggle_bookmark
+)
+
+// address bar: the url until clicked, then editable
+local bar_l = cl + 147
+local bar_r = cr - 164
+local bar_w = bar_r - bar_l
+goto bar_l + bar_r / 2 tool_y
+hit bar_w 30
+local bar_click = onclick
+box bar_w 30 12 : c#prim
+goto bar_l + 18 tool_y
+local bar_icon = "search"
+if internal != null (
+  bar_icon = internal[3]
+) else if url.startsWith("https://") (
+  bar_icon = "locked"
+) else if url.startsWith("web://") (
+  bar_icon = "rotur"
+) else if url.startsWith("local://") (
+  bar_icon = "file"
+) else if is_web (
+  bar_icon = "globe"
+)
+icon bar_icon 0.5 : c#muted
+if url_edit (
+  goto bar_l + bar_r / 2 + 12 tool_y
+  c prim
+  input bar_w - 44 24 "url" "Search or enter a URL" 9 txtc
+  if "enter".onKeyDown() and selected_input == "url" (
+    navigate inputs.url
+  ) else if selected_input != "url" or "escape".onKeyDown() (
+    sync_bar
+  )
+) else (
+  goto bar_l + 34 tool_y
+  local shown = pretty_url(url)
+  if internal != null (
+    shown = internal[2]
+  )
+  if shown == "" (
+    text "Search or enter a URL" 9 : c#muted
+  ) else (
+    text shown.trimText(bar_w - 50 / 9) 9 : c#txtc
+  )
+  if bar_click or ("control".isKeyDown() and "l".onKeyDown()) (
+    url_edit = true
+    input "focus" "url"
   )
 )
+window.setDragbox([2, 2, 0, 0], [2, 2, side_w + 147, 0 - TOOL_H])
 
-local left = summit.sidebar.edge + 10
-local right = window.right - 10
-local w = right - left
-
-local tab_count = summit.tabs.current.len
-if tab_count == 0 (
-  tab_count = 1
+if "control".isKeyDown() and "t".onKeyDown() (
+  new_tab HOME "shift".isKeyDown()
+  url_edit = true
+  input "focus" "url"
 )
-local tab_w = w / tab_count
+if "control".isKeyDown() and "w".onKeyDown() and !url_edit (
+  close_tab active_id
+)
 
-local current_left = left
-local current_right = left + tab_w
+// ---- panes, side by side
+local view_top = window.top - TOOL_H
+local view_bottom = window.bottom + 8
+local pane_w = cr - cl - 16 - (current.len - 1 * 8) / current.len
+local px = cl + 8
+for i current.len (
+  local idx = tab_index(current[i])
+  if idx > 0 (
+    draw_pane idx px px + pane_w view_top view_bottom
+  )
+  px += pane_w + 8
+)
 
-for i summit.tabs.current.len (
-  tab_id @= summit.tabs.current[i]
-  page_frame current_left window.top - 45 current_right window.bottom + 10 tab_id
-  local current_left += tab_w
-  local current_right += tab_w
+// remember the open tabs for the next launch
+local session = {
+  urls: tabs.map(t -> (t.history[t.position])),
+  current: current.map(id -> (tab_index(id)))
+}
+local session_txt = session.JsonStringify()
+if session_txt != last_session (
+  last_session = session_txt
+  save "session.json" "set" session
 )
 
 import "win-buttons"
