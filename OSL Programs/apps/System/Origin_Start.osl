@@ -201,8 +201,7 @@ if onclick (
 
 icon icons.logout 0.8 : chx#-40 tooltip#"Logout"
 if onclick (
-  // remove current login state
-  eval "localStorage.setItem('origin_login', '')"
+  network "logout"
   terminal "shutdown"
   window.close()
 )

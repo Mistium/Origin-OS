@@ -573,7 +573,7 @@ def "page_account" (
       ) null
       action_danger = true
       row_action "Log Out" "log-out" def() -> (
-        eval "localStorage.setItem('origin_login', '')"
+        network "logout"
         terminal "shutdown"
       ) null
       break

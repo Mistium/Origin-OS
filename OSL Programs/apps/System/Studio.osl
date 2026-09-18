@@ -71,12 +71,39 @@ tool_click = false
 
 // ponytail: Studio names its theme colours c_prim, c_text and so on, so it keeps its own copy of the
 // window_tools palette. Switch to load_theme when those names are retired.
+def hex_channels(string value) array (
+  local hex = value.replace("#", "")
+  if hex.len == 3 (
+    hex = hex[1] ++ hex[1] ++ hex[2] ++ hex[2] ++ hex[3] ++ hex[3]
+  )
+  local out = []
+  for ch 3 (
+    void out.append(hex.trim(ch * 2 - 1, ch * 2).toBase(16, 10).toNum())
+  )
+  return out
+)
+
 def mix(string a, string b, number t) string (
-  return ("((a,b,t)=>{const h=s=>{s=s.replace('#','');if(s.length===3)s=s.replace(/./g,'$&$&');return [0,2,4].map(i=>parseInt(s.slice(i,i+2),16))};const x=h(a),y=h(b);return '#'+x.map((v,i)=>Math.round(v*(1-t)+y[i]*t).toString(16).padStart(2,'0')).join('')})('" ++ a ++ "','" ++ b ++ "'," ++ t ++ ")").eval()
+  local ca = hex_channels(a)
+  local cb = hex_channels(b)
+  local out = "#"
+  for ch 3 (
+    local mixed = round((ca[ch] * (1 - t)) + (cb[ch] * t))
+    local part = mixed.toStr().toBase(10, 16).toStr().toLower()
+    if part.len < 2 (
+      part = "0" ++ part
+    )
+    out ++= part
+  )
+  return out
 )
 
 def readable_on(string a) string (
-  return ("(a=>{let s=a.replace('#','');if(s.length===3)s=s.replace(/./g,'$&$&');const v=[0,2,4].map(i=>parseInt(s.slice(i,i+2),16));return (v[0]*0.299+v[1]*0.587+v[2]*0.114)>150?'#111111':'#ffffff'})('" ++ a ++ "')").eval()
+  local ca = hex_channels(a)
+  if ((ca[1] * 0.299) + (ca[2] * 0.587) + (ca[3] * 0.114)) > 150 (
+    return "#111111"
+  )
+  return "#ffffff"
 )
 
 palette_key = ""
