@@ -29,7 +29,6 @@ STATUS_H = 38
 ROW_H = 34
 CELL = 104
 
-user_path = "/(c) users/" ++ username ++ "/"
 inputs.path = "/(c) users/" ++ username
 inputs.search_input = ""
 
@@ -108,6 +107,19 @@ def plural(number n, string word) string (
 def "navigate" "path" (
   // JsonParse strips osl quotes from around a string
   path = path.JsonParse()
+  if path.startsWith("~") (
+    path = user_folder ++ path.trim(2, -1)
+  )
+  if path.startsWith("/dev").not() (
+    local parts = path.split("/").filter(v -> (v != ""))
+    if ("" ++ parts[1]).toLower() == "origin" (
+      parts = parts.trim(2, -1)
+    )
+    path = "origin"
+    if parts.len > 0 (
+      path ++= "/" ++ parts.join("/")
+    )
+  )
   local entry = {
     "title": path.split("/").last(),
     "url": path,
@@ -1015,6 +1027,9 @@ if cur_tab_type == "search" (
   )
 ) else (
   local parts = inputs.path.split("/").filter(v -> (v != ""))
+  if ("" ++ parts[1]).toLower() == "origin" (
+    parts = parts.trim(2, -1)
+  )
   // drop leading folders until the trail fits
   local start = 1
   local used = parts.join("").len * 9 + (parts.len * 22)
@@ -1056,6 +1071,9 @@ if cur_tab_type == "search" (
   )
   if bar_click and !crumb_hit (
     path_edit = true
+    if inputs.path.toLower().startsWith("origin") (
+      inputs.path = inputs.path.trim(7, -1)
+    )
     input "focus" "path"
   )
 )

@@ -27,6 +27,7 @@ window.style = {
 }
 window.show()
 
+string dbg = ""
 string query = ""
 string last_input = ""
 string fetched_query = ""
@@ -103,7 +104,10 @@ def capFor(number px, number size) number (
 )
 
 // a filled rounded box of an exact size. fill and line are css values
-def box(number cx, number cy, number w, number bh, number r, string fill, string line) (
+def box(cx, cy, w, bh, r, fill, line) (
+  if typeof(cx) != "number" (
+    void ("(window.__DBG ??= []).push(decodeURIComponent(`" ++ encodeURIComponent("BOX t=" ++ typeof(cx) ++ " cx=" ++ cx ++ " cy=" ++ cy ++ " w=" ++ w ++ " bh=" ++ bh ++ " fw=" ++ frame.width) ++ "`))").eval()
+  )
   goto cx cy
   style {
     bg: fill,
@@ -114,7 +118,10 @@ def box(number cx, number cy, number w, number bh, number r, string fill, string
 )
 
 // invisible hit area. sets hit_hover and hit_click for whatever is drawn on top of it
-def hit(number cx, number cy, number w, number bh) (
+def hit(cx, cy, w, bh) (
+  if typeof(cx) != "number" (
+    void ("(window.__DBG ??= []).push(decodeURIComponent(`" ++ encodeURIComponent("HIT t=" ++ typeof(cx) ++ " cx=" ++ cx ++ " cy=" ++ cy ++ " w=" ++ w ++ " bh=" ++ bh ++ " fw=" ++ frame.width) ++ "`))").eval()
+  )
   goto cx cy
   square w bh 0 0 1
   hit_hover = mouse_touching
@@ -510,6 +517,7 @@ if query != "" (
     local label = filters[i].left(1).toUpper() ++ filters[i].trim(2, -1)
     local chip_w = (label.len * t_small) + 16
     local cx = chip_x + (chip_w / 2)
+    void ("(window.__DBG ??= []).push(decodeURIComponent(`" ++ encodeURIComponent("i=" ++ i ++ " f=" ++ filters[i] ++ " label=" ++ label ++ " tl=" ++ typeof(label) ++ " lw=" ++ label.len ++ " cw=" ++ chip_w ++ " tcw=" ++ typeof(chip_w) ++ " cxx=" ++ chip_x ++ " tcx=" ++ typeof(chip_x) ++ " cx=" ++ cx) ++ "`))").eval()
     hit(cx, cursor, chip_w, 22)
     if hit_click (
       filter = filters[i]
