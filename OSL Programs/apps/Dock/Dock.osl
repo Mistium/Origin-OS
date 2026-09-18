@@ -700,7 +700,7 @@ def hubStart(number left, number bottom, number w, number h) (
     terminal "shutdown"
   )
   if hubIconButton(left + w - pad - 56, fy, "log-out", "Log out", "log out") (
-    eval "localStorage.setItem('origin_login', '')"
+    network "logout"
     terminal "shutdown"
   )
   // the harmless action sits apart from the two that end your session
