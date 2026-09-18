@@ -1,0 +1,26 @@
+// seq last | seq first last | seq first step last
+local nums = args.filter(v -> v.toNum() != null).map(v -> v.toNum())
+if nums.len == 0 or nums.len > 3 (
+  terminal.writeLine("usage: seq [first [step]] last")
+  return
+)
+local first = 1
+local step = 1
+local last = nums[nums.len]
+if nums.len >= 2 (
+  first = nums[1]
+)
+if nums.len == 3 (
+  step = nums[2]
+)
+if step == 0 (
+  terminal.writeLine("seq: step must not be zero")
+  return
+)
+local n = first
+local guard = 0
+while ((step > 0 and n <= last) or (step < 0 and n >= last)) and guard < 100000 (
+  terminal.writeLine(n)
+  n += step
+  guard += 1
+)

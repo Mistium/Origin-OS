@@ -1,0 +1,497 @@
+// top [-d secs] [-n]     process viewer in the style of procps top
+// keys: q quit  k kill  P/M/N/T sort by cpu/mem/pid/time  arrows scroll  h help  space refresh
+// htop.osl runs this with --htop: meters, row selection, F3 search, F4 filter, F6 sort, F9 kill, F10 quit
+// Both run on the terminal screen grid: the wheel scrolls the list, left/right (or a sideways wheel) pan the table.
+top_delay = 1
+top_once = false
+top_htop = false
+local i = 1
+while i <= args.len (
+  local a = "" ++ args[i]
+  if a == "-d" (
+    top_delay = args[i + 1].toNum() ?? 1
+    i += 1
+  ) else if a == "-n" or a == "-b" (
+    top_once = true
+  ) else if a == "--htop" (
+    top_htop = true
+  ) else if a == "-h" or a == "--help" (
+    terminal.writeLine("usage: top [-d seconds] [-n]")
+    terminal.writeLine("  q quit   k kill a pid   P M N T sort by cpu, mem, pid, time   arrows scroll   h help")
+    return
+  )
+  i += 1
+)
+
+top_budget = 1000 / max(1, fps_limit)
+top_sort = "cpu"
+top_sel = 1
+top_first = 1
+top_hx = 0
+top_filter = ""
+top_time = {}
+top_samples = []
+top_tick = timestamp
+top_msg = ""
+top_st = null
+top_rows = []
+top_next = 0
+
+def fmtTime(ms) (
+  local total = floor(ms / 10)
+  local cs = total % 100
+  local secs = floor(total / 100) % 60
+  local mins = floor(total / 6000)
+  return ("" ++ mins) ++ ":" ++ ("" ++ secs).padStart("0", 2) ++ "." ++ ("" ++ cs).padStart("0", 2)
+)
+
+def fmtNum(n, decimals) (
+  local f = 1
+  loop decimals (
+    f *= 10
+  )
+  return "" ++ (round(n * f) / f)
+)
+
+def avgSince(secs) (
+  local now = timestamp
+  local sum = 0
+  local n = 0
+  for j top_samples.len (
+    if now - top_samples[j][1] <= secs * 1000 (
+      sum += top_samples[j][2]
+      n += 1
+    )
+  )
+  if n == 0 (
+    return 0
+  )
+  return sum / n
+)
+
+def bar(label, pct, inner, width, colour) (
+  local filled = round((pct.clamp(0, 100) / 100) * width)
+  local fill = ""
+  if filled > 0 (
+    fill = "|" * filled
+  )
+  local rest = ""
+  if width - filled > 0 (
+    rest = " " * (width - filled)
+  )
+  local tail = inner
+  if tail.len > width (
+    tail = tail.trim(1, width)
+  )
+  local left = width - tail.len
+  local shown = tail
+  if left > 0 (
+    shown = (fill ++ rest).trim(1, left) ++ tail
+  )
+  local lit = ""
+  local dim = shown
+  if filled > 0 (
+    lit = shown.trim(1, filled)
+    dim = ""
+    if filled < shown.len (
+      dim = shown.trim(filled + 1, -1)
+    )
+  )
+  return ["#5fd7ff", label ++ "[", colour, lit, "#888", dim, "#5fd7ff", "]"]
+)
+
+def killPid(id) (
+  local wins @= Windows()
+  for j wins.len (
+    if wins[j].id == id (
+      void wins[j].window.close()
+      return "killed " ++ id ++ " (" ++ wins[j].name ++ ")"
+    )
+  )
+  return "no such process: " ++ id
+)
+
+def sortRows(rows) (
+  if top_sort == "cpu" (
+    return rows.sortBy("ms").reverse()
+  )
+  if top_sort == "mem" (
+    return rows.sortBy("nodes").reverse()
+  )
+  if top_sort == "time" (
+    return rows.sortBy("time").reverse()
+  )
+  if top_sort == "name" (
+    return rows.sortBy("name")
+  )
+  return rows.sortBy("id")
+)
+
+def sample() (
+  local wins @= Windows()
+  local workers @= "window.origin.workers ?? {}".eval()
+  local dom @= "(()=>{ const out = {}; try { for (const t of vm.runtime.targets) { const w = t.window, s = t.__osldom; if (!s || !w || w.id == null) continue; let records = 0; for (const pool of s.els || []) for (const rec of pool.arr || []) { if (rec && !rec.dead) records++; } out[w.id] = records; } } catch (e) {} return out })()".eval()
+  local now = timestamp
+  local frames = max(1, (now - top_tick) / top_budget)
+  top_tick = now
+  local rows = []
+  local total_ms = 0
+  local total_nodes = 0
+  local total_workers = 0
+  for j wins.len (
+    local w @= wins[j]
+    local ms = ("" ++ ((w.render ?? [])[1] ?? 0)).toNum() ?? 0
+    local nodes = dom[w.id] ?? 0
+    local nw = (workers[w.id] ?? {}).getKeys().len
+    local key = "" ++ w.id
+    top_time[key] = (top_time[key] ?? 0) + (ms * frames)
+    total_ms += ms
+    total_nodes += nodes
+    total_workers += nw
+    local cmd = "" ++ w.name
+    local wo @= w.window ?? {}
+    if wo.file != null and wo.file.path != null (
+      cmd = "" ++ wo.file.path
+    )
+    void rows.append({id: w.id, name: "" ++ w.name, cmd: cmd, ms: ms, nodes: nodes, workers: nw, time: top_time[key], pri: wo.framerate ?? 0})
+  )
+  local sys = ("origin.time.kernel_ms ?? 0".eval()).toNum() ?? 0
+  void top_samples.append([now, (total_ms + sys) / top_budget])
+  if top_samples.len > 1000 (
+    top_samples @= top_samples.trim(101, -1)
+  )
+  return {rows: rows, sys: sys, apps: total_ms, nodes: total_nodes, workers: total_workers, count: wins.len}
+)
+
+// a horizontal window over a plain or coloured row: columns from..from+width-1
+def topSlice(row, from, width) (
+  if typeof(row) != "array" (
+    local s = "" ++ row
+    if from > s.len (
+      return ""
+    )
+    return s.trim(from, min(s.len, (from + width) - 1))
+  )
+  local out = []
+  local pos = 1
+  local i = 0
+  loop floor(row.len / 2) (
+    i += 2
+    local col = row[i - 1]
+    local seg = "" ++ row[i]
+    local segStart = pos
+    local segEnd = (pos + seg.len) - 1
+    pos += seg.len
+    local a = max(segStart, from)
+    local b = min(segEnd, (from + width) - 1)
+    if b >= a (
+      void out.append(col, seg.trim((a - segStart) + 1, (b - segStart) + 1))
+    )
+  )
+  return out
+)
+
+def helpGrid() (
+  local g = []
+  if top_htop (
+    void g.append([global_accent, "htop", txtc, " - originOS process viewer"])
+    void g.append("  Up/Down      select a process         F3 /   search by name")
+    void g.append("  Left/Right   pan the table            F4     filter the list")
+    void g.append("  F9 k         kill the selected process F6 > < change the sort column")
+    void g.append("  F10 q        quit                      F1 h   this help")
+  ) else (
+    void g.append([global_accent, "top", txtc, " - originOS process viewer"])
+    void g.append("  q     quit                       k   kill a process by pid")
+    void g.append("  P     sort by %CPU               M   sort by %MEM")
+    void g.append("  N     sort by PID                T   sort by TIME+")
+    void g.append("  Up/Down Left/Right  scroll       h   this help")
+  )
+  void g.append("")
+  void g.append("  CPU is the share of the frame budget (" ++ fmtNum(top_budget, 1) ++ " ms at " ++ fps_limit ++ " fps) a window used last frame.")
+  void g.append("  MEM is the share of live DOM nodes. TIME+ is accumulated frame time since top started.")
+  void g.append("")
+  void g.append(["#888", "press any key to return"])
+  return g
+)
+
+if !top_once (
+  terminal.screen(true)
+)
+
+while true (
+  local need = false
+  if timestamp >= top_next (
+    top_st = sample()
+    top_rows = sortRows(top_st.rows)
+    if top_filter != "" (
+      top_rows = top_rows.filter(r -> r.name.toLower().contains(top_filter.toLower()))
+    )
+    top_next = timestamp + (top_delay * 1000)
+    need = true
+  )
+
+  local rows = terminal.view_rows ?? 24
+  local head_rows = 6
+  if top_htop (
+    head_rows = 5
+  )
+  local avail = max(3, rows - head_rows - 3)
+
+  // ---- input ----
+  if !top_once (
+    local w = terminal.takeWheel()
+    if w.x != 0 (
+      top_hx = max(0, top_hx + (w.x * 2))
+      need = true
+    )
+    if w.y != 0 (
+      if top_htop (
+        top_sel = (top_sel + w.y).clamp(1, max(1, top_rows.len))
+      ) else (
+        top_first = (top_first + w.y).clamp(1, max(1, top_rows.len))
+      )
+      need = true
+    )
+    local m @= terminal.mouse
+    if m.pressed and top_htop (
+      local hit = (top_first + m.row) - head_rows - 1
+      if hit >= 1 and hit <= top_rows.len (
+        top_sel = hit
+        need = true
+      )
+    )
+    if "q".onKeyDown() or "f10".onKeyDown() or "escape".onKeyDown() (
+      terminal.screen(false)
+      return
+    )
+    if "h".onKeyDown() or "f1".onKeyDown() (
+      terminal.draw(helpGrid())
+      defer
+      while all_hit.len == 0 (
+        defer
+      )
+      defer
+      need = true
+    )
+    if " ".onKeyDown() (
+      need = true
+    )
+    if "arrowleft".onKeyDown() (
+      top_hx = max(0, top_hx - 8)
+      need = true
+    )
+    if "arrowright".onKeyDown() (
+      top_hx += 8
+      need = true
+    )
+    if "arrowdown".onKeyDown() or "arrowup".onKeyDown() or "pagedown".onKeyDown() or "pageup".onKeyDown() (
+      local step = 1
+      if "pagedown".onKeyDown() or "pageup".onKeyDown() (
+        step = avail
+      )
+      if "arrowup".onKeyDown() or "pageup".onKeyDown() (
+        step = 0 - step
+      )
+      if top_htop (
+        top_sel = (top_sel + step).clamp(1, max(1, top_rows.len))
+      ) else (
+        top_first = (top_first + step).clamp(1, max(1, top_rows.len))
+      )
+      need = true
+    )
+    if top_htop (
+      if "f6".onKeyDown() or ">".onKeyDown() or "<".onKeyDown() (
+        local order = ["cpu", "mem", "time", "pid", "name"]
+        local d = 1
+        if "<".onKeyDown() (
+          d = -1
+        )
+        top_sort = order[(((order.index(top_sort) - 1) + d + order.len) % order.len) + 1]
+        top_msg = "sort: " ++ top_sort
+        top_next = 0
+        need = true
+      )
+      if "f3".onKeyDown() or "/".onKeyDown() (
+        local q = ("" ++ (terminal.input("Search") ?? "")).toLower()
+        local found = 0
+        for j top_rows.len (
+          if found == 0 and q != "" and top_rows[j].name.toLower().contains(q) (
+            found = j
+          )
+        )
+        if found > 0 (
+          top_sel = found
+        ) else if q != "" (
+          top_msg = "not found: " ++ q
+        )
+        need = true
+      )
+      if "f4".onKeyDown() (
+        top_filter = ("" ++ (terminal.input("Filter") ?? "")).strip()
+        top_sel = 1
+        top_next = 0
+        need = true
+      )
+      if "f9".onKeyDown() or "k".onKeyDown() (
+        if top_rows.len > 0 (
+          local r = top_rows[top_sel]
+          local ans = "" ++ (terminal.input("Kill " ++ r.name ++ " (pid " ++ r.id ++ ")? y/n") ?? "")
+          if ans.toLower() == "y" (
+            top_msg = killPid(r.id)
+            top_next = 0
+          )
+        )
+        need = true
+      )
+    ) else (
+      if all_hit.contains("P") (
+        top_sort = "cpu"
+        top_next = 0
+      )
+      if all_hit.contains("M") (
+        top_sort = "mem"
+        top_next = 0
+      )
+      if all_hit.contains("N") (
+        top_sort = "pid"
+        top_next = 0
+      )
+      if all_hit.contains("T") (
+        top_sort = "time"
+        top_next = 0
+      )
+      if "k".onKeyDown() (
+        local pid = ("" ++ (terminal.input("PID to signal/kill") ?? "")).strip().toNum()
+        if pid != null (
+          top_msg = killPid(pid)
+          top_next = 0
+        ) else (
+          top_msg = "Invalid signal"
+        )
+        need = true
+      )
+    )
+  )
+
+  // ---- render ----
+  if need (
+    local st = top_st
+    local heap @= "(performance.memory ? {used: performance.memory.usedJSHeapSize, total: performance.memory.jsHeapSizeLimit} : {used: 0, total: 0})".eval()
+    local mem_total = heap.total / 1048576
+    local mem_used = heap.used / 1048576
+    local running = top_rows.filter(r -> r.ms > 0.05).len
+    local load1 = avgSince(60)
+    local load5 = avgSince(300)
+    local load15 = avgSince(900)
+    local cpu_us = (st.apps / top_budget) * 100
+    local cpu_sy = (st.sys / top_budget) * 100
+    local up_s = floor(timer)
+    local uptime = floor(up_s / 3600) ++ ":" ++ ("" ++ floor((up_s % 3600) / 60)).padStart("0", 2) ++ ":" ++ ("" ++ (up_s % 60)).padStart("0", 2)
+    local cols = terminal.cols
+    local wide = max(cols, 120)
+    local grid = []
+    if top_htop (
+      local cpu_pct = cpu_us + cpu_sy
+      local mem_pct = 0
+      if mem_total > 0 (
+        mem_pct = (mem_used / mem_total) * 100
+      )
+      local b1 = bar("  0", cpu_pct, fmtNum(cpu_pct, 1) ++ "%", 26, "#4ade80")
+      void b1.append(txtc, "   Tasks: " ++ st.count ++ ", " ++ st.workers ++ " thr; " ++ running ++ " running")
+      void grid.append(b1)
+      local b2 = bar("Mem", mem_pct, fmtNum(mem_used, 0) ++ "M/" ++ fmtNum(mem_total / 1024, 2) ++ "G", 26, "#4ade80")
+      void b2.append(txtc, "   Load average: " ++ fmtNum(load1, 2) ++ " " ++ fmtNum(load5, 2) ++ " " ++ fmtNum(load15, 2))
+      void grid.append(b2)
+      local b3 = bar("Swp", 0, "0K/0K", 26, "#ff6b6b")
+      void b3.append(txtc, "   Uptime: " ++ uptime)
+      void grid.append(b3)
+      void grid.append("")
+      void grid.append(topSlice([{text: "#000", back: "#4ade80"}, "  PID USER      PRI  NI  VIRT   RES   SHR S CPU% MEM%   TIME+  Command".padEnd(" ", wide)], top_hx + 1, cols))
+    ) else (
+      void grid.append("top - " ++ timestamp.timestamp("to-time") ++ " up " ++ uptime ++ ",  1 user,  load average: " ++ fmtNum(load1, 2) ++ ", " ++ fmtNum(load5, 2) ++ ", " ++ fmtNum(load15, 2))
+      void grid.append("Tasks: " ++ ("" ++ st.count).padStart(" ", 3) ++ " total, " ++ ("" ++ running).padStart(" ", 3) ++ " running, " ++ ("" ++ (st.count - running)).padStart(" ", 3) ++ " sleeping,   0 stopped,   0 zombie")
+      void grid.append("%Cpu(s): " ++ fmtNum(cpu_us, 1).padStart(" ", 5) ++ " us, " ++ fmtNum(cpu_sy, 1).padStart(" ", 5) ++ " sy,   0.0 ni, " ++ fmtNum(max(0, 100 - (cpu_us + cpu_sy)), 1).padStart(" ", 5) ++ " id")
+      void grid.append("MiB Mem : " ++ fmtNum(mem_total, 1).padStart(" ", 9) ++ " total, " ++ fmtNum(mem_total - mem_used, 1).padStart(" ", 9) ++ " free, " ++ fmtNum(mem_used, 1).padStart(" ", 9) ++ " used")
+      if top_msg != "" (
+        void grid.append([global_accent, top_msg])
+      ) else (
+        void grid.append("")
+      )
+      void grid.append(topSlice([{text: "#000", back: "#dddddd"}, "  PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND".padEnd(" ", wide)], top_hx + 1, cols))
+    )
+    if top_sel > top_rows.len (
+      top_sel = max(1, top_rows.len)
+    )
+    if top_htop (
+      if top_sel < top_first (
+        top_first = top_sel
+      )
+      if top_sel > (top_first + avail) - 1 (
+        top_first = (top_sel - avail) + 1
+      )
+    )
+    top_first = top_first.clamp(1, max(1, top_rows.len))
+    local shown = 0
+    for j top_rows.len (
+      if j >= top_first and shown < avail (
+        shown += 1
+        local r = top_rows[j]
+        local cpu = (r.ms / top_budget) * 100
+        local mem = 0
+        if st.nodes > 0 (
+          mem = (r.nodes / st.nodes) * 100
+        )
+        local state = "S"
+        if r.ms > 0.05 (
+          state = "R"
+        )
+        local pri = 20
+        if r.pri > 0 (
+          pri = r.pri
+        )
+        local user = ("" ++ username).padEnd(" ", 9)
+        if user.len > 9 (
+          user = user.trim(1, 9)
+        )
+        local line = ""
+        if top_htop (
+          line = ("" ++ r.id).padStart(" ", 5) ++ " " ++ user ++ " " ++ ("" ++ pri).padStart(" ", 3) ++ "   0 " ++ ("" ++ r.nodes).padStart(" ", 5) ++ " " ++ ("" ++ r.nodes).padStart(" ", 5) ++ " " ++ ("" ++ r.workers).padStart(" ", 5) ++ " " ++ state ++ " " ++ fmtNum(cpu, 1).padStart(" ", 4) ++ " " ++ fmtNum(mem, 1).padStart(" ", 4) ++ " " ++ fmtTime(r.time).padStart(" ", 8) ++ "  " ++ r.cmd
+          if j == top_sel (
+            void grid.append(topSlice([{text: "#000", back: "#5fd7ff"}, line.padEnd(" ", wide)], top_hx + 1, cols))
+          ) else if cpu >= 50 (
+            void grid.append(topSlice(["#ff6b6b", line], top_hx + 1, cols))
+          ) else (
+            void grid.append(topSlice(line, top_hx + 1, cols))
+          )
+        ) else (
+          line = ("" ++ r.id).padStart(" ", 5) ++ " " ++ user ++ " " ++ ("" ++ pri).padStart(" ", 3) ++ "   0 " ++ ("" ++ r.nodes).padStart(" ", 7) ++ " " ++ ("" ++ r.nodes).padStart(" ", 6) ++ " " ++ ("" ++ r.workers).padStart(" ", 6) ++ " " ++ state ++ " " ++ fmtNum(cpu, 1).padStart(" ", 5) ++ " " ++ fmtNum(mem, 1).padStart(" ", 5) ++ " " ++ fmtTime(r.time).padStart(" ", 9) ++ " " ++ r.cmd
+          void grid.append(topSlice(line, top_hx + 1, cols))
+        )
+      )
+    )
+    if top_htop (
+      loop max(0, avail - shown) (
+        void grid.append("")
+      )
+      local foot = []
+      local keys = [["F1", "Help  "], ["F3", "Search"], ["F4", "Filter"], ["F6", "SortBy"], ["F9", "Kill  "], ["F10", "Quit  "]]
+      for j keys.len (
+        void foot.append(txtc, keys[j][1])
+        void foot.append({text: "#000", back: "#5fd7ff"}, keys[j][2])
+      )
+      if top_msg != "" (
+        void foot.append(global_accent, "  " ++ top_msg)
+      )
+      void grid.append(foot)
+    )
+    top_msg = ""
+    if top_once (
+      for j grid.len (
+        terminal.writeLine(grid[j])
+      )
+      return
+    )
+    terminal.draw(grid)
+  )
+  defer
+)

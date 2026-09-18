@@ -1,0 +1,71 @@
+// du [-s] [-h] [dir]   disk usage of each entry in dir, plus a total
+local summary = false
+du_human = false
+local target = null
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith("-") and a.len > 1 (
+    summary = summary or a.contains("s")
+    du_human = du_human or a.contains("h")
+  ) else (
+    target = a
+  )
+)
+local root = target == null ? terminal.pwd terminal.resolvePath(target)
+if root != "origin" (
+  file "exists" (root ++ ".folder")
+  if !exists (
+    terminal.writeLine("du: cannot access '" ++ (target ?? root) ++ "': No such directory")
+    return
+  )
+)
+
+def sizeOf(path) (
+  local m = open(path, ["size"])
+  local n = ("" ++ (m[1] ?? "")).toNum()
+  if n == null or n <= 0 (
+    n = ("" ++ open(path)).len
+  )
+  return n
+)
+
+def sumDir(path) (
+  local total = 0
+  local names = listFiles(path)
+  for i names.len (
+    local n = "" ++ names[i]
+    if n.endsWith(".folder") (
+      total += sumDir(path ++ "/" ++ n.trim(1, -8))
+    ) else (
+      total += sizeOf(path ++ "/" ++ n)
+    )
+  )
+  return total
+)
+
+def fmt(n) (
+  if du_human (
+    return formatFileSize(n)
+  )
+  return "" ++ n
+)
+
+local total = 0
+local names = listFiles(root).sort()
+for i names.len (
+  local n = "" ++ names[i]
+  local size = 0
+  if n.endsWith(".folder") (
+    size = sumDir(root ++ "/" ++ n.trim(1, -8))
+    if !summary (
+      terminal.writeLine(fmt(size).padEnd(" ", 10) ++ (target ?? ".") ++ "/" ++ n.trim(1, -8))
+    )
+  ) else (
+    size = sizeOf(root ++ "/" ++ n)
+    if !summary (
+      terminal.writeLine(fmt(size).padEnd(" ", 10) ++ (target ?? ".") ++ "/" ++ n)
+    )
+  )
+  total += size
+)
+terminal.writeLine(fmt(total).padEnd(" ", 10) ++ (target ?? "."))

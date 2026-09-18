@@ -1,41 +1,60 @@
-local src = args[1]
-local dst = args[2]
-
-if src == null or dst == null (
-  terminal.writeLine("cp: missing file operand")
-  terminal.writeLine("Usage: cp <source> <destination>")
+// cp [-r] source destination
+local recursive = false
+local targets = []
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith("-") and a.len > 1 (
+    recursive = recursive or a.contains("r") or a.contains("R")
+  ) else (
+    void targets.append(a)
+  )
+)
+if targets.len < 2 (
+  terminal.writeLine("usage: cp [-r] source destination")
   return
 )
-
+local src = targets[1]
+local dst = targets[2]
 local srcPath = terminal.resolvePath(src)
-if !src.contains(".") (
-  srcPath ++= ".folder"
-)
-
+local isDir = false
 file "exists" srcPath
 if !exists (
-  terminal.writeLine("cp: cannot stat '" ++ src ++ "': No such file or directory")
-  return
+  file "exists" (srcPath ++ ".folder")
+  if exists (
+    isDir = true
+  ) else (
+    terminal.writeLine("cp: cannot stat '" ++ src ++ "': No such file or directory")
+    return
+  )
 )
-
 local dstPath = terminal.resolvePath(dst)
-local isDstDir = false
-
-if !dst.contains(".") (
-  dstPath ++= ".folder"
-  isDstDir = true
-)
-
-file "exists" dstPath
+file "exists" (dstPath ++ ".folder")
 if exists (
-  isDstDir = true
+  dstPath ++= "/" ++ srcPath.split("/")[-1]
 )
 
-if isDstDir (
-  local name = srcPath.split("/")[-1]
-  dstPath = dstPath.trim(1, -8) ++ "/" ++ name
+def copyTree(srcDir, dstDir) (
+  file "exists" (dstDir ++ ".folder")
+  if !exists (
+    file "set_file" (dstDir ++ ".folder") []
+  )
+  local names = listFiles(srcDir)
+  for i names.len (
+    local n = "" ++ names[i]
+    if n.endsWith(".folder") (
+      copyTree(srcDir ++ "/" ++ n.trim(1, -8), dstDir ++ "/" ++ n.trim(1, -8))
+    ) else (
+      file "set_file" (dstDir ++ "/" ++ n) open(srcDir ++ "/" ++ n)
+    )
+  )
 )
 
-local content = open(srcPath)
-file "set_file" dstPath content
-terminal.writeLine("copied '" ++ src ++ "' to '" ++ dst ++ "'")
+if isDir (
+  if !recursive (
+    terminal.writeLine("cp: -r not specified; omitting directory '" ++ src ++ "'")
+    return
+  )
+  copyTree(srcPath, dstPath)
+) else (
+  file "set_file" dstPath open(srcPath)
+)

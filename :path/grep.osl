@@ -1,40 +1,141 @@
-local flags = args.filter(v -> v[1] == "-")
-args = args.filter(v -> v[1] != "-")
-
-local exp = args[1].toStr()
-local inp = null
-if terminal.stdin != null (
-  inp = terminal.stdin
-) else if args.len > 1 (
-  inp = args[2].toStr()
+// grep [-invclwE] pattern [file ...]   (reads stdin when no file is given)
+local fi = false
+local fv = false
+local fn = false
+local fc = false
+local fl = false
+local fw = false
+local fE = false
+local fh = false
+local rest = []
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith("-") and a.len > 1 and rest.len == 0 (
+    local f = a.trim(2, -1)
+    for j f.len (
+      local ch = f[j]
+      if ch == "i" (
+        fi = true
+      ) else if ch == "v" (
+        fv = true
+      ) else if ch == "n" (
+        fn = true
+      ) else if ch == "c" (
+        fc = true
+      ) else if ch == "l" (
+        fl = true
+      ) else if ch == "w" (
+        fw = true
+      ) else if ch == "E" (
+        fE = true
+      ) else if ch == "h" (
+        fh = true
+      ) else (
+        terminal.writeLine("grep: invalid option -- '" ++ ch ++ "'")
+        return
+      )
+    )
+  ) else (
+    void rest.append(a)
+  )
+)
+if rest.len == 0 (
+  terminal.writeLine("usage: grep [-invclwE] pattern [file ...]")
+  return
+)
+local pattern = "" ++ rest[1]
+local sources = []
+if rest.len == 1 (
+  if terminal.stdin == null (
+    terminal.writeLine("usage: grep [-invclwE] pattern [file ...]")
+    return
+  )
+  void sources.append({name: "(standard input)", text: "" ++ terminal.stdin})
 ) else (
-  terminal.writeLine("grep: missing pattern or input")
-)
-
-local chk = inp.toStr()
-
-local flag_v = flags.contains("-v")
-local flag_n = flags.contains("-n")
-local flag_i = flags.contains("-i")
-
-if flag_i (
-  exp = exp.toLower()
-  chk = inp.toLower()
-)
-
-local out = []
-local lines = chk.split("\n")
-local lines2 = inp.split("\n")
-for i lines.len (
-  if lines[i].contains(exp) (
-    void out.append(lines2[i])
+  for i rest.len (
+    if i > 1 (
+      local f = rest[i]
+      local p = terminal.resolvePath(f)
+      file "exists" p
+      if exists (
+        local d = open(p)
+        if typeof(d) == "object" (
+          d = d.JsonFormat()
+        )
+        void sources.append({name: f, text: "" ++ d})
+      ) else if rest.len == 2 and terminal.stdin == null and !f.contains("/") (
+        // grep pattern "some literal text" (legacy form)
+        void sources.append({name: "(text)", text: f})
+      ) else (
+        terminal.writeLine("grep: " ++ f ++ ": No such file or directory")
+      )
+    )
   )
 )
 
-if flags.contains("-c") (
-  terminal.writeLine(out.len)
-) else (
-  for i out.len (
-    terminal.writeLine(out[i])
+local multi = sources.len > 1 and !fh
+local pat = fi ? pattern.toLower() pattern
+local rx = null
+if fE (
+  rx = "/" ++ pattern ++ "/" ++ (fi ? "i" "")
+)
+for s sources.len (
+  local src = sources[s]
+  local lines = src.text.split("\n")
+  local count = 0
+  for i lines.len (
+    local line = "" ++ lines[i]
+    local hay = fi ? line.toLower() line
+    local idx = 0
+    local mlen = pat.len
+    if fE (
+      local m = line.match(rx)
+      if m != null and m.len > 0 (
+        idx = hay.index(fi ? ("" ++ m[1]).toLower() ("" ++ m[1]))
+        mlen = ("" ++ m[1]).len
+      )
+    ) else (
+      idx = hay.index(pat)
+      if fw and idx > 0 (
+        local pre = idx > 1 ? hay[idx - 1] " "
+        local post = idx + mlen <= hay.len ? hay[idx + mlen] " "
+        local ok = !(pre.match("/[a-z0-9_]/i") != null) and !(post.match("/[a-z0-9_]/i") != null)
+        if !ok (
+          idx = 0
+        )
+      )
+    )
+    local matched = idx > 0
+    if fv (
+      matched = !matched
+    )
+    if matched (
+      count += 1
+      if !fc and !fl (
+        local head = ""
+        if multi (
+          head ++= src.name ++ ":"
+        )
+        if fn (
+          head ++= i ++ ":"
+        )
+        if fv or idx == 0 (
+          terminal.writeLine(head ++ line)
+        ) else (
+          terminal.writeLine([
+            "#8b8b8b", head,
+            txtc, idx > 1 ? line.trim(1, idx - 1) "",
+            "#ff6b6b", line.trim(idx, (idx + mlen) - 1),
+            txtc, (idx + mlen) <= line.len ? line.trim(idx + mlen, -1) ""
+          ])
+        )
+      )
+    )
+  )
+  if fc (
+    terminal.writeLine((multi ? (src.name ++ ":") "") ++ count)
+  )
+  if fl and count > 0 (
+    terminal.writeLine(src.name)
   )
 )

@@ -1,0 +1,244 @@
+// ofsf: low-level OFSF tools (paths, records, index maintenance)
+// Resolve paths on the origin drive.
+//   origin / / /origin  → drive root
+//   /foo                → origin/foo  (leading / = on origin drive)
+//   origin/foo          → origin/foo
+//   ~/foo               → origin/(c) users/<user>/foo
+//   else                → relative to terminal cwd
+def ofsfPath(target) (
+  local t = ("" ++ (target ?? "origin")).strip()
+  if t == "" or t == "/" or t == "origin" or t == "origin/" or t == "." (
+    return "origin"
+  )
+  if t.startsWith("origin/") or t.startsWith("origin\\") (
+    return parseFilePath(t)
+  )
+  if t.startsWith("/") (
+    return parseFilePath(t)
+  )
+  if t.startsWith("~/") or t == "~" (
+    return parseFilePath(t)
+  )
+  return parseFilePath(("" ++ terminal.pwd) ++ "/" ++ t)
+)
+
+def ofsfHelp() (
+  terminal.writeLine("ofsf - low-level OFSF tools")
+  terminal.writeLine("  drive: origin   home: origin/(c) users/<user>")
+  terminal.writeLine("  ofsf status          path counts")
+  terminal.writeLine("  ofsf ls [path]       list folder (default: origin)")
+  terminal.writeLine("  ofsf stat <path>     record details (path|uuid|id)")
+  terminal.writeLine("  ofsf cat <path>      print file data")
+  terminal.writeLine("  ofsf write <path> <text>   create/overwrite file")
+  terminal.writeLine("  ofsf mkdir <path>    create folder (and parents)")
+  terminal.writeLine("  ofsf rm <path>       delete file/folder")
+  terminal.writeLine("  ofsf paths [filter]  search path index")
+  terminal.writeLine("  ofsf reindex         rebuild path/uuid indexes")
+  terminal.writeLine("  ofsf ensure-home     create origin/(c) users/<user>")
+  terminal.writeLine("  ofsf cleanup         run duplicate cleanup")
+  terminal.writeLine("  ofsf set <path> <field> <v>  set record field")
+)
+
+def ofsfStatus() (
+  eval "globalThis.__ofsf = (function(){ const p = (window.files && window.files.paths) || {}; const u = ('' + (osl.username || '')).toLowerCase(); const home = 'origin/(c) users/' + u; return { paths: Object.keys(p).length, home: home, homeOk: !!p[home + '.folder'], driveOk: !!p['origin.folder'] }; })()"
+  terminal.writeLine("drive: origin")
+  terminal.writeLine("paths: " ++ __ofsf.paths)
+  terminal.writeLine("home:  " ++ __ofsf.home)
+  terminal.writeLine("pwd:   " ++ terminal.pwd)
+)
+
+def ofsfCmd(args) (
+  if args.len == 0 (
+    ofsfHelp()
+    return []
+  )
+  local sub = args[1]
+  if sub == "help" or sub == "-h" or sub == "--help" (
+    ofsfHelp()
+    return []
+  )
+  if sub == "status" (
+    ofsfStatus()
+    return []
+  )
+  if sub == "ensure-home" or sub == "ensure_home" (
+    file_error = ""
+    try (
+      file "ensure_home"
+      if file_error != null and file_error != "" (
+        terminal.writeLine("ensure-home failed: " ++ file_error)
+        file_error = ""
+      ) else (
+        home_path = "" ++ (data ?? ("origin/(c) users/" ++ ("" ++ username).toLower()))
+        user_folder = home_path
+        terminal.pwd = home_path
+        terminal.writeLine("home: " ++ home_path)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "reindex" (
+    file_error = ""
+    try (
+      file "reindex"
+      terminal.writeLine("reindexed paths: " ++ data)
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "cleanup" (
+    file_error = ""
+    try (
+      file "cleanup"
+      terminal.writeLine("cleanup removed dups: " ++ data)
+      ofsfStatus()
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "paths" (
+    local filter = args.len > 1 ? args[2] : ""
+    eval ("globalThis.__ofsfPaths = (function(){ const p = window.files && window.files.paths ? Object.keys(window.files.paths).sort() : []; const f = " ++ filter.JsonStringify() ++ "; return f ? p.filter(x => x.indexOf(f.toLowerCase()) !== -1) : p.slice(0, 200); })()")
+    for i __ofsfPaths.len (
+      terminal.writeLine(__ofsfPaths[i])
+    )
+    if __ofsfPaths.len == 0 (
+      terminal.writeLine("(no paths" ++ (filter != "" ? " matching filter" : "") ++ ")")
+    )
+    return []
+  )
+  if sub == "ls" (
+    local target = args.len > 1 ? args[2] : "origin"
+    local p = ofsfPath(target)
+    eval ("globalThis.__ofsfLs = (function(){ let p = " ++ p.JsonStringify() ++ "; p = String(p || 'origin').toLowerCase().replace(/\\/+$/,''); if (p === '' || p === '/') p = 'origin'; let key = p; if (!key.endsWith('.folder') && key.indexOf('.') === -1) key = key + '.folder'; const paths = (window.files && window.files.paths) || {}; let id = paths[key]; if (id == null && paths[p]) id = paths[p]; if (id == null) return {err: 'not found: ' + key, out: []}; const stage = vm.runtime.getTargetForStage(); const files = Object.values(stage.variables).find(v => v.name === 'Files'); if (!files) return {err: 'Files list missing', out: []}; const F = files.value; const N = 14; const b = (id - 1) * N; const typ = F[b]; const raw = F[b + 3]; let kids = []; try { kids = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []); } catch(e) { return {err: 'bad folder data at ' + key, out: []}; } if (typ !== '.folder') return {err: 'not a folder: ' + key, out: [], path: key}; if (!Array.isArray(kids)) return {err: 'folder data not array', out: []}; const uu = (window.files && window.files.uuids) || {}; const out = []; for (let i = 0; i < kids.length; i++) { const k = kids[i]; const ix = uu[k]; if (ix == null) { out.push('?  ' + k); continue; } const bb = (ix - 1) * N; const t = F[bb] || '?'; const n = F[bb + 1] || ''; out.push(String(t).padEnd(10) + ' ' + n + (t === '.folder' ? '/' : t)); } return {out: out, path: key, n: out.length}; })()")
+    if __ofsfLs == null (
+      terminal.writeLine("ls failed: no result")
+    ) else if __ofsfLs.err (
+      terminal.writeLine(__ofsfLs.err)
+    ) else (
+      terminal.writeLine(__ofsfLs.path ++ "  (" ++ __ofsfLs.n ++ ")")
+      if __ofsfLs.out.len == 0 (
+        terminal.writeLine("(empty)")
+      ) else (
+        for i __ofsfLs.out.len (
+          terminal.writeLine(__ofsfLs.out[i])
+        )
+      )
+    )
+    return []
+  )
+  if sub == "stat" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf stat <path|uuid|id>")
+      return []
+    )
+    local target = ofsfPath(args[2])
+    eval ("globalThis.__ofsfStat = (function(){ let t = " ++ target.JsonStringify() ++ "; const stage = vm.runtime.getTargetForStage(); const files = Object.values(stage.variables).find(v => v.name === 'Files'); if (!files) return {err:'Files list missing'}; const F = files.value; const N = 14; let id = null; if (/^\\d+$/.test(String(t))) id = +t; else if (window.files && window.files.uuids && window.files.uuids[t] != null) id = window.files.uuids[t]; else { let p = String(t).toLowerCase(); if (p === '/' || p === '') p = 'origin'; if (!p.startsWith('origin')) { if (p.startsWith('/')) p = 'origin' + p; else if (p.startsWith('~/')) p = String(osl.user_folder||'').toLowerCase() + p.slice(1); } const paths = (window.files && window.files.paths) || {}; id = paths[p] || paths[p + (p.endsWith('.folder')?'':'.folder')]; } if (id == null || id < 1) return {err:'not found: ' + t}; const b = (id-1)*N; const labels = (origin.files && origin.files.entryLabels) || ['type','name','location','data','data2','x','y','id','created','edited','icon','size','permissions','uuid']; const o = {id: id}; for (let i=0;i<labels.length;i++) { let v = F[b+i]; if (i===3 && String(v).length > 120) v = String(v).slice(0,120) + '...'; o[labels[i]] = v; } return o; })()")
+    if __ofsfStat.err (
+      terminal.writeLine(__ofsfStat.err)
+    ) else (
+      terminal.writeLine(__ofsfStat.JsonStringify())
+    )
+    return []
+  )
+  if sub == "cat" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf cat <path>")
+      return []
+    )
+    local cp = ofsfPath(args[2])
+    try (
+      file "get_file" cp
+      if typeof(data) == "object" (
+        terminal.writeLine(data.JsonStringify())
+      ) else (
+        terminal.writeLine("" ++ data)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "write" (
+    if args.len < 3 (
+      terminal.writeLine("usage: ofsf write <path> <text...>")
+      return []
+    )
+    local body = args.trim(3, -1).join(" ")
+    local wp = ofsfPath(args[2])
+    try (
+      file "set_file" wp body
+      if file_error != null and file_error != "" (
+        terminal.writeLine("write failed: " ++ file_error)
+        file_error = ""
+      ) else (
+        terminal.writeLine("wrote " ++ wp)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "mkdir" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf mkdir <path>")
+      return []
+    )
+    local p = ofsfPath(args[2])
+    if p.endsWith(".folder").not() (
+      p = p ++ ".folder"
+    )
+    try (
+      file "set_file" p []
+      if file_error != null and file_error != "" (
+        terminal.writeLine("mkdir failed: " ++ file_error)
+        file_error = ""
+      ) else (
+        terminal.writeLine("mkdir " ++ p)
+      )
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "rm" (
+    if args.len < 2 (
+      terminal.writeLine("usage: ofsf rm <path>")
+      return []
+    )
+    local rp = ofsfPath(args[2])
+    try (
+      file "open" rp "onlyaccess"
+      file "delete"
+      terminal.writeLine("deleted " ++ rp)
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  if sub == "set" (
+    if args.len < 4 (
+      terminal.writeLine("usage: ofsf set <path> <field> <value>")
+      return []
+    )
+    local sp = ofsfPath(args[2])
+    try (
+      file "open" sp "onlyaccess"
+      file "set" args[3] args.trim(4, -1).join(" ")
+      file "close"
+      terminal.writeLine("set " ++ args[3] ++ " on " ++ sp)
+    ) catch e (
+      terminal.writeLine(e.full ?? e)
+    )
+    return []
+  )
+  terminal.writeLine("unknown ofsf subcommand: " ++ sub)
+  ofsfHelp()
+  return []
+)
+
+void ofsfCmd(args)

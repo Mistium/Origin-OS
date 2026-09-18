@@ -1,246 +1,602 @@
-import "window_tools" as "wt"
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: Rotur mail. Read, send and manage your rmails
+//
+// Talks to roturMail (mail.rotur.dev) through the kernel's `mail` package: mail.request
+// returns the v1 envelope {ok, data, meta, error}, mail.on delivers live socket events.
+// Layout: a glass sidebar with search, the mailbox switch and the list, and a pane that
+// shows the open thread or the compose form.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
+import "window_tools"
 
 permission "request" "rmail"
 permission "request" "account"
 
-network "server" "omail_getinfo"
+SIDE = 300
+ROW_H = 58
 
-window.resize(1000, 550)
-all_mail = []
-current_rmail = 0
+array boxes = ["inbox", "sent", "archive", "trash"]
+array box_labels = ["Inbox", "Sent", "Archive", "Trash"]
+object counts = {}
+string box = "inbox"
+array list = []
+// the open thread, {root, replies}, or null. "new" in compose_mode means the compose form
+thread = null
+string open_id = ""
+string compose_mode = ""
+string reply_to = ""
+string reply_name = ""
+boolean loading = true
+boolean dirty = true
+boolean button_click = false
+number side_len = 0
+number page_len = 0
+number pane_w = 0
+number sw = 0
+number typed_at = 0
+string fetched_query = ""
+string last_error = ""
+inputs.search = ""
+inputs.recipient = ""
+inputs.title = ""
+inputs.send_body = []
 
-array filters = [
-  {
-    text: "Inbox",
-    icon: "mail",
-    func: data -> (data.from != username)
-  },
-  {
-    text: "Sent",
-    icon: "send",
-    func: data -> (data.from == username)
+window.resize(1000, 620)
+window.show()
+
+// live updates: anything the server says changed makes the next frame refetch
+void mail.on("event", msg -> (
+  dirty = true
+))
+
+def fail(object resp, string what) (
+  last_error = what ++ ": " ++ resp.error.toStr()
+  say last_error
+)
+
+def loadCounts() (
+  local resp @= mail.request("GET", "/mailboxes", {})
+  if resp.ok (
+    for i resp.data.len (
+      counts[resp.data[i].id] = resp.data[i].count
+    )
+  )
+)
+
+def loadList() (
+  local params = {box: box, per_page: 100}
+  local q = inputs.search.toStr().strip()
+  if q != "" (
+    params.q = q
+  )
+  local resp @= mail.request("GET", "/rmails", params)
+  loading = false
+  if !resp.ok (
+    fail(resp, "Could not load " ++ box)
+    return
+  )
+  list @= resp.data
+  fetched_query = q
+)
+
+def openThread(string id) (
+  local resp @= mail.request("GET", "/rmails/" ++ id ++ "/thread", {})
+  if !resp.ok (
+    fail(resp, "Could not open that rmail")
+    return
+  )
+  thread @= resp.data
+  open_id = id
+  compose_mode = ""
+  if thread.root.is_read != true and thread.root.mailbox == "inbox" (
+    void mail.request("POST", "/rmails/" ++ thread.root.id ++ "/read", {})
+    thread.root.is_read = true
+  )
+)
+
+def refresh() (
+  loadCounts()
+  loadList()
+  if open_id != "" (
+    openThread(open_id)
+  )
+  dirty = false
+)
+
+// one of the /rmails/:id/<action> shortcuts, then everything is refetched
+def act(string id, string action) (
+  local resp @= mail.request("POST", "/rmails/" ++ id ++ "/" ++ action, {})
+  if !resp.ok (
+    fail(resp, "Could not " ++ action)
+  )
+  dirty = true
+)
+
+def compose(string who, string title, string root) (
+  compose_mode = "new"
+  reply_to = root
+  reply_name = who
+  inputs.recipient = who
+  inputs.title = title
+  inputs.send_body = []
+  local focus_id = root == "" ? "recipient" "send_body"
+  input "focus" focus_id
+)
+
+def sendMail() (
+  local body = inputs.send_body.join("\n")
+  local resp = null
+  if reply_to != "" (
+    resp @= mail.request("POST", "/rmails/" ++ reply_to ++ "/reply", {body: body})
+  ) else (
+    if inputs.recipient.strip() == "" (
+      say "Who is this rmail for?"
+      return
+    )
+    if inputs.title.strip() == "" (
+      say "Give it a subject"
+      return
+    )
+    resp @= mail.request("POST", "/rmails", {to: inputs.recipient.strip().toLower(), subject: inputs.title.strip(), body: body})
+  )
+  if !resp.ok (
+    fail(resp, "Not sent")
+    return
+  )
+  say "Sent"
+  compose_mode = ""
+  if reply_to != "" (
+    open_id = reply_to
+  ) else (
+    open_id = ""
+    box = "sent"
+  )
+  dirty = true
+)
+
+def when(stamp) string (
+  if stamp == null or stamp == 0 (
+    return ""
+  )
+  return stamp.timestamp("to-relative").replace("-", "/")
+)
+
+def other(object m) string (
+  if m.from.username == username (
+    return m.to.username
+  )
+  return m.from.username
+)
+
+// ---------------------------------------------------------------- drawing helpers
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 30
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 30 14 : c#fill
+  centext label 8.5 : c#ink
+)
+
+// a round icon button, result in `button_click`
+def "icon_button" "icn, tip, ink" (
+  hit 28 28
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+    box 28 28 12 : c#track_col
+  )
+  icon icn 0.6 : c#ink tooltip#tip
+)
+
+def "section_label" "label, y" (
+  goto pane_w / -2 + 14 y
+  text label 7.5 : c#muted
+)
+
+// ---------------------------------------------------------------- sidebar
+
+def "mail_row" "cur, y" (
+  goto 0 y
+  hit sw ROW_H - 4
+  local ink = txtc
+  local dim = muted
+  local unread = cur.is_read != true and cur.mailbox == "inbox"
+  if cur.id == open_id (
+    box sw ROW_H - 4 14 : c#global_accent
+    ink = accent_txt
+    dim = accent_txt
+  ) else if mouse_touching (
+    cursor "pointer"
+    box sw ROW_H - 4 14 : c#hover_col
+  )
+  if onclick (
+    openThread(cur.id)
+  )
+  local name = other(cur)
+  goto sw / -2 + 26 y
+  style {rounding: 17}
+  image "https://avatars.rotur.dev/" ++ name ++ "?radius=128" 34 34
+  if unread (
+    goto sw / -2 + 38 y - 12
+    box 12 12 12 : c#window_colour
+    box 8 8 8 : c#global_accent
+  )
+  goto sw / -2 + 54 y + 9
+  text name.toStr().trimText(sw - 170 / 9.5) 9.5 : c#ink
+  goto sw / 2 - 12 y + 9
+  local stamp = when(cur.created_at)
+  if cur.is_starred == true (
+    stamp = "* " ++ stamp
+  )
+  rigtext stamp 7.5 : c#dim
+  goto sw / -2 + 54 y - 10
+  local subject = cur.subject.toStr()
+  if cur.replies_count > 0 (
+    subject = "(" ++ (cur.replies_count + 1) ++ ") " ++ subject
+  )
+  text subject.trimText(sw - 80 / 8) 8 : c#dim
+)
+
+// ---------------------------------------------------------------- pane
+
+// one message as a card, subject shown only for the root. returns the height used
+def message(object m, number y, boolean is_root) number (
+  local name = m.from.username.toStr()
+  local title = ""
+  local title_h = 0
+  if is_root (
+    title = m.subject.toStr().wrapText(pane_w - 40 / 12)
+    title_h = title.split("\n").len * 26 + 6
+  )
+  local body = m.body.toStr()
+  if m.system != null (
+    body = m.system.actor ++ " " ++ m.system.action ++ " " ++ m.system.target
+  ) else if body == "" (
+    body = "(no message)"
+  )
+  if m.is_encrypted == true (
+    body = "This rmail is end-to-end encrypted. Open it in the roturMail web client to read it."
+  )
+  body = body.wrapText(pane_w - 40 / 9)
+  local body_h = body.split("\n").len * 21
+  local card_h = title_h + body_h + 80
+  goto 0 y - (card_h / 2)
+  card pane_w card_h
+  goto pane_w / -2 + 34 y - 30
+  style {rounding: 16}
+  image "https://avatars.rotur.dev/" ++ name ++ "?radius=128" 32 32
+  goto pane_w / -2 + 60 y - 22
+  text name.trimText(pane_w - 200 / 10) 10 : c#txtc
+  goto pane_w / -2 + 60 y - 40
+  local meta = when(m.created_at)
+  if m.edited_at != null (
+    meta ++= ", edited"
+  )
+  if m.read_receipt_at != null (
+    meta ++= ", read"
+  )
+  text meta 7.5 : c#muted
+  local ty = y - 62
+  if is_root (
+    goto pane_w / -2 + 18 ty
+    text title 12 : c#txtc
+    ty -= title_h
+    goto 0 ty + 4
+    square pane_w - 32 0 1 : c#edge_col
+    ty -= 8
+  )
+  goto pane_w / -2 + 18 ty - 4
+  text body 9 : c#txtc
+  return card_h
+)
+
+def "draw_thread" (
+  pane_w = min(frame.width - 40, 640)
+  local y = frame.top - 16 + frame.scroll
+  local top = y
+  local root @= thread.root
+
+  // the action strip
+  goto 0 y - 22
+  card pane_w 44
+  goto pane_w / -2 + 18 y - 22
+  local name = other(root)
+  local mine = root.from.username == username
+  local strip = mine ? "To " "From "
+  strip = strip ++ name
+  if root.participants != null and root.participants.len > 2 (
+    strip = root.participants.len ++ " people"
+  )
+  text strip.trimText(pane_w - 300 / 9) 9 : c#muted
+  local bx = pane_w / 2 - 30
+  if root.mailbox == "trash" (
+    goto bx y - 22
+    icon_button "bin" "Delete forever" "#f87171"
+    if button_click and "Delete this rmail forever?".confirm() (
+      local resp @= mail.request("DELETE", "/rmails/" ++ root.id, {})
+      if !resp.ok (
+        fail(resp, "Could not delete")
+      )
+      open_id = ""
+      thread = null
+      dirty = true
+      return
+    )
+    bx -= 34
+    goto bx y - 22
+    icon_button "sync" "Restore to inbox" txtc
+    if button_click (
+      act(root.id, "restore")
+    )
+  ) else (
+    goto bx y - 22
+    icon_button "bin" "Move to trash" "#f87171"
+    if button_click (
+      act(root.id, "trash")
+      open_id = ""
+      thread = null
+      return
+    )
+    bx -= 34
+    goto bx y - 22
+    if root.mailbox == "archive" (
+      icon_button "upload" "Move to inbox" txtc
+      if button_click (
+        act(root.id, "unarchive")
+      )
+    ) else (
+      icon_button "download" "Archive" txtc
+      if button_click (
+        act(root.id, "archive")
+      )
+    )
+  )
+  bx -= 34
+  goto bx y - 22
+  local starred = root.is_starred == true
+  local star_icon = starred ? "pin-full" "pin"
+  local star_tip = starred ? "Unstar" "Star"
+  icon_button star_icon star_tip txtc
+  if button_click (
+    local star_action = starred ? "unstar" "star"
+    act(root.id, star_action)
+  )
+  bx -= 34
+  goto bx y - 22
+  icon_button "copy" "Copy body" txtc
+  if button_click (
+    clipboard "set" root.body
+    say "Copied rmail to clipboard"
+  )
+  if root.is_participant != false and root.mailbox != "trash" (
+    bx -= 34
+    goto bx y - 22
+    icon_button "left-arrow" "Reply" txtc
+    if button_click (
+      compose(name, "", root.id)
+      return
+    )
+  )
+  y -= 56
+
+  y -= message(root, y, true) + 10
+  local replies @= thread.replies ?? []
+  for i replies.len (
+    y -= message(replies[i], y, false) + 10
+  )
+  page_len = top - y + 30
+)
+
+def "draw_compose" (
+  pane_w = min(frame.width - 40, 640)
+  page_len = 0
+  local y = frame.top - 16
+
+  if reply_to != "" (
+    goto 0 y - 22
+    card pane_w 44
+    goto pane_w / -2 + 18 y - 22
+    text ("Replying to " ++ reply_name).trimText(pane_w - 40 / 9) 9 : c#muted
+    y -= 56
+  ) else (
+    section_label "TO" y - 10
+    y -= 26
+    goto 0 y - 17
+    box pane_w 34 14 : c#prim
+    c prim
+    input pane_w - 20 26 "recipient" "Username" 10 txtc
+    inputs.recipient = inputs.recipient.toStr().trim(1, 20)
+    y -= 46
+
+    section_label "SUBJECT" y - 10
+    y -= 26
+    goto 0 y - 17
+    box pane_w 34 14 : c#prim
+    c prim
+    input pane_w - 20 26 "title" "What is this about?" 10 txtc
+    inputs.title = inputs.title.toStr().trim(1, 100)
+    y -= 46
+  )
+
+  section_label "MESSAGE" y - 10
+  y -= 26
+  local body_h = max(120, y - frame.bottom - 62)
+  goto 0 y - (body_h / 2)
+  card pane_w body_h
+  c prim
+  textbox pane_w - 16 body_h - 12 "send_body" 10 {
+    line_numbers: false,
+    bg_colour: prim,
+    text_colour: txtc,
+    default_text: "Type your message here"
   }
-]
+  y -= body_h + 12
 
-current_filter @= filters[1].func
+  goto pane_w / 2 - 60 y - 15
+  text_button "Send" 120 global_accent accent_txt
+  if button_click (
+    sendMail()
+  )
+  goto pane_w / 2 - 190 y - 15
+  text_button "Discard" 120 prim txtc
+  if button_click (
+    compose_mode = ""
+  )
+)
 
-
-new_mail = true
+// opened from a notification: {id}
+if typeof(passed_data) == "object" and passed_data.id != null (
+  open_id = passed_data.id.toStr()
+)
 
 mainloop:
-wt:load_theme
+load_theme
 
-if new_network_data (
-  command = network_data_command
-  if command == "omail_total" (
-    total_mail = network_data
+if dirty (
+  refresh()
+)
+// server-side search, after a pause in typing
+local q = inputs.search.toStr().strip()
+if q != fetched_query (
+  if typed_at == 0 (
+    typed_at = timer
   )
-  if command == "omail_getinfo" (
-    all_mail = network_data
-    each i mail all_mail (
-      all_mail[i].date = mail.timestamp.timestamp("to-relative").replace("-","/")
-      all_mail[i].index = i
-    )
-    current_rmail = 0
+  if timer - typed_at > 0.35 (
+    typed_at = 0
+    loadList()
   )
-  if command == "omail_getid" (
-    i = network_data[1]
-    data = network_data[2].body
-    all_mail[i].body = data ?? "this message is empty"
-  )
-  if command == "omail_send" (
-    if current_rmail == "new" (
-      say packet.data
-      if packet.full.success (
-        current_rmail = "new"
-        inputs.recipient = ""
-        inputs.title = ""
-        inputs.send_body = []
-      )
-    )
-  )
-  new_network_data = false
 )
 
-goto 0 window.top - 20
-square window.width 40 13 : c#seco
-square window.width 40 8 : c#prim
+local cl = window.left + SIDE
 
-local h = window.height - 85
-local y = -23
-goto window.left + 340 y
-square 250 h 25 : c#seco
-square 250 h 20 : c#prim
-
-w = window.width - 520
-goto window.right - (w / 2) - 20 y
-square w h 25 : c#seco
-square w h 20 : c#prim
-
+// page background, squared off where it meets the glass sidebar
 window.setGlass(100, "15px")
-
-loc 2 2 100 -70
-for i filters.len (
-  set_x window.left + 100
-  square 170 20 15 0 1
-  if onclick (
-    current_filter @= filters[i].func
-    current_rmail = 0
-  )
-  set_x window.left + 30
-  c current_filter === filters[i].func ? global_accent txtc
-  icon filters[i].icon 0.8
-  text filters[i].text 10 : chx#20
-  change_y -40
-)
-
+goto SIDE / 2 0
+square window.width - SIDE - 10 window.height + 10 10 : c#window_colour
+goto cl + 12 0
+square 20 window.height 4
 c window_colour
-goto window.left + 340 y
-square 250 h 15
-x = x_position
+pen "opacity" 55
+icon "w 99999 dot 0 0" 10
+pen "opacity" 0
+frame "clear"
+
+// search, then the mailbox switch
+local sx = window.left + (SIDE / 2)
+// the top row shares the window buttons' centre line and height, the sides use the same 6 inset
+local inner = SIDE - 12
+goto sx window.top - 21
+box inner 27 12 : c#prim
+goto sx - (inner / 2) + 16 window.top - 21
+icon "search" 0.5 : c#muted
+goto sx + 12 window.top - 21
 c prim
-cur_mail @= all_mail.filter(current_filter)
-frame x - 130 window.top - 60 x + 130 window.bottom + 15 cur_mail.len * 85 "cache@mail" (
-  set_y frame.top + frame.scroll - 43.5
-  local y2 = y_position
-  if cur_mail.len == 0 (
-    goto 0 y2
-    centext "This mailbox is empty" 10 : c#txtc
-    if typeof(current_rmail) == "number" (
-      current_rmail = 0
-    )
+input inner - 44 21 "search" "Search" 9 txtc
+
+goto sx window.top - 56
+box inner 27 14 : c#prim
+local seg = inner / 4
+for i 4 (
+  goto sx - (inner / 2) + (i - 0.5 * seg) window.top - 56
+  hit seg - 6 21
+  if mouse_touching (
+    cursor "pointer"
   )
-  for i cur_mail.len (
-    local cur @= cur_mail[i]
-    goto 0 y2
-    if cur.index == current_rmail (
-      square frame.width - 15 70 15 : c#seco
-    )
-    square frame.width - 15 70 10 : c#prim
-    if onclick (
-      current_rmail = cur.index
-    )
-    local r_from = cur.from
-    local r_to = cur.recipient
-
-    all_mail[cur.index].external = r_to == username ? r_from r_to
-    set_x frame.left + 27 : chy#15
-
-    if cur.external != null (
-      image "https://avatars.rotur.dev/" ++ cur.external ++ "?radius=30" 40 40
-    )
-    text cur.external ++ "\n" ++ cur.date 10 : c#txtc chx#30 chy#12
-    set_x frame.left + 10 : chy#-30
-    text cur.title 10
-    y2 -= 85
+  if onclick and box != boxes[i] (
+    box = boxes[i]
+    open_id = ""
+    thread = null
+    loading = true
+    list = []
+    dirty = true
+  )
+  local label = box_labels[i]
+  local n = counts[boxes[i]] ?? 0
+  local unread = mail.unread()
+  if i == 1 and unread > 0 (
+    label = label ++ " " ++ unread
+  ) else if i != 1 and n > 0 and box == boxes[i] (
+    label = label ++ " " ++ n
+  )
+  if box == boxes[i] (
+    box seg - 6 21 10 : c#global_accent
+    centext label 8 : c#accent_txt
+  ) else (
+    centext label 8 : c#txtc
   )
 )
 
-if all_mail[current_rmail].body == null and current_rmail.toNum() > 0 (
-  network "server" "omail_getid" current_rmail
-  all_mail[current_rmail].body = "loading..."
-)
-
-c window_colour
-goto window.right - (w / 2) - 20 y
-square w h 15
-x = x_position
-cur @= all_mail[current_rmail]
-c prim
-local l = x - (w / 2)
-frame l window.top - 60 x + (w / 2) window.bottom + 15 0 "cache@contents" (
-  if current_rmail == "new" (
-    goto 0 frame.top - 28
-    square frame.width - 20 22 10 : c#prim
-    change_x -25
-    input frame.width - 80 25 "recipient" "Type the username of the person to send this too"
-    inputs.recipient = inputs.recipient.trim(0,20)
-
-    goto frame.right - 25 frame.top - 28
-    icon "send" 0.8 : c#txtc
-    if mouse_touching (
-      cursor "pointer"
-      if onclick (
-        omail_data = {
-          recipient: inputs.recipient.toLower(),
-          title: inputs.title,
-          body: inputs.send_body.join("\n")
-        }
-        network "server" "omail_send" omail_data
-        say "Sending"
-      )
+frame window.left window.top - 76 cl window.bottom + 46 side_len "mail" (
+  sw = frame.width - 12
+  local y = frame.top - 8 + frame.scroll
+  local start = y
+  if list.len == 0 (
+    goto 0 10
+    icon "mail" 1.6 : c#track_col
+    goto 0 -30
+    local empty = "Nothing in " ++ box
+    if loading (
+      empty = "Loading your mail"
+    ) else if last_error != "" and mail.status() != "connected" (
+      empty = last_error
+    ) else if inputs.search != "" (
+      empty = "Nothing matches that"
     )
-
-    goto 0 frame.top - 72
-    square frame.width - 20 22 10 : c#prim
-    input frame.width - 30 25 "title" "Type the title of the omail here"
-    inputs.title = inputs.title.trim(0,50)
-
-    goto 0 -43
-    c prim
-    textbox frame.width - 20 frame.height - 120 "send_body" 10 {
-      bg_colour: prim,
-      line_numbers: false,
-      default_text: "Type your message here"
-    }
-  ) else if cur != null (
-    loc 2 2 20 -25
-    if cur.external != null (
-      image "https://avatars.rotur.dev/" ++ cur.external ++ "?radius=30" 40 40
+    centext empty.trimText(sw / 9) 9 : c#muted
+  )
+  for i list.len (
+    y -= ROW_H / 2
+    if y < frame.top + ROW_H and y > frame.bottom - ROW_H (
+      mail_row list[i] y
     )
-    text cur.external 10 : c#txtc chx#30
+    y -= ROW_H / 2
+  )
+  side_len = start - y + 16
+)
 
-    local msg = cur.from == username ? "Sent" "Recieved"
-    loc -2 2 -20 - (msg.len * 10) -20
-    text msg 10
+// new mail, with refresh beside it
+goto sx - 18 window.bottom + 22
+local new_fill = prim
+local new_ink = txtc
+if compose_mode == "new" (
+  new_fill = global_accent
+  new_ink = accent_txt
+)
+text_button "New rmail" inner - 36 new_fill new_ink
+if button_click (
+  compose("", "", "")
+)
+goto sx + (inner / 2) - 15 window.bottom + 22
+icon_button "sync" "Refresh" txtc
+if button_click (
+  dirty = true
+)
+goto cl 0
+square 0 window.height 1 : c#edge_col
 
-    inputs.body = cur.body.wrapText(frame.width / 10 - 3).split("\n")
-
-    goto 0 -10
-    c prim
-    textbox frame.width frame.height - 100 "body" 10 {
-      line_numbers: false,
-    }
+// ---- mail pane
+frame cl + 1 window.top - 42 window.right window.bottom page_len "pane_" ++ open_id ++ compose_mode (
+  if compose_mode == "new" (
+    draw_compose
+  ) else if thread != null (
+    draw_thread
+  ) else (
+    page_len = 0
+    goto 0 20
+    icon "mail" 2 : c#track_col
+    goto 0 -30
+    local me @= mail.me()
+    local line = username ++ "@rmail.rotur.dev"
+    if me != null (
+      line = line ++ "  " ++ round(me.used_bytes / 1024) ++ " KB of " ++ round(me.max_bytes / 1048576) ++ " MB used"
+    )
+    centext line 9.5 : c#muted
   )
 )
-
-goto 0 window.top - 22
-square window.width 43 0 : c#window_colour
-
-loc 2 2 10 -20
-text "Rotur Mail (" ++ username ++ "@rmail.rotur.dev)" 10 : c#txtc
-
-if current_rmail.toNum() > 0 (
-  goto 240 window.bottom + 30
-  square window.width - 520 20 10 : c#prim
-  loc 2 -2 515 30
-  icon "bin" 0.8 : c#txtc tooltip#"Delete rmail"
-  if onclick (
-    network "server" "omail_delete" current_rmail
-    all_mail = []
-    network "server" "omail_getinfo"
-    current_rmail = 0
-  )
-  icon "copy" 0.8 : chx#35 tooltip#"Copy Body"
-  if onclick (
-    clipboard "set" all_mail[current_rmail].body
-  )
-)
-
-loc 2 -2 20 20
-icon "add" 0.8 : c#txtc
-if onclick (
-  current_rmail = "new"
-  inputs.recipient = ""
-  inputs.title = ""
-  inputs.send_body = []
-)
-icon "sync" 0.6 : chx#35
-if onclick (
-  network "server" "omail_getinfo"
-  all_mail = []
-  current_rmail = 0
-)
+window.setDragbox([2, 2, SIDE, 0], [-2, 2, -92, -42])
 
 import "win-buttons"

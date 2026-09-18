@@ -1,10 +1,27 @@
-if args[1].contains("/") or args[1].len == 0 (
-  terminal.writeLine("Invalid file name")
+// touch file ...   create empty files (or update the edited time). Names without an extension become folders.
+if args.len == 0 (
+  terminal.writeLine("usage: touch file ...")
   return
 )
-if !args[1].contains(".") (
-  args[1] = args[1].strip()
-  args[1] ++= ".folder"
+for i args.len (
+  local t = ("" ++ args[i]).strip()
+  if t.len == 0 (
+    terminal.writeLine("touch: invalid file name")
+  ) else (
+    local p = terminal.resolvePath(t)
+    local name = p.split("/")[-1]
+    if !name.contains(".") (
+      p ++= ".folder"
+    )
+    file "exists" p
+    if exists (
+      file "open" p "onlyaccess"
+      file "set" "edited" timestamp
+      file "close"
+    ) else if p.endsWith(".folder") (
+      file "set_file" p []
+    ) else (
+      file "set_file" p ""
+    )
+  )
 )
-file "goto_dir" terminal.pwd
-file "set_file" args[1] ""

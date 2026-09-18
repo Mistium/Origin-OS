@@ -1,8 +1,29 @@
-// OSL Echo Command - outputs text to terminal
-if terminal.stdin != null (
-  terminal.writeLine(terminal.stdin)
+// echo [-n] [-e] [text ...]
+local noNewline = false
+local escapes = false
+local parts = []
+local optsDone = false
+for i args.len (
+  local a = "" ++ args[i]
+  if !optsDone and (a == "-n" or a == "-ne" or a == "-en") (
+    noNewline = true
+    escapes = escapes or a != "-n"
+  ) else if !optsDone and a == "-e" (
+    escapes = true
+  ) else (
+    optsDone = true
+    void parts.append(a)
+  )
+)
+local out = parts.join(" ")
+if parts.len == 0 and terminal.stdin != null (
+  out = terminal.stdin
+)
+if escapes (
+  out = out.replace("\\n", "\n").replace("\\t", "\t").replace("\\\\", "\\")
+)
+if noNewline (
+  terminal.write(out)
 ) else (
-  void args.map(v -> (
-    terminal.writeLine(v)
-  ))
+  terminal.writeLine(out)
 )

@@ -1,37 +1,47 @@
-local input = null
+// sort [-r] [-u] [-n] [file]
+local flags = ""
 local filePath = null
-
-if terminal.stdin != null (
-  input = terminal.stdin
-) else if args.len > 0 (
-  local target = args[args.len]
-  if !target.startsWith("-") (
-    filePath = terminal.resolvePath(target)
-    file "exists" filePath
-    if exists (
-      input = open(filePath)
-    ) else (
-      terminal.writeLine("sort: cannot read '" ++ target ++ "': No such file or directory")
-      return
-    )
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith("-") and a.len > 1 (
+    flags ++= a.trim(2, -1)
+  ) else (
+    filePath = terminal.resolvePath(a)
   )
 )
-
+local input = null
+if terminal.stdin != null (
+  input = terminal.stdin
+) else if filePath != null (
+  file "exists" filePath
+  if !exists (
+    terminal.writeLine("sort: cannot read '" ++ args[args.len] ++ "': No such file or directory")
+    return
+  )
+  input = "" ++ open(filePath)
+)
 if input == null (
-  terminal.writeLine("sort: missing operand")
+  terminal.writeLine("usage: sort [-r] [-u] [-n] [file]")
   return
 )
-
-local flags = args.filter(v -> v[1] == "-")
 local lines = input.split("\n")
-
-if flags.contains("-r") (
-  lines = lines.reverse()
+if flags.contains("n") (
+  local keyed = []
+  for i lines.len (
+    void keyed.append({k: lines[i].strip().toNum() ?? 0, v: lines[i]})
+  )
+  keyed = keyed.sortBy("k")
+  lines = []
+  for i keyed.len (
+    void lines.append(keyed[i].v)
+  )
 ) else (
-  lines @= lines.sort()
+  lines = lines.sort()
 )
-
-if flags.contains("-u") (
+if flags.contains("r") (
+  lines = lines.reverse()
+)
+if flags.contains("u") (
   local unique = []
   local prev = null
   for i lines.len (
@@ -42,7 +52,6 @@ if flags.contains("-u") (
   )
   lines = unique
 )
-
 for i lines.len (
   terminal.writeLine(lines[i])
 )

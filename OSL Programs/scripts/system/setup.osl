@@ -25,7 +25,7 @@ cfg_icn = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9
 log_icn = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0 0 dot 0 -5"
 
 // main
-file "install_type" "folder" "c #772d1c square 0 2 10 4 c #ff724f square -8 6 2 2 line -5 7 3 0 square 0 -1 10 5 w 8 square 0 -0.5 5 0" "Folder" ["Origin/(A) System/User Applications/Files.osl"]
+file "install_type" "folder" "c #772d1c fill 1 icn folder 1 0 0 c #ff724f icn folder 0.8 0 0.1 fill 0" "Folder" ["Origin/(A) System/User Applications/Files.osl"]
 file "install_type" "md" "c #000 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #ddd w 2 line -4 -5 -4 0 cont 0 -5 cont 4 0 cont 4 -5" "Markdown" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Plain Text" ["Origin/(A) System/User Applications/Studio.osl"]
 file "install_type" "lmc" "c #00d67d w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #006e40 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn script 0.4 0 -3" "LMC Script" []

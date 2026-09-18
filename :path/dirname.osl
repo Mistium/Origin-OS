@@ -1,0 +1,17 @@
+// dirname path
+if args.len == 0 (
+  terminal.writeLine("usage: dirname path")
+  return
+)
+local p = "" ++ args[1]
+while p.len > 1 and p.endsWith("/") (
+  p = p.trim(1, -2)
+)
+local slash = p.lastIndex("/")
+if slash == 0 (
+  terminal.writeLine(".")
+) else if slash == 1 (
+  terminal.writeLine("/")
+) else (
+  terminal.writeLine(p.trim(1, slash - 1))
+)

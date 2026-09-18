@@ -1,0 +1,37 @@
+// curl [-s] [-o file] url   fetch a url (GET) and print it or save it
+local url = null
+local outFile = null
+local i = 1
+while i <= args.len (
+  local a = "" ++ args[i]
+  if a == "-o" (
+    outFile = args[i + 1]
+    i += 1
+  ) else if a == "-s" or a == "-L" (
+    // accepted for compatibility
+  ) else (
+    url = a
+  )
+  i += 1
+)
+if url == null (
+  terminal.writeLine("usage: curl [-s] [-o file] url")
+  return
+)
+if !url.contains("://") (
+  url = "https://" ++ url
+)
+local data = url.httpGet()
+if data == null (
+  terminal.writeLine("curl: failed to fetch " ++ url)
+  return
+)
+if typeof(data) == "object" or typeof(data) == "array" (
+  data = data.JsonFormat()
+)
+if outFile != null (
+  file "set_file" terminal.resolvePath(outFile) data
+  terminal.writeLine("saved " ++ outFile ++ " (" ++ ("" ++ data).len ++ " bytes)")
+) else (
+  terminal.writeLine("" ++ data)
+)

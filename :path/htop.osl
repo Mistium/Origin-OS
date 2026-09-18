@@ -1,18 +1,2 @@
-local wins = "origin.windows".eval()
-switch args[1] (
-  case "-h"
-    terminal.writeLine("htop [-h] [-l] [-g <window id>] [-r]")
-    return
-  case "-l"
-    terminal.writeLine(wins.names.len)
-    return
-  case "-g"
-    terminal.writeLine("window.osl_get_windows()".eval()[args[2]].JsonStringify())
-    return
-  case "-r"
-    terminal.writeLine("window.osl_get_windows()".eval().JsonParse())
-    return
-  default
-    terminal.writeLine("htop: invalid argument, use -h for help")
-    return
-)
+// htop: interactive process viewer. Arrows select, F9 kills, F3 searches, F4 filters, F6 sorts, F10/q quits.
+void evalCmd("top --htop " ++ args.join(" "))

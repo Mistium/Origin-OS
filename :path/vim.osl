@@ -1,0 +1,1968 @@
+// vim [file]   modal text editor on the terminal screen grid
+// modes: normal, insert, replace, visual, visual line, command (:), search (/ ?)
+// motions: h j k l w W b B e E 0 ^ $ gg G H M L f F t T ; , n N * # { } arrows home end
+// operators: d c y > < with motions, text objects iw aw i" a" i( a( i[ a[ i{ a{, dd cc yy >> << D C Y S s x X r R J ~ p P u ctrl+r .
+// visual: d x y c > < ~ p o     ex: :w :q :q! :wq :x :e :{n} :s :%s :set nu/nonu :noh :help    scrolling: ctrl+d/u/f/b/e/y zz zt zb, wheel, click
+
+vim_path = null
+vim_name = "[No Name]"
+vim_buf = [""]
+vim_row = 1
+vim_col = 1
+vim_mode = "normal"
+vim_top = 1
+vim_left = 0
+vim_dirty = false
+vim_reg = {text: [""], linewise: false}
+vim_undo = []
+vim_redo = []
+vim_cmd = ""
+vim_msg = ""
+vim_count = ""
+vim_op = ""
+vim_opcount = 1
+vim_pending = ""
+vim_search = ""
+vim_search_dir = 1
+vim_vrow = 1
+vim_vcol = 1
+vim_number = true
+vim_find = {ch: "", dir: 1, till: false}
+vim_quit = false
+vim_seq = []
+vim_last = []
+vim_replaying = false
+vim_text_rows = 20
+
+// ---------- buffer helpers ----------
+
+def vimSub(s, a, b) (
+  s = "" ++ s
+  if b == -1 or b > s.len (
+    b = s.len
+  )
+  if a < 1 (
+    a = 1
+  )
+  if a > b or a > s.len (
+    return ""
+  )
+  return s.trim(a, b)
+)
+
+def vimLine(r) (
+  return "" ++ (vim_buf[r] ?? "")
+)
+
+def vimLen(r) (
+  return vimLine(r).len
+)
+
+def vimSlice(arr, a, b) (
+  if b > arr.len (
+    b = arr.len
+  )
+  if a < 1 (
+    a = 1
+  )
+  if a > b (
+    return []
+  )
+  return arr.trim(a, b)
+)
+
+def vimSplice(r1, r2, newLines) (
+  local before = vimSlice(vim_buf, 1, r1 - 1)
+  local after = vimSlice(vim_buf, r2 + 1, vim_buf.len)
+  vim_buf = before.concat(newLines).concat(after)
+  if vim_buf.len == 0 (
+    vim_buf = [""]
+  )
+  vim_dirty = true
+)
+
+def vimSetLine(r, s) (
+  vim_buf[r] = "" ++ s
+  vim_dirty = true
+)
+
+def vimSnapshot() (
+  void vim_undo.append({buf: vim_buf.clone(), row: vim_row, col: vim_col})
+  if vim_undo.len > 200 (
+    vim_undo = vim_undo.trim(51, -1)
+  )
+  vim_redo = []
+)
+
+def vimUndo() (
+  if vim_undo.len == 0 (
+    vim_msg = "Already at oldest change"
+    return null
+  )
+  local s = vim_undo.pop()
+  void vim_redo.append({buf: vim_buf.clone(), row: vim_row, col: vim_col})
+  vim_buf = s.buf
+  vim_row = s.row
+  vim_col = s.col
+  vim_dirty = true
+  vim_msg = vim_undo.len ++ " changes left"
+)
+
+def vimRedo() (
+  if vim_redo.len == 0 (
+    vim_msg = "Already at newest change"
+    return null
+  )
+  local s = vim_redo.pop()
+  void vim_undo.append({buf: vim_buf.clone(), row: vim_row, col: vim_col})
+  vim_buf = s.buf
+  vim_row = s.row
+  vim_col = s.col
+  vim_dirty = true
+)
+
+def vimClamp() (
+  vim_row = vim_row.clamp(1, vim_buf.len)
+  local len = vimLen(vim_row)
+  if vim_mode == "insert" or vim_mode == "replace" (
+    vim_col = vim_col.clamp(1, len + 1)
+  ) else (
+    vim_col = vim_col.clamp(1, max(1, len))
+  )
+)
+
+def vimIsWord(ch) (
+  return ("" ++ ch).match("/[a-z0-9_]/i") != null
+)
+
+def vimCls(ch) (
+  if ch == " " or ch == "\t" or ch == "" or ch == null (
+    return 0
+  )
+  if vimIsWord(ch) (
+    return 1
+  )
+  return 2
+)
+
+def vimClsAt(line, c, big) (
+  if c < 1 or c > line.len (
+    return 0
+  )
+  local cls = vimCls(line[c])
+  if big and cls == 2 (
+    return 1
+  )
+  return cls
+)
+
+def vimFirstNonBlank(r) (
+  local line = vimLine(r)
+  local c = 1
+  while c <= line.len and (line[c] == " " or line[c] == "\t") (
+    c += 1
+  )
+  return min(c, max(1, line.len))
+)
+
+def vimIndentOf(line) (
+  local c = 1
+  while c <= line.len and (line[c] == " " or line[c] == "\t") (
+    c += 1
+  )
+  return vimSub(line, 1, c - 1)
+)
+
+// ---------- word motions ----------
+
+def vimWordFwd(r, c, big) (
+  local line = vimLine(r)
+  local cls = vimClsAt(line, c, big)
+  while c <= line.len and cls != 0 and vimClsAt(line, c, big) == cls (
+    c += 1
+  )
+  local guard = 0
+  while guard < 100000 (
+    guard += 1
+    if c > line.len (
+      if r >= vim_buf.len (
+        return [r, max(1, line.len)]
+      )
+      r += 1
+      line = vimLine(r)
+      c = 1
+      if line.len == 0 (
+        return [r, 1]
+      )
+    ) else if vimClsAt(line, c, big) == 0 (
+      c += 1
+    ) else (
+      return [r, c]
+    )
+  )
+  return [r, c]
+)
+
+def vimWordBack(r, c, big) (
+  local line = vimLine(r)
+  c -= 1
+  local guard = 0
+  while guard < 100000 (
+    guard += 1
+    if c < 1 (
+      if r <= 1 (
+        return [1, 1]
+      )
+      r -= 1
+      line = vimLine(r)
+      c = line.len
+      if line.len == 0 (
+        return [r, 1]
+      )
+    ) else if vimClsAt(line, c, big) == 0 (
+      c -= 1
+    ) else (
+      local cls = vimClsAt(line, c, big)
+      while c > 1 and vimClsAt(line, c - 1, big) == cls (
+        c -= 1
+      )
+      return [r, c]
+    )
+  )
+  return [r, c]
+)
+
+def vimWordEnd(r, c, big) (
+  local line = vimLine(r)
+  c += 1
+  local guard = 0
+  while guard < 100000 (
+    guard += 1
+    if c > line.len (
+      if r >= vim_buf.len (
+        return [r, max(1, line.len)]
+      )
+      r += 1
+      line = vimLine(r)
+      c = 1
+    ) else if vimClsAt(line, c, big) == 0 (
+      c += 1
+    ) else (
+      local cls = vimClsAt(line, c, big)
+      while c < line.len and vimClsAt(line, c + 1, big) == cls (
+        c += 1
+      )
+      return [r, c]
+    )
+  )
+  return [r, c]
+)
+
+def vimFindChar(ch, dir, till, n) (
+  local line = vimLine(vim_row)
+  local c = vim_col
+  loop n (
+    local found = 0
+    local p = c + dir
+    while p >= 1 and p <= line.len and found == 0 (
+      if line[p] == ch (
+        found = p
+      )
+      p += dir
+    )
+    if found == 0 (
+      return null
+    )
+    c = found
+  )
+  if till (
+    c -= dir
+  )
+  return c
+)
+
+// returns {row, col, linewise, inclusive} or null
+def vimMotion(k, n, ctrl) (
+  local r = vim_row
+  local c = vim_col
+  if k == "h" or k == "arrowleft" or k == "backspace" (
+    return {row: r, col: max(1, c - n), linewise: false, inclusive: false}
+  )
+  if k == "l" or k == "arrowright" or k == " " (
+    return {row: r, col: c + n, linewise: false, inclusive: false}
+  )
+  if k == "j" or k == "arrowdown" or (ctrl and k == "n") (
+    return {row: min(vim_buf.len, r + n), col: c, linewise: true, inclusive: false}
+  )
+  if k == "k" or k == "arrowup" or (ctrl and k == "p") (
+    return {row: max(1, r - n), col: c, linewise: true, inclusive: false}
+  )
+  if k == "0" or k == "home" (
+    return {row: r, col: 1, linewise: false, inclusive: false}
+  )
+  if k == "^" (
+    return {row: r, col: vimFirstNonBlank(r), linewise: false, inclusive: false}
+  )
+  if k == "$" or k == "end" (
+    local rr = min(vim_buf.len, (r + n) - 1)
+    return {row: rr, col: max(1, vimLen(rr)), linewise: false, inclusive: true}
+  )
+  if k == "w" or k == "W" (
+    local p = [r, c]
+    loop n (
+      p = vimWordFwd(p[1], p[2], k == "W")
+    )
+    return {row: p[1], col: p[2], linewise: false, inclusive: false}
+  )
+  if k == "b" or k == "B" (
+    local p = [r, c]
+    loop n (
+      p = vimWordBack(p[1], p[2], k == "B")
+    )
+    return {row: p[1], col: p[2], linewise: false, inclusive: false}
+  )
+  if k == "e" or k == "E" (
+    local p = [r, c]
+    loop n (
+      p = vimWordEnd(p[1], p[2], k == "E")
+    )
+    return {row: p[1], col: p[2], linewise: false, inclusive: true}
+  )
+  if k == "G" (
+    local rr = vim_buf.len
+    if vim_count != "" (
+      rr = n.clamp(1, vim_buf.len)
+    )
+    return {row: rr, col: vimFirstNonBlank(rr), linewise: true, inclusive: false}
+  )
+  if k == "H" (
+    return {row: min(vim_buf.len, (vim_top + n) - 1), col: 1, linewise: true, inclusive: false}
+  )
+  if k == "L" (
+    return {row: min(vim_buf.len, ((vim_top + vim_text_rows) - n)), col: 1, linewise: true, inclusive: false}
+  )
+  if k == "M" (
+    return {row: min(vim_buf.len, vim_top + floor(min(vim_text_rows, (vim_buf.len - vim_top) + 1) / 2)), col: 1, linewise: true, inclusive: false}
+  )
+  if k == "}" (
+    local rr = r
+    loop n (
+      rr += 1
+      while rr < vim_buf.len and vimLen(rr) > 0 (
+        rr += 1
+      )
+    )
+    return {row: min(rr, vim_buf.len), col: 1, linewise: false, inclusive: false}
+  )
+  if k == "{" (
+    local rr = r
+    loop n (
+      rr -= 1
+      while rr > 1 and vimLen(rr) > 0 (
+        rr -= 1
+      )
+    )
+    return {row: max(rr, 1), col: 1, linewise: false, inclusive: false}
+  )
+  if k == "n" or k == "N" (
+    local dir = vim_search_dir
+    if k == "N" (
+      dir = 0 - dir
+    )
+    local p = vimSearchFrom(r, c, dir)
+    if p == null (
+      return null
+    )
+    return {row: p[1], col: p[2], linewise: false, inclusive: false}
+  )
+  if k == ";" or k == "," (
+    if vim_find.ch == "" (
+      return null
+    )
+    local dir = vim_find.dir
+    if k == "," (
+      dir = 0 - dir
+    )
+    local cc = vimFindChar(vim_find.ch, dir, vim_find.till, n)
+    if cc == null (
+      return null
+    )
+    return {row: r, col: cc, linewise: false, inclusive: true}
+  )
+  return null
+)
+
+// ---------- search ----------
+
+def vimSearchFrom(r, c, dir) (
+  if vim_search == "" (
+    vim_msg = "E35: No previous regular expression"
+    return null
+  )
+  local pat = vim_search
+  local total = vim_buf.len
+  local wrapped = false
+  local rr = r
+  local first = true
+  loop total + 1 (
+    local line = vimLine(rr)
+    local found = 0
+    if dir > 0 (
+      local start = 1
+      if first (
+        start = c + 1
+      )
+      if start <= line.len (
+        local rest = vimSub(line, start, -1)
+        local idx = rest.index(pat)
+        if idx > 0 (
+          found = (start + idx) - 1
+        )
+      )
+    ) else (
+      local limit = line.len
+      if first (
+        limit = c - 1
+      )
+      if limit >= 1 (
+        local head = vimSub(line, 1, limit)
+        local idx = head.lastIndex(pat)
+        if idx > 0 (
+          found = idx
+        )
+      )
+    )
+    if found > 0 (
+      if wrapped (
+        if dir > 0 (
+          vim_msg = "search hit BOTTOM, continuing at TOP"
+        ) else (
+          vim_msg = "search hit TOP, continuing at BOTTOM"
+        )
+      )
+      return [rr, found]
+    )
+    first = false
+    rr += dir
+    if rr > total (
+      rr = 1
+      wrapped = true
+    ) else if rr < 1 (
+      rr = total
+      wrapped = true
+    )
+  )
+  vim_msg = "E486: Pattern not found: " ++ pat
+  return null
+)
+
+// ---------- text objects: returns {r1, c1, r2, c2} inclusive, or null ----------
+
+def vimTextObj(around, k) (
+  local line = vimLine(vim_row)
+  if k == "w" or k == "W" (
+    local big = k == "W"
+    local c = vim_col
+    if line.len == 0 (
+      return null
+    )
+    local cls = vimClsAt(line, c, big)
+    local a = c
+    local b = c
+    while a > 1 and vimClsAt(line, a - 1, big) == cls (
+      a -= 1
+    )
+    while b < line.len and vimClsAt(line, b + 1, big) == cls (
+      b += 1
+    )
+    if around (
+      local bb = b
+      while bb < line.len and vimClsAt(line, bb + 1, big) == 0 (
+        bb += 1
+      )
+      if bb == b (
+        while a > 1 and vimClsAt(line, a - 1, big) == 0 (
+          a -= 1
+        )
+      ) else (
+        b = bb
+      )
+    )
+    return {r1: vim_row, c1: a, r2: vim_row, c2: b}
+  )
+  if k == "\"" or k == "'" or k == "`" (
+    local a = 0
+    local p = vim_col
+    while p >= 1 and a == 0 (
+      if line[p] == k (
+        a = p
+      )
+      p -= 1
+    )
+    if a == 0 (
+      p = vim_col + 1
+      while p <= line.len and a == 0 (
+        if line[p] == k (
+          a = p
+        )
+        p += 1
+      )
+    )
+    if a == 0 (
+      return null
+    )
+    local b = 0
+    p = a + 1
+    while p <= line.len and b == 0 (
+      if line[p] == k (
+        b = p
+      )
+      p += 1
+    )
+    if b == 0 (
+      return null
+    )
+    if around (
+      return {r1: vim_row, c1: a, r2: vim_row, c2: b}
+    )
+    if b - a < 2 (
+      return null
+    )
+    return {r1: vim_row, c1: a + 1, r2: vim_row, c2: b - 1}
+  )
+  local pairs = {"(": ")", ")": ")", "b": ")", "[": "]", "]": "]", "{": "}", "}": "}", "B": "}", "<": ">", ">": ">"}
+  local opens = {")": "(", "]": "[", "}": "{", ">": "<"}
+  local close = pairs[k]
+  if close == null (
+    return null
+  )
+  local open = opens[close]
+  // backwards for the opener
+  local depth = 0
+  local r = vim_row
+  local c = vim_col
+  local ar = 0
+  local ac = 0
+  local guard = 0
+  if line[c] == open (
+    ar = r
+    ac = c
+  )
+  while ar == 0 and guard < 200000 (
+    guard += 1
+    c -= 1
+    if c < 1 (
+      r -= 1
+      if r < 1 (
+        return null
+      )
+      c = vimLen(r)
+    ) else (
+      local ch = vimLine(r)[c]
+      if ch == close (
+        depth += 1
+      ) else if ch == open (
+        if depth == 0 (
+          ar = r
+          ac = c
+        ) else (
+          depth -= 1
+        )
+      )
+    )
+  )
+  // forwards for the closer
+  depth = 0
+  r = ar
+  c = ac
+  local br = 0
+  local bc = 0
+  guard = 0
+  while br == 0 and guard < 200000 (
+    guard += 1
+    c += 1
+    if c > vimLen(r) (
+      r += 1
+      if r > vim_buf.len (
+        return null
+      )
+      c = 0
+    ) else (
+      local ch = vimLine(r)[c]
+      if ch == open (
+        depth += 1
+      ) else if ch == close (
+        if depth == 0 (
+          br = r
+          bc = c
+        ) else (
+          depth -= 1
+        )
+      )
+    )
+  )
+  if around (
+    return {r1: ar, c1: ac, r2: br, c2: bc}
+  )
+  if ar == br and bc - ac < 2 (
+    return null
+  )
+  local r1 = ar
+  local c1 = ac + 1
+  local r2 = br
+  local c2 = bc - 1
+  if c1 > vimLen(r1) (
+    r1 += 1
+    c1 = 1
+  )
+  if c2 < 1 (
+    r2 -= 1
+    c2 = vimLen(r2)
+  )
+  return {r1: r1, c1: c1, r2: r2, c2: c2}
+)
+
+// ---------- edits ----------
+
+def vimGetRange(r1, c1, r2, c2) (
+  if r1 == r2 (
+    return [vimSub(vimLine(r1), c1, c2)]
+  )
+  local out = [vimSub(vimLine(r1), c1, -1)]
+  for i r2 - r1 - 1 (
+    void out.append(vimLine(r1 + i))
+  )
+  void out.append(vimSub(vimLine(r2), 1, c2))
+  return out
+)
+
+def vimDelRange(r1, c1, r2, c2) (
+  local merged = vimSub(vimLine(r1), 1, c1 - 1) ++ vimSub(vimLine(r2), c2 + 1, -1)
+  vimSplice(r1, r2, [merged])
+  vim_row = r1
+  vim_col = c1
+)
+
+def vimYankRange(r1, c1, r2, c2, linewise) (
+  if linewise (
+    vim_reg = {text: vimSlice(vim_buf, r1, r2).clone(), linewise: true}
+  ) else (
+    vim_reg = {text: vimGetRange(r1, c1, r2, c2), linewise: false}
+  )
+)
+
+def vimIndentLines(r1, r2, dir) (
+  for i (r2 - r1) + 1 (
+    local r = (r1 + i) - 1
+    local line = vimLine(r)
+    if dir > 0 (
+      vimSetLine(r, "    " ++ line)
+    ) else (
+      local n = 0
+      while n < 4 and n < line.len and line[n + 1] == " " (
+        n += 1
+      )
+      vimSetLine(r, vimSub(line, n + 1, -1))
+    )
+  )
+)
+
+def vimToggleCase(s) (
+  local out = ""
+  for i s.len (
+    local ch = s[i]
+    if ch.toUpper() == ch (
+      out ++= ch.toLower()
+    ) else (
+      out ++= ch.toUpper()
+    )
+  )
+  return out
+)
+
+def vimEnterInsert() (
+  vim_mode = "insert"
+  vimClamp()
+)
+
+def vimDone(changed) (
+  if changed and !vim_replaying (
+    vim_last = vim_seq.clone()
+  )
+  if !vim_replaying (
+    vim_seq = []
+  )
+  vim_count = ""
+  vim_op = ""
+  vim_opcount = 1
+  vim_pending = ""
+)
+
+// apply the pending operator to a range; charwise ranges are inclusive
+def vimApplyOp(op, r1, c1, r2, c2, linewise) (
+  if r1 > r2 or (r1 == r2 and c1 > c2) (
+    local tr = r1
+    local tc = c1
+    r1 = r2
+    c1 = c2
+    r2 = tr
+    c2 = tc
+  )
+  if op == "y" (
+    vimYankRange(r1, c1, r2, c2, linewise)
+    vim_row = r1
+    if !linewise (
+      vim_col = c1
+    )
+    vimClamp()
+    if linewise (
+      vim_msg = ((r2 - r1) + 1) ++ " lines yanked"
+    )
+    vimDone(false)
+    return null
+  )
+  vimSnapshot()
+  if op == ">" or op == "<" (
+    local dir = 1
+    if op == "<" (
+      dir = -1
+    )
+    vimIndentLines(r1, r2, dir)
+    vim_row = r1
+    vim_col = vimFirstNonBlank(r1)
+    vimDone(true)
+    return null
+  )
+  if op == "~" (
+    local lines = vimGetRange(r1, c1, r2, c2)
+    for i lines.len (
+      lines[i] = vimToggleCase(lines[i])
+    )
+    local merged = vimSub(vimLine(r1), 1, c1 - 1) ++ lines.join("\n") ++ vimSub(vimLine(r2), c2 + 1, -1)
+    vimSplice(r1, r2, merged.split("\n"))
+    vim_row = r1
+    vim_col = c1
+    vimDone(true)
+    return null
+  )
+  vimYankRange(r1, c1, r2, c2, linewise)
+  if linewise (
+    if op == "c" (
+      local indent = vimIndentOf(vimLine(r1))
+      vimSplice(r1, r2, [indent])
+      vim_row = r1
+      vim_col = indent.len + 1
+      vimEnterInsert()
+      return null
+    )
+    vimSplice(r1, r2, [])
+    vim_row = min(r1, vim_buf.len)
+    vim_col = vimFirstNonBlank(vim_row)
+    vimDone(true)
+    return null
+  )
+  vimDelRange(r1, c1, r2, c2)
+  if op == "c" (
+    vimEnterInsert()
+    return null
+  )
+  vimClamp()
+  vimDone(true)
+)
+
+def vimPut(before) (
+  vimSnapshot()
+  local text = vim_reg.text
+  if vim_reg.linewise (
+    local at = vim_row
+    if before (
+      at = vim_row - 1
+    )
+    local head = vimSlice(vim_buf, 1, at)
+    local tail = vimSlice(vim_buf, at + 1, vim_buf.len)
+    vim_buf = head.concat(text.clone()).concat(tail)
+    vim_dirty = true
+    vim_row = at + 1
+    vim_col = vimFirstNonBlank(vim_row)
+  ) else (
+    local line = vimLine(vim_row)
+    local at = vim_col
+    if before or line.len == 0 (
+      at = vim_col - 1
+    )
+    local pre = vimSub(line, 1, at)
+    local post = vimSub(line, at + 1, -1)
+    if text.len == 1 (
+      vimSetLine(vim_row, pre ++ text[1] ++ post)
+      vim_col = at + text[1].len
+    ) else (
+      local lines = [pre ++ text[1]]
+      for i text.len - 2 (
+        void lines.append(text[i + 1])
+      )
+      void lines.append(text[text.len] ++ post)
+      vimSplice(vim_row, vim_row, lines)
+      vim_row += text.len - 1
+      vim_col = text[text.len].len
+    )
+  )
+  vimClamp()
+  vimDone(true)
+)
+
+def vimJoin(n) (
+  vimSnapshot()
+  loop max(1, n - 1) (
+    if vim_row < vim_buf.len (
+      local a = vimLine(vim_row)
+      local b = vimLine(vim_row + 1).stripStart()
+      local sep = " "
+      if a.len == 0 or b.len == 0 (
+        sep = ""
+      )
+      vimSplice(vim_row, vim_row + 1, [a ++ sep ++ b])
+      vim_col = max(1, a.len + 1)
+    )
+  )
+  vimClamp()
+  vimDone(true)
+)
+
+// ---------- ex commands ----------
+
+def vimLoad(name) (
+  local p = terminal.resolvePath(name)
+  vim_path = p
+  vim_name = name
+  file "exists" p
+  if exists (
+    local d = open(p)
+    if typeof(d) == "object" or typeof(d) == "array" (
+      d = d.JsonFormat()
+    )
+    vim_buf = ("" ++ d).split("\n")
+    if vim_buf.len == 0 (
+      vim_buf = [""]
+    )
+    vim_msg = "\"" ++ name ++ "\" " ++ vim_buf.len ++ "L, " ++ ("" ++ d).len ++ "B"
+  ) else (
+    vim_buf = [""]
+    vim_msg = "\"" ++ name ++ "\" [New]"
+  )
+  vim_row = 1
+  vim_col = 1
+  vim_top = 1
+  vim_left = 0
+  vim_dirty = false
+  vim_undo = []
+  vim_redo = []
+)
+
+def vimWrite(name) (
+  local p = vim_path
+  if name != "" (
+    p = terminal.resolvePath(name)
+    if vim_path == null (
+      vim_path = p
+      vim_name = name
+    )
+  )
+  if p == null (
+    vim_msg = "E32: No file name"
+    return false
+  )
+  local text = vim_buf.join("\n")
+  try (
+    file "set_file" p text
+  ) catch e (
+    vim_msg = "E212: Can't open file for writing"
+    return false
+  )
+  vim_dirty = false
+  vim_msg = "\"" ++ vim_name ++ "\" " ++ vim_buf.len ++ "L, " ++ text.len ++ "B written"
+  return true
+)
+
+def vimSubstitute(range, body) (
+  // body: /pat/rep/flags with / as the delimiter
+  local delim = body[1]
+  local parts = body.trim(2, -1).split(delim)
+  local pat = parts[1] ?? ""
+  local rep = parts[2] ?? ""
+  local flags = parts[3] ?? ""
+  if pat == "" (
+    vim_msg = "E35: No previous regular expression"
+    return null
+  )
+  local r1 = vim_row
+  local r2 = vim_row
+  if range == "%" (
+    r1 = 1
+    r2 = vim_buf.len
+  ) else if range.contains(",") (
+    local ab = range.split(",")
+    r1 = (ab[1].toNum() ?? vim_row).clamp(1, vim_buf.len)
+    r2 = (ab[2].toNum() ?? vim_row).clamp(1, vim_buf.len)
+  ) else if range != "" (
+    r1 = (range.toNum() ?? vim_row).clamp(1, vim_buf.len)
+    r2 = r1
+  )
+  vimSnapshot()
+  local n = 0
+  local last = 0
+  for i (r2 - r1) + 1 (
+    local r = (r1 + i) - 1
+    local line = vimLine(r)
+    if line.contains(pat) (
+      local out = line.replaceFirst(pat, rep)
+      if flags.contains("g") (
+        out = line.replace(pat, rep)
+      )
+      vimSetLine(r, out)
+      n += 1
+      last = r
+    )
+  )
+  if n == 0 (
+    vim_msg = "E486: Pattern not found: " ++ pat
+  ) else (
+    vim_row = last
+    vim_col = 1
+    if n > 2 (
+      vim_msg = n ++ " substitutions on " ++ n ++ " lines"
+    )
+  )
+  vimDone(true)
+)
+
+def vimEx(cmd) (
+  cmd = cmd.strip()
+  if cmd == "" (
+    return null
+  )
+  local n = cmd.toNum()
+  if n != null (
+    vim_row = n.clamp(1, vim_buf.len)
+    vim_col = vimFirstNonBlank(vim_row)
+    return null
+  )
+  if cmd == "w" or cmd.startsWith("w ") (
+    local wname = ""
+    if cmd.len > 2 (
+      wname = cmd.trim(3, -1).strip()
+    )
+    void vimWrite(wname)
+    return null
+  )
+  if cmd == "q" (
+    if vim_dirty (
+      vim_msg = "E37: No write since last change (add ! to override)"
+    ) else (
+      vim_quit = true
+    )
+    return null
+  )
+  if cmd == "q!" (
+    vim_quit = true
+    return null
+  )
+  if cmd == "wq" or cmd == "x" or cmd == "wq!" (
+    if vimWrite("") (
+      vim_quit = true
+    )
+    return null
+  )
+  if cmd.startsWith("wq ") (
+    if vimWrite(cmd.trim(4, -1).strip()) (
+      vim_quit = true
+    )
+    return null
+  )
+  if cmd.startsWith("e ") or cmd.startsWith("e! ") (
+    local name = cmd.trim(cmd.index(" ") + 1, -1).strip()
+    if vim_dirty and !cmd.startsWith("e!") (
+      vim_msg = "E37: No write since last change (add ! to override)"
+      return null
+    )
+    vimLoad(name)
+    return null
+  )
+  if cmd == "e!" (
+    if vim_path != null (
+      vimLoad(vim_name)
+    )
+    return null
+  )
+  if cmd.startsWith("set ") (
+    local opt = cmd.trim(5, -1).strip()
+    if opt == "nu" or opt == "number" (
+      vim_number = true
+    ) else if opt == "nonu" or opt == "nonumber" (
+      vim_number = false
+    ) else (
+      vim_msg = "E518: Unknown option: " ++ opt
+    )
+    return null
+  )
+  if cmd == "noh" or cmd == "nohlsearch" (
+    vim_msg = ""
+    return null
+  )
+  if cmd == "help" or cmd == "h" (
+    vim_msg = ":w :q :wq :e file :N :s/a/b/ :%s/a/b/g :set nu   i a o v V d c y p u . / n   ZZ saves and quits"
+    return null
+  )
+  local m = cmd.match("/^([0-9]+,[0-9]+|%|[0-9]+)?s(.*)$/")
+  if m != null (
+    vimSubstitute("" ++ (m[2] ?? ""), "" ++ m[3])
+    return null
+  )
+  vim_msg = "E492: Not an editor command: " ++ cmd
+)
+
+// ---------- key handling ----------
+
+def vimInsertKey(k, ctrl) (
+  local line = vimLine(vim_row)
+  if k == "escape" (
+    vim_mode = "normal"
+    vim_col -= 1
+    vimClamp()
+    vimDone(true)
+    return null
+  )
+  if k == "enter" (
+    local indent = vimIndentOf(line)
+    local pre = vimSub(line, 1, vim_col - 1)
+    local post = vimSub(line, vim_col, -1)
+    vimSplice(vim_row, vim_row, [pre, indent ++ post])
+    vim_row += 1
+    vim_col = indent.len + 1
+    return null
+  )
+  if k == "backspace" (
+    if vim_col > 1 (
+      vimSetLine(vim_row, vimSub(line, 1, vim_col - 2) ++ vimSub(line, vim_col, -1))
+      vim_col -= 1
+    ) else if vim_row > 1 (
+      local prev = vimLine(vim_row - 1)
+      vimSplice(vim_row - 1, vim_row, [prev ++ line])
+      vim_row -= 1
+      vim_col = prev.len + 1
+    )
+    return null
+  )
+  if k == "delete" (
+    if vim_col <= line.len (
+      vimSetLine(vim_row, vimSub(line, 1, vim_col - 1) ++ vimSub(line, vim_col + 1, -1))
+    ) else if vim_row < vim_buf.len (
+      vimSplice(vim_row, vim_row + 1, [line ++ vimLine(vim_row + 1)])
+    )
+    return null
+  )
+  if ctrl and k == "w" (
+    local p = vimWordBack(vim_row, vim_col, false)
+    if p[1] == vim_row and p[2] < vim_col (
+      vimSetLine(vim_row, vimSub(line, 1, p[2] - 1) ++ vimSub(line, vim_col, -1))
+      vim_col = p[2]
+    )
+    return null
+  )
+  if ctrl and k == "u" (
+    vimSetLine(vim_row, vimSub(line, vim_col, -1))
+    vim_col = 1
+    return null
+  )
+  if k == "arrowleft" or k == "arrowright" or k == "arrowup" or k == "arrowdown" or k == "home" or k == "end" (
+    local m = vimMotion(k, 1, false)
+    if m != null (
+      vim_row = m.row
+      vim_col = m.col
+      vimClamp()
+    )
+    return null
+  )
+  if ctrl (
+    return null
+  )
+  local ins = ""
+  if k == "tab" (
+    ins = "    "
+  ) else if k.len == 1 (
+    ins = k
+  )
+  if ins == "" (
+    return null
+  )
+  if vim_mode == "replace" and vim_col <= line.len (
+    vimSetLine(vim_row, vimSub(line, 1, vim_col - 1) ++ ins ++ vimSub(line, vim_col + ins.len, -1))
+  ) else (
+    vimSetLine(vim_row, vimSub(line, 1, vim_col - 1) ++ ins ++ vimSub(line, vim_col, -1))
+  )
+  vim_col += ins.len
+)
+
+def vimCmdKey(k) (
+  if k == "escape" (
+    vim_mode = "normal"
+    vim_cmd = ""
+    return null
+  )
+  if k == "backspace" (
+    if vim_cmd.len == 0 (
+      vim_mode = "normal"
+    ) else (
+      vim_cmd = vim_cmd.trim(1, -2)
+    )
+    return null
+  )
+  if k == "enter" (
+    local text = vim_cmd
+    local was = vim_mode
+    vim_mode = "normal"
+    vim_cmd = ""
+    if was == "cmd" (
+      vimEx(text)
+    ) else (
+      if text != "" (
+        vim_search = text
+      )
+      vim_search_dir = 1
+      if was == "search_back" (
+        vim_search_dir = -1
+      )
+      local p = vimSearchFrom(vim_row, vim_col, vim_search_dir)
+      if p != null (
+        vim_row = p[1]
+        vim_col = p[2]
+      )
+    )
+    vimClamp()
+    return null
+  )
+  if k == "tab" (
+    vim_cmd ++= " "
+  ) else if k.len == 1 (
+    vim_cmd ++= k
+  )
+)
+
+def vimVisualRange() (
+  local r1 = vim_vrow
+  local c1 = vim_vcol
+  local r2 = vim_row
+  local c2 = vim_col
+  if r1 > r2 or (r1 == r2 and c1 > c2) (
+    r1 = vim_row
+    c1 = vim_col
+    r2 = vim_vrow
+    c2 = vim_vcol
+  )
+  if vim_mode == "vline" (
+    c1 = 1
+    c2 = max(1, vimLen(r2))
+  )
+  return {r1: r1, c1: c1, r2: r2, c2: c2}
+)
+
+def vimNormalKey(k, ctrl) (
+  if !vim_replaying (
+    void vim_seq.append(k)
+  )
+  local visual = vim_mode == "visual" or vim_mode == "vline"
+
+  // ---- keys waiting for an argument ----
+  if vim_pending == "r" (
+    vim_pending = ""
+    if k.len == 1 or k == "enter" (
+      local ch = k
+      if k == "enter" (
+        ch = "\n"
+      )
+      vimSnapshot()
+      local line = vimLine(vim_row)
+      local n = max(1, vim_count.toNum() ?? 1)
+      if n > (line.len - vim_col) + 1 (
+        vimDone(false)
+        return null
+      )
+      if ch == "\n" (
+        vimSplice(vim_row, vim_row, [vimSub(line, 1, vim_col - 1), vimSub(line, vim_col + n, -1)])
+        vim_row += 1
+        vim_col = 1
+      ) else (
+        vimSetLine(vim_row, vimSub(line, 1, vim_col - 1) ++ (ch * n) ++ vimSub(line, vim_col + n, -1))
+        vim_col += n - 1
+      )
+      vimDone(true)
+    ) else (
+      vimDone(false)
+    )
+    return null
+  )
+  if vim_pending == "f" or vim_pending == "F" or vim_pending == "t" or vim_pending == "T" (
+    local kind = vim_pending
+    vim_pending = ""
+    if k.len != 1 (
+      vimDone(false)
+      return null
+    )
+    local dir = 1
+    if kind == "F" or kind == "T" (
+      dir = -1
+    )
+    local till = kind == "t" or kind == "T"
+    vim_find = {ch: k, dir: dir, till: till}
+    local n = max(1, vim_count.toNum() ?? 1)
+    local cc = vimFindChar(k, dir, till, n)
+    if cc == null (
+      vimDone(false)
+      return null
+    )
+    if vim_op != "" (
+      local a = vim_col
+      local b = cc
+      if dir < 0 (
+        vimApplyOp(vim_op, vim_row, cc, vim_row, vim_col - 1, false)
+      ) else (
+        vimApplyOp(vim_op, vim_row, vim_col, vim_row, cc, false)
+      )
+      return null
+    )
+    vim_col = cc
+    vimDone(false)
+    return null
+  )
+  if vim_pending == "g" (
+    vim_pending = ""
+    if k == "g" (
+      local n = 1
+      if vim_count != "" (
+        n = vim_count.toNum() ?? 1
+      )
+      local rr = n.clamp(1, vim_buf.len)
+      if vim_op != "" (
+        vimApplyOp(vim_op, vim_row, 1, rr, 1, true)
+        return null
+      )
+      vim_row = rr
+      vim_col = vimFirstNonBlank(rr)
+      vimClamp()
+      vimDone(false)
+      return null
+    )
+    if k == "J" (
+      vimJoin(2)
+      return null
+    )
+    if (k == "u" or k == "U") and vim_op == "" and visual (
+      local rg = vimVisualRange()
+      vimSnapshot()
+      local lines = vimGetRange(rg.r1, rg.c1, rg.r2, rg.c2)
+      for i lines.len (
+        if k == "u" (
+          lines[i] = lines[i].toLower()
+        ) else (
+          lines[i] = lines[i].toUpper()
+        )
+      )
+      local merged = vimSub(vimLine(rg.r1), 1, rg.c1 - 1) ++ lines.join("\n") ++ vimSub(vimLine(rg.r2), rg.c2 + 1, -1)
+      vimSplice(rg.r1, rg.r2, merged.split("\n"))
+      vim_mode = "normal"
+      vim_row = rg.r1
+      vim_col = rg.c1
+      vimDone(true)
+      return null
+    )
+    vimDone(false)
+    return null
+  )
+  if vim_pending == "z" (
+    vim_pending = ""
+    if k == "z" (
+      vim_top = max(1, vim_row - floor(vim_text_rows / 2))
+    ) else if k == "t" or k == "enter" (
+      vim_top = vim_row
+    ) else if k == "b" (
+      vim_top = max(1, (vim_row - vim_text_rows) + 1)
+    )
+    vimDone(false)
+    return null
+  )
+  if vim_pending == "Z" (
+    vim_pending = ""
+    if k == "Z" (
+      vimEx("x")
+    ) else if k == "Q" (
+      vim_quit = true
+    )
+    vimDone(false)
+    return null
+  )
+  if vim_pending == "i" or vim_pending == "a" (
+    local around = vim_pending == "a"
+    vim_pending = ""
+    local obj = vimTextObj(around, k)
+    if obj == null (
+      vim_mode = "normal"
+      vimDone(false)
+      return null
+    )
+    if visual (
+      vim_vrow = obj.r1
+      vim_vcol = obj.c1
+      vim_row = obj.r2
+      vim_col = obj.c2
+      vim_mode = "visual"
+      return null
+    )
+    vimApplyOp(vim_op, obj.r1, obj.c1, obj.r2, obj.c2, false)
+    return null
+  )
+
+  // ---- counts ----
+  if k.len == 1 and k.match("/[0-9]/") != null and (k != "0" or vim_count != "") (
+    vim_count ++= k
+    return null
+  )
+  local n = 1
+  if vim_count != "" (
+    n = max(1, vim_count.toNum() ?? 1)
+  )
+
+  if k == "escape" (
+    vim_mode = "normal"
+    vimClamp()
+    vimDone(false)
+    return null
+  )
+
+  // ---- visual mode operators ----
+  if visual (
+    local rg = vimVisualRange()
+    local lw = vim_mode == "vline"
+    if k == "d" or k == "x" or k == "X" or k == "D" (
+      vim_mode = "normal"
+      vimApplyOp("d", rg.r1, rg.c1, rg.r2, rg.c2, lw or k == "X" or k == "D")
+      return null
+    )
+    if k == "y" or k == "Y" (
+      vim_mode = "normal"
+      vimApplyOp("y", rg.r1, rg.c1, rg.r2, rg.c2, lw or k == "Y")
+      return null
+    )
+    if k == "c" or k == "s" (
+      vim_mode = "normal"
+      vimApplyOp("c", rg.r1, rg.c1, rg.r2, rg.c2, lw)
+      return null
+    )
+    if k == ">" or k == "<" (
+      vim_mode = "normal"
+      vimApplyOp(k, rg.r1, 1, rg.r2, 1, true)
+      return null
+    )
+    if k == "~" (
+      vim_mode = "normal"
+      vimApplyOp("~", rg.r1, rg.c1, rg.r2, rg.c2, false)
+      return null
+    )
+    if k == "J" (
+      vim_mode = "normal"
+      vim_row = rg.r1
+      vimJoin(max(2, (rg.r2 - rg.r1) + 1))
+      return null
+    )
+    if k == "p" or k == "P" (
+      local saved = vim_reg
+      vim_mode = "normal"
+      vimApplyOp("d", rg.r1, rg.c1, rg.r2, rg.c2, lw)
+      vim_reg = saved
+      if lw (
+        vimPut(true)
+      ) else (
+        vimPut(true)
+      )
+      return null
+    )
+    if k == "o" (
+      local tr = vim_row
+      local tc = vim_col
+      vim_row = vim_vrow
+      vim_col = vim_vcol
+      vim_vrow = tr
+      vim_vcol = tc
+      return null
+    )
+    if k == "v" (
+      vim_mode = "visual"
+      return null
+    )
+    if k == "V" (
+      vim_mode = "vline"
+      return null
+    )
+    if k == "i" or k == "a" (
+      vim_pending = k
+      return null
+    )
+    if k == "g" or k == "z" (
+      vim_pending = k
+      return null
+    )
+    if k == "f" or k == "F" or k == "t" or k == "T" (
+      vim_pending = k
+      return null
+    )
+    if k == ":" (
+      vim_mode = "cmd"
+      vim_cmd = "'<,'>"
+      return null
+    )
+    local m = vimMotion(k, n, ctrl)
+    if m != null (
+      vim_row = m.row
+      vim_col = m.col
+      vimClamp()
+      vim_count = ""
+    )
+    return null
+  )
+
+  // ---- operators ----
+  if k == "d" or k == "c" or k == "y" or k == ">" or k == "<" (
+    if vim_op == "" (
+      vim_op = k
+      vim_opcount = n
+      vim_count = ""
+      return null
+    )
+    if vim_op == k (
+      local r2 = min(vim_buf.len, (vim_row + (n * vim_opcount)) - 1)
+      vimApplyOp(k, vim_row, 1, r2, 1, true)
+      return null
+    )
+    vimDone(false)
+    return null
+  )
+  if vim_op != "" (
+    if k == "i" or k == "a" (
+      vim_pending = k
+      return null
+    )
+    if k == "g" or k == "f" or k == "F" or k == "t" or k == "T" (
+      vim_pending = k
+      return null
+    )
+    local m = vimMotion(k, n * vim_opcount, ctrl)
+    if m == null (
+      vimDone(false)
+      return null
+    )
+    if m.linewise (
+      vimApplyOp(vim_op, vim_row, 1, m.row, 1, true)
+      return null
+    )
+    local r2 = m.row
+    local c2 = m.col
+    if !m.inclusive (
+      // exclusive motion: stop one character before the target
+      if r2 > vim_row or (r2 == vim_row and c2 > vim_col) (
+        c2 -= 1
+        if c2 < 1 (
+          if r2 > vim_row (
+            r2 -= 1
+            c2 = vimLen(r2)
+            if c2 == 0 (
+              c2 = 1
+            )
+          ) else (
+            c2 = 1
+          )
+        )
+      ) else if r2 < vim_row or (r2 == vim_row and c2 < vim_col) (
+        // backwards: the cursor character itself is not included
+        vimApplyOp(vim_op, r2, c2, vim_row, vim_col - 1, false)
+        return null
+      )
+    )
+    if vim_op == "c" and (k == "w" or k == "W") (
+      // cw acts like ce
+      local ek = "e"
+      if k == "W" (
+        ek = "E"
+      )
+      local e = vimMotion(ek, n * vim_opcount, ctrl)
+      r2 = e.row
+      c2 = e.col
+    )
+    if c2 > vimLen(r2) (
+      c2 = max(1, vimLen(r2))
+    )
+    vimApplyOp(vim_op, vim_row, vim_col, r2, c2, false)
+    return null
+  )
+
+  // ---- simple commands ----
+  if k == "i" (
+    vimSnapshot()
+    vimEnterInsert()
+    return null
+  )
+  if k == "a" (
+    vimSnapshot()
+    vim_col += 1
+    vimEnterInsert()
+    return null
+  )
+  if k == "I" (
+    vimSnapshot()
+    vim_col = vimFirstNonBlank(vim_row)
+    vimEnterInsert()
+    return null
+  )
+  if k == "A" (
+    vimSnapshot()
+    vim_col = vimLen(vim_row) + 1
+    vimEnterInsert()
+    return null
+  )
+  if k == "o" or k == "O" (
+    vimSnapshot()
+    local indent = vimIndentOf(vimLine(vim_row))
+    local at = vim_row
+    if k == "O" (
+      at = vim_row - 1
+    )
+    local head = vimSlice(vim_buf, 1, at)
+    local tail = vimSlice(vim_buf, at + 1, vim_buf.len)
+    vim_buf = head.concat([indent]).concat(tail)
+    vim_dirty = true
+    vim_row = at + 1
+    vim_col = indent.len + 1
+    vimEnterInsert()
+    return null
+  )
+  if k == "R" (
+    vimSnapshot()
+    vim_mode = "replace"
+    return null
+  )
+  if k == "v" (
+    vim_mode = "visual"
+    vim_vrow = vim_row
+    vim_vcol = vim_col
+    vim_count = ""
+    return null
+  )
+  if k == "V" (
+    vim_mode = "vline"
+    vim_vrow = vim_row
+    vim_vcol = vim_col
+    vim_count = ""
+    return null
+  )
+  if k == ":" (
+    vim_mode = "cmd"
+    vim_cmd = ""
+    vim_count = ""
+    return null
+  )
+  if k == "/" or k == "?" (
+    vim_mode = "search"
+    if k == "?" (
+      vim_mode = "search_back"
+    )
+    vim_cmd = ""
+    vim_count = ""
+    return null
+  )
+  if k == "*" or k == "#" (
+    local obj = vimTextObj(false, "w")
+    if obj != null (
+      vim_search = vimSub(vimLine(vim_row), obj.c1, obj.c2)
+      vim_search_dir = 1
+      if k == "#" (
+        vim_search_dir = -1
+      )
+      local p = vimSearchFrom(vim_row, vim_col, vim_search_dir)
+      if p != null (
+        vim_row = p[1]
+        vim_col = p[2]
+      )
+    )
+    vimDone(false)
+    return null
+  )
+  if k == "x" (
+    if vimLen(vim_row) > 0 (
+      vimApplyOp("d", vim_row, vim_col, vim_row, min(vimLen(vim_row), (vim_col + n) - 1), false)
+    ) else (
+      vimDone(false)
+    )
+    return null
+  )
+  if k == "X" (
+    if vim_col > 1 (
+      vimApplyOp("d", vim_row, max(1, vim_col - n), vim_row, vim_col - 1, false)
+    ) else (
+      vimDone(false)
+    )
+    return null
+  )
+  if k == "D" (
+    vimApplyOp("d", vim_row, vim_col, min(vim_buf.len, (vim_row + n) - 1), max(1, vimLen(min(vim_buf.len, (vim_row + n) - 1))), false)
+    return null
+  )
+  if k == "C" (
+    vimApplyOp("c", vim_row, vim_col, vim_row, max(1, vimLen(vim_row)), false)
+    return null
+  )
+  if k == "s" (
+    if vimLen(vim_row) > 0 (
+      vimApplyOp("c", vim_row, vim_col, vim_row, min(vimLen(vim_row), (vim_col + n) - 1), false)
+    ) else (
+      vimSnapshot()
+      vimEnterInsert()
+    )
+    return null
+  )
+  if k == "S" (
+    vimApplyOp("c", vim_row, 1, min(vim_buf.len, (vim_row + n) - 1), 1, true)
+    return null
+  )
+  if k == "Y" (
+    vimApplyOp("y", vim_row, 1, min(vim_buf.len, (vim_row + n) - 1), 1, true)
+    return null
+  )
+  if k == "p" (
+    vimPut(false)
+    return null
+  )
+  if k == "P" (
+    vimPut(true)
+    return null
+  )
+  if k == "u" (
+    loop n (
+      vimUndo()
+    )
+    vimClamp()
+    vimDone(false)
+    return null
+  )
+  if ctrl and k == "r" (
+    loop n (
+      vimRedo()
+    )
+    vimClamp()
+    vimDone(false)
+    return null
+  )
+  if k == "J" (
+    vimJoin(max(2, n))
+    return null
+  )
+  if k == "~" (
+    if vimLen(vim_row) > 0 (
+      local c2 = min(vimLen(vim_row), (vim_col + n) - 1)
+      vimApplyOp("~", vim_row, vim_col, vim_row, c2, false)
+      vim_col = min(vimLen(vim_row), c2 + 1)
+    )
+    return null
+  )
+  if k == "r" or k == "f" or k == "F" or k == "t" or k == "T" or k == "g" or k == "z" or k == "Z" (
+    vim_pending = k
+    return null
+  )
+  if k == "." (
+    if vim_last.len > 0 (
+      local keys = vim_last.clone()
+      vim_replaying = true
+      vim_count = ""
+      for i keys.len (
+        if vim_mode == "insert" or vim_mode == "replace" (
+          vimInsertKey(keys[i], false)
+        ) else (
+          vimNormalKey(keys[i], false)
+        )
+      )
+      vim_replaying = false
+      if vim_mode == "insert" (
+        vim_mode = "normal"
+        vimClamp()
+      )
+    )
+    vimDone(false)
+    return null
+  )
+  if ctrl and (k == "d" or k == "u" or k == "f" or k == "b" or k == "e" or k == "y") (
+    local amount = floor(vim_text_rows / 2)
+    if k == "f" or k == "b" (
+      amount = max(1, vim_text_rows - 2)
+    )
+    if k == "e" or k == "y" (
+      amount = n
+    )
+    if k == "u" or k == "b" or k == "y" (
+      amount = 0 - amount
+    )
+    vim_top = (vim_top + amount).clamp(1, max(1, vim_buf.len))
+    if k == "e" or k == "y" (
+      vim_row = vim_row.clamp(vim_top, (vim_top + vim_text_rows) - 1)
+    ) else (
+      vim_row = (vim_row + amount).clamp(1, vim_buf.len)
+    )
+    vimClamp()
+    vimDone(false)
+    return null
+  )
+  if k == "enter" or k == "+" or k == "-" (
+    local d = 1
+    if k == "-" (
+      d = -1
+    )
+    vim_row = (vim_row + (d * n)).clamp(1, vim_buf.len)
+    vim_col = vimFirstNonBlank(vim_row)
+    vimDone(false)
+    return null
+  )
+  local m = vimMotion(k, n, ctrl)
+  if m != null (
+    vim_row = m.row
+    vim_col = m.col
+    vimClamp()
+  )
+  vimDone(false)
+)
+
+def vimKey(k, ctrl) (
+  if vim_mode == "insert" or vim_mode == "replace" (
+    if !vim_replaying (
+      void vim_seq.append(k)
+    )
+    vimInsertKey(k, ctrl)
+  ) else if vim_mode == "cmd" or vim_mode == "search" or vim_mode == "search_back" (
+    vimCmdKey(k)
+  ) else (
+    vimNormalKey(k, ctrl)
+  )
+  vimClamp()
+)
+
+// ---------- rendering ----------
+
+def vimRender() (
+  local rows = terminal.view_rows ?? 24
+  local cols = terminal.cols ?? 80
+  vim_text_rows = max(1, rows - 2)
+  if vim_row < vim_top (
+    vim_top = vim_row
+  )
+  if vim_row > (vim_top + vim_text_rows) - 1 (
+    vim_top = (vim_row - vim_text_rows) + 1
+  )
+  vim_top = vim_top.clamp(1, max(1, vim_buf.len))
+  local gw = 0
+  if vim_number (
+    gw = max(3, ("" ++ vim_buf.len).len) + 1
+  )
+  local tw = max(1, cols - gw)
+  if vim_col - 1 < vim_left (
+    vim_left = max(0, vim_col - 1)
+  )
+  if vim_col > vim_left + tw (
+    vim_left = vim_col - tw
+  )
+  local visual = vim_mode == "visual" or vim_mode == "vline"
+  local rg = null
+  if visual (
+    rg = vimVisualRange()
+  )
+  local grid = []
+  for i vim_text_rows (
+    local r = (vim_top + i) - 1
+    if r > vim_buf.len (
+      void grid.append(["#5f87ff", "~"])
+    ) else (
+      local line = vimLine(r)
+      local seg = []
+      if vim_number (
+        local numCol = "#888"
+        if r == vim_row (
+          numCol = "#ddd"
+        )
+        void seg.append(numCol, ("" ++ r).padStart(" ", gw - 1) ++ " ")
+      )
+      local L = vim_left + 1
+      local R = min(line.len, vim_left + tw)
+      local cursorHere = r == vim_row and vim_mode != "cmd" and vim_mode != "search" and vim_mode != "search_back"
+      local selA = 0
+      local selB = -1
+      if visual and r >= rg.r1 and r <= rg.r2 (
+        selA = 1
+        selB = line.len
+        if vim_mode == "visual" (
+          if r == rg.r1 (
+            selA = rg.c1
+          )
+          if r == rg.r2 (
+            selB = rg.c2
+          )
+        )
+        if selB < selA (
+          selB = selA
+        )
+      )
+      if !cursorHere and selA == 0 (
+        void seg.append(txtc, vimSub(line, L, R))
+      ) else (
+        local p = L
+        local runStart = L
+        local runStyle = ""
+        local endAt = R
+        if cursorHere and vim_col > R and vim_col <= vim_left + tw (
+          endAt = vim_col
+        )
+        while p <= endAt (
+          local style = "n"
+          if cursorHere and p == vim_col (
+            style = "c"
+          ) else if p >= selA and p <= selB (
+            style = "s"
+          )
+          if style != runStyle and p > runStart (
+            local text = vimSub(line, runStart, p - 1)
+            if runStyle == "c" (
+              if text == "" (
+                text = " "
+              )
+              void seg.append({text: "#000", back: "#e8e8e8"}, text)
+            ) else if runStyle == "s" (
+              void seg.append({text: "#fff", back: "#3a5a8a"}, text)
+            ) else (
+              void seg.append(txtc, text)
+            )
+            runStart = p
+          )
+          runStyle = style
+          p += 1
+        )
+        if endAt >= runStart (
+          local text = vimSub(line, runStart, endAt)
+          if runStyle == "c" (
+            if text == "" (
+              text = " "
+            )
+            void seg.append({text: "#000", back: "#e8e8e8"}, text)
+          ) else if runStyle == "s" (
+            void seg.append({text: "#fff", back: "#3a5a8a"}, text)
+          ) else (
+            void seg.append(txtc, text)
+          )
+        )
+      )
+      void grid.append(seg)
+    )
+  )
+  // status line
+  local name = vim_name
+  if vim_dirty (
+    name ++= " [+]"
+  )
+  local pos = vim_row ++ "," ++ vim_col
+  local pct = "All"
+  if vim_buf.len > vim_text_rows (
+    if vim_top == 1 (
+      pct = "Top"
+    ) else if (vim_top + vim_text_rows) - 1 >= vim_buf.len (
+      pct = "Bot"
+    ) else (
+      pct = round(((vim_top - 1) / (vim_buf.len - vim_text_rows)) * 100) ++ "%"
+    )
+  )
+  local right = pos.padEnd(" ", 12) ++ pct
+  local status = name
+  local fillw = (cols - name.len) - right.len
+  if fillw > 0 (
+    status ++= " " * fillw
+  ) else (
+    status ++= " "
+  )
+  status ++= right
+  void grid.append([{text: "#000", back: "#d0d0d0"}, status])
+  // command line
+  if vim_mode == "cmd" (
+    void grid.append([txtc, ":" ++ vim_cmd, {text: "#000", back: "#e8e8e8"}, " "])
+  ) else if vim_mode == "search" (
+    void grid.append([txtc, "/" ++ vim_cmd, {text: "#000", back: "#e8e8e8"}, " "])
+  ) else if vim_mode == "search_back" (
+    void grid.append([txtc, "?" ++ vim_cmd, {text: "#000", back: "#e8e8e8"}, " "])
+  ) else if vim_mode == "insert" (
+    void grid.append([txtc, "-- INSERT --"])
+  ) else if vim_mode == "replace" (
+    void grid.append([txtc, "-- REPLACE --"])
+  ) else if vim_mode == "visual" (
+    void grid.append([txtc, "-- VISUAL --"])
+  ) else if vim_mode == "vline" (
+    void grid.append([txtc, "-- VISUAL LINE --"])
+  ) else if vim_msg.startsWith("E") and vim_msg.len > 2 and vim_msg[2].match("/[0-9]/") != null (
+    void grid.append([{text: "#fff", back: "#c00"}, vim_msg])
+  ) else (
+    local tail = vim_msg
+    if vim_pending != "" or vim_op != "" or vim_count != "" (
+      tail = tail.padEnd(" ", max(tail.len, cols - 14)) ++ vim_count ++ vim_op ++ vim_pending
+    )
+    void grid.append([txtc, tail])
+  )
+  terminal.draw(grid)
+)
+
+// ---------- main ----------
+
+if terminal.screen == null (
+  terminal.writeLine("vim: this terminal has no screen mode")
+  return
+)
+local target = args.filter(v -> !("" ++ v).startsWith("-"))[1]
+if target != null (
+  vimLoad("" ++ target)
+) else (
+  vim_msg = "VIM - originOS   type :help for the short list, :q to quit"
+)
+terminal.screen(true)
+terminal.trap_interrupt = true
+local mods = ["shift", "control", "meta", "alt", "capslock"]
+while !vim_quit (
+  local keys = all_hit.filter(v -> !mods.contains(v))
+  local ctrl = "control".isKeyDown()
+  for i keys.len (
+    if !(ctrl and (keys[i] == "c" or keys[i] == "=" or keys[i] == "-" or keys[i] == "0" or keys[i] == "l")) (
+      vimKey(keys[i], ctrl)
+    )
+  )
+  local w = terminal.takeWheel()
+  if w.y != 0 (
+    vim_top = (vim_top + w.y).clamp(1, max(1, vim_buf.len))
+    vim_row = vim_row.clamp(vim_top, (vim_top + vim_text_rows) - 1)
+    vimClamp()
+  )
+  if w.x != 0 (
+    vim_left = max(0, vim_left + w.x)
+  )
+  local m @= terminal.mouse
+  if m.pressed and m.row >= 1 and m.row <= vim_text_rows (
+    local gw = 0
+    if vim_number (
+      gw = max(3, ("" ++ vim_buf.len).len) + 1
+    )
+    vim_row = ((vim_top + m.row) - 1).clamp(1, vim_buf.len)
+    vim_col = max(1, (vim_left + m.col) - gw)
+    if vim_mode == "cmd" or vim_mode == "search" or vim_mode == "search_back" (
+      vim_mode = "normal"
+    )
+    vimClamp()
+  )
+  vimRender()
+  defer
+)
+terminal.screen(false)

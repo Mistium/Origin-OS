@@ -1,17 +1,72 @@
-if terminal.stdin != null (
-  void terminal.stdin.split("\n").map(v -> (
-    terminal.writeLine(v)
-  ))
-) else if args.len > 0 (
-  local dir = terminal.resolvePath(args[1])
-  file "exists" dir
-  if exists (
-    void open(dir).split("\n").map(v -> (
-      terminal.writeLine(v)
-    ))
+// cat [-n] [-s] [file ...]   concatenate files (or stdin / "-") to the terminal
+local files = []
+local numbered = false
+local squeeze = false
+for i args.len (
+  local a = "" ++ args[i]
+  if a == "-n" (
+    numbered = true
+  ) else if a == "-s" (
+    squeeze = true
+  ) else if a == "-ns" or a == "-sn" (
+    numbered = true
+    squeeze = true
+  ) else if a.startsWith("-") and a.len > 1 (
+    terminal.writeLine("cat: invalid option '" ++ a ++ "'")
+    terminal.writeLine("usage: cat [-n] [-s] [file ...]")
+    return
   ) else (
-    terminal.writeLine("Unknown target file: " ++ args[1])
+    void files.append(a)
   )
-) else (
-  terminal.writeLine("cat: missing file operand")
+)
+
+local chunks = []
+if files.len == 0 (
+  if terminal.stdin == null (
+    terminal.writeLine("usage: cat [-n] [-s] [file ...]")
+    return
+  )
+  void chunks.append(terminal.stdin)
+)
+for i files.len (
+  local f = files[i]
+  if f == "-" (
+    void chunks.append(terminal.stdin ?? "")
+  ) else (
+    local p = terminal.resolvePath(f)
+    file "exists" p
+    if exists (
+      local d = open(p)
+      if typeof(d) == "object" (
+        d = d.JsonFormat()
+      )
+      void chunks.append("" ++ d)
+    ) else (
+      file "exists" (p ++ ".folder")
+      if exists (
+        terminal.writeLine("cat: " ++ f ++ ": Is a directory")
+      ) else (
+        terminal.writeLine("cat: " ++ f ++ ": No such file or directory")
+      )
+    )
+  )
+)
+
+local n = 0
+local blank = false
+for i chunks.len (
+  local lines = chunks[i].split("\n")
+  for j lines.len (
+    local line = lines[j]
+    local skip = squeeze and line == "" and blank
+    if !skip (
+      n += 1
+      if numbered (
+        terminal.writeLine(("" ++ n).padStart(" ", 6) ++ "  " ++ line)
+      ) else (
+        terminal.writeLine(line)
+      )
+    )
+    blank = line == ""
+  )
 )

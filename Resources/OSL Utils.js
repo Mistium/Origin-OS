@@ -441,7 +441,10 @@ class OSLLinter {
         } else if (this.validOperators.has(char)) {
           tokens.push({ type: 'operator', value: char, line: currentLine, start, end: i - currentLineStart + 1 });
           i++;
-        } else if (char === '.' || char === ',' || char === ':' || char === ';') {
+        } else if (char === ';') {
+          tokens.push({ type: 'newline', value: ';', line: currentLine, start, end: i - currentLineStart + 1 });
+          i++;
+        } else if (char === '.' || char === ',' || char === ':') {
           tokens.push({ type: 'punctuation', value: char, line: currentLine, start, end: i - currentLineStart + 1 });
           i++;
         } else if (['(', ')', '[', ']', '{', '}'].includes(char)) {

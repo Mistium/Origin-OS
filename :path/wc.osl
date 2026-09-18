@@ -1,45 +1,67 @@
-local input = null
-local filePath = null
-
-if terminal.stdin != null (
-  input = terminal.stdin
-) else if args.len > 0 (
-  local target = args[args.len]
-  if !target.startsWith("-") (
-    filePath = terminal.resolvePath(target)
-    file "exists" filePath
-    if exists (
-      input = open(filePath)
-    ) else (
-      terminal.writeLine("wc: " ++ target ++ ": No such file or directory")
-      return
-    )
+// wc [-lwc] [file ...]
+local flags = ""
+local files = []
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith("-") and a.len > 1 (
+    flags ++= a.trim(2, -1)
+  ) else (
+    void files.append(a)
   )
 )
-
-if input == null (
-  terminal.writeLine("wc: missing operand")
-  return
+local inputs = []
+if files.len == 0 (
+  if terminal.stdin == null (
+    terminal.writeLine("usage: wc [-lwc] [file ...]")
+    return
+  )
+  void inputs.append({name: "", text: "" ++ terminal.stdin})
 )
-
-local lines = input.split("\n")
-local lineCount = lines.len
-local wordCount = 0
-local charCount = input.len
-
-for i lines.len (
-  local words = lines[i].split(" ").filter(w -> w.len > 0)
-  wordCount += words.len
+for i files.len (
+  local p = terminal.resolvePath(files[i])
+  file "exists" p
+  if exists (
+    void inputs.append({name: files[i], text: "" ++ open(p)})
+  ) else (
+    terminal.writeLine("wc: " ++ files[i] ++ ": No such file or directory")
+  )
 )
-
-local flags = args.filter(v -> v[1] == "-")
-
-if flags.contains("-l") (
-  terminal.writeLine(lineCount)
-) else if flags.contains("-w") (
-  terminal.writeLine(wordCount)
-) else if flags.contains("-c") (
-  terminal.writeLine(charCount)
-) else (
-  terminal.writeLine("  " ++ lineCount ++ "  " ++ wordCount ++ "  " ++ charCount ++ " " ++ (filePath ?? "stdin"))
+local tl = 0
+local tw = 0
+local tc = 0
+for i inputs.len (
+  local text = inputs[i].text
+  local lines = text.split("\n")
+  local words = 0
+  for j lines.len (
+    words += lines[j].split(" ").filter(w -> w.len > 0).len
+  )
+  local nl = text == "" ? 0 lines.len
+  tl += nl
+  tw += words
+  tc += text.len
+  local out = ""
+  if flags == "" or flags.contains("l") (
+    out ++= ("" ++ nl).padStart(" ", 7)
+  )
+  if flags == "" or flags.contains("w") (
+    out ++= ("" ++ words).padStart(" ", 7)
+  )
+  if flags == "" or flags.contains("c") (
+    out ++= ("" ++ text.len).padStart(" ", 7)
+  )
+  terminal.writeLine(out ++ " " ++ inputs[i].name)
+)
+if inputs.len > 1 (
+  local out = ""
+  if flags == "" or flags.contains("l") (
+    out ++= ("" ++ tl).padStart(" ", 7)
+  )
+  if flags == "" or flags.contains("w") (
+    out ++= ("" ++ tw).padStart(" ", 7)
+  )
+  if flags == "" or flags.contains("c") (
+    out ++= ("" ++ tc).padStart(" ", 7)
+  )
+  terminal.writeLine(out ++ " total")
 )

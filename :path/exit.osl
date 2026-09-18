@@ -1,1 +1,2 @@
-window.close()
+// exit: leave the current shell. The terminal pane closes when its top-level program ends.
+terminal.exiting = true

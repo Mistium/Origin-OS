@@ -1,23 +1,27 @@
-local flag = args[1]
-
+// date [-u] [-I] [-R] [+FORMAT]   FORMAT takes %Y %m %d %H %M %S %y %s %A %a %B %b %p %I %T %F %D %e %j %Z %%
+local flag = "" ++ (args[1] ?? "")
+if flag == "-h" or flag == "--help" (
+  terminal.writeLine("usage: date [-u] [-I] [-R] [+FORMAT]")
+  terminal.writeLine("  %Y year  %m month  %d day  %H hour  %M minute  %S second  %s epoch")
+  terminal.writeLine("  %A/%a weekday  %B/%b month name  %p AM/PM  %I 12h  %T H:M:S  %F Y-m-d  %D m/d/y  %j day of year  %Z zone")
+  return
+)
+if flag.startsWith("+") (
+  eval ("globalThis.__date = (function(fmt){ const d = (origin.time && origin.time.date instanceof Date) ? origin.time.date : new Date(); const p = n => String(n).padStart(2, '0'); const start = new Date(d.getFullYear(), 0, 0); const doy = Math.floor((d - start) / 86400000); const map = { Y: d.getFullYear(), y: String(d.getFullYear()).slice(2), m: p(d.getMonth() + 1), d: p(d.getDate()), e: String(d.getDate()).padStart(2, ' '), H: p(d.getHours()), I: p(d.getHours() % 12 || 12), M: p(d.getMinutes()), S: p(d.getSeconds()), s: Math.floor(d / 1000), p: d.getHours() < 12 ? 'AM' : 'PM', A: d.toLocaleDateString(undefined, {weekday: 'long'}), a: d.toLocaleDateString(undefined, {weekday: 'short'}), B: d.toLocaleDateString(undefined, {month: 'long'}), b: d.toLocaleDateString(undefined, {month: 'short'}), j: String(doy).padStart(3, '0'), u: d.getDay() || 7, Z: (d.toTimeString().match(/\\(([^)]+)\\)/) || [])[1] || 'UTC', n: '\\n', t: '\\t' }; map.T = map.H + ':' + map.M + ':' + map.S; map.F = map.Y + '-' + map.m + '-' + map.d; map.D = map.m + '/' + map.d + '/' + map.y; map.R = map.H + ':' + map.M; return fmt.replace(/%(.)/g, (all, c) => c === '%' ? '%' : (c in map ? String(map[c]) : all)) })(" ++ flag.trim(2, -1).JsonStringify() ++ ")")
+  terminal.writeLine(__date)
+  return
+)
 switch flag (
-  case "-h"
-    // help
-    terminal.writeLine("Usage: date [-u] [-I]")
-    break
-
   case "-u"
-    // UTC time string (like `date -u`)
     terminal.writeLine("origin.time.date.toUTCString()".eval())
     break
-
   case "-I"
-    // ISO 8601 date only (YYYY-MM-DD)
     terminal.writeLine("origin.time.date.toISOString().slice(0, 10)".eval())
     break
-
+  case "-R"
+    terminal.writeLine("origin.time.date.toUTCString().replace('GMT', '+0000')".eval())
+    break
   default
-    // Default: local date/time string
     terminal.writeLine("origin.time.date.toString()".eval())
     break
 )
