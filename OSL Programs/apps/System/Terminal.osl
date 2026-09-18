@@ -129,6 +129,7 @@ def newTerm() (
     wheel_x: 0,
     wheel_y: 0,
     mouse: {row: 0, col: 0, down: false, pressed: false, inside: false},
+    key_queue: [],
 
     resolvePath: def(target) -> (
       local t = "" ++ (target ?? "")
@@ -250,7 +251,6 @@ def newTerm() (
       )
     ),
 
-    // block the calling program until the user submits a line
     readLine: def(prompt) -> (
       self.prompt = "" ++ (prompt ?? "")
       self.input_result = null
@@ -275,10 +275,9 @@ def newTerm() (
       return self.prompt
     ),
 
-    // screen mode: the program owns a fixed grid of terminal.cols x terminal.rows cells. Lines are not
-    // wrapped, the scrollback does not scroll, and wheel deltas and clicks are reported to the program.
     screen: def(on) -> (
       self.screen_mode = on == true
+      self.key_queue = []
       self.lines = []
       self.dirty = true
       self.stick = true
@@ -287,13 +286,17 @@ def newTerm() (
       self.trap_interrupt = false
     ),
 
-    // replace the whole grid at once (terminal.rows / terminal.cols give the grid size)
     draw: def(lines) -> (
       self.lines @= lines
       self.dirty = true
     ),
 
-    // wheel movement since the last call, in whole cells (x) and rows (y); positive scrolls right/down
+    takeKeys: def() -> (
+      local k @= self.key_queue
+      self.key_queue = []
+      return k
+    ),
+
     takeWheel: def() -> (
       local ry = 0
       local rx = 0
@@ -312,7 +315,6 @@ def newTerm() (
       return {x: rx, y: ry}
     ),
 
-    // replaced by the shell (rush sets terminal.run to its evalCmd)
     run: def(cmd) -> (
       self.writeLine("terminal.run: no shell is attached to this pane")
       return []
@@ -348,7 +350,6 @@ def newTerm() (
       self.rows @= rows
     )
   }
-  // code running with this pane as self (its methods, scripts run through terminal.run) sees it as `terminal`
   t.terminal @= t
   next_pane_id += 1
   return t
@@ -970,11 +971,20 @@ def handleKeys() (
     tmuxCommand(p, ctrl, shift, alt)
     return null
   )
-  if ctrl (
-    if hit("b") (
-      prefix = true
-      return null
+  if ctrl and hit("b") (
+    prefix = true
+    return null
+  )
+  // screen programs get every key once, in order, with the modifier state of that frame
+  if p.screen_mode and !p.reading and !p.renaming (
+    for i keys.len (
+      void p.key_queue.append({key: keys[i], ctrl: ctrl, shift: shift, alt: alt})
     )
+    if p.key_queue.len > 64 (
+      p.key_queue = p.key_queue.trim(p.key_queue.len - 63, -1)
+    )
+  )
+  if ctrl (
     if hit("c") (
       interrupt(p)
     )

@@ -1324,7 +1324,7 @@ def render_spaces() (
     text "Spaces" hub.t_title : c#icon_colour
     // shortcut legend as keycaps, only when there is room for it
     if total_w > 430 (
-      local kx = left + total_w - pad - 196
+      local kx = left + total_w - pad - 240
       kx = spacesKey("alt", kx, head_y)
       kx = spacesKey("<", kx, head_y)
       kx = spacesKey(">", kx, head_y)

@@ -1,8 +1,13 @@
 // icons
-graphics_icn = "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn camera 0.4 0 -2"
-music_icn = "c #c69252 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #5a4123 icn quaver 0.6 0 -1"
-assembly_icn = "c #6f4aa5 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #2b1d40 icn atom 0.4 0 -2"
-archive_icn = "c #6c2828 w 6 square 0 -2 7 6 square -3 8 4 2 cont 7 4 line -3 -4 3 -4 w 8 square 0 0 4 4 w 3 c #ca5656 icn zip 0.9 -3 0"
+def tile(col, glyph) (
+  return "c " ++ col ++ " w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 c " ++ col ++ " icn " ++ glyph ++ " 0.5"
+)
+
+graphics_icn = tile("#c69252", "image")
+video_icn = tile("#c69252", "play")
+music_icn = tile("#d47cc0", "quaver")
+assembly_icn = tile("#6f4aa5", "atom")
+archive_icn = tile("#ca5656", "zip")
 
 python_icn = "c #3377bb w 4 square -2 2.5 5 .5 square -7 -1 .5 4 square 2 6 1 2 square -1 7.5 4 .5 c #ffffff w 3 dot -4 7.5 c #ffbb33 w 4 square 2 -2.5 5 .5 square 7 1 .5 4 square -2 -6 1 2 square 1 -7.5 4 .5 c #ffffff w 3 dot 4 -7.5"
 javascript_icn = "w 3 c #ffca28 square 0 0 8.5 8.5 w 10 square 0 0 4 4 w 2 c #111 line -0.2 -0.2 -0.2 -6 cutcircle -2.15 -6 1.9 17 70 cutcircle 5.4 -1.6 1.6 -4 90 cutcircle 5.4 -6 1.8 16 90 line 7 -5.3 4.48 -3"
@@ -14,26 +19,26 @@ html_icn = "c #e44d26 w 2 line -7.5 9 7.5 9 cont 6 -7 cont 0 -9.5 cont -6 -7 con
 css_icn = "c #264de4 w 2 line -7.5 9 7.5 9 cont 6 -7 cont 0 -9.5 cont -6 -7 cont -7.5 9 w 4 line -5 7 5 7 cont 4 -5 cont 0 -7 cont -4 -5 cont -5 7 w 6 line 0 4 0 -2 c #2965f1 w 2 line 5 -6 6 8 cont 1 8 cont 1 -7.5 cont 5 -6 w 4 line 3 6 3 -4 c #ffffff w 1 line 5.5 6.75 -5.25 6.75 cont -5 5 cont 2.5 5 cont 2.25 2 cont -4.5 2 cont -4.25 0 cont 2 0 cont 2 -4 cont 0 -5 cont -2 -4 cont -2.25 -3 cont -4.25 -3 cont -4 -5 cont 0 -7 cont 4 -5 cont 5.5 6.5 w 2.5 line -4 6 4 6 cont 3.5 1 cont -3 1 line 3.5 1 3 -4 cont 0 -6 cont -3 -4 cont -3 -4"
 osl_icn = "w 3 c #b8882a rect 0 0 9 5 line -9 5 0 10 cont 9 5 line -9 -5 0 -10 w 10 line 0 -6 0 6 w 3 c #8a6010 line -6.2 -6.5 6.2 6.5 cont 9 5 cont 9 -5 cont 0 -10 cont -6.2 -6.5 w 7 line 7 3 -1 -6 line 5 -3 5 -5 c #fff8e7 icn origin-logo 0.57"
 owf_icn = "w 3 c #644ea7 square 0 0 7 7 line 0 10 10 0 cont 0 -10 cont -10 0 cont 0 10 w 17 dot 0 0 c #302552 w 3 line 10 0 0 -10 cont -10 0 cont 10 0 w 15.8 c #5e547d dot 0 0 c #d3cce8 icn origin-logo 0.5"
-ots_icn = "c #1c452a w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 dot 0 0 c #1b8f44 w 1.5 line 0 -4 4 -4 line -4 3 -1 0 cont -4 -3"
+ots_icn = tile("#1b8f44", "terminal")
 
 icon_wasm = "c #654ff0 w 4 line -8 -8 -8 8 cont -5 8 cutcircle 0 8 4.5 18 90 line 5 8 8 8 cont 8 -8 cont -8 -8 w 6 line -5.5 -7 -5.5 7 line 5.5 -7 5.5 7 line 0 -6 0 2 w 1.75 c #fff line 7 -7 6 -1 cont 4 -1 cont 3 -7 line 4 -5.5 6 -5.5 line 1 -1 0 -7 cont -1.5 -7 cont -2.5 -1 cont -4 -7 cont -5.5 -7 cont -6. -1"
 
-missing_icn = "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #325775 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5"
-exe_icn = "w 3 c #797774 square 0 -.4 9 7.25 w 2 c #fff square 0 -1 9 6.5 w 2.7 line -8.65 5.5 8.65 5.5 w 5 square 0 -1 6 4 line -2 -1 2 -1 w .3 c #c4c4c4 square 8.5 7.6 .2 .2 dot 8.5 7.6 square 7 7.6 .2 .2 dot 7 7.6 square 5.5 7.6 .2 .2 dot 5.5 7.6 w 1 c #0b7acb square 0 -.75 3.5 5.5 w 2 square 0 -.75 2.75 4.4 w 5 line 0 -2.5 0 1 w .3 c #979697 line -9 5 -5 5 line -9 3.7 -5 3.7 line -9 2.4 -5 2.4 line -9 1.1 -5 1.1 line -9 -.2 -5 -.2 line -9 -1.5 -5 -1.5 line -9 -2.8 -5 -2.8 line -9 -4.1 -5 -4.1 line 9 5 5 5 line 9 3.7 5 3.7 line 9 2.4 5 2.4 line 9 1.1 5 1.1 line 9 -.2 5 -.2"
+missing_icn = tile("#588fbf", "file")
+exe_icn = tile("#0078d4", "windows")
 
-cfg_icn = "c #c2c2c2 w 4 cutcircle 0 0 5.5 0 180 w 1 line -2 7 -1.5 9 cont 1.5 9 cont 2 7 line -2 -7 -1.5 -9 cont 1.5 -9 cont 2 -7 line 7 -2 9 -1.5 cont 9 1.5 cont 7 2 line -7 -2 -9 -1.5 cont -9 1.5 cont -7 2 line -5.5 3 -7.5 6 cont -6 7.5 cont -3 5.5 line 5.5 3 7.5 6 cont 6 7.5 cont 3 5.5 line -5.5 -3 -7.5 -6 cont -6 -7.5 cont -3 -5.5 line 5.5 -3 7.5 -6 cont 6 -7.5 cont 3 -5.5 w 3 dot 0 8 dot 8 0 dot 0 -8 dot -8 0 dot -6 -6 dot 6 -6 dot -6 6 dot 6 6 "
-log_icn = "w 18 c #fff dot 0 0 w 3 line 0 -5 8 -8 line 5 0 8 -8 dot 6 -6 w 4 c #000 line 0 5 0 0 dot 0 -5"
+cfg_icn = tile("#c2c2c2", "cog")
+log_icn = tile("#e0e0e0", "clipboard")
 
 // main
-file "install_type" "folder" "c #772d1c fill 1 icn folder 1 0 0 c #ff724f icn folder 0.8 0 0.1 fill 0" "Folder" ["Origin/(A) System/User Applications/Files.osl"]
-file "install_type" "md" "c #000 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 c #ddd w 2 line -4 -5 -4 0 cont 0 -5 cont 4 0 cont 4 -5" "Markdown" ["Origin/(A) System/User Applications/Studio.osl"]
-file "install_type" "txt" "c #588fbf w 6 square 0 -2 5 6 square -2 3 3 5 w 3 c #335776 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 2 line -4 1 4 1 line -4 -3 0 -3 line -4 -7 2 -7" "Plain Text" ["Origin/(A) System/User Applications/Studio.osl"]
-file "install_type" "lmc" "c #00d67d w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #006e40 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn script 0.4 0 -3" "LMC Script" []
-file "install_type" "ode" "c #6db2b3 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #456868 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 line -3 -7 3 -7" "Dock Segment" ["Origin/(A) System/User Applications/Studio.osl"]
-file "install_type" "json" "c #ff724f w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #772d1c line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "JSON File" ["Origin/(A) System/User Applications/Studio.osl"]
-file "install_type" "csv" cfg_icn "Comma Separated Value document" ["Origin/(A) System/User Applications/Studio.osl"]
-file "install_type" "ojff" "c #489c54 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #306a38 line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5" "Origin Font" ["Font_Loader"]
-file "install_type" "obj" "c #edfff3 w 6 square 0 -2 5 6 square -2 3 3 5 line -3 -4 3 -4 w 3 c #566a5e line 2 9.5 6.5 5 line 6.5 5 2 5 line 2 5 2 9.5 w 2 icn cube 0.5 1 -4" "3d Model" []
+file "install_type" "folder" "c #3d8ee8 fill 1 icn folder 0.87 0 0 fill 0 c #a9d2f2 w 6.1 rect 0 -2.2 6.96 3.05" "Folder" ["Origin/(A) System/User Applications/Files.osl"]
+file "install_type" "md" tile("#9aa0a6", "book") "Markdown" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "txt" tile("#588fbf", "list") "Plain Text" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "lmc" tile("#00d67d", "script") "LMC Script" []
+file "install_type" "ode" tile("#6db2b3", "menu") "Dock Segment" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "json" tile("#ff724f", "script-curly") "JSON File" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "csv" tile("#7fb069", "grid") "Comma Separated Value document" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "ojff" tile("#489c54", "pen") "Origin Font" ["Font_Loader"]
+file "install_type" "obj" tile("#8fbf9a", "cube") "3d Model" []
 file "install_type" "icn" "" "Origin Icon" ["Origin/(A) System/User Applications/Studio.osl","Origin/(A) System/System Apps/Icn Tools.osl"]
 file "install_type" "shortcut" "" "Alias File" ["Origin/(A) System/System Apps/Shortcut_Opener.osl"]
 
@@ -45,7 +50,7 @@ file "install_type" "gz" archive_icn "GZIP Archive" []
 file "install_type" "7z" archive_icn "7z Archive" []
 
 // data formats
-file "install_type" "xml" "c #7c3b73 w 6 square 0 -2 5 6 square -2 3 3 5 dot 0 -3 w 3 c #5e2856 line 2 9.5 6.5 5 cont 2 5 cont 2 9.5 w 1.5 c #fff line -3.25 -1 -5.75 -4 cont -3.25 -7 line 3.25 -1 5.75 -4 cont 3.25 -7 line -1 -6.25 1 -1.75" "Markup" ["Origin/(A) System/User Applications/Studio.osl"]
+file "install_type" "xml" tile("#7c3b73", "code") "Markup" ["Origin/(A) System/User Applications/Studio.osl"]
 
 // binary data
 file "install_type" "so" missing_icn "Shared Object Lib" []
@@ -84,10 +89,10 @@ file "install_type" "odd" graphics_icn "WEBP Image" ["Origin/(A) System/User App
 file "install_type" "bmp" graphics_icn "BMP Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "ico" graphics_icn "ICO Image" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "tiff" graphics_icn "TIFF Image" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "mp4" graphics_icn "MP4 Video" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "mov" graphics_icn "QuickTime Movie" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "webm" graphics_icn "WEB Media" ["Origin/(A) System/User Applications/Previewer.osl"]
-file "install_type" "gif" graphics_icn "Gif Video" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "mp4" video_icn "MP4 Video" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "mov" video_icn "QuickTime Movie" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "webm" video_icn "WEB Media" ["Origin/(A) System/User Applications/Previewer.osl"]
+file "install_type" "gif" video_icn "Gif Video" ["Origin/(A) System/User Applications/Previewer.osl"]
 file "install_type" "mp3" music_icn "MP3 Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
 file "install_type" "wav" music_icn "WAV Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]
 file "install_type" "flac" music_icn "FLAC Audio" ["Origin/(A) System/System Apps/Media_Player.osl"]

@@ -365,7 +365,10 @@ while !terminal.exiting (
     checkJobs()
     local tokens = parseCommand(line)
     local segments = parseShellOperators(tokens)
-    if segments[segments.len].background (
+    if tokens.len > 0 and tokens[1] === "exit" (
+      // exit is a shell builtin: it ends this shell process, never the window
+      terminal.exiting = true
+    ) else if segments[segments.len].background (
       runBackground(line.replace(" &", "").replace("&", ""))
     ) else (
       void evalCmd(line)

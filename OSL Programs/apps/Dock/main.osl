@@ -20,12 +20,7 @@ def main() (
   change_x 45
   square 30 30 0 0 1
   if onclick (
-    // spaces are drawn by the dock itself now
-    if spaces == null (
-      open_path = "Origin/(A) System/System Apps/Desktop_Manager.osl"
-    ) else (
-      spaces.toggle = true
-    )
+    spaces.toggle = true
   )
   icon "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7" 1
 

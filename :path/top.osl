@@ -36,6 +36,16 @@ top_msg = ""
 top_st = null
 top_rows = []
 top_next = 0
+top_keys = []
+
+def topHit(k) (
+  for i top_keys.len (
+    if top_keys[i].key === k (
+      return true
+    )
+  )
+  return false
+)
 
 def fmtTime(ms) (
   local total = floor(ms / 10)
@@ -164,13 +174,13 @@ def sample() (
 )
 
 // a horizontal window over a plain or coloured row: columns from..from+width-1
-def topSlice(row, from, width) (
+def topSlice(row, start, width) (
   if typeof(row) != "array" (
     local s = "" ++ row
-    if from > s.len (
+    if start > s.len (
       return ""
     )
-    return s.trim(from, min(s.len, (from + width) - 1))
+    return s.trim(start, min(s.len, (start + width) - 1))
   )
   local out = []
   local pos = 1
@@ -182,8 +192,8 @@ def topSlice(row, from, width) (
     local segStart = pos
     local segEnd = (pos + seg.len) - 1
     pos += seg.len
-    local a = max(segStart, from)
-    local b = min(segEnd, (from + width) - 1)
+    local a = max(segStart, start)
+    local b = min(segEnd, (start + width) - 1)
     if b >= a (
       void out.append(col, seg.trim((a - segStart) + 1, (b - segStart) + 1))
     )
@@ -239,6 +249,7 @@ while true (
 
   // ---- input ----
   if !top_once (
+    top_keys = terminal.takeKeys()
     local w = terminal.takeWheel()
     if w.x != 0 (
       top_hx = max(0, top_hx + (w.x * 2))
@@ -260,36 +271,35 @@ while true (
         need = true
       )
     )
-    if "q".onKeyDown() or "f10".onKeyDown() or "escape".onKeyDown() (
+    if topHit("q") or topHit("f10") or topHit("escape") (
       terminal.screen(false)
       return
     )
-    if "h".onKeyDown() or "f1".onKeyDown() (
+    if topHit("h") or topHit("f1") (
       terminal.draw(helpGrid())
       defer
-      while all_hit.len == 0 (
+      while terminal.takeKeys().len == 0 (
         defer
       )
-      defer
       need = true
     )
-    if " ".onKeyDown() (
+    if topHit(" ") (
       need = true
     )
-    if "arrowleft".onKeyDown() (
+    if topHit("arrowleft") (
       top_hx = max(0, top_hx - 8)
       need = true
     )
-    if "arrowright".onKeyDown() (
+    if topHit("arrowright") (
       top_hx += 8
       need = true
     )
-    if "arrowdown".onKeyDown() or "arrowup".onKeyDown() or "pagedown".onKeyDown() or "pageup".onKeyDown() (
+    if topHit("arrowdown") or topHit("arrowup") or topHit("pagedown") or topHit("pageup") (
       local step = 1
-      if "pagedown".onKeyDown() or "pageup".onKeyDown() (
+      if topHit("pagedown") or topHit("pageup") (
         step = avail
       )
-      if "arrowup".onKeyDown() or "pageup".onKeyDown() (
+      if topHit("arrowup") or topHit("pageup") (
         step = 0 - step
       )
       if top_htop (
@@ -300,10 +310,10 @@ while true (
       need = true
     )
     if top_htop (
-      if "f6".onKeyDown() or ">".onKeyDown() or "<".onKeyDown() (
+      if topHit("f6") or topHit(">") or topHit("<") (
         local order = ["cpu", "mem", "time", "pid", "name"]
         local d = 1
-        if "<".onKeyDown() (
+        if topHit("<") (
           d = -1
         )
         top_sort = order[(((order.index(top_sort) - 1) + d + order.len) % order.len) + 1]
@@ -311,7 +321,7 @@ while true (
         top_next = 0
         need = true
       )
-      if "f3".onKeyDown() or "/".onKeyDown() (
+      if topHit("f3") or topHit("/") (
         local q = ("" ++ (terminal.input("Search") ?? "")).toLower()
         local found = 0
         for j top_rows.len (
@@ -326,13 +336,13 @@ while true (
         )
         need = true
       )
-      if "f4".onKeyDown() (
+      if topHit("f4") (
         top_filter = ("" ++ (terminal.input("Filter") ?? "")).strip()
         top_sel = 1
         top_next = 0
         need = true
       )
-      if "f9".onKeyDown() or "k".onKeyDown() (
+      if topHit("f9") or topHit("k") (
         if top_rows.len > 0 (
           local r = top_rows[top_sel]
           local ans = "" ++ (terminal.input("Kill " ++ r.name ++ " (pid " ++ r.id ++ ")? y/n") ?? "")
@@ -344,23 +354,23 @@ while true (
         need = true
       )
     ) else (
-      if all_hit.contains("P") (
+      if topHit("P") (
         top_sort = "cpu"
         top_next = 0
       )
-      if all_hit.contains("M") (
+      if topHit("M") (
         top_sort = "mem"
         top_next = 0
       )
-      if all_hit.contains("N") (
+      if topHit("N") (
         top_sort = "pid"
         top_next = 0
       )
-      if all_hit.contains("T") (
+      if topHit("T") (
         top_sort = "time"
         top_next = 0
       )
-      if "k".onKeyDown() (
+      if topHit("k") (
         local pid = ("" ++ (terminal.input("PID to signal/kill") ?? "")).strip().toNum()
         if pid != null (
           top_msg = killPid(pid)
