@@ -1,0 +1,19 @@
+// rev [file]   reverse each line
+local input = terminal.stdin
+if input == null and args.len > 0 (
+  local p = terminal.resolvePath(args[1])
+  file "exists" p
+  if !exists (
+    terminal.writeLine("rev: " ++ args[1] ++ ": No such file or directory")
+    return
+  )
+  input = "" ++ open(p)
+)
+if input == null (
+  terminal.writeLine("usage: rev [file]")
+  return
+)
+local lines = input.split("\n")
+for i lines.len (
+  terminal.writeLine(lines[i].reverse())
+)

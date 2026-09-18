@@ -1,0 +1,51 @@
+// json [path] [file]   pretty print JSON from a file or stdin, optionally picking .a.b[0]
+local pathExpr = ""
+local filePath = null
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith(".") or a.startsWith("[") (
+    pathExpr = a
+  ) else (
+    filePath = terminal.resolvePath(a)
+  )
+)
+local input = terminal.stdin
+if filePath != null (
+  file "exists" filePath
+  if !exists (
+    terminal.writeLine("json: " ++ args[args.len] ++ ": No such file or directory")
+    return
+  )
+  input = open(filePath)
+)
+if input == null (
+  terminal.writeLine("usage: json [.path] [file]")
+  return
+)
+local value = input
+if typeof(value) == "string" (
+  try (
+    value = value.JsonParse()
+  ) catch e (
+    terminal.writeLine("json: invalid JSON")
+    return
+  )
+)
+local keys = pathExpr.replace("[", ".").replace("]", "").split(".").filter(v -> v.len > 0)
+for i keys.len (
+  local k = keys[i]
+  if value == null (
+    terminal.writeLine("null")
+    return
+  )
+  if typeof(value) == "array" (
+    value = value[(k.toNum() ?? 0) + 1]
+  ) else (
+    value = value[k]
+  )
+)
+if typeof(value) == "object" or typeof(value) == "array" (
+  terminal.writeLine(value.JsonFormat())
+) else (
+  terminal.writeLine("" ++ value)
+)

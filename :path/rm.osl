@@ -1,13 +1,42 @@
-local target = args[1]
-if !target.contains(".") (
-  target ++= ".folder"
+// rm [-rf] target ...
+local force = false
+local recursive = false
+local targets = []
+for i args.len (
+  local a = "" ++ args[i]
+  if a.startsWith("-") and a.len > 1 (
+    force = force or a.contains("f")
+    recursive = recursive or a.contains("r") or a.contains("R")
+  ) else (
+    void targets.append(a)
+  )
 )
-local dir = terminal.resolvePath(target)
-file "exists" dir
-if exists (
-  file "open" dir "onlyaccess"
-  file "delete"
-  file "close"
-) else (
-  terminal.writeLine("Unknown target file: " ++ args[1])
+if targets.len == 0 (
+  terminal.writeLine("usage: rm [-rf] file ...")
+  return
+)
+for i targets.len (
+  local t = targets[i]
+  local p = terminal.resolvePath(t)
+  local isDir = false
+  file "exists" p
+  if !exists (
+    file "exists" (p ++ ".folder")
+    if exists (
+      p ++= ".folder"
+      isDir = true
+    )
+  )
+  if !exists (
+    if !force (
+      terminal.writeLine("rm: cannot remove '" ++ t ++ "': No such file or directory")
+    )
+  ) else if isDir and !recursive (
+    terminal.writeLine("rm: cannot remove '" ++ t ++ "': Is a directory (use -r)")
+  ) else if p == "origin" or p == "origin.folder" or p == home_path ++ ".folder" (
+    terminal.writeLine("rm: refusing to remove '" ++ t ++ "'")
+  ) else (
+    file "open" p "onlyaccess"
+    file "delete"
+  )
 )

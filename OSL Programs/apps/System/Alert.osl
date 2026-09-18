@@ -97,7 +97,7 @@ def parentSays(string thing) (
   goto -185 height / 2 - 15
   string name = "App"
   try (
-    array data @= open(window.parent.file_uuid, ["name"])
+    array data @= open(popup_data.app ?? window.parent.file_uuid, ["name"])
     if data != null and data.len > 0 (
       name = data[1]
     )
@@ -176,6 +176,59 @@ def choose() (
   quitThisApp()
 )
 
+def permission() (
+  parentSays("wants a permission")
+
+  goto 0 70
+  c global_accent
+  square 130 130 17
+  c prim
+  square 130 130 10
+  c txtc
+  icon popup_data.icon 4
+
+  goto 0 -60
+  centext popup_data.title 15
+  goto 0 -90
+  centext popup_data.body.toStr().wrapText(90) 8
+
+  goto 0 -150
+  local click = acceptDeny("Deny", "Grant")
+  if click == "Grant" (
+    permission "give" popup_data.app popup_data.title
+    window.close()
+  )
+  if click == "Deny" (
+    permission "deny" popup_data.app popup_data.title
+    window.close()
+  )
+
+  quitThisApp()
+)
+
+def save_directory() (
+  parentSays("wants to")
+
+  goto 0 55
+  centext popup_data.title 15
+  goto 0 25
+  centext popup_data.body 8
+
+  goto 0 -35
+  local click = acceptDeny("Deny", "Grant")
+  if click == "Grant" (
+    permission "give" popup_data.app ("Save Directory/" ++ popup_data.directory)
+    file "open" popup_data.app
+    file "start"
+    window.close()
+  )
+  if click == "Deny" (
+    window.close()
+  )
+
+  quitThisApp()
+)
+
 def buy_key() (
   parentSays("wants to")
 
@@ -250,10 +303,16 @@ switch type (
   case "cancel_key"
     cancel_key()
     break
+  case "permission"
+    permission()
+    break
+  case "save_directory"
+    save_directory()
+    break
 )
 
-// close if not the top window
-if window_id_index != 1 (
+// close if not the top window. permission dialogs stack instead, an app can ask for several in one setup
+if window_id_index != 1 and type != "permission" and type != "save_directory" (
   window.close()
 )
 

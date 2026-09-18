@@ -265,6 +265,8 @@ hub = {
   open: false,
   toggle: false,
   anim: 0,
+  ease: 0,
+  opened: 0,
   apps: [],
   recent: [],
   armed: "",
@@ -1004,21 +1006,38 @@ def render_hub() (
   )
 
   if hub.open (
-    hub.anim += (1 - hub.anim) / 3
+    // the same melt as the dock: opacity rises while the blur sharpens and it settles up
+    hub.anim = min(1, (timestamp - hub.opened) / 280)
+    local back = hub.anim - 1
+    hub.ease = 1 + (back * back * back)
     local w = hub.width
     local total_w = (w * 2) + hub.gap
     local h = min(620, screensize_y - 110)
     // sits above the dock's left edge, where the button that opens it lives
     local left = (dock_width / -2).clamp((screensize_x / -2) + hub.gap, (screensize_x / 2) - total_w - hub.gap)
     local rest = (screensize_y / -2) + 70 + hub.gap
-    local bottom = round(rest - ((1 - hub.anim) * 18))
+    local bottom = round(rest - ((1 - hub.ease) * 18))
     // pointer and keyboard input inside this box belong to the dock, even above other windows
     void overlay_rects.append([left, rest, left + total_w, rest + h])
     overlay_kb = true
 
     window.beginOverlay()
-    hubStart(left, bottom, w, h)
-    hubNotifications(left + w + hub.gap, bottom, w, h)
+    if hub.anim < 1 (
+      style {
+        opacity: hub.ease,
+        blur: (round((1 - hub.ease) * 140) / 10) ++ "px"
+      }
+      // goto is relative to the frame centre, so the panels are placed against it
+      local fx = left + (total_w / 2)
+      local fy = rest + (h / 2)
+      frame left - 60 rest - 60 left + total_w + 60 rest + h + 60 0 "hub_melt" (
+        hubStart(left - fx, bottom - fy, w, h)
+        hubNotifications(left + w + hub.gap - fx, bottom - fy, w, h)
+      )
+    ) else (
+      hubStart(left, bottom, w, h)
+      hubNotifications(left + w + hub.gap, bottom, w, h)
+    )
     window.endOverlay()
 
     if "escape".onKeyDown() (
@@ -1055,6 +1074,8 @@ def render_hub() (
     hub.open = !hub.open
     hub.armed = ""
     hub.anim = 0
+    hub.ease = 0
+    hub.opened = timestamp
     if hub.open (
       hubLoadApps()
       inputs.hub_search = ""

@@ -1,27 +1,22 @@
-local cmd = args[1]
-
-if cmd == null (
-  terminal.writeLine("type: missing argument")
+// type name ...   say how each name would be interpreted
+if args.len == 0 (
+  terminal.writeLine("usage: type name ...")
   return
 )
-
-if aliases.contains(cmd) (
-  terminal.writeLine(cmd ++ " is an alias for '" ++ aliases[cmd] ++ "'")
-  return
+local builtins = []
+for i args.len (
+  local cmd = "" ++ args[i]
+  if aliases.contains(cmd) (
+    terminal.writeLine(cmd ++ " is an alias for '" ++ aliases[cmd] ++ "'")
+  ) else if builtins.contains(cmd) (
+    terminal.writeLine(cmd ++ " is a shell builtin")
+  ) else (
+    local scriptPath = parseFilePath("~/:path/" ++ cmd ++ ".osl")
+    file "exists" scriptPath
+    if exists (
+      terminal.writeLine(cmd ++ " is " ++ scriptPath)
+    ) else (
+      terminal.writeLine("type: " ++ cmd ++ ": not found")
+    )
+  )
 )
-
-local scriptPath = "~/:path/" ++ cmd ++ ".osl"
-scriptPath = parseFilePath(scriptPath)
-file "exists" scriptPath
-if exists (
-  terminal.writeLine(cmd ++ " is a shell command (" ++ scriptPath ++ ")")
-  return
-)
-
-local builtins = ["jobs", "fg", "bg", "clear", "history", "export", "unset", "source"]
-if builtins.contains(cmd) (
-  terminal.writeLine(cmd ++ " is a shell builtin")
-  return
-)
-
-terminal.writeLine("type: " ++ cmd ++ ": not found")

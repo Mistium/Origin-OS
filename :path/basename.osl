@@ -1,0 +1,17 @@
+// basename path [suffix]
+if args.len == 0 (
+  terminal.writeLine("usage: basename path [suffix]")
+  return
+)
+local p = "" ++ args[1]
+while p.len > 1 and p.endsWith("/") (
+  p = p.trim(1, -2)
+)
+local base = p.split("/")[-1]
+if base == "" (
+  base = "/"
+)
+if args.len > 1 and base.endsWith(args[2]) and base != args[2] (
+  base = base.trim(1, 0 - (("" ++ args[2]).len + 1))
+)
+terminal.writeLine(base)

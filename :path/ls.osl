@@ -114,7 +114,7 @@ for i files.len (
 )
 maxLen += 4
 
-local cols = floor((window.width - 30) / 10 / (maxLen + 2))
+local cols = floor((terminal.cols ?? 80) / (maxLen + 2))
 if cols < 1 (
   cols = 1
 )

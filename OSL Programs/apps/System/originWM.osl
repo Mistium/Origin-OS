@@ -1,4 +1,3 @@
-// this is a not finished WIP window manager for originOS written in OSL
 
 permission "request" "windows"
 permission "request" "javascript"
@@ -11,9 +10,6 @@ def checkCollision(number x, number y, number w, number h) (
   return abs(pointer_x - x) < w / 2 and abs(pointer_y - y) < h / 2
 )
 
-// use the builtin version api
-// normalise both version schemes to one scale: old integer style ("616",
-// "620") becomes 6.16/6.20, new decimal style ("7.00") stays 7.00
 version = origin.version.toNum()
 if version >= 100 (
   version /= 100
@@ -22,12 +18,9 @@ capabilities = {}
 if version != 0 and version < 6 (
   window.close()
 )
-// can we programatically open the right click menu?
 capabilities.open_rightclick = version >= 6.1
 
 origin @= "window.origin".eval()
-// get the origin global object
-// this gives us a shit ton of apis
 
 if typeof(origin.windows.area) != "object" (
   origin.windows.area = {}
@@ -39,7 +32,6 @@ window_area.right = window_area.right ?? 0
 window_area.left = window_area.left ?? 0
 
 window "responsive" true
-// the window manager belongs to every space, it must never slide away with one
 window.no_desktop = true
 
 number hitbox_size = 13
@@ -152,7 +144,6 @@ def dragDiagonal() (
   )
 )
 
-// holding a dragged window against a side edge carries it to the next space
 def carryToSpace() (
   local edge = 0
   if mouse_x < screen.x / -2 + 10 (
@@ -171,7 +162,6 @@ def carryToSpace() (
   if top.no_desktop == true or next < 0 or next >= count or desktop.multiplier != desktop.current (
     return
   )
-  // carrying the only window of a space into an empty one would just be renumbered back
   local staying = 0
   local waiting = 0
   for i wins.len (
@@ -196,8 +186,6 @@ def carryToSpace() (
   )
   local held = timer - state.move.edge_at
   if held > 0.7 (
-    // pinned while the spaces slide so the window stays under the pointer.
-    // carried tells the dock this is still a normal window on a space
     top.desktop = next
     top.carried = true
     top.no_desktop = true
@@ -214,7 +202,6 @@ def moveWindow() (
       local left = screen.x / -2 + max(0, window_area.left)
       local right = screen.x / 2 - max(0, window_area.right)
       if state.move.switched == true (
-        // the edge was used to change space, so it must not also tile on release
       ) else if mouse_y > win_top - 13 (
         tileWindow(top, "top")
       ) else if mouse_x < left + 13 (
@@ -279,14 +266,12 @@ def handleResize() (
     }
   )
 
-  // left edge
   if resizable.left != false and checkCollision(x + leftEdge, y, hitbox_size, topEdge - x25) (
     state.cursor = "ew-resize"
     if mouse_ondown (
       state.changeState("left","width")
     )
   )
-  // right edge
   if resizable.right != false and checkCollision(x + rightEdge, y, hitbox_size, height - x25) (
     state.cursor = "ew-resize"
     if mouse_ondown (
@@ -295,14 +280,12 @@ def handleResize() (
   )
 
   if top.tile == null (
-    // top edge
     if resizable.top != false and checkCollision(x, y + topEdge, width - x25, hitbox_size) (
       state.cursor = "ns-resize"
       if mouse_ondown (
         state.changeState("top","height")
       )
     )
-    // bottom edge
     if resizable.bottom != false and checkCollision(x, y + bottomEdge, width - x25, hitbox_size) (
       state.cursor = "ns-resize"
       if mouse_ondown (
@@ -310,7 +293,6 @@ def handleResize() (
       )
     )
 
-    // top right
     if resizable.right != false and resizable.top != false and checkCollision(x + rightEdge, y + topEdge, x2, x2) (
       state.cursor = "nesw-resize"
       if mouse_ondown (
@@ -318,7 +300,6 @@ def handleResize() (
       )
     )
 
-    // bottom right
     if resizable.right != false and resizable.bottom != false and checkCollision(x + rightEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nwse-resize"
       if mouse_ondown (
@@ -326,7 +307,6 @@ def handleResize() (
       )
     )
 
-    // top left
     if resizable.left != false and resizable.top != false and checkCollision(x + leftEdge, y + topEdge, x2, x2) (
       state.cursor = "nwse-resize"
       if mouse_ondown (
@@ -334,7 +314,6 @@ def handleResize() (
       )
     )
 
-    // bottom left
     if resizable.left != false and resizable.bottom != false and checkCollision(x + leftEdge, y + bottomEdge, x2, x2) (
       state.cursor = "nesw-resize"
       if mouse_ondown (
@@ -401,11 +380,8 @@ def handleMove() (
         )},
         "-",
         {"Fullscreen Window": def(win) -> (
-          // these dont work on other windows yet, they work in current context
-          // win.fullscreen()
         )},
         {"Minimise Window": def(win) -> (
-          // win.minimise()
         )},
         {"Close Window": def(win) -> (
           win.close()
@@ -432,7 +408,9 @@ def handleTop() (
     local space = desktops.current.toNum()
     for i wins.len (
       local cur @= wins[i].window
-      // windows on another space share these coordinates but are not on screen
+      if cur.desktop_layer == true (
+        continue
+      )
       if cur.no_desktop != true and (cur.desktop ?? 0).toNum() != space (
         continue
       )
@@ -477,7 +455,6 @@ def handleTop() (
 def handleKeybinds(keybinds) (
   local modifiers @= keybinds.getKeys()
   for i modifiers.len (
-    // keynames
     local mod = modifiers[i]
     if mod.isKeyDown().not() (
       continue

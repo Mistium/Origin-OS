@@ -1,24 +1,15 @@
 // Developer: @Mistium
 // Description: System monitor for originOS
-//
-// Two modes. The main window has Processes, Performance, Network and Storage
-// pages. Opened with a window id as passed_data it shows one process in detail.
-// Metrics are sampled a few times a second into fixed length histories, the
-// process table refreshes once a second. Sizes passed to `box` are the visible
-// size, OSL arithmetic runs left to right.
 
 import "window_tools"
 
 permission "request" "windows"
 permission "request" "terminal"
 
-// global names are case-insensitive, so this must not be spelled like the `hist` object
 SAMPLES = 120
 SAMPLE_EVERY = 0.25
 TABLE_EVERY = 1
 ROW_H = 30
-// the window buttons are 80 by 27, 6 from the right edge and centred 21 below the top.
-// Header and footer controls mirror that: same height, same centre line, same inset.
 HEAD_H = 42
 STATUS_H = 42
 
@@ -61,8 +52,6 @@ def blank() (
   return (1 to SAMPLES).fill(0)
 )
 
-// samples already scaled to 0..1 so they can be handed straight to `graph`, newest last.
-// Scaling per frame with a lambda cost about 600 function calls a frame and dropped the OS to 15 fps.
 hist = {
   fps: blank(),
   cpu: blank(),
@@ -73,7 +62,6 @@ hist = {
   proc: blank()
 }
 
-// what 1.0 means for each history, and the most recent unscaled reading
 scales = {
   fps: 60,
   cpu: 100,
@@ -90,17 +78,13 @@ latest = {
   down: 0,
   proc: 0
 }
-// network has no natural ceiling, so its raw samples are rescaled to the running peak
 net_raw = {
   up: blank(),
   down: blank()
 }
 net_peak = 1024
 
-// ---------------------------------------------------------------- drawing helpers
-// `box`, `hit`, `card` and the derived colours come from window_tools
 
-// one colour per metric so graphs are recognisable at a glance
 metric_cols = {
   cpu: "#60a5fa",
   fps: "#34d399",
@@ -110,7 +94,6 @@ metric_cols = {
   down: "#22d3ee"
 }
 
-// a text button, result in `button_click`
 def "text_button" "label, w, fill, ink, enabled" (
   hit w 27
   button_click = onclick and enabled
@@ -126,7 +109,6 @@ def "text_button" "label, w, fill, ink, enabled" (
   )
 )
 
-// a usage bar centred on the pen, fraction is 0..1
 def "meter" "w, fraction, col" (
   local x = x_position
   box w 6 6 : c#track_col
@@ -136,7 +118,6 @@ def "meter" "w, fraction, col" (
   set_x x
 )
 
-// a graph with its left bottom at (x, y): grid lines, soft fill and a line
 def "plot" "x, y, w, h, values, col" (
   for i 3 (
     goto x + (w / 2) y + (h * i / 4)
@@ -166,7 +147,6 @@ def one_dp(number n) string (
   return (round(n * 10) / 10).toStr()
 )
 
-// frame times, switching to seconds so a startup spike still fits its column
 def ms_text(number n) string (
   if n >= 1000 (
     return one_dp(n / 1000) ++ " s"
@@ -174,9 +154,7 @@ def ms_text(number n) string (
   return one_dp(n) ++ " ms"
 )
 
-// ---------------------------------------------------------------- sampling
 
-// not named push: function calls resolve through the scope array first, which has its own push
 def record_sample(string key, number value) (
   latest[key] = value
   local list @= hist[key]
@@ -218,8 +196,6 @@ def "sample_metrics" (
   )
 )
 
-// per window DOM node counts plus the parent link, keyed by window id.
-// `_child` is set by window.create(..., {child: true}) and is not readable from OSL, hence the eval
 def "sample_dom" (
   dom_global = "window.OSLDom && window.OSLDom.stats ? window.OSLDom.stats() : {}".eval()
   dom_rows = "(()=>{ const out = {}; try { for (const t of vm.runtime.targets) { const w = t.window, s = t.__osldom; if (!s || !w || w.id == null) continue; let records = 0, attached = 0, canvasBytes = 0; for (const pool of s.els || []) for (const rec of pool.arr || []) { if (!rec || rec.dead) continue; records++; if (rec.el && rec.el.isConnected) attached++; if (rec.cv) canvasBytes += (rec.cv.width || 0) * (rec.cv.height || 0) * 4; } out[w.id] = { records, attached, canvasBytes, parent: w.parent ? w.parent.id : -1, child: w._child === true }; } } catch (e) {} return out })()".eval()
@@ -259,7 +235,6 @@ def "sample_table" (
       detail_lines = win.render[2] ?? []
     )
   )
-  // time the kernel itself took this frame, measured by the kernel
   local system_ms = "origin.time.kernel_ms ?? 0".eval().toNum()
   void out.append({
     id: -1,
@@ -274,13 +249,10 @@ def "sample_table" (
     kids: 0,
     tree_time: round(system_ms * 10) / 10
   })
-  // rows hold live window handles, so everything here is assigned by reference.
-  // A plain `=` deep-clones every window and cost over a second per refresh.
   local sorted @= out.sortBy(sort_key)
   if sort_desc (
     sorted @= sorted.reverse()
   )
-  // a child whose parent has gone is shown at the top level
   local ids = sorted.getKeys("id")
   for i sorted.len (
     if !ids.contains(sorted[i].parent) (
@@ -291,8 +263,6 @@ def "sample_table" (
   void add_branch(sorted, "root", 0)
 )
 
-// appends the rows whose parent is `parent_id`, each followed by its own children,
-// and returns the frame time of everything it added
 def add_branch(sorted, parent_id, number depth) (
   local total = 0
   for i sorted.len (
@@ -307,7 +277,6 @@ def add_branch(sorted, parent_id, number depth) (
       row.kids_hidden = row.kids
       row.tree_time = row.time + below
       if hidden (
-        // keep the parent, drop the rows its subtree just added
         rows @= rows.trim(1, before + 1)
       )
       total += row.tree_time
@@ -316,7 +285,6 @@ def add_branch(sorted, parent_id, number depth) (
   return total
 )
 
-// ---------------------------------------------------------------- pages
 
 def "sort_header" "label, key, x, align_right" (
   local width = label.len * 8 + 20
@@ -358,7 +326,6 @@ def "sort_header" "label, key, x, align_right" (
 def "page_processes" (
   local budget = 1000 / max(fps_limit, 1)
   local left = window.left + 16
-  // lines up with the value columns inside the scrolling frame below
   local right = window.right - 18
   head_y = view_top - 16
   sort_header "Name" "name" left + 44 false
@@ -371,7 +338,6 @@ def "page_processes" (
   frame window.left + 8 view_top - 34 window.right - 8 view_bottom rows.len * ROW_H + 10 "processes" (
     local w = frame.width - 12
     local fl = frame.left
-    // the frame keeps a 10px scrollbar gutter, so its right edge sits 18px inside the window
     local fr = frame.right - 8
     local first = max(0, floor(frame.scroll / ROW_H))
     local i = first
@@ -399,6 +365,22 @@ def "page_processes" (
           {"Copy File Path": def(item) -> (
             clipboard "set" item.win.file.path
           )},
+          {"View Logs": def(item) -> (
+            window.create("/(a) system/system apps/Terminal.osl", {passed_data: {type: "logs", id: item.win.id, title: item.win.title}})
+          )},
+          "-",
+          {"Limit To 30 fps": def(item) -> (
+            item.win.framerate = 30
+          )},
+          {"Limit To 15 fps": def(item) -> (
+            item.win.framerate = 15
+          )},
+          {"Limit To 5 fps": def(item) -> (
+            item.win.framerate = 5
+          )},
+          {"Remove Frame Limit": def(item) -> (
+            item.win.framerate = 0
+          )},
           "-",
           {"End Process": def(item) -> (
             void item.win.close()
@@ -414,7 +396,6 @@ def "page_processes" (
       ) else if over (
         box w ROW_H - 4 12 : c#hover_col
       )
-      // children are indented under their parent, parents get a disclosure arrow
       local indent = row.depth * 18
       local is_closed = collapsed.contains(row.id)
       if row.kids > 0 or is_closed (
@@ -451,8 +432,13 @@ def "page_processes" (
       ) else if row.workers > 0 (
         text "  " ++ plural(row.workers, "worker") 8 : c#dim
       )
+      if row.win != null and (row.win.framerate ?? 0) > 0 (
+        text "  " ++ row.win.framerate ++ " fps" 8 : c#dim
+      )
+      if row.win != null and (row.win.auto_framerate ?? 0) > 0 (
+        text "  auto " ++ round(row.win.auto_framerate) ++ " fps" 8 : c#fbbf24
+      )
 
-      // share of the frame budget as a bar, then the number
       goto fr - 370 y
       local heat = "#34d399"
       if shown_time > budget * 0.25 (
@@ -479,7 +465,6 @@ def "page_processes" (
     )
   )
 
-  // actions for the selected process
   local chosen = null
   for i rows.len (
     if rows[i].id == selected_pid (
@@ -499,11 +484,31 @@ def "page_processes" (
   if button_click (
     window.create(window.file.uuid, {passed_data: chosen.id, child: true})
   )
+  local cap = 0
+  local cap_label = "Limit FPS"
+  if can_act (
+    cap = chosen.win.framerate ?? 0
+    if cap > 0 (
+      cap_label = cap ++ " fps"
+    )
+  )
+  goto window.right - 262 status_y
+  text_button cap_label 88 hover_col txtc can_act
+  if button_click (
+    local next = 0
+    if cap == 0 (
+      next = 30
+    ) else if cap == 30 (
+      next = 15
+    ) else if cap == 15 (
+      next = 5
+    )
+    chosen.win.framerate = next
+  )
   goto window.left + 16 status_y
   text plural(process_count, "process") ++ "    " ++ one_dp(total_ms) ++ " ms of " ++ one_dp(budget) ++ " ms per frame" 8.5 : c#muted
 )
 
-// the metrics the Performance page can show: [key, title, value text, scale peak, note]
 def metric_list() (
   local list = [
     ["cpu", "CPU", round(latest.cpu) ++ "%", scales.cpu, "Share of each frame spent running windows"],
@@ -539,21 +544,18 @@ def "page_performance" (
       box side + 2 78 16 : c#edge_col
     )
     box side 76 14 : c#prim
-    // indexed values go through locals, `text list[i] 9` does not parse as two arguments
     local card_title = item[2]
     local card_value = item[3]
     goto cx - (side / 2) + 14 y + 22
     text card_title 8.5 : c#muted
     goto cx - (side / 2) + 14 y + 2
     text card_value 11 : c#txtc
-    // sparkline along the bottom of the card
     goto cx y - 22
     pen "size" 1.5
     c metric_cols[item[1]]
     graph side - 28 20 hist[item[1]]
   )
 
-  // the selected metric, large
   local gl = window.left + 16 + side + 20
   local gr = window.right - 16
   local gw = gr - gl
@@ -563,7 +565,6 @@ def "page_performance" (
   local big_note = chosen[5]
   goto gl view_top - 22
   text big_title 13 : c#txtc
-  // modifiers take a plain name, not an indexed expression
   local col = metric_cols[chosen[1]]
   goto gr view_top - 22
   rigtext big_value 13 : c#col
@@ -582,7 +583,6 @@ def "page_performance" (
   goto gr - 14 gbottom + 12
   rigtext round(SAMPLES * SAMPLE_EVERY) ++ " seconds" 7.5 : c#muted
 
-  // summary tiles
   local scale = chosen[4]
   local stats = [
     ["Current", latest[chosen[1]]],
@@ -641,7 +641,6 @@ def "page_network" (
   c metric_cols.up
   graph gw - 20 gtop - gbottom - 20 hist.up
 
-  // legend
   local down_col = metric_cols.down
   local up_col = metric_cols.up
   goto gl + 8 gbottom - 18
@@ -714,7 +713,6 @@ def "page_storage" (
   ]
 )
 
-// one process in its own window
 def "page_detail" (
   local budget = 1000 / max(fps_limit, 1)
   local gl = window.left + 16
@@ -737,11 +735,9 @@ def "page_detail" (
     state = "PID " ++ detail_id
   )
   text state 8.5 : c#muted
-  // sits to the left of the window buttons
   goto window.right - 144 window.top - 21
   text_button "End Process" 104 "#f87171" "#111111" alive
   if button_click (
-    // closing through the window handle is what actually ends it, `terminal "kill"` left it running
     for i rows.len (
       if rows[i].id == detail_id and rows[i].win != null (
         void rows[i].win.close()
@@ -768,7 +764,6 @@ def "page_detail" (
     ["Canvas Cache", formatFileSize(dom.canvasBytes ?? 0)],
     ["Writes", round(writes_per_frame) ++ " per frame"]
   ]
-  // the engine's own breakdown of where the frame went
   local bx = gl + (gw / 2) + 8
   local bw = gw / 2 - 8
   local shown = detail_lines.trim(1, 6)
@@ -796,7 +791,6 @@ if !window.permissions.contains("windows") (
   exit
 )
 
-// sampling keeps running on every page so the graphs never have gaps
 if !paused (
   if timer - last_table > TABLE_EVERY or last_table == 0 (
     last_table = timer
@@ -825,7 +819,6 @@ if detail_id != null (
   exit
 )
 
-// ---- header: page switcher and pause
 local seg = 108
 local total = pages.len * seg
 goto window.left + 6 + (total / 2) window.top - 21
@@ -881,7 +874,6 @@ switch page (
     break
 )
 
-// ---- status bar, the Processes page adds its own actions to it
 goto 0 view_bottom
 square window.width 0 1 : c#edge_col
 if page != "Processes" (

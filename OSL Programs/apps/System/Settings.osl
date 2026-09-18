@@ -1,10 +1,5 @@
 // Developer: @Mistium
 // Description: System settings for originOS
-//
-// Layout: a sidebar of categories and a content page. Every page is a vertical
-// stack built from the ui_* and row_* commands below, which advance the cursor
-// `cy` and work out the scroll length for you. Add a setting by adding a row.
-// OSL evaluates operators left to right, so `a - 1 * b` means `(a - 1) * b`.
 
 import "window_tools"
 load_theme
@@ -16,8 +11,8 @@ permission "request" "file admin"
 permission "request" "account"
 permission "request" "kernel"
 permission "request" "display"
+permission "request" "rotur token"
 
-// ---------------------------------------------------------------- toolkit
 
 ROW = 42
 LABEL_X = 16
@@ -52,14 +47,12 @@ def "ui_note" "txt" (
   cy -= wrapped.split("\n").len * 17 + 26
 )
 
-// a rounded card with a hairline edge, width and height are the full visible size
 def "ui_card" "x, y, w, h" (
   goto x y
   square w - 13 h - 13 15 : c#edge_col
   square w - 15 h - 15 14 : c#prim
 )
 
-// a card that the next `rows` rows draw on top of
 def "ui_group" "rows, h" (
   row_h = h
   row_i = 0
@@ -69,7 +62,6 @@ def "ui_group" "rows, h" (
   )
 )
 
-// `indent` is how far the label is pushed right by an icon, the divider lines up with it
 def "ui_row" "clickable, indent" (
   row_i ++
   ry = cy - (row_h / 2)
@@ -79,7 +71,6 @@ def "ui_row" "clickable, indent" (
   row_click = onclick
   if clickable and row_hover (
     cursor "pointer"
-    // rounded only where the row meets the card's own corners
     square cw - 16 row_h - 16 14 : c#hover_col
     if row_i > 1 (
       goto 0 ry + (row_h / 4)
@@ -109,13 +100,11 @@ def "ui_label" "txt, icn, col" (
   text txt 9 : c#txtc
 )
 
-// right aligned secondary value, `reserved` is how many characters the label uses
 def "ui_value" "value, reserved" (
   goto cw / 2 - LABEL_X ry
   rigtext value.toStr().trimText(cw - 60 / 9 - reserved - 2) 9 : c#muted
 )
 
-// a small icon button at the right of the current row, sets `button_click`
 def "ui_button" "icn, offset" (
   goto cw / 2 - offset ry
   square 14 14 10 0 1
@@ -157,7 +146,6 @@ def "ui_switch" "state" (
     square 18 0 22 : c#track_col
   )
   goto knob_x ry
-  // soft ring so the knob still reads on a pale accent
   effect "transparency" 75
   square 0 0 19 : c#000
   effect "clear"
@@ -173,7 +161,6 @@ def "row_toggle" "txt, state, callback" (
   )
 )
 
-// set `action_danger = true` first for a destructive action
 def "row_action" "txt, icn, callback, arg" (
   local indent = 0
   if icn != "" (
@@ -204,7 +191,6 @@ def "ui_keycap" "key" (
   text key 9 : c#txtc
 )
 
-// file icons vary a lot, a quiet tile keeps the column even and covers files with no icon
 def "ui_file_icon" "path" (
   goto cw / -2 + LABEL_X + 12 ry
   square 12 12 12 : c#hover_col
@@ -212,11 +198,9 @@ def "ui_file_icon" "path" (
   file "render" 0.9
 )
 
-// segmented control, calls back with the option that was picked
 def "row_choice" "txt, options, current, callback" (
   ui_row false 0
   ui_label txt "" ""
-  // segments are as wide as the longest label needs
   local longest = 0
   for i options.len (
     longest = max(longest, options[i].toStr().len)
@@ -245,14 +229,12 @@ def "row_choice" "txt, options, current, callback" (
   )
 )
 
-// the value lives in the global `slider_<id>` as 0..1, `slider_active` is true while dragging
 def "row_slider" "txt, id" (
   ui_row false 0
   ui_label txt "" ""
   slider_active = row_hover and mouse_down
   goto cw / 2 - LABEL_X - 94 ry
   slider 180 0 id 8 : c#track_col
-  // a knob, the built in slider only draws the filled part
   local vars @= Variables()
   goto cw / 2 - LABEL_X - 184 + (vars["slider_" ++ id] * 180) ry
   effect "transparency" 75
@@ -261,7 +243,6 @@ def "row_slider" "txt, id" (
   square 0 0 15 : c#fff
 )
 
-// the value lives in `inputs[id]`, enter submits
 def "row_input" "txt, id, w, placeholder, callback" (
   ui_row false 0
   ui_label txt "" ""
@@ -290,7 +271,6 @@ def "row_colour" "txt, id" (
   )
 )
 
-// a file row with a trailing bin, check `button_click` afterwards
 def "row_path" "path" (
   ui_row false 38
   ui_file_icon path
@@ -298,7 +278,6 @@ def "row_path" "path" (
   ui_button "bin" 28
 )
 
-// an empty state inside a card, so a page never ends on a bare background
 def "ui_empty" "txt" (
   ui_group 1 64
   goto 0 cy - 32
@@ -344,7 +323,110 @@ def parseUserAgent(string ua) string (
   return browser ++ " on " ++ os
 )
 
-// ---------------------------------------------------------------- account
+
+def billingDate(number value) string (
+  if value < 10000000000 (
+    value *= 1000
+  )
+  return value.timestamp("to-date")
+)
+
+def displayTier() string (
+  local sub = billing.subscription ?? user["sys.subscription"] ?? {}
+  if sub.active != true (
+    return "Free"
+  )
+  local tier = sub.tier.toStr()
+  if ["Pro", "Drive", "Max"].contains(tier) (
+    return "Pro"
+  )
+  if ["Lite", "Plus"].contains(tier) (
+    return tier
+  )
+  return "Free"
+)
+
+def keyUserData(key) (
+  if typeof(key) != "object" or typeof(key.users) != "object" (
+    return null
+  )
+  local names = key.users.getKeys()
+  for i names.len (
+    if names[i].toLower() == username.toLower() (
+      return key.users[names[i]]
+    )
+  )
+  return null
+)
+
+def renewLabel(data) string (
+  if typeof(data) != "object" (
+    return "Active"
+  )
+  if data.cancel_at != null (
+    return "Ends " ++ billingDate(data.cancel_at)
+  )
+  if data.next_billing != null (
+    return "Renews " ++ billingDate(data.next_billing)
+  )
+  return "Active"
+)
+
+def "load_billing" (
+  if roturToken() == "" (
+    return
+  )
+  if billing == null (
+    local status = (API ++ "/v2/me/billing?auth=" ++ roturToken()).getAsync()
+    if status != "Loading" (
+      billing = typeof(status) == "object" ? status {}
+    )
+  )
+  if my_keys == null (
+    local keys = (API ++ "/keys/mine?auth=" ++ roturToken()).getAsync()
+    if keys != "Loading" (
+      my_keys = typeof(keys) == "array" ? keys []
+    )
+  )
+)
+
+def openBilling(string path, body) (
+  local resp = requests.post(API ++ "/v2/me/billing/" ++ path ++ "?auth=" ++ roturToken(), {body: body})
+  if resp.success and typeof(resp.body) == "object" and resp.body.url != null (
+    http "newtab" resp.body.url
+  ) else if typeof(resp.body) == "object" (
+    say resp.body.error ?? "Could not open billing"
+  ) else (
+    say "Could not open billing"
+  )
+)
+
+def changeKey(string action, string key, string name) (
+  local msg = "Cancel '" ++ name ++ "'? Future billing will stop and you keep access until the end of the current period."
+  if action == "buy" (
+    msg = "Subscribe to '" ++ name ++ "'? Credits are charged now and every billing period. You can cancel here."
+  )
+  if !msg.confirm() (
+    return null
+  )
+  local resp = requests.get(API ++ "/keys/" ++ action ++ "/" ++ key ++ "?auth=" ++ roturToken())
+  if resp.success (
+    my_keys = null
+    if action == "cancel" (
+      say "Cancellation scheduled. Your access remains active until the date shown."
+    )
+  ) else if typeof(resp.body) == "object" (
+    say resp.body.error ?? "Could not " ++ action
+  ) else (
+    say "Could not " ++ action
+  )
+)
+
+def "row_benefit" "txt" (
+  ui_row false 34
+  ui_label txt.trimText(cw - 80 / 9) "tick" "#10b981"
+)
+
 
 def "page_account" (
   local tier = user["sys.subscription"].tier ?? "Free"
@@ -425,13 +507,42 @@ def "page_account" (
       ui_gap GAP
 
       ui_header "Profile"
-      ui_group 2 ROW
+      ui_group 4 ROW
+      row_action "Display Name (" ++ (user.display_name ?? user.username) ++ ")" "accounts" def() -> (
+        local value = "Enter your display name".ask().toStr().strip()
+        if value != "" (
+          network "update" "display_name" value
+        )
+      ) null
+      row_action "Pronouns (" ++ (user.pronouns ?? "not set") ++ ")" "tag" def() -> (
+        local value = "Enter your pronouns, e.g. they/them".ask()
+        if value != null (
+          network "update" "pronouns" value.toStr().strip()
+        )
+      ) null
       row_nav "Banner" "image" "#8b5cf6" "Banner"
-      row_nav "Subscriptions" "tag" "#f59e0b" "Subscriptions"
+      row_nav "Recurring Payments" "reload" "#f59e0b" "Recurring Payments"
       ui_gap GAP
 
+      local standing = (user["sys.standing"] ?? "good").toStr()
+      if standing != "good" (
+        ui_header "Account Status"
+        ui_group 1 ROW
+        row_info "Standing" standing.toTitle()
+        local history = user["sys.standing_history"] ?? []
+        local reason = ""
+        if history.len > 0 (
+          reason = " Reason recorded: " ++ history.last().reason
+        )
+        local recover = user["sys.standing_recover_at"] ?? 0
+        if recover > 0 and standing != "banned" (
+          reason ++= " Recovers " ++ billingDate(recover) ++ "."
+        )
+        ui_note "Your account is restricted." ++ reason
+      )
+
       ui_header "Sign-in"
-      ui_group 3 ROW
+      ui_group 4 ROW
       row_action "Change Email (" ++ user.email ++ ")" "mail" def() -> (
         local value = "Enter your new email".ask()
         if value.toStr() != "" (
@@ -446,10 +557,20 @@ def "page_account" (
           network "update" "password" value.hashMD5()
         )
       ) null
+      row_action "Passkeys And Linked Accounts" "open" def() -> (
+        http "newtab" "https://rotur.dev/me#security"
+      ) null
       row_nav "Backups" "save" "#10b981" "Backups"
       ui_gap GAP
 
-      ui_group 1 ROW
+      ui_group 2 ROW
+      row_action "Export Account Data" "download" def() -> (
+        local data = user
+        data["sys.transactions"] = null
+        data["sys.logins"] = null
+        file "download" "rotur-account.json" null data.JsonFormat() user_folder ++ "/Documents"
+        say "Saved rotur-account.json to your Documents"
+      ) null
       action_danger = true
       row_action "Log Out" "log-out" def() -> (
         eval "localStorage.setItem('origin_login', '')"
@@ -457,13 +578,14 @@ def "page_account" (
       ) null
       break
     case "Banner"
-      local label = "Upload New Banner (10 credits)"
-      if hasTierOrHigher("pro") (
-        label = "Upload New Banner (free with Pro)"
+      local banner_free = hasTierOrHigher("pro") or user["sys.banner_unlocked"] == true or user["sys.banner"].toStr() != ""
+      local label = "Upload New Banner (30 credits)"
+      if banner_free (
+        label = "Upload New Banner"
       )
       ui_group 1 ROW
-      row_action label "upload" def() -> (
-        if !hasTierOrHigher("pro") and user["sys.currency"] < 10 (
+      row_action label "upload" def(free) -> (
+        if !free and user["sys.currency"] < 30 (
           say "You do not have enough credits for this"
           return
         )
@@ -475,8 +597,8 @@ def "page_account" (
         ) else (
           network "update" "banner" picked.data
         )
-      ) null
-      ui_note "You have " ++ user["sys.currency"] ++ " credits."
+      ) banner_free
+      ui_note "You have " ++ user["sys.currency"] ++ " credits. The first upload unlocks banners for good."
       if user["sys.banner"].toStr() != "" (
         ui_header "Current Banner"
         local bh = cw / 3
@@ -485,32 +607,43 @@ def "page_account" (
         cy -= bh
       )
       break
-    case "Subscriptions"
-      if typeof(subscriptions) != "array" (
+    case "Recurring Payments"
+      load_billing
+      if my_keys == null (
         ui_spinner "Fetching subscriptions"
-        local data = ("https://social.rotur.dev/keys/mine?auth=" ++ roturToken()).getAsync()
-        if data != "Loading" (
-          subscriptions = data.filter(v -> (v["type"] == "subscription"))
-        )
-      ) else if subscriptions.len == 0 (
-        ui_note "You have no subscriptions."
-      ) else (
-        for i subscriptions.len (
-          local cur @= subscriptions[i]
-          ui_header cur.name ?? cur.key
-          ui_group 3 ROW
-          row_info "Creator" cur.creator
-          row_info "Price" cur.price ++ " credits per " ++ cur.subscription.frequency ++ " " ++ cur.subscription.period
-          action_danger = true
-          row_action "Cancel Subscription" "close" def(sub) -> (
-            if ("Are you sure you want to cancel '" ++ sub.name ++ "'?").confirm() (
-              void ("https://social.rotur.dev/keys/cancel/" ++ sub.key ++ "?auth=" ++ roturToken()).getAsync()
-              subscriptions = ""
-            )
-          ) cur
-          ui_gap GAP
-        )
+        break
       )
+      local subs = my_keys.filter(v -> (v.key != LITE_KEY and typeof(v.subscription) == "object" and v.creator.toStr().toLower() != username.toLower()))
+      if subs.len == 0 (
+        ui_empty "No product subscriptions"
+      )
+      for i subs.len (
+        local cur @= subs[i]
+        local mine = keyUserData(cur)
+        ui_header cur.name ?? "Key subscription"
+        ui_group 3 ROW
+        row_info "Creator" "@" ++ cur.creator
+        local period = cur.subscription.period ?? "billing cycle"
+        local price = cur.price ++ " credits per " ++ period
+        if period != "billing cycle" (
+          price = cur.price ++ " credits every " ++ (cur.subscription.frequency ?? 1) ++ " " ++ period
+        )
+        row_info "Price" price
+        if typeof(mine) == "object" and mine.cancel_at != null (
+          row_info "Status" renewLabel(mine)
+        ) else (
+          action_danger = true
+          row_action "Cancel (" ++ renewLabel(mine) ++ ")" "close" def(sub) -> (
+            changeKey("cancel", sub.key, sub.name ?? "this subscription")
+          ) cur
+        )
+        ui_gap GAP
+      )
+      ui_note "Subscriptions purchased with rotur credits. Your rotur plan is managed in Membership."
+      ui_group 1 ROW
+      row_action "Refresh" "reload" def() -> (
+        my_keys = null
+      ) null
       break
     case "Backups"
       local backups = (user["sys.backups"] ?? []).filter(v -> (typeof(v) == "object"))
@@ -530,7 +663,6 @@ def "page_account" (
   )
 )
 
-// ---------------------------------------------------------------- connectivity
 
 def "signal_icon" "strength" (
   goto cw / 2 - 28 ry
@@ -587,9 +719,7 @@ def "page_network" (
   ui_note "Apps use this proxy to reach sites that block cross-origin requests. Press enter to save."
 )
 
-// ---------------------------------------------------------------- general
 
-// shared editor for a list of file paths kept on the account (boot apps, dock modules)
 def "page_list_editor" "key, items, extension, defaults" (
   local added = ""
   if new_transmit (
@@ -651,7 +781,7 @@ def "page_storage" (
   ui_gap GAP
   ui_group 1 ROW
   row_action "Upgrade Storage" "up" def() -> (
-    nav_cat = "Subscription"
+    nav_cat = "Membership"
   ) null
   ui_gap GAP
 
@@ -706,7 +836,6 @@ def "page_general" (
       centext "originOS" 14 : c#txtc
       cy -= 34
       ui_group 4 ROW
-      // "700" and "7.00" are the same release, show both as 7.00
       local version = origin.version.toNum()
       if version < 100 (
         version *= 100
@@ -799,7 +928,6 @@ def "page_general" (
   )
 )
 
-// ---------------------------------------------------------------- appearance
 
 def "apply_theme_preview" (
   prim = theme_select.primary
@@ -809,10 +937,9 @@ def "apply_theme_preview" (
   window_colour = theme_select.background
 )
 
-// keeps the accent and window flags when switching preset
 def "save_theme" "next" (
   next.show_outline = user.theme.show_outline
-  next.use_true_blur = user.theme.use_true_blur
+  next.use_blur = user.theme.use_blur
   theme_select = next
   network "update" "theme" next
   apply_theme_preview
@@ -834,7 +961,6 @@ def "page_appearance" (
         if mouse_touching (
           cursor "pointer"
         )
-        // ring sits 3px outside the thumbnail so both corners stay concentric
         if preset.background == user.theme.background and preset.primary == user.theme.primary (
           square tw - 28 30 20 : c#global_accent
         ) else (
@@ -879,7 +1005,6 @@ def "page_appearance" (
         c swatch
         square 0 0 22
         if i > accents.len (
-          // the last swatch is your own colour and opens the picker
           icon "pen" 0.45 : c#accent_txt
           if hit (
             nav_sub = "Custom Colours"
@@ -896,14 +1021,27 @@ def "page_appearance" (
       ui_gap GAP
 
       ui_header "Windows"
-      ui_group 2 ROW
+      ui_group 3 ROW
       row_toggle "Show Window Border" user.theme.show_outline != false def() -> (
         update_theme_flag("show_outline")
       )
-      row_toggle "True Blur" user.theme.use_true_blur != false def() -> (
-        update_theme_flag("use_true_blur")
+      row_toggle "Blur" user.theme.use_blur != false def() -> (
+        update_theme_flag("use_blur")
       )
-      ui_note "The border uses your accent colour on the focused window. True blur looks better but can slow down older devices."
+      if slider_active != true (
+        slider_glass = (user.theme.glass_transparency ?? 100) / 100
+      )
+      row_slider "Glass Transparency (" ++ round(slider_glass * 100) ++ "%)" "glass"
+      if slider_active (
+        glass_dragging = true
+        user.theme.glass_transparency = round(slider_glass * 100)
+      ) else if glass_dragging == true (
+        glass_dragging = false
+        local theme = user.theme
+        theme.glass_transparency = round(slider_glass * 100)
+        network "update" "theme" theme
+      )
+      ui_note "The border uses your accent colour on the focused window. Blur looks better but can slow down older devices. Glass transparency at 0% shows the plain window colour."
 
       ui_group 2 ROW
       row_nav "Custom Colours" "pen" "#ec4899" "Custom Colours"
@@ -941,7 +1079,6 @@ def "page_appearance" (
           font_list = data.map(v -> (v.name)).filter(v -> (v.endsWith(".ojff"))).map(v -> (v.replace(".ojff", "")))
         )
       ) else (
-        // the system font file is the Source Code Pro build, "font.load" reads it straight from (A) System
         ui_group 1 ROW
         ui_row true 0
         ui_label "System Default (Source Code Pro)" "" ""
@@ -972,7 +1109,6 @@ def "page_appearance" (
         ui_note "Fonts download into your Fonts folder. The choice lasts until you restart originOS."
         ui_gap GAP
 
-        // fonts installed earlier live in the Fonts folder, anything that is not a stock font is custom
         if !fonts_scanned (
           fonts_scanned = true
           local found @= (user_folder ++ "/Fonts").listFolder()
@@ -1027,13 +1163,11 @@ def "page_appearance" (
   )
 )
 
-// name, kind and a small frame grabbed from the live desktop wallpaper, which works for images and videos
 def wallpaper_info() (
   return ("(()=>{const w=origin.wallpaper||{};const el=window.__osldomWall&&window.__osldomWall.querySelector('video,img');const video=!!el&&el.tagName==='VIDEO';let thumb='';try{const c=document.createElement('canvas');c.width=320;c.height=176;const sw=video?el.videoWidth:el.naturalWidth,sh=video?el.videoHeight:el.naturalHeight;const k=Math.max(320/sw,176/sh);c.getContext('2d').drawImage(el,(320-sw*k)/2,(176-sh*k)/2,sw*k,sh*k);thumb=c.toDataURL('image/jpeg',0.7)}catch(e){thumb=el&&!video?el.src:''}const cur=String(w.current||'');const src=String(w.video||w.data||cur);let name=decodeURIComponent(cur.split('/').pop().split('?')[0]);if(cur==='local'||src.startsWith('data:'))name='Custom '+(video?'Video':'Image');return {thumb:thumb,name:name||'None',kind:video?'Live wallpaper':'Still image'}})()").eval()
 )
 
 def "page_wallpaper" (
-  // what is on the desktop right now, refreshed every couple of seconds
   if timer - wall_time > 2 or wall == null (
     wall = wallpaper_info()
     wall_time = timer
@@ -1071,7 +1205,6 @@ def "page_wallpaper" (
   )
   ui_gap GAP
 
-  // every category has an even count, so two columns never leaves an orphan
   local cols = 2
   local tw = cw / cols
   local th = tw * 0.56
@@ -1122,7 +1255,6 @@ def "page_dock" (
   ui_note "Dock modules draw left to right in this order. Use the arrows to reorder them, or drop an ode file here to add one."
 )
 
-// one display effect on a slider: value = low + slider * span, only written while dragging
 def "display_slider" "label, effect, low, span" (
   display effect "get"
   local current = data.toNum()
@@ -1233,7 +1365,6 @@ def "page_sound" (
   )
 )
 
-// ---------------------------------------------------------------- input
 
 def "page_mouse" (
   terminal "get scrollspeed"
@@ -1355,7 +1486,6 @@ def "page_controllers" (
   )
 )
 
-// ---------------------------------------------------------------- privacy
 
 def "save_permissions" "perms" (
   file "open" "~/application data/permissions.json" "onlyaccess"
@@ -1458,7 +1588,6 @@ def "page_privacy" (
       page_permissions
       break
     case "Recent Logins"
-      // newest first, capped so a long history does not make a huge page
       local logins = (user["sys.logins"] ?? []).sortBy("timestamp").reverse().trim(1, 20)
       if logins.len == 0 (
         ui_note "No logins recorded."
@@ -1501,29 +1630,177 @@ def "page_privacy" (
   )
 )
 
-// ---------------------------------------------------------------- subscription and credits
 
-def "page_subscription" (
+def "plan_paid" "plan, benefits" (
+  local tier = displayTier()
+  local stripe = billing.provider == "stripe" and billing.stripe_portal == true and ["Plus", "Pro"].contains(tier)
+  local price = PLAN_PRICES[plan][interval]
+  local period = interval == "Yearly" ? "year" "month"
+  local trial = plan == "Plus" and tier == "Free" and billing.plus_trial_eligible == true
+  local days = billing.plus_trial_days ?? 7
+  local title = plan ++ " (" ++ price ++ "/" ++ period ++ ")"
+  if trial (
+    title = plan ++ " (" ++ days ++ " days free, then " ++ price ++ "/" ++ period ++ ")"
+  )
+  ui_header title
+  ui_group benefits.len + 1 ROW
+  for i benefits.len (
+    row_benefit benefits[i]
+  )
+  if tier == "Pro" and plan == "Plus" (
+    row_info "Included in Pro" ""
+  ) else if tier == plan and !stripe (
+    row_info "Current plan" ""
+  ) else if tier == plan or stripe (
+    local label = "Switch To " ++ plan
+    if tier == plan (
+      label = "Manage Billing"
+    )
+    row_action label "open" def() -> (
+      openBilling("portal", null)
+    ) null
+  ) else (
+    local label = "Choose " ++ plan
+    if trial (
+      label = "Start " ++ days ++ " Day Free Trial"
+    )
+    local lookup = "rotur_" ++ plan.toLower() ++ "_" ++ interval.toLower()
+    row_action label "open" def(key) -> (
+      openBilling("checkout", {lookup_key: key})
+    ) lookup
+  )
+  if trial (
+    ui_note "No charge today. Cancel before the trial ends to avoid being billed."
+  ) else (
+    ui_gap GAP
+  )
+)
+
+def "page_membership" (
+  load_billing
+  if billing == null or my_keys == null (
+    ui_spinner "Fetching your plan"
+    return
+  )
+  if billing.error != null (
+    ui_note "Could not load billing: " ++ billing.error
+  )
+  local tier = displayTier()
+  local sub = billing.subscription ?? user["sys.subscription"] ?? {}
+  local lite_keys = my_keys.filter(v -> (v.key == LITE_KEY))
+  local lite = null
+  if lite_keys.len > 0 (
+    lite = keyUserData(lite_keys[1])
+  )
+  local stripe = billing.provider == "stripe" and billing.stripe_portal == true and ["Plus", "Pro"].contains(tier)
+
+  local rows = 1
+  if stripe (
+    rows ++
+  )
+  if lite != null (
+    rows ++
+  )
+  ui_group rows ROW
+  row_info "Current Plan" tier
+  if stripe (
+    local state = "Renews "
+    if sub.cancel_at_period_end == true (
+      state = "Ends "
+    )
+    row_info "Billing" state ++ billingDate(sub.next_billing ?? 0)
+  )
+  if lite != null (
+    row_info "Lite" "15 credits/month, " ++ renewLabel(lite)
+  )
+  ui_note "Manage your rotur plan, payment method, and billing period. Lite is paid with rotur credits, Plus and Pro are billed through Stripe."
+
+  if billing.stripe_portal == true (
+    ui_header "Billing Settings"
+    ui_group 1 ROW
+    row_action "Manage Billing" "open" def() -> (
+      openBilling("portal", null)
+    ) null
+    ui_note "Update your payment method, view invoices, or cancel your subscription. Paying monthly? Choose yearly in billing settings to get 4 months free."
+  ) else if billing.legacy_kofi == true (
+    ui_header "Billing Settings"
+    ui_group 1 ROW
+    row_action "Manage On Ko-Fi" "open" def() -> (
+      http "newtab" "https://ko-fi.com/mistium/tiers"
+    ) null
+    ui_note "Your plan is billed through Ko-Fi. Plans started here move to Stripe."
+  )
+
+  if tier == "Free" (
+    ui_header "Choose A Membership"
+  ) else (
+    ui_header "Change Your Plan"
+  )
   ui_group 1 ROW
-  row_info "Current Plan" user["sys.subscription"].tier ?? "Free"
-  ui_note "Upgrading gives you more storage, higher quality profile pictures and more customisation."
+  row_choice "Billing Period" ["Monthly", "Yearly"] interval def(value) -> (
+    interval = value
+  )
+  ui_note "4 months free with yearly billing. You can start monthly and switch to yearly later in billing settings."
 
-  ui_header "Credit Tiers"
-  ui_group 4 ROW
-  row_info "Lite" "15 credits per month"
-  row_info "Storage" "5mb to 10mb"
-  row_info "Extras" "Supporter listing, bio templating"
-  row_action "Subscribe To Lite" "up" def() -> (
-    rotur "key_buy" "4f229157f0c40f5a98cbf28efd39cfe8"
+  if interval == "Monthly" (
+    ui_header "Lite (15 credits/month)"
+    ui_group 5 ROW
+    row_benefit "25 MB storage and 10 access products"
+    row_benefit "All bio templates and 300-character bios"
+    row_benefit "Six months of transaction history"
+    row_benefit "400-character Claw posts"
+    if lite != null (
+      if lite.cancel_at != null (
+        row_info renewLabel(lite) ""
+      ) else (
+        action_danger = true
+        row_action "Cancel Lite (" ++ renewLabel(lite) ++ ")" "close" def() -> (
+          changeKey("cancel", LITE_KEY, "Lite")
+        ) null
+      )
+    ) else if tier == "Free" (
+      row_action "Subscribe With Credits" "up" def() -> (
+        changeKey("buy", LITE_KEY, "Lite")
+      ) null
+    ) else (
+      row_info "Included in your current plan" ""
+    )
+    ui_gap GAP
+  )
+  plan_paid "Plus" [
+    "Animated profile media and custom overlays",
+    "100 MB storage and one year of transactions",
+    "2x daily credits"
+  ]
+  plan_paid "Pro" [
+    "Everything in Plus",
+    "Custom overlays, video backgrounds, and permanent banner access",
+    "1 GB storage, 50 access products, and unlimited transactions"
+  ]
+
+  ui_header "Credits"
+  ui_group 5 ROW
+  row_info "Balance" user["sys.currency"] ++ " credits"
+  row_action "Buy 50 Credits (£1.99)" "add" def(key) -> (
+    openBilling("checkout", {lookup_key: key})
+  ) "rotur_credits_50"
+  row_action "Buy 250 Credits (£8.99)" "add" def(key) -> (
+    openBilling("checkout", {lookup_key: key})
+  ) "rotur_credits_250"
+  row_action "Buy 500 Credits (£15.99)" "add" def(key) -> (
+    openBilling("checkout", {lookup_key: key})
+  ) "rotur_credits_500"
+  row_action "Open Wallet" "open" def() -> (
+    window.create("Wallet")
   ) null
-  ui_gap GAP
+  ui_note "Add credits for cosmetics, access products, groups, gifts, and services. Daily claims and your transaction history live in Wallet."
 
-  ui_header "Premium Tiers"
   ui_group 1 ROW
-  row_action "View Plus, Drive And Pro On Ko-Fi" "open" def() -> (
-    http "newtab" "https://ko-fi.com/mistium/tiers"
+  row_action "Refresh" "reload" def() -> (
+    billing = null
+    my_keys = null
   ) null
-  ui_note "Use the same email for originOS and Ko-Fi, or link Ko-Fi to Discord and connect Discord to Rotur, so your support is linked to this account."
+  ui_note "A plan bought on rotur.dev shows here after you log in again."
 )
 
 def "page_credits" (
@@ -1605,9 +1882,7 @@ def "page_credits" (
   )
 )
 
-// ---------------------------------------------------------------- state
 
-// sidebar entries, `gap` starts a new visual group, `link` needs roturlink
 pages = [
   {name: "General", icn: "cog", col: "#64748b", gap: true},
   {name: "Appearance", icn: "sun", col: "#6366f1"},
@@ -1622,11 +1897,10 @@ pages = [
   {name: "Bluetooth", icn: "w 3 line 0 10 0 -10 cont 5 -5 cont -5 5 line 0 10 5 5 cont -5 -5", col: "#3b82f6", link: true},
   {name: "Network", icn: "network", col: "#10b981", gap: true},
   {name: "Privacy & Security", icn: "locked", col: "#3b82f6"},
-  {name: "Subscription", icn: "tag", col: "#f59e0b", gap: true},
+  {name: "Membership", icn: "tag", col: "#f59e0b", gap: true},
   {name: "Credits", icn: "accounts", col: "#ec4899"}
 ]
 
-// extra words the sidebar search matches: [words, page, subpage]
 search_index = [
   ["border outline blur window theme colour color accent dark light", "Appearance", "none"],
   ["custom colours", "Appearance", "Custom Colours"],
@@ -1643,10 +1917,10 @@ search_index = [
   ["about version", "General", "About"],
   ["permissions", "Privacy & Security", "App Permissions"],
   ["logins ip blocked private", "Privacy & Security", "none"],
-  ["proxy cors", "Network", "none"]
+  ["proxy cors", "Network", "none"],
+  ["subscription plan billing stripe plus pro lite credits buy upgrade", "Membership", "none"]
 ]
 
-// names used by older deep links, such as the dock's "Style/Background"
 aliases = {
   "Style/Background": "Wallpaper",
   "System": "General",
@@ -1655,7 +1929,9 @@ aliases = {
   "Connection": "Wi-Fi",
   "Storage": "General/Storage",
   "Permissions": "Privacy & Security/App Permissions",
-  "Upgrade": "Subscription"
+  "Upgrade": "Membership",
+  "Subscription": "Membership",
+  "Account/Subscriptions": "Account/Recurring Payments"
 }
 
 category = "Account"
@@ -1715,8 +1991,6 @@ fonts_scanned = false
 custom_fonts = []
 inputs.gfont = ""
 
-// A custom font is an .ojff that keeps the system glyphs and names a real font file in its
-// header. `layout: "cell"` makes the renderer place each character on origin's fixed grid.
 def install_font(string title, string source) (
   local slug = title.toLower().replace("/[^a-z0-9]+/g", "_")
   file "open" "origin/(a) system/fonts/origin.ojff" "onlyaccess"
@@ -1738,7 +2012,6 @@ def install_font(string title, string source) (
   font_status = "Installed " ++ title
 )
 
-// Google's css lists one file per script, the last block is the latin one
 def install_google_font(string family) (
   if family == "" (
     return null
@@ -1776,7 +2049,12 @@ def install_font_file(string uuid) (
 keybind_edit = ""
 perm_app = ""
 picker_id = ""
-subscriptions = ""
+API = "https://api.rotur.dev"
+LITE_KEY = "4f229157f0c40f5a98cbf28efd39cfe8"
+PLAN_PRICES = {Plus: {Monthly: "£1.75", Yearly: "£14"}, Pro: {Monthly: "£5.75", Yearly: "£46"}}
+billing = null
+my_keys = null
+interval = "Monthly"
 contributors = null
 supporters = null
 extensions = null
@@ -1791,14 +2069,12 @@ wall_time = 0
 action_danger = false
 
 window "dimensions" 920 640
-// starts to the right of the back button, a press inside the drag strip moves the window instead
 window "set_dragbox" [[2, 2, SIDEBAR + 80, 0], [-2, 2, -92, -42]]
 
 mainloop:
 window.setGlass(100, "15px")
 goto SIDEBAR / 2 0
 square window.width - SIDEBAR - 10 window.height + 10 10 : c#window_colour
-// square off the page's left edge so it meets the sidebar on a straight line
 goto window.left + SIDEBAR + 12 0
 square 20 window.height 4
 c window_colour
@@ -1808,13 +2084,10 @@ pen "opacity" 0
 frame "clear"
 
 frame window.left window.top window.left + SIDEBAR window.bottom sidebar_len "cache@sidebar" (
-  // the search row shares the window buttons' centre line (21 below the top) and height (27),
-  // and the sides use the same 6 inset as the top
   local sw = frame.width - 12
   local sy = frame.top - 20 + frame.scroll
   local top = sy
 
-  // search uses the same pill shape as the rows below it
   goto 0 sy
   square sw - 12 15 12 : c#prim
   goto sw / -2 + 16 sy
@@ -1870,7 +2143,6 @@ frame window.left window.top window.left + SIDEBAR window.bottom sidebar_len "ca
         )
       )
     )
-    // a hidden page still passes its gap on, so groups never collapse into each other
     if page.gap == true (
       gapped = true
     )
@@ -1916,11 +2188,9 @@ frame window.left window.top window.left + SIDEBAR window.bottom sidebar_len "ca
   sidebar_len = top - sy + 24
 )
 
-// hairline between the glass sidebar and the page
 goto window.left + SIDEBAR 0
 square 0 window.height 1 : c#edge_col
 
-// title lines up with the text inside the cards
 local page_cw = min(window.width - SIDEBAR - 48, 640)
 goto window.left + SIDEBAR + window.right / 2 - (page_cw / 2) + LABEL_X window.top - 21
 if subcategory != "none" (
@@ -1943,7 +2213,6 @@ if subcategory == "none" (
 )
 text title 14 : c#txtc
 
-// one scroll position per page, so a new page always opens at the top
 frame window.left + SIDEBAR + 1 window.top - 48 window.right window.bottom page_len "cache@page_" ++ category ++ subcategory (
   ui_begin
   switch category (
@@ -1989,8 +2258,8 @@ frame window.left + SIDEBAR + 1 window.top - 48 window.right window.bottom page_
     case "Privacy & Security"
       page_privacy
       break
-    case "Subscription"
-      page_subscription
+    case "Membership"
+      page_membership
       break
     case "Credits"
       page_credits
@@ -1999,13 +2268,11 @@ frame window.left + SIDEBAR + 1 window.top - 48 window.right window.bottom page_
   ui_end
 )
 
-// content scrolling under the title gets a hairline so it does not look like it collides
 if page_scroll > 2 (
   goto window.left + SIDEBAR + window.right / 2 window.top - 48
   square window.width - SIDEBAR 0 1 : c#edge_col
 )
 
-// navigation is applied once the mouse is up so a click never lands on the next page
 if !mouse_down (
   if nav_cat != "" (
     category = nav_cat

@@ -12,27 +12,52 @@ boolean remote_prompt_visible = false
 
 def remoteSend(data) (
   if !remote_shell (
-    return
+    return null
   )
   roturConnect.shellOutput(data)
 )
 
-// fetch the path tracker file (non-fatal)
-path_url = "https://origin.mistium.com/%3Apath/"
-path = {}
-try (
-  path = (path_url ++ "osl-tracker.json").httpGet()
-  if typeof(path) !== "object" (
-    path = {}
+// remote shells get the prompt when the pane starts reading a line
+def remotePrompt(p) (
+  if remote_shell and !remote_prompt_visible (
+    remoteSend(p.prompt)
+    remote_prompt_visible = true
+    remote_running = false
+    roturConnect.shellCommand("terminal")
   )
-) catch e (
-  path = {}
 )
 
-inputs.main = ""
-number cursor_pos = 1
-// line count for the frame (never name this "loops" — clashes with frame/loop machinery)
-number term_n = 0
+// the shell fills these (history for up/down, aliases for tab completion)
+last = []
+aliases = {}
+// :path scripts follow the same source as the system apps, so a local origin-os checkout serves its own commands
+string path_url = "https://origin.mistium.com/%3Apath/"
+try (
+  local src = "" ++ ("String(window.origin && window.origin.repoSource || '')".eval() ?? "")
+  if src.startsWith("http") (
+    path_url = src ++ "%3Apath/"
+  )
+) catch e (
+  path_url = "https://origin.mistium.com/%3Apath/"
+)
+// which program each new pane runs: passed_data.shell, then ~/:path/default_shell.txt, then rush
+string shell_name = "rush"
+try (
+  file "exists" "~/:path/default_shell.txt"
+  if exists (
+    file "open" "~/:path/default_shell.txt" "onlyaccess"
+    local want = ("" ++ fileGet(4)).strip()
+    file "close"
+    if want.len > 0 (
+      shell_name = want
+    )
+  )
+) catch e (
+  shell_name = "rush"
+)
+if typeof(passed_data) == "object" and typeof(passed_data.shell) == "string" and passed_data.shell.len > 0 (
+  shell_name = passed_data.shell
+)
 
 if remote_shell (
   window.hide()
@@ -40,954 +65,1329 @@ if remote_shell (
   window.show()
 )
 
-path = path.scripts.getValues()
-last = []
-aliases = {}
-
 // origin = drive; home = origin/(c) users/<user>. Prefer system user_folder for cwd.
 string home_path = "" ++ (user_folder ?? "")
 if home_path == "" (
   home_path = "origin/(c) users/" ++ ("" ++ username).toLower()
 )
 
-// Optional shell history / aliases — never fatal
-try (
-  file "exists" "~/:path/history.txt"
-  if exists (
-    file "open" "~/:path/history.txt" "onlyaccess"
-    last @= fileGet(4).split("\n")
-    file "close"
-  )
-  file "exists" "~/:path/aliases.json"
-  if exists (
-    file "open" "~/:path/aliases.json" "onlyaccess"
-    aliases = fileGet(4).JsonParse()
-    if typeof(aliases) != "object" (
-      aliases = {}
-    )
-    file "close"
-  )
-) catch e (
-  last = []
-  aliases = {}
-)
+// text metrics: the system font advances one font size per character
+number fs = 10
+number lh = 20
+number next_pane_id = 1
+number scrollback = 5000
+panes @= []
+layout @= null
+focus @= null
+drag_split @= null
+// tmux-style windows: each entry is {layout, focus, name}; layout/focus are the live copies of tabs[cur_tab]
+tabs @= []
+number cur_tab = 1
+zoom @= null
+last_focus @= null
+boolean prefix = false
+number bar_h = 22
+// a press that started somewhere else must not grab a divider it is dragged across
+boolean drag_armed = false
+// set while the mouse is over a divider; the window drag box is switched off for that frame
+boolean hover_divider = false
+string accent = "#1b8f44"
 
-def parseCommand(cmd) (
-  local tokens = []
-  local current = ""
-  local inQuote = false
-  local quoteChar = ""
-  local i = 1
-  while i <= cmd.len (
-    local c = cmd[i]
-    if !inQuote and (c == "\"" or c == "'") (
-      inQuote = true
-      quoteChar = c
-      current ++= c
-    ) else if inQuote and c == quoteChar (
-      current ++= c
-      inQuote = false
-    ) else if !inQuote and c == "|" (
-      if current.len > 0 (
-        void tokens.append(current)
-        current = ""
+// One of these per pane. Commands see it as terminal because their worker carries it in self.
+def newTerm() (
+  local start_pwd = home_path != "" ? home_path "origin"
+  local t @= {
+    id: next_pane_id,
+    lines: [],
+    rows: [],
+    cols: 0,
+    dirty: true,
+    show_input: true,
+    input_message: null,
+    input_result: null,
+    pwd: start_pwd,
+    stdin: null,
+    jobs: [],
+    next_job_id: 1,
+    worker: null,
+    buf: "",
+    cursor: 1,
+    hist_i: 0,
+    prompt: "",
+    reading: false,
+    program: "shell",
+    log_id: null,
+    log_title: null,
+    ended: false,
+    stick: true,
+    want: 0,
+    rect: [0, 0, 0, 0],
+    view_rows: 20,
+    renaming: false,
+    screen_mode: false,
+    trap_interrupt: false,
+    wheel_x: 0,
+    wheel_y: 0,
+    mouse: {row: 0, col: 0, down: false, pressed: false, inside: false},
+
+    resolvePath: def(target) -> (
+      local t = "" ++ (target ?? "")
+      local base = self.pwd
+      if t.startsWith("~") (
+        base = home_path
+        t = t.len > 1 ? t.trim(2, -1) ""
+      ) else if t.startsWith("/") (
+        base = "origin"
+      ) else if t == "origin" or t.startsWith("origin/") (
+        base = "origin"
+        t = t.len > 6 ? t.trim(7, -1) ""
       )
-      void tokens.append("|")
-    ) else if !inQuote and i < cmd.len and c == ">" and cmd[i + 1] == ">" (
-      if current.len > 0 (
-        void tokens.append(current)
-        current = ""
-      )
-      void tokens.append(">>")
-      i += 1
-    ) else if !inQuote and c == ">" (
-      if current.len > 0 (
-        void tokens.append(current)
-        current = ""
-      )
-      void tokens.append(">")
-    ) else if !inQuote and c == "&" (
-      if current.len > 0 (
-        void tokens.append(current)
-        current = ""
-      )
-      void tokens.append("&")
-    ) else if !inQuote and c == " " (
-      if current.len > 0 (
-        void tokens.append(current)
-        current = ""
-      )
-    ) else (
-      current ++= c
-    )
-    i += 1
-  )
-  if current.len > 0 (
-    void tokens.append(current)
-  )
-  return tokens
-)
-
-def parseShellOperators(tokens) (
-  local segments = []
-  local current = []
-  local redirect = null
-  local redirectAppend = false
-  local background = false
-  local i = 1
-  while i <= tokens.len (
-    local tok = tokens[i]
-    if tok == "|" (
-      void segments.append({cmd: current, redirect: redirect, append: redirectAppend})
-      current = []
-      redirect = null
-      redirectAppend = false
-    ) else if tok == ">" (
-      redirect = tokens[i + 1]
-      redirectAppend = false
-      i += 1
-    ) else if tok == ">>" (
-      redirect = tokens[i + 1]
-      redirectAppend = true
-      i += 1
-    ) else if tok == "&" (
-      background = true
-    ) else (
-      void current.append(tok)
-    )
-    i += 1
-  )
-  void segments.append({cmd: current, redirect: redirect, append: redirectAppend, background: background})
-  return segments
-)
-
-// Resolve paths on the origin drive.
-//   origin / / /origin  → drive root
-//   /foo                → origin/foo  (leading / = on origin drive)
-//   origin/foo          → origin/foo
-//   ~/foo               → origin/(c) users/<user>/foo
-//   else                → relative to terminal cwd
-def ofsfPath(target) (
-  local t = ("" ++ (target ?? "origin")).strip()
-  if t == "" or t == "/" or t == "origin" or t == "origin/" or t == "." (
-    return "origin"
-  )
-  if t.startsWith("origin/") or t.startsWith("origin\\") (
-    return parseFilePath(t)
-  )
-  if t.startsWith("/") (
-    // absolute on the origin drive
-    return parseFilePath(t)
-  )
-  if t.startsWith("~/") or t == "~" (
-    return parseFilePath(t)
-  )
-  // relative to terminal cwd (usually origin or home on that drive)
-  return parseFilePath(("" ++ terminal.pwd) ++ "/" ++ t)
-)
-
-def ofsfHelp() (
-  terminal.writeLine("ofsf - low-level OFSF tools")
-  terminal.writeLine("  drive: origin   home: origin/(c) users/<user>")
-  terminal.writeLine("  ofsf status          path counts")
-  terminal.writeLine("  ofsf ls [path]       list folder (default: origin)")
-  terminal.writeLine("  ofsf stat <path>     record details (path|uuid|id)")
-  terminal.writeLine("  ofsf cat <path>      print file data")
-  terminal.writeLine("  ofsf write <path> <text>   create/overwrite file")
-  terminal.writeLine("  ofsf mkdir <path>    create folder (and parents)")
-  terminal.writeLine("  ofsf rm <path>       delete file/folder")
-  terminal.writeLine("  ofsf paths [filter]  search path index")
-  terminal.writeLine("  ofsf reindex         rebuild path/uuid indexes")
-  terminal.writeLine("  ofsf ensure-home     create origin/(c) users/<user>")
-  terminal.writeLine("  ofsf cleanup         run duplicate cleanup")
-  terminal.writeLine("  ofsf set <path> <field> <v>  set record field")
-  terminal.writeLine("  logout               clear session and reboot")
-)
-
-def ofsfStatus() (
-  eval "globalThis.__ofsf = (function(){ const p = (window.files && window.files.paths) || {}; const u = ('' + (osl.username || '')).toLowerCase(); const home = 'origin/(c) users/' + u; return { paths: Object.keys(p).length, home: home, homeOk: !!p[home + '.folder'], driveOk: !!p['origin.folder'] }; })()"
-  terminal.writeLine("drive: origin")
-  terminal.writeLine("paths: " ++ __ofsf.paths)
-  terminal.writeLine("home:  " ++ __ofsf.home)
-  terminal.writeLine("pwd:   " ++ terminal.pwd)
-)
-
-def doLogout() (
-  terminal.writeLine("logging out...")
-  eval "try{localStorage.setItem('origin_login','');localStorage.removeItem('origin_login')}catch(e){}"
-  eval "setTimeout(function(){try{vm.runtime.greenFlag()}catch(e){}},50)"
-  return ["logging out..."]
-)
-
-def ofsfCmd(args) (
-  if args.len == 0 (
-    ofsfHelp()
-    return []
-  )
-  local sub = args[1]
-  if sub == "help" or sub == "-h" or sub == "--help" (
-    ofsfHelp()
-    return []
-  )
-  if sub == "status" (
-    ofsfStatus()
-    return []
-  )
-  if sub == "logout" (
-    return doLogout()
-  )
-  if sub == "ensure-home" or sub == "ensure_home" (
-    file_error = ""
-    try (
-      file "ensure_home"
-      if file_error != null and file_error != "" (
-        terminal.writeLine("ensure-home failed: " ++ file_error)
-        file_error = ""
-      ) else (
-        home_path = "" ++ (data ?? ("origin/(c) users/" ++ ("" ++ username).toLower()))
-        user_folder = home_path
-        terminal.pwd = home_path
-        terminal.writeLine("home: " ++ home_path)
-      )
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "reindex" (
-    file_error = ""
-    try (
-      file "reindex"
-      terminal.writeLine("reindexed paths: " ++ data)
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "cleanup" (
-    file_error = ""
-    try (
-      file "cleanup"
-      terminal.writeLine("cleanup removed dups: " ++ data)
-      ofsfStatus()
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "paths" (
-    local filter = args.len > 1 ? args[2] : ""
-    eval ("globalThis.__ofsfPaths = (function(){ const p = window.files && window.files.paths ? Object.keys(window.files.paths).sort() : []; const f = " ++ filter.JsonStringify() ++ "; return f ? p.filter(x => x.indexOf(f.toLowerCase()) !== -1) : p.slice(0, 200); })()")
-    for i __ofsfPaths.len (
-      terminal.writeLine(__ofsfPaths[i])
-    )
-    if __ofsfPaths.len == 0 (
-      terminal.writeLine("(no paths" ++ (filter != "" ? " matching filter" : "") ++ ")")
-    )
-    return []
-  )
-  if sub == "ls" (
-    local target = args.len > 1 ? args[2] : "origin"
-    local p = ofsfPath(target)
-    eval ("globalThis.__ofsfLs = (function(){ let p = " ++ p.JsonStringify() ++ "; p = String(p || 'origin').toLowerCase().replace(/\\/+$/,''); if (p === '' || p === '/') p = 'origin'; let key = p; if (!key.endsWith('.folder') && key.indexOf('.') === -1) key = key + '.folder'; const paths = (window.files && window.files.paths) || {}; let id = paths[key]; if (id == null && paths[p]) id = paths[p]; if (id == null) return {err: 'not found: ' + key, out: []}; const stage = vm.runtime.getTargetForStage(); const files = Object.values(stage.variables).find(v => v.name === 'Files'); if (!files) return {err: 'Files list missing', out: []}; const F = files.value; const N = 14; const b = (id - 1) * N; const typ = F[b]; const raw = F[b + 3]; let kids = []; try { kids = typeof raw === 'string' ? JSON.parse(raw) : (Array.isArray(raw) ? raw : []); } catch(e) { return {err: 'bad folder data at ' + key, out: []}; } if (typ !== '.folder') return {err: 'not a folder: ' + key, out: [], path: key}; if (!Array.isArray(kids)) return {err: 'folder data not array', out: []}; const uu = (window.files && window.files.uuids) || {}; const out = []; for (let i = 0; i < kids.length; i++) { const k = kids[i]; const ix = uu[k]; if (ix == null) { out.push('?  ' + k); continue; } const bb = (ix - 1) * N; const t = F[bb] || '?'; const n = F[bb + 1] || ''; out.push(String(t).padEnd(10) + ' ' + n + (t === '.folder' ? '/' : t)); } return {out: out, path: key, n: out.length}; })()")
-    if __ofsfLs == null (
-      terminal.writeLine("ls failed: no result")
-    ) else if __ofsfLs.err (
-      terminal.writeLine(__ofsfLs.err)
-    ) else (
-      terminal.writeLine(__ofsfLs.path ++ "  (" ++ __ofsfLs.n ++ ")")
-      if __ofsfLs.out.len == 0 (
-        terminal.writeLine("(empty)")
-      ) else (
-        for i __ofsfLs.out.len (
-          terminal.writeLine(__ofsfLs.out[i])
+      local parts = base.split("/")
+      local segs = t.split("/")
+      for i segs.len (
+        local s = segs[i]
+        if s == ".." (
+          if parts.len > 1 (
+            void parts.pop()
+          )
+        ) else if s != "" and s != "." (
+          void parts.append(s)
         )
       )
-    )
-    return []
-  )
-  if sub == "stat" (
-    if args.len < 2 (
-      terminal.writeLine("usage: ofsf stat <path|uuid|id>")
-      return []
-    )
-    local target = ofsfPath(args[2])
-    eval ("globalThis.__ofsfStat = (function(){ let t = " ++ target.JsonStringify() ++ "; const stage = vm.runtime.getTargetForStage(); const files = Object.values(stage.variables).find(v => v.name === 'Files'); if (!files) return {err:'Files list missing'}; const F = files.value; const N = 14; let id = null; if (/^\\d+$/.test(String(t))) id = +t; else if (window.files && window.files.uuids && window.files.uuids[t] != null) id = window.files.uuids[t]; else { let p = String(t).toLowerCase(); if (p === '/' || p === '') p = 'origin'; if (!p.startsWith('origin')) { if (p.startsWith('/')) p = 'origin' + p; else if (p.startsWith('~/')) p = String(osl.user_folder||'').toLowerCase() + p.slice(1); } const paths = (window.files && window.files.paths) || {}; id = paths[p] || paths[p + (p.endsWith('.folder')?'':'.folder')]; } if (id == null || id < 1) return {err:'not found: ' + t}; const b = (id-1)*N; const labels = (origin.files && origin.files.entryLabels) || ['type','name','location','data','data2','x','y','id','created','edited','icon','size','permissions','uuid']; const o = {id: id}; for (let i=0;i<labels.length;i++) { let v = F[b+i]; if (i===3 && String(v).length > 120) v = String(v).slice(0,120) + '...'; o[labels[i]] = v; } return o; })()")
-    if __ofsfStat.err (
-      terminal.writeLine(__ofsfStat.err)
-    ) else (
-      terminal.writeLine(__ofsfStat.JsonStringify())
-    )
-    return []
-  )
-  if sub == "cat" (
-    if args.len < 2 (
-      terminal.writeLine("usage: ofsf cat <path>")
-      return []
-    )
-    local cp = ofsfPath(args[2])
-    try (
-      file "get_file" cp
-      if typeof(data) == "object" (
-        terminal.writeLine(data.JsonStringify())
-      ) else (
-        terminal.writeLine("" ++ data)
+      if parts.len <= 1 (
+        return "origin"
       )
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "write" (
-    if args.len < 3 (
-      terminal.writeLine("usage: ofsf write <path> <text...>")
-      return []
-    )
-    local body = args.trim(3, -1).join(" ")
-    local wp = ofsfPath(args[2])
-    try (
-      file "set_file" wp body
-      if file_error != null and file_error != "" (
-        terminal.writeLine("write failed: " ++ file_error)
-        file_error = ""
-      ) else (
-        terminal.writeLine("wrote " ++ wp)
-      )
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "mkdir" (
-    if args.len < 2 (
-      terminal.writeLine("usage: ofsf mkdir <path>")
-      return []
-    )
-    local p = ofsfPath(args[2])
-    if p.endsWith(".folder").not() (
-      p = p ++ ".folder"
-    )
-    try (
-      file "set_file" p []
-      if file_error != null and file_error != "" (
-        terminal.writeLine("mkdir failed: " ++ file_error)
-        file_error = ""
-      ) else (
-        terminal.writeLine("mkdir " ++ p)
-      )
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "rm" (
-    if args.len < 2 (
-      terminal.writeLine("usage: ofsf rm <path>")
-      return []
-    )
-    local rp = ofsfPath(args[2])
-    try (
-      file "open" rp "onlyaccess"
-      file "delete"
-      terminal.writeLine("deleted " ++ rp)
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  if sub == "set" (
-    if args.len < 4 (
-      terminal.writeLine("usage: ofsf set <path> <field> <value>")
-      return []
-    )
-    local sp = ofsfPath(args[2])
-    try (
-      file "open" sp "onlyaccess"
-      file "set" args[3] args.trim(4, -1).join(" ")
-      file "close"
-      terminal.writeLine("set " ++ args[3] ++ " on " ++ sp)
-    ) catch e (
-      terminal.writeLine(e.full ?? e)
-    )
-    return []
-  )
-  terminal.writeLine("unknown ofsf subcommand: " ++ sub)
-  ofsfHelp()
-  return []
-)
+      parts[1] = ""
+      return parts.join("/")
+    ),
 
-def evalSingle(tokens, input) (
-  if tokens.len == 0 (
-    return []
-  )
-  try (
-    string first = tokens[1]
-    // Builtins that work even when OFSF / :path is broken
-    if first == "logout" (
-      return doLogout()
-    )
-    if first == "ofsf" (
-      void tokens.shift()
-      return ofsfCmd(tokens)
-    )
-    string path = first.startsWith("./") ? (terminal.pwd.replaceFirst("origin/", "/") ++ "/" ++ first.trim(3, -1)) ("~/:path/" ++ first ++ ".osl")
-    path = parseFilePath(path)
-    file "exists" path
-    local data = open(path)
-    if data == null or !exists (
-      terminal_output = []
-      terminal tokens.join(" ")
-      if terminal_output[1] == "Unknown Terminal Command" (
-        local message = "rsh: command not found: " ++ first
-        terminal.writeLine(message)
-        return [message]
+    addJob: def(name, worker) -> (
+      local job = {
+        id: self.next_job_id,
+        name: name,
+        worker: worker,
+        status: "running"
+      }
+      void self.jobs.append(job)
+      self.next_job_id += 1
+      return job.id
+    ),
+
+    removeJob: def(id) -> (
+      self.jobs = self.jobs.filter(j -> j.id != id)
+    ),
+
+    getJob: def(id) -> (
+      for i self.jobs.len (
+        if self.jobs[i].id == id (
+          return self.jobs[i]
+        )
       )
-      return terminal_output
-    )
-    local fn @= function("args", data)
-    void tokens.shift()
-    local lines = terminal.lines
-    for i tokens.len (
-      local cur = tokens[i]
-      if cur[1] == "\"" and cur[-1] == "\"" (
-        tokens[i] = cur.trim(2, -2).replace("\\", "")
+      return null
+    ),
+
+    writeLine: def(data) -> (
+      remoteSend(data)
+      remoteSend("\r\n")
+      self.dirty = true
+      if typeof(data) == "array" (
+        void self.lines.append(data)
+        return null
       )
-      if cur[1] == "(" and cur[-1] == ")" (
-        local ret @= evalCmd(cur.trim(2, -2))
-        for j ret.len (
-          if typeof(ret[j]) == "array" (
-            local line = []
-            for h ret[j].len / 2 (
-              void line.append(ret[j][h * 2])
-            )
-            ret[j] = line.join(" ")
+      local s = "" ++ (data ?? "")
+      if s.contains("\n") (
+        local parts = s.split("\n")
+        for i parts.len (
+          void self.lines.append("" ++ parts[i])
+        )
+      ) else (
+        void self.lines.append(s)
+      )
+    ),
+
+    write: def(data) -> (
+      remoteSend(data)
+      self.dirty = true
+      if typeof(data) == "array" (
+        if self.lines.len == 0 or typeof(self.lines[self.lines.len]) != "array" (
+          void self.lines.append(data)
+        ) else (
+          local cur @= self.lines[self.lines.len]
+          for i data.len (
+            void cur.append(data[i])
           )
         )
-        if ret.len > 0 (
-          tokens[i] @= ret.join("\n")
+        return null
+      )
+      local s = "" ++ (data ?? "")
+      if s.contains("\n") (
+        local parts = s.split("\n")
+        for i parts.len - 1 (
+          void self.lines.append("" ++ parts[i])
+        )
+        if self.lines.len == 0 (
+          void self.lines.append("" ++ parts[parts.len])
+        ) else if typeof(self.lines[self.lines.len]) == "array" (
+          void self.lines.append("" ++ parts[parts.len])
         ) else (
-          tokens[i] = null
+          self.lines[self.lines.len] ++= ("" ++ parts[parts.len])
+        )
+      ) else if self.lines.len == 0 (
+        void self.lines.append(s)
+      ) else if typeof(self.lines[self.lines.len]) == "array" (
+        void self.lines.append(s)
+      ) else (
+        self.lines[self.lines.len] ++= s
+      )
+    ),
+
+    clear: def() -> (
+      self.lines = []
+      self.dirty = true
+      self.stick = true
+      if remote_shell (
+        remoteSend(27.chr() ++ "[2J" ++ 27.chr() ++ "[H")
+      )
+    ),
+
+    // block the calling program until the user submits a line
+    readLine: def(prompt) -> (
+      self.prompt = "" ++ (prompt ?? "")
+      self.input_result = null
+      self.reading = true
+      self.show_input = true
+      self.hist_i = 0
+      remotePrompt(self)
+      while self.input_result == null (
+        defer
+      )
+      local r = self.input_result
+      self.input_result = null
+      self.reading = false
+      return r
+    ),
+
+    input: def(query) -> (
+      return self.readLine(("" ++ query) ++ ": ")
+    ),
+
+    user_start: def() -> (
+      return self.prompt
+    ),
+
+    // screen mode: the program owns a fixed grid of terminal.cols x terminal.rows cells. Lines are not
+    // wrapped, the scrollback does not scroll, and wheel deltas and clicks are reported to the program.
+    screen: def(on) -> (
+      self.screen_mode = on == true
+      self.lines = []
+      self.dirty = true
+      self.stick = true
+      self.wheel_x = 0
+      self.wheel_y = 0
+      self.trap_interrupt = false
+    ),
+
+    // replace the whole grid at once (terminal.rows / terminal.cols give the grid size)
+    draw: def(lines) -> (
+      self.lines @= lines
+      self.dirty = true
+    ),
+
+    // wheel movement since the last call, in whole cells (x) and rows (y); positive scrolls right/down
+    takeWheel: def() -> (
+      local ry = 0
+      local rx = 0
+      if self.wheel_y >= lh (
+        ry = floor(self.wheel_y / lh)
+      ) else if self.wheel_y <= (0 - lh) (
+        ry = 0 - floor((0 - self.wheel_y) / lh)
+      )
+      if self.wheel_x >= fs (
+        rx = floor(self.wheel_x / fs)
+      ) else if self.wheel_x <= (0 - fs) (
+        rx = 0 - floor((0 - self.wheel_x) / fs)
+      )
+      self.wheel_y -= ry * lh
+      self.wheel_x -= rx * fs
+      return {x: rx, y: ry}
+    ),
+
+    // replaced by the shell (rush sets terminal.run to its evalCmd)
+    run: def(cmd) -> (
+      self.writeLine("terminal.run: no shell is attached to this pane")
+      return []
+    ),
+
+    layout: def(cols) -> (
+      if !self.dirty and self.cols == cols (
+        return null
+      )
+      self.cols = cols
+      self.dirty = false
+      local rows = []
+      local lines @= self.lines
+      for i lines.len (
+        local line @= lines[i]
+        if typeof(line) == "array" (
+          void rows.append(line)
+        ) else (
+          local s = "" ++ line
+          if s.len <= cols (
+            void rows.append(s)
+          ) else if self.screen_mode (
+            void rows.append(s.trim(1, cols))
+          ) else (
+            local start = 1
+            while start <= s.len (
+              void rows.append(s.trim(start, min(s.len, (start + cols) - 1)))
+              start += cols
+            )
+          )
         )
       )
+      self.rows @= rows
     )
-    terminal.lines @= lines
-    number len = terminal.lines.len
-    terminal.stdin = input
-    void fn.apply(terminal_worker, [tokens])
-    terminal.stdin = null
-    local out @= terminal.lines.trim(len + 1, -1)
-    return out
-  ) catch e (
-    terminal.stdin = null
-    terminal.writeLine(e.full)
-    return [e.full]
+  }
+  // code running with this pane as self (its methods, scripts run through terminal.run) sees it as `terminal`
+  t.terminal @= t
+  next_pane_id += 1
+  return t
+)
+
+// ---- pane programs ----
+
+def runShell(p) (
+  local name = "" ++ (p.shell ?? shell_name)
+  local path = parseFilePath("~/:path/" ++ name ++ ".osl")
+  file "exists" path
+  if !exists and name != "rush" (
+    p.writeLine("shell '" ++ name ++ "' not found in ~/:path, using rush")
+    name = "rush"
+    path = parseFilePath("~/:path/rush.osl")
+    file "exists" path
+  )
+  if !exists (
+    // first run: fetch the default shell before :path has been synced
+    try (
+      local src = (path_url ++ "rush.osl").httpGet()
+      if typeof(src) == "string" and src.len > 0 (
+        file "goto_dir" "~/:path"
+        file "set_file" "rush.osl" src
+        exists = true
+      )
+    ) catch e (
+      exists = false
+    )
+  )
+  if !exists (
+    p.writeLine("no shell available: could not load rush.osl from " ++ path_url)
+    return null
+  )
+  local code = "" ++ (open(path) ?? "")
+  if code.strip().len == 0 and name == "rush" (
+    // an older :path sync left an empty rush.osl behind; replace it with the real shell
+    try (
+      local src = (path_url ++ "rush.osl").httpGet()
+      if typeof(src) == "string" and src.len > 0 (
+        file "goto_dir" "~/:path"
+        file "set_file" "rush.osl" src
+        code = src
+      )
+    ) catch e (
+      code = ""
+    )
+  )
+  if code.strip().len == 0 (
+    p.writeLine("shell '" ++ name ++ "' is empty")
+    return null
+  )
+  local fn @= function("args", code)
+  void fn.apply(self, [[]])
+)
+
+// follows another window's log buffer (Log:/Warn:/Error: lines from that app's log command)
+def runLogViewer(p) (
+  local id = p.log_id
+  p.writeLine([accent, "logs: " ++ ("" ++ (p.log_title ?? id)) ++ " (pid " ++ id ++ ")"])
+  local seen = 0
+  local gone = false
+  while true (
+    local wins @= Windows()
+    local w @= null
+    for i wins.len (
+      if wins[i].window.id == id (
+        w @= wins[i].window
+      )
+    )
+    if w == null (
+      if !gone (
+        gone = true
+        p.writeLine([accent, "[process ended]"])
+      )
+    ) else (
+      local logs @= w.logs ?? []
+      if logs.len < seen (
+        seen = 0
+      )
+      while seen < logs.len (
+        seen += 1
+        p.writeLine("" ++ logs[seen])
+      )
+    )
+    defer
   )
 )
 
-def evalCmd(cmd) (
-  local tokens = parseCommand(cmd)
-  local segments = parseShellOperators(tokens)
-  local isBackground = segments[segments.len].background
-  if segments.len == 1 and segments[1].redirect == null and !isBackground (
-    return evalSingle(segments[1].cmd, null)
-  )
-  local pipedInput = null
-  local finalOutput = []
-  for i segments.len (
-    local segment = segments[i]
-    local result = evalSingle(segment.cmd, pipedInput)
-    if i < segments.len (
-      pipedInput = result.join("\n")
-    )
-    if i == segments.len and segment.redirect != null (
-      local targetPath = terminal.resolvePath(segment.redirect)
-      local content = result.join("\n")
-      if segment.append (
-        file "exists" targetPath
-        if exists (
-          file "get_file" targetPath
-          content = data ++ "\n" ++ content
-        )
-      )
-      file "set_file" targetPath content
-    ) else if i == segments.len (
-      finalOutput = result
-    )
-  )
-  return finalOutput
-)
-
-def runBackground(cmd) (
-  local jobId = null
-  local jobWorker @= worker({
+def startWorker(p) (
+  p.show_input = false
+  p.reading = false
+  p.input_result = null
+  p.stdin = null
+  p.ended = false
+  local w @= worker({
     isThread: true,
-    command: cmd,
-    done: false,
-    evalCmd,
+    terminal: p,
     oncreate: def() -> (
-      if command != null (
-        self.evalCmd(command)
-        self.done = true
-        self.command = null
-        self.kill()
+      // errors inside the program are the pane's problem, not the worker's: show them and start over
+      terminal.crashes = 0
+      while terminal.crashes < 5 (
+        try (
+          if terminal.program == "logs" (
+            runLogViewer(terminal)
+          ) else (
+            runShell(terminal)
+          )
+          terminal.crashes = 99
+        ) catch e (
+          terminal.crashes += 1
+          terminal.reading = false
+          terminal.show_input = false
+          terminal.stdin = null
+          terminal.exiting = false
+          terminal.writeLine(["#ff6b6b", "" ++ (e.full ?? e)])
+          terminal.writeLine(["#888", "program crashed, restarting (" ++ terminal.crashes ++ "/5)"])
+        )
       )
+      terminal.ended = true
     )
   })
-  jobId = terminal.addJob(cmd, jobWorker)
-  terminal.writeLine("[" ++ jobId ++ "] " ++ cmd)
+  p.worker @= w
 )
 
-def checkJobs() (
-  local toRemove = []
-  for i terminal.jobs.len (
-    local job = terminal.jobs[i]
-    if job.worker.done or job.worker.alive == false (
-      terminal.writeLine("[" ++ job.id ++ "] Done: " ++ job.name)
-      void toRemove.append(job.id)
-    )
-  )
-  for j toRemove.len (
-    terminal.removeJob(toRemove[j])
-  )
-)
+// ---- split tree ----
 
-class terminal (
-  lines = []
-  waiting = false
-  show_input = true
-  input_message = null
-  // Start in home (user_folder) when set; otherwise origin drive root
-  pwd = home_path != "" ? home_path "origin"
-  stdin = null
-  jobs = []
-  next_job_id = 1
-
-  def resolvePath(target) (
-    local pwd = self.pwd.split("/")
-    pwd[1] = ""
-    pwd.append(target)
-    string path = parseFilePath(pwd.join("/"))
-    if path.startsWith("origin/") (
-      path = path.replaceFirst("origin/", "/")
-    )
-    return path
-  )
-
-  def addJob(name, worker) (
-    local job = {
-      id: self.next_job_id,
-      name: name,
-      worker: worker,
-      status: "running"
-    }
-    void self.jobs.append(job)
-    self.next_job_id += 1
-    return job.id
-  )
-
-  def removeJob(id) (
-    self.jobs = self.jobs.filter(j -> j.id != id)
-  )
-
-  def getJob(id) (
-    for i self.jobs.len (
-      if self.jobs[i].id == id (
-        return self.jobs[i]
-      )
+def findLeaf(node, id) (
+  if node.kind == "leaf" (
+    if node.pane.id == id (
+      return node
     )
     return null
   )
+  local r @= findLeaf(node.a, id)
+  if r != null (
+    return r
+  )
+  return findLeaf(node.b, id)
+)
 
-  def writeLine(data) (
-    // Preserve color lines: ls writes [color, text, color, text, ...] arrays
-    remoteSend(data)
-    remoteSend("\r\n")
-    if typeof(data) == "array" (
-      void self.lines.append(data)
-        return
-    )
-    local s = "" ++ (data ?? "")
-    if s.contains("\n") (
-      local parts = s.split("\n")
-      for i parts.len (
-        void self.lines.append("" ++ parts[i])
-      )
-    ) else (
-      void self.lines.append(s)
+def findParent(node, id) (
+  if node.kind == "leaf" (
+    return null
+  )
+  if (node.a.kind == "leaf" and node.a.pane.id == id) or (node.b.kind == "leaf" and node.b.pane.id == id) (
+    return node
+  )
+  local r @= findParent(node.a, id)
+  if r != null (
+    return r
+  )
+  return findParent(node.b, id)
+)
+
+def firstPane(node) (
+  if node.kind == "leaf" (
+    return node.pane
+  )
+  return firstPane(node.a)
+)
+
+def leaves(node, out) (
+  if node.kind == "leaf" (
+    void out.append(node.pane)
+  ) else (
+    leaves(node.a, out)
+    leaves(node.b, out)
+  )
+)
+
+def containsPane(node, id) (
+  if node.kind == "leaf" (
+    return node.pane.id == id
+  )
+  return containsPane(node.a, id) or containsPane(node.b, id)
+)
+
+// deepest split of direction dir that contains the pane
+def splitFor(node, id, dir) (
+  if node.kind == "leaf" (
+    return null
+  )
+  local r @= splitFor(node.a, id, dir)
+  if r == null (
+    r @= splitFor(node.b, id, dir)
+  )
+  if r != null (
+    return r
+  )
+  if node.dir == dir and containsPane(node, id) (
+    return node
+  )
+  return null
+)
+
+def resizeFocus(dir, delta) (
+  local sp @= splitFor(layout, focus.id, dir)
+  if sp == null (
+    return null
+  )
+  sp.ratio = (sp.ratio + delta).clamp(0.1, 0.9)
+)
+
+def setFocus(p) (
+  if p == null or p.id == focus.id (
+    return null
+  )
+  last_focus @= focus
+  focus @= p
+)
+
+def cyclePane(delta) (
+  local list = []
+  leaves(layout, list)
+  local idx = 0
+  for i list.len (
+    if list[i].id == focus.id (
+      idx = i
     )
   )
+  idx = ((idx - 1 + delta + list.len) % list.len) + 1
+  setFocus(list[idx])
+)
 
-  def write(data) (
-    remoteSend(data)
-    if typeof(data) == "array" (
-      // append color segments onto the current line buffer as a new colored line
-      if self.lines.len == 0 or typeof(self.lines[self.lines.len]) != "array" (
-        void self.lines.append(data)
-      ) else (
-        local cur @= self.lines[self.lines.len]
-        for i data.len (
-          void cur.append(data[i])
+def swapPane(delta) (
+  local list = []
+  leaves(layout, list)
+  if list.len < 2 (
+    return null
+  )
+  local idx = 0
+  for i list.len (
+    if list[i].id == focus.id (
+      idx = i
+    )
+  )
+  local other = ((idx - 1 + delta + list.len) % list.len) + 1
+  local la @= findLeaf(layout, focus.id)
+  local lb @= findLeaf(layout, list[other].id)
+  local tmp @= la.pane
+  la.pane @= lb.pane
+  lb.pane @= tmp
+)
+
+def saveTab() (
+  if cur_tab >= 1 and cur_tab <= tabs.len (
+    local tb @= tabs[cur_tab]
+    tb.layout @= layout
+    tb.focus @= focus
+    tb.zoom @= zoom
+  )
+)
+
+def loadTab() (
+  local tb @= tabs[cur_tab]
+  layout @= tb.layout
+  focus @= tb.focus
+  zoom @= tb.zoom
+  last_focus @= null
+)
+
+def selectTab(i) (
+  if i < 1 or i > tabs.len or i == cur_tab (
+    return null
+  )
+  saveTab()
+  cur_tab = i
+  loadTab()
+)
+
+def newTab(pwd) (
+  local p @= newTerm()
+  if pwd != null (
+    p.pwd = pwd
+  )
+  startWorker(p)
+  void panes.append(p)
+  saveTab()
+  void tabs.append({layout: {kind: "leaf", pane: p}, focus: p, zoom: null, name: "shell"})
+  cur_tab = tabs.len
+  loadTab()
+)
+
+def killTab() (
+  if tabs.len <= 1 (
+    window.close()
+    return null
+  )
+  local list = []
+  leaves(layout, list)
+  for i list.len (
+    void list[i].worker.kill()
+  )
+  local ids = list.map(v -> v.id)
+  panes @= panes.filter(v -> !ids.contains(v.id))
+  void tabs.delete(cur_tab)
+  cur_tab = min(cur_tab, tabs.len)
+  loadTab()
+)
+
+def splitPane(p, dir) (
+  local np @= newTerm()
+  np.pwd = p.pwd
+  startWorker(np)
+  void panes.append(np)
+  local leaf @= findLeaf(layout, p.id)
+  leaf.kind = "split"
+  leaf.dir = dir
+  leaf.ratio = 0.5
+  leaf.sid = next_pane_id
+  next_pane_id += 1
+  leaf.a @= {kind: "leaf", pane: p}
+  leaf.b @= {kind: "leaf", pane: np}
+  leaf.pane = null
+  focus @= np
+)
+
+def closePane(p) (
+  p.ended = false
+  if layout.kind == "leaf" (
+    killTab()
+    return null
+  )
+  if zoom != null and zoom.id == p.id (
+    zoom @= null
+  )
+  void p.worker.kill()
+  panes @= panes.filter(v -> v.id != p.id)
+  local parent @= findParent(layout, p.id)
+  local mine = parent.a.kind == "leaf" and parent.a.pane.id == p.id
+  local sib @= mine ? parent.b parent.a
+  parent.kind = sib.kind
+  parent.dir = sib.dir
+  parent.ratio = sib.ratio
+  parent.sid = sib.sid
+  parent.pane @= sib.pane
+  parent.a @= sib.a
+  parent.b @= sib.b
+  if focus.id == p.id (
+    focus @= firstPane(parent)
+  )
+  last_focus @= null
+)
+
+def focusDir(dx, dy) (
+  local fr = focus.rect
+  local fx = (fr[1] + fr[3]) / 2
+  local fy = (fr[2] + fr[4]) / 2
+  local best @= null
+  local bestd = 999999
+  for i panes.len (
+    local p @= panes[i]
+    if p.id != focus.id (
+      local r = p.rect
+      local ex = ((r[1] + r[3]) / 2) - fx
+      local ey = ((r[2] + r[4]) / 2) - fy
+      if ((ex * dx) + (ey * dy)) > 0 (
+        local d = abs(ex) + abs(ey)
+        if d < bestd (
+          bestd = d
+          best @= p
         )
-        self.lines[self.lines.len] @= cur
       )
-        return
     )
-    local s = "" ++ (data ?? "")
-    if s.contains("\n") (
-      local parts = s.split("\n")
-      for i parts.len - 1 (
-        void self.lines.append("" ++ parts[i])
+  )
+  if best != null (
+    setFocus(best)
+  )
+)
+
+// ---- input ----
+
+def hit(k) (
+  return all_hit.contains(k) or all_hit.contains(k.toUpper())
+)
+
+def insertText(p, s) (
+  s = "" ++ (s ?? "")
+  if s.len == 0 (
+    return null
+  )
+  p.buf = p.buf.insert(p.cursor - 1, s)
+  p.cursor += s.len
+)
+
+def setFont(n) (
+  fs = n.clamp(7, 24)
+  lh = fs * 2
+)
+
+def interrupt(p) (
+  if p.screen_mode and p.trap_interrupt (
+    return null
+  )
+  if p.reading (
+    p.writeLine(p.prompt ++ p.buf ++ "^C")
+    p.buf = ""
+    p.cursor = 1
+  ) else (
+    // a command is running inside the pane's program: kill the worker and start the program again
+    void p.worker.kill()
+    p.writeLine("^C")
+    startWorker(p)
+  )
+  p.stick = true
+)
+
+def commonPrefix(list) (
+  local pre = "" ++ list[1]
+  for i list.len (
+    local s = "" ++ list[i]
+    while pre.len > 0 and !s.startsWith(pre) (
+      pre = pre.trim(1, -2)
+    )
+  )
+  return pre
+)
+
+def complete(p) (
+  if p.cursor <= 1 (
+    return null
+  )
+  local before = p.buf.trim(1, p.cursor - 1)
+  local sp = before.lastIndex(" ")
+  local word = sp > 0 ? before.trim(sp + 1, -1) before
+  if sp >= before.len (
+    word = ""
+  )
+  local isCmd = sp == 0
+  local cands = []
+  local dirPart = ""
+  local prefix = word
+  if isCmd (
+    local names = listFiles(parseFilePath("~/:path"))
+    for i names.len (
+      local n = "" ++ names[i]
+      if n.endsWith(".osl") and n.startsWith(word) (
+        void cands.append(n.trim(1, -5))
       )
-      if self.lines.len == 0 (
-        void self.lines.append("" ++ parts[parts.len])
-      ) else if typeof(self.lines[self.lines.len]) == "array" (
-        void self.lines.append("" ++ parts[parts.len])
+    )
+    local ak = aliases.getKeys()
+    for i ak.len (
+      if ak[i].startsWith(word) (
+        void cands.append(ak[i])
+      )
+    )
+  ) else (
+    local slash = word.lastIndex("/")
+    if slash > 0 (
+      dirPart = word.trim(1, slash)
+      prefix = slash < word.len ? word.trim(slash + 1, -1) ""
+    )
+    local dir = dirPart == "" ? p.pwd p.resolvePath(dirPart)
+    local names = listFiles(dir)
+    for i names.len (
+      local n = "" ++ names[i]
+      local show = n.endsWith(".folder") ? (n.trim(1, -8) ++ "/") n
+      if show.startsWith(prefix) (
+        void cands.append(show)
+      )
+    )
+  )
+  if cands.len == 0 (
+    return null
+  )
+  local fill = "" ++ cands[1]
+  if cands.len > 1 (
+    fill = commonPrefix(cands)
+    if fill.len <= prefix.len (
+      p.writeLine(cands.join("  "))
+      return null
+    )
+  ) else if isCmd or !fill.endsWith("/") (
+    fill ++= " "
+  )
+  local after = p.cursor > p.buf.len ? "" p.buf.trim(p.cursor, -1)
+  local head = isCmd ? "" before.trim(1, sp)
+  head ++= dirPart ++ fill
+  p.buf = head ++ after
+  p.cursor = head.len + 1
+)
+
+def submit(p) (
+  local text = p.buf
+  p.buf = ""
+  p.cursor = 1
+  p.stick = true
+  if p.renaming (
+    p.renaming = false
+    p.show_input = p.reading
+    if text.strip().len > 0 (
+      tabs[cur_tab].name = text.strip()
+    )
+    return null
+  )
+  if !p.reading (
+    return null
+  )
+  if !remote_shell (
+    p.writeLine(p.prompt ++ text)
+  )
+  p.input_result = text
+  p.reading = false
+  p.show_input = false
+)
+
+def tmuxHelp(p) (
+  p.writeLine([accent, "tmux keys", txtc, "  (prefix ctrl+b, then:)"])
+  p.writeLine("  %  split left/right    \"  split top/bottom    x  kill pane    z  zoom pane    !  pane to new window")
+  p.writeLine("  o  next pane   ;  last pane   arrows  move between panes   {  }  swap pane   ctrl+arrows / alt+arrows  resize")
+  p.writeLine("  c  new window   n / p  next / previous window   0-9  select window   &  kill window   ,  rename window   ?  this help")
+  p.writeLine("  mouse: click a pane to focus it, drag a divider to resize, click a window name in the bar")
+  p.writeLine("  shell: ctrl+c interrupt   ctrl+l clear   ctrl+a/e line start/end   ctrl+u clear line   ctrl+= / ctrl+- font size   tab completion")
+)
+
+def tmuxCommand(p, ctrl, shift, alt) (
+  if ctrl or alt (
+    local step = ctrl ? 0.03 0.08
+    if "arrowleft".onKeyDown() (
+      resizeFocus("row", 0 - step)
+    )
+    if "arrowright".onKeyDown() (
+      resizeFocus("row", step)
+    )
+    if "arrowup".onKeyDown() (
+      resizeFocus("col", 0 - step)
+    )
+    if "arrowdown".onKeyDown() (
+      resizeFocus("col", step)
+    )
+    return null
+  )
+  if "arrowleft".onKeyDown() (
+    focusDir(-1, 0)
+  ) else if "arrowright".onKeyDown() (
+    focusDir(1, 0)
+  ) else if "arrowup".onKeyDown() (
+    focusDir(0, 1)
+  ) else if "arrowdown".onKeyDown() (
+    focusDir(0, -1)
+  ) else if all_hit.contains("%") (
+    splitPane(p, "row")
+  ) else if all_hit.contains("\"") (
+    splitPane(p, "col")
+  ) else if all_hit.contains("x") (
+    closePane(p)
+  ) else if all_hit.contains("z") (
+    zoom @= (zoom != null and zoom.id == p.id) ? null p
+  ) else if all_hit.contains("o") (
+    cyclePane(1)
+  ) else if all_hit.contains(";") (
+    if last_focus != null and panes.contains(last_focus) (
+      setFocus(last_focus)
+    )
+  ) else if all_hit.contains("{") (
+    swapPane(-1)
+  ) else if all_hit.contains("}") (
+    swapPane(1)
+  ) else if all_hit.contains("!") (
+    if layout.kind != "leaf" (
+      local keep @= p
+      local parent @= findParent(layout, p.id)
+      local mine = parent.a.kind == "leaf" and parent.a.pane.id == p.id
+      local sib @= mine ? parent.b parent.a
+      parent.kind = sib.kind
+      parent.dir = sib.dir
+      parent.ratio = sib.ratio
+      parent.sid = sib.sid
+      parent.pane @= sib.pane
+      parent.a @= sib.a
+      parent.b @= sib.b
+      focus @= firstPane(parent)
+      zoom @= null
+      saveTab()
+      void tabs.append({layout: {kind: "leaf", pane: keep}, focus: keep, zoom: null, name: "shell"})
+      cur_tab = tabs.len
+      loadTab()
+    )
+  ) else if all_hit.contains("c") (
+    newTab(p.pwd)
+  ) else if all_hit.contains("n") (
+    selectTab((cur_tab % tabs.len) + 1)
+  ) else if all_hit.contains("p") (
+    selectTab(((cur_tab - 2 + tabs.len) % tabs.len) + 1)
+  ) else if all_hit.contains("&") (
+    killTab()
+  ) else if all_hit.contains(",") (
+    p.renaming = true
+    p.show_input = true
+    p.buf = tabs[cur_tab].name
+    p.cursor = p.buf.len + 1
+  ) else if all_hit.contains("?") (
+    tmuxHelp(p)
+  ) else (
+    for d 10 (
+      if all_hit.contains("" ++ (d - 1)) (
+        selectTab(d)
+      )
+    )
+  )
+)
+
+def handleKeys() (
+  local p @= focus
+  local ctrl = "control".isKeyDown() or "meta".isKeyDown()
+  local shift = "shift".isKeyDown()
+  local alt = "alt".isKeyDown()
+  local mods = ["shift", "control", "meta", "alt", "capslock"]
+  local keys = all_hit.filter(v -> !mods.contains(v))
+  if prefix (
+    if keys.len == 0 (
+      return null
+    )
+    prefix = false
+    if all_hit.contains("escape") (
+      return null
+    )
+    tmuxCommand(p, ctrl, shift, alt)
+    return null
+  )
+  if ctrl (
+    if hit("b") (
+      prefix = true
+      return null
+    )
+    if hit("c") (
+      interrupt(p)
+    )
+    if hit("l") (
+      p.clear()
+    )
+    if hit("=") or hit("+") (
+      setFont(fs + 1)
+    )
+    if hit("-") (
+      setFont(fs - 1)
+    )
+    if hit("0") (
+      setFont(10)
+    )
+    if hit("v") (
+      insertText(p, clipboard)
+    )
+    if hit("a") or "arrowleft".onKeyDown() (
+      p.cursor = 1
+    )
+    if hit("e") or "arrowright".onKeyDown() (
+      p.cursor = p.buf.len + 1
+    )
+    if hit("u") (
+      p.buf = ""
+      p.cursor = 1
+    )
+    return null
+  )
+  if !p.show_input or !(p.reading or p.renaming) (
+    return null
+  )
+  if "escape".onKeyDown() and p.renaming (
+    p.renaming = false
+    p.show_input = p.reading
+    p.buf = ""
+    p.cursor = 1
+    return null
+  )
+  string typed = all_hit.filter(v -> v.len == 1).join("")
+  if typed.len > 0 (
+    insertText(p, typed)
+    p.stick = true
+  )
+  if "arrowleft".onKeyDown() (
+    p.cursor -= 1
+  )
+  if "arrowright".onKeyDown() (
+    p.cursor += 1
+  )
+  if "home".onKeyDown() (
+    p.cursor = 1
+  )
+  if "end".onKeyDown() (
+    p.cursor = p.buf.len + 1
+  )
+  if "backspace".onKeyDown() and p.cursor > 1 (
+    p.cursor -= 1
+    p.buf = p.buf.delete(p.cursor)
+  )
+  if "delete".onKeyDown() and p.cursor <= p.buf.len (
+    p.buf = p.buf.delete(p.cursor)
+  )
+  if "arrowup".onKeyDown() and last.len > 0 (
+    if p.hist_i < 1 or p.hist_i > last.len + 1 (
+      p.hist_i = last.len + 1
+    )
+    p.hist_i = max(1, p.hist_i - 1)
+    p.buf = "" ++ last[p.hist_i]
+    p.cursor = p.buf.len + 1
+  )
+  if "arrowdown".onKeyDown() and p.hist_i >= 1 (
+    p.hist_i = min(last.len + 1, p.hist_i + 1)
+    p.buf = p.hist_i > last.len ? "" ("" ++ last[p.hist_i])
+    p.cursor = p.buf.len + 1
+  )
+  if "tab".onKeyDown() (
+    complete(p)
+  )
+  p.cursor = p.cursor.clamp(1, p.buf.len + 1)
+  if "enter".onKeyDown() (
+    submit(p)
+  )
+)
+
+// ---- drawing ----
+
+def drawColored(line) (
+  local i = 0
+  loop floor(line.len / 2) (
+    i += 2
+    local cur = line[i]
+    local col = line[i - 1]
+    if typeof(col) == "string" (
+      c (col ?? txtc)
+    ) else if typeof(col) == "object" (
+      if col.back != null (
+        local half = (("" ++ cur).len * fs) / 2
+        change_x half
+        c col.back.toStr()
+        square (half * 2) lh 0
+        change_x (0 - half)
+      )
+      c (col.text ?? txtc)
+    ) else (
+      c txtc
+    )
+    text ("" ++ cur) fs
+    c txtc
+  )
+)
+
+def drawPane(p, x1, y1, x2, y2) (
+  p.rect = [x1, y1, x2, y2]
+  local fid = "p" ++ p.id
+  local cols = max(1, floor(((x2 - x1) - 24) / fs))
+  p.layout(cols)
+  local prompt = p.renaming ? "(rename-window) " p.prompt
+  local irows = 1
+  if p.show_input (
+    irows = max(1, ceil(((prompt.len + p.buf.len) + 1) / cols))
+  )
+  local content_h = ((p.rows.len + irows) * lh) + 10
+  local view_h = y1 - y2
+  p.view_rows = max(1, floor(view_h / lh))
+  p.grid_rows = p.view_rows
+  if p.screen_mode (
+    // the grid never scrolls: no scrollbar, and the wheel goes to the program instead
+    content_h = 0
+  )
+  local fopts = {id: fid, scrollbar: {size: 3, color: "#ffffff40"}}
+  frame x1 y1 x2 y2 content_h fopts (
+    local mx = frame.scroll < 0 ? 0 max(0, frame.scrollMax.height)
+    local sc = max(0, frame.scroll)
+    // stay pinned to the bottom until the user scrolls up; re-pin when they reach the bottom again
+    // sc below both the old and the new maximum means the user scrolled; a shrinking content
+    // height (the input row disappearing while a command runs) only lowers the maximum
+    if p.stick (
+      if sc < (p.want - 1) and sc < (mx - 1) (
+        p.stick = false
+      )
+    ) else if sc >= (mx - 1) (
+      p.stick = true
+    )
+    if p.stick and sc != mx (
+      frame "scroll" mx fid
+      sc = mx
+    )
+    p.want = mx
+    if p.screen_mode (
+      local m @= p.mouse
+      m.inside = frame.mouse_touching
+      m.down = mouse_down and frame.mouse_touching
+      m.pressed = mouse_ondown and frame.mouse_touching
+      if frame.mouse_touching (
+        m.col = floor((mouse_x - (x1 + 10)) / fs) + 1
+        m.row = floor(((y1 - 5) - mouse_y) / lh) + 1
+        // same sign as scrollback scrolling: positive when the content should move up / left
+        p.wheel_y += 0 - (scroll.y.velocity * (scroll.multiplier / 4))
+        p.wheel_x += 0 - (scroll.x.velocity * (scroll.multiplier / 4))
+      )
+    )
+    // a press anywhere inside the pane focuses it (onclick only covers the last drawn shape)
+    if mouse_ondown and frame.mouse_touching and focus.id != p.id (
+      setFocus(p)
+    )
+    c txtc
+    local r = floor(sc / lh)
+    loop ceil(view_h / lh) + 1 (
+      r += 1
+      if r > p.rows.len (
+        break
+      )
+      local row @= p.rows[r]
+      loc 2 2 10 ((sc - 5) - ((r - 0.5) * lh))
+      if typeof(row) == "array" (
+        drawColored(row)
       ) else (
-        self.lines[self.lines.len] ++= ("" ++ parts[parts.len])
+        text ("" ++ row) fs
       )
-    ) else if self.lines.len == 0 (
-      void self.lines.append(s)
-    ) else if typeof(self.lines[self.lines.len]) == "array" (
-      void self.lines.append(s)
-    ) else (
-      self.lines[self.lines.len] ++= s
+    )
+    if p.show_input (
+      local full = prompt ++ p.buf
+      local base = p.rows.len
+      local ir = 0
+      local start = 1
+      while start <= max(1, full.len) (
+        ir += 1
+        loc 2 2 10 ((sc - 5) - (((base + ir) - 0.5) * lh))
+        c txtc
+        text full.trim(start, min(full.len, (start + cols) - 1)) fs
+        start += cols
+      )
+      local n = (prompt.len + p.cursor) - 1
+      local crow = floor(n / cols)
+      local ccol = n % cols
+      loc 2 2 (10 + (ccol * fs)) ((sc - 5) - (((base + crow) + 0.5) * lh))
+      if focus.id == p.id (
+        c txtc
+      ) else (
+        c "#ffffff55"
+      )
+      square 0 (lh * 0.75) 2
     )
   )
-
-  def clear() (
-    terminal.lines = []
-  )
-
-  def input(query) (
-    self.show_input = true
-    self.input_message = query
-    while self.show_input (
-      defer
-    )
-    self.input_message = null
-    return last.pop()
-  )
-
-  def user_start() (
-    if self.input_message != null (
-      return self.input_message ++ ": "
-    )
-    local pos = self.pwd
-    if pos == home_path or pos == user_folder (
-      pos = "~"
-    ) else if pos == "origin" or pos == "origin/" (
-      pos = "/"
-    ) else (
-      pos = pos.split("/")[-1]
-    )
-    return username ++ "@originos " ++ pos ++ " % "
-  )
-
-  def run(cmd) (
-    return terminal_worker.evalCmd(cmd)
+  if panes.len > 1 and focus.id == p.id (
+    c accent
+    goto ((x1 + x2) / 2) (y1 - 1)
+    square (x2 - x1) 2 0
   )
 )
 
-def remotePrompt() (
-  if remote_shell and !remote_prompt_visible (
-    remoteSend(terminal.user_start())
-    remote_prompt_visible = true
+def drawNode(node, x1, y1, x2, y2) (
+  if node.kind == "leaf" (
+    drawPane(node.pane, x1, y1, x2, y2)
+    return null
+  )
+  local row = node.dir == "row"
+  local dragging = drag_split != null and drag_split.sid == node.sid
+  if dragging (
+    if row (
+      node.ratio = ((mouse_x - x1) / (x2 - x1)).clamp(0.1, 0.9)
+    ) else (
+      node.ratio = ((y1 - mouse_y) / (y1 - y2)).clamp(0.1, 0.9)
+    )
+  )
+  local inside = mouse_x > x1 and mouse_x < x2 and mouse_y < y1 and mouse_y > y2
+  local mid = 0
+  local over = false
+  if row (
+    mid = round(x1 + ((x2 - x1) * node.ratio))
+    over = inside and abs(mouse_x - mid) < 5
+  ) else (
+    mid = round(y1 - ((y1 - y2) * node.ratio))
+    over = inside and abs(mouse_y - mid) < 5
+  )
+  if over or dragging (
+    hover_divider = true
+    window.cursor = row ? "col-resize" "row-resize"
+  )
+  if over and mouse_down and drag_split == null and drag_armed (
+    drag_split @= node
+  )
+  if row (
+    drawNode(node.a, x1, y1, mid - 3, y2)
+    drawNode(node.b, mid + 3, y1, x2, y2)
+    c ((over or dragging) ? accent "#ffffff22")
+    goto mid ((y1 + y2) / 2)
+    square 1 (y1 - y2) 0
+  ) else (
+    drawNode(node.a, x1, y1, x2, mid + 3)
+    drawNode(node.b, x1, mid - 3, x2, y2)
+    c ((over or dragging) ? accent "#ffffff22")
+    goto ((x1 + x2) / 2) mid
+    square (x2 - x1) 1 0
   )
 )
+
+// tmux-style status line: window list on the left, prefix indicator and pane info on the right
+def drawStatus() (
+  local y = window.bottom + (bar_h / 2)
+  c "#ffffff12"
+  goto 0 y
+  square window.width bar_h 0
+  local inBar = mouse_y < (window.bottom + bar_h) and mouse_y > window.bottom and mouse_x > window.left and mouse_x < window.right
+  if inBar (
+    hover_divider = true
+  )
+  local x = window.left + 10
+  local sfs = max(7, fs - 1)
+  for i tabs.len (
+    local label = (i - 1) ++ ":" ++ tabs[i].name ++ (i == cur_tab ? "*" " ")
+    local w = label.len * sfs
+    if inBar and mouse_ondown and mouse_x >= (x - 6) and mouse_x <= (x + w + 6) (
+      selectTab(i)
+    )
+    if i == cur_tab (
+      c accent
+      goto (x + (w / 2)) y
+      square (w + 10) (bar_h - 6) 4
+      c "#000000"
+    ) else (
+      c txtc
+    )
+    goto x y
+    text label sfs
+    x += w + 18
+  )
+  local status = ""
+  if prefix (
+    status = "^B "
+  )
+  if zoom != null (
+    status ++= "[Z] "
+  )
+  local list = []
+  leaves(layout, list)
+  status ++= list.len ++ (list.len == 1 ? " pane" " panes")
+  c (prefix ? accent txtc)
+  goto (window.right - 10 - (status.len * sfs)) y
+  text status sfs
+)
+
+// ---- setup ----
+
+terminal @= newTerm()
+void panes.append(terminal)
+tabs @= [{layout: {kind: "leaf", pane: terminal}, focus: terminal, zoom: null, name: "shell"}]
+cur_tab = 1
+loadTab()
 
 if typeof(passed_data) == "object" (
   switch passed_data["type"] (
     case "cd"
       terminal.pwd = parseFilePath(passed_data["location"])
       break
+    case "logs"
+      // opened from Activity: this pane follows another window's log buffer instead of running a shell
+      terminal.program = "logs"
+      terminal.log_id = passed_data["id"]
+      terminal.log_title = passed_data["title"]
+      tabs[1].name = "logs"
+      break
   )
 )
-
-canenter = true
-inputs.main = null
-last_index = 0
 
 // handle if created by the onboot and we are the only window
 boolean tty = !remote_shell and Windows().len <= 1
 
-taking_input = false
-ots_i = 1
-
-if !remote_shell and path.len > 0 and home_path != "" (
-  try (
-    path_worker @= worker({
-      isThread: true,
-      oncreate: def() -> (
-        try (
-          local updates = []
-          for i path.len (
-            local cur = path[i]
-            local cmd_path = parseFilePath("~/:path/" ++ cur.name)
-            file "exists" cmd_path
-            if exists (
-              if cur.status == "removed" (
-                file "open" cmd_path "onlyaccess"
-                file "delete"
-                continue
-              )
-              local data = open(cmd_path, ["edited"])
-              if data[1] != cur.lastModifiedUnix (
-                void updates.append(cur)
-              )
-            ) else if cur.status != "removed" (
-              void updates.append(cur)
-            )
-          )
-          if updates.len > 0 (
-            terminal.writeLine("Updates found for the following scripts:")
-            for i updates.len (
-              terminal.writeLine("- " ++ updates[i].name)
-            )
-            if terminal.input("Update them? (y/n)") == "y" (
-              file "goto_dir" "~/:path"
-              for i updates.len (
-                local cur = updates[i]
-                file "set_file" cur.name (path_url ++ cur.name).httpGet()
-                file "open" cur.name "onlyaccess"
-                file "set" "edited" cur.lastModifiedUnix
-                terminal.writeLine("Updated " ++ cur.name)
-              )
-            )
-          )
-        ) catch e (
-          // optional
-        )
-        terminal.show_input = true
-        path_worker.kill()
-      )
-    })
-  ) catch e (
-    // optional
-  )
+if !remote_shell (
+  // keep the browser from eating the shortcuts while a terminal owns the keyboard
+  eval ("window.__originTermWins = window.__originTermWins || new Set(); window.__originTermWins.add(String(" ++ window.id ++ ")); if (!window.__originTermKeys) { window.__originTermKeys = true; window.addEventListener('keydown', function(e) { var t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return; if (!window.__originTermWins.has(String(window.origin && window.origin.input && window.origin.input.keyboardId))) return; var k = String(e.key).toLowerCase(); var mod = e.ctrlKey || e.metaKey; if ((mod && (k === 'b' || k === 'd' || k === 'l' || k === 'u' || k === 'e' || k === '=' || k === '+' || k === '-' || k === '0')) || (e.ctrlKey && e.shiftKey && k === 'w')) e.preventDefault() }, true) }")
 )
 
-def startWorker() (
-  terminal_worker @= worker({
-    cmd: null,
-    isThread: true,
-    cache: {},
-    evalCmd,
-    onframe: def() -> (
-      if cmd != null (
-        terminal.show_input = false
-        self.evalCmd(cmd)
-        terminal.show_input = true
-        self.cmd = null
-      )
-    )
-  })
-)
-
-startWorker()
+startWorker(terminal)
 
 if remote_shell (
   roturConnect.shellReady()
-  remotePrompt()
 )
 
 mainloop:
 
-if terminal_worker.alive == false (
-  terminal.show_input = true
-  startWorker()
+for i panes.len (
+  local p @= panes[i]
+  if p.ended or p.worker.alive == false (
+    // the pane's program returned (or crashed): the pane goes away like a closed shell
+    closePane(p)
+  ) else if p.reading and p.lines.len > scrollback (
+    p.lines @= p.lines.trim(p.lines.len - scrollback + 1001, -1)
+    p.dirty = true
+  )
 )
 
 if remote_shell (
-  if remote_running and terminal_worker.cmd == null and terminal.show_input (
-    remote_running = false
-    roturConnect.shellCommand("terminal")
-    remotePrompt()
-  )
   if remote_queue.len > 0 and typeof(remote_queue[1]) == "object" and remote_queue[1].close (
     remote_queue.shift()
     window.close()
-  ) else if !remote_running and remote_queue.len > 0 (
-    local remote_cmd = remote_queue.shift()
+  ) else if terminal.reading and remote_queue.len > 0 (
+    string command = "" ++ remote_queue.shift()
     remote_prompt_visible = false
-    string command = "" ++ remote_cmd
-    if command == "clear" (
-      terminal.clear()
-      remoteSend(27.chr() ++ "[2J" ++ 27.chr() ++ "[H")
-      remotePrompt()
-    ) else if command.len > 0 (
-      array parts = command.oslTokenise()
-      if aliases.contains(parts[1]) (
-        parts[1] = aliases[parts[1]]
-        command = parts.join(" ")
-      )
-      terminal.show_input = false
-      terminal_worker.cmd = command
+    if command.len > 0 (
       remote_running = true
       roturConnect.shellCommand(command)
-    ) else (
-      remotePrompt()
     )
+    terminal.input_result = command
+    terminal.reading = false
+    terminal.show_input = false
   )
 )
 
 if !remote_shell (
-if tty (
-  window.setDragbox([2,2,0,0],[2,2,0,0])
-  window.resize(screensize_x, screensize_y)
-  window.goto(0,0)
-  window.show()
-  window_colour = "#000000ff"
-  prim = "#333"
-  txtc = "#ffffff"
-) else (
-  window.setDragbox([2,2,0,0],[-2,-2,0,0])
-  load_theme
-  window.setGlass(180, "15px")
-)
-
-c prim
-term_n = terminal.lines.len
-frame window.left window.top window.right + 20 window.bottom term_n * 20 + 40 "cache@main" (
-  c txtc
-  term_n = terminal.lines.len
-  local count = floor(frame.scroll / 20).clamp(0, max(0, term_n))
-  local visible = max(1, round(frame.height / 20 + 3))
-  loop visible (
-    if count >= term_n (
-      break
-    )
-    count ++
-    y = count * -20 + frame.scroll + 5
-    loc 2 2 10 y
-    local line = terminal.lines[count]
-    if line == null (
-      break
-    )
-    if typeof(line) == "array" (
-      local i = 0
-      loop floor(line.len / 2) (
-        i += 2
-        local cur = line[i]
-        local cols = line[i - 1]
-        if typeof(cols) == "string" (
-          c cols ?? txtc
-        ) else if typeof(cols) == "object" (
-          if cols.back != null (
-            local len = ("" ++ cur).len * 5
-            change_x len
-            c cols.back.toStr()
-            square len * 2 20 0
-            change_x -len
-          )
-          c (cols.text ?? txtc)
-        ) else (
-          c txtc
-        )
-        text ("" ++ cur) 10
-        c txtc
-      )
-    ) else (
-      text ("" ++ line) 10
-    )
-  )
-
-  local user_start = terminal.user_start()
-  if terminal.show_input (
-    loc 2 2 10 term_n * -20 + frame.scroll - 15
-    text user_start 10 : c#txtc
-    inputs.main ??= ""
-    if "control".isKeyDown() or "meta".isKeyDown() (
-      if "v".onKeyDown() (
-        inputs.main ++= clipboard
-      )
-      if "arrowleft".onKeyDown() (
-        cursor_pos = 1
-      )
-      if "arrowright".onKeyDown() (
-        cursor_pos = inputs.main.len + 1
-      )
-    ) else (
-      string append = all_hit
-        .filter(v -> v.len === 1)
-        .join("")
-      if "shift".isKeyDown() (
-        append.toUpper()
-      )
-      if append.len > 0 (
-        inputs.main.insert(cursor_pos - 1, append)
-        cursor_pos += append.len
-      )
-      if "arrowleft".onKeyDown() (
-        cursor_pos --
-      )
-      if "arrowright".onKeyDown() (
-        cursor_pos ++
-      )
-    )
-    if "backspace".onKeyDown() (
-      if "control".isKeyDown() (
-        inputs.main = ""
-        cursor_pos = 1
-      ) else (
-        cursor_pos --
-        inputs.main = inputs.main.delete(cursor_pos)
-      )
-    )
-    if "arrowup".onKeyDown() (
-      last_index --
-      last_index.clamp(1,last.len)
-      inputs.main = last[last_index]
-      cursor_pos = inputs.main.len + 1
-    )
-    if "arrowdown".onKeyDown() (
-      last_index ++
-      last_index.clamp(1,last.len + 1)
-      inputs.main = last[last_index]
-      cursor_pos = inputs.main.len + 1
-    )
-    cursor_pos.clamp(1,inputs.main.len + 1)
-  if "enter".onKeyDown() (
-    try (
-      file "open" "~/:path/history.txt" "onlyaccess"
-      file "append" inputs.main ++ "\n"
-      file "close"
-    ) catch e (
-    )
-    void last.append(inputs.main)
-    last_index = last.len + 1
-    terminal.writeLine(terminal.user_start() ++ inputs.main)
-    array parts = inputs.main.oslTokenise()
-    if aliases.contains(parts[1]) (
-      parts[1] = aliases[parts[1]]
-      inputs.main = parts.join(" ")
-    )
-    if inputs.main == "clear" (
-      terminal.clear()
-    ) else if inputs.main.len > 0 (
-      checkJobs()
-      local tokens = parseCommand(inputs.main)
-      local segments = parseShellOperators(tokens)
-      if segments[segments.len].background (
-        runBackground(inputs.main.replace(" &", "").replace("&", ""))
-      ) else (
-        terminal.show_input = false
-        if terminal.input_message == null (
-          terminal_worker.cmd = inputs.main
-        )
-      )
-    )
-    inputs.main = ""
-    cursor_pos = 1
-  )
-    number offset = cursor_pos - 1 * 10
-    change_x offset
-    square 0 15 2
-    change_x -offset
-    text inputs.main ?? "" 10
+  if tty (
+    window.setDragbox([2,2,0,0],[2,2,0,0])
+    window.resize(screensize_x, screensize_y)
+    window.goto(0,0)
+    window.show()
+    window_colour = "#000000ff"
+    prim = "#333"
+    txtc = "#ffffff"
   ) else (
+    // the drag box follows the pointer: nothing to grab while it is over a split divider
+    if hover_divider or drag_split != null (
+      window.setDragbox([2,2,0,0],[2,2,0,0])
+    ) else (
+      window.setDragbox([2,2,0,0],[-2,-2,0,0])
+    )
+    load_theme
+    window.setGlass(180, "15px")
+    accent = global_accent ?? accent
   )
-)
-if !tty (
-  import "win-buttons"
-)
+  terminal @= focus
+  handleKeys()
+  if !mouse_down (
+    drag_split @= null
+    drag_armed = true
+  )
+  hover_divider = false
+  if zoom != null and panes.contains(zoom) (
+    drawPane(zoom, window.left, window.top, window.right, window.bottom + bar_h)
+  ) else (
+    zoom @= null
+    drawNode(layout, window.left, window.top, window.right, window.bottom + bar_h)
+  )
+  drawStatus()
+  if mouse_down (
+    drag_armed = false
+  )
+  if !tty (
+    // the pane frames own the pointer, so a focusable frame on top takes it back for the buttons
+    // (content height 0: this frame is a hit area, it must never scroll)
+    frame window.right - 92 window.top window.right window.top - 42 0 "buttons" (
+      import "win-buttons"
+    )
+  )
 )

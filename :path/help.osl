@@ -1,9 +1,43 @@
+// help            list commands and terminal shortcuts
+// help command    show the spec for one command
 if args.len == 0 (
-  void args.append("help")
+  local names = listFiles(parseFilePath("~/:path"))
+    .filter(v -> v.endsWith(".osl"))
+    .map(v -> v.trim(1, -5))
+    .sort()
+  terminal.writeLine([global_accent, "commands", txtc, "  (help <name> for one command)"])
+  local width = 14
+  local perRow = max(1, floor((terminal.cols ?? 80) / width))
+  local row = ""
+  local n = 0
+  for i names.len (
+    row ++= names[i].padEnd(" ", width)
+    n += 1
+    if n == perRow (
+      terminal.writeLine("  " ++ row)
+      row = ""
+      n = 0
+    )
+  )
+  if row != "" (
+    terminal.writeLine("  " ++ row)
+  )
+  terminal.writeLine("")
+  terminal.writeLine([global_accent, "shell", txtc, "  pipes a | b, redirects > and >>, background &, substitution (cmd), aliases, tab completion"])
+  terminal.writeLine([global_accent, "tmux", txtc, "  prefix ctrl+b then:  % split left/right   \" split top/bottom   x kill pane   z zoom   o next pane   arrows move"])
+  terminal.writeLine("      c new window   n/p next/previous window   0-9 select window   & kill window   , rename   { } swap   ctrl/alt+arrows resize   ? all keys")
+  terminal.writeLine([global_accent, "keys", txtc, "  ctrl+c interrupt   ctrl+l clear   ctrl+a/e line start/end   ctrl+u clear line   ctrl+= / ctrl+- font size   up/down history"])
+  terminal.writeLine("      click a pane to focus it, drag a divider to resize it, click a window name in the status bar")
+  terminal.writeLine([global_accent, "shell", txtc, "  this shell is ~/:path/rush.osl; name another script in ~/:path/default_shell.txt to run it instead"])
+  return
 )
 local url = "https://raw.githubusercontent.com/RoturTW/.rsh/refs/heads/main/spec/" ++ args[1] ++ ".md"
-local dat = url.httpGet().split("\n")
-
-for i dat.len (
-  terminal.writeLine(dat[i])
+local dat = "" ++ url.httpGet()
+if dat.startsWith("404") or dat.len == 0 (
+  terminal.writeLine("help: no documentation for '" ++ args[1] ++ "'")
+  return
+)
+local lines = dat.split("\n")
+for i lines.len (
+  terminal.writeLine(lines[i])
 )

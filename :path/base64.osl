@@ -1,0 +1,25 @@
+// base64 [-d] [file|text]
+local decode = false
+local rest = []
+for i args.len (
+  if args[i] == "-d" or args[i] == "--decode" (
+    decode = true
+  ) else (
+    void rest.append("" ++ args[i])
+  )
+)
+local input = terminal.stdin
+if input == null and rest.len > 0 (
+  local p = terminal.resolvePath(rest[1])
+  file "exists" p
+  input = exists ? ("" ++ open(p)) rest.join(" ")
+)
+if input == null (
+  terminal.writeLine("usage: base64 [-d] [file|text]")
+  return
+)
+try (
+  terminal.writeLine(decode ? input.strip().atob() input.btoa())
+) catch e (
+  terminal.writeLine("base64: invalid input")
+)

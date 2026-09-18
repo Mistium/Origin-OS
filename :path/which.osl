@@ -1,0 +1,22 @@
+// which name ...   print the script path a command resolves to
+if args.len == 0 (
+  terminal.writeLine("usage: which name ...")
+  return
+)
+local builtins = []
+for i args.len (
+  local cmd = "" ++ args[i]
+  if aliases.contains(cmd) (
+    terminal.writeLine(cmd ++ ": aliased to " ++ aliases[cmd])
+  ) else if builtins.contains(cmd) (
+    terminal.writeLine(cmd ++ ": shell builtin")
+  ) else (
+    local scriptPath = parseFilePath("~/:path/" ++ cmd ++ ".osl")
+    file "exists" scriptPath
+    if exists (
+      terminal.writeLine(scriptPath)
+    ) else (
+      terminal.writeLine(cmd ++ " not found")
+    )
+  )
+)
