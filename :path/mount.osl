@@ -1,6 +1,19 @@
+if args.len == 1 and args[1] == "folder" (
+  local mounted = drives.mount()
+  if mounted == null (
+    terminal.writeLine("Mounting needs the file admin permission")
+  ) else if mounted.error != null (
+    terminal.writeLine("Could not mount: " ++ mounted.error)
+  ) else (
+    terminal.writeLine("Mounted " ++ mounted.name ++ " as drive " ++ mounted.letter ++ " with " ++ mounted.files ++ " files")
+  )
+  return
+)
 if args.len != 2 (
   terminal.writeLine("Usage: mount ./dir http://url/path")
   terminal.writeLine("This will mount a network ofsf file to your drive")
+  terminal.writeLine("Usage: mount folder")
+  terminal.writeLine("This will mount a folder from your computer as a new drive")
   return
 )
 if args[1].contains(".") (
