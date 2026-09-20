@@ -462,6 +462,57 @@ def "sidebar_item" "txt, section" (
   sy -= 30
 )
 
+def "sidebar_drive" "d" (
+  if hidden.contains("Drives") (
+    return
+  )
+  local path = d.path
+  local active = cur_tab_type != "search" and path.toLower() == inputs.path.toLower()
+  goto 0 sy
+  hit sw 28
+  local over = mouse_touching
+  if onclick (
+    if d.mounted (
+      navigate path
+    ) else (
+      void drives.remount(d.letter)
+    )
+  )
+  if active (
+    box sw 28 12 : c#global_accent
+  ) else if over (
+    cursor "pointer"
+    box sw 28 12 : c#hover_col
+  )
+  if over and mouse_right (
+    local menu = [
+      {"Mount a folder...": def(letter) -> (
+        void drives.mount()
+      )}
+    ]
+    if d.kind == "folder" (
+      void menu.append("-")
+      void menu.append({"Unmount": def(letter) -> (
+        void drives.unmount(letter)
+      )})
+    )
+    rightclick menu d.letter
+  )
+  goto sw / -2 + 20 sy
+  local label = d.label
+  if d.mounted (
+    file "open" path ++ ".folder" "onlyaccess"
+    stretch [100, 100]
+    file "render" 0.85
+  ) else (
+    label = label ++ " - click to allow"
+  )
+  c active ? accent_txt txtc
+  text label.toStr().trimText(sw - 52 / 9) 9 : chx#22
+  sy -= 30
+)
+
+
 // ---------------------------------------------------------------- file view
 
 def "draw_empty" (
@@ -862,9 +913,12 @@ if side_w > 0 (
     each fav favorites (
       sidebar_item fav "Favourites"
     )
+    sidebar_header "Drives"
+    each d drives.list() (
+      sidebar_drive d
+    )
     sidebar_header "Locations"
     sidebar_item "/(a) system" "Locations"
-    sidebar_item "/(b) local" "Locations"
     sidebar_item "/(c) users/" ++ username "Locations"
     if roturlink.enabled and roturlink.drives.len > 0 (
       sidebar_header "External"
