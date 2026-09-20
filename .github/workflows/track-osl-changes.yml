@@ -38,8 +38,11 @@ jobs:
         git config --local user.name "GitHub Action"
 
     - name: Commit changes
+      if: github.event_name == 'push'
       run: |
-        git add :path/osl-tracker.json
+        # ./ prefix: without it git reads the leading colon as pathspec magic
+        # and fails with "pathspec ':path/osl-tracker.json' did not match".
+        git add ./:path/osl-tracker.json
         if git diff --staged --quiet; then
           echo "No changes to commit"
         else
