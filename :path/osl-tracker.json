@@ -1,473 +1,473 @@
 {
-  "lastUpdated": "2026-03-31T18:19:31.208Z",
+  "lastUpdated": "2026-09-21T22:39:36.866Z",
   "totalScripts": 78,
   "scripts": {
     "calc.osl": {
       "name": "calc.osl",
       "firstAdded": "2025-07-20T23:43:22.359Z",
-      "lastModified": "2025-11-04T21:48:08.093Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 1705,
       "hash": "ab7c4e5597ff6a67d872a4e0f560e9a0",
       "status": "active",
-      "lastModifiedUnix": 1762292888093
+      "lastModifiedUnix": 1790030370672
     },
     "cat.osl": {
       "name": "cat.osl",
       "firstAdded": "2025-07-20T23:43:22.360Z",
-      "lastModified": "2026-03-19T23:41:53.239Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 418,
       "hash": "2322c859e1759ce46f45721d5cb874d2",
       "status": "active",
-      "lastModifiedUnix": 1773963713239
+      "lastModifiedUnix": 1790030370672
     },
     "cbcopy.osl": {
       "name": "cbcopy.osl",
       "firstAdded": "2025-07-20T23:43:22.360Z",
-      "lastModified": "2025-07-08T19:19:40.518Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 23,
       "hash": "11c6d08a7df311e1e8f4b143f9729b7a",
       "status": "active",
-      "lastModifiedUnix": 1752002380518
+      "lastModifiedUnix": 1790030370672
     },
     "cd.osl": {
       "name": "cd.osl",
       "firstAdded": "2025-07-20T23:43:22.360Z",
-      "lastModified": "2026-03-20T18:39:45.606Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 538,
       "hash": "01b4a53b0dd17f0f49d818694083ce33",
       "status": "active",
-      "lastModifiedUnix": 1774031985606
+      "lastModifiedUnix": 1790030370672
     },
     "chr.osl": {
       "name": "chr.osl",
       "firstAdded": "2025-07-20T23:43:22.361Z",
-      "lastModified": "2025-07-08T19:19:40.519Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 33,
       "hash": "fd0edda129f45efac42058258bbea867",
       "status": "active",
-      "lastModifiedUnix": 1752002380519
+      "lastModifiedUnix": 1790030370672
     },
     "disk.osl": {
       "name": "disk.osl",
       "firstAdded": "2025-07-20T23:43:22.362Z",
-      "lastModified": "2025-10-06T16:37:35.061Z",
-      "changeCount": 7,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 8,
       "size": 407,
       "hash": "2e29c963867f0c424aa2edf50494d922",
       "status": "active",
-      "lastModifiedUnix": 1759768655061
+      "lastModifiedUnix": 1790030370672
     },
     "echo.osl": {
       "name": "echo.osl",
       "firstAdded": "2025-07-20T23:43:22.364Z",
-      "lastModified": "2026-03-19T23:28:36.498Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 176,
       "hash": "2164e16b00febc302dbd83a43c31eed1",
       "status": "active",
-      "lastModifiedUnix": 1773962916498
+      "lastModifiedUnix": 1790030370672
     },
     "exit.osl": {
       "name": "exit.osl",
       "firstAdded": "2025-07-20T23:43:22.364Z",
-      "lastModified": "2025-07-08T19:19:40.521Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 14,
       "hash": "5585caa5e515433059ab2202ac75f756",
       "status": "active",
-      "lastModifiedUnix": 1752002380521
+      "lastModifiedUnix": 1790030370672
     },
     "get_key.osl": {
       "name": "get_key.osl",
       "firstAdded": "2025-07-20T23:43:22.364Z",
-      "lastModified": "2025-07-08T19:19:40.521Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 64,
       "hash": "f3b5db881b8c99e0b199641509c0ff43",
       "status": "active",
-      "lastModifiedUnix": 1752002380521
+      "lastModifiedUnix": 1790030370672
     },
     "grep.osl": {
       "name": "grep.osl",
       "firstAdded": "2025-07-20T23:43:22.365Z",
-      "lastModified": "2026-03-19T23:28:43.392Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 768,
       "hash": "7359640a56236bb023deacbbfc588e82",
       "status": "active",
-      "lastModifiedUnix": 1773962923392
+      "lastModifiedUnix": 1790030370672
     },
     "head.osl": {
       "name": "head.osl",
       "firstAdded": "2025-07-20T23:43:22.365Z",
-      "lastModified": "2026-03-20T02:03:31.630Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 785,
       "hash": "ea35639086bef3fc706ae452a98a958f",
       "status": "active",
-      "lastModifiedUnix": 1773972211630
+      "lastModifiedUnix": 1790030370672
     },
     "help.osl": {
       "name": "help.osl",
       "firstAdded": "2025-07-20T23:43:22.365Z",
-      "lastModified": "2025-11-30T14:56:53.036Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 236,
       "hash": "1b6d615d22224279c2326156f17f8469",
       "status": "active",
-      "lastModifiedUnix": 1764514613036
+      "lastModifiedUnix": 1790030370672
     },
     "htop.osl": {
       "name": "htop.osl",
       "firstAdded": "2025-07-20T23:43:22.366Z",
-      "lastModified": "2025-10-06T16:43:40.548Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 489,
       "hash": "d6b1492f888954a0d155d24edb5c5cbd",
       "status": "active",
-      "lastModifiedUnix": 1759769020548
+      "lastModifiedUnix": 1790030370672
     },
     "info.osl": {
       "name": "info.osl",
       "firstAdded": "2025-07-20T23:43:22.367Z",
-      "lastModified": "2025-11-30T14:57:03.561Z",
-      "changeCount": 12,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 13,
       "size": 1294,
       "hash": "9ed5b7138692f39215beb1ab9b10f125",
       "status": "active",
-      "lastModifiedUnix": 1764514623561
+      "lastModifiedUnix": 1790030370672
     },
     "length.osl": {
       "name": "length.osl",
       "firstAdded": "2025-07-20T23:43:22.367Z",
-      "lastModified": "2025-07-08T19:19:40.524Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 31,
       "hash": "770aa4fe0c81b29815782df1eb84eb5f",
       "status": "active",
-      "lastModifiedUnix": 1752002380524
+      "lastModifiedUnix": 1790030370672
     },
     "ls.osl": {
       "name": "ls.osl",
       "firstAdded": "2025-07-20T23:43:22.368Z",
-      "lastModified": "2026-03-20T18:30:04.165Z",
-      "changeCount": 13,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 14,
       "size": 1102,
       "hash": "2fa91461f0903023a8ea65240dba461a",
       "status": "active",
-      "lastModifiedUnix": 1774031404165
+      "lastModifiedUnix": 1790030370672
     },
     "me.osl": {
       "name": "me.osl",
       "firstAdded": "2025-07-20T23:43:22.368Z",
-      "lastModified": "2025-07-08T19:19:40.525Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 49,
       "hash": "80c9c47a388f08e68e1694a8215a0a35",
       "status": "active",
-      "lastModifiedUnix": 1752002380525
+      "lastModifiedUnix": 1790030370672
     },
     "mv.osl": {
       "name": "mv.osl",
       "firstAdded": "2025-07-20T23:43:22.368Z",
-      "lastModified": "2026-03-19T23:42:09.050Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 668,
       "hash": "c9f6128636de591e756c85a50849d051",
       "status": "active",
-      "lastModifiedUnix": 1773963729050
+      "lastModifiedUnix": 1790030370672
     },
     "online.osl": {
       "name": "online.osl",
       "firstAdded": "2025-07-20T23:43:22.369Z",
-      "lastModified": "2025-07-08T19:19:40.525Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 261,
       "hash": "7c8eeffae5bfa06c08d9dc026b423640",
       "status": "active",
-      "lastModifiedUnix": 1752002380525
+      "lastModifiedUnix": 1790030370672
     },
     "opal.osl": {
       "name": "opal.osl",
       "firstAdded": "2025-07-20T23:43:22.370Z",
-      "lastModified": "2025-09-15T19:48:30.635Z",
-      "changeCount": 15,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 16,
       "size": 12210,
       "hash": "78d9abce08b718cc6c0145a3d07c809a",
       "status": "active",
-      "lastModifiedUnix": 1757965710635
+      "lastModifiedUnix": 1790030370673
     },
     "ord.osl": {
       "name": "ord.osl",
       "firstAdded": "2025-07-20T23:43:22.370Z",
-      "lastModified": "2025-07-08T19:19:40.526Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 34,
       "hash": "85dcb455a547aeabb1e04b1178e4e98e",
       "status": "active",
-      "lastModifiedUnix": 1752002380526
+      "lastModifiedUnix": 1790030370673
     },
     "ps.osl": {
       "name": "ps.osl",
       "firstAdded": "2025-07-20T23:43:22.370Z",
-      "lastModified": "2025-07-08T19:19:40.527Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 297,
       "hash": "13308285638b6e1402db1f3c6890dfc4",
       "status": "active",
-      "lastModifiedUnix": 1752002380527
+      "lastModifiedUnix": 1790030370673
     },
     "pwd.osl": {
       "name": "pwd.osl",
       "firstAdded": "2025-07-20T23:43:22.371Z",
-      "lastModified": "2025-07-08T19:19:40.527Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 32,
       "hash": "fa8496a647c1c71d8b034b411ed67ed0",
       "status": "active",
-      "lastModifiedUnix": 1752002380527
+      "lastModifiedUnix": 1790030370673
     },
     "random.osl": {
       "name": "random.osl",
       "firstAdded": "2025-07-20T23:43:22.371Z",
-      "lastModified": "2025-07-08T19:19:40.528Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 44,
       "hash": "f1b31ec2acc9dfe89308ebb4bb68807c",
       "status": "active",
-      "lastModifiedUnix": 1752002380528
+      "lastModifiedUnix": 1790030370673
     },
     "rm.osl": {
       "name": "rm.osl",
       "firstAdded": "2025-07-20T23:43:22.371Z",
-      "lastModified": "2026-03-19T23:42:01.140Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 275,
       "hash": "8e74b1a47b3b85ed4a9d62e33c634b1c",
       "status": "active",
-      "lastModifiedUnix": 1773963721140
+      "lastModifiedUnix": 1790030370673
     },
     "set_key.osl": {
       "name": "set_key.osl",
       "firstAdded": "2025-07-20T23:43:22.371Z",
-      "lastModified": "2025-07-08T19:19:40.529Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 194,
       "hash": "5ed0d223bfd90d10b30257dcd04039dd",
       "status": "active",
-      "lastModifiedUnix": 1752002380529
+      "lastModifiedUnix": 1790030370673
     },
     "tail.osl": {
       "name": "tail.osl",
       "firstAdded": "2025-07-20T23:43:22.372Z",
-      "lastModified": "2026-03-20T02:03:36.966Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 7,
       "size": 858,
       "hash": "68094b63ea0162167de41b75174e3738",
       "status": "active",
-      "lastModifiedUnix": 1773972216966
+      "lastModifiedUnix": 1790030370673
     },
     "touch.osl": {
       "name": "touch.osl",
       "firstAdded": "2025-07-20T23:43:22.372Z",
-      "lastModified": "2025-08-26T15:28:27.850Z",
-      "changeCount": 7,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 8,
       "size": 237,
       "hash": "72420a9f47402eaa4a84e08ff8efb0f3",
       "status": "active",
-      "lastModifiedUnix": 1756222107850
+      "lastModifiedUnix": 1790030370674
     },
     "uptime.osl": {
       "name": "uptime.osl",
       "firstAdded": "2025-07-20T23:43:22.372Z",
-      "lastModified": "2025-08-03T00:34:53.359Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 6,
       "size": 118,
       "hash": "83030f2c6c135e2bd9f8267588f3932f",
       "status": "active",
-      "lastModifiedUnix": 1754181293359
+      "lastModifiedUnix": 1790030370674
     },
     "wc.osl": {
       "name": "wc.osl",
       "firstAdded": "2025-07-20T23:43:22.372Z",
-      "lastModified": "2026-03-20T01:54:26.383Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 7,
       "size": 1061,
       "hash": "a229196efcc3f98eca83839554ed0ef9",
       "status": "active",
-      "lastModifiedUnix": 1773971666383
+      "lastModifiedUnix": 1790030370674
     },
     "zip.osl": {
       "name": "zip.osl",
       "firstAdded": "2025-07-20T23:43:22.373Z",
-      "lastModified": "2026-03-19T23:44:57.839Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 7,
       "size": 1252,
       "hash": "9daf5b0c1e939a958faf7a2e87e157e2",
       "status": "active",
-      "lastModifiedUnix": 1773963897839
+      "lastModifiedUnix": 1790030370674
     },
     "logname.osl": {
       "name": "logname.osl",
       "firstAdded": "2025-08-03T01:10:32.535Z",
-      "lastModified": "2025-08-26T15:28:27.845Z",
-      "changeCount": 3,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 4,
       "size": 33,
       "hash": "38df8b744b9b1c053df2e2a7895f3b01",
       "status": "active",
-      "lastModifiedUnix": 1756222107845
+      "lastModifiedUnix": 1790030370672
     },
     "uname.osl": {
       "name": "uname.osl",
       "firstAdded": "2025-08-03T01:10:32.541Z",
-      "lastModified": "2025-08-26T15:28:27.851Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 6,
       "size": 885,
       "hash": "1fb0f63a5cd8f9a01a118f37c4106977",
       "status": "active",
-      "lastModifiedUnix": 1756222107851
+      "lastModifiedUnix": 1790030370674
     },
     "who.osl": {
       "name": "who.osl",
       "firstAdded": "2025-08-03T01:10:32.543Z",
-      "lastModified": "2025-08-26T15:28:27.852Z",
-      "changeCount": 3,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 4,
       "size": 93,
       "hash": "590e0e40909372b44ca71c3498f3b640",
       "status": "active",
-      "lastModifiedUnix": 1756222107852
+      "lastModifiedUnix": 1790030370674
     },
     "source.osl": {
       "name": "source.osl",
       "firstAdded": "2025-08-05T23:38:50.247Z",
-      "lastModified": "2025-08-26T15:28:27.849Z",
-      "changeCount": 3,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 4,
       "size": 81,
       "hash": "17edc607844d68a537392b8cfdf5042e",
       "status": "active",
-      "lastModifiedUnix": 1756222107849
+      "lastModifiedUnix": 1790030370673
     },
     "osl.osl": {
       "name": "osl.osl",
       "firstAdded": "2025-08-07T21:25:13.115Z",
-      "lastModified": "2026-03-19T23:45:52.183Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 7,
       "size": 647,
       "hash": "fe27ea0abe3656cfbd712cbb21df72a7",
       "status": "active",
-      "lastModifiedUnix": 1773963952183
+      "lastModifiedUnix": 1790030370673
     },
     "date.osl": {
       "name": "date.osl",
       "firstAdded": "2025-08-08T02:32:25.815Z",
-      "lastModified": "2025-10-06T16:36:27.422Z",
-      "changeCount": 6,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 7,
       "size": 506,
       "hash": "46573d061f6ef6247fbf3fffcc44a913",
       "status": "active",
-      "lastModifiedUnix": 1759768587422
+      "lastModifiedUnix": 1790030370672
     },
     "mkdir.osl": {
       "name": "mkdir.osl",
       "firstAdded": "2025-08-15T20:03:28.325Z",
-      "lastModified": "2025-08-26T15:28:27.845Z",
-      "changeCount": 4,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 5,
       "size": 492,
       "hash": "5bc0cc514d5b69069bd07c2e4e5f504e",
       "status": "active",
-      "lastModifiedUnix": 1756222107845
+      "lastModifiedUnix": 1790030370672
     },
     "studio.osl": {
       "name": "studio.osl",
       "firstAdded": "2025-08-18T21:22:42.076Z",
-      "lastModified": "2026-01-20T21:01:33.844Z",
-      "changeCount": 4,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 5,
       "size": 506,
       "hash": "10048e92006dba23252a3c4d88ba915f",
       "status": "active",
-      "lastModifiedUnix": 1768942893844
+      "lastModifiedUnix": 1790030370673
     },
     "kill.osl": {
       "name": "kill.osl",
       "firstAdded": "2025-08-25T21:16:02.711Z",
-      "lastModified": "2026-03-20T00:16:07.229Z",
-      "changeCount": 7,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 8,
       "size": 865,
       "hash": "7e5cf201139af88ba79546bd5c2a0c56",
       "status": "active",
-      "lastModifiedUnix": 1773965767229
+      "lastModifiedUnix": 1790030370672
     },
     "vi.osl": {
       "name": "vi.osl",
       "firstAdded": "2025-08-27T02:19:09.291Z",
-      "lastModified": "2026-03-19T23:42:30.465Z",
-      "changeCount": 9,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 10,
       "size": 8576,
       "hash": "0d9448be68c17b6dd7009db95fc1e57f",
       "status": "active",
-      "lastModifiedUnix": 1773963750465
+      "lastModifiedUnix": 1790030370674
     },
     "durl.osl": {
       "name": "durl.osl",
       "firstAdded": "2025-09-30T00:25:05.949Z",
-      "lastModified": "2025-11-30T14:56:59.125Z",
-      "changeCount": 4,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 5,
       "size": 354,
       "hash": "540441de64226af81437f55a04ee230d",
       "status": "active",
-      "lastModifiedUnix": 1764514619125
+      "lastModifiedUnix": 1790030370672
     },
     "mount.osl": {
       "name": "mount.osl",
       "firstAdded": "2025-09-30T00:25:05.954Z",
-      "lastModified": "2025-10-07T22:33:37.499Z",
-      "changeCount": 5,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 836,
       "hash": "4f51f032b016d06cdd0670461d6ca549",
       "status": "active",
-      "lastModifiedUnix": 1759876417499
+      "lastModifiedUnix": 1790030370672
     },
     "umount.osl": {
       "name": "umount.osl",
       "firstAdded": "2025-09-30T00:25:05.958Z",
-      "lastModified": "2025-09-30T00:00:10.939Z",
-      "changeCount": 3,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 4,
       "size": 994,
       "hash": "0a440e09a54c552cb6d21ae4ffedfc9b",
       "status": "active",
-      "lastModifiedUnix": 1759190410939
+      "lastModifiedUnix": 1790030370674
     },
     "rush.osl": {
       "name": "rush.osl",
       "firstAdded": "2025-09-30T06:46:34.786Z",
-      "lastModified": "2025-09-30T02:40:05.341Z",
-      "changeCount": 3,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 4,
       "size": 0,
       "hash": "d41d8cd98f00b204e9800998ecf8427e",
       "status": "active",
-      "lastModifiedUnix": 1759200005341
+      "lastModifiedUnix": 1790030370673
     },
     "sre.osl": {
       "name": "sre.osl",
       "firstAdded": "2025-09-30T06:46:34.787Z",
-      "lastModified": "2025-09-30T06:46:29.045Z",
-      "changeCount": 3,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 4,
       "size": 7641,
       "hash": "2d459a23cbd2dd8bf99db5fc73732f68",
       "status": "active",
-      "lastModifiedUnix": 1759214789045
+      "lastModifiedUnix": 1790030370673
     },
     "brightnessctl.osl": {
       "name": "brightnessctl.osl",
       "firstAdded": "2025-10-03T02:24:21.025Z",
-      "lastModifiedUnix": 1759458195576,
-      "lastModified": "2025-10-03T02:23:15.576Z",
-      "changeCount": 2,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 3,
       "size": 607,
       "hash": "8f57f4ff83df6b5f07ac5cf4c10ac6f1",
       "status": "active"
@@ -475,9 +475,9 @@
     "reboot.osl": {
       "name": "reboot.osl",
       "firstAdded": "2025-10-03T03:10:02.700Z",
-      "lastModifiedUnix": 1765127592485,
-      "lastModified": "2025-12-07T17:13:12.485Z",
-      "changeCount": 4,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 5,
       "size": 867,
       "hash": "5b2c8e2c5f1e829a63301eaa8830eb9a",
       "status": "active"
@@ -485,9 +485,9 @@
     "logout.osl": {
       "name": "logout.osl",
       "firstAdded": "2025-10-03T03:12:37.190Z",
-      "lastModifiedUnix": 1759461151850,
-      "lastModified": "2025-10-03T03:12:31.850Z",
-      "changeCount": 2,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 3,
       "size": 57,
       "hash": "0723b46d02710a1644afb5721b7b8c8f",
       "status": "active"
@@ -495,9 +495,9 @@
     "pkill.osl": {
       "name": "pkill.osl",
       "firstAdded": "2025-10-03T17:18:41.506Z",
-      "lastModifiedUnix": 1759512002695,
-      "lastModified": "2025-10-03T17:20:02.695Z",
-      "changeCount": 3,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 4,
       "size": 404,
       "hash": "75f757beffca346e42c4ee44b44dbb94",
       "status": "active"
@@ -505,9 +505,9 @@
     "originDE.osl": {
       "name": "originDE.osl",
       "firstAdded": "2025-10-03T19:12:17.140Z",
-      "lastModifiedUnix": 1759526866364,
-      "lastModified": "2025-10-03T21:27:46.364Z",
-      "changeCount": 3,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 4,
       "size": 95,
       "hash": "94e10b0f5b7680a98f6740dc5ac65fdc",
       "status": "active"
@@ -515,9 +515,9 @@
     "originWM.osl": {
       "name": "originWM.osl",
       "firstAdded": "2025-10-03T19:12:17.141Z",
-      "lastModifiedUnix": 1759514269037,
-      "lastModified": "2025-10-03T17:57:49.037Z",
-      "changeCount": 2,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 3,
       "size": 95,
       "hash": "2da1f252a14d242d98fbe6418a63cee5",
       "status": "active"
@@ -525,9 +525,9 @@
     "onboot.osl": {
       "name": "onboot.osl",
       "firstAdded": "2025-10-03T21:09:32.253Z",
-      "lastModifiedUnix": 1759769264700,
-      "lastModified": "2025-10-06T16:47:44.700Z",
-      "changeCount": 5,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 6,
       "size": 1943,
       "hash": "145e6315d49deba5d89c52baa24a00fd",
       "status": "active"
@@ -535,9 +535,9 @@
     "origin.osl": {
       "name": "origin.osl",
       "firstAdded": "2025-10-03T21:32:32.787Z",
-      "lastModifiedUnix": 1759527780011,
-      "lastModified": "2025-10-03T21:43:00.011Z",
-      "changeCount": 5,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 6,
       "size": 378,
       "hash": "803078881e87098d310e0ffd81ca96fb",
       "status": "active"
@@ -545,9 +545,9 @@
     "wallpaperctl.osl": {
       "name": "wallpaperctl.osl",
       "firstAdded": "2025-10-03T21:38:27.713Z",
-      "lastModifiedUnix": 1766149480808,
-      "lastModified": "2025-12-19T13:04:40.808Z",
-      "changeCount": 5,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 6,
       "size": 842,
       "hash": "8a25cddfc9eb7afe829d442870bc16f2",
       "status": "active"
@@ -555,9 +555,9 @@
     "tty.osl": {
       "name": "tty.osl",
       "firstAdded": "2025-10-03T21:59:04.047Z",
-      "lastModifiedUnix": 1759528108759,
-      "lastModified": "2025-10-03T21:48:28.759Z",
-      "changeCount": 2,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 3,
       "size": 179,
       "hash": "a6ae127c3dd6a986fe9e47fbcd98d6f7",
       "status": "active"
@@ -565,19 +565,19 @@
     "dns.osl": {
       "name": "dns.osl",
       "firstAdded": "2025-10-06T16:34:34.017Z",
-      "lastModifiedUnix": 1759768925709,
-      "lastModified": "2025-10-06T16:42:05.709Z",
-      "changeCount": 3,
-      "size": 2537,
-      "hash": "ce0471956e9ef1aa8132ffafa46ba536",
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 4,
+      "size": 5009,
+      "hash": "e0058b6d605b915350416753432b8349",
       "status": "active"
     },
     "alias.osl": {
       "name": "alias.osl",
       "firstAdded": "2025-10-24T01:40:45.608Z",
-      "lastModifiedUnix": 1761270227335,
-      "lastModified": "2025-10-24T01:43:47.335Z",
-      "changeCount": 3,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 4,
       "size": 689,
       "hash": "9b18ec45cf779d7f2de82c0085643b16",
       "status": "active"
@@ -585,9 +585,9 @@
     "unalias.osl": {
       "name": "unalias.osl",
       "firstAdded": "2025-10-24T01:40:45.627Z",
-      "lastModifiedUnix": 1761270252112,
-      "lastModified": "2025-10-24T01:44:12.112Z",
-      "changeCount": 3,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 4,
       "size": 439,
       "hash": "831409d33837015784d0d8592d65f175",
       "status": "active"
@@ -595,9 +595,9 @@
     "tally.osl": {
       "name": "tally.osl",
       "firstAdded": "2026-01-11T20:36:20.870Z",
-      "lastModifiedUnix": 1768163623574,
-      "lastModified": "2026-01-11T20:33:43.574Z",
-      "changeCount": 2,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 3,
       "size": 4227,
       "hash": "f2a9ff2f1e9a0784ac374a536dc12032",
       "status": "active"
@@ -605,9 +605,9 @@
     "bg.osl": {
       "name": "bg.osl",
       "firstAdded": "2026-03-20T00:10:08.574Z",
-      "lastModifiedUnix": 1773965273933,
-      "lastModified": "2026-03-20T00:07:53.933Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 499,
       "hash": "1ca38295bec60d3b8ba2aebd61a168c0",
       "status": "active"
@@ -615,9 +615,9 @@
     "fg.osl": {
       "name": "fg.osl",
       "firstAdded": "2026-03-20T00:10:08.584Z",
-      "lastModifiedUnix": 1773965269247,
-      "lastModified": "2026-03-20T00:07:49.247Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 727,
       "hash": "5ae2d22346f87c4de7482945f8c1d0f6",
       "status": "active"
@@ -625,9 +625,9 @@
     "jobs.osl": {
       "name": "jobs.osl",
       "firstAdded": "2026-03-20T00:10:08.587Z",
-      "lastModifiedUnix": 1773968036699,
-      "lastModified": "2026-03-20T00:53:56.699Z",
-      "changeCount": 1,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 2,
       "size": 317,
       "hash": "c14ca898833f02cf91a21f46400761ed",
       "status": "active"
@@ -635,9 +635,9 @@
     "sleep.osl": {
       "name": "sleep.osl",
       "firstAdded": "2026-03-20T01:51:34.736Z",
-      "lastModifiedUnix": 1773968094807,
-      "lastModified": "2026-03-20T00:54:54.807Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 1,
       "size": 116,
       "hash": "d14c2dca74b09ee5921a5569120cea6a",
       "status": "active"
@@ -645,9 +645,9 @@
     "cp.osl": {
       "name": "cp.osl",
       "firstAdded": "2026-03-20T03:43:37.785Z",
-      "lastModifiedUnix": 1773972049827,
-      "lastModified": "2026-03-20T02:00:49.827Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 832,
       "hash": "c5f82a3491b9042e662a94c2cefed935",
       "status": "active"
@@ -655,9 +655,9 @@
     "cut.osl": {
       "name": "cut.osl",
       "firstAdded": "2026-03-20T03:43:37.785Z",
-      "lastModifiedUnix": 1773972093391,
-      "lastModified": "2026-03-20T02:01:33.391Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 1827,
       "hash": "84dd3007a052cdfefda5dce074c8100a",
       "status": "active"
@@ -665,9 +665,9 @@
     "false.osl": {
       "name": "false.osl",
       "firstAdded": "2026-03-20T03:43:37.789Z",
-      "lastModifiedUnix": 1773972149853,
-      "lastModified": "2026-03-20T02:02:29.853Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 26,
       "hash": "f7cbed3fbf4c189ff06d508dfa15f798",
       "status": "active"
@@ -675,9 +675,9 @@
     "file.osl": {
       "name": "file.osl",
       "firstAdded": "2026-03-20T03:43:37.791Z",
-      "lastModifiedUnix": 1773973381944,
-      "lastModified": "2026-03-20T02:23:01.944Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 1261,
       "hash": "e1312adcddd6dd4b76cd0e85744c3c39",
       "status": "active"
@@ -685,9 +685,9 @@
     "find.osl": {
       "name": "find.osl",
       "firstAdded": "2026-03-20T03:43:37.791Z",
-      "lastModifiedUnix": 1773978109325,
-      "lastModified": "2026-03-20T03:41:49.325Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 2136,
       "hash": "923f674de62f323d10633798865d2514",
       "status": "active"
@@ -695,9 +695,9 @@
     "history.osl": {
       "name": "history.osl",
       "firstAdded": "2026-03-20T03:43:37.794Z",
-      "lastModifiedUnix": 1773971772103,
-      "lastModified": "2026-03-20T01:56:12.103Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 561,
       "hash": "95e31327db6f6a038f94c276fdd7a51e",
       "status": "active"
@@ -705,9 +705,9 @@
     "sort.osl": {
       "name": "sort.osl",
       "firstAdded": "2026-03-20T03:43:37.807Z",
-      "lastModifiedUnix": 1773972058091,
-      "lastModified": "2026-03-20T02:00:58.091Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370673,
+      "lastModified": "2026-09-21T22:39:30.673Z",
+      "changeCount": 1,
       "size": 930,
       "hash": "feba8ae4cfd7b3d440a3b7a97f8e272e",
       "status": "active"
@@ -715,9 +715,9 @@
     "tee.osl": {
       "name": "tee.osl",
       "firstAdded": "2026-03-20T03:43:37.810Z",
-      "lastModifiedUnix": 1773972107731,
-      "lastModified": "2026-03-20T02:01:47.731Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 1,
       "size": 894,
       "hash": "d11749eb7553ca9502cadfe2f3649cd8",
       "status": "active"
@@ -725,9 +725,9 @@
     "tr.osl": {
       "name": "tr.osl",
       "firstAdded": "2026-03-20T03:43:37.811Z",
-      "lastModifiedUnix": 1773972285654,
-      "lastModified": "2026-03-20T02:04:45.654Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 1,
       "size": 701,
       "hash": "04ae3ee698366c5d3d3f620b55403495",
       "status": "active"
@@ -735,9 +735,9 @@
     "true.osl": {
       "name": "true.osl",
       "firstAdded": "2026-03-20T03:43:37.812Z",
-      "lastModifiedUnix": 1773972160413,
-      "lastModified": "2026-03-20T02:02:40.413Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 1,
       "size": 25,
       "hash": "2fdc5a9ce0166550999bb5c54c2ac934",
       "status": "active"
@@ -745,9 +745,9 @@
     "type.osl": {
       "name": "type.osl",
       "firstAdded": "2026-03-20T03:43:37.813Z",
-      "lastModifiedUnix": 1773972121482,
-      "lastModified": "2026-03-20T02:02:01.482Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 1,
       "size": 649,
       "hash": "54c0d13d88918f0741d27f60138d3a85",
       "status": "active"
@@ -755,9 +755,9 @@
     "uniq.osl": {
       "name": "uniq.osl",
       "firstAdded": "2026-03-20T03:43:37.814Z",
-      "lastModifiedUnix": 1773971846944,
-      "lastModified": "2026-03-20T01:57:26.944Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 1,
       "size": 1095,
       "hash": "4e137458b07ac17ab44ea2c4fd0e0775",
       "status": "active"
@@ -765,9 +765,9 @@
     "yes.osl": {
       "name": "yes.osl",
       "firstAdded": "2026-03-20T03:43:37.818Z",
-      "lastModifiedUnix": 1773971839592,
-      "lastModified": "2026-03-20T01:57:19.592Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370674,
+      "lastModified": "2026-09-21T22:39:30.674Z",
+      "changeCount": 1,
       "size": 118,
       "hash": "472735ca6e7b2b4ff8b73ee673b153c8",
       "status": "active"
@@ -775,9 +775,9 @@
     "jseval.osl": {
       "name": "jseval.osl",
       "firstAdded": "2026-03-31T18:19:31.184Z",
-      "lastModifiedUnix": 1774906424496,
-      "lastModified": "2026-03-30T21:33:44.496Z",
-      "changeCount": 0,
+      "lastModifiedUnix": 1790030370672,
+      "lastModified": "2026-09-21T22:39:30.672Z",
+      "changeCount": 1,
       "size": 126,
       "hash": "07601233af324c024dedb1e3881bb51f",
       "status": "active"
@@ -788,9 +788,9 @@
   "statistics": {
     "mostChangedScript": {
       "name": "opal.osl",
-      "changeCount": 15
+      "changeCount": 16
     },
-    "totalChanges": 306,
-    "averageChangesPerScript": 3.92
+    "totalChanges": 384,
+    "averageChangesPerScript": 4.92
   }
 }
