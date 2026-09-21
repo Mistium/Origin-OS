@@ -35,7 +35,8 @@ state = {
 }
 
 desktop @= () -> (
-  redraw_all = (cur_frame % 120) == 0 or round(y) != round(dock_y_target)
+  local dom = "window.origin.domRender".eval() == true
+  redraw_all = dom or (cur_frame % 120) == 0 or round(y) != round(dock_y_target)
   if redraw_all (
     window.callRender()
   )
@@ -49,7 +50,7 @@ desktop @= () -> (
     cur.width = w
     change_x w / 2
     square w height 20 0 1
-    run[bg] = cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w or redraw_all
+    run[bg] = dom or cur.conditions() == true or mouse_touching or bg_redrawn or dock_changed_w or redraw_all
     if run[bg] (
       square w height 20
     )

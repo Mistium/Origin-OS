@@ -14,10 +14,8 @@ def "draw" "x, y, x2, y2, character" (
   if onclick or character.onKeyDown() and character != "=" (
     if "1234567890.".contains(character) (
       if operation == "" (
-        c = current
         current ++= character
       ) else (
-        s = secondary
         secondary ++= character
       )
     ) else (
@@ -97,9 +95,9 @@ draw 2 2 170 -410 "="
 draw 2 2 240 -410 "÷"
 
 loc 2 2 25 -72.5
-output = operation == "" ? current secondary
+output = secondary != "" ? secondary current
 
-if output == null (
+if output == "" (
   output = 0
 )
 text output 15
@@ -107,11 +105,15 @@ text output 15
 loc -2 2 -27.5 -72.5
 square 40 40 10 : c#cca hover_c#ch
 icon "left-arrow" 0.7 : c#ct
-if clicked or "backspace".isKeyDown() and can (
+if clicked or "backspace".onKeyDown() and can (
   can = false
-  temp = current.len - 1
-  temp2 = secondary.len - 1
-  current = current.toStr().left(operation == "" ? temp temp2)
+  if operation == "" (
+    current = current.toStr().left(current.len - 1)
+  ) else if secondary != "" (
+    secondary = secondary.left(secondary.len - 1)
+  ) else (
+    operation = ""
+  )
 )
 
 loc -2 2 -22.5 -22.5
