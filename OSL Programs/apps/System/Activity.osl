@@ -351,7 +351,7 @@ def "page_processes" (
       if onclick (
         selected_pid = row.id
       )
-      if row.win != null and mouse_right (
+      if over and row.win != null and mouse_right (
         selected_pid = row.id
         rightclick [
           "> " ++ row.uuid,
