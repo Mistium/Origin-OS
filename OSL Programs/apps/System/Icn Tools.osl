@@ -149,14 +149,14 @@ icon "circle-full" 0.7
 text "Weight" 9 : chx#15
 loc 999 2 0 -20
 square window_width 40 10 : c#222
-loc 2 2 10 -22
+loc 2 2 10 -20
 text "Icon Tools" 10 : c#fff
 change_x 80
 button "load clipboard" 120 23 10 : c#333 hover_c#444
 if clicked (
   loadicn clipboard
 )
-loc 2 2 320 -22
+loc 2 2 320 -20
 button "open file" 100 23 10 : c#333 hover_c#444
 if clicked and can (
   can = false

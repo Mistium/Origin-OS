@@ -1,219 +1,630 @@
-import "window_tools" as "wt"
-import as "glass" from "packages"
+// Developer: @Mistium
+// Description: One field that searches apps, files, settings and rotur, and does maths.
+// Spotlight-like: bare search text on a glass panel, a hairline divider, compact one-line rows
+// and a solid accent bar for the selection.
+// Every result is a row object {kind, title, sub, arg, img}. `rows` is rebuilt when the query,
+// the filter or a network reply changes, never per frame.
+
+import "window_tools"
 
 permission "request" "terminal"
 permission "request" "file admin"
 
-w = 10
-w_target = 600
+number win_w = 680
+number pad = 10
+number bar_h = 56
+number row_h = 34
+number head_h = 24
+number max_list = 400
+number t_body = 9.5
+number t_small = 8
 
-window.goto(0,screensize_y / 2 + 300)
-window "dimensions" w 200
 window "responsive" true
+window.resize(win_w, 56)
+window.style = {
+  bg: "transparent",
+  opacity: 0
+}
+window.show()
 
-y = 300
-y_target = -100
-
-ai_response = ""
-ai_response_get = null
-last_change = timer
-changed = true
-inputprev = ""
-prompt = "Hello!"
-
-h = 75
-user_obj = user.JsonStringify()
-
-clicking = false
-last_clicking = false
+string query = ""
+string last_input = ""
+string fetched_query = ""
+string filter = "all"
+array filters = ["all", "apps", "files", "settings", "people", "posts", "groups", "store"]
+array rows = []
+number sel = 1
+boolean sel_moved = false
+boolean dirty = false
+number typed_at = 0
+number h = 56
+number started = timestamp
+// 0 is melted into the wallpaper, 1 is fully there
+number anim = 0
+number close_at = 0
+number close_from = 1
+object remote = {}
+array store_apps = []
+boolean hit_hover = false
+boolean hit_click = false
 
 files_paths @= "window.origin.files.index.value".eval()
-search = []
 
-def searchFiles(term) (
-  array paths @= files_paths.search(term)
-    .map(v -> v.item)
+// [words, title, settings deep link]
+array settings_index = [
+  ["account profile username password", "Account", "Account"],
+  ["appearance theme colour color accent dark light border blur", "Appearance", "Appearance"],
+  ["custom colours colors", "Custom Colours", "Appearance/Custom Colours"],
+  ["font text", "Fonts", "Appearance/Fonts"],
+  ["wallpaper background", "Wallpaper", "Wallpaper"],
+  ["dock taskbar", "Dock", "Dock"],
+  ["display brightness contrast fps frame rate", "Display", "Display"],
+  ["sound volume microphone camera", "Sound", "Sound"],
+  ["mouse scroll cursor", "Mouse", "Mouse"],
+  ["keyboard keybinds shortcuts", "Keyboard", "Keyboard"],
+  ["game controllers gamepad", "Game Controllers", "Game Controllers"],
+  ["network proxy cors", "Network", "Network"],
+  ["time clock date", "Date & Time", "General/Date & Time"],
+  ["boot startup login items", "Login Items", "General/Login Items"],
+  ["default apps", "Default Apps", "General/Default Apps"],
+  ["storage files space", "Storage", "General/Storage"],
+  ["about version", "About", "General/About"],
+  ["privacy security logins blocked", "Privacy & Security", "Privacy & Security"],
+  ["permissions", "App Permissions", "Privacy & Security/App Permissions"],
+  ["subscription upgrade", "Subscription", "Subscription"]
+]
 
+// installed apps, the same two folders the dock hub lists
+array apps = []
+def loadApps() (
+  local found = open("~/Applications") ++ open("/(A) System/User Applications")
+  for i found.len (
+    local info @= open(found[i], ["name"])
+    local name = ("" ++ info[1]).replace("_", " ")
+    void apps.append({
+      name: name,
+      search: name.toLower(),
+      uuid: found[i]
+    })
+  )
+  apps @= apps.sortBy("name")
+)
+loadApps()
+
+def ellipsis(string value, number cap) string (
+  if value.len > cap (
+    return value.trim(1, max(1, cap - 3)).strip() ++ "..."
+  )
+  return value
+)
+
+def capFor(number px, number size) number (
+  return max(4, floor(px / (size * 0.97)))
+)
+
+// a filled rounded box of an exact size. fill and line are css values
+def box(number cx, number cy, number w, number bh, number r, string fill, string line) (
+  goto cx cy
+  style {
+    bg: fill,
+    border: line,
+    rounding: r
+  }
+  square w - (r * 2) bh - (r * 2) r * 2 : c#window_colour
+)
+
+// invisible hit area. sets hit_hover and hit_click for whatever is drawn on top of it
+def hit(number cx, number cy, number w, number bh) (
+  goto cx cy
+  square w bh 0 0 1
+  hit_hover = mouse_touching
+  hit_click = onclick
+)
+
+def dim(string value, number size) (
+  style {
+    opacity: 0.64
+  }
+  text value size : c#txtc
+)
+
+def searchFiles(string term) array (
+  array paths @= files_paths.search(term).map(v -> v.item).trim(1, 30)
+  local out = []
   for i paths.len (
     file "exists" paths[i]
-    if !exists (
-      paths.delete(i)
+    if exists (
+      void out.append(paths[i])
+    )
+  )
+  return out
+)
+
+// only digits and operators reach the js eval, so nothing else can run
+def calculate(string source) string (
+  return ("(s => { if (!/^[0-9+*/().%^ -]+$/.test(s) || !/[0-9]/.test(s) || !/[+*/%^-]/.test(s)) return ''; try { const v = Function('return (' + s.replace(/\\^/g, '**') + ')')(); return typeof v === 'number' && isFinite(v) ? String(parseFloat(v.toPrecision(12))) : '' } catch (e) { return '' } })(decodeURIComponent(`" ++ encodeURIComponent(source) ++ "`))").eval()
+)
+
+def request(string kind, string url) (
+  remote[kind] = {
+    url: url,
+    started: timer,
+    done: false,
+    data: null
+  }
+)
+
+def replyList(string kind) array (
+  local req @= remote[kind]
+  if req == null (
+    return []
+  )
+  if typeof(req.data) != "array" (
+    return []
+  )
+  return req.data
+)
+
+// an @name query is only about people and what they posted
+def wants(string kind) boolean (
+  if query.startsWith("@") and kind != "people" and kind != "posts" (
+    return false
+  )
+  return filter == "all" or filter == kind
+)
+
+def addRow(string kind, string title, string sub, arg, string img) (
+  void rows.append({
+    kind: kind,
+    title: title,
+    sub: sub,
+    arg: arg,
+    img: img
+  })
+)
+
+def addHead(string label) (
+  addRow("head", label, "", "", "")
+)
+
+def build() (
+  local keep = ""
+  if rows[sel] != null (
+    keep = rows[sel].kind ++ rows[sel].arg
+  )
+  rows = []
+  local q = query.toLower()
+  if q == "" (
+    sel = 1
+    return
+  )
+  local cap = filter == "all" ? 4 12
+  local name_q = q.startsWith("@") ? q.trim(2, -1) q
+
+  local sum = calculate(query)
+  if sum != "" and filter == "all" (
+    addHead("Calculator")
+    addRow("calc", sum, "Copy the result", sum, "")
+  )
+
+  if wants("apps") (
+    local list @= apps.filter(v -> v.search.contains(q)).trim(1, cap)
+    if list.len > 0 (
+      addHead("Apps")
+    )
+    for i list.len (
+      addRow("app", list[i].name, "Application", list[i].uuid, "")
     )
   )
 
-  return paths
+  if wants("settings") (
+    local shown = 0
+    for i settings_index.len (
+      local entry @= settings_index[i]
+      local words = entry[1] ++ " " ++ entry[2].toLower()
+      if shown < cap and words.contains(q) (
+        if shown == 0 (
+          addHead("Settings")
+        )
+        shown += 1
+        addRow("setting", entry[2], "Settings - " ++ entry[3].replace("/", " - "), entry[3], "")
+      )
+    )
+  )
+
+  if wants("files") (
+    local list @= searchFiles(q).trim(1, cap)
+    if list.len > 0 (
+      addHead("Files")
+    )
+    for i list.len (
+      local parts = list[i].split("/")
+      addRow("file", parts[-1], parts.trim(1, -2).join("/"), list[i], "")
+    )
+  )
+
+  if wants("people") (
+    local list @= (user["sys.friends"] ?? []).filter(v -> v.toLower().contains(name_q)).trim(1, cap)
+    local profile @= remote.people == null ? null remote.people.data
+    local found = ""
+    if typeof(profile) == "object" (
+      found = "" ++ (profile.username ?? "")
+    )
+    if list.map(v -> v.toLower()).contains(found.toLower()) (
+      found = ""
+    )
+    if list.len > 0 or found != "" (
+      addHead("People")
+    )
+    if found != "" (
+      local detail = profile.followers ++ " followers - " ++ (profile.system ?? "rotur")
+      addRow("person", found, detail, found, "https://avatars.rotur.dev/" ++ found ++ "?radius=128")
+    )
+    for i list.len (
+      addRow("person", list[i], "Friend", list[i], "https://avatars.rotur.dev/" ++ list[i] ++ "?radius=128")
+    )
+  )
+
+  if wants("posts") (
+    local list @= replyList("posts").trim(1, cap)
+    if list.len > 0 (
+      addHead("Posts")
+    )
+    for i list.len (
+      local post @= list[i]
+      local body = ("" ++ post.content).replace("\n", " ").replace("\\n", " ")
+      local detail = post.user ++ " - " ++ (post.views ?? 0) ++ " views"
+      addRow("post", body, detail, post.id, "https://avatars.rotur.dev/" ++ post.user ++ "?radius=128")
+    )
+  )
+
+  if wants("groups") (
+    local list @= replyList("groups").trim(1, cap)
+    if list.len > 0 (
+      addHead("Groups")
+    )
+    for i list.len (
+      local group @= list[i]
+      addRow("group", group.name, group.member_count ++ " members - " ++ group.tag, group.tag, "" ++ (group.icon_url ?? ""))
+    )
+  )
+
+  if wants("store") (
+    local list @= store_apps.filter(v -> v.search.contains(q)).trim(1, cap)
+    if list.len > 0 (
+      addHead("App Store")
+    )
+    for i list.len (
+      addRow("store", list[i].title, list[i].detail, list[i].id, list[i].icon)
+    )
+  )
+
+  // keep the same result selected when a network reply adds rows around it
+  sel = 0
+  for i rows.len (
+    if sel == 0 and rows[i].kind != "head" and (keep == "" or keep == (rows[i].kind ++ rows[i].arg)) (
+      sel = i
+    )
+  )
+  if sel == 0 (
+    sel = 2
+  )
+  sel_moved = true
 )
 
-frames = 0
+def moveSel(number step) (
+  local at = sel + step
+  if rows[at] != null and rows[at].kind == "head" (
+    at += step
+  )
+  if rows[at] != null (
+    sel = at
+    sel_moved = true
+  )
+)
 
-window.resize(w,h)
+def activate(object row) (
+  if row.kind == "calc" (
+    clipboard "set" row.arg
+    say "Copied " ++ row.arg
+    return
+  )
+  if row.kind == "app" or row.kind == "file" (
+    file "open" row.arg "onlyaccess"
+    file "start"
+  )
+  if row.kind == "setting" (
+    window.create("settings", {
+      passed_data: row.arg
+    })
+  )
+  if row.kind == "person" (
+    window.create("Contacts", {
+      passed_data: row.arg
+    })
+  )
+  if row.kind == "store" (
+    window.create("App Store", {
+      passed_data: row.arg
+    })
+  )
+  if row.kind == "post" (
+    http "newtab" "https://rotur.dev/post/" ++ row.arg
+  )
+  if row.kind == "group" (
+    http "newtab" "https://rotur.dev/groups/" ++ row.arg
+  )
+  close_at = timestamp
+  close_from = anim
+)
 
+request("store", "https://apps.rotur.dev/apps/all")
+// the melt starts on the first drawn frame, not while setup is still loading apps
 started = timestamp
 
-friends = []
-
 mainloop:
+load_theme
 
 if inputs.selected.id != "main" (
   input "focus" "main"
 )
 
-frames ++
-wt:load_theme
-
-window.callRender()
-
-w += w_target - w / 10
-y += y_target - y / 6
-
-if y > 400 (
-  window.close()
-)
-if y_target > y (
-  search.delete(search.len)
-  ai_response.delete(ai_response.len)
+if close_at == 0 and ("escape".onKeyDown() or ((mouse_ondown and !clicked or (window.id != focused_application_id)) and timestamp - started > 1000)) (
+  close_at = timestamp
+  close_from = anim
 )
 
-w2 = w - 35
-
-goto 0 0
-square window.width window.height 0 0 1
-
-if (mouse_ondown and !clicked or (window.id != focused_application_id)) and timestamp - started > 1000 (
-  y_target = 500
-  w_target = 10
-)
-
-c global_accent
-square w2 window.height - 35 30
-c prim
-square w2 window.height - 35 25
-frame window.left window.top window.right window.bottom (
-  effect "transparency" 50
-  goto frame.x * -1 frame.y * -1
-  
-  image "wallpaper_blur" background_width background_height
-  effect "clear"
-)
-
-set_y window.top - 37.5
-square w - 35 40 25 : c#window_colour
-change_x 20
-input w - 90 25 "main" "Ask rotur anything, and search your files" 0 txtc
-change_x w / -2 + 15
-
-direction ai_url != "none" ? timer * 150 90
-icon "w 1 ellipse 0 0 7 0.45 100 ellipse 0 0 7 0.45 160 ellipse 0 0 7 0.45 220" 2 : c#txtc
-direction 90
-if prompt.len > 0 and ("enter".onKeyDown() or ai_response_get != null) (
-  ai_url = "https://apps.mistium.com/autocomplete?content=" ++ encodeURIComponent(prompt)
-  ai_response_get = ai_url.getAsync()
-  if ai_response_get != "Loading" (
-    ai_response = ai_response_get.wrapText(w2 / 9).split("\n")
-    ai_lines = ai_response.len
-    changed = false
-    ai_time = timer
-    prompt = ""
-    ai_response_get = null
+// melt in from the wallpaper: tint, glass blur and opacity rise while the content sharpens,
+// and the panel settles up into place with a little overshoot. closing runs it backwards, faster
+number anim_was = anim
+if close_at > 0 (
+  anim = max(0, close_from * (1 - ((timestamp - close_at) / 170)))
+  if anim <= 0 (
+    window.close()
   )
 ) else (
-  ai_url = "none"
+  anim = min(1, (timestamp - started) / 560)
+)
+number back = anim - 1
+number ease = 1 + (back * back * back)
+number settle = 1 + (2.4 * back * back * back) + (1.4 * back * back)
+if anim != anim_was or anim < 1 (
+  window.style = {
+    bg: window_colour.trim(1, 7) ++ round(184 * ease).toBase(10, 16).padStart("0", 2),
+    bgBlur: round(30 * ease) ++ "px",
+    blur: (round((1 - ease) * 140) / 10) ++ "px",
+    opacity: ease,
+    rounding: 18,
+    border: "1px solid #ffffff24",
+    outline: "none",
+    shadow: "0 22px 60px rgba(0, 0, 0, " ++ (0.45 * ease) ++ ")"
+  }
 )
 
-if inputs.main != inputprev (
-  last_change = timer
-  changed = true
-  inputprev = inputs.main
-  if inputs.main == "" (
-    search = []
-    ai_response = []
-    prompt = ""
-  ) else (
-    prompt @= inputs.main ++ "\nTime:" + timestamp.timestamp("convert-full") + timezone
-    friends @= user["sys.friends"].filter(v -> v.contains(inputs.main)).trim(1,5)
-    search @= searchFiles(inputs.main).trim(1,10)
+// query changes. local results are instant, rotur waits for a pause in typing
+local typed = ("" ++ (inputs.main ?? "")).strip()
+if typed != last_input (
+  last_input = typed
+  query = typed
+  typed_at = timer
+  dirty = true
+)
+if query.len > 1 and query != fetched_query and timer - typed_at > 0.35 (
+  fetched_query = query
+  local encoded = encodeURIComponent(query)
+  local name = query.startsWith("@") ? query.trim(2, -1) query
+  request("posts", "https://api.rotur.dev/v2/posts/search?limit=12&q=" ++ encoded)
+  request("groups", "https://api.rotur.dev/v2/groups/search?query=" ++ encoded)
+  if !name.contains(" ") (
+    request("people", "https://api.rotur.dev/profile?include_posts=0&name=" ++ encodeURIComponent(name))
   )
 )
 
-goto 0 window.top - h - 15
-
-if ai_response.len > 0 (
-  ai_current = ai_response.trim(1, timer - ai_time * 50)
-  goto window.left + 15 window.top - 95
-  text ai_current.join("\n") 9 : c#txtc
-  h += ai_current.len * 21 + 35
-  change_y -15
-)
-
-if friends.len > 0 and inputs.main != "" (
-  h2 = friends.len * 35
-  set_x window.left + 15
-  text "Friends" 9 : c#txtc
-  h += 15
-
-  goto 0 window.top - h - (friends.len * 17.5) - 15
-  
-  change w2 / -2 + 15 h2 / 2 - 15
-  x = x_position
-  for i friends.len (
-    set_x 0
-    square w2 25 15 0 1
-    if mouse_touching (
-      if onclick (
-        window.create("/(a) system/user applications/contacts.osl", {
-          passed_data: friends[i]
-        })
+// getAsync hands a reply over once, and an empty reply never arrives, so give up after a while
+boolean waiting = false
+local kinds = remote.getKeys()
+for i kinds.len (
+  local req @= remote[kinds[i]]
+  if !req.done (
+    local got @= req.url.getAsync()
+    if got != "Loading" (
+      req.data @= got
+      req.done = true
+      dirty = true
+      if kinds[i] == "store" and typeof(got) == "object" (
+        local all @= (got.apps ?? {}).getValues()
+        for n all.len (
+          local app @= all[n]
+          if (app.supports ?? []).contains("originOS") (
+            void store_apps.append({
+              id: app.title.toLower(),
+              title: "" ++ app.title,
+              detail: app.author ++ " - " ++ (app.genre ?? "App"),
+              icon: ("" ++ (app.icon ?? "")).replace("\n", " "),
+              search: (app.title ++ " " ++ (app.description ?? "") ++ " " ++ (app.genre ?? "")).toLower()
+            })
+          )
+        )
       )
-      square w2 25 15 : c#global_accent
-      square w2 25 10 : c#window_colour
+    ) else if timer - req.started > 8 (
+      req.done = true
+    ) else if kinds[i] != "store" (
+      waiting = true
     )
-    set_x x
-    image "https://avatars.rotur.dev/" ++ friends[i] ++ "?radius=40px" 30 30
-    text friends[i] 9 : c#txtc chx#20
-    change_y -35
   )
-  
-  h += h2 + 35
-  change_y -15
 )
 
-if search.len > 0 (
-  h2 = search.len * 35
-  set_x window.left + 15
-  text "Files" 9 : c#txtc
-  h += 15
+if dirty (
+  dirty = false
+  build()
+)
 
-  goto 0 window.top - h - (search.len * 17.5) - 15
-  
-  change w2 / -2 + 10 h2 / 2 - 15
-  x = x_position
-  for i search.len (
-    set_x 0
-    file "open" search[i] "onlyaccess"
-    square w2 25 0 0 1
-    if mouse_touching (
-      square w2 25 15 : c#global_accent
-      square w2 25 10 : c#window_colour
-      rightclick "file" fileGet(14)
-      if onclick (
-        file "start"
-        window "stop"
+if "arrowdown".onKeyDown() (
+  moveSel(1)
+)
+if "arrowup".onKeyDown() (
+  moveSel(-1)
+)
+if "tab".onKeyDown() (
+  local at = filters.index(filter) % filters.len + 1
+  filter = filters[at]
+  dirty = true
+)
+if "enter".onKeyDown() and rows[sel] != null (
+  activate(rows[sel])
+)
+
+number left = window.left + pad
+number right = window.right - pad
+number top = window.top
+number inner = window.width - (pad * 2)
+number mid = (window.left + window.right) / 2
+
+// search bar. just an icon and large text on the panel
+goto left + 16 top - (bar_h / 2)
+if waiting (
+  direction timer * 150
+  icon "w 1 ellipse 0 0 7 0.45 100 ellipse 0 0 7 0.45 160 ellipse 0 0 7 0.45 220" 1.9 : c#txtc
+  direction 90
+) else (
+  style {
+    opacity: 0.7
+  }
+  icon "search" 0.8 : c#txtc
+)
+goto mid + 18 top - (bar_h / 2)
+style {
+  bg: "transparent",
+  border: "none",
+  outline: "none"
+}
+input inner - 56 34 "main" "Search originOS and rotur" null txtc
+
+number cursor = top - bar_h
+if query != "" (
+  box(mid, cursor, window.width, 1, 0, "#ffffff1f", "none")
+  // filters are quiet text tabs, tab cycles them
+  cursor -= 18
+  local chip_x = left + 4
+  for i filters.len (
+    local label = filters[i].left(1).toUpper() ++ filters[i].trim(2, -1)
+    local chip_w = (label.len * t_small) + 16
+    local cx = chip_x + (chip_w / 2)
+    hit(cx, cursor, chip_w, 22)
+    if hit_click (
+      filter = filters[i]
+      dirty = true
+    )
+    if filter == filters[i] (
+      box(cx, cursor, chip_w, 22, 7, "#ffffff26", "none")
+    ) else if hit_hover (
+      box(cx, cursor, chip_w, 22, 7, "#ffffff12", "none")
+    )
+    goto cx cursor
+    style {
+      opacity: (filter == filters[i] ? 1 0.6)
+    }
+    centext label t_small : c#txtc
+    chip_x += chip_w + 2
+  )
+  cursor -= 16
+)
+
+number content_h = 4
+for i rows.len (
+  content_h += rows[i].kind == "head" ? head_h row_h
+)
+number view_h = min(content_h, max_list)
+
+if rows.len == 0 and query != "" (
+  goto mid cursor - 16
+  style {
+    opacity: 0.6
+  }
+  centext (waiting ? "Searching rotur..." "Nothing found") t_body : c#txtc
+  cursor -= 32
+)
+
+if rows.len > 0 (
+  frame left cursor right + 4 cursor - view_h content_h "results" (
+    local row_w = inner - 8
+    local fx = frame.left + (row_w / 2) + 4
+    local off = 0
+    for i rows.len (
+      object row @= rows[i]
+      if row.kind == "head" (
+        goto frame.left + 14 frame.top + frame.scroll - off - 14
+        dim(row.title, 7.5)
+        off += head_h
+      ) else (
+        local y = frame.top + frame.scroll - off - (row_h / 2)
+        if sel_moved and sel == i (
+          // keyboard selection stays inside the view
+          sel_moved = false
+          if off - head_h < frame.scroll (
+            frame "scroll" off - head_h "results"
+          )
+          if off + row_h + 4 > (frame.scroll + view_h) (
+            frame "scroll" off + row_h + 4 - view_h "results"
+          )
+        )
+        hit(fx, y, row_w, row_h - 2)
+        if hit_click (
+          sel = i
+          activate(row)
+        )
+        local ink = txtc
+        if sel == i (
+          box(fx, y, row_w, row_h - 2, 8, global_accent, "none")
+          ink = window_colour
+        ) else if hit_hover (
+          box(fx, y, row_w, row_h - 2, 8, "#ffffff14", "none")
+        )
+
+        goto frame.left + 24 y
+        if row.kind == "app" or row.kind == "file" (
+          file "open" row.arg "onlyaccess"
+          file "render" 0.85
+        ) else if row.kind == "store" (
+          icon row.img 0.7 : c#ink
+        ) else if row.img != "" (
+          style {
+            rounding: (row.kind == "group" ? "6px" "50%")
+          }
+          image row.img 22 22
+        ) else if row.kind == "setting" (
+          icon "settings" 0.55 : c#ink
+        ) else if row.kind == "calc" (
+          centext "=" 13 : c#ink
+        )
+
+        // one line: the title, then its detail dimmed in whatever room is left
+        local room = capFor(row_w - 70, t_body)
+        local title = ellipsis(row.title, min(room, 46))
+        goto frame.left + 46 y
+        text title t_body : c#ink
+        local sub_cap = capFor(row_w - 80 - (title.len * t_body), t_small)
+        if row.sub != "" and sub_cap > 8 (
+          goto frame.left + 58 + (title.len * t_body) y - 1
+          style {
+            opacity: 0.6
+          }
+          text ellipsis(row.sub, sub_cap) t_small : c#ink
+        )
+        off += row_h
       )
     )
-    set_x x
-    file "render" 1
-    string type = fileGet(1)
-    if type == ".folder" (
-      type = ""
-    )
-    text fileGet(2) ++ type 9 : c#txtc chx#20
-    change_y -35
   )
-  
-  h += h2 + 35
-  
+  cursor -= view_h + 2
 )
-window.height = h
-window.width = w
-window.y = screensize_y / 2 + y - (h / 2)
-h = 75
+
+// the window grows downwards from a fixed top edge
+number target_h = top - cursor + (query == "" ? 0 6)
+h += (target_h - h) / 3
+if abs(target_h - h) < 1 (
+  h = target_h
+)
+window.width = round(win_w * (0.9 + (0.1 * settle)))
+window.height = round(h)
+window.x = 0
+window.y = (screensize_y * 0.3) - (round(h) / 2) - ((1 - ease) * 18)

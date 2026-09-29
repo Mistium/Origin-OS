@@ -1,0 +1,299 @@
+// Developer: @Mistium
+// Description: Publish and update your apps on apps.rotur.dev from inside originOS
+//
+// Signs in with a rotur validator for the store's key, then uses the same developer API
+// as the apps.rotur.dev dashboard. The session travels in the X-Session header because a
+// browser will not send the dashboard's cookie from another origin.
+// Open a .osl file with this app, or type its path, to choose what gets uploaded.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
+import "window_tools"
+
+permission "request" "rotur token"
+permission "request" "file admin"
+
+API = "https://apps.rotur.dev/api"
+SIDE = 260
+ROW_H = 46
+
+window.resize(860, 560)
+window.show()
+
+session = ""
+status_line = "Signing in"
+busy = false
+my_apps = []
+chosen = null
+side_len = 0
+button_click = false
+inputs.path = ""
+inputs.version = ""
+inputs.newname = ""
+if typeof(passed_data) == "string" and passed_data != "" (
+  inputs.path = passed_data
+)
+
+def headers() object (
+  return {"X-Session": session, "Content-Type": "text/plain"}
+)
+
+def refresh_apps() (
+  void requests.getAsync(API ++ "/apps", {headers: headers()})
+    .then(resp -> (
+      local list @= resp.body.apps ?? resp.body
+      if typeof(list) == "object" and typeof(list) != "array" (
+        list = list.getValues()
+      )
+      if typeof(list) == "array" (
+        my_apps = list.sortBy("title")
+        status_line = ""
+      ) else (
+        status_line = "Could not load your apps"
+      )
+    ))
+)
+
+def sign_in() (
+  if typeof(roturSDK) != "object" (
+    status_line = "This originOS build has no roturSDK package"
+    return null
+  )
+  local made @= roturSDK.validator("rotur-app-store")
+  if made.ok != true (
+    status_line = "Could not get a rotur validator"
+    return null
+  )
+  void requests.getAsync(API ++ "/auth?v=" ++ encodeURIComponent(made.value.validator))
+    .then(resp -> (
+      if resp.body.session == null (
+        status_line = "The store did not return a session. Its server needs the X-Session update"
+        return
+      )
+      session = resp.body.session
+      refresh_apps()
+    ))
+)
+
+// the script text of a file in originFS, "" when it is missing
+def read_script(string path) string (
+  file "exists" parseFilePath(path)
+  if !exists (
+    return ""
+  )
+  file "open" parseFilePath(path) "onlyaccess"
+  local data = fileGet(4).toStr()
+  file "close"
+  return data
+)
+
+def publish() (
+  local source = read_script(inputs.path.toStr().strip())
+  if source.len < 20 (
+    say "Nothing to upload. Check the file path"
+    return null
+  )
+  local version = inputs.version.toStr().strip()
+  busy = true
+  publish_title = chosen.title
+  publish_version = version
+  void requests.postAsync(API ++ "/apps/file/" ++ encodeURIComponent(publish_title) ++ "?file=script.osl", {headers: headers(), body: source})
+    .then(resp -> (
+      if resp.body.ok != true (
+        busy = false
+        say "Upload failed: " ++ (resp.body.error ?? resp.status).toStr()
+        return
+      )
+      void requests.postAsync(API ++ "/apps/update/" ++ encodeURIComponent(publish_title), {headers: {"X-Session": session}, body: {version: publish_version}})
+        .then(done -> (
+          busy = false
+          say "Published " ++ publish_title ++ " " ++ publish_version
+          refresh_apps()
+        ))
+    ))
+)
+
+def create_app(string name) (
+  busy = true
+  void requests.postAsync(API ++ "/apps/create?appname=" ++ encodeURIComponent(name), {headers: headers(), body: ""})
+    .then(resp -> (
+      busy = false
+      if resp.body.ok != true (
+        say "Could not create it: " ++ (resp.body.error ?? resp.status).toStr()
+        return
+      )
+      inputs.newname = ""
+      refresh_apps()
+    ))
+)
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 32
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 32 14 : c#fill
+  centext label 9 : c#ink
+)
+
+def "field" "id, hint, x, y, w" (
+  goto x y
+  box w 34 12 : c#hover_col
+  c hover_col
+  input w - 20 26 id hint 9 txtc
+)
+
+sign_in()
+
+mainloop:
+load_theme
+
+local cl = window.left + SIDE
+window.setGlass(100, "15px")
+goto SIDE / 2 0
+square window.width - SIDE - 10 window.height + 10 10 : c#window_colour
+goto cl + 12 0
+square 20 window.height 4
+c window_colour
+pen "opacity" 55
+icon "w 99999 dot 0 0" 10
+pen "opacity" 0
+frame "clear"
+
+// ---- sidebar: your apps
+local sx = window.left + (SIDE / 2)
+// titles share the window buttons' centre line, 21 below the top
+goto sx - (SIDE / 2) + 20 window.top - 21
+text "Your Apps" 11 : c#txtc
+goto sx - (SIDE / 2) + 20 window.top - 41
+local sub = my_apps.len ++ " on apps.rotur.dev"
+if status_line != "" (
+  sub = status_line
+)
+text sub.trimText(SIDE - 36 / 7.5) 7.5 : c#muted
+
+frame window.left window.top - 55 cl window.bottom + 8 side_len "apps" (
+  local sw = frame.width - 12
+  local y = frame.top - 6 + frame.scroll
+  for i my_apps.len (
+    local app @= my_apps[i]
+    y -= ROW_H / 2
+    if y < frame.top + ROW_H and y > frame.bottom - ROW_H (
+      goto 0 y
+      hit sw ROW_H - 4
+      local ink = txtc
+      local dim = muted
+      if chosen != null and chosen.title == app.title (
+        box sw ROW_H - 4 14 : c#global_accent
+        ink = accent_txt
+        dim = accent_txt
+      ) else if mouse_touching (
+        cursor "pointer"
+        box sw ROW_H - 4 14 : c#hover_col
+      )
+      if onclick (
+        chosen @= app
+        inputs.version = (app.version ?? "1.0").toStr()
+      )
+      goto sw / -2 + 14 y + 8
+      text app.title.toStr().trimText(sw - 28 / 9) 9 : c#ink
+      goto sw / -2 + 14 y - 10
+      local line = "Version " ++ (app.version ?? "?") ++ "   " ++ (app.downloads ?? 0) ++ " downloads"
+      if app.hidden == true (
+        line = line ++ "   hidden"
+      )
+      text line.trimText(sw - 28 / 7) 7 : c#dim
+    )
+    y -= ROW_H / 2
+  )
+  side_len = my_apps.len * ROW_H + 16
+)
+
+// ---- pane
+local px = cl + window.right / 2
+local pw = min(window.right - cl - 60, 520)
+window "set_dragbox" [[2, 2, SIDE + 20, 0], [-2, 2, -92, -42]]
+
+if chosen == null (
+  goto cl + 30 window.top - 21
+  text "Publish" 12 : c#txtc
+  goto px window.top - 101
+  card pw 96
+  goto px - (pw / 2) + 20 window.top - 77
+  text "Pick one of your apps to upload a new version," 9 : c#txtc
+  goto px - (pw / 2) + 20 window.top - 97
+  text "or create a new one below. New apps start hidden" 9 : c#txtc
+  goto px - (pw / 2) + 20 window.top - 117
+  text "and need approval before they appear in the store." 9 : c#muted
+
+  goto px - (pw / 2) + 6 window.top - 177
+  text "NEW APP" 7.5 : c#muted
+  field "newname" "App name" px window.top - 205 pw
+  local wanted = inputs.newname.toStr().strip()
+  goto px window.top - 253
+  if wanted != "" and session != "" and !busy (
+    text_button "Create for 9 credits" pw global_accent accent_txt
+    if button_click (
+      // the store charges the rotur account, so ask first
+      if ("Creating " ++ wanted ++ " costs 9 credits. Continue?").confirm() (
+        create_app(wanted)
+      )
+    )
+  ) else (
+    box pw 32 14 : c#prim
+    centext "Create for 9 credits" 9 : c#muted
+  )
+) else (
+  goto cl + 30 window.top - 21
+  text chosen.title.toStr().trimText(30) 12 : c#txtc
+
+  goto px - (pw / 2) + 6 window.top - 67
+  text "SCRIPT FILE" 7.5 : c#muted
+  field "path" "~/Documents/my app.osl" px window.top - 95 pw
+  goto px - (pw / 2) + 6 window.top - 137
+  text "VERSION" 7.5 : c#muted
+  field "version" "1.0" px window.top - 165 pw
+
+  local path = inputs.path.toStr().strip()
+  local version = inputs.version.toStr().strip()
+  local problem = ""
+  if session == "" (
+    problem = "Not signed in to the store"
+  ) else if path == "" (
+    problem = "Choose the .osl file to upload"
+  ) else if version == "" (
+    problem = "Give the new version a number"
+  ) else if version == (chosen.version ?? "").toStr() (
+    problem = "Bump the version so installed copies see the update"
+  )
+  goto px window.top - 217
+  card pw 44
+  goto px - (pw / 2) + 18 window.top - 217
+  if problem == "" (
+    text "Live version " ++ (chosen.version ?? "?") ++ " will become " ++ version 9 : c#txtc
+  ) else (
+    text problem.trimText(pw - 36 / 9) 9 : c#muted
+  )
+  goto px window.top - 273
+  if busy (
+    box pw 32 14 : c#prim
+    centext "Publishing..." 9 : c#muted
+  ) else if problem == "" (
+    local publish_label = "Publish " ++ version
+    text_button publish_label pw global_accent accent_txt
+    if button_click (
+      publish()
+    )
+  ) else (
+    box pw 32 14 : c#prim
+    centext "Publish" 9 : c#muted
+  )
+  goto px window.top - 317
+  text_button "Back" pw prim txtc
+  if button_click (
+    chosen = null
+  )
+)
+
+import "win-buttons"

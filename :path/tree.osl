@@ -1,0 +1,62 @@
+// tree [-a] [-d] [-L depth] [dir]
+local showAll = false
+local dirsOnly = false
+local maxDepth = 99
+local target = null
+local i = 1
+while i <= args.len (
+  local a = "" ++ args[i]
+  if a == "-a" (
+    showAll = true
+  ) else if a == "-d" (
+    dirsOnly = true
+  ) else if a == "-L" (
+    maxDepth = args[i + 1].toNum() ?? 99
+    i += 1
+  ) else (
+    target = a
+  )
+  i += 1
+)
+local root = target == null ? terminal.pwd terminal.resolvePath(target)
+if root != "origin" (
+  file "exists" (root ++ ".folder")
+  if !exists (
+    terminal.writeLine("tree: '" ++ (target ?? root) ++ "': No such directory")
+    return
+  )
+)
+terminal.writeLine([global_accent, target ?? "."])
+local nd = 0
+local nf = 0
+local stack = []
+local kids = listFiles(root).sort()
+for k kids.len (
+  local idx = (kids.len - k) + 1
+  void stack.append([root ++ "/" ++ kids[idx], kids[idx], "", idx == kids.len, 1])
+)
+while stack.len > 0 (
+  local cur = stack.pop()
+  local name = "" ++ cur[2]
+  local hidden = name.startsWith(".") or name.startsWith(":")
+  local isDir = name.endsWith(".folder")
+  if (showAll or !hidden) and (isDir or !dirsOnly) (
+    local shown = isDir ? name.trim(1, -8) name
+    terminal.writeLine(["#888", cur[3] ++ (cur[4] ? "`-- " "|-- "), isDir ? global_accent txtc, shown])
+    if isDir (
+      nd += 1
+      if cur[5] < maxDepth (
+        local sub = listFiles(cur[1].trim(1, -8)).sort()
+        local prefix = cur[3] ++ (cur[4] ? "    " "|   ")
+        for k sub.len (
+          local idx = (sub.len - k) + 1
+          void stack.append([cur[1].trim(1, -8) ++ "/" ++ sub[idx], sub[idx], prefix, idx == sub.len, cur[5] + 1])
+        )
+      )
+    ) else (
+      nf += 1
+    )
+  )
+)
+terminal.writeLine("")
+terminal.writeLine(nd ++ " directories, " ++ nf ++ " files")

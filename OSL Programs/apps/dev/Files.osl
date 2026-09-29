@@ -574,7 +574,7 @@ def "draw_file" (
       if use_file_obj (
         if file[1] == ".folder" (
           navigate file[3] ++ "/" ++ file[2]
-        ) else if origin.version >= 600 (
+        ) else if origin.build >= 600 (
           local pr @= promise.new(def() -> (
             // the local roturLink endpoint for reading the fs
             local id = ouidNew()
@@ -687,7 +687,7 @@ favorites.map(val -> (val.replace(".folder","")))
 // 'grid' with its width changed
 object display_types = {
   "grid": {
-    icon: "w 3.5 square 7.5 7.5 5 5 square -7.5 7.5 5 5 square -7.5 -7.5 5 5 square 7.5 -7.5 5 5",
+    icon: "grid",
     icon_size: .75,
     tooltip: "Show files in a grid"
   },

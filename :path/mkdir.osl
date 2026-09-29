@@ -1,21 +1,57 @@
-local folders @= listFiles(terminal.pwd)
-  .filter(v -> v.endsWith(".folder"))
-
-if args[1].contains(".") or args[1].contains("/") or args[1].len == 0 (
-  terminal.writeLine("Invalid directory name")
+// mkdir [-p] dir ...
+local parents = false
+local targets = []
+for i args.len (
+  local a = "" ++ args[i]
+  if a == "-p" (
+    parents = true
+  ) else if a.startsWith("-") and a.len > 1 (
+    terminal.writeLine("mkdir: invalid option '" ++ a ++ "'")
+    return
+  ) else (
+    void targets.append(a)
+  )
+)
+if targets.len == 0 (
+  terminal.writeLine("usage: mkdir [-p] directory ...")
   return
 )
-
-args[1] = args[1].strip()
-args[1] ++= ".folder"
-if folders.contains(args[1]) (
-  terminal.writeLine("Directory already exists")
-  return
-)
-
-try (
-  file "goto_dir" terminal.pwd
-  file "set_file" args[1] []
-) catch e (
-  terminal.writeLine("Error creating directory: " ++ e.error)
+for i targets.len (
+  local t = targets[i]
+  local p = terminal.resolvePath(t)
+  if p == "origin" or t.contains(".") (
+    terminal.writeLine("mkdir: cannot create directory '" ++ t ++ "': invalid name")
+  ) else (
+    file "exists" (p ++ ".folder")
+    if exists (
+      if !parents (
+        terminal.writeLine("mkdir: cannot create directory '" ++ t ++ "': File exists")
+      )
+    ) else if parents (
+      local segs = p.split("/")
+      local cur = ""
+      for j segs.len (
+        if segs[j] != "" (
+          cur ++= "/" ++ segs[j]
+          file "exists" (cur ++ ".folder")
+          if !exists (
+            file "set_file" (cur ++ ".folder") []
+          )
+        )
+      )
+    ) else (
+      local slash = p.lastIndex("/")
+      local parent = slash > 1 ? p.trim(1, slash - 1) ""
+      local ok = true
+      if parent != "" (
+        file "exists" (parent ++ ".folder")
+        ok = exists
+      )
+      if ok (
+        file "set_file" (p ++ ".folder") []
+      ) else (
+        terminal.writeLine("mkdir: cannot create directory '" ++ t ++ "': No such file or directory")
+      )
+    )
+  )
 )

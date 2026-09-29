@@ -1,0 +1,2 @@
+// less file   the scrollback scrolls, so this is cat
+void evalCmd("cat " ++ args.join(" "))

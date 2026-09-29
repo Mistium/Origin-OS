@@ -1,38 +1,40 @@
-if args.len < 2 (
-  say "Usage: alias <name> <command>"
-  return
-)
-
-local name = args[1]
-local cmd = args[2]
-
-if name.len == 0 (
-  terminal.writeLine("Name cannot be empty")
-  return
-)
-
-if cmd.len == 0 (
-  terminal.writeLine("Command cannot be empty")
-  return
-)
-
+// alias                 list aliases
+// alias name command    define an alias (also: alias name=command)
 file "exists" "~/:path/aliases.json"
 if !exists (
   file "goto_dir" "~/:path"
   file "set_file" "aliases.json" "{}"
 )
-local aliases @= open("~/:path/aliases.json")
-if typeof(aliases) != "object" (
-  aliases = {}
+local all @= open("~/:path/aliases.json")
+if typeof(all) != "object" (
+  all = {}
 )
 
-if aliases.getKeys().contains(name) (
-  terminal.writeLine("Alias already exists")
+if args.len == 0 (
+  local keys = all.getKeys().sort()
+  if keys.len == 0 (
+    terminal.writeLine("no aliases defined (alias name command)")
+  )
+  for i keys.len (
+    terminal.writeLine("alias " ++ keys[i] ++ "='" ++ all[keys[i]] ++ "'")
+  )
   return
 )
 
+local name = "" ++ args[1]
+local cmd = args.len > 1 ? args.trim(2, -1).join(" ") ""
+if args.len == 1 and name.contains("=") (
+  local eq = name.index("=")
+  cmd = name.trim(eq + 1, -1)
+  name = name.trim(1, eq - 1)
+)
+if name.len == 0 or cmd.len == 0 (
+  terminal.writeLine("usage: alias name command")
+  return
+)
+all[name] = cmd
 aliases[name] = cmd
-
 file "open" "~/:path/aliases.json" "onlyaccess"
-file "set" 4 aliases.JsonFormat()
+file "set" 4 all.JsonFormat()
 file "close"
+terminal.writeLine("alias " ++ name ++ "='" ++ cmd ++ "'")

@@ -4,7 +4,6 @@ if Windows().len > 1 (
 
 local onboot @= [
     "origin/(a) system/system apps/originWM.osl",
-    "origin/(a) system/system apps/Desktop.osl",
     "origin/(a) system/docks/Dock.osl",
     "origin/(a) system/system apps/Quick_Settings.osl"
 ]

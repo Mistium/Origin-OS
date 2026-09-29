@@ -1,0 +1,219 @@
+permission "request" "rmail"
+
+// rotur mail from the shell, through the kernel's mail package (mail.rotur.dev v1 api)
+if typeof(mail) != "object" (
+  terminal.writeLine("This originOS build has no mail package")
+  return
+)
+
+def usage() (
+  terminal.writeLine("mail                      your inbox")
+  terminal.writeLine("mail ls [box] [count]     inbox, sent, archive or trash")
+  terminal.writeLine("mail read <n|id>          print a thread, n is a row from the last list")
+  terminal.writeLine("mail send <user> <subject> [body]")
+  terminal.writeLine("mail reply <n|id> [body]")
+  terminal.writeLine("mail star|unstar|archive|unarchive|trash|restore|delete <n|id>")
+  terminal.writeLine("mail search <text>")
+  terminal.writeLine("mail me                   account and storage")
+  terminal.writeLine("mail open                 open the OMail app")
+)
+
+def when(stamp) string (
+  if stamp == null or stamp == 0 (
+    return ""
+  )
+  return stamp.timestamp("to-relative").replace("-", "/")
+)
+
+def other(object m) string (
+  if m.from.username == username (
+    return m.to.username
+  )
+  return m.from.username
+)
+
+// a row number from the last listing, or an id as typed
+def resolve(string ref) string (
+  local n = ref.toNum()
+  if mail_last_ids != null and n > 0 and n <= mail_last_ids.len and n.toStr() == ref (
+    return mail_last_ids[n]
+  )
+  return ref
+)
+
+def failed(object resp) boolean (
+  if resp.ok (
+    return false
+  )
+  terminal.writeLine("mail: " ++ resp.error.toStr())
+  return true
+)
+
+def listBox(string box, number count) (
+  local resp @= mail.request("GET", "/rmails", {box: box, per_page: count})
+  if failed(resp) (
+    return
+  )
+  mail_last_ids = []
+  if resp.data.len == 0 (
+    terminal.writeLine("nothing in " ++ box)
+    return
+  )
+  for i resp.data.len (
+    local m = resp.data[i]
+    void mail_last_ids.append(m.id)
+    local unread = m.is_read != true and m.mailbox == "inbox"
+    local flags = unread ? "*" " "
+    if m.is_starred == true (
+      flags = flags ++ "s"
+    ) else (
+      flags = flags ++ " "
+    )
+    local subject = m.subject.toStr()
+    if m.replies_count > 0 (
+      subject = subject ++ " (" ++ (m.replies_count + 1) ++ ")"
+    )
+    terminal.writeLine([global_accent, i.toStr().padStart(" ", 3), null, " " ++ flags ++ " " ++ other(m).trimText(16).padEnd(" ", 16) ++ " " ++ subject.trimText(48).padEnd(" ", 48) ++ "  " ++ when(m.created_at)])
+  )
+)
+
+def printMessage(object m) (
+  terminal.writeLine([global_accent, m.from.username, null, "  " ++ when(m.created_at)])
+  if m.system != null (
+    terminal.writeLine("  " ++ m.system.actor ++ " " ++ m.system.action ++ " " ++ m.system.target)
+    return
+  )
+  local body = m.body.toStr()
+  if m.is_encrypted == true (
+    body = "(end-to-end encrypted, open it in the roturMail web client)"
+  )
+  local lines = body.wrapText(90).split("\n")
+  for i lines.len (
+    terminal.writeLine("  " ++ lines[i])
+  )
+)
+
+def readThread(string id) (
+  local resp @= mail.request("GET", "/rmails/" ++ id ++ "/thread", {})
+  if failed(resp) (
+    return
+  )
+  local root = resp.data.root
+  terminal.writeLine("Subject: " ++ root.subject)
+  terminal.writeLine("")
+  printMessage(root)
+  local replies = resp.data.replies ?? []
+  for i replies.len (
+    terminal.writeLine("")
+    printMessage(replies[i])
+  )
+  if root.is_read != true and root.mailbox == "inbox" (
+    void mail.request("POST", "/rmails/" ++ root.id ++ "/read", {})
+  )
+)
+
+def bodyFrom(array parts) string (
+  if parts.len > 0 (
+    return parts.join(" ")
+  )
+  terminal.writeLine("Type the message, an empty line sends it")
+  local lines = []
+  loop 200 (
+    local line = terminal.input("")
+    if line == "" (
+      break
+    )
+    void lines.append(line)
+  )
+  return lines.join("\n")
+)
+
+local cmd = args.len > 0 ? args[1].toStr().toLower() "ls"
+local rest = args.len > 1 ? args.trim(2, -1) []
+local actions = ["star", "unstar", "archive", "unarchive", "trash", "restore"]
+
+if cmd == "help" or cmd == "-h" or cmd == "--help" (
+  usage()
+) else if cmd == "ls" or cmd == "list" or cmd == "inbox" (
+  local box = rest.len > 0 ? rest[1].toStr().toLower() "inbox"
+  local count = rest.len > 1 ? rest[2].toNum() 25
+  listBox(box, max(1, min(200, count)))
+) else if cmd == "sent" or cmd == "trash" or (cmd == "archive" and rest.len == 0) (
+  listBox(cmd, 25)
+) else if cmd == "open" and rest.len == 0 (
+  window.create("origin/(a) system/user applications/OMail.osl")
+) else if cmd == "read" or cmd == "open" (
+  if rest.len == 0 (
+    terminal.writeLine("mail read <n|id>")
+  ) else (
+    readThread(resolve(rest[1].toStr()))
+  )
+) else if cmd == "send" (
+  if rest.len < 2 (
+    terminal.writeLine("mail send <user> <subject> [body]")
+  ) else (
+    local body = bodyFrom(rest.trim(3, -1))
+    local resp @= mail.request("POST", "/rmails", {to: rest[1].toStr().toLower(), subject: rest[2].toStr(), body: body})
+    if !failed(resp) (
+      terminal.writeLine("sent to " ++ resp.data.to.username)
+    )
+  )
+) else if cmd == "reply" (
+  if rest.len == 0 (
+    terminal.writeLine("mail reply <n|id> [body]")
+  ) else (
+    local id = resolve(rest[1].toStr())
+    local body = bodyFrom(rest.trim(2, -1))
+    local resp @= mail.request("POST", "/rmails/" ++ id ++ "/reply", {body: body})
+    if !failed(resp) (
+      terminal.writeLine("replied")
+    )
+  )
+) else if actions.contains(cmd) (
+  if rest.len == 0 (
+    terminal.writeLine("mail " ++ cmd ++ " <n|id>")
+  ) else (
+    local resp @= mail.request("POST", "/rmails/" ++ resolve(rest[1].toStr()) ++ "/" ++ cmd, {})
+    if !failed(resp) (
+      terminal.writeLine(cmd ++ ": " ++ resp.data.subject)
+    )
+  )
+) else if cmd == "delete" (
+  if rest.len == 0 (
+    terminal.writeLine("mail delete <n|id>")
+  ) else if terminal.input("delete forever? (y/n)") == "y" (
+    local resp @= mail.request("DELETE", "/rmails/" ++ resolve(rest[1].toStr()), {})
+    if !failed(resp) (
+      terminal.writeLine("deleted")
+    )
+  )
+) else if cmd == "search" or cmd == "find" (
+  if rest.len == 0 (
+    terminal.writeLine("mail search <text>")
+  ) else (
+    local resp @= mail.request("GET", "/rmails", {box: "all", q: rest.join(" "), per_page: 50})
+    if !failed(resp) (
+      mail_last_ids = []
+      for i resp.data.len (
+        local m = resp.data[i]
+        void mail_last_ids.append(m.id)
+        terminal.writeLine([global_accent, i.toStr().padStart(" ", 3), null, "  " ++ m.mailbox.padEnd(" ", 8) ++ other(m).trimText(16).padEnd(" ", 16) ++ " " ++ m.subject.toStr().trimText(48)])
+      )
+      if resp.data.len == 0 (
+        terminal.writeLine("no matches")
+      )
+    )
+  )
+) else if cmd == "me" or cmd == "status" (
+  local resp @= mail.request("GET", "/me", {})
+  if !failed(resp) (
+    local me = resp.data
+    terminal.writeLine(me.username ++ "@rmail.rotur.dev  (" ++ me.subscription ++ ")")
+    terminal.writeLine("unread:  " ++ me.unread_count ++ "   starred: " ++ me.starred_count)
+    terminal.writeLine("stored:  " ++ me.rmail_count ++ " of " ++ me.max_rmails ++ " rmails, " ++ formatFileSize(me.used_bytes) ++ " of " ++ formatFileSize(me.max_bytes))
+    terminal.writeLine("socket:  " ++ mail.status())
+  )
+) else (
+  terminal.writeLine("mail: unknown command " ++ cmd)
+  usage()
+)

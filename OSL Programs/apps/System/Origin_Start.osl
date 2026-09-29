@@ -1,5 +1,5 @@
 import as "glass" from "packages"
-import "window_tools" as "wt"
+import "window_tools"
 
 permission "request" "file admin"
 permission "request" "terminal"
@@ -89,7 +89,10 @@ before = [
     name: "Total Applications: " ++ total_apps,
     icon: "icn Grid-Apps 0.8"
   },
-  {},
+  {
+    type: "spacer",
+    name: ""
+  },
   {
     type: "label",
     name: "Apps"
@@ -102,32 +105,36 @@ total = apps.len
 
 input "focus" "search"
 
-mainloop:
-wt:load_theme
+transparent = {
+  opacity: 0.5,
+}
 
-width = window.width - 30
-height = window.height - 30
+mainloop:
+load_theme
+
+width = window.width - 20
+height = window.height - 20
 
 goto 0 0
-c window_colour
-square width height 30
-if mouse_down and clicked.not() (
+square width height 45 0 1
+if mouse_down and !clicked (
   window.close()
 )
 
-c prim
 goto 0 0
-square width height 10
+style transparent
+square width height 15 : c#window_colour
 
 goto 0 window.top - 30
-c seco
+c prim
+style transparent
 square width 30 10
 
 goto 0 window.bottom + 30
+style transparent
 square width 30 10
 
-glass:frame window.left window.top window.right window.bottom
-frame "clear"
+window.setGlass(100, "15px")
 
 frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 total * 40 (
   total = apps.len
@@ -140,7 +147,7 @@ frame window.left + 10 window.top - 50 window.right - 10 window.bottom + 51 tota
     set_x 0
     square width 25 10 0 1
     if mouse_touching (
-      
+
     )
     set_x frame.left + 20
     if item["type"] == "app" (
@@ -194,8 +201,7 @@ if onclick (
 
 icon icons.logout 0.8 : chx#-40 tooltip#"Logout"
 if onclick (
-  // remove current login state
-  eval "localStorage.setItem('origin_login', '')"
+  network "logout"
   terminal "shutdown"
   window.close()
 )
@@ -204,4 +210,4 @@ if window_id_index != 1 (
   window.close()
 )
 
-window.y = screensize_y - window.height / -2 + "origin.windows.area.bottom".eval().toNum() + 20
+window.y = screensize_y / -2 + window.height / 2 + "origin.windows.area.bottom".eval().toNum() + 20

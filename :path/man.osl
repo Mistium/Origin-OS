@@ -1,0 +1,2 @@
+// man command   show the command's documentation (same as help)
+void evalCmd("help " ++ args.join(" "))

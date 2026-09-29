@@ -1,28 +1,35 @@
-local file = null
+// history [n] | history -c
 local numLines = null
-
 for i args.len (
-  if args[i].toNum() != null (
+  if args[i] == "-c" (
+    file "exists" "~/:path/history.txt"
+    if exists (
+      file "open" "~/:path/history.txt" "onlyaccess"
+      file "set" 4 ""
+      file "close"
+    )
+    last = []
+    terminal.writeLine("history cleared")
+    return
+  ) else if args[i].toNum() != null (
     numLines = args[i].toNum()
   )
 )
 
+file "exists" "~/:path/history.txt"
+if !exists (
+  return
+)
 file "open" "~/:path/history.txt" "onlyaccess"
 local history = fileGet(4).split("\n").filter(v -> v.len > 0)
 file "close"
 
-if numLines == null (
-  for i history.len (
-    terminal.writeLine("  " ++ (i + 1) ++ "  " ++ history[i])
-  )
-) else (
-  local start = history.len - numLines
-  if start < 1 (
-    start = 1
-  )
-  for i history.len (
-    if i >= start (
-      terminal.writeLine("  " ++ (i + 1) ++ "  " ++ history[i])
-    )
+local start = 1
+if numLines != null (
+  start = max(1, (history.len - numLines) + 1)
+)
+for i history.len (
+  if i >= start (
+    terminal.writeLine(("" ++ i).padStart(" ", 5) ++ "  " ++ history[i])
   )
 )

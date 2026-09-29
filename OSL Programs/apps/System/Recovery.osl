@@ -1,0 +1,284 @@
+// Developer: @Mistium
+// Description: Check, back up, restore and resync your files when something went wrong
+//
+// Layout: one scrolling page of cards. Everything here talks to origin.recovery, the same
+// API the boot-time recovery shell uses, so the two never disagree about what happened.
+// Sizes passed to `box` are the visible size, OSL arithmetic runs left to right.
+
+import "window_tools"
+
+permission "request" "javascript"
+permission "request" "account"
+
+button_click = false
+page_len = 0
+pane_w = 0
+snap = {}
+snap_at = 0
+busy = ""
+
+window.resize(760, 640)
+window.show()
+
+def poll() (
+  if timer - snap_at > 0.5 (
+    snap_at = timer
+    local got @= "origin.recovery ? origin.recovery.snapshot() : null".eval()
+    if typeof(got) == "object" (
+      snap @= got
+    )
+  )
+)
+
+// runs one origin.recovery call. results arrive through the snapshot
+def call(string code) (
+  void ("(async () => { try { await origin.recovery." ++ code ++ " } catch (e) { origin.recovery.log(String(e)) } })()").eval()
+)
+
+def summary(c) string (
+  if c == null (
+    return "not read"
+  )
+  if c.kind == "array" (
+    return c.files ++ " files, " ++ round(c.bytes / 1024) ++ " KB"
+  )
+  return c.kind ++ ": " ++ c.error
+)
+
+// ---------------------------------------------------------------- drawing helpers
+
+// a text button, result in `button_click`
+def "text_button" "label, w, fill, ink" (
+  hit w 30
+  button_click = onclick
+  if mouse_touching (
+    cursor "pointer"
+  )
+  box w 30 14 : c#fill
+  centext label 8.5 : c#ink
+)
+
+// a square action tile with an icon above its label, result in `button_click`
+def "action_tile" "label, icn, w, danger" (
+  hit w 72
+  button_click = onclick
+  local ink = txtc
+  if danger (
+    ink = "#f87171"
+  )
+  box w + 2 74 16 : c#edge_col
+  if mouse_touching (
+    cursor "pointer"
+    box w 72 14 : c#hover_col
+  ) else (
+    box w 72 14 : c#prim
+  )
+  local x = x_position
+  local y = y_position
+  goto x y + 12
+  icon icn 0.9 : c#ink
+  goto x y - 20
+  centext label 8 : c#ink
+  goto x y
+)
+
+// label on the left, value on the right, inside a card the caller drew
+def "info_row" "label, value, y" (
+  goto pane_w / -2 + 30 y
+  text label 9 : c#muted
+  goto pane_w / 2 - 30 y
+  rigtext value.toStr().trimText(pane_w - 200 / 9) 9 : c#txtc
+)
+
+def "section_label" "label, y" (
+  goto pane_w / -2 + 14 y
+  text label 7.5 : c#muted
+)
+
+// a row of tiles. names and icons are parallel arrays, the clicked index lands in tile_hit
+def "tile_row" "labels, icons, dangers, y" (
+  local tiles = labels.len
+  local tw = pane_w - (8 * (tiles - 1)) / tiles
+  local tx = pane_w / -2 + (tw / 2)
+  tile_hit = 0
+  for i tiles (
+    goto tx + (tw + 8 * (i - 1)) y
+    action_tile labels[i] icons[i] tw dangers[i]
+    if button_click (
+      tile_hit = i
+    )
+  )
+)
+
+mainloop:
+load_theme
+poll()
+
+window.setGlass(100, "15px")
+goto 0 0
+square window.width - 10 window.height + 10 10 : c#window_colour
+
+local healthy = snap.reason == "" or snap.reason == null
+local sync_on = snap.sync != "paused"
+
+frame window.left window.top - 42 window.right window.bottom page_len "page" (
+  pane_w = min(frame.width - 40, 640)
+  local y = frame.top - 16 + frame.scroll
+  local top = y
+
+  // headline
+  goto 0 y - 34
+  card pane_w 68
+  goto pane_w / -2 + 34 y - 34
+  local tone = "#34d399"
+  local head = "Your files loaded normally"
+  local sub = "Nothing needs fixing. The tools below are still here if you want a backup."
+  if !healthy (
+    tone = "#f87171"
+    head = "This session started in recovery"
+    sub = snap.reason.toStr()
+  ) else if !sync_on (
+    tone = "#fbbf24"
+    head = "Cloud sync is paused"
+    sub = "Changes stay in this browser until you resume syncing"
+  )
+  box 14 14 14 : c#tone
+  goto pane_w / -2 + 56 y - 24
+  text head.trimText(pane_w - 80 / 11) 11 : c#txtc
+  goto pane_w / -2 + 56 y - 44
+  text sub.trimText(pane_w - 80 / 8) 8 : c#muted
+  y -= 84
+
+  // status
+  section_label "STATUS" y - 10
+  y -= 26
+  goto 0 y - 102
+  card pane_w 204
+  local loaded = snap.loaded ?? 0
+  local booted = snap.using ?? "cloud"
+  info_row "Files loaded" loaded y - 17
+  goto 0 y - 34
+  square pane_w - 32 0 1 : c#edge_col
+  info_row "Booted from" booted y - 51
+  goto 0 y - 68
+  square pane_w - 32 0 1 : c#edge_col
+  local cands @= snap.candidates ?? {}
+  local cloud_line = summary(cands.cloud)
+  if snap.status > 0 (
+    cloud_line = "HTTP " ++ snap.status ++ ", " ++ cloud_line
+  )
+  info_row "Cloud index" cloud_line y - 85
+  goto 0 y - 102
+  square pane_w - 32 0 1 : c#edge_col
+  local cache_line = summary(cands.cache)
+  info_row "Local cache" cache_line y - 119
+  goto 0 y - 136
+  square pane_w - 32 0 1 : c#edge_col
+  local sync_line = sync_on ? "on" "paused"
+  info_row "Cloud sync" sync_line y - 153
+  goto 0 y - 170
+  square pane_w - 32 0 1 : c#edge_col
+  local probe = "not run"
+  if snap.probe != null (
+    probe = "server " ++ snap.probe.server ++ ", token " ++ snap.probe.token
+  )
+  info_row "Checks" probe y - 187
+  y -= 216
+
+  goto pane_w / 2 - 70 y - 15
+  text_button "Run checks" 140 prim txtc
+  if button_click (
+    call("probe()")
+  )
+  goto pane_w / 2 - 218 y - 15
+  text_button "Read cache" 140 prim txtc
+  if button_click (
+    call("cache()")
+  )
+  y -= 46
+
+  // sync and cloud
+  section_label "CLOUD" y - 10
+  y -= 26
+  local sync_label = sync_on ? "Pause sync" "Resume sync"
+  local sync_icon = sync_on ? "pause" "play"
+  y -= 36
+  local labels = [sync_label, "Retry download", "Restore to cloud"]
+  local icons = [sync_icon, "download", "upload"]
+  local dangers = [false, false, false]
+  tile_row labels icons dangers y
+  if tile_hit == 1 (
+    call(sync_on ? "pauseSync()" "resumeSync()")
+  ) else if tile_hit == 2 (
+    call("retry()")
+  ) else if tile_hit == 3 and "Re-create every loaded user file on the server? Files already there are left alone.".confirm() (
+    call("restoreToCloud()")
+  )
+  y -= 52
+  if snap.restore != null (
+    goto 0 y - 12
+    local r @= snap.restore
+    local msg = "Restoring: " ++ r.sent ++ " of " ++ r.total ++ " files sent"
+    if r.done (
+      msg = "Restore finished: " ++ r.sent ++ " files, " ++ r.errors ++ " failed batches"
+    )
+    centext msg 8.5 : c#muted
+    y -= 30
+  )
+
+  // backups
+  section_label "BACKUPS" y - 10
+  y -= 26
+  y -= 36
+  labels = ["Export files", "Export cloud raw", "Import backup"]
+  icons = ["save", "file", "upload"]
+  tile_row labels icons dangers y
+  if tile_hit == 1 (
+    call("exportLoaded()")
+  ) else if tile_hit == 2 (
+    call("exportCandidate('cloud')")
+  ) else if tile_hit == 3 (
+    call("importBackup()")
+  )
+  y -= 52
+
+  // the sharp tools
+  section_label "REPAIR" y - 10
+  y -= 26
+  y -= 36
+  labels = ["Recovery shell", "Clear app cache", "Clear file cache", "Log out"]
+  icons = ["terminal", "sync", "bin", "power"]
+  dangers = [false, false, true, true]
+  tile_row labels icons dangers y
+  if tile_hit == 1 and "Reboot into the recovery shell? Your session closes now.".confirm() (
+    call("rebootToRecovery()")
+  ) else if tile_hit == 2 and "Clear the system app cache? Apps download again on the next boot.".confirm() (
+    call("clearAppCache()")
+  ) else if tile_hit == 3 and "Clear the local copy of your files? Only the cloud copy remains.".confirm() (
+    call("clearCache()")
+  ) else if tile_hit == 4 and "Log out and reboot?".confirm() (
+    call("logout()")
+  )
+  y -= 52
+
+  // log
+  section_label "LOG" y - 10
+  y -= 26
+  local lines @= snap.log ?? []
+  local shown = min(lines.len, 12)
+  local log_h = max(48, shown * 18 + 24)
+  goto 0 y - (log_h / 2)
+  card pane_w log_h
+  if shown == 0 (
+    centext "Nothing has happened yet" 8.5 : c#muted
+  )
+  for i shown (
+    goto pane_w / -2 + 18 y - 22 - (i - 1 * 18)
+    text lines[lines.len - shown + i].toStr().trimText(pane_w - 40 / 8) 8 : c#txtc
+  )
+  y -= log_h + 12
+  page_len = top - y + 30
+)
+window.setDragbox([2, 2, 0, 0], [-2, 2, -92, -42])
+
+import "win-buttons"

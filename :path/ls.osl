@@ -1,58 +1,148 @@
 local targetPath = terminal.pwd
-string first = args[1].toStr()
+local flags = args.filter(v -> v.startsWith("-"))
+local paths = args.filter(v -> !v.startsWith("-"))
 
-if !first.startsWith("-") (
-  targetPath = terminal.resolvePath(args[1])
-)
-if !targetPath.endsWith(".folder") (
-  targetPath ++= ".folder"
+// Combined short flags: -a, -l, -la, -al
+local flagStr = flags.join("")
+local getAll = flagStr.contains("a")
+local longFmt = flagStr.contains("l") or getAll
+
+if paths.len > 0 (
+  targetPath = terminal.resolvePath(paths[1])
 )
 
-file "exists" targetPath
+local folderPath = targetPath
+if folderPath.endsWith(".folder") (
+  folderPath = folderPath.trim(1, -8)
+)
+
+file "exists" folderPath ++ ".folder"
 if !exists (
-  terminal.writeLine("ls: cannot access '" ++ args[1] ++ "': No such file or directory")
+  local requested = paths.len > 0 ? paths[1] folderPath
+  terminal.writeLine("ls: cannot access '" ++ requested ++ "': No such file or directory")
   return
 )
 
-local getAll = args.contains("-a")
+local entries = listFiles(folderPath)
+array files = []
 
-local files = open(targetPath)
-  .map(f -> open(f, ["name", "type"]).join(""))
-  .filter(v -> getAll or v[1] != ":")
+for i entries.len (
+  local name = entries[i]
+  if getAll or name[1] != ":" (
+    void files.append(name)
+  )
+)
 
-local maxLen = files
-  .map(v -> (v.endsWith(".folder") ? (v.len - 8) v.len) + 4)
-  .max()
+if files.len == 0 (
+  return
+)
 
-local cols = floor((window.width - 30) / 10 / (maxLen + 2))
+// Resolve OFSF uuid (+ optional fields) for an entry name under folderPath
+def entryMeta(folder, name) (
+  local full = folder ++ "/" ++ name
+  try (
+    local m = open(full, ["uuid", "type", "name", "size", "id"])
+    return {
+      uuid: m[1] ?? "?",
+      type: m[2] ?? "",
+      name: m[3] ?? name,
+      size: m[4] ?? "",
+      id: m[5] ?? ""
+    }
+  ) catch e (
+    try (
+      file "open" full "onlyaccess"
+      local out = {
+        uuid: fileGet(14),
+        type: fileGet(1),
+        name: fileGet(2),
+        size: fileGet(12),
+        id: fileGet(8)
+      }
+      file "close"
+      return out
+    ) catch e2 (
+      return { uuid: "?", type: "", name: name, size: "", id: "" }
+    )
+  )
+)
+
+// -a: all entries, one per line with UUID
+// -l: long listing (type, size, name); with -a also shows uuid
+if longFmt (
+  for i files.len (
+    local name = files[i]
+    local meta = entryMeta(folderPath, name)
+    local display = name
+    local color = txtc
+
+    if name.endsWith(".folder") or meta.type == ".folder" (
+      display = name.endsWith(".folder") ? (name.trim(1, -8) ++ "/") (name ++ "/")
+      color = global_accent
+    )
+    if name[1] == ":" (
+      color = "#aaa"
+    )
+
+    if getAll (
+      terminal.writeLine([
+        color, display.padEnd(" ", 28),
+        "#666", "  ",
+        "#aaa", "" ++ meta.uuid
+      ])
+    ) else (
+      terminal.writeLine([
+        "#888", ("" ++ meta.type).padEnd(" ", 10),
+        "#888", ("" ++ meta.size).padEnd(" ", 10),
+        color, display
+      ])
+    )
+  )
+  return
+)
+
+// default: multi-column names only
+local maxLen = 0
+for i files.len (
+  local name = files[i]
+  if name.endsWith(".folder") (
+    name = name.trim(1, -8) ++ "/"
+  )
+  if name.len > maxLen (
+    maxLen = name.len
+  )
+)
+maxLen += 4
+
+local cols = floor((terminal.cols ?? 80) / (maxLen + 2))
 if cols < 1 (
   cols = 1
 )
 
 array line = []
-local i = 0
-void files.map(v -> (
-  local ov = v
+local column = 0
+for i files.len (
+  local name = files[i]
   local color = txtc
 
-  if ov.endsWith(".folder") (
-    ov = ov.trim(1, -8) ++ "/"
+  if name.endsWith(".folder") (
+    name = name.trim(1, -8) ++ "/"
     color = global_accent
   )
-  if ov[1] == ":" (
+  if name[1] == ":" (
     color = "#aaa"
   )
 
-  local padded = ov.padEnd(" ", maxLen)
-  void line.append(color, padded)
+  void line.append(color, name.padEnd(" ", maxLen))
+  column += 1
 
-  i ++
-  if i % cols == 0 (
+  if column == cols (
     terminal.writeLine(line)
     line = []
+    column = 0
   )
-))
+)
 
-if i % cols != 0 (
+if line.len > 0 (
   terminal.writeLine(line)
 )

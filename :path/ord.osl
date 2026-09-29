@@ -1,1 +1,5 @@
-terminal.writeLine(argsp[1].ord())
+if args.len == 0 (
+  terminal.writeLine("usage: ord <char>")
+  return
+)
+terminal.writeLine(("" ++ args[1]).ord())

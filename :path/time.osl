@@ -1,0 +1,10 @@
+// time command ...   run a command and report how long it took
+if args.len == 0 (
+  terminal.writeLine("usage: time command ...")
+  return
+)
+local start = timestamp
+void evalCmd(args.join(" "))
+local ms = timestamp - start
+terminal.writeLine("")
+terminal.writeLine(["#888", "real    ", txtc, (ms / 1000) ++ "s"])
