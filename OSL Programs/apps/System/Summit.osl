@@ -25,7 +25,7 @@ CELL = 118
 MAX_TABS = 16
 MAX_SPLIT = 3
 HOME = "summit://home"
-SYSTEM_URL = "https://web.rotur.dev/"
+TLDS_URL = "https://web.rotur.dev/tlds.json"
 ENGINES = [
   ["DuckDuckGo", "https://lite.duckduckgo.com/lite/?q="],
   ["Brave", "https://search.brave.com/search?q="],
@@ -44,7 +44,8 @@ tabs = []
 current = []
 active_id = ""
 show_sidebar = true
-tlds = {}
+// .web resolves before the registry loads, or if it ever drops the tld; the fetched registry adds and overrides tlds
+tlds = {web: "https://raw.githubusercontent.com/RoturTW/roturWeb.rtr/refs/heads/main"}
 pages = {loaded: {}, loading: {}}
 url_edit = false
 button_click = false
@@ -76,9 +77,12 @@ if settings.restore == null (
   settings.restore = true
 )
 
-void requests.getAsync(SYSTEM_URL ++ "tlds.json").then(def(resp) -> (
+void requests.getAsync(TLDS_URL).then(def(resp) -> (
   if resp.success and typeof(resp.body) == "object" (
-    tlds @= resp.body
+    local names = resp.body.getKeys()
+    for i names.len (
+      tlds[names[i]] = resp.body[names[i]]
+    )
   )
 ))
 
@@ -746,15 +750,15 @@ def page_source(url) (
   out.key = key
   local parts = key.split("/")
   local tld = parts[1].split(".").last()
+  // registry hosts are full base urls, so join them to the key with exactly one slash
   local host = tlds[tld]
   if host == null or host == "" (
-    if tld == "web" (
-      out.fetch_url = SYSTEM_URL ++ key
-    ) else (
-      out.fetch_url = "https://" ++ key
-    )
+    out.fetch_url = "https://" ++ key
   ) else (
-    out.fetch_url = "https://" ++ host ++ key
+    if host.endsWith("/") (
+      host = host.trim(1, -2)
+    )
+    out.fetch_url = host ++ "/" ++ key
   )
   return out
 )
