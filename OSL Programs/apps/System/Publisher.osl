@@ -20,6 +20,7 @@ window.resize(860, 560)
 window.show()
 
 session = ""
+create_name = ""
 status_line = "Signing in"
 busy = false
 my_apps = []
@@ -112,17 +113,59 @@ def publish() (
     ))
 )
 
+// A new app's fee is approved on rotur.dev. The store answers 402 with the page to
+// approve it on and the payment request. The page opens in a tab, the request is
+// checked every two seconds until it's answered, and once it's paid the create is
+// asked for again, which picks up the same payment and makes the app.
+pay_name = ""
+pay_request = ""
+pay_next = 0
+pay_checking = false
+
 def create_app(string name) (
   busy = true
+  create_name = name
   void requests.postAsync(API ++ "/apps/create?appname=" ++ encodeURIComponent(name), {headers: headers(), body: ""})
     .then(resp -> (
       busy = false
+      if resp.status == 402 and resp.body.approve_url != null (
+        pay_name = create_name
+        pay_request = resp.body.payment_request.toStr()
+        pay_next = timer + 2
+        status_line = "Approve the fee on rotur.dev"
+        http "newtab" resp.body.approve_url
+        return
+      )
       if resp.body.ok != true (
         say "Could not create it: " ++ (resp.body.error ?? resp.status).toStr()
         return
       )
       inputs.newname = ""
+      say "Created " ++ create_name ++ ". It's hidden until an admin approves it"
       refresh_apps()
+    ))
+)
+
+def check_payment() (
+  pay_checking = true
+  void requests.getAsync("https://api.rotur.dev/v2/payment-requests/" ++ encodeURIComponent(pay_request))
+    .then(resp -> (
+      pay_checking = false
+      pay_next = timer + 2
+      local status = "pending"
+      if typeof(resp.body) == "object" and resp.body.status != null (
+        status = resp.body.status.toStr()
+      )
+      if status == "paid" (
+        local name = pay_name
+        pay_name = ""
+        status_line = ""
+        create_app(name)
+      ) else if status != "pending" (
+        say "The fee for " ++ pay_name ++ " was " ++ status ++ ", so it wasn't created"
+        pay_name = ""
+        status_line = ""
+      )
     ))
 )
 
@@ -148,6 +191,9 @@ sign_in()
 
 mainloop:
 load_theme
+if pay_name != "" and !pay_checking and timer > pay_next (
+  check_payment()
+)
 
 local cl = window.left + SIDE
 window.setGlass(100, "15px")
@@ -232,17 +278,18 @@ if chosen == null (
   field "newname" "App name" px window.top - 205 pw
   local wanted = inputs.newname.toStr().strip()
   goto px window.top - 253
-  if wanted != "" and session != "" and !busy (
-    text_button "Create for 9 credits" pw global_accent accent_txt
+  if pay_name != "" (
+    box pw 32 14 : c#prim
+    centext "Waiting for the fee on rotur.dev..." 9 : c#muted
+  ) else if wanted != "" and session != "" and !busy (
+    // nothing is charged until the fee is approved on rotur.dev
+    text_button "Create for 10 credits" pw global_accent accent_txt
     if button_click (
-      // the store charges the rotur account, so ask first
-      if ("Creating " ++ wanted ++ " costs 9 credits. Continue?").confirm() (
-        create_app(wanted)
-      )
+      create_app(wanted)
     )
   ) else (
     box pw 32 14 : c#prim
-    centext "Create for 9 credits" 9 : c#muted
+    centext "Create for 10 credits" 9 : c#muted
   )
 ) else (
   goto cl + 30 window.top - 21
