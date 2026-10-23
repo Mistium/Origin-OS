@@ -57,6 +57,49 @@ def queueSay(message) (
 install_msg = null
 install_title = null
 install_icon = null
+install_cur = null
+
+// A paid app is bought on rotur.dev. The store answers its download with 402, the
+// page to approve the payment on and the payment request. The page opens in a tab,
+// the request is checked every two seconds until it's answered, and once it's paid
+// the download is asked for again, which the store then lets through.
+pay_cur = null
+pay_msg = null
+pay_request = ""
+pay_next = 0
+pay_checking = false
+
+def awaitPayment(cur, message, body) (
+  pay_cur @= cur
+  pay_msg = message
+  pay_request = body.payment_request.toStr()
+  pay_next = timer + 2
+  pay_checking = false
+  installing = cur.title
+  http "newtab" body.approve_url
+)
+
+def checkPayment() (
+  pay_checking = true
+  void requests.getAsync("https://api.rotur.dev/v2/payment-requests/" ++ encodeURIComponent(pay_request))
+    .then(resp -> (
+      pay_checking = false
+      pay_next = timer + 2
+      local status = "pending"
+      if typeof(resp.body) == "object" and resp.body.status != null (
+        status = resp.body.status.toStr()
+      )
+      if status == "paid" (
+        local cur @= pay_cur
+        pay_cur = null
+        installApp(cur, pay_msg)
+      ) else if status != "pending" (
+        queueSay("The payment for " ++ pay_cur.title ++ " was " ++ status ++ ", so it wasn't installed")
+        pay_cur = null
+        installing = ""
+      )
+    ))
+)
 
 def installApp(cur, message) (
   file "goto_dir" "~/Applications"
@@ -64,9 +107,14 @@ def installApp(cur, message) (
   install_title = cur.title
   install_icon = cur.icon
   installing = cur.title
+  install_cur @= cur
   void requests.getAsync("https://apps.rotur.dev/apps/download/" ++ encodeURIComponent(install_title) ++ "/osl?auth=" ++ roturToken())
     .then(resp -> (
       installing = ""
+      if resp.status == 402 and typeof(resp.body) == "object" and resp.body.approve_url != null (
+        awaitPayment(install_cur, install_msg, resp.body)
+        return
+      )
       if resp.success == false or resp.body == null or resp.body == "" (
         queueSay("Download failed")
         return
@@ -300,7 +348,9 @@ def "draw_app" (
   file "exists" parseFilePath("~/Applications/" ++ cur.title ++ ".osl")
   local installed = exists
   local msg = "Install"
-  if installing == cur.title (
+  if pay_cur != null and pay_cur.title == cur.title (
+    msg = "Waiting for payment..."
+  ) else if installing == cur.title (
     msg = "Installing..."
   ) else if installed (
     // plain ifs: a ternary after `or` binds to the last operand and the label became `true`
@@ -462,6 +512,10 @@ if all_json != null and home_json != null and page == "loading" (
   if deep != "" and all_json[deep] != null (
     navigate("app", all_json[deep].title, [], deep, "discover")
   )
+)
+
+if pay_cur != null and !pay_checking and timer > pay_next (
+  checkPayment()
 )
 
 while forget_queue.len > 0 (
