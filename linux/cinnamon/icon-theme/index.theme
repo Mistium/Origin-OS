@@ -1,0 +1,26 @@
+[Icon Theme]
+Name=originOS
+Comment=Current originOS artwork with Papirus fallbacks
+Inherits=Papirus,Adwaita,hicolor
+Directories=scalable/apps,scalable/places,scalable/actions
+
+[scalable/apps]
+Size=48
+Type=Scalable
+MinSize=16
+MaxSize=512
+Context=Applications
+
+[scalable/places]
+Size=48
+Type=Scalable
+MinSize=16
+MaxSize=512
+Context=Places
+
+[scalable/actions]
+Size=16
+Type=Scalable
+MinSize=8
+MaxSize=256
+Context=Actions

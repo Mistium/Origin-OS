@@ -1,0 +1,101 @@
+{
+  "source": "Mistium/Origin-OS · OSL Programs/apps/System/.Install_system.json + Icons/all-icons.json",
+  "manifestSha256": "b8997805d1ae4094686e71c896b62f3babeae70247b2a16742b3a65b171ff14d",
+  "packSha256": "379031c2d3b65fd8c9a64b726dcaa3e3f0b884d4c8be2812c17f29cf64fbdf39",
+  "windowScript": "OSL Programs/scripts/system/win_buttons.osl",
+  "windowScriptSha256": "6e0ba69f2a3676e0c0512face16a2a1171d7ea2222bd77b94fb2728780ed78df",
+  "windowButtons": {
+    "close": {
+      "originName": "close",
+      "icon": "w 3 line 10 10 -10 -10 line -10 10 10 -10"
+    },
+    "minimize": {
+      "originName": "down",
+      "icon": "w 3 line -10 5 0 -5 cont 10 5"
+    },
+    "maximize": {
+      "originName": "maximise",
+      "icon": "w 3 line 0 10 -10 10 cont -10 0 line 0 -10 10 -10 cont 10 0"
+    },
+    "restore": {
+      "originName": "minimise",
+      "icon": "w 3 line 2.22 2.22 10 10 line 8.89 2.22 2.22 2.22 cont 2.22 8.89 line -10 -10 -2.22 -2.22 line -8.89 -2.22 -2.22 -2.22 cont -2.22 -8.89"
+    }
+  },
+  "applications": [
+    {
+      "name": "Terminal",
+      "icon": "c #1b8f44 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #1b8f44 icn terminal 0.5"
+    },
+    {
+      "name": "Files",
+      "icon": "w 10 c #a9d2f2 square 0 0 5 5 w 8 c #111 square 0 0 5 5 c #3d8ee8 fill 1 icn folder 0.55 0 0 fill 0 c #a9d2f2 w 3.85 rect 0 -1.4 4.4 1.9"
+    },
+    {
+      "name": "Beam",
+      "icon": "c #2b6cff w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #2b6cff icn share 0.5"
+    },
+    {
+      "name": "Settings",
+      "icon": "c #6fa6eb w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #6fa6eb icn cog 0.5"
+    },
+    {
+      "name": "Calculator",
+      "icon": "c #f79204 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #f79204 icn calculator 0.5"
+    },
+    {
+      "name": "Activity",
+      "icon": "c #84d5f5 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #84d5f5 icn activity 0.5"
+    },
+    {
+      "name": "Summit",
+      "icon": "c #6a54b3 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #6a54b3 icn globe 0.5"
+    },
+    {
+      "name": "Studio",
+      "icon": "c #d94b4b w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #d94b4b icn code 0.5"
+    },
+    {
+      "name": "Contacts",
+      "icon": "c #b37740 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #b37740 icn accounts 0.5"
+    },
+    {
+      "name": "OMail",
+      "icon": "c #6eebd0 w 10 square 0 0 5 5 c #111 w 8 square 0 0 5 5 c #6eebd0 w 5.5 rect 0 0 4 2 c #111 w 1.6 line -6 3 0 -1 cont 6 3"
+    },
+    {
+      "name": "Camera",
+      "icon": "c #ef60e1 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #ef60e1 icn camera 0.5"
+    },
+    {
+      "name": "Wallet",
+      "icon": "c #ad7fb0 w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #ad7fb0 icn wallet 0.5"
+    },
+    {
+      "name": "App Store",
+      "icon": "c #cfc45e w 10 square 0 0 5 5 c #111 w 8 rect 0 0 5 5 c #cfc45e icn store 0.5"
+    }
+  ],
+  "named": {
+    "terminal": "w 3 line 0 -8.75 10 -8.75 line -10 -6.25 -2.5 1.25 cont -10 8.75",
+    "folder": "w 3 line 8 -8 8.45 -7.95 cont 8.87 -7.8 cont 9.25 -7.56 cont 9.56 -7.25 cont 9.8 -6.87 cont 9.95 -6.45 cont 10 -6 cont 10 4 cont 9.95 4.45 cont 9.8 4.87 cont 9.56 5.25 cont 9.25 5.56 cont 8.87 5.8 cont 8.45 5.95 cont 8 6 cont 0.1 6 cont -0.3 6.04 cont -0.68 6.15 cont -1.03 6.34 cont -1.34 6.59 cont -1.59 6.9 cont -2.4 8.1 cont -2.65 8.41 cont -2.95 8.66 cont -3.3 8.85 cont -3.68 8.96 cont -4.07 9 cont -8 9 cont -8.45 8.95 cont -8.87 8.8 cont -9.25 8.56 cont -9.56 8.25 cont -9.8 7.87 cont -9.95 7.45 cont -10 7 cont -10 -6 cont -9.95 -6.45 cont -9.8 -6.87 cont -9.56 -7.25 cont -9.25 -7.56 cont -8.87 -7.8 cont -8.45 -7.95 cont -8 -8 cont 8 -8",
+    "share": "w 3 cutcircle 6 7 3 0 180 cutcircle -6 0 3 0 180 cutcircle 6 -7 3 0 180 line -3.41 -1.51 3.42 -5.49 line 3.41 5.49 -3.41 1.51",
+    "cog": "w 3 cutcircle 0 0 2 0 180 cutcircle 0 0 8 0 180 line -1 1.73 -5 8.66 line -1 -1.73 -5 -8.66 line 0 -10 0 -8 line 0 10 0 8 line 2 0 10 0 line 5 -8.66 4 -6.93 line 5 8.66 4 6.93 line -10 0 -8 0 line 8.66 -5 6.93 -4 line 8.66 5 6.93 4 line -8.66 -5 -6.93 -4 line -8.66 5 -6.93 4",
+    "calculator": "w 3 line -6 10 6 10 cont 6.45 9.95 cont 6.87 9.8 cont 7.25 9.56 cont 7.56 9.25 cont 7.8 8.87 cont 7.95 8.45 cont 8 8 cont 8 -8 cont 7.95 -8.45 cont 7.8 -8.87 cont 7.56 -9.25 cont 7.25 -9.56 cont 6.87 -9.8 cont 6.45 -9.95 cont 6 -10 cont -6 -10 cont -6.45 -9.95 cont -6.87 -9.8 cont -7.25 -9.56 cont -7.56 -9.25 cont -7.8 -8.87 cont -7.95 -8.45 cont -8 -8 cont -8 8 cont -7.95 8.45 cont -7.8 8.87 cont -7.56 9.25 cont -7.25 9.56 cont -6.87 9.8 cont -6.45 9.95 cont -6 10 cont -6 10 line -4 6 4 6 line 4 -2 4 -6 line 4 2 4.01 2 line 0 2 0.01 2 line -4 2 -3.99 2 line 0 -2 0.01 -2 line -4 -2 -3.99 -2 line 0 -6 0.01 -6 line -4 -6 -3.99 -6",
+    "activity": "w 3 line 10 0 7.52 0 cont 7.09 -0.05 cont 6.68 -0.18 cont 6.31 -0.4 cont 5.99 -0.7 cont 5.75 -1.06 cont 5.59 -1.46 cont 3.24 -9.82 cont 3 -10 cont 2.76 -9.82 cont -2.76 9.82 cont -3 10 cont -3.24 9.82 cont -5.59 1.46 cont -5.75 1.06 cont -5.99 0.7 cont -6.31 0.41 cont -6.67 0.19 cont -7.08 0.05 cont -7.51 0 cont -10 0",
+    "globe": "w 3 cutcircle 0 0 10 0 180 line 0 10 -0.59 9.34 cont -1.14 8.65 cont -1.64 7.93 cont -2.1 7.17 cont -2.51 6.39 cont -2.88 5.59 cont -3.19 4.77 cont -3.46 3.92 cont -3.67 3.07 cont -3.83 2.2 cont -3.94 1.32 cont -3.99 0.44 cont -3.99 -0.44 cont -3.94 -1.32 cont -3.83 -2.2 cont -3.67 -3.07 cont -3.46 -3.92 cont -3.19 -4.77 cont -2.88 -5.59 cont -2.51 -6.39 cont -2.1 -7.17 cont -1.64 -7.93 cont -1.14 -8.65 cont -0.59 -9.34 cont 0 -10 cont 0.59 -9.34 cont 1.14 -8.65 cont 1.64 -7.93 cont 2.1 -7.17 cont 2.51 -6.39 cont 2.88 -5.59 cont 3.19 -4.77 cont 3.46 -3.92 cont 3.67 -3.07 cont 3.83 -2.2 cont 3.94 -1.32 cont 3.99 -0.44 cont 3.99 0.44 cont 3.94 1.32 cont 3.83 2.2 cont 3.67 3.07 cont 3.46 3.92 cont 3.19 4.77 cont 2.88 5.59 cont 2.51 6.39 cont 2.1 7.17 cont 1.64 7.93 cont 1.14 8.65 cont 0.59 9.34 cont 0 10 cont 0 10 line -10 0 10 0",
+    "code": "w 3 line 4 -6 10 0 cont 4 6 line -4 6 -10 0 cont -4 -6",
+    "accounts": "w 3 cutcircle -3 5 4 0 180 line 4 -9 4 -7 cont 3.97 -6.55 cont 3.9 -6.11 cont 3.78 -5.68 cont 3.6 -5.26 cont 3.39 -4.87 cont 3.13 -4.51 cont 2.83 -4.17 cont 2.49 -3.87 cont 2.13 -3.61 cont 1.74 -3.4 cont 1.32 -3.22 cont 0.89 -3.1 cont 0.45 -3.03 cont 0 -3 cont -6 -3 cont -6.45 -3.03 cont -6.89 -3.1 cont -7.32 -3.22 cont -7.74 -3.4 cont -8.13 -3.61 cont -8.49 -3.87 cont -8.83 -4.17 cont -9.13 -4.51 cont -9.39 -4.87 cont -9.6 -5.26 cont -9.78 -5.68 cont -9.9 -6.11 cont -9.97 -6.55 cont -10 -7 cont -10 -9 line 4 8.87 4.42 8.74 cont 4.82 8.56 cont 5.2 8.34 cont 5.55 8.08 cont 5.87 7.78 cont 6.16 7.45 cont 6.41 7.09 cont 6.62 6.7 cont 6.78 6.29 cont 6.9 5.87 cont 6.97 5.44 cont 7 5 cont 6.97 4.56 cont 6.9 4.13 cont 6.78 3.71 cont 6.62 3.3 cont 6.41 2.91 cont 6.16 2.55 cont 5.87 2.22 cont 5.55 1.92 cont 5.2 1.66 cont 4.82 1.44 cont 4.42 1.26 cont 4 1.13 line 10 -9 10 -7 cont 9.98 -6.56 cont 9.9 -6.13 cont 9.78 -5.71 cont 9.62 -5.3 cont 9.41 -4.91 cont 9.16 -4.55 cont 8.87 -4.22 cont 8.55 -3.92 cont 8.2 -3.66 cont 7.82 -3.44 cont 7.42 -3.26 cont 7 -3.13",
+    "camera": "w 3 cutcircle 0 -1 3 0 180 line 2 8 2.42 7.95 cont 2.83 7.82 cont 3.2 7.6 cont 3.51 7.3 cont 3.76 6.95 cont 4.24 6.05 cont 4.49 5.7 cont 4.8 5.4 cont 5.17 5.18 cont 5.58 5.05 cont 6 5 cont 8 5 cont 8.45 4.95 cont 8.87 4.8 cont 9.25 4.56 cont 9.56 4.25 cont 9.8 3.87 cont 9.95 3.45 cont 10 3 cont 10 -6 cont 9.95 -6.45 cont 9.8 -6.87 cont 9.56 -7.25 cont 9.25 -7.56 cont 8.87 -7.8 cont 8.45 -7.95 cont 8 -8 cont -8 -8 cont -8.45 -7.95 cont -8.87 -7.8 cont -9.25 -7.56 cont -9.56 -7.25 cont -9.8 -6.87 cont -9.95 -6.45 cont -10 -6 cont -10 3 cont -9.95 3.45 cont -9.8 3.87 cont -9.56 4.25 cont -9.25 4.56 cont -8.87 4.8 cont -8.45 4.95 cont -8 5 cont -6 5 cont -5.58 5.05 cont -5.17 5.18 cont -4.8 5.4 cont -4.49 5.69 cont -4.24 6.05 cont -3.75 6.95 cont -3.51 7.31 cont -3.2 7.6 cont -2.83 7.82 cont -2.42 7.95 cont -2 8 cont 2 8",
+    "wallet": "w 3 line 7 5 7 8 cont 6.92 8.38 cont 6.71 8.71 cont 6.38 8.92 cont 6 9 cont -7 9 cont -7.45 8.95 cont -7.87 8.8 cont -8.25 8.56 cont -8.56 8.25 cont -8.8 7.87 cont -8.95 7.45 cont -9 7 cont -8.95 6.55 cont -8.8 6.13 cont -8.56 5.75 cont -8.25 5.44 cont -7.87 5.2 cont -7.45 5.05 cont -7 5 cont 8 5 cont 8.38 4.92 cont 8.71 4.71 cont 8.92 4.38 cont 9 4 cont 9 0 cont 6 0 cont 5.55 -0.05 cont 5.13 -0.2 cont 4.75 -0.44 cont 4.44 -0.75 cont 4.2 -1.13 cont 4.05 -1.55 cont 4 -2 cont 4.05 -2.45 cont 4.2 -2.87 cont 4.44 -3.25 cont 4.75 -3.56 cont 5.13 -3.8 cont 5.55 -3.95 cont 6 -4 cont 9 -4 cont 9.38 -3.92 cont 9.71 -3.71 cont 9.92 -3.38 cont 10 -3 cont 10 -1 cont 9.92 -0.62 cont 9.71 -0.29 cont 9.38 -0.08 cont 9 0 line -9 7 -9 -7 cont -8.95 -7.45 cont -8.8 -7.87 cont -8.56 -8.25 cont -8.25 -8.56 cont -7.87 -8.8 cont -7.45 -8.95 cont -7 -9 cont 8 -9 cont 8.38 -8.92 cont 8.71 -8.71 cont 8.92 -8.38 cont 9 -8 cont 9 -4",
+    "store": "w 3 line 3 -9 3 -4 cont 2.92 -3.62 cont 2.71 -3.29 cont 2.38 -3.08 cont 2 -3 cont -2 -3 cont -2.38 -3.08 cont -2.71 -3.29 cont -2.92 -3.62 cont -3 -4 cont -3 -9 line 5.77 1.69 5.42 1.92 cont 5 2 cont 4.58 1.92 cont 4.23 1.69 cont 3.9 1.43 cont 3.53 1.22 cont 3.13 1.08 cont 2.71 1.01 cont 2.29 1.01 cont 1.87 1.08 cont 1.47 1.22 cont 1.1 1.43 cont 0.77 1.69 cont 0.42 1.92 cont 0 2 cont -0.42 1.92 cont -0.77 1.69 cont -1.1 1.42 cont -1.47 1.22 cont -1.87 1.08 cont -2.29 1.01 cont -2.71 1.01 cont -3.13 1.08 cont -3.53 1.22 cont -3.9 1.42 cont -4.23 1.69 cont -4.58 1.92 cont -5 2 cont -5.42 1.92 cont -5.77 1.69 cont -6.11 1.42 cont -6.49 1.21 cont -6.9 1.07 cont -7.33 1 cont -7.76 1.01 cont -8.19 1.09 cont -8.59 1.25 cont -8.96 1.47 cont -9.29 1.75 cont -9.56 2.09 cont -9.78 2.46 cont -9.92 2.87 cont -9.99 3.3 cont -9.99 3.73 cont -9.91 4.16 cont -9.76 4.56 cont -9.54 4.94 cont -6.66 9.12 cont -6.41 9.42 cont -6.1 9.67 cont -5.76 9.85 cont -5.39 9.96 cont -5 10 cont 5 10 cont 5.39 9.96 cont 5.76 9.85 cont 6.1 9.67 cont 6.4 9.43 cont 6.65 9.13 cont 9.55 4.94 cont 9.77 4.56 cont 9.92 4.15 cont 9.99 3.73 cont 10 3.3 cont 9.92 2.87 cont 9.78 2.46 cont 9.57 2.08 cont 9.29 1.75 cont 8.96 1.47 cont 8.59 1.24 cont 8.19 1.09 cont 7.76 1.01 cont 7.33 1 cont 6.9 1.07 cont 6.49 1.21 cont 6.11 1.42 cont 5.77 1.69 cont 5.77 1.69 line -8 1.05 -8 -7 cont -7.95 -7.45 cont -7.8 -7.87 cont -7.56 -8.25 cont -7.25 -8.56 cont -6.87 -8.8 cont -6.45 -8.95 cont -6 -9 cont 6 -9 cont 6.45 -8.95 cont 6.87 -8.8 cont 7.25 -8.56 cont 7.56 -8.25 cont 7.8 -7.87 cont 7.95 -7.45 cont 8 -7 cont 8 1.05",
+    "download": "w 3 line 0 -3.33 0 10 line 10 -3.33 10 -7.78 cont 9.94 -8.28 cont 9.78 -8.74 cont 9.51 -9.17 cont 9.17 -9.51 cont 8.74 -9.78 cont 8.28 -9.94 cont 7.78 -10 cont -7.78 -10 cont -8.28 -9.94 cont -8.74 -9.78 cont -9.17 -9.51 cont -9.51 -9.17 cont -9.78 -8.74 cont -9.94 -8.28 cont -10 -7.78 cont -10 -3.33 line -5.56 2.22 0 -3.33 cont 5.56 2.22",
+    "bin": "w 3 line -2 1 -2 -5 line 2 1 2 -5 line 7 6 7 -8 cont 6.95 -8.45 cont 6.8 -8.87 cont 6.56 -9.25 cont 6.25 -9.56 cont 5.87 -9.8 cont 5.45 -9.95 cont 5 -10 cont -5 -10 cont -5.45 -9.95 cont -5.87 -9.8 cont -6.25 -9.56 cont -6.56 -9.25 cont -6.8 -8.87 cont -6.95 -8.45 cont -7 -8 cont -7 6 line -9 6 9 6 line -4 6 -4 8 cont -3.95 8.45 cont -3.8 8.87 cont -3.56 9.25 cont -3.25 9.56 cont -2.87 9.8 cont -2.45 9.95 cont -2 10 cont 2 10 cont 2.45 9.95 cont 2.87 9.8 cont 3.25 9.56 cont 3.56 9.25 cont 3.8 8.87 cont 3.95 8.45 cont 4 8 cont 4 6",
+    "desktops": "w 3 line -8 9 8 9 cont 8.45 8.95 cont 8.87 8.8 cont 9.25 8.56 cont 9.56 8.25 cont 9.8 7.87 cont 9.95 7.45 cont 10 7 cont 10 -3 cont 9.95 -3.45 cont 9.8 -3.87 cont 9.56 -4.25 cont 9.25 -4.56 cont 8.87 -4.8 cont 8.45 -4.95 cont 8 -5 cont -8 -5 cont -8.45 -4.95 cont -8.87 -4.8 cont -9.25 -4.56 cont -9.56 -4.25 cont -9.8 -3.87 cont -9.95 -3.45 cont -10 -3 cont -10 7 cont -9.95 7.45 cont -9.8 7.87 cont -9.56 8.25 cont -9.25 8.56 cont -8.87 8.8 cont -8.45 8.95 cont -8 9 cont -8 9 line -4 -9 4 -9 line 0 -5 0 -9"
+  },
+  "navigation": {
+    "origin-logo.svg": "w 2.2 cutcircle 0 0 12 4.5 150 cutcircle 0 0 7 5 150 line -3 -4 -9 -10",
+    "workspaces.svg": "w 2.5 line -10 5 0 0 cont 10 5 cont 0 10 cont -10 5 line -10 -1 0 -6 cont 10 -1 line -10 -7 0 -12 cont 10 -7",
+    "search.svg": "w 2.5 cutcircle -2 2 8 0 180 line 4 -4 12 -12"
+  }
+}

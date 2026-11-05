@@ -1,0 +1,8 @@
+{
+  "uuid": "origin-dock@mistium",
+  "name": "originOS Desktop",
+  "description": "The originOS dock, searchable launcher and notification centre for Cinnamon",
+  "icon": "start-here",
+  "max-instances": 1,
+  "version": "1.0.0"
+}

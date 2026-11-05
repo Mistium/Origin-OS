@@ -1,0 +1,111 @@
+@import url("/usr/share/cinnamon/theme/cinnamon.css");
+
+stage { font-family: "Adwaita Mono", monospace; font-size: 12px; color: #f5effb; }
+#panel { background-color: transparent; background-gradient-direction: none; border: none; box-shadow: none; }
+.origin-dock.applet-box { padding: 0; margin: 0; border: none; background-color: transparent; }
+.origin-dock-row { spacing: 9px; padding: 3px 0 5px; }
+.origin-dock-group {
+    spacing: 3px; height: 44px; padding: 5px 9px; border-radius: 15px;
+    background-color: rgba(12, 11, 24, 0.94);
+    border: 1px solid rgba(209, 181, 236, 0.15);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+.origin-dock-button {
+    padding: 3px 4px; border-radius: 10px; color: #f7f1ff;
+    background-color: transparent; border: 1px solid transparent;
+    transition-duration: 100;
+}
+.origin-dock-button:hover, .origin-dock-button:focus {
+    background-color: rgba(211, 182, 235, 0.15); border-color: rgba(211, 182, 235, 0.3);
+}
+.origin-dock-button:active { background-color: rgba(211, 182, 235, 0.26); }
+.origin-app-button { padding: 2px 4px; border: none; border-radius: 0; background-color: transparent; }
+.origin-app-button:hover { background-color: rgba(211, 182, 235, 0.035); }
+.origin-app-button:focus { background-color: rgba(211, 182, 235, 0.06); }
+.origin-running-dot { width: 14px; height: 2px; border-radius: 1px; background-color: #d5b9ec; margin-top: 3px; }
+.origin-folder-button { color: #a9c5ff; }
+.origin-folder-button StIcon { icon-size: 38px; }
+.origin-folder-button { padding: 0 3px; }
+.origin-clock { padding: 2px 8px; border-radius: 9px; }
+.origin-clock:hover, .origin-clock:focus { background-color: rgba(211, 182, 235, 0.13); }
+.origin-time { color: #f3eafa; font-size: 13px; letter-spacing: 1px; }
+.origin-date { color: #a69eae; font-size: 10px; }
+.origin-native-tray .applet-box { padding: 0 3px; margin: 0; }
+.origin-native-tray .system-status-icon { icon-size: 16px; }
+
+.origin-menu { margin: 0 0 10px; padding: 0; }
+.origin-menu .popup-menu-content { background: transparent; border: none; border-radius: 0; padding: 0; box-shadow: none; }
+.origin-columns { spacing: 12px; }
+.origin-launcher-pane, .origin-notification-pane {
+    width: 368px; height: 590px; padding: 15px;
+    border-radius: 19px; border: 1px solid rgba(211, 182, 235, 0.46);
+    background-gradient-direction: vertical;
+    background-gradient-start: rgba(37, 29, 40, 0.98);
+    background-gradient-end: rgba(6, 8, 15, 0.98);
+    spacing: 12px; color: #f6effa;
+    box-shadow: 0 5px 18px rgba(0, 0, 0, 0.25);
+}
+.origin-search {
+    padding: 8px 10px; border-radius: 11px;
+    border: 1px solid rgba(215, 190, 234, 0.7);
+    background-color: rgba(220, 201, 231, 0.11); color: #faf5ff;
+    selection-background-color: #d3b5eb; selected-color: #1b1522; caret-color: #f2e2ff;
+}
+.origin-search:focus { border-color: #d7b8ee; }
+.origin-search StIcon { color: #ece1f4; padding-right: 8px; }
+.origin-search StLabel.hint-text { color: #9c919f; }
+.origin-quick-grid { padding: 0; }
+.origin-quick-tile { width: 172px; padding: 9px 3px; border-radius: 12px; border: 1px solid rgba(202, 184, 218, 0.12); background-color: rgba(8, 6, 15, 0.11); }
+.origin-quick-tile:hover, .origin-quick-tile:focus { background-color: rgba(208, 179, 230, 0.13); border-color: rgba(211, 182, 235, 0.35); }
+.origin-quick-row { spacing: 8px; }
+.origin-quick-row StIcon { padding: 5px; border-radius: 9px; background-color: rgba(211, 182, 235, 0.17); }
+.origin-tile-subtitle { font-size: 10px; }
+.origin-muted, .origin-section-label { color: #aaa0af; font-size: 11px; }
+.origin-section-label { padding: 1px 3px; }
+.origin-app-scroll { min-height: 260px; }
+.origin-app-grid { spacing: 8px; }
+.origin-app-row { spacing: 5px; }
+.origin-grid-app { width: 82px; height: 86px; padding: 2px; border-radius: 11px; border: 1px solid transparent; }
+.origin-grid-app:hover, .origin-grid-app:focus { background-color: rgba(211, 182, 235, 0.12); border-color: rgba(211, 182, 235, 0.27); }
+.origin-grid-app-content { spacing: 8px; }
+.origin-grid-app-content StIcon { margin: 0 auto; }
+.origin-app-name { text-align: center; font-size: 11px; width: 82px; height: 30px; }
+.origin-user-footer { padding-top: 10px; spacing: 8px; border-top: 1px solid rgba(207, 186, 224, 0.17); }
+.origin-avatar { padding: 8px 10px; border-radius: 18px; color: #d9c2f0; background-color: #3b2d49; font-size: 14px; }
+.origin-user-name { font-size: 13px; }
+.origin-footer-button { padding: 5px; border-radius: 9px; background-color: rgba(209, 192, 230, 0.1); border: 1px solid rgba(209, 192, 230, 0.15); }
+.origin-footer-button StIcon { icon-size: 16px; }
+.origin-heading { font-size: 16px; }
+.origin-notification-header { spacing: 9px; }
+.origin-badge { font-size: 10px; padding: 2px 5px; border-radius: 12px; background-color: #d3b5eb; color: #201725; }
+.origin-filters { spacing: 2px; padding: 2px; border-radius: 9px; background-color: rgba(240, 219, 255, 0.09); }
+.origin-filter { padding: 5px 12px; border-radius: 7px; color: #eee4f6; font-size: 11px; }
+.origin-filter:hover { background-color: rgba(213, 182, 236, 0.16); }
+.origin-filter:selected { background-color: #d3b5eb; color: #211928; }
+.origin-notification-scroll { min-height: 340px; }
+.origin-notification-list { spacing: 8px; }
+.origin-notification-card { padding: 10px; border-radius: 13px; border: 1px solid rgba(207, 187, 225, 0.15); background-color: rgba(4, 5, 12, 0.19); }
+.origin-notification-open { padding: 0; text-align: left; }
+.origin-notification-content { spacing: 10px; }
+.origin-notification-title-row { spacing: 7px; }
+.origin-notification-age { font-size: 10px; color: #a397aa; }
+.origin-notification-body { font-size: 11px; color: #b2a5bc; max-width: 240px; }
+.origin-notification-open:focus { border: 1px solid #d3b5eb; }
+.origin-notification-source { font-size: 10px; color: #b7a2c5; margin-bottom: 5px; }
+.origin-notification-title { font-size: 12px; width: 213px; }
+.origin-dismiss { padding: 2px; }
+.origin-dismiss StIcon { icon-size: 13px; color: #a79cac; }
+.origin-empty-state { padding: 80px 0; spacing: 12px; }
+.origin-empty-state StIcon { color: #b799cf; margin: 0 auto; }
+.origin-empty-state StLabel { text-align: center; }
+.origin-empty-title { font-size: 13px; }
+.origin-notification-footer { spacing: 8px; padding-top: 8px; }
+.origin-text-button { padding: 6px 9px; border-radius: 9px; background-color: rgba(214, 197, 235, 0.12); font-size: 11px; }
+.origin-text-button:hover, .origin-text-button:focus { background-color: rgba(214, 197, 235, 0.25); }
+.origin-controls .popup-menu-content, .origin-app-context .popup-menu-content {
+    background-color: #17131f; border: 1px solid #826c96; border-radius: 15px; padding: 12px; min-width: 265px;
+}
+.origin-controls .popup-menu-item:active, .origin-app-context .popup-menu-item:active { color: #201725; background-color: #d3b5eb; }
+.slider { -slider-active-background-color: #d3b5eb; -slider-active-border-color: #d3b5eb; }
+#notification, #overview, #expo { font-family: "Adwaita Mono", monospace; }
+.notification, .osd-window, .modal-dialog { background-color: rgba(22, 17, 31, 0.97); border-radius: 17px; border: 1px solid rgba(211, 182, 235, 0.4); color: #f4edf8; }

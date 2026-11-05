@@ -1,0 +1,96 @@
+@import url("resource:///org/gtk/libgtk/theme/Adwaita/gtk-contained-dark.css");
+
+@define-color theme_bg_color #100e15;
+@define-color theme_fg_color #eee7f4;
+@define-color theme_base_color #08090d;
+@define-color theme_text_color #eee7f4;
+@define-color theme_selected_bg_color #d3b5eb;
+@define-color theme_selected_fg_color #211725;
+@define-color borders #342b3e;
+@define-color accent_color #d3b5eb;
+@define-color accent_bg_color #d3b5eb;
+@define-color accent_fg_color #211725;
+
+window { background-color: #100e15; color: #eee7f4; }
+decoration {
+    border: 1px solid rgba(216, 183, 240, 0.85); border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.25); padding: 0;
+}
+decoration:backdrop { border-color: #74627f; box-shadow: 0 4px 12px rgba(0,0,0,0.18); }
+.maximized decoration, .tiled decoration, .fullscreen decoration { border-radius: 0; border-width: 0; box-shadow: none; }
+headerbar, .titlebar {
+    background-image: none; background-color: #08090c; color: #eee7f4;
+    border: none; border-bottom: 1px solid #342b3e; box-shadow: none;
+    padding: 3px 7px; min-height: 28px;
+    border-radius: 11px 11px 0 0; text-shadow: none;
+}
+headerbar:backdrop, .titlebar:backdrop { background-color: #131018; color: #b3a7bd; }
+.maximized headerbar, .maximized .titlebar { border-radius: 0; }
+headerbar .title, .titlebar .title { font-family: "Adwaita Mono", monospace; font-size: 12px; font-weight: normal; }
+button.titlebutton { min-width: 23px; min-height: 24px; padding: 0; margin: 0; border: none; border-radius: 0; box-shadow: none; background-image: none; background-color: #242127; color: #f7f1fb; }
+button.titlebutton.maximize { border-radius: 5px 0 0 5px; }
+button.titlebutton.close { border-radius: 0 5px 5px 0; }
+button.titlebutton:hover { background-color: #39313f; border-color: #63516e; }
+button.titlebutton.close:hover { background-color: #603646; border-color: #c17b94; }
+button.titlebutton.minimize image { -gtk-icon-source: url("assets/minimize.svg"); }
+button.titlebutton.maximize image { -gtk-icon-source: url("assets/maximize.svg"); }
+.maximized button.titlebutton.maximize image { -gtk-icon-source: url("assets/restore.svg"); }
+button.titlebutton.close image { -gtk-icon-source: url("assets/close.svg"); }
+button { background-image: none; background-color: #26212d; border-color: #403548; border-radius: 7px; color: #eee7f4; box-shadow: none; text-shadow: none; }
+button:hover { background-color: #383040; }
+button:checked, button.suggested-action { background-color: #d3b5eb; color: #211725; border-color: #d3b5eb; }
+entry, searchentry { background-color: #211d27; color: #eee7f4; border-color: #514258; border-radius: 8px; box-shadow: none; }
+entry:focus, searchentry:focus { border-color: #d3b5eb; }
+*:selected { background-color: #d3b5eb; color: #211725; }
+menu, .menu, popover, popover.background { background-color: #18121f; color: #f1e9f8; border: 1px solid #746080; border-radius: 9px; }
+menuitem:hover { background-color: #d3b5eb; color: #211725; }
+scrollbar { background-color: transparent; }
+scrollbar slider { min-width: 5px; min-height: 5px; background-color: #a98bbb; border: 2px solid transparent; border-radius: 10px; }
+scale highlight { background-color: #d3b5eb; }
+
+/* Nemo retains its real navigation, tabs, drives and file operations. */
+.nemo-window { font-family: "Adwaita Mono", monospace; font-size: 12px; }
+.nemo-window .sidebar, .nemo-window .sidebar .view, .nemo-window .places-treeview {
+    background-image: linear-gradient(to bottom, #302137, #0a0d18);
+    color: #eee7f4; border: none;
+}
+.nemo-window .sidebar .view:selected, .nemo-window .places-treeview:selected { background-image: none; background-color: #d3b5eb; color: #211725; border-radius: 6px; }
+.nemo-window .view, .nemo-window treeview, .nemo-window .nemo-window-pane { background-color: #07080a; color: #eee7f4; }
+.nemo-window .view:selected { background-color: #d3b5eb; color: #211725; }
+.nemo-window .primary-toolbar, .nemo-window toolbar { background-image: none; background-color: #08090c; border: none; padding: 5px 7px; }
+.nemo-window .primary-toolbar button { border-color: transparent; background-color: transparent; }
+.nemo-window .primary-toolbar button:hover { background-color: #302737; }
+.nemo-window .primary-toolbar entry { background-color: #242127; border-color: #39313f; }
+.nemo-window treeview header button { background-color: #08090c; color: #aaa0b0; border-width: 0 0 1px; border-radius: 0; font-size: 11px; font-weight: normal; }
+.nemo-window treeview.view { -GtkTreeView-vertical-separator: 9; }
+.nemo-window statusbar { background-color: #08090c; color: #aaa0b0; border-top: 1px solid #342b3e; }
+.nemo-window notebook > header { background-color: #08090c; border: none; }
+.nemo-window notebook > header tab { background-color: #17121d; border: 1px solid #33273c; border-radius: 8px 8px 0 0; padding: 4px 20px; }
+.nemo-window notebook > header tab:checked { background-color: #302636; color: #f0e5f8; }
+
+/* The optional native Nemo module places tabs and controls over the file pane. */
+window.origin-files-window { background-color: transparent; }
+.origin-files-window decoration { border: 1px solid #d4b4eb; border-radius: 12px; box-shadow: 0 5px 18px rgba(0,0,0,0.2); }
+.origin-empty-titlebar, .origin-files-window .origin-empty-titlebar { min-height: 0; padding: 0; margin: 0; border: 0; background: none; }
+.origin-file-root { border: 1px solid #d4b4eb; border-radius: 11px; background-color: #07080a; }
+.origin-sidebar-shell { background-image: linear-gradient(to bottom, #332538, #0a0d19); border-radius: 10px 0 0 10px; }
+.origin-sidebar-shell .sidebar, .origin-sidebar-shell .view, .origin-sidebar-shell treeview,
+.nemo-window .origin-sidebar-shell .places-treeview { background-image: none; background-color: transparent; color: #f2eaf7; }
+.origin-sidebar-shell .view:selected { background-color: #d3b5eb; color: #211725; border-radius: 6px; }
+.origin-file-content { background-color: #07080a; border-radius: 0 10px 10px 0; }
+.origin-file-header { min-height: 34px; padding: 4px 8px 2px 4px; background-color: #07080a; border-radius: 0 10px 0 0; }
+.origin-file-header button { background-color: transparent; border: none; box-shadow: none; }
+.origin-file-header button.origin-file-tab { font: 12px monospace; min-height: 25px; padding: 0 12px; background-color: #17151b; border: 1px solid #342c3b; border-radius: 7px; color: #eee7f4; }
+.origin-file-header button.origin-file-tab:checked { background-color: #232126; }
+.origin-file-header button.origin-new-tab { min-width: 28px; padding: 2px; color: #eee7f4; }
+.origin-file-header .origin-window-buttons { border-radius: 5px; background-color: #242127; }
+.origin-file-header button.origin-window-button { min-width: 24px; min-height: 24px; padding: 0; margin: 0; color: #f3eafa; border-radius: 5px; }
+.origin-file-header button.origin-window-button:hover { background-color: #44364e; }
+.origin-file-header button.origin-window-button image { -gtk-icon-effect: none; }
+.origin-toolbar-holder { padding: 2px 8px; background-color: #07080a; }
+.origin-toolbar-holder toolbar, .origin-toolbar-holder .primary-toolbar { padding: 0; background-color: #07080a; }
+.origin-file-pathbar { background-color: #242127; border: none; border-radius: 7px; }
+.origin-file-pathbar button, .origin-toolbar-holder .path-bar button { background-color: transparent; border: none; box-shadow: none; color: #aaa1b2; }
+.origin-file-pathbar button:hover { background-color: #332b3b; }
+.origin-status-holder, .origin-status-holder statusbar { background-color: #07080a; color: #a49aa9; border-top: 1px solid #302837; font: 11px monospace; }
+.origin-file-content treeview header button { background-color: #07080a; color: #aaa1b2; padding: 6px 12px; border: none; border-bottom: 1px solid #302837; font: 11px monospace; }

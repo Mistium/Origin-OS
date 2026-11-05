@@ -1,0 +1,12 @@
+{
+  "display-name": {
+    "type": "entry", "default": "Mist", "description": "Name in the launcher"
+  },
+  "icon-size": {
+    "type": "spinbutton", "default": 34, "min": 24, "max": 44, "step": 2,
+    "description": "Dock icon size"
+  },
+  "show-running": {
+    "type": "switch", "default": true, "description": "Show unpinned running applications"
+  }
+}

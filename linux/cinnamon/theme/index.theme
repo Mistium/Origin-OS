@@ -1,0 +1,10 @@
+[Desktop Entry]
+Type=X-GNOME-Metatheme
+Name=originOS
+Comment=The originOS desktop for Cinnamon
+
+[X-GNOME-Metatheme]
+GtkTheme=originOS
+MetacityTheme=originOS
+IconTheme=Papirus
+CursorTheme=Adwaita
